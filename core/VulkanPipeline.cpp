@@ -3,6 +3,11 @@
 
 namespace Engine
 {
+    VulkanPipeline::VulkanPipeline(std::unique_ptr<VulkanDevice>& device, const FPipelineConfigInfo& configInfo)
+    {
+
+    }
+
     void VulkanPipeline::LoadShader(const std::string& srShaderPath, vk::ShaderStageFlagBits fShaderType)
     {
         auto shader_code = FilesystemHelper::ReadFile(srShaderPath);

@@ -5,6 +5,7 @@ namespace Engine
     class WindowHandle
     {
     public:
+        WindowHandle() = default;
         WindowHandle(int iWidth, int iHeight, const char* srWinName);
         ~WindowHandle();
 
@@ -12,6 +13,8 @@ namespace Engine
         void operator=(const WindowHandle&) = delete;
         WindowHandle(WindowHandle&&) = delete;
         WindowHandle& operator=(WindowHandle&&) = delete;
+
+        void CreateWindowSurface(vk::Instance& instance, vk::SurfaceKHR& surface);
 
         void PollEvents();
         bool ShouldClose();

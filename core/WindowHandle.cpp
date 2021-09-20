@@ -11,6 +11,17 @@ namespace Engine
 
         m_pWindow = glfwCreateWindow(m_iWidth, m_iHeight, srWinName, nullptr, nullptr);
     }
+
+    void WindowHandle::CreateWindowSurface(vk::Instance& instance, vk::SurfaceKHR& surface)
+    {
+        VkSurfaceKHR rawSurface;
+        if (glfwCreateWindowSurface(instance, m_pWindow, nullptr, &rawSurface) != VK_SUCCESS) 
+        {
+            throw std::runtime_error("Failed to create window surface!");
+        }
+
+        surface = rawSurface;
+    }
     
     WindowHandle::~WindowHandle()
     {

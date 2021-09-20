@@ -11,6 +11,14 @@ namespace Engine
         }
     }
 
+    void Application::CreateDevice()
+    {
+        if(!m_pDevice)
+        {
+            m_pDevice = std::unique_ptr<VulkanDevice>(m_pWinHandle);
+        }
+    }
+
 
     void Application::run()
     {

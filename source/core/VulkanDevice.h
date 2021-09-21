@@ -44,6 +44,8 @@ namespace Engine
         vk::MemoryPropertyFlags properties);
 
         vk::ImageView CreateImageView(vk::Image& pImage, uint32_t mip_levels, vk::Format eFormat, vk::ImageAspectFlags aspectFlags);
+
+        vk::UniqueDevice& GetLogical() { return m_pLogicalDevice; }
     
     private:
         void CreateInstance();

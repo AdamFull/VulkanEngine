@@ -14,9 +14,12 @@ const Engine::VulkanPipeline::shader_load_map_t mShaders =
 int main()
 {
     app.CreateWindow(iWidth, iHeight, srAppName);
+
     app.GetInputMapper()->BindAction(Engine::EActionKey::eW, Engine::EKeyState::ePress, [](){ std::cout << "W" << std::endl;});
     app.GetInputMapper()->BindAction(Engine::EActionKey::eW, Engine::EKeyState::ePressed, [](){ });
     app.GetInputMapper()->BindAction(Engine::EActionKey::eW, Engine::EKeyState::eRelease, [](){ std::cout << "oWo" << std::endl;});
-    //app.CreatePipeline(mShaders);
+
+    app.CreateDevice();
+    app.CreatePipeline(mShaders);
     app.run();
 }

@@ -33,6 +33,12 @@ namespace Engine
         glfwSetCursorPosCallback(m_pWindow, &WindowHandle::MousePositionInputCallback);
     }
 
+    void WindowHandle::GetWindowSize(int* width, int* height)
+    {
+        *width = m_iWidth;
+        *height = m_iHeight;
+    }
+
     void WindowHandle::CreateWindowSurface(vk::Instance& instance, vk::SurfaceKHR& surface)
     {
         VkSurfaceKHR rawSurface;

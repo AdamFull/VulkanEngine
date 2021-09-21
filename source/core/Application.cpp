@@ -2,15 +2,6 @@
 
 namespace Engine
 {
-    void Application::CreatePipeline(const VulkanPipeline::shader_load_map_t& shaders)
-    {
-        if(!m_pPipeline)
-        {
-            m_pPipeline = std::unique_ptr<VulkanPipeline>();
-            m_pPipeline->LoadShader(shaders);
-        }
-    }
-
     void Application::CreateDevice()
     {
         if(!m_pDevice)
@@ -19,6 +10,18 @@ namespace Engine
         }
     }
 
+    void Application::CreatePipeline(const VulkanPipeline::shader_load_map_t& shaders)
+    {
+        if(!m_pPipeline)
+        {
+            int width, height;
+            m_pWinHandle->GetWindowSize(&width, &height);
+
+            m_pPipeline = std::make_unique<VulkanPipeline>(m_pDevice);
+            m_pPipeline->LoadShader(shaders);
+            m_pPipeline->CreatePipeline(VulkanPipeline::PipelineDefault(width, height));
+        }
+    }
 
     void Application::run()
     {

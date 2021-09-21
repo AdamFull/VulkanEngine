@@ -14,6 +14,7 @@ namespace Engine
         WindowHandle(WindowHandle&&) = delete;
         WindowHandle& operator=(WindowHandle&&) = delete;
 
+        void GetWindowSize(int* width, int* height);
         void CreateWindowSurface(vk::Instance& instance, vk::SurfaceKHR& surface);
 
         void PollEvents();

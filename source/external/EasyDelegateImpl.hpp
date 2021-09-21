@@ -313,6 +313,9 @@ namespace EasyDelegate
     public:
         __Delegate() = default;
 
+        __Delegate(const __Delegate<_Signature>&) = delete;
+        void operator=(const __Delegate<_Signature>&) = delete;
+
         /**
          * @brief Construct a new delegate object with lambda function or static function.
          * 
@@ -337,21 +340,6 @@ namespace EasyDelegate
         {
             attach(c, m);
         }
-
-        /**
-         * @brief Default copy constructor
-         * 
-         * @param rDelegate 
-         */
-        __Delegate(const __Delegate<_Signature> &rDelegate) = default;
-
-        /**
-         * @brief Default copy assignment operator
-         * 
-         * @param lDelegate 
-         * @return __Delegate<_Signature>& 
-         */
-        __Delegate<_Signature> &operator=(const __Delegate<_Signature> &lDelegate) = default;
 
         /**
          * @brief Default move constructor

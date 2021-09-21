@@ -58,12 +58,14 @@ endif()
 
 include_directories(${CMAKE_CURRENT_SOURCE_DIR}/core)
 
-file(GLOB_RECURSE CPP_FILES_BASE ${CMAKE_CURRENT_SOURCE_DIR}/core/*.cpp)
+file(GLOB_RECURSE CPP_FILES_BASE ${CMAKE_CURRENT_SOURCE_DIR}/source/core/*.cpp)
+file(GLOB_RECURSE CPP_FILES_FS ${CMAKE_CURRENT_SOURCE_DIR}/source/filesystem/*.cpp)
 file(GLOB_RECURSE HPP_FILES ${CMAKE_CURRENT_SOURCE_DIR}/core/*.h)
 
 set(CPP_FILES
 	${CMAKE_CURRENT_SOURCE_DIR}/main.cpp
 	${CPP_FILES_BASE}
+	${CPP_FILES_FS}
 )
 
 find_package(glfw3 REQUIRED)
@@ -74,7 +76,7 @@ add_executable(${PROJECT_NAME} ${CPP_FILES} ${HPP_FILES})
 
 # Link the debug and release libraries to the project
 target_link_libraries( ${PROJECT_NAME} PRIVATE ${VULKAN_LIB_LIST} glfw)
-target_include_directories( ${PROJECT_NAME} PRIVATE ${GLM_INCLUDE_DIRS} ${GLFW_INCLUDE_DIRS})
+target_include_directories( ${PROJECT_NAME} PRIVATE ${GLM_INCLUDE_DIRS} ${GLFW_INCLUDE_DIRS} ${CMAKE_CURRENT_SOURCE_DIR}/source/)
 target_precompile_headers( ${PROJECT_NAME} PUBLIC ${CMAKE_CURRENT_SOURCE_DIR}/common.h)
 
 # Define project properties

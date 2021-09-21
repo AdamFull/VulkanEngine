@@ -1,5 +1,4 @@
 #pragma once
-#include "VulkanDevice.h"
 
 namespace Engine
 {
@@ -16,6 +15,8 @@ namespace Engine
         vk::ShaderStageFlagBits sShaderType;
         std::vector<char> srShaderData;
     };
+
+    class VulkanDevice;
 
     struct FPipelineConfigInfo 
     {

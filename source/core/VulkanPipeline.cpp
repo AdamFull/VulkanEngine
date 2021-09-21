@@ -1,4 +1,5 @@
 #include "VulkanPipeline.h"
+#include "VulkanDevice.h"
 #include "filesystem/FilesystemHelper.h"
 
 namespace Engine

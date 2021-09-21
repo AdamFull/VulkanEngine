@@ -14,6 +14,6 @@ const Engine::VulkanPipeline::shader_load_map_t mShaders =
 int main()
 {
     app.CreateWindow(iWidth, iHeight, srAppName);
-    app.CreatePipeline(mShaders);
+    //app.CreatePipeline(mShaders);
     app.run();
 }

@@ -16,6 +16,8 @@
 #include <glm/gtc/matrix_transform.hpp>
 #include <glm/gtx/hash.hpp>
 
+#include "external/EasyDelegateImpl.hpp"
+
 #include <iostream>
 #include <fstream>
 #include <string>

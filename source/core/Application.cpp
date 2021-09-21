@@ -15,7 +15,7 @@ namespace Engine
     {
         if(!m_pDevice)
         {
-            m_pDevice = std::unique_ptr<VulkanDevice>(m_pWinHandle);
+            m_pDevice = std::make_unique<VulkanDevice>(m_pWinHandle);
         }
     }
 
@@ -28,6 +28,7 @@ namespace Engine
             auto startTime = std::chrono::high_resolution_clock::now();
 
             m_pWinHandle->PollEvents();
+            m_pInputHandle->Update(deltaTime);
 
             auto currentTime = std::chrono::high_resolution_clock::now();
             deltaTime = std::chrono::duration<float, std::chrono::seconds::period>(currentTime - startTime).count();

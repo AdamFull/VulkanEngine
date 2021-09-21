@@ -1,4 +1,5 @@
 #include "VulkanDevice.h"
+#include "WindowHandle.h"
 
 static VKAPI_ATTR VkBool32 VKAPI_CALL ValidationCallback(
     VkDebugUtilsMessageSeverityFlagBitsEXT messageSeverity,

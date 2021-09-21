@@ -39,7 +39,7 @@ namespace Engine
         void KeyBoardInput(int key, int scancode, int action, int mods);
         void MouseInput(double xpos, double ypos);
 
-        FInputAction MakeBindAction(EKeyState eState, EasyDelegate::TDelegate<void()> dCallback);
+        FInputAction MakeBindAction(EKeyState eState, EasyDelegate::TDelegate<void()>&& dCallback);
         FInputAxis MakeBindAxis(EActionKey eKeyFirst, float fFMax, EActionKey eKeySecond, float fSMax);
 
         void HandleActions(const EActionKey& eActionKey, const EKeyState& eKeyState);

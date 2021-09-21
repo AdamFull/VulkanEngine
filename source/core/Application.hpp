@@ -19,6 +19,8 @@ namespace Engine
         void CreateDevice();
 
         void CreatePipeline(const VulkanPipeline::shader_load_map_t& shaders);
+
+        inline std::unique_ptr<InputMapper>& GetInputMapper() { return m_pInputHandle; }
         
         void run();
     private:

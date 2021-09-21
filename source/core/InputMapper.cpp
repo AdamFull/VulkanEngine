@@ -43,12 +43,12 @@ namespace Engine
             {
                 if(range_it->second.eState == eState)
                 {
-                    range_it->second.vListeners.emplace_back(dCallback);
+                    range_it->second.vListeners.emplace_back(std::move(dCallback));
                     return;
                 }
             }
         }
-        m_mInputActions.emplace(eKey, MakeBindAction(eState, dCallback));
+        m_mInputActions.emplace(eKey, MakeBindAction(eState, std::move(dCallback)));
     }
 
     void InputMapper::CreateAxis(std::string srAxisName, EActionKey eKeyFirst, float fFMax, EActionKey eKeySecond, float fSMax)
@@ -64,7 +64,7 @@ namespace Engine
             auto range = m_mInputAxis.equal_range(srAxisName);
             for(auto range_it = range.first; range_it != range.second; ++range_it)
             {
-                range_it->second.dListener = dCallback;
+                range_it->second.dListener = std::move(dCallback);
             }
         }
     }
@@ -83,11 +83,11 @@ namespace Engine
         }
     }
 
-    FInputAction InputMapper::MakeBindAction(EKeyState eState, EasyDelegate::TDelegate<void()> dCallback)
+    FInputAction InputMapper::MakeBindAction(EKeyState eState, EasyDelegate::TDelegate<void()>&& dCallback)
     {
         FInputAction newAction;
         newAction.eState = eState;
-        newAction.vListeners.emplace_back(dCallback);
+        newAction.vListeners.emplace_back(std::move(dCallback));
         return newAction;
     }
 

@@ -50,6 +50,6 @@ namespace Engine
         std::vector<FShaderCache> m_vShaderCache;
         std::vector<vk::PipelineShaderStageCreateInfo> m_vShaderBuffer;
         vk::Pipeline m_GraphicsPipeline;
-        vk::Device m_Device;
+        VulkanDevice& m_Device;
     };
 }

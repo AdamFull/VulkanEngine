@@ -6,7 +6,7 @@ namespace Engine
 {
     VulkanPipeline::VulkanPipeline(std::unique_ptr<VulkanDevice>& device)
     {
-        m_Device = device->GetLogical().get();
+        m_Device = device.get();
     }
 
     void VulkanPipeline::CreatePipeline(const FPipelineConfigInfo& configInfo)
@@ -40,7 +40,7 @@ namespace Engine
 
         try
         {
-            m_GraphicsPipeline = m_Device.createGraphicsPipeline(nullptr, pipelineInfo).value;
+            m_GraphicsPipeline = m_Device.GetLogical()->createGraphicsPipeline(nullptr, pipelineInfo).value;
         }
         catch (vk::SystemError err)
         {
@@ -48,7 +48,7 @@ namespace Engine
         }
 
         for(auto& shader : m_vShaderBuffer)
-            m_Device.destroyShaderModule(shader.module);
+            m_Device.GetLogical()->destroyShaderModule(shader.module);
         
         m_vShaderBuffer.clear();
     }
@@ -144,7 +144,7 @@ namespace Engine
 
         try
         {
-            shaderModule = m_Device.createShaderModule
+            shaderModule = m_Device.GetLogical()->createShaderModule
             (
                 {
                     vk::ShaderModuleCreateFlags(),

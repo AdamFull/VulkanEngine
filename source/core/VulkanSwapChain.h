@@ -15,22 +15,21 @@ namespace Engine
         VulkanSwapChain(const VulkanSwapChain&) = delete;
         void operator=(const VulkanSwapChain&) = delete;
 
-        vk::Framebuffer& GetFrameBuffer(int index) { return m_vSwapChainFramebuffers[index]; }
-        vk::RenderPass& GetRenderPass() { return m_RenderPass; }
-        vk::ImageView& GetImageView(int index) { return m_vSwapChainImages[index].view; }
-        size_t GetImageCount() { return m_vSwapChainImages.size(); }
-        vk::Format GetSwapChainImageFormat() { return m_SwapChainImageFormat; }
-        vk::Extent2D GetSwapChainExtent() { return m_SwapChainExtent; }
-        uint32_t GetWidth() { return m_SwapChainExtent.width; }
-        uint32_t GetHeight() { return m_SwapChainExtent.height; }
+        vk::Framebuffer& GetFrameBuffer(int index);
+        vk::RenderPass& GetRenderPass();
+        vk::ImageView& GetImageView(int index);
+        size_t GetImageCount();
+        vk::Format GetSwapChainImageFormat();
+        vk::Extent2D GetSwapChainExtent();
+        uint32_t GetWidth();
+        uint32_t GetHeight();
 
-        float extentAspectRatio() {
-            return static_cast<float>(swapChainExtent.width) / static_cast<float>(swapChainExtent.height);
-        }
-        VkFormat findDepthFormat();
+        float GetExtentAspectRatio();
 
-        VkResult acquireNextImage(uint32_t *imageIndex);
-        VkResult submitCommandBuffers(const VkCommandBuffer *buffers, uint32_t *imageIndex);
+        vk::Format FindDepthFormat();
+
+        vk::Result AcquireNextImage(uint32_t *imageIndex);
+        vk::Result SubmitCommandBuffers(const VkCommandBuffer *buffers, uint32_t *imageIndex);
     private:
         void CreateSwapChain();
         void CreateImageViews();

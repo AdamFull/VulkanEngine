@@ -1,5 +1,6 @@
 #include "InputMapper.h"
 #include "WindowHandle.h"
+#include "EngineMath.hpp"
 
 namespace Engine
 {
@@ -24,13 +25,10 @@ namespace Engine
         }
     }
 
-    void InputMapper::MouseInput(double xpos, double ypos)
+    void InputMapper::MouseInput(double xpos, double ypos, double xmax, double ymax)
     {
-        float fMouseX = xpos/100.f;
-        float fMouseY = ypos/100.f;
-
-        m_mAxisStates[EActionKey::eMouseX] = fMouseX;
-        m_mAxisStates[EActionKey::eMouseY] = fMouseY;
+        m_mAxisStates[EActionKey::eMouseX] = Math::RangeToRange(xpos, 0.0, xmax, -1.0, 1.0);
+        m_mAxisStates[EActionKey::eMouseY] = Math::RangeToRange(ypos, 0.0, ymax, -1.0, 1.0);
     }
 
     void InputMapper::BindAction(EActionKey eKey, EKeyState eState, EasyDelegate::TDelegate<void()>&& dCallback)
@@ -51,22 +49,18 @@ namespace Engine
         m_mInputActions.emplace(eKey, MakeBindAction(eState, std::move(dCallback)));
     }
 
-    void InputMapper::CreateAxis(std::string srAxisName, EActionKey eKeyFirst, float fFMax, EActionKey eKeySecond, float fSMax)
+    void InputMapper::BindAxis(EActionKey eActionKey, EasyDelegate::TDelegate<void(float)>&& dCallback)
     {
-        m_mInputAxis.emplace(srAxisName, MakeBindAxis(eKeyFirst, fFMax, eKeySecond, fSMax));
-    }
-
-    void InputMapper::BindAxis(std::string srAxisName, EasyDelegate::TDelegate<void(float)>&& dCallback)
-    {
-        auto it = m_mInputAxis.find(srAxisName);
+        auto it = m_mInputAxis.find(eActionKey);
         if(it != m_mInputAxis.end())
         {
-            auto range = m_mInputAxis.equal_range(srAxisName);
+            auto range = m_mInputAxis.equal_range(eActionKey);
             for(auto range_it = range.first; range_it != range.second; ++range_it)
             {
-                range_it->second.dListener = std::move(dCallback);
+                range_it->second.vListeners.emplace_back(std::move(dCallback));
             }
         }
+        m_mInputActions.emplace(eActionKey, MakeBindAxis(std::move(dCallback)));
     }
 
     void InputMapper::Update(float fDeltaTime)
@@ -91,11 +85,10 @@ namespace Engine
         return newAction;
     }
 
-    FInputAxis InputMapper::MakeBindAxis(EActionKey eKeyFirst, float fFMax, EActionKey eKeySecond, float fSMax)
+    FInputAxis InputMapper::MakeBindAxis(EasyDelegate::TDelegate<void(float)>&& dCallback)
     {
         FInputAxis newAxis;
-        newAxis.pAxisFirst = std::make_pair(eKeyFirst, fFMax);
-        newAxis.pAxisSecond = std::make_pair(eKeySecond, fSMax);
+        newAxis.vListeners.emplace_back(std::move(dCallback));
         return newAxis;
     }
 
@@ -121,27 +114,21 @@ namespace Engine
 
     void InputMapper::HandleAxis(const EActionKey& eActionKey, const EKeyState& eKeyState)
     {
-        for(auto it = m_mInputAxis.begin(); it != m_mInputAxis.end(); ++it)
+        auto axisIt = m_mAxisStates.find(eActionKey);
+        if(axisIt != m_mAxisStates.end())
         {
-            auto range = m_mInputAxis.equal_range(it->first);
-            for(auto range_it = range.first; range_it != range.second; ++range_it)
+            auto it = m_mInputAxis.find(eActionKey);
+            if(it != m_mInputAxis.end())
             {
-                auto axisIt = m_mAxisStates.find(eActionKey);
-                if(axisIt != m_mAxisStates.end())
+                auto range = m_mInputAxis.equal_range(eActionKey);
+                for(auto range_it = range.first; range_it != range.second; ++range_it)
                 {
-                    float fAxis = axisIt->second;
-                    if(range_it->second.pAxisFirst.first == eActionKey)
+                    auto& vListeners = range_it->second.vListeners;
+                    for(auto& listener : vListeners)
                     {
-                        float outval = fAxis * range_it->second.pAxisFirst.second;             //Get axis range and clamp betwen 0.0 and fMax
-                        range_it->second.dListener(outval);
-                    }
-                    else if(range_it->second.pAxisSecond.first == eActionKey)
-                    {
-                        float outval = fAxis * range_it->second.pAxisSecond.second;             //Get axis range and clamp betwen 0.0 and fMax
-                        range_it->second.dListener(outval);
+                        listener(axisIt);
                     }
                 }
-                return;
             }
         }
     }

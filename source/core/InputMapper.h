@@ -21,10 +21,7 @@ namespace Engine
 
     struct FInputAxis
     {
-        std::pair<EActionKey, float> pAxisFirst;
-        std::pair<EActionKey, float> pAxisSecond;
-
-        EasyDelegate::TDelegate<void(float)> dListener;
+        std::vector<EasyDelegate::TDelegate<void(float)>> vListeners;
     };
 
     class InputMapper
@@ -32,21 +29,20 @@ namespace Engine
     public:
         InputMapper(std::unique_ptr<WindowHandle>& winHandle);
         void BindAction(EActionKey eKey, EKeyState eState, EasyDelegate::TDelegate<void()>&& dCallback);
-        void CreateAxis(std::string srAxisName, EActionKey eKeyFirst, float fFMax, EActionKey eKeySecond, float fSMax);
-        void BindAxis(std::string srAxisName, EasyDelegate::TDelegate<void(float)>&& dCallback);
+        void BindAxis(EActionKey eActionKey, EasyDelegate::TDelegate<void(float)>&& dCallback);
         void Update(float fDeltaTime);
     private:
         void KeyBoardInput(int key, int scancode, int action, int mods);
-        void MouseInput(double xpos, double ypos);
+        void MouseInput(double xpos, double ypos, double xmax, double ymax);
 
         FInputAction MakeBindAction(EKeyState eState, EasyDelegate::TDelegate<void()>&& dCallback);
-        FInputAxis MakeBindAxis(EActionKey eKeyFirst, float fFMax, EActionKey eKeySecond, float fSMax);
+        FInputAxis MakeBindAxis(EasyDelegate::TDelegate<void(float)>&& dCallback);
 
         void HandleActions(const EActionKey& eActionKey, const EKeyState& eKeyState);
         void HandleAxis(const EActionKey& eActionKey, const EKeyState& eKeyState);
 
         std::multimap<EActionKey, FInputAction> m_mInputActions;
-        std::multimap<std::string, FInputAxis> m_mInputAxis;
+        std::multimap<EActionKey, FInputAxis> m_mInputAxis;
 
         std::map<EActionKey, EKeyState> m_mKeyStates;
         std::map<EActionKey, float> m_mAxisStates;

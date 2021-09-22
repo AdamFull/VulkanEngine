@@ -46,6 +46,64 @@ namespace Engine
         }
     }
 
+    vk::Framebuffer& VulkanSwapChain::GetFrameBuffer(int index) 
+    { 
+        return m_vSwapChainFramebuffers[index];
+    }
+
+    vk::RenderPass& VulkanSwapChain::GetRenderPass() 
+    { 
+        return m_RenderPass;
+    }
+
+    vk::ImageView& VulkanSwapChain::GetImageView(int index) 
+    { 
+        return m_vSwapChainImages[index].view;
+    }
+
+    size_t VulkanSwapChain::GetImageCount() 
+    { 
+        return m_vSwapChainImages.size();
+    }
+
+    vk::Format VulkanSwapChain::GetSwapChainImageFormat() 
+    { 
+        return m_SwapChainImageFormat;
+    }
+
+    vk::Extent2D VulkanSwapChain::GetSwapChainExtent() 
+    { 
+        return m_SwapChainExtent;
+    }
+
+    uint32_t VulkanSwapChain::GetWidth() 
+    { 
+        return m_SwapChainExtent.width;
+    }
+
+    uint32_t VulkanSwapChain::GetHeight() 
+    { 
+        return m_SwapChainExtent.height;
+    }
+
+    float VulkanSwapChain::GetExtentAspectRatio() 
+    {
+        return static_cast<float>(m_SwapChainExtent.width) / static_cast<float>(m_SwapChainExtent.height);
+    }
+
+     vk::Format VulkanSwapChain::FindDepthFormat()
+     {
+
+     }
+
+     vk::Result VulkanSwapChain::AcquireNextImage(uint32_t *imageIndex)
+     {
+     }
+
+     vk::Result VulkanSwapChain::SubmitCommandBuffers(const VkCommandBuffer *buffers, uint32_t *imageIndex)
+     {
+     }
+
     void VulkanSwapChain::CreateSwapChain()
     {
 

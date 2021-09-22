@@ -1,39 +1,20 @@
 #pragma once
+#include "VulkanMainStructures.h"
 
-namespace Engine
+namespace Engine::Window
 {
-    class WindowHandle
-    {
-    public:
-        WindowHandle() = default;
-        WindowHandle(int iWidth, int iHeight, const char* srWinName);
-        ~WindowHandle();
+    void Initialize(Main::FVulkanRenderInstance &renderInstance, int width, int height, const char *srWinName);
+    void Destroy(Main::FVulkanRenderInstance &renderInstance);
 
-        WindowHandle(const WindowHandle&) = delete;
-        void operator=(const WindowHandle&) = delete;
-        WindowHandle(WindowHandle&&) = delete;
-        WindowHandle& operator=(WindowHandle&&) = delete;
+    void CreateWindowSurface(Main::FVulkanRenderInstance &renderInstance);
 
-        void GetWindowSize(int* width, int* height);
-        void CreateWindowSurface(vk::Instance& instance, vk::SurfaceKHR& surface);
+    void PollEvents();
+    bool ShouldClose(Main::FVulkanRenderInstance &renderInstance);
+    bool WasResized(Main::FVulkanRenderInstance &renderInstance);
 
-        void PollEvents();
-        bool ShouldClose();
-        bool WasResized();
+    void FramebufferResizeCallback(GLFWwindow *window, int width, int height);
+    void KeyBoardInputCallback(GLFWwindow *window, int key, int scancode, int action, int mods);
+    void MousePositionInputCallback(GLFWwindow *window, double xpos, double ypos);
 
-        static EasyDelegate::TDelegate<void(int, int, int, int)> KeyCodeCallback;
-        static EasyDelegate::TDelegate<void(double, double)> MousePositionCallback;
-    private:
-        static void FramebufferResizeCallback(GLFWwindow* window, int width, int height);
-        static void KeyBoardInputCallback(GLFWwindow* window, int key, int scancode, int action, int mods);
-        static void MousePositionInputCallback(GLFWwindow* window, double xpos, double ypos);
-
-        void ResizeWindow(int width, int height);
-
-        static int m_iWidth, m_iHeight;
-        bool m_bWasResized{false};
-        std::string m_srWinName;
-        GLFWwindow* m_pWindow;
-    };
-    
+    void ResizeWindow(Main::FVulkanRenderInstance &renderInstance, int width, int height);
 }

@@ -2,60 +2,11 @@
 #include "VulkanDevice.h"
 #include "filesystem/FilesystemHelper.h"
 
-namespace Engine
+namespace Engine::Pipeline
 {
-    VulkanPipeline::VulkanPipeline(std::unique_ptr<VulkanDevice>& device)
+    Main::FPipelineConfigInfo VulkanPipeline::PipelineDefault(uint32_t width, uint32_t height)
     {
-        m_Device = device.get();
-    }
-
-    void VulkanPipeline::CreatePipeline(const FPipelineConfigInfo& configInfo)
-    {
-        assert(configInfo.pipelineLayout && "Cannot create graphics pipeline: no pipelineLayout provided in config info");
-        assert(configInfo.renderPass && "Cannot create graphics pipeline: no renderPass provided in config info");
-
-        vk::PipelineVertexInputStateCreateInfo vertexInputInfo = {};
-        vertexInputInfo.vertexBindingDescriptionCount = 0;
-        vertexInputInfo.vertexAttributeDescriptionCount = 0;
-        vertexInputInfo.vertexBindingDescriptionCount = 0;
-        vertexInputInfo.pVertexBindingDescriptions = nullptr;
-        vertexInputInfo.pVertexAttributeDescriptions = nullptr;
-
-        vk::GraphicsPipelineCreateInfo pipelineInfo = {};
-        pipelineInfo.stageCount = m_vShaderBuffer.size();
-        pipelineInfo.pStages = m_vShaderBuffer.data();
-        pipelineInfo.pVertexInputState = &vertexInputInfo;
-        pipelineInfo.pInputAssemblyState = &configInfo.inputAssemblyInfo;
-        pipelineInfo.pViewportState = &configInfo.viewportInfo;
-        pipelineInfo.pRasterizationState = &configInfo.rasterizationInfo;
-        pipelineInfo.pMultisampleState = &configInfo.multisampleInfo;
-        pipelineInfo.pColorBlendState = &configInfo.colorBlendInfo;
-        pipelineInfo.pDepthStencilState = &configInfo.depthStencilInfo;
-        pipelineInfo.pDynamicState = nullptr;
-        pipelineInfo.layout = configInfo.pipelineLayout;
-        pipelineInfo.renderPass = configInfo.renderPass;
-        pipelineInfo.subpass = configInfo.subpass;
-        pipelineInfo.basePipelineHandle = nullptr;
-        pipelineInfo.basePipelineIndex = -1;
-
-        try
-        {
-            m_GraphicsPipeline = m_Device.GetLogical()->createGraphicsPipeline(nullptr, pipelineInfo).value;
-        }
-        catch (vk::SystemError err)
-        {
-            throw std::runtime_error("Failed to create graphics pipeline!");
-        }
-
-        for(auto& shader : m_vShaderBuffer)
-            m_Device.GetLogical()->destroyShaderModule(shader.module);
-        
-        m_vShaderBuffer.clear();
-    }
-
-    FPipelineConfigInfo VulkanPipeline::PipelineDefault(uint32_t width, uint32_t height)
-    {
-        FPipelineConfigInfo configInfo{};
+        Main::FPipelineConfigInfo configInfo{};
         configInfo.inputAssemblyInfo.topology = vk::PrimitiveTopology::eTriangleList;
         configInfo.inputAssemblyInfo.primitiveRestartEnable = VK_FALSE;
 
@@ -123,14 +74,14 @@ namespace Engine
         return configInfo;
     }
 
-    void VulkanPipeline::LoadShader(const std::string& srShaderPath, vk::ShaderStageFlagBits fShaderType)
+    void LoadShader(const std::string& srShaderPath, vk::ShaderStageFlagBits fShaderType)
     {
         auto shader_code = FilesystemHelper::ReadFile(srShaderPath);
-        m_vShaderCache.emplace_back(FShaderCache{ fShaderType, shader_code});
+        m_vShaderCache.emplace_back(Main::FShaderCache{ fShaderType, shader_code});
         LoadShader(shader_code, fShaderType);
     }
 
-    void VulkanPipeline::LoadShader(const shader_load_map_t& mShaders)
+    void LoadShader(const shader_load_map_t& mShaders)
     {
         for(auto& [key, value]: mShaders)
         {
@@ -138,7 +89,7 @@ namespace Engine
         }
     }
 
-    void VulkanPipeline::LoadShader(const std::vector<char>& vShaderCode, vk::ShaderStageFlagBits fShaderType) 
+    void LoadShader(const std::vector<char>& vShaderCode, vk::ShaderStageFlagBits fShaderType) 
     {
         vk::ShaderModule shaderModule;
 
@@ -167,7 +118,7 @@ namespace Engine
         );
     }
 
-    void VulkanPipeline::RecreateShaders()
+    void RecreateShaders()
     {
         m_vShaderBuffer.clear();
 

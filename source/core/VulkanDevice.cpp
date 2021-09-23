@@ -1,65 +1,56 @@
 #include "VulkanDevice.h"
 #include "WindowHandle.h"
 
-static VKAPI_ATTR VkBool32 VKAPI_CALL ValidationCallback(
-    VkDebugUtilsMessageSeverityFlagBitsEXT messageSeverity,
-    VkDebugUtilsMessageTypeFlagsEXT messageType,
-    const VkDebugUtilsMessengerCallbackDataEXT *pCallbackData,
-    void *pUserData)
-{
-    std::cerr << "validation layer: " << pCallbackData->pMessage << std::endl;
-
-    return VK_FALSE;
-}
-
-VkResult CreateDebugUtilsMessengerEXT(
-    VkInstance instance,
-    const VkDebugUtilsMessengerCreateInfoEXT *pCreateInfo,
-    const VkAllocationCallbacks *pAllocator,
-    VkDebugUtilsMessengerEXT *pDebugMessenger)
-{
-    auto func = (PFN_vkCreateDebugUtilsMessengerEXT)vkGetInstanceProcAddr(
-        instance,
-        "vkCreateDebugUtilsMessengerEXT");
-    if (func != nullptr)
-    {
-        return func(instance, pCreateInfo, pAllocator, pDebugMessenger);
-    }
-    else
-    {
-        return VK_ERROR_EXTENSION_NOT_PRESENT;
-    }
-}
-
-void DestroyDebugUtilsMessengerEXT(
-    VkInstance instance,
-    VkDebugUtilsMessengerEXT debugMessenger,
-    const VkAllocationCallbacks *pAllocator)
-{
-    auto func = (PFN_vkDestroyDebugUtilsMessengerEXT)vkGetInstanceProcAddr(
-        instance,
-        "vkDestroyDebugUtilsMessengerEXT");
-    if (func != nullptr)
-    {
-        func(instance, debugMessenger, pAllocator);
-    }
-}
-
 namespace Engine::Device
 {
+    vk::PhysicalDevice GetPhysicalDevice(Main::FVulkanEngine& engine)
+    {
+        engine.device.physical = engine.device.vkInstance->enumeratePhysicalDevices().front();
+        if(engine.device.physical && IsDeviceSuitable(engine))
+        {
+            return engine.device.physical;
+        }
+        return nullptr;
+    }
+
+    std::vector<vk::PhysicalDevice> GetAvaliablePhysicalDevices(Main::FVulkanEngine& engine)
+    {
+        auto devices = engine.device.vkInstance->enumeratePhysicalDevices();
+        std::vector<vk::PhysicalDevice> output_devices;
+        if (devices.size() == 0)
+        {
+            throw std::runtime_error("Failed to find GPUs with Vulkan support!");
+        }
+
+        for (const auto &device : devices)
+        {
+            engine.device.physical = device;
+            if (IsDeviceSuitable(engine))
+            {
+                output_devices.emplace_back(device);
+            }
+        }
+
+        if (output_devices.size() == 0)
+        {
+            throw std::runtime_error("Failed to find a suitable GPU!");
+        }
+        return output_devices;
+    }
+
     SwapChainSupportDetails QuerySwapChainSupport(Main::FVulkanEngine& engine)
     {
         SwapChainSupportDetails details;
-        details.capabilities = engine.physicalDevice.getSurfaceCapabilitiesKHR(engine.surface);
-        details.formats = engine.physicalDevice.getSurfaceFormatsKHR(engine.surface);
-        details.presentModes = engine.physicalDevice.getSurfacePresentModesKHR(engine.surface);
+        details.capabilities = engine.device.physical.getSurfaceCapabilitiesKHR(engine.device.surface);
+        details.formats = engine.device.physical.getSurfaceFormatsKHR(engine.device.surface);
+        details.presentModes = engine.device.physical.getSurfacePresentModesKHR(engine.device.surface);
 
         return details;
     }
 
     uint32_t FindMemoryType(Main::FVulkanEngine& engine, uint32_t typeFilter, vk::MemoryPropertyFlags properties)
     {
-        vk::PhysicalDeviceMemoryProperties memProperties = engine.physicalDevice.getMemoryProperties();
+        vk::PhysicalDeviceMemoryProperties memProperties = engine.device.physical.getMemoryProperties();
 
         for (uint32_t i = 0; i < memProperties.memoryTypeCount; i++)
         {
@@ -76,7 +67,7 @@ namespace Engine::Device
     {
         QueueFamilyIndices indices;
 
-        auto queueFamilies = engine.physicalDevice.getQueueFamilyProperties();
+        auto queueFamilies = engine.device.physical.getQueueFamilyProperties();
 
         int i = 0;
         for (const auto &queueFamily : queueFamilies)
@@ -86,7 +77,7 @@ namespace Engine::Device
                 indices.graphicsFamily = i;
             }
 
-            if (queueFamily.queueCount > 0 && engine.physicalDevice.getSurfaceSupportKHR(i, engine.surface))
+            if (queueFamily.queueCount > 0 && engine.device.physical.getSurfaceSupportKHR(i, engine.device.surface))
             {
                 indices.presentFamily = i;
             }
@@ -107,7 +98,7 @@ namespace Engine::Device
         for (vk::Format format : candidates)
         {
             vk::FormatProperties props;
-            engine.physicalDevice.getFormatProperties(format, &props);
+            engine.device.physical.getFormatProperties(format, &props);
 
             if (tiling == vk::ImageTiling::eLinear && (props.linearTilingFeatures & features) == features)
             {
@@ -133,14 +124,14 @@ namespace Engine::Device
 
         try
         {
-            buffer = engine.logicalDevice->createBuffer(bufferInfo);
+            buffer = engine.device.logical->createBuffer(bufferInfo);
         }
         catch (vk::SystemError err)
         {
             throw std::runtime_error("Failed to create buffer!");
         }
 
-        vk::MemoryRequirements memRequirements = engine.logicalDevice->getBufferMemoryRequirements(buffer);
+        vk::MemoryRequirements memRequirements = engine.device.logical->getBufferMemoryRequirements(buffer);
 
         vk::MemoryAllocateInfo allocInfo = {};
         allocInfo.allocationSize = memRequirements.size;
@@ -148,14 +139,14 @@ namespace Engine::Device
 
         try
         {
-            bufferMemory = engine.logicalDevice->allocateMemory(allocInfo);
+            bufferMemory = engine.device.logical->allocateMemory(allocInfo);
         }
         catch (vk::SystemError err)
         {
             throw std::runtime_error("Failed to allocate buffer memory!");
         }
 
-        engine.logicalDevice->bindBufferMemory(buffer, bufferMemory, 0);
+        engine.device.logical->bindBufferMemory(buffer, bufferMemory, 0);
     }
     
     std::vector<vk::CommandBuffer, std::allocator<vk::CommandBuffer>>
@@ -167,12 +158,12 @@ namespace Engine::Device
         allocInfo.commandBufferCount = count;
 
         //TODO: Handle error
-        return engine.logicalDevice->allocateCommandBuffers(allocInfo);
+        return engine.device.logical->allocateCommandBuffers(allocInfo);
     }
     
     vk::CommandBuffer BeginSingleTimeCommands(Main::FVulkanEngine& engine)
     {
-        vk::CommandBuffer commandBuffer = CreateCommandBuffer(engine, vk::CommandBufferLevel::ePrimary, engine.commandPool, 1)[0];
+        vk::CommandBuffer commandBuffer = CreateCommandBuffer(engine, vk::CommandBufferLevel::ePrimary, engine.device.commandPool, 1)[0];
 
         vk::CommandBufferBeginInfo beginInfo{};
         beginInfo.flags = vk::CommandBufferUsageFlagBits::eOneTimeSubmit;
@@ -191,10 +182,10 @@ namespace Engine::Device
         submitInfo.commandBufferCount = 1;
         submitInfo.pCommandBuffers = &commandBuffer;
 
-        engine.graphicsQueue.submit(submitInfo, nullptr);
-        engine.graphicsQueue.waitIdle();
+        engine.device.graphicsQueue.submit(submitInfo, nullptr);
+        engine.device.graphicsQueue.waitIdle();
 
-        engine.logicalDevice->freeCommandBuffers(engine.commandPool, commandBuffer);
+        engine.device.logical->freeCommandBuffers(engine.device.commandPool, commandBuffer);
     }
     
     void CopyOnDeviceBuffer(Main::FVulkanEngine& engine, vk::Buffer &srcBuffer, vk::Buffer &dstBuffer, vk::DeviceSize size)
@@ -229,17 +220,17 @@ namespace Engine::Device
         imageInfo.samples = num_samples;
 
         //TODO: Check valid
-        image = engine.logicalDevice->createImage(imageInfo, nullptr);
+        image = engine.device.logical->createImage(imageInfo, nullptr);
 
         vk::MemoryRequirements memReq{};
-        engine.logicalDevice->getImageMemoryRequirements(image, &memReq);
+        engine.device.logical->getImageMemoryRequirements(image, &memReq);
 
         vk::MemoryAllocateInfo allocInfo{};
         allocInfo.allocationSize = memReq.size;
         allocInfo.memoryTypeIndex = FindMemoryType(engine, memReq.memoryTypeBits, properties);
 
-        memory = engine.logicalDevice->allocateMemory(allocInfo);
-        engine.logicalDevice->bindImageMemory(image, memory, 0);
+        memory = engine.device.logical->allocateMemory(allocInfo);
+        engine.device.logical->bindImageMemory(image, memory, 0);
     }
 
     void TransitionImageLayout(Main::FVulkanEngine& engine, vk::Image& image, uint32_t mip_levels, vk::ImageAspectFlags aspectFlags, vk::ImageLayout oldLayout, vk::ImageLayout newLayout)
@@ -340,7 +331,7 @@ namespace Engine::Device
 
         vk::ImageView imageView;
         //TODO: Handle result
-        auto result = engine.logicalDevice->createImageView(&viewInfo, nullptr, &imageView);
+        auto result = engine.device.logical->createImageView(&viewInfo, nullptr, &imageView);
 
         return imageView;
     }
@@ -348,7 +339,7 @@ namespace Engine::Device
     void GenerateMipmaps(Main::FVulkanEngine& engine, vk::Image &image, uint32_t mipLevels, vk::Format format, uint32_t width, uint32_t height, vk::ImageAspectFlags aspectFlags)
     {
         vk::FormatProperties formatProperties;
-        engine.physicalDevice.getFormatProperties(format, &formatProperties);
+        engine.device.physical.getFormatProperties(format, &formatProperties);
 
         if (!(formatProperties.optimalTilingFeatures & vk::FormatFeatureFlagBits::eSampledImageFilterLinear)) 
         {
@@ -446,7 +437,7 @@ namespace Engine::Device
         samplerInfo.addressModeW = vk::SamplerAddressMode::eRepeat;
 
         vk::PhysicalDeviceProperties properties{};
-        properties = engine.physicalDevice.getProperties();
+        properties = engine.device.physical.getProperties();
 
         samplerInfo.anisotropyEnable = VK_TRUE;
         samplerInfo.maxAnisotropy = properties.limits.maxSamplerAnisotropy;
@@ -461,7 +452,23 @@ namespace Engine::Device
         samplerInfo.maxLod = static_cast<float>(mip_levels);
 
         //TODO: Result handle
-        auto result = engine.logicalDevice->createSampler(&samplerInfo, nullptr, &sampler);
+        auto result = engine.device.logical->createSampler(&samplerInfo, nullptr, &sampler);
+    }
+
+    vk::SampleCountFlagBits GetMaxUsableSampleCount(Main::FVulkanEngine& engine)
+    {
+        vk::PhysicalDeviceProperties physicalDeviceProperties;
+        engine.device.physical.getProperties(&physicalDeviceProperties);
+
+        vk::SampleCountFlags counts = physicalDeviceProperties.limits.framebufferColorSampleCounts & physicalDeviceProperties.limits.framebufferDepthSampleCounts;
+        if (counts & vk::SampleCountFlagBits::e64) { return vk::SampleCountFlagBits::e64; }
+        if (counts & vk::SampleCountFlagBits::e32) { return vk::SampleCountFlagBits::e32; }
+        if (counts & vk::SampleCountFlagBits::e16) { return vk::SampleCountFlagBits::e16; }
+        if (counts & vk::SampleCountFlagBits::e8 ) { return vk::SampleCountFlagBits::e8 ; }
+        if (counts & vk::SampleCountFlagBits::e4 ) { return vk::SampleCountFlagBits::e4 ; }
+        if (counts & vk::SampleCountFlagBits::e2 ) { return vk::SampleCountFlagBits::e2 ; }
+
+        return vk::SampleCountFlagBits::e1;
     }
     
     // helper functions
@@ -479,7 +486,7 @@ namespace Engine::Device
         }
 
         vk::PhysicalDeviceFeatures supportedFeatures{};
-        supportedFeatures = engine.physicalDevice.getFeatures();
+        supportedFeatures = engine.device.physical.getFeatures();
 
         return indices.isComplete() && extensionsSupported && swapChainAdequate && supportedFeatures.samplerAnisotropy && supportedFeatures.sampleRateShading;
     }
@@ -537,7 +544,7 @@ namespace Engine::Device
     {
         std::set<std::string> sRequiredExtensions(vDeviceExtensions.begin(), vDeviceExtensions.end());
 
-        for (const auto &extension : engine.physicalDevice.enumerateDeviceExtensionProperties())
+        for (const auto &extension : engine.device.physical.enumerateDeviceExtensionProperties())
         {
             sRequiredExtensions.erase(extension.extensionName);
         }

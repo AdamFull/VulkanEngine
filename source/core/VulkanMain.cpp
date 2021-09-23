@@ -1,7 +1,52 @@
 #include "VulkanMain.h"
 #include "WindowHandle.h"
 #include "VulkanDevice.h"
+#include "VulkanSwapChain.h"
 #include "DataTypes/VulkanVertex.h"
+
+static VKAPI_ATTR VkBool32 VKAPI_CALL ValidationCallback(
+    VkDebugUtilsMessageSeverityFlagBitsEXT messageSeverity,
+    VkDebugUtilsMessageTypeFlagsEXT messageType,
+    const VkDebugUtilsMessengerCallbackDataEXT *pCallbackData,
+    void *pUserData)
+{
+    std::cerr << "validation layer: " << pCallbackData->pMessage << std::endl;
+
+    return VK_FALSE;
+}
+
+VkResult CreateDebugUtilsMessengerEXT(
+    VkInstance instance,
+    const VkDebugUtilsMessengerCreateInfoEXT *pCreateInfo,
+    const VkAllocationCallbacks *pAllocator,
+    VkDebugUtilsMessengerEXT *pDebugMessenger)
+{
+    auto func = (PFN_vkCreateDebugUtilsMessengerEXT)vkGetInstanceProcAddr(
+        instance,
+        "vkCreateDebugUtilsMessengerEXT");
+    if (func != nullptr)
+    {
+        return func(instance, pCreateInfo, pAllocator, pDebugMessenger);
+    }
+    else
+    {
+        return VK_ERROR_EXTENSION_NOT_PRESENT;
+    }
+}
+
+void DestroyDebugUtilsMessengerEXT(
+    VkInstance instance,
+    VkDebugUtilsMessengerEXT debugMessenger,
+    const VkAllocationCallbacks *pAllocator)
+{
+    auto func = (PFN_vkDestroyDebugUtilsMessengerEXT)vkGetInstanceProcAddr(
+        instance,
+        "vkDestroyDebugUtilsMessengerEXT");
+    if (func != nullptr)
+    {
+        func(instance, debugMessenger, pAllocator);
+    }
+}
 
 namespace Engine::Main
 {
@@ -20,7 +65,7 @@ namespace Engine::Main
 
         vk::ApplicationInfo appInfo{};
         appInfo.pApplicationName = "Vulkan";
-        appInfo.applicationVersion VK_MAKE_VERSION(1, 0, 0);
+        appInfo.applicationVersion = VK_MAKE_VERSION(1, 0, 0);
         appInfo.pEngineName = "No engine";
         appInfo.engineVersion = VK_MAKE_VERSION(1, 0, 0);
         appInfo.apiVersion = VK_API_VERSION_1_0;
@@ -56,7 +101,7 @@ namespace Engine::Main
         if (!Device::bEnableValidationLayers)
             return;
 
-        /*auto createInfo = vk::DebugUtilsMessengerCreateInfoEXT(
+        auto createInfo = vk::DebugUtilsMessengerCreateInfoEXT(
             vk::DebugUtilsMessengerCreateFlagsEXT(),
             vk::DebugUtilsMessageSeverityFlagBitsEXT::eVerbose | vk::DebugUtilsMessageSeverityFlagBitsEXT::eWarning | vk::DebugUtilsMessageSeverityFlagBitsEXT::eError,
             vk::DebugUtilsMessageTypeFlagBitsEXT::eGeneral | vk::DebugUtilsMessageTypeFlagBitsEXT::eValidation | vk::DebugUtilsMessageTypeFlagBitsEXT::ePerformance,
@@ -64,10 +109,10 @@ namespace Engine::Main
             nullptr);
 
         // NOTE: Vulkan-hpp has methods for this, but they trigger linking errors...
-        if (CreateDebugUtilsMessengerEXT(*m_pVkInstance, reinterpret_cast<const VkDebugUtilsMessengerCreateInfoEXT*>(&createInfo), nullptr, &m_pVkDebugUtils) != VK_SUCCESS) 
+        if (CreateDebugUtilsMessengerEXT(engine.device.vkInstance.get(), reinterpret_cast<const VkDebugUtilsMessengerCreateInfoEXT*>(&createInfo), nullptr, &engine.device.debugMessenger) != VK_SUCCESS) 
         {
             throw std::runtime_error("failed to set up debug callback!");
-        }*/
+        }
     }
     
     void CreateSurface(FVulkanEngine& engine)
@@ -77,7 +122,7 @@ namespace Engine::Main
     
     void CreateLogicalDevice(FVulkanEngine& engine)
     {
-        engine.device.physical = Device::GetPhysicalDevice();
+        engine.device.physical = Device::GetPhysicalDevice(engine);
         //engine.device.samples = Device::GetMaxUsableSampleCount();
         QueueFamilyIndices indices = Device::FindQueueFamilies(engine);
 
@@ -207,7 +252,7 @@ namespace Engine::Main
 
         vk::SurfaceFormatKHR surfaceFormat = SwapChain::ChooseSwapSurfaceFormat(swapChainSupport.formats);
         vk::PresentModeKHR presentMode = SwapChain::ChooseSwapPresentMode(swapChainSupport.presentModes);
-        engine.swapchain.extent = SwapChain::(swapChainSupport.capabilities);
+        engine.swapchain.extent = SwapChain::ChooseSwapExtent(engine, swapChainSupport.capabilities);
 
         uint32_t imageCount = swapChainSupport.capabilities.maxImageCount;
         if (swapChainSupport.capabilities.maxImageCount > 0 && imageCount > swapChainSupport.capabilities.maxImageCount)
@@ -215,15 +260,15 @@ namespace Engine::Main
             imageCount = swapChainSupport.capabilities.maxImageCount;
         }
 
-        vk::SwapchainCreateInfoKHR createInfo{};
-        createInfo.flags = vk::SwapchainCreateFlagsKHR();
-        createInfo.surface = engine.device.surface;
-        createInfo.minImageCount = imageCount;
-        createInfo.imageFormat = surfaceFormat.format;
-        createInfo.imageColorSpace = surfaceFormat.colorSpace;
-        createInfo.imageExtent = engine.swapchain.extent;
-        createInfo.imageArrayLayers = 1;
-        createInfo.imageUsage = vk::ImageUsageFlagBits::eColorAttachment;
+        vk::SwapchainCreateInfoKHR createInfo(
+            vk::SwapchainCreateFlagsKHR(),
+            engine.device.surface,
+            imageCount,
+            surfaceFormat.format,
+            surfaceFormat.colorSpace,
+            engine.swapchain.extent,
+            1, // imageArrayLayers
+            vk::ImageUsageFlagBits::eColorAttachment);
 
         QueueFamilyIndices indices = Device::FindQueueFamilies(engine);
         uint32_t queueFamilyIndices[] = {indices.graphicsFamily.value(), indices.presentFamily.value()};
@@ -454,5 +499,4 @@ namespace Engine::Main
             throw std::runtime_error("Failed to create synchronization objects for a frame!");
         }
     }
-    
 }

@@ -4,9 +4,9 @@
 
 namespace Engine::Pipeline
 {
-    Main::FPipelineConfigInfo VulkanPipeline::PipelineDefault(uint32_t width, uint32_t height)
+    FPipelineConfigInfo VulkanPipeline::PipelineDefault(uint32_t width, uint32_t height)
     {
-        Main::FPipelineConfigInfo configInfo{};
+        FPipelineConfigInfo configInfo{};
         configInfo.inputAssemblyInfo.topology = vk::PrimitiveTopology::eTriangleList;
         configInfo.inputAssemblyInfo.primitiveRestartEnable = VK_FALSE;
 

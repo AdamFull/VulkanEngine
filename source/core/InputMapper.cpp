@@ -6,8 +6,8 @@ namespace Engine
 {
     InputMapper::InputMapper(std::unique_ptr<WindowHandle>& winHandle)
     {
-        winHandle->KeyCodeCallback.attach(this, &InputMapper::KeyBoardInput);
-        winHandle->MousePositionCallback.attach(this, &InputMapper::MouseInput);
+        Window::KeyCodeCallback.attach(this, &InputMapper::KeyBoardInput);
+        Window::MousePositionCallback.attach(this, &InputMapper::MouseInput);
     }
 
     void InputMapper::KeyBoardInput(int key, int scancode, int action, int mods)

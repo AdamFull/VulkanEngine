@@ -4,7 +4,7 @@
 
 namespace Engine::Pipeline
 {
-    FPipelineConfigInfo VulkanPipeline::PipelineDefault(uint32_t width, uint32_t height)
+    FPipelineConfigInfo PipelineDefault(uint32_t width, uint32_t height)
     {
         FPipelineConfigInfo configInfo{};
         configInfo.inputAssemblyInfo.topology = vk::PrimitiveTopology::eTriangleList;
@@ -74,28 +74,28 @@ namespace Engine::Pipeline
         return configInfo;
     }
 
-    void LoadShader(const std::string& srShaderPath, vk::ShaderStageFlagBits fShaderType)
+    void LoadShader(Main::FVulkanEngine& engine, const std::string& srShaderPath, vk::ShaderStageFlagBits fShaderType)
     {
         auto shader_code = FilesystemHelper::ReadFile(srShaderPath);
-        m_vShaderCache.emplace_back(Main::FShaderCache{ fShaderType, shader_code});
-        LoadShader(shader_code, fShaderType);
+        engine.pipeline.vShaderCache.emplace_back(FShaderCache{ fShaderType, shader_code});
+        LoadShader(engine, shader_code, fShaderType);
     }
 
-    void LoadShader(const shader_load_map_t& mShaders)
+    void LoadShader(Main::FVulkanEngine& engine, const SaderMap& mShaders)
     {
         for(auto& [key, value]: mShaders)
         {
-            LoadShader(value, key);
+            LoadShader(engine, value, key);
         }
     }
 
-    void LoadShader(const std::vector<char>& vShaderCode, vk::ShaderStageFlagBits fShaderType) 
+    void LoadShader(Main::FVulkanEngine& engine, const std::vector<char>& vShaderCode, vk::ShaderStageFlagBits fShaderType) 
     {
         vk::ShaderModule shaderModule;
 
         try
         {
-            shaderModule = m_Device.GetLogical()->createShaderModule
+            shaderModule = engine.device.logical->createShaderModule
             (
                 {
                     vk::ShaderModuleCreateFlags(),
@@ -109,22 +109,22 @@ namespace Engine::Pipeline
             throw std::runtime_error("Failed to create shader module!");
         }
 
-        m_vShaderBuffer.emplace_back
+        engine.pipeline.vShaderBuffer.emplace_back
         (
             vk::PipelineShaderStageCreateFlags(),
             fShaderType,
             shaderModule,
-            srShaderEntriePoint
+            "main"
         );
     }
 
-    void RecreateShaders()
+    void RecreateShaders(Main::FVulkanEngine& engine)
     {
-        m_vShaderBuffer.clear();
+        engine.pipeline.vShaderBuffer.clear();
 
-        for(auto& cached : m_vShaderCache)
+        for(auto& cached : engine.pipeline.vShaderCache)
         {
-            LoadShader(cached.srShaderData, cached.sShaderType);
+            LoadShader(engine, cached.srShaderData, cached.sShaderType);
         }
     }
 }

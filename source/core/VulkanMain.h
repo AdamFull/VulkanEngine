@@ -14,6 +14,7 @@ namespace Engine::Main
     void CreateCommandPool(FVulkanEngine& engine);
 
     //Pipeline
+    void CreateDescriptorSetLayout(FVulkanEngine& engine);
     void CreateVulkanPipeline(FVulkanEngine& engine, Pipeline::FPipelineConfigInfo& configInfo);
 
     //SwapChain
@@ -23,5 +24,9 @@ namespace Engine::Main
     void CreateMSAAResources(FVulkanEngine& engine);
     void CreateRenderPass(FVulkanEngine& engine);
     void CreateFramebuffers(FVulkanEngine& engine);
+    void CreateUniformBuffers(FVulkanEngine& engine);
+    void CreateDescriptorPool(FVulkanEngine& engine);
+    void CreateDescriptorSets(FVulkanEngine& engine);
+    void CreateCommandBuffers(FVulkanEngine& engine);
     void CreateSyncObjects(FVulkanEngine& engine);
 }

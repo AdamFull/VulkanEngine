@@ -1,6 +1,6 @@
 #pragma once
-#include "DataTypes/QueueFamilyIndicies.h"
-#include "DataTypes/SwapChainSupportDetails.h"
+#include "DataTypes/Core/QueueFamilyIndicies.h"
+#include "DataTypes/Core/SwapChainSupportDetails.h"
 #include "VulkanMainStructures.h"
 
 namespace Engine::Device
@@ -28,6 +28,14 @@ namespace Engine::Device
     vk::CommandBuffer BeginSingleTimeCommands(Main::FVulkanEngine& engine);
     void EndSingleTimeCommands(Main::FVulkanEngine& engine, vk::CommandBuffer &commandBuffer);
     void CopyOnDeviceBuffer(Main::FVulkanEngine& engine, vk::Buffer &srcBuffer, vk::Buffer &dstBuffer, vk::DeviceSize size);
+
+    template<class T>
+    void MoveToMemory(Main::FVulkanEngine& engine, T raw_data, vk::DeviceMemory& memory, vk::DeviceSize size)
+    {
+        void *data = engine.device.logical->mapMemory(memory, 0, size);
+        memcpy(data, raw_data, static_cast<size_t>(size));
+        engine.device.logical->unmapMemory(memory);
+    }
 
     //Image stuff
     void CreateImage(Main::FVulkanEngine& engine, vk::Image &image, vk::DeviceMemory &memory, uint32_t width, uint32_t height, uint32_t mip_levels,

@@ -3,13 +3,13 @@
 
 namespace Engine::Pipeline
 {
-    using shader_load_map_t = std::map<vk::ShaderStageFlagBits, std::string>;
-
+    typedef std::map<vk::ShaderStageFlagBits, std::string> SaderMap;
+    
     FPipelineConfigInfo PipelineDefault(uint32_t width, uint32_t height);
 
-    void LoadShader(const std::string& srShaderPath, vk::ShaderStageFlagBits fShaderType);
-    void LoadShader(const shader_load_map_t& mShaders);
+    void LoadShader(Main::FVulkanEngine& engine, const std::string& srShaderPath, vk::ShaderStageFlagBits fShaderType);
+    void LoadShader(Main::FVulkanEngine& engine, const SaderMap& mShaders);
 
-    void RecreateShaders();
-    void LoadShader(const std::vector<char>& vShaderCode, vk::ShaderStageFlagBits fShaderType);
+    void RecreateShaders(Main::FVulkanEngine& engine);
+    void LoadShader(Main::FVulkanEngine& engine, const std::vector<char>& vShaderCode, vk::ShaderStageFlagBits fShaderType);
 }

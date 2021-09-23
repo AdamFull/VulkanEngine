@@ -76,7 +76,7 @@ add_executable(${PROJECT_NAME} ${CPP_FILES} ${HPP_FILES})
 
 # Link the debug and release libraries to the project
 target_link_libraries( ${PROJECT_NAME} PRIVATE ${VULKAN_LIB_LIST} glfw)
-target_include_directories( ${PROJECT_NAME} PRIVATE ${GLM_INCLUDE_DIRS} ${GLFW_INCLUDE_DIRS} ${CMAKE_CURRENT_SOURCE_DIR}/source/)
+target_include_directories( ${PROJECT_NAME} PRIVATE ${GLM_INCLUDE_DIRS} ${GLFW_INCLUDE_DIRS} ${CMAKE_CURRENT_SOURCE_DIR}/source/ ${CMAKE_CURRENT_SOURCE_DIR}/source/core)
 target_precompile_headers( ${PROJECT_NAME} PUBLIC ${CMAKE_CURRENT_SOURCE_DIR}/common.h)
 
 # Define project properties

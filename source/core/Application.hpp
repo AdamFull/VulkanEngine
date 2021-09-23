@@ -6,9 +6,24 @@ namespace Engine
     class Application
     {
     public:
-        void CreateWindow()
+        void CreateApp()
         {
             Main::CreateWindowHandle(engineCore, 800, 600, "Vulkan");
+            Main::CreateInstance(engineCore);
+            Main::SetupDebugMessenger(engineCore);
+            Main::CreateSurface(engineCore);
+            Main::CreateLogicalDevice(engineCore);
+            Main::CreateSwapChain(engineCore);
+            Main::CreateSwapChainImageViews(engineCore);
+            Main::CreateRenderPass(engineCore);
+            Main::CreateDescriptorSetLayout(engineCore);
+            Main::CreateCommandPool(engineCore);
+            Main::CreateMSAAResources(engineCore);
+            Main::CreateDepthResources(engineCore);
+            Main::CreateFramebuffers(engineCore);
+            Main::CreateUniformBuffers(engineCore);
+            Main::CreateDescriptorPool(engineCore);
+            Main::CreateDescriptorSets(engineCore);
         }
 
         void CreateDevice();

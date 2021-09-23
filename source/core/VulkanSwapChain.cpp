@@ -4,6 +4,11 @@
 
 namespace Engine::SwapChain
 {
+    void Bind(Main::FVulkanEngine& engine, vk::CommandBuffer commandBuffer)
+    {
+        commandBuffer.bindPipeline(vk::PipelineBindPoint::eGraphics, engine.pipeline.graphics);
+    }
+
     vk::SurfaceFormatKHR ChooseSwapSurfaceFormat(const std::vector<vk::SurfaceFormatKHR>& availableFormats)
     {
         if (availableFormats.size() == 1 && availableFormats[0].format == vk::Format::eUndefined)

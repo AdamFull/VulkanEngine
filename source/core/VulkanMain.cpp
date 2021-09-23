@@ -2,7 +2,7 @@
 #include "WindowHandle.h"
 #include "VulkanDevice.h"
 #include "VulkanSwapChain.h"
-#include "DataTypes/VulkanVertex.h"
+#include "DataTypes/Special/VulkanVertex.h"
 
 static VKAPI_ATTR VkBool32 VKAPI_CALL ValidationCallback(
     VkDebugUtilsMessageSeverityFlagBitsEXT messageSeverity,
@@ -187,6 +187,31 @@ namespace Engine::Main
     
 
     //Pipeline
+    void CreateDescriptorSetLayout(FVulkanEngine& engine)
+    {
+        vk::DescriptorSetLayoutBinding uboLayoutBinding{};
+        uboLayoutBinding.binding = 0;
+        uboLayoutBinding.descriptorType = vk::DescriptorType::eUniformBuffer;
+        uboLayoutBinding.descriptorCount = 1;
+        uboLayoutBinding.pImmutableSamplers = nullptr;
+        uboLayoutBinding.stageFlags = vk::ShaderStageFlagBits::eVertex;
+
+        vk::DescriptorSetLayoutBinding samplerLayoutBinding{};
+        samplerLayoutBinding.binding = 1;
+        samplerLayoutBinding.descriptorCount = 1;
+        samplerLayoutBinding.descriptorType = vk::DescriptorType::eCombinedImageSampler;
+        samplerLayoutBinding.pImmutableSamplers = nullptr;
+        samplerLayoutBinding.stageFlags = vk::ShaderStageFlagBits::eFragment;
+
+        std::array<vk::DescriptorSetLayoutBinding, 2> bindings = {uboLayoutBinding, samplerLayoutBinding};
+        vk::DescriptorSetLayoutCreateInfo createInfo{};
+        createInfo.bindingCount = static_cast<uint32_t>(bindings.size());;
+        createInfo.pBindings = bindings.data();
+
+        //TODO: check result
+        auto result = engine.device.logical->createDescriptorSetLayout(&createInfo, nullptr, &engine.pipeline.descriptorSetLayout);
+    }
+
     void CreateVulkanPipeline(FVulkanEngine& engine, Pipeline::FPipelineConfigInfo& configInfo)
     {
         vk::PipelineVertexInputStateCreateInfo vertexInputInfo = {};
@@ -201,37 +226,90 @@ namespace Engine::Main
         vertexInputInfo.pVertexBindingDescriptions = &bindingDescription;
         vertexInputInfo.pVertexAttributeDescriptions = attributeDescriptions.data();
 
-        /*vk::PipelineLayoutCreateInfo pipelineLayoutInfo = {};
+        vk::PipelineInputAssemblyStateCreateInfo inputAssembly = {};
+        inputAssembly.topology = vk::PrimitiveTopology::eTriangleList;
+        inputAssembly.primitiveRestartEnable = VK_FALSE;
+
+        vk::Viewport viewport = {};
+        viewport.x = 0.0f;
+        viewport.y = 0.0f;
+        viewport.width = (float)engine.swapchain.extent.width;
+        viewport.height = (float)engine.swapchain.extent.height;
+        viewport.minDepth = 0.0f;
+        viewport.maxDepth = 1.0f;
+
+        vk::Rect2D scissor = {};
+        scissor.offset = vk::Offset2D{0, 0};
+        scissor.extent = engine.swapchain.extent;
+
+        vk::PipelineViewportStateCreateInfo viewportState = {};
+        viewportState.viewportCount = 1;
+        viewportState.pViewports = &viewport;
+        viewportState.scissorCount = 1;
+        viewportState.pScissors = &scissor;
+
+        vk::PipelineRasterizationStateCreateInfo rasterizer = {};
+        rasterizer.depthClampEnable = VK_FALSE;
+        rasterizer.rasterizerDiscardEnable = VK_FALSE;
+        rasterizer.polygonMode = vk::PolygonMode::eFill;
+        rasterizer.lineWidth = 1.0f;
+        rasterizer.cullMode = vk::CullModeFlagBits::eBack;
+        rasterizer.frontFace = vk::FrontFace::eCounterClockwise;
+        rasterizer.depthBiasEnable = VK_FALSE;
+
+        vk::PipelineMultisampleStateCreateInfo multisampling = {};
+        multisampling.sampleShadingEnable = VK_TRUE;
+        multisampling.minSampleShading = .2f;
+        multisampling.rasterizationSamples = engine.device.samples;
+
+        vk::PipelineColorBlendAttachmentState colorBlendAttachment = {};
+        colorBlendAttachment.colorWriteMask = vk::ColorComponentFlagBits::eR | vk::ColorComponentFlagBits::eG | vk::ColorComponentFlagBits::eB | vk::ColorComponentFlagBits::eA;
+        colorBlendAttachment.blendEnable = VK_FALSE;
+
+        vk::PipelineColorBlendStateCreateInfo colorBlending = {};
+        colorBlending.logicOpEnable = VK_FALSE;
+        colorBlending.logicOp = vk::LogicOp::eCopy;
+        colorBlending.attachmentCount = 1;
+        colorBlending.pAttachments = &colorBlendAttachment;
+        colorBlending.blendConstants[0] = 0.0f;
+        colorBlending.blendConstants[1] = 0.0f;
+        colorBlending.blendConstants[2] = 0.0f;
+        colorBlending.blendConstants[3] = 0.0f;
+
+        vk::PipelineDepthStencilStateCreateInfo depthStencil{};
+        depthStencil.depthTestEnable = VK_TRUE;
+        depthStencil.depthWriteEnable = VK_TRUE;
+        depthStencil.depthCompareOp = vk::CompareOp::eLess;
+        depthStencil.depthBoundsTestEnable = VK_FALSE;
+        depthStencil.stencilTestEnable = VK_FALSE;
+
+        vk::PipelineLayoutCreateInfo pipelineLayoutInfo = {};
         pipelineLayoutInfo.setLayoutCount = 1;
-        pipelineLayoutInfo.pSetLayouts = &m_DescriptorSetLayout;
+        pipelineLayoutInfo.pSetLayouts = &engine.pipeline.descriptorSetLayout;
         pipelineLayoutInfo.pushConstantRangeCount = 0;
 
         try
         {
-            m_PipelineLayout = m_pDevice->createPipelineLayout(pipelineLayoutInfo);
+            engine.pipeline.layout = engine.device.logical->createPipelineLayout(pipelineLayoutInfo);
         }
         catch (vk::SystemError err)
         {
             throw std::runtime_error("failed to create pipeline layout!");
-        }*/
+        }
 
         vk::GraphicsPipelineCreateInfo pipelineInfo = {};
         pipelineInfo.stageCount = engine.pipeline.vShaderBuffer.size();
         pipelineInfo.pStages = engine.pipeline.vShaderBuffer.data();
         pipelineInfo.pVertexInputState = &vertexInputInfo;
-        pipelineInfo.pInputAssemblyState = &configInfo.inputAssemblyInfo;
-        pipelineInfo.pViewportState = &configInfo.viewportInfo;
-        pipelineInfo.pRasterizationState = &configInfo.rasterizationInfo;
-        pipelineInfo.pMultisampleState = &configInfo.multisampleInfo;
-        pipelineInfo.pColorBlendState = &configInfo.colorBlendInfo;
-        pipelineInfo.pDepthStencilState = &configInfo.depthStencilInfo;
-        pipelineInfo.pDynamicState = nullptr;
-
+        pipelineInfo.pInputAssemblyState = &inputAssembly;
+        pipelineInfo.pViewportState = &viewportState;
+        pipelineInfo.pRasterizationState = &rasterizer;
+        pipelineInfo.pMultisampleState = &multisampling;
+        pipelineInfo.pColorBlendState = &colorBlending;
+        pipelineInfo.pDepthStencilState = &depthStencil;
         pipelineInfo.layout = engine.pipeline.layout;
         pipelineInfo.renderPass = engine.swapchain.renderPass;
-        pipelineInfo.subpass = configInfo.subpass;
-
-        pipelineInfo.basePipelineIndex = -1;
+        pipelineInfo.subpass = 0;
         pipelineInfo.basePipelineHandle = nullptr;
 
         try
@@ -478,6 +556,150 @@ namespace Engine::Main
             }
         }
     }
+
+    void CreateUniformBuffers(FVulkanEngine& engine)
+    {
+        vk::DeviceSize bufferSize = sizeof(Types::UniformBufferObject);
+
+        engine.swapchain.vUniformBuffers.resize(engine.swapchain.vImages.size());
+        engine.swapchain.vUniformBuffersMemory.resize(engine.swapchain.vImages.size());
+
+        for (size_t i = 0; i < engine.swapchain.vImages.size(); i++) 
+        {
+            Device::CreateOnDeviceBuffer
+            (
+                engine,
+                bufferSize, 
+                vk::BufferUsageFlagBits::eUniformBuffer, 
+                vk::MemoryPropertyFlagBits::eHostVisible | vk::MemoryPropertyFlagBits::eHostCoherent, 
+                engine.swapchain.vUniformBuffers[i], 
+                engine.swapchain.vUniformBuffersMemory[i]
+            );
+        }
+    }
+
+    void CreateDescriptorPool(FVulkanEngine& engine)
+    {
+        std::array<vk::DescriptorPoolSize, 2> poolSizes{};
+        poolSizes[0].type = vk::DescriptorType::eUniformBuffer;
+        poolSizes[0].descriptorCount = static_cast<uint32_t>(engine.swapchain.vImages.size());
+        poolSizes[1].type = vk::DescriptorType::eCombinedImageSampler;
+        poolSizes[1].descriptorCount = static_cast<uint32_t>(engine.swapchain.vImages.size());
+
+        vk::DescriptorPoolCreateInfo poolInfo{};
+        poolInfo.flags = vk::DescriptorPoolCreateFlagBits::eFreeDescriptorSet;
+        poolInfo.poolSizeCount = static_cast<uint32_t>(poolSizes.size());
+        poolInfo.pPoolSizes = poolSizes.data();
+        poolInfo.maxSets = static_cast<uint32_t>(engine.swapchain.vImages.size());
+
+        //TODO:: add result checking
+        engine.pipeline.descriptorPool = engine.device.logical->createDescriptorPool(poolInfo);
+    }
+
+    void CreateDescriptorSets(FVulkanEngine& engine)
+    {
+        std::vector<vk::DescriptorSetLayout> vDescriptorSetLayouts(engine.swapchain.vImages.size(), engine.pipeline.descriptorSetLayout);
+
+        vk::DescriptorSetAllocateInfo allocInfo{};
+        allocInfo.descriptorPool = engine.pipeline.descriptorPool;
+        allocInfo.descriptorSetCount = static_cast<uint32_t>(engine.swapchain.vImages.size());
+        allocInfo.pSetLayouts = vDescriptorSetLayouts.data();
+
+        engine.pipeline.vDescriptorSets.resize(engine.swapchain.vImages.size());
+
+        auto result = engine.device.logical->allocateDescriptorSets(&allocInfo, engine.pipeline.vDescriptorSets.data());
+
+        for (size_t i = 0; i < engine.swapchain.vImages.size(); i++)
+        {
+            vk::DescriptorBufferInfo bufferInfo{};
+            bufferInfo.buffer = engine.swapchain.vUniformBuffers[i];
+            bufferInfo.offset = 0;
+            bufferInfo.range = sizeof(Types::UniformBufferObject);
+
+            std::array<vk::WriteDescriptorSet, 2> descriptorWrites{};
+            descriptorWrites[0].dstSet = engine.pipeline.vDescriptorSets[i];
+            descriptorWrites[0].dstBinding = 0;
+            descriptorWrites[0].dstArrayElement = 0;
+            descriptorWrites[0].descriptorType = vk::DescriptorType::eUniformBuffer;
+            descriptorWrites[0].descriptorCount = 1;
+            descriptorWrites[0].pBufferInfo = &bufferInfo;
+
+            descriptorWrites[1].dstSet = engine.pipeline.vDescriptorSets[i];
+            descriptorWrites[1].dstBinding = 1;
+            descriptorWrites[1].dstArrayElement = 0;
+            descriptorWrites[1].descriptorType = vk::DescriptorType::eCombinedImageSampler;
+            descriptorWrites[1].descriptorCount = 1;
+            descriptorWrites[1].pImageInfo;
+
+            engine.device.logical->updateDescriptorSets(static_cast<uint32_t>(descriptorWrites.size()), descriptorWrites.data(), 0, nullptr);
+        }
+    }
+
+    void CreateCommandBuffers(FVulkanEngine& engine)
+    {
+        engine.device.vCommandBuffer.resize(engine.swapchain.vFramebuffers.size());
+
+        try
+        {
+            engine.device.vCommandBuffer = Device::CreateCommandBuffer(engine, vk::CommandBufferLevel::ePrimary, engine.device.commandPool, (uint32_t)engine.device.vCommandBuffer.size());
+        }
+        catch (vk::SystemError err)
+        {
+            throw std::runtime_error("Failed to allocate command buffers!");
+        }
+
+        for (size_t i = 0; i < engine.device.vCommandBuffer.size(); i++)
+        {
+            vk::CommandBufferBeginInfo beginInfo = {};
+            beginInfo.flags = vk::CommandBufferUsageFlagBits::eSimultaneousUse;
+
+            try
+            {
+                engine.device.vCommandBuffer[i].begin(beginInfo);
+            }
+            catch (vk::SystemError err)
+            {
+                throw std::runtime_error("Failed to begin recording command buffer!");
+            }
+
+            vk::RenderPassBeginInfo renderPassInfo = {};
+            renderPassInfo.renderPass = engine.swapchain.renderPass;
+            renderPassInfo.framebuffer = engine.swapchain.vFramebuffers[i];
+            renderPassInfo.renderArea.offset = vk::Offset2D{0, 0};
+            renderPassInfo.renderArea.extent = engine.swapchain.extent;
+
+            std::array<vk::ClearValue, 2> clearValues{};
+            clearValues[0].color = {std::array<float, 4>{0.0f, 0.0f, 0.0f, 1.0f}};
+            clearValues[1].depthStencil = vk::ClearDepthStencilValue{1.0f, 0};
+
+            renderPassInfo.clearValueCount = static_cast<uint32_t>(clearValues.size());
+            renderPassInfo.pClearValues = clearValues.data();
+
+            engine.device.vCommandBuffer[i].beginRenderPass(renderPassInfo, vk::SubpassContents::eInline);
+
+            engine.device.vCommandBuffer[i].bindPipeline(vk::PipelineBindPoint::eGraphics, engine.pipeline.graphics);
+
+            vk::Buffer vertexBuffers[] = {m_pVertexBuffer};
+            vk::DeviceSize offsets[] = {0};
+            engine.device.vCommandBuffer[i].bindVertexBuffers(0, 1, vertexBuffers, offsets);
+            engine.device.vCommandBuffer[i].bindIndexBuffer(m_pIndexBuffer, 0, vk::IndexType::eUint32);
+
+            engine.device.vCommandBuffer[i].bindDescriptorSets(vk::PipelineBindPoint::eGraphics, engine.pipeline.layout, 0, 1, &engine.pipeline.vDescriptorSets[i], 0, nullptr);
+
+            engine.device.vCommandBuffer[i].drawIndexed(static_cast<uint32_t>(m_vIndices.size()), 1, 0, 0, 0);
+
+            engine.device.vCommandBuffer[i].endRenderPass();
+
+            try
+            {
+                engine.device.vCommandBuffer[i].end();
+            }
+            catch (vk::SystemError err)
+            {
+                throw std::runtime_error("Failed to record command buffer!");
+            }
+        }
+    }
     
     void CreateSyncObjects(FVulkanEngine& engine)
     {
@@ -497,6 +719,16 @@ namespace Engine::Main
         catch (vk::SystemError err)
         {
             throw std::runtime_error("Failed to create synchronization objects for a frame!");
+        }
+    }
+
+    void CleanupSyncObjects(FVulkanEngine& engine)
+    {
+        for (size_t i = 0; i < engine.swapchain.framesInFlight; i++)
+        {
+            engine.device.logical->destroySemaphore(engine.swapchain.vRenderFinishedSemaphores[i]);
+            engine.device.logical->destroySemaphore(engine.swapchain.vImageAvailableSemaphores[i]);
+            engine.device.logical->destroyFence(engine.swapchain.vInFlightFences[i]);
         }
     }
 }

@@ -14,6 +14,9 @@ namespace Engine::Device
     const std::vector<const char *> vValidationLayers = {"VK_LAYER_KHRONOS_validation"};
     const std::vector<const char *> vDeviceExtensions = {VK_KHR_SWAPCHAIN_EXTENSION_NAME};
 
+    vk::PhysicalDevice GetPhysicalDevice(Main::FVulkanEngine& engine);
+    std::vector<vk::PhysicalDevice> GetAvaliablePhysicalDevices(Main::FVulkanEngine& engine);
+
     SwapChainSupportDetails QuerySwapChainSupport(Main::FVulkanEngine& engine);
     uint32_t FindMemoryType(Main::FVulkanEngine& engine, uint32_t typeFilter, vk::MemoryPropertyFlags properties);
     QueueFamilyIndices FindQueueFamilies(Main::FVulkanEngine& engine);
@@ -36,6 +39,8 @@ namespace Engine::Device
     vk::ImageView CreateImageView(Main::FVulkanEngine& engine, vk::Image &pImage, uint32_t mip_levels, vk::Format eFormat, vk::ImageAspectFlags aspectFlags);
     void GenerateMipmaps(Main::FVulkanEngine& engine, vk::Image &image, uint32_t mipLevels, vk::Format format, uint32_t width, uint32_t height, vk::ImageAspectFlags aspectFlags);
     void CreateSampler(Main::FVulkanEngine& engine, vk::Sampler& sampler, uint32_t mip_levels);
+
+    vk::SampleCountFlagBits GetMaxUsableSampleCount(Main::FVulkanEngine& engine);
 
     // helper functions
     bool IsDeviceSuitable(Main::FVulkanEngine& engine);

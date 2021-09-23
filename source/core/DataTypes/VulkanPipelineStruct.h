@@ -19,7 +19,6 @@ namespace Engine::Pipeline
         vk::PipelineColorBlendAttachmentState colorBlendAttachment;
         vk::PipelineColorBlendStateCreateInfo colorBlendInfo;
         vk::PipelineDepthStencilStateCreateInfo depthStencilInfo;
-        vk::PipelineLayout pipelineLayout = nullptr;
         uint32_t subpass = 0;
     };
     
@@ -27,7 +26,8 @@ namespace Engine::Pipeline
     {
         std::vector<FShaderCache> vShaderCache;
         std::vector<vk::PipelineShaderStageCreateInfo> vShaderBuffer;
-        vk::Pipeline graphicsPipeline;
+        vk::Pipeline graphics;
+        vk::PipelineLayout layout;
     };
     
 }

@@ -4,23 +4,24 @@
 namespace Engine::Main
 {
     //Window
-    void CreateWindowHandle(FVulkanRenderInstance& renderInstance, int width, int height, const char* srWinName);
+    void CreateWindowHandle(FVulkanEngine& engine, int width, int height, const char* srWinName);
 
     //Device
-    void CreateInstance(FVulkanRenderInstance& renderInstance);
-    void SetupDebugMessenger(FVulkanRenderInstance& renderInstance);
-    void CreateSurface(FVulkanRenderInstance& renderInstance);
-    void CreateLogicalDevice(FVulkanRenderInstance& renderInstance);
-    void CreateCommandPool(FVulkanRenderInstance& renderInstance);
+    void CreateInstance(FVulkanEngine& engine);
+    void SetupDebugMessenger(FVulkanEngine& engine);
+    void CreateSurface(FVulkanEngine& engine);
+    void CreateLogicalDevice(FVulkanEngine& engine);
+    void CreateCommandPool(FVulkanEngine& engine);
 
     //Pipeline
-    void CreateVulkanPipeline(FVulkanRenderInstance& renderInstance, Pipeline::FPipelineConfigInfo& configInfo);
+    void CreateVulkanPipeline(FVulkanEngine& engine, Pipeline::FPipelineConfigInfo& configInfo);
 
     //SwapChain
-    void CreateSwapChain(FVulkanRenderInstance& renderInstance);
-    void CreateSwapChainImageViews(FVulkanRenderInstance& renderInstance);
-    void CreateDepthResources(FVulkanRenderInstance& renderInstance);
-    void CreateRenderPass(FVulkanRenderInstance& renderInstance);
-    void CreateFramebuffers(FVulkanRenderInstance& renderInstance);
-    void CreateSyncObjects(FVulkanRenderInstance& renderInstance);
+    void CreateSwapChain(FVulkanEngine& engine);
+    void CreateSwapChainImageViews(FVulkanEngine& engine);
+    void CreateDepthResources(FVulkanEngine& engine);
+    void CreateMSAAResources(FVulkanEngine& engine);
+    void CreateRenderPass(FVulkanEngine& engine);
+    void CreateFramebuffers(FVulkanEngine& engine);
+    void CreateSyncObjects(FVulkanEngine& engine);
 }

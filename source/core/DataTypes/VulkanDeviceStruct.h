@@ -14,6 +14,6 @@ namespace Engine::Device
         vk::Queue graphicsQueue;
         vk::Queue presentQueue;
 
-        vk::SampleCountFlagBits msaaSamples = vk::SampleCountFlagBits::e1
+        vk::SampleCountFlagBits samples = vk::SampleCountFlagBits::e1
     };
 }

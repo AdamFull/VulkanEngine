@@ -10,7 +10,8 @@ namespace Engine::SwapChain
         std::vector<vk::Framebuffer> vFramebuffers;
         vk::RenderPass renderPass;
 
-        VulkanImage depthImage;
+        VulkanImage depth;
+        VulkanImage msaa;
 
         std::vector<vk::Image> vImages;
         std::vector<vk::ImageView> vImageViews;
@@ -20,7 +21,7 @@ namespace Engine::SwapChain
         vk::SwapchainKHR swapChain;
 
         std::vector<vk::Semaphore> vImageAvailableSemaphores;
-        std::vector<vk::Semaphore> vRrenderFinishedSemaphores;
+        std::vector<vk::Semaphore> vRenderFinishedSemaphores;
         std::vector<vk::Fence> vInFlightFences;
         std::vector<vk::Fence> vImagesInFlight;
         size_t currentFrame{0};

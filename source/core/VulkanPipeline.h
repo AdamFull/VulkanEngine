@@ -5,7 +5,7 @@ namespace Engine::Pipeline
 {
     using shader_load_map_t = std::map<vk::ShaderStageFlagBits, std::string>;
 
-    Main::FPipelineConfigInfo PipelineDefault(uint32_t width, uint32_t height);
+    FPipelineConfigInfo PipelineDefault(uint32_t width, uint32_t height);
 
     void LoadShader(const std::string& srShaderPath, vk::ShaderStageFlagBits fShaderType);
     void LoadShader(const shader_load_map_t& mShaders);

@@ -7,7 +7,7 @@
 
 namespace Engine::Main
 {
-    struct FVulkanRenderInstance
+    struct FVulkanEngine
     {
         //Window
         Window::FWindowHandle window;

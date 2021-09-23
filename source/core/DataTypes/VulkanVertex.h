@@ -1,6 +1,6 @@
 #pragma once
 
-namespace EngineTypes
+namespace Engine::Types
 {
     struct UniformBufferObject
     {

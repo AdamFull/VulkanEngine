@@ -17,6 +17,6 @@ namespace Engine
         
         void run();
     private:
-        Main::FVulkanRenderInstance engineCore;
+        Main::FVulkanEngine engineCore;
     };
 }

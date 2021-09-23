@@ -2,41 +2,41 @@
 
 namespace Engine::Window
 {
-    void Initialize(Main::FVulkanRenderInstance &renderInstance, int width, int height, const char *srWinName)
+    void Initialize(Main::FVulkanEngine &engine, int width, int height, const char *srWinName)
     {
-        renderInstance.window.width = width;
-        renderInstance.window.height = height;
-        renderInstance.window.srWinName = srWinName;
+        engine.window.width = width;
+        engine.window.height = height;
+        engine.window.srWinName = srWinName;
 
         glfwInit();
         glfwWindowHint(GLFW_CLIENT_API, GLFW_NO_API);
         glfwWindowHint(GLFW_RESIZABLE, GLFW_FALSE);
 
-        renderInstance.window.pWindow = glfwCreateWindow(width, height, srWinName, nullptr, nullptr);
+        engine.window.pWindow = glfwCreateWindow(width, height, srWinName, nullptr, nullptr);
         //TODO: Think about callbacks
         //glfwSetFramebufferSizeCallback(m_pWindow, &MaiFramebufferResizeCallback);
         //glfwSetKeyCallback(m_pWindow, &MaiKeyBoardInputCallback);
         //glfwSetCursorPosCallback(m_pWindow, &MaiMousePositionInputCallback);
     }
 
-    void Destroy(Main::FVulkanRenderInstance &renderInstance)
+    void Destroy(Main::FVulkanEngine &engine)
     {
-        glfwDestroyWindow(renderInstance.window.pWindow);
+        glfwDestroyWindow(engine.window.pWindow);
         glfwTerminate();
     }
 
-    void CreateWindowSurface(Main::FVulkanRenderInstance &renderInstance)
+    void CreateWindowSurface(Main::FVulkanEngine &engine)
     {
         VkSurfaceKHR rawSurface;
         if (glfwCreateWindowSurface(
-            renderInstance.device.vkInstance.get(), 
-            renderInstance.window.pWindow,
+            engine.device.vkInstance.get(), 
+            engine.window.pWindow,
             nullptr, &rawSurface) != VK_SUCCESS) 
         {
             throw std::runtime_error("Failed to create window surface!");
         }
 
-        renderInstance.device.surface = rawSurface;
+        engine.device.surface = rawSurface;
     }
 
     void PollEvents()
@@ -44,21 +44,21 @@ namespace Engine::Window
         glfwPollEvents();
     }
 
-    bool ShouldClose(Main::FVulkanRenderInstance &renderInstance)
+    bool ShouldClose(Main::FVulkanEngine &engine)
     {
-        return glfwWindowShouldClose(renderInstance.window.pWindow);
+        return glfwWindowShouldClose(engine.window.pWindow);
     }
 
-    bool WasResized(Main::FVulkanRenderInstance &renderInstance)
+    bool WasResized(Main::FVulkanEngine &engine)
     {
-        return renderInstance.window.bWasResized;
+        return engine.window.bWasResized;
     }
 
-    void ResizeWindow(Main::FVulkanRenderInstance &renderInstance, int width, int height)
+    void ResizeWindow(Main::FVulkanEngine &engine, int width, int height)
     {
-        renderInstance.window.width = width;
-        renderInstance.window.height = height;
-        renderInstance.window.bWasResized = true;
+        engine.window.width = width;
+        engine.window.height = height;
+        engine.window.bWasResized = true;
     }
 
     void FramebufferResizeCallback(GLFWwindow* window, int width, int height) 

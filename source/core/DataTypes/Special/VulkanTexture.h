@@ -5,31 +5,22 @@ namespace Engine
 {
     namespace Types
     {
-        class VulkanTextureBase
+        namespace Texture
         {
-        public:
-            VulkanImage image;
-            vk::ImageLayout imageLayout;
-            uint32_t width, height, channels;
-            uint32_t mipLevels;
-            uint32_t layerCount;
-            vk::DescriptorImageInfo descriptor;
-            vk::Sampler sampler;
+            struct Base2D
+            {
+                VulkanImage info;
+                vk::ImageLayout imageLayout;
+                uint32_t width, height, channels;
+                uint32_t mipLevels;
+                uint32_t layerCount;
+                vk::DescriptorImageInfo descriptor;
+                vk::Sampler sampler;
+            };
 
-            void UpdateDescriptor();
-            void Destroy(vk::UniqueDevice& device);
-        };
-
-        class VulkanTexture2D : public VulkanTextureBase
-        {
-        public:
-            void LoadTextureFromFile(std::string, vk::ImageLayout layout, vk::UniqueDevice& device);
-        };
-
-        class VulkanCubemap : public VulkanTextureBase
-        {
-        public:
-
-        };
+            void UpdateDescriptor(Base2D& texture);
+            void Destroy(Main::FVulkanEngine& engine, Base2D& texture);
+            void Load(Main::FVulkanEngine& engine, Base2D& texture, std::string srTexturePath, vk::ImageLayout layout);
+        }
     }
 }

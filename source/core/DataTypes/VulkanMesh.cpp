@@ -1,31 +1,29 @@
 #include "VulkanMesh.h"
-#include "VulkanMainStructures.h"
-#include "VulkanDevice.h"
 
 #define TINYOBJLOADER_IMPLEMENTATION
 #include "external/tiny_obj_loader.h"
 
-namespace Engine::Types::Mesh
+namespace Engine
 {
-    void Load(Main::FVulkanEngine& engine, Static& mesh, std::string srMeshPath)
+    void VulkanStaticMesh::LoadStaticMesh(std::string srPath, VulkanTransform sTransform)
     {
         tinyobj::attrib_t attrib;
         std::vector<tinyobj::shape_t> shapes;
         std::vector<tinyobj::material_t> materials;
         std::string warn, err;
 
-        if (!tinyobj::LoadObj(&attrib, &shapes, &materials, &warn, &err, srMeshPath.c_str())) 
+        if (!tinyobj::LoadObj(&attrib, &shapes, &materials, &warn, &err, srPath.c_str())) 
         {
             throw std::runtime_error(warn + err);
         }
 
-        std::unordered_map<FVertex, uint32_t> uniqueVertices{};
+        std::unordered_map<Vertex, uint32_t> uniqueVertices{};
 
         for (const auto &shape : shapes)
         {
             for (const auto& index : shape.mesh.indices) 
             {
-                FVertex vertex{};
+                Vertex vertex{sTransform.pos*sTransform.scale};
 
                 vertex.pos += 
                 glm::vec3{
@@ -44,11 +42,11 @@ namespace Engine::Types::Mesh
 
                 if (uniqueVertices.count(vertex) == 0) 
                 {
-                    uniqueVertices[vertex] = static_cast<uint32_t>(mesh.vertices.size());
-                    mesh.vertices.push_back(vertex);
+                    uniqueVertices[vertex] = static_cast<uint32_t>(vertices.size());
+                    vertices.push_back(vertex);
                 }
 
-                mesh.indices.push_back(uniqueVertices[vertex]);
+                indices.push_back(uniqueVertices[vertex]);
             }
         }
     }

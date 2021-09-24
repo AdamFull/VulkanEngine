@@ -73,7 +73,7 @@ namespace Engine
                 range_it->second.vListeners.emplace_back(std::move(dCallback));
             }
         }
-        m_mInputActions.emplace(eActionKey, MakeBindAxis(std::move(dCallback)));
+        m_mInputAxis.emplace(eActionKey, MakeBindAxis(std::move(dCallback)));
     }
 
     void InputMapper::Update(float fDeltaTime)
@@ -139,7 +139,7 @@ namespace Engine
                     auto& vListeners = range_it->second.vListeners;
                     for(auto& listener : vListeners)
                     {
-                        listener(axisIt);
+                        listener(axisIt->second);
                     }
                 }
             }

@@ -1,24 +1,44 @@
 #pragma once
-#include "VulkanMainStructures.h"
+#include <GLFW/glfw3.h>
 
-namespace Engine::Window
+namespace window
 {
-    EasyDelegate::TDelegate<void(int, int, int, int)> KeyCodeCallback;
-    EasyDelegate::TDelegate<void(double, double)> MousePositionCallback;
+    class WindowHandle
+    {
+    public:
+        WindowHandle();
+        ~WindowHandle();
 
-    int* pWidth{nullptr};
-    int* pHeight{nullptr};
-    bool* pWindowResized{nullptr};
+        void Create(uint32_t, uint32_t, const std::string&);
+        void ReCreate();
+        void Close();
 
-    void Initialize(Main::FVulkanEngine &engine, int width, int height, const char *srWinName);
-    void Destroy(Main::FVulkanEngine &engine);
+        void ResizeWindow(uint32_t, uint32_t);
 
-    void CreateWindowSurface(Main::FVulkanEngine &engine);
+        inline void PollEvents() { glfwPollEvents(); }
 
-    void PollEvents();
-    bool ShouldClose(Main::FVulkanEngine &engine);
+        inline bool IsShouldClose() { return glfwWindowShouldClose(m_pWindow); }
 
-    void FramebufferResizeCallback(GLFWwindow *window, int width, int height);
-    void KeyBoardInputCallback(GLFWwindow *window, int key, int scancode, int action, int mods);
-    void MousePositionInputCallback(GLFWwindow *window, double xpos, double ypos);
+        inline bool IsFrameBufferResized() { return m_bWasResized; }
+        inline void FrameBufferUpdated() { m_bWasResized = false; }
+
+        inline std::pair<int32_t, int32_t> GetSize() { return std::make_pair(m_iWidth, m_iHeight); }
+
+        inline GLFWwindow* GetWindowInstance() 
+        {
+            return m_pWindow;
+        }
+    
+    private:
+        int32_t m_iWidth{800};
+        int32_t m_iHeight{600};
+
+        bool m_bWasResized{false};
+        GLFWwindow* m_pWindow;
+
+        static void FramebufferResizeCallback(GLFWwindow*, int, int);
+        static void KeyCallback(GLFWwindow*, int, int, int, int);
+        static void MouseCursorPositionCallback(GLFWwindow*, double, double);
+        
+    };
 }

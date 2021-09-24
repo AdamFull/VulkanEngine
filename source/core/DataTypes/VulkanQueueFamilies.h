@@ -1,8 +1,9 @@
 #pragma once
+#include <optional>
 
 namespace Engine
 {
-    struct QueueFamilyIndices 
+    struct QueueFamilyIndices
     {
         std::optional<uint32_t> graphicsFamily;
         std::optional<uint32_t> presentFamily;

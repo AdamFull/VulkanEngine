@@ -46,5 +46,8 @@ namespace Engine
 
         std::map<EActionKey, EKeyState> m_mKeyStates;
         std::map<EActionKey, float> m_mAxisStates;
+
+        float fPosXOld{0}, fPosYOld{0}, fSpeedXOld{0}, fSpeedYOld{0};
+        float fDeltaTime{0};
     };
 }

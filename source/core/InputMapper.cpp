@@ -27,8 +27,21 @@ namespace Engine
 
     void InputMapper::MouseInput(double xpos, double ypos, double xmax, double ymax)
     {
-        m_mAxisStates[EActionKey::eMouseX] = Math::RangeToRange(xpos, 0.0, xmax, -1.0, 1.0);
-        m_mAxisStates[EActionKey::eMouseY] = Math::RangeToRange(ypos, 0.0, ymax, -1.0, 1.0);
+        //Calculate on screen position
+        fPosXOld = m_mAxisStates[EActionKey::eCursorPosX];
+        fPosYOld = m_mAxisStates[EActionKey::eCursorPosY];
+        m_mAxisStates[EActionKey::eCursorPosX] = Math::RangeToRange(xpos, 0.0, xmax, -1.0, 1.0);
+        m_mAxisStates[EActionKey::eCursorPosY] = Math::RangeToRange(ypos, 0.0, ymax, -1.0, 1.0);
+
+        //Calculate cursor speed
+        fSpeedXOld = m_mAxisStates[EActionKey::eCursorSpeedX];
+        fSpeedYOld = m_mAxisStates[EActionKey::eCursorSpeedY];
+        m_mAxisStates[EActionKey::eCursorSpeedX] = (m_mAxisStates[EActionKey::eCursorPosX] - fPosXOld)/fDeltaTime;
+        m_mAxisStates[EActionKey::eCursorSpeedY] = (m_mAxisStates[EActionKey::eCursorPosY] - fPosYOld)/fDeltaTime;
+
+        //Calculate cursor acceleration
+        m_mAxisStates[EActionKey::eCursorAccelX] = (m_mAxisStates[EActionKey::eCursorSpeedX] - fSpeedXOld)/fDeltaTime;
+        m_mAxisStates[EActionKey::eCursorAccelY] = (m_mAxisStates[EActionKey::eCursorSpeedY] - fSpeedYOld)/fDeltaTime;
     }
 
     void InputMapper::BindAction(EActionKey eKey, EKeyState eState, EasyDelegate::TDelegate<void()>&& dCallback)

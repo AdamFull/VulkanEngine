@@ -6,7 +6,14 @@ namespace Engine
     {
         m_pWindow = std::make_unique<WindowHandle>();
         m_pWindow->Create(800, 600, "Vulkan");
+
         m_pInputMapper = std::make_unique<InputMapper>();
+        m_pCamera = std::make_unique<CameraBase>();
+        m_pCamera->SetViewYXZ({0, 0, 0}, {180, 0, 0});
+        m_pCameraController = std::make_unique<CameraController>();
+        m_pCameraController->Initialize(m_pInputMapper);
+        m_pCameraController->BindView(EasyDelegate::TDelegate<void(glm::vec3, glm::vec3)>(m_pCamera.get(), &CameraBase::SetViewYXZ));
+
         m_pRender = std::make_unique<VulkanHighLevel>();
         m_pRender->Create(m_pWindow, "Vulkan", VK_MAKE_VERSION(1, 0, 0), "GENGINE", VK_MAKE_VERSION(1, 0, 0), VK_API_VERSION_1_0);
     }
@@ -23,9 +30,7 @@ namespace Engine
 
     void Application::CreatePipeline(const std::map<vk::ShaderStageFlagBits, std::string>& mShaders)
     {
-        m_pRender->LoadShader(mShaders);
-        m_pRender->CreateDescriptorSets();
-        m_pRender->CreateGraphicsPipeline();
+        m_pRender->AddPipeline(mShaders, PipelineBase::CreateDefaultDebugPipelineConfig(800, 600, vk::SampleCountFlagBits::e1));
         m_pRender->CreateCommandBuffers();
     }
 
@@ -40,6 +45,12 @@ namespace Engine
 
             m_pWindow->PollEvents();
             m_pInputMapper->Update(delta_time);
+
+            auto aspectRatio = m_pRender->GetAspect();
+            m_pCamera->SetPerspectiveProjection(glm::radians(45.f), aspectRatio, 0.1f, 50.f);
+            auto projectionView = m_pCamera->GetProjection() * m_pCamera->GetView();
+            m_pRender->SetProjectionView(projectionView);
+
             m_pRender->DrawFrame(delta_time);
 
             auto currentTime = std::chrono::high_resolution_clock::now();

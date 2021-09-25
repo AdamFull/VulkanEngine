@@ -2,11 +2,10 @@
 
 namespace Engine
 {
-    struct UniformBufferObject
+    struct UniformData 
     {
-        alignas(16) glm::mat4 model;
-        alignas(16) glm::mat4 view;
-        alignas(16) glm::mat4 proj;
+        glm::mat4 transform{1.f};
+        glm::mat4 normalMatrix{1.f};
     };
 
     struct VulkanTransform

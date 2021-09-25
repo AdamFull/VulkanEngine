@@ -4,16 +4,12 @@
 #include "DataTypes/VulkanSwapChainSipportDetails.h"
 #include "DataTypes/VulkanTexture.h"
 #include "DataTypes/VulkanMesh.h"
+#include "VulkanPipeline.h"
 
 namespace Engine
 {
     class WindowHandle;
-
-    struct FShaderCache
-    {
-        vk::ShaderStageFlagBits sShaderType;
-        std::vector<char> srShaderData;
-    };
+    class PipelineBase;
 
     VkResult CreateDebugUtilsMessengerEXT(VkInstance, const VkDebugUtilsMessengerCreateInfoEXT*, const VkAllocationCallbacks*, VkDebugUtilsMessengerEXT*);
     VKAPI_ATTR VkBool32 VKAPI_CALL ValidationCallback(VkDebugUtilsMessageSeverityFlagBitsEXT, VkDebugUtilsMessageTypeFlagsEXT, const VkDebugUtilsMessengerCallbackDataEXT*, void*);
@@ -33,15 +29,7 @@ namespace Engine
                                          const char *pEngineName, uint32_t engineVersion,
                                          uint32_t apiVersion);
 
-        void CreateDescriptorSetLayout();
-
-        //Pipeline
-        void LoadShader(const std::string& srShaderPath, vk::ShaderStageFlagBits fShaderType);
-        void LoadShader(const std::map<vk::ShaderStageFlagBits, std::string>& mShaders);
-
-        void RecreateShaders();
-        void LoadShader(const std::vector<char>& vShaderCode, vk::ShaderStageFlagBits fShaderType);
-        void CreateGraphicsPipeline();
+        void AddPipeline(const std::map<vk::ShaderStageFlagBits, std::string>& mShaders, FPipelineCreateInfo createInfo);
 
         void CreateFrameBuffers();
         void CreateCommandPool();
@@ -50,10 +38,6 @@ namespace Engine
         vk::Format FindSupportedFormat(const std::vector<vk::Format>&, vk::ImageTiling, vk::FormatFeatureFlags);
 
         void CreateMSAAResources();
-
-        void CreateUniformBuffers();
-        void CreateDescriptorPool();
-        void CreateDescriptorSets();
 
         template<class T>
         void MoveToMemory(T raw_data, vk::DeviceMemory& memory, vk::DeviceSize size)
@@ -68,6 +52,15 @@ namespace Engine
         void CreateCommandBuffers();
         vk::CommandBuffer BeginSingleTimeCommands();
         void EndSingleTimeCommands(vk::CommandBuffer);
+
+        //Descriptors
+        void CreateDescriptorSetLayout();
+        void CreateDescriptorPool();
+        void CreateDescriptorSets();
+
+        //Uniform
+        void CreateUniformBuffers();
+        void UpdateUniformBuffer(uint32_t index);
         
         void CreateSyncObjects();
 
@@ -103,14 +96,16 @@ namespace Engine
         void GenerateMipmaps(vk::Image&, uint32_t, vk::Format, vk::Extent3D, vk::ImageAspectFlags);
         void CreateSampler(vk::Sampler&, uint32_t);
 
-        void UpdateUniformBuffer(uint32_t);
-
         void CleanupSwapChain();
         //void CleanupTexture();
         void Cleanup();
         void RecreateSwapChain();
 
         void ValidateRunAbility();
+
+        float GetAspect() { return m_SwapChainExtent.width / (float)m_SwapChainExtent.height; }
+
+        void SetProjectionView(glm::mat4 projectionView) { m_matProjectionView = projectionView; }
 
     private:
         void CreateDebugCallback();
@@ -121,27 +116,30 @@ namespace Engine
         void CreateRenderPass();
 
     private:
+        //Device
         vk::UniqueInstance m_pVkInstance;                       //Main vulkan instance
-        //vk::UniqueDebugUtilsMessengerEXT m_pVkDebugUtils;       //Vulkan's debugger ulitities
         VkDebugUtilsMessengerEXT m_pVkDebugUtils;
         vk::SurfaceKHR m_pSurface;                              //Vulkan's drawing surface
 
-        //Device specific parameters
         vk::PhysicalDevice m_PhysicalDevice;
         vk::UniqueDevice m_pDevice;
         vk::Queue m_qGraphicsQueue;
         vk::Queue m_qPresentQueue;
 
+        //Pipeline
+        std::vector<std::unique_ptr<PipelineBase>> m_vPipelines;
+
+        //Descriptors
         vk::DescriptorSetLayout m_DescriptorSetLayout;
         vk::DescriptorPool m_DescriptorPool;
         std::vector<vk::DescriptorSet> m_vDescriptorSets;
 
-        //Pipeline
-        std::vector<FShaderCache> m_vShaderCache;
-        std::vector<vk::PipelineShaderStageCreateInfo> m_vShaderBuffer;
-        vk::PipelineLayout m_PipelineLayout;
-        vk::Pipeline m_GraphicsPipeline;
+        //Uniform
+        std::vector<vk::Buffer> m_vUniformBuffers;
+        std::vector<vk::DeviceMemory> m_vUniformBuffersMemory;
+        glm::mat4 m_matProjectionView;
 
+        //Swapchain
         vk::SwapchainKHR m_pSwapchain;
         std::vector<vk::Image> m_vSwapChainImages;
         vk::Format m_SwapChainImageFormat;
@@ -152,9 +150,6 @@ namespace Engine
         std::vector<vk::Framebuffer> m_vSwapChainFrameBuffers;
 
         vk::CommandPool m_pCommandPool;
-
-        std::vector<vk::Buffer> m_vUniformBuffers;
-        std::vector<vk::DeviceMemory> m_vUniformBuffersMemory;
 
         std::vector<vk::CommandBuffer, std::allocator<vk::CommandBuffer>> m_vCommandBuffer;
 

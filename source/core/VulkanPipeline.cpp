@@ -92,9 +92,9 @@ namespace Engine
         commandBuffer.bindPipeline(savedInfo.bindPoint, data.pipeline);
     }
 
-    void PipelineBase::PushConstants(vk::CommandBuffer& commandBuffer, UniformData& ubo)
+    void PipelineBase::PushConstants(vk::CommandBuffer& commandBuffer, FUniformData& ubo)
     {
-        //commandBuffer.pushConstants(data.layout, vk::ShaderStageFlagBits::eVertex | vk::ShaderStageFlagBits::eFragment, 0, sizeof(UniformData), &ubo);
+        //commandBuffer.pushConstants(data.layout, vk::ShaderStageFlagBits::eVertex | vk::ShaderStageFlagBits::eFragment, 0, sizeof(FUniformData), &ubo);
     }
 
     void PipelineBase::CreatePipelineLayout(vk::UniqueDevice& device, vk::DescriptorSetLayout& descriptorSetLayout)

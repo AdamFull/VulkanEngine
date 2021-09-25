@@ -68,7 +68,7 @@ namespace Engine
 
         void CreateVertexBuffer(std::vector<Vertex>& vertices, vk::Buffer& vertexBuffer, vk::DeviceMemory& vertexBufferMemory);
         void CreateIndexBuffer(std::vector<uint32_t>& indices, vk::Buffer& indexBuffer, vk::DeviceMemory& indiciesBufferMemory);
-        void AddVulkanMesh(std::string, VulkanTransform);
+        void AddVulkanMesh(std::string, FTransform);
 
         inline void GPUWait() { m_pDevice->waitIdle(); }
 

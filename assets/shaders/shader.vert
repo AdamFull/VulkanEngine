@@ -8,7 +8,7 @@ layout(location = 2) in vec2 inTexCoord;
 layout(location = 0) out vec4 fragColor;
 layout(location = 1) out vec2 fragTexCoord;
 
-layout(binding = 0) uniform UniformData 
+layout(binding = 0) uniform FUniformData 
 {
   mat4 transform; // projection * view * model
   mat4 normalMatrix;

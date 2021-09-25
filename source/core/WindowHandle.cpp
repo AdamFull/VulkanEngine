@@ -50,6 +50,7 @@ namespace Engine
         m_pWindow = glfwCreateWindow(iWidth, iHeight, srWinName.c_str(), nullptr, nullptr);
         glfwSetWindowUserPointer(m_pWindow, this);
         glfwSetInputMode(m_pWindow, GLFW_STICKY_KEYS, GLFW_TRUE);
+        glfwSetInputMode(m_pWindow, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
         glfwSetFramebufferSizeCallback(m_pWindow, &WindowHandle::FramebufferResizeCallback);
         glfwSetKeyCallback(m_pWindow, &WindowHandle::KeyBoardInputCallback);
         glfwSetCursorPosCallback(m_pWindow, &WindowHandle::MousePositionInputCallback);

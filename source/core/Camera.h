@@ -1,8 +1,9 @@
 #pragma once
+//#include "BaseObject.h"
 
 namespace Engine
 {
-    class CameraBase
+    class CameraBase // : public BaseObject
     {
     public:
         void SetOrthographicProjection(float left, float right, float top, float bottom, float near, float far);

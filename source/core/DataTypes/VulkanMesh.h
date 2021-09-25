@@ -18,7 +18,7 @@ namespace Engine
     class VulkanStaticMesh : public VulkanMeshBase
     {
     public:
-        void LoadStaticMesh(std::string srPath, VulkanTransform transform);
+        void LoadStaticMesh(std::string srPath, FTransform transform);
         
         void Bind(vk::CommandBuffer& commandBuffer);
         void Draw(vk::CommandBuffer& commandBuffer);

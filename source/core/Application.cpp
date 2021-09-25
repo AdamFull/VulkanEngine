@@ -5,14 +5,14 @@ namespace Engine
     void Application::Create()
     {
         m_pWindow = std::make_unique<WindowHandle>();
-        m_pWindow->Create(800, 600, "Vulkan");
+        m_pWindow->Create(1920, 1080, "Vulkan");
 
         m_pInputMapper = std::make_unique<InputMapper>();
         m_pCamera = std::make_unique<CameraBase>();
-        m_pCamera->SetViewYXZ({0, 0, 0}, {180, 0, 0});
+        m_pCamera->SetViewYXZ({0, 0, 0}, {0, 0, 0});
         m_pCameraController = std::make_unique<CameraController>();
         m_pCameraController->Initialize(m_pInputMapper);
-        m_pCameraController->BindView(EasyDelegate::TDelegate<void(glm::vec3, glm::vec3)>(m_pCamera.get(), &CameraBase::SetViewYXZ));
+        m_pCameraController->AttachCamera(m_pCamera);
 
         m_pRender = std::make_unique<VulkanHighLevel>();
         m_pRender->Create(m_pWindow, "Vulkan", VK_MAKE_VERSION(1, 0, 0), "GENGINE", VK_MAKE_VERSION(1, 0, 0), VK_API_VERSION_1_0);
@@ -30,7 +30,7 @@ namespace Engine
 
     void Application::CreatePipeline(const std::map<vk::ShaderStageFlagBits, std::string>& mShaders)
     {
-        m_pRender->AddPipeline(mShaders, PipelineBase::CreateDefaultDebugPipelineConfig(800, 600, vk::SampleCountFlagBits::e1));
+        m_pRender->AddPipeline(mShaders, PipelineBase::CreateDefaultDebugPipelineConfig(1920, 1080, vk::SampleCountFlagBits::e1));
         m_pRender->CreateCommandBuffers();
     }
 

@@ -48,7 +48,7 @@ namespace Engine
         PipelineBase& operator=(PipelineBase&&) = delete;
 
         void Bind(vk::CommandBuffer& commandBuffer);
-        void PushConstants(vk::CommandBuffer& commandBuffer, UniformData& ubo);
+        void PushConstants(vk::CommandBuffer& commandBuffer, FUniformData& ubo);
 
         void LoadShader(vk::UniqueDevice& device, const std::map<vk::ShaderStageFlagBits, std::string>& mShaders);
         void RecreatePipeline(vk::UniqueDevice& device, vk::DescriptorSetLayout& descriptorSetLayout, vk::RenderPass& renderPass, vk::Extent2D swapChainExtent);

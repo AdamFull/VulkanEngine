@@ -405,7 +405,7 @@ namespace Engine
             vk::DescriptorBufferInfo bufferInfo{};
             bufferInfo.buffer = m_vUniformBuffers[i];
             bufferInfo.offset = 0;
-            bufferInfo.range = sizeof(UniformData);
+            bufferInfo.range = sizeof(FUniformData);
 
             std::array<vk::WriteDescriptorSet, 2> descriptorWrites{};
             descriptorWrites[0].dstSet = m_vDescriptorSets[i];
@@ -428,7 +428,7 @@ namespace Engine
 
     void VulkanHighLevel::CreateUniformBuffers()
     {
-        vk::DeviceSize bufferSize = sizeof(UniformData);
+        vk::DeviceSize bufferSize = sizeof(FUniformData);
 
         m_vUniformBuffers.resize(m_vSwapChainImages.size());
         m_vUniformBuffersMemory.resize(m_vSwapChainImages.size());
@@ -448,13 +448,13 @@ namespace Engine
 
     void VulkanHighLevel::UpdateUniformBuffer(uint32_t index)
     {
-        glm::mat4 model = glm::rotate(glm::mat4(1.0f), glm::radians(0.0f), glm::vec3(0.0f, 0.0f, 1.0f));
+        glm::mat4 model = glm::rotate(glm::mat4(1.0f), glm::radians(90.0f), glm::vec3(1.0f, 0.0f, 0.0f));
         /*glm::mat4 view = glm::lookAt(glm::vec3(2.0f, 2.0f, 2.0f), glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3(0.0f, 0.0f, 1.0f));
         glm::mat4 proj = glm::perspective(glm::radians(45.0f), m_SwapChainExtent.width / (float)m_SwapChainExtent.height, 0.1f, 10.0f);
         proj[1][1] *= -1;
         auto projectionView = proj * view;*/
 
-        UniformData ubo{};
+        FUniformData ubo{};
         ubo.transform = m_matProjectionView * model;
 
         MoveToMemory(&ubo, m_vUniformBuffersMemory[index], sizeof(ubo));
@@ -607,7 +607,7 @@ namespace Engine
         m_pDevice->freeMemory(stagingBufferMemory);
     }
 
-    void VulkanHighLevel::AddVulkanMesh(std::string srPath, VulkanTransform transform)
+    void VulkanHighLevel::AddVulkanMesh(std::string srPath, FTransform transform)
     {
         VulkanStaticMesh mesh;
         mesh.LoadStaticMesh(srPath, transform);

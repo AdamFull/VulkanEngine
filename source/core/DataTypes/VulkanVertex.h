@@ -2,13 +2,13 @@
 
 namespace Engine
 {
-    struct UniformData 
+    struct FUniformData 
     {
         glm::mat4 transform{1.f};
         glm::mat4 normalMatrix{1.f};
     };
 
-    struct VulkanTransform
+    struct FTransform
     {
         glm::vec3 pos;
         glm::vec3 rot;

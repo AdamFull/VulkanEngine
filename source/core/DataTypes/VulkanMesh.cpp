@@ -5,7 +5,7 @@
 
 namespace Engine
 {
-    void VulkanStaticMesh::LoadStaticMesh(std::string srPath, VulkanTransform sTransform)
+    void VulkanStaticMesh::LoadStaticMesh(std::string srPath, FTransform sTransform)
     {
         tinyobj::attrib_t attrib;
         std::vector<tinyobj::shape_t> shapes;

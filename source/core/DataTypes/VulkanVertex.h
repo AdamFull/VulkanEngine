@@ -17,17 +17,25 @@ namespace Engine
 
     struct Vertex
     {
-        glm::vec3 pos;
-        glm::vec4 color;
-        glm::vec2 texCoord;
+        glm::vec3 pos{};
+        glm::vec3 color{};
+        glm::vec3 normal{};
+        glm::vec2 texcoord{};
 
         bool operator==(const Vertex& other) const 
         {
-            return pos == other.pos && color == other.color && texCoord == other.texCoord;
+            return pos == other.pos && color == other.color && normal == other.normal && texcoord == other.texcoord;
         }
 
         static vk::VertexInputBindingDescription getBindingDescription();
-        static std::array<vk::VertexInputAttributeDescription, 3> getAttributeDescriptions();
+        static std::array<vk::VertexInputAttributeDescription, 4> getAttributeDescriptions();
+    };
+
+    template <typename T, typename... Rest>
+    void hashCombine(std::size_t &seed, const T &v, const Rest &...rest)
+    {
+        seed ^= std::hash<T>{}(v) + 0x9e3779b9 + (seed << 6) + (seed >> 2);
+        (hashCombine(seed, rest), ...);
     };
 }
 
@@ -38,7 +46,21 @@ namespace std
     {
         size_t operator()(Engine::Vertex const &vertex) const
         {
-            return ((hash<glm::vec3>()(vertex.pos) ^ (hash<glm::vec3>()(vertex.color) << 1)) >> 1) ^ (hash<glm::vec2>()(vertex.texCoord) << 1);
+            size_t seed = 0;
+            Engine::hashCombine(seed, vertex.pos, vertex.color, vertex.normal, vertex.texcoord);
+            return seed;
         }
     };
 }
+
+/*namespace std
+{
+    template <>
+    struct hash<Engine::Vertex>
+    {
+        size_t operator()(Engine::Vertex const &vertex) const
+        {
+            return ((hash<glm::vec3>()(vertex.pos) ^ (hash<glm::vec3>()(vertex.color) << 1)) >> 1) ^ ((hash<glm::vec3>()(vertex.pos) ^ (hash<glm::vec3>()(vertex.color) << 1)) >> 1);
+        }
+    };
+}*/

@@ -13,9 +13,9 @@ namespace Engine
         return bindingDescription;
     }
 
-    std::array<vk::VertexInputAttributeDescription, 3> Vertex::getAttributeDescriptions()
+    std::array<vk::VertexInputAttributeDescription, 4> Vertex::getAttributeDescriptions()
     {
-        std::array<vk::VertexInputAttributeDescription, 3> attributeDescriptions = {};
+        std::array<vk::VertexInputAttributeDescription, 4> attributeDescriptions = {};
         attributeDescriptions[0].binding = 0;
         attributeDescriptions[0].location = 0;
         attributeDescriptions[0].format = vk::Format::eR32G32B32Sfloat;
@@ -23,13 +23,18 @@ namespace Engine
 
         attributeDescriptions[1].binding = 0;
         attributeDescriptions[1].location = 1;
-        attributeDescriptions[1].format = vk::Format::eR32G32B32A32Sfloat;
+        attributeDescriptions[1].format = vk::Format::eR32G32B32Sfloat;
         attributeDescriptions[1].offset = offsetof(Vertex, color);
 
         attributeDescriptions[2].binding = 0;
         attributeDescriptions[2].location = 2;
-        attributeDescriptions[2].format = vk::Format::eR32G32Sfloat;
-        attributeDescriptions[2].offset = offsetof(Vertex, texCoord);
+        attributeDescriptions[2].format = vk::Format::eR32G32B32Sfloat;
+        attributeDescriptions[2].offset = offsetof(Vertex, normal);
+
+        attributeDescriptions[3].binding = 0;
+        attributeDescriptions[3].location = 3;
+        attributeDescriptions[3].format = vk::Format::eR32G32Sfloat;
+        attributeDescriptions[3].offset = offsetof(Vertex, texcoord);
 
         return attributeDescriptions;
     }

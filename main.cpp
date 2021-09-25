@@ -11,7 +11,7 @@ int main()
         {vk::ShaderStageFlagBits::eFragment, "../../assets/shaders/frag.spv"}
     };
 
-    app.LoadTexture("../../assets/textures/femalebody_1.png");
+    app.LoadTexture("../../assets/textures/viking_room.png");
     app.LoadMesh("../../assets/meshes/femalebody.obj");
     app.LoadMesh("../../assets/meshes/viking_room.obj");
 

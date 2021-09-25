@@ -17,8 +17,6 @@ namespace Engine
         static vk::PresentModeKHR ChooseSwapPresentMode(const std::vector<vk::PresentModeKHR>);
         static vk::Extent2D СhooseSwapExtent(const vk::SurfaceCapabilitiesKHR&, GLFWwindow*);
 
-        static std::vector<char> ReadFile(const std::string &filename);
-
         static bool HasStencilComponent(vk::Format format);
     public:
         static const bool m_bEnableValidationLayers;

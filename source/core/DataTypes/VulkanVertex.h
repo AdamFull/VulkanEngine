@@ -35,9 +35,9 @@ namespace Engine
 namespace std
 {
     template <>
-    struct hash<Render::Vertex>
+    struct hash<Engine::Vertex>
     {
-        size_t operator()(Render::Vertex const &vertex) const
+        size_t operator()(Engine::Vertex const &vertex) const
         {
             return ((hash<glm::vec3>()(vertex.pos) ^ (hash<glm::vec3>()(vertex.color) << 1)) >> 1) ^ (hash<glm::vec2>()(vertex.texCoord) << 1);
         }

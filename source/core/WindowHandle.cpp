@@ -1,64 +1,90 @@
 #include "WindowHandle.h"
-#include "Engine.hpp"
 
-using namespace window;
-
-void WindowHandle::FramebufferResizeCallback(GLFWwindow* window, int width, int height) 
+namespace Engine
 {
-    auto pThis = reinterpret_cast<WindowHandle*>(glfwGetWindowUserPointer(window));
-    pThis->ResizeWindow(width, height);
-}
+    EasyDelegate::TDelegate<void(int, int, int, int)> WindowHandle::KeyCodeCallback;
+    EasyDelegate::TDelegate<void(double, double, double, double)> WindowHandle::MousePositionCallback;
+    int32_t WindowHandle::m_iWidth{800};
+    int32_t WindowHandle::m_iHeight{600};
+    bool WindowHandle::m_bWasResized{false};
 
-void WindowHandle::KeyCallback(GLFWwindow* window, int key, int scancode, int action, int mods)
-{
-    
-}
-
-void WindowHandle::MouseCursorPositionCallback(GLFWwindow* window, double xpos, double ypos)
-{
-}
-
-WindowHandle::WindowHandle()
-{
-    glfwInit();
-    glfwWindowHint(GLFW_CLIENT_API, GLFW_NO_API);
-}
-
-WindowHandle::~WindowHandle()
-{
-}
-
-void WindowHandle::Create(uint32_t iWidth, uint32_t iHeight, const std::string& srWinName)
-{
-    ResizeWindow(iWidth, iHeight);
-    FrameBufferUpdated();
-
-    m_pWindow = glfwCreateWindow(iWidth, iHeight, srWinName.c_str(), nullptr, nullptr);
-    glfwSetWindowUserPointer(m_pWindow, this);
-    glfwSetInputMode(m_pWindow, GLFW_STICKY_KEYS , GLFW_TRUE);
-    glfwSetFramebufferSizeCallback(m_pWindow, &WindowHandle::FramebufferResizeCallback);
-    //glfwSetKeyCallback(m_pWindow, &WindowHandle::KeyCallback);
-    //glfwSetCursorPosCallback(m_pWindow, &WindowHandle::MouseCursorPositionCallback);
-}
-
-void WindowHandle::ReCreate()
-{
-    while (m_iWidth == 0 || m_iHeight == 0)
+    void WindowHandle::FramebufferResizeCallback(GLFWwindow *window, int width, int height)
     {
-        glfwGetFramebufferSize(m_pWindow, &m_iWidth, &m_iHeight);
-        glfwWaitEvents();
+        auto pThis = reinterpret_cast<WindowHandle *>(glfwGetWindowUserPointer(window));
+        pThis->ResizeWindow(width, height);
     }
-}
 
-void WindowHandle::ResizeWindow(uint32_t iWidth, uint32_t iHeight)
-{
-    m_iWidth = iWidth;
-    m_iHeight = iHeight;
-    m_bWasResized = true;
-}
+    void WindowHandle::KeyBoardInputCallback(GLFWwindow *window, int key, int scancode, int action, int mods)
+    {
+        if (KeyCodeCallback)
+        {
+            KeyCodeCallback(key, scancode, action, mods);
+        }
+    }
 
-void WindowHandle::Close()
-{
-    glfwDestroyWindow(m_pWindow);
-    glfwTerminate();
+    void WindowHandle::MousePositionInputCallback(GLFWwindow *window, double xpos, double ypos)
+    {
+        if (MousePositionCallback)
+        {
+            double xmax = static_cast<double>(m_iWidth);
+            double ymax = static_cast<double>(m_iHeight);
+            MousePositionCallback(xpos, ypos, xmax, ymax);
+        }
+    }
+
+    WindowHandle::WindowHandle()
+    {
+        glfwInit();
+        glfwWindowHint(GLFW_CLIENT_API, GLFW_NO_API);
+    }
+
+    WindowHandle::~WindowHandle()
+    {
+    }
+
+    void WindowHandle::Create(uint32_t iWidth, uint32_t iHeight, const std::string &srWinName)
+    {
+        ResizeWindow(iWidth, iHeight);
+        FrameBufferUpdated();
+
+        m_pWindow = glfwCreateWindow(iWidth, iHeight, srWinName.c_str(), nullptr, nullptr);
+        glfwSetWindowUserPointer(m_pWindow, this);
+        glfwSetInputMode(m_pWindow, GLFW_STICKY_KEYS, GLFW_TRUE);
+        glfwSetFramebufferSizeCallback(m_pWindow, &WindowHandle::FramebufferResizeCallback);
+        glfwSetKeyCallback(m_pWindow, &WindowHandle::KeyBoardInputCallback);
+        glfwSetCursorPosCallback(m_pWindow, &WindowHandle::MousePositionInputCallback);
+    }
+
+    void WindowHandle::CreateWindowSurface(vk::UniqueInstance &instance, vk::SurfaceKHR &surface)
+    {
+        VkSurfaceKHR rawSurface;
+        if (glfwCreateWindowSurface(instance.get(), m_pWindow, nullptr, &rawSurface) != VK_SUCCESS) 
+        {
+            throw std::runtime_error("Failed to create window surface!");
+        }
+
+        surface = rawSurface;
+    }
+
+    void WindowHandle::ReCreate()
+    {
+        while (m_iWidth == 0 || m_iHeight == 0)
+        {
+            glfwGetFramebufferSize(m_pWindow, &m_iWidth, &m_iHeight);
+            glfwWaitEvents();
+        }
+    }
+
+    void WindowHandle::ResizeWindow(uint32_t iWidth, uint32_t iHeight)
+    {
+        m_iWidth = iWidth;
+        m_iHeight = iHeight;
+        m_bWasResized = true;
+    }
+
+    void WindowHandle::Close()
+    {
+        glfwDestroyWindow(m_pWindow);
+        glfwTerminate();
+    }
 }

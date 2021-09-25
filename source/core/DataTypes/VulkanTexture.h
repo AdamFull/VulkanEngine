@@ -2,7 +2,6 @@
 
 namespace Engine
 {
-    class VulkanHighLevel;
 
     class VulkanTextureBase
     {
@@ -19,17 +18,5 @@ namespace Engine
 
         void UpdateDescriptor();
         void Destroy(vk::UniqueDevice& device);
-    };
-
-    class VulkanTexture2D : public VulkanTextureBase
-    {
-    public:
-        void LoadTextureFromFile(std::string, vk::ImageLayout layout, vk::UniqueDevice& device);
-    };
-
-    class VulkanCubemap : public VulkanTextureBase
-    {
-    public:
-
     };
 }

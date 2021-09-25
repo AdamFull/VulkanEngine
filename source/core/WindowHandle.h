@@ -1,13 +1,18 @@
 #pragma once
 #include <GLFW/glfw3.h>
 
-namespace window
+namespace Engine
 {
     class WindowHandle
     {
     public:
         WindowHandle();
         ~WindowHandle();
+
+        WindowHandle(const WindowHandle&) = delete;
+        void operator=(const WindowHandle&) = delete;
+        WindowHandle(WindowHandle&&) = delete;
+        WindowHandle& operator=(WindowHandle&&) = delete;
 
         void Create(uint32_t, uint32_t, const std::string&);
         void ReCreate();
@@ -19,8 +24,9 @@ namespace window
 
         inline bool IsShouldClose() { return glfwWindowShouldClose(m_pWindow); }
 
-        inline bool IsFrameBufferResized() { return m_bWasResized; }
         inline void FrameBufferUpdated() { m_bWasResized = false; }
+
+        void CreateWindowSurface(vk::UniqueInstance& instance, vk::SurfaceKHR& surface);
 
         inline std::pair<int32_t, int32_t> GetSize() { return std::make_pair(m_iWidth, m_iHeight); }
 
@@ -28,17 +34,18 @@ namespace window
         {
             return m_pWindow;
         }
-    
-    private:
-        int32_t m_iWidth{800};
-        int32_t m_iHeight{600};
 
-        bool m_bWasResized{false};
+        static EasyDelegate::TDelegate<void(int, int, int, int)> KeyCodeCallback;
+        static EasyDelegate::TDelegate<void(double, double, double, double)> MousePositionCallback;
+        static int32_t m_iWidth;
+        static int32_t m_iHeight;
+        static bool m_bWasResized;
+    private:
         GLFWwindow* m_pWindow;
 
-        static void FramebufferResizeCallback(GLFWwindow*, int, int);
-        static void KeyCallback(GLFWwindow*, int, int, int, int);
-        static void MouseCursorPositionCallback(GLFWwindow*, double, double);
+        static void FramebufferResizeCallback(GLFWwindow *window, int width, int height);
+        static void KeyBoardInputCallback(GLFWwindow *window, int key, int scancode, int action, int mods);
+        static void MousePositionInputCallback(GLFWwindow *window, double xpos, double ypos);
         
     };
 }

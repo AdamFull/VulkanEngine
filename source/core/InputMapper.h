@@ -3,8 +3,6 @@
 
 namespace Engine
 {
-    class WindowHandle;
-
     enum class EKeyState
     {
         ePress,         // Just pressed
@@ -27,7 +25,13 @@ namespace Engine
     class InputMapper
     {
     public:
-        InputMapper(std::unique_ptr<WindowHandle>& winHandle);
+        InputMapper();
+
+        InputMapper(const InputMapper&) = delete;
+        void operator=(const InputMapper&) = delete;
+        InputMapper(InputMapper&&) = delete;
+        InputMapper& operator=(InputMapper&&) = delete;
+
         void BindAction(EActionKey eKey, EKeyState eState, EasyDelegate::TDelegate<void()>&& dCallback);
         void BindAxis(EActionKey eActionKey, EasyDelegate::TDelegate<void(float)>&& dCallback);
         void Update(float fDeltaTime);

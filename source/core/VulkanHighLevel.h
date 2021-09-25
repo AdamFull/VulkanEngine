@@ -4,22 +4,15 @@
 #include "DataTypes/VulkanSwapChainSipportDetails.h"
 #include "DataTypes/VulkanTexture.h"
 #include "DataTypes/VulkanMesh.h"
-#include "VulkanCamera.h"
 
 namespace Engine
 {
+    class WindowHandle;
+
     struct FShaderCache
     {
-        bool operator==(FShaderCache &rhs)
-        {
-            return rhs.srShaderPath == this->srShaderPath &&
-                   rhs.sShaderType == this->sShaderType &&
-                   rhs.srEntriePoint == this->srEntriePoint;
-        }
-
-        std::string srShaderPath;
         vk::ShaderStageFlagBits sShaderType;
-        std::string srEntriePoint;
+        std::vector<char> srShaderData;
     };
 
     VkResult CreateDebugUtilsMessengerEXT(VkInstance, const VkDebugUtilsMessengerCreateInfoEXT*, const VkAllocationCallbacks*, VkDebugUtilsMessengerEXT*);
@@ -32,11 +25,22 @@ namespace Engine
         VulkanHighLevel() = default;
         ~VulkanHighLevel();
 
-        void CreateInstance(const char*, uint32_t, const char*, uint32_t, uint32_t);
+        void Create(std::unique_ptr<WindowHandle>& pWindow, const char *pApplicationName, uint32_t applicationVersion,
+                                         const char *pEngineName, uint32_t engineVersion,
+                                         uint32_t apiVersion);
+
+        void CreateInstance(const char *pApplicationName, uint32_t applicationVersion,
+                                         const char *pEngineName, uint32_t engineVersion,
+                                         uint32_t apiVersion);
 
         void CreateDescriptorSetLayout();
 
-        void LoadShader(const char*, vk::ShaderStageFlagBits, const char*);
+        //Pipeline
+        void LoadShader(const std::string& srShaderPath, vk::ShaderStageFlagBits fShaderType);
+        void LoadShader(const std::map<vk::ShaderStageFlagBits, std::string>& mShaders);
+
+        void RecreateShaders();
+        void LoadShader(const std::vector<char>& vShaderCode, vk::ShaderStageFlagBits fShaderType);
         void CreateGraphicsPipeline();
 
         void CreateFrameBuffers();
@@ -47,8 +51,6 @@ namespace Engine
 
         void CreateMSAAResources();
 
-        void CreateVertexBuffer();
-        void CreateIndexBuffer();
         void CreateUniformBuffers();
         void CreateDescriptorPool();
         void CreateDescriptorSets();
@@ -70,12 +72,10 @@ namespace Engine
         void CreateSyncObjects();
 
         void AddVulkanTexture(std::string, uint32_t);
-        void AddVulkanMesh(std::string, VulkanTransform);
-        void AddVetricesAndIndices(std::vector<Vertex>, std::vector<uint32_t>);
-        void BindVetricesAndIndices();
 
-        void ReadMovementInput();
-        void AddMovementInput(float, float, float);
+        void CreateVertexBuffer(std::vector<Vertex>& vertices, vk::Buffer& vertexBuffer, vk::DeviceMemory& vertexBufferMemory);
+        void CreateIndexBuffer(std::vector<uint32_t>& indices, vk::Buffer& indexBuffer, vk::DeviceMemory& indiciesBufferMemory);
+        void AddVulkanMesh(std::string, VulkanTransform);
 
         inline void GPUWait() { m_pDevice->waitIdle(); }
 
@@ -95,7 +95,6 @@ namespace Engine
         
         SwapChainSupportDetails QuerySwapChainSupport(const vk::PhysicalDevice&);
         vk::Extent2D ChooseSwapExtent(const vk::SurfaceCapabilitiesKHR&);
-        void ReloadShaders();
 
         void CreateImage(vk::Image&, vk::DeviceMemory&, vk::Extent3D, uint32_t, vk::SampleCountFlagBits, vk::Format, vk::ImageTiling, vk::ImageUsageFlags, vk::MemoryPropertyFlags);
         void TransitionImageLayout(vk::Image&, uint32_t, vk::ImageAspectFlags, vk::ImageLayout, vk::ImageLayout);
@@ -107,13 +106,15 @@ namespace Engine
         void UpdateUniformBuffer(uint32_t);
 
         void CleanupSwapChain();
-        void CleanupTexture();
+        //void CleanupTexture();
         void Cleanup();
         void RecreateSwapChain();
 
+        void ValidateRunAbility();
+
     private:
         void CreateDebugCallback();
-        void CreateSurface();
+        void CreateSurface(std::unique_ptr<WindowHandle>& pWindow);
         void CreateDevice();
         void CreateSwapChain();
         void CreateSwapChainImageViews();
@@ -135,7 +136,8 @@ namespace Engine
         vk::DescriptorPool m_DescriptorPool;
         std::vector<vk::DescriptorSet> m_vDescriptorSets;
 
-        std::vector<FShaderCache> m_vShaderCacheInfo;
+        //Pipeline
+        std::vector<FShaderCache> m_vShaderCache;
         std::vector<vk::PipelineShaderStageCreateInfo> m_vShaderBuffer;
         vk::PipelineLayout m_PipelineLayout;
         vk::Pipeline m_GraphicsPipeline;
@@ -151,14 +153,6 @@ namespace Engine
 
         vk::CommandPool m_pCommandPool;
 
-        vk::Buffer m_pVertexBuffer;
-        std::vector<Vertex> m_vVertices;
-        vk::DeviceMemory m_pVertexBufferMemory;
-
-        vk::Buffer m_pIndexBuffer;
-        std::vector<uint32_t> m_vIndices;
-        vk::DeviceMemory m_pIndiciesBufferMemory;
-
         std::vector<vk::Buffer> m_vUniformBuffers;
         std::vector<vk::DeviceMemory> m_vUniformBuffersMemory;
 
@@ -168,12 +162,10 @@ namespace Engine
         std::vector<vk::Semaphore> m_vRenderFinishedSemaphores;
         std::vector<vk::Fence> m_vInFlightFences;
 
-        VulkanCamera camera;
-
         glm::vec3 m_vecPosition{0.f, 0.f, 0.f};
 
         //Loaded texture
-        std::unique_ptr<VulkanTexture2D> m_pTexture;
+        std::unique_ptr<VulkanTextureBase> m_pTexture;
         std::vector<VulkanStaticMesh> m_vMeshes;
 
         //Depth buffer
@@ -194,5 +186,3 @@ namespace Engine
         float m_fDeltaTime{0.0f};
     };
 }
-
-using VulkanHL = Render::VulkanHighLevel;

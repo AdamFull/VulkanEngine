@@ -3,6 +3,8 @@
 
 namespace Engine
 {
+    class Device;
+
     class VulkanMeshBase
     {
     public:
@@ -18,9 +20,12 @@ namespace Engine
     class VulkanStaticMesh : public VulkanMeshBase
     {
     public:
-        void LoadStaticMesh(std::string srPath, FTransform transform);
+        void LoadStaticMesh(std::unique_ptr<Device>& device, std::string srPath, FTransform transform);
         
         void Bind(vk::CommandBuffer& commandBuffer);
         void Draw(vk::CommandBuffer& commandBuffer);
+    private:
+        void CreateVertexBuffer(std::unique_ptr<Device>& device);
+        void CreateIndexBuffer(std::unique_ptr<Device>& device);
     };
 }

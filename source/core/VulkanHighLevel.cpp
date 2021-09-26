@@ -199,45 +199,10 @@ namespace Engine
         }
     }
 
-    void VulkanHighLevel::CreateVertexBuffer(std::vector<Vertex>& vertices, vk::Buffer& vertexBuffer, vk::DeviceMemory& vertexBufferMemory)
-    {
-        vk::DeviceSize bufferSize = sizeof(vertices[0]) * vertices.size();
-
-        vk::Buffer stagingBuffer;
-        vk::DeviceMemory stagingBufferMemory;
-        m_pDevice->CreateOnDeviceBuffer(bufferSize, vk::BufferUsageFlagBits::eTransferSrc, vk::MemoryPropertyFlagBits::eHostVisible | vk::MemoryPropertyFlagBits::eHostCoherent, stagingBuffer, stagingBufferMemory);
-        m_pDevice->MoveToMemory(vertices.data(), stagingBufferMemory, bufferSize);
-        m_pDevice->CreateOnDeviceBuffer(bufferSize, vk::BufferUsageFlagBits::eTransferDst | vk::BufferUsageFlagBits::eVertexBuffer, vk::MemoryPropertyFlagBits::eDeviceLocal, vertexBuffer, vertexBufferMemory);
-        m_pDevice->CopyOnDeviceBuffer(stagingBuffer, vertexBuffer, bufferSize);
-
-        m_pDevice->Destroy(stagingBuffer);
-        m_pDevice->Destroy(stagingBufferMemory);
-    }
-
-    void VulkanHighLevel::CreateIndexBuffer(std::vector<uint32_t>& indices, vk::Buffer& indexBuffer, vk::DeviceMemory& indiciesBufferMemory)
-    {
-        vk::DeviceSize bufferSize = sizeof(indices[0]) * indices.size();
-
-        vk::Buffer stagingBuffer;
-        vk::DeviceMemory stagingBufferMemory;
-        m_pDevice->CreateOnDeviceBuffer(bufferSize, vk::BufferUsageFlagBits::eTransferSrc, vk::MemoryPropertyFlagBits::eHostVisible | vk::MemoryPropertyFlagBits::eHostCoherent, stagingBuffer, stagingBufferMemory);
-        m_pDevice->MoveToMemory(indices.data(), stagingBufferMemory, bufferSize);
-        m_pDevice->CreateOnDeviceBuffer(bufferSize, vk::BufferUsageFlagBits::eTransferDst | vk::BufferUsageFlagBits::eIndexBuffer, vk::MemoryPropertyFlagBits::eDeviceLocal, indexBuffer, indiciesBufferMemory);
-        m_pDevice->CopyOnDeviceBuffer(stagingBuffer, indexBuffer, bufferSize);
-
-        m_pDevice->Destroy(stagingBuffer);
-        m_pDevice->Destroy(stagingBufferMemory);
-    }
-
     void VulkanHighLevel::AddVulkanMesh(std::string srPath, FTransform transform)
     {
         VulkanStaticMesh mesh;
-        mesh.LoadStaticMesh(srPath, transform);
-        if(!mesh.vertices.empty())
-            CreateVertexBuffer(mesh.vertices, mesh.vertexBuffer, mesh.vertexBufferMemory);
-        if(!mesh.indices.empty())
-            CreateIndexBuffer(mesh.indices, mesh.indexBuffer, mesh.indiciesBufferMemory);
-
+        mesh.LoadStaticMesh(m_pDevice, srPath, transform);
         m_vMeshes.push_back(mesh);
     }
 

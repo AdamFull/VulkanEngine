@@ -37,8 +37,6 @@ namespace Engine
 
         void AddVulkanTexture(std::string, uint32_t);
 
-        void CreateVertexBuffer(std::vector<Vertex>& vertices, vk::Buffer& vertexBuffer, vk::DeviceMemory& vertexBufferMemory);
-        void CreateIndexBuffer(std::vector<uint32_t>& indices, vk::Buffer& indexBuffer, vk::DeviceMemory& indiciesBufferMemory);
         void AddVulkanMesh(std::string, FTransform);
 
         void DrawFrame(float);

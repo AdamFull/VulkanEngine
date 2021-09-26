@@ -1,11 +1,12 @@
 #include "VulkanMesh.h"
+#include "VulkanDevice.h"
 
 #define TINYOBJLOADER_IMPLEMENTATION
 #include "external/tiny_obj_loader.h"
 
 namespace Engine
 {
-    void VulkanStaticMesh::LoadStaticMesh(std::string srPath, FTransform sTransform)
+    void VulkanStaticMesh::LoadStaticMesh(std::unique_ptr<Device>& device, std::string srPath, FTransform sTransform)
     {
         tinyobj::attrib_t attrib;
         std::vector<tinyobj::shape_t> shapes;
@@ -67,6 +68,11 @@ namespace Engine
                 indices.push_back(uniqueVertices[vertex]);
             }
         }
+
+        if(!vertices.empty())
+        CreateVertexBuffer(device);
+        if(!indices.empty())
+        CreateIndexBuffer(device);
     }
 
     void VulkanStaticMesh::Bind(vk::CommandBuffer& commandBuffer)
@@ -80,5 +86,35 @@ namespace Engine
     void VulkanStaticMesh::Draw(vk::CommandBuffer& commandBuffer)
     {
         commandBuffer.drawIndexed(static_cast<uint32_t>(indices.size()), 1, 0, 0, 0);
+    }
+
+    void VulkanStaticMesh::CreateVertexBuffer(std::unique_ptr<Device>& device)
+    {
+        vk::DeviceSize bufferSize = sizeof(vertices[0]) * vertices.size();
+
+        vk::Buffer stagingBuffer;
+        vk::DeviceMemory stagingBufferMemory;
+        device->CreateOnDeviceBuffer(bufferSize, vk::BufferUsageFlagBits::eTransferSrc, vk::MemoryPropertyFlagBits::eHostVisible | vk::MemoryPropertyFlagBits::eHostCoherent, stagingBuffer, stagingBufferMemory);
+        device->MoveToMemory(vertices.data(), stagingBufferMemory, bufferSize);
+        device->CreateOnDeviceBuffer(bufferSize, vk::BufferUsageFlagBits::eTransferDst | vk::BufferUsageFlagBits::eVertexBuffer, vk::MemoryPropertyFlagBits::eDeviceLocal, vertexBuffer, vertexBufferMemory);
+        device->CopyOnDeviceBuffer(stagingBuffer, vertexBuffer, bufferSize);
+
+        device->Destroy(stagingBuffer);
+        device->Destroy(stagingBufferMemory);
+    }
+
+    void VulkanStaticMesh::CreateIndexBuffer(std::unique_ptr<Device>& device)
+    {
+        vk::DeviceSize bufferSize = sizeof(indices[0]) * indices.size();
+
+        vk::Buffer stagingBuffer;
+        vk::DeviceMemory stagingBufferMemory;
+        device->CreateOnDeviceBuffer(bufferSize, vk::BufferUsageFlagBits::eTransferSrc, vk::MemoryPropertyFlagBits::eHostVisible | vk::MemoryPropertyFlagBits::eHostCoherent, stagingBuffer, stagingBufferMemory);
+        device->MoveToMemory(indices.data(), stagingBufferMemory, bufferSize);
+        device->CreateOnDeviceBuffer(bufferSize, vk::BufferUsageFlagBits::eTransferDst | vk::BufferUsageFlagBits::eIndexBuffer, vk::MemoryPropertyFlagBits::eDeviceLocal, indexBuffer, indiciesBufferMemory);
+        device->CopyOnDeviceBuffer(stagingBuffer, indexBuffer, bufferSize);
+
+        device->Destroy(stagingBuffer);
+        device->Destroy(stagingBufferMemory);
     }
 }

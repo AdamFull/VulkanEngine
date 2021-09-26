@@ -2,6 +2,7 @@
 
 namespace Engine
 {
+    class Device;
 
     class VulkanTextureBase
     {
@@ -16,7 +17,11 @@ namespace Engine
         vk::DescriptorImageInfo descriptor;
         vk::Sampler             sampler;
 
+        void Load(std::unique_ptr<Device>& device, std::string srPath, uint32_t idx);
+
         void UpdateDescriptor();
-        void Destroy(vk::UniqueDevice& device);
+        void Destroy(std::unique_ptr<Device>& device);
+    private:
+        void GenerateMipmaps(std::unique_ptr<Device>& device, vk::Image &image, uint32_t mipLevels, vk::Format format, vk::Extent3D sizes, vk::ImageAspectFlags aspectFlags);
     };
 }

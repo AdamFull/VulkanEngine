@@ -67,7 +67,6 @@ namespace Engine
         void TransitionImageLayout(vk::Image& image, uint32_t mip_levels, vk::ImageAspectFlags aspectFlags, vk::ImageLayout oldLayout, vk::ImageLayout newLayout);
         void CopyBufferToImage(vk::Buffer& buffer, vk::Image& image, vk::Extent3D sizes);
         vk::ImageView CreateImageView(vk::Image& pImage, uint32_t mip_levels, vk::Format eFormat, vk::ImageAspectFlags aspectFlags);
-        void GenerateMipmaps(vk::Image&, uint32_t, vk::Format, vk::Extent3D, vk::ImageAspectFlags);
         void CreateSampler(vk::Sampler& sampler, uint32_t mip_levels);
 
         void CreateOnDeviceBuffer(vk::DeviceSize size, vk::BufferUsageFlags usage, vk::MemoryPropertyFlags properties, vk::Buffer &buffer, vk::DeviceMemory &bufferMemory);

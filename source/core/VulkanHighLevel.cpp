@@ -2,9 +2,6 @@
 #include "VulkanStaticHelper.h"
 #include "WindowHandle.h"
 
-#define STB_IMAGE_IMPLEMENTATION
-#include "external/stb_image.h"
-
 namespace Engine
 {
     VulkanHighLevel::~VulkanHighLevel()
@@ -239,51 +236,7 @@ namespace Engine
     {
         //TODO: Add indexed layer of textures
         m_pTexture = std::make_unique<VulkanTextureBase>();
-
-        int w, h, c;
-        unsigned char* raw_data = stbi_load(srPath.c_str(), &w, &h, &c, STBI_rgb_alpha);
-
-        if (!raw_data)
-        {
-            //TODO: check result
-        }
-
-        m_pTexture->width = static_cast<uint32_t>(w);
-        m_pTexture->height = static_cast<uint32_t>(h);
-        m_pTexture->channels = static_cast<uint32_t>(c);
-        m_pTexture->mipLevels = static_cast<uint32_t>(std::floor(std::log2(std::max(m_pTexture->width, m_pTexture->height)))) + 1;
-
-        vk::DeviceSize imgSize = m_pTexture->width * m_pTexture->height * 4;
-        auto compiledSize = vk::Extent3D{m_pTexture->width, m_pTexture->height, m_pTexture->channels};
-
-        vk::Buffer stagingBuffer;
-        vk::DeviceMemory stagingBufferMemory;
-        m_pDevice->CreateOnDeviceBuffer(imgSize, vk::BufferUsageFlagBits::eTransferSrc,
-                             vk::MemoryPropertyFlagBits::eHostVisible | vk::MemoryPropertyFlagBits::eHostCoherent,
-                             stagingBuffer,
-                             stagingBufferMemory);
-
-        m_pDevice->MoveToMemory(raw_data, stagingBufferMemory , imgSize);
-
-        stbi_image_free(raw_data);
-
-        m_pDevice->CreateImage(m_pTexture->image, m_pTexture->deviceMemory, compiledSize, m_pTexture->mipLevels, vk::SampleCountFlagBits::e1, vk::Format::eR8G8B8A8Srgb, 
-                    vk::ImageTiling::eOptimal, vk::ImageUsageFlagBits::eTransferSrc | vk::ImageUsageFlagBits::eTransferDst | 
-                    vk::ImageUsageFlagBits::eSampled, vk::MemoryPropertyFlagBits::eDeviceLocal);
-
-        m_pDevice->TransitionImageLayout(m_pTexture->image, m_pTexture->mipLevels, vk::ImageAspectFlagBits::eColor, vk::ImageLayout::eUndefined, vk::ImageLayout::eTransferDstOptimal);
-        m_pDevice->CopyBufferToImage(stagingBuffer, m_pTexture->image, compiledSize);
-        m_pDevice->GenerateMipmaps(m_pTexture->image, m_pTexture->mipLevels, vk::Format::eR8G8B8A8Srgb, compiledSize, vk::ImageAspectFlagBits::eColor);
-
-        m_pDevice->Destroy(stagingBuffer);
-        m_pDevice->Destroy(stagingBufferMemory);
-
-        m_pTexture->view = m_pDevice->CreateImageView(m_pTexture->image, m_pTexture->mipLevels, vk::Format::eR8G8B8A8Srgb, vk::ImageAspectFlagBits::eColor);
-
-        m_pDevice->CreateSampler(m_pTexture->sampler, m_pTexture->mipLevels);
-        m_pTexture->imageLayout = vk::ImageLayout::eShaderReadOnlyOptimal;
-
-        m_pTexture->UpdateDescriptor();
+        m_pTexture->Load(m_pDevice, srPath, idx);
     }
 
     void VulkanHighLevel::DrawFrame(float fDeltaTime)

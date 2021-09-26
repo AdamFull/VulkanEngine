@@ -143,6 +143,7 @@ namespace Engine
         auto deviceFeatures = vk::PhysicalDeviceFeatures();
         deviceFeatures.samplerAnisotropy = VK_TRUE;
         deviceFeatures.sampleRateShading = VK_TRUE;
+        deviceFeatures.fillModeNonSolid = VK_TRUE;
 
         auto createInfo = vk::DeviceCreateInfo(
             vk::DeviceCreateFlags(),

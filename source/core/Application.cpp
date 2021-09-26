@@ -30,7 +30,7 @@ namespace Engine
 
     void Application::CreatePipeline(const std::map<vk::ShaderStageFlagBits, std::string>& mShaders)
     {
-        m_pRender->AddPipeline(mShaders, PipelineBase::CreateDefaultDebugPipelineConfig(1920, 1080, vk::SampleCountFlagBits::e1));
+        m_pRender->AddPipeline(mShaders, PipelineBase::CreateDefaultPipelineConfig(1920, 1080, vk::SampleCountFlagBits::e1));
         m_pRender->CreateCommandBuffers();
     }
 

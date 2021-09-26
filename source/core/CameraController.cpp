@@ -6,14 +6,11 @@ namespace Engine
 {
     void CameraController::Initialize(std::unique_ptr<InputMapper>& mapper)
     {
-        mapper->BindAction(EActionKey::eW, EKeyState::ePressed, this, &CameraController::MoveForward);
-        mapper->BindAction(EActionKey::eS, EKeyState::ePressed, this, &CameraController::MoveBackward);
-        mapper->BindAction(EActionKey::eA, EKeyState::ePressed, this, &CameraController::MoveLeft);
-        mapper->BindAction(EActionKey::eD, EKeyState::ePressed, this, &CameraController::MoveRight);
-        mapper->BindAction(EActionKey::eQ, EKeyState::ePressed, this, &CameraController::MoveUp);
-        mapper->BindAction(EActionKey::eE, EKeyState::ePressed, this, &CameraController::MoveDown);
-
-        mapper->BindAxis(EActionKey::eCursorDelta, this, &CameraController::MouseRotation);
+        mapper->CreateAction("CameraMovement", EActionKey::eW, EActionKey::eS, EActionKey::eA, EActionKey::eD, EActionKey::eQ, EActionKey::eE);
+        mapper->CreateAction("CameraRotation", EActionKey::eCursorDelta);
+        
+        mapper->BindAction("CameraMovement", EKeyState::ePressed, this, &CameraController::CameraMovement);
+        mapper->BindAxis("CameraRotation", this, &CameraController::MouseRotation);
     }
 
     void CameraController::AttachCamera(std::unique_ptr<CameraBase>& camera)
@@ -21,54 +18,21 @@ namespace Engine
         ViewRotation = EasyDelegate::TDelegate<void(glm::vec3, glm::vec3)>(camera.get(), &CameraBase::SetViewYXZ);
     }
 
-    void CameraController::MoveForward()
+    void CameraController::CameraMovement(EActionKey eKey)
     {
-        m_vecPosition.z += 0.0005;
-        if(ViewRotation)
+        switch (eKey)
         {
-            ViewRotation(m_vecPosition, m_vecRotation);
+        case EActionKey::eW: m_vecPosition.z += 0.0005; break;
+        case EActionKey::eS: m_vecPosition.z += -0.0005; break;
+        case EActionKey::eA: m_vecPosition.x += 0.0005; break;
+        case EActionKey::eD: m_vecPosition.x += -0.0005; break;
+        case EActionKey::eQ: m_vecPosition.y += 0.0005; break;
+        case EActionKey::eE: m_vecPosition.y += -0.0005; break;
+        
+        default:
+            break;
         }
-    }
-
-    void CameraController::MoveBackward()
-    {
-        m_vecPosition.z += -0.0005;
-        if(ViewRotation)
-        {
-            ViewRotation(m_vecPosition, m_vecRotation);
-        }
-    }
-
-    void CameraController::MoveLeft()
-    {
-        m_vecPosition.x += 0.0005;
-        if(ViewRotation)
-        {
-            ViewRotation(m_vecPosition, m_vecRotation);
-        }
-    }
-
-    void CameraController::MoveRight()
-    {
-        m_vecPosition.x += -0.0005;
-        if(ViewRotation)
-        {
-            ViewRotation(m_vecPosition, m_vecRotation);
-        }
-    }
-
-    void CameraController::MoveUp()
-    {
-        m_vecPosition.y += 0.0005;
-        if(ViewRotation)
-        {
-            ViewRotation(m_vecPosition, m_vecRotation);
-        }
-    }
-
-    void CameraController::MoveDown()
-    {
-        m_vecPosition.y += -0.0005;
+        
         if(ViewRotation)
         {
             ViewRotation(m_vecPosition, m_vecRotation);

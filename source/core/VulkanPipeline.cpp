@@ -81,7 +81,7 @@ namespace Engine
 
     FPipelineCreateInfo PipelineBase::CreateDefaultDebugPipelineConfig(uint32_t width, uint32_t height, vk::SampleCountFlagBits samples)
     {
-        FPipelineCreateInfo createInfo = CreatePipelineConfig(width, height, vk::PrimitiveTopology::eTriangleList, vk::PolygonMode::eFill,
+        FPipelineCreateInfo createInfo = CreatePipelineConfig(width, height, vk::PrimitiveTopology::eTriangleList, vk::PolygonMode::eLine,
                                     vk::CullModeFlagBits::eBack, vk::FrontFace::eCounterClockwise, samples);
         createInfo.bindPoint = vk::PipelineBindPoint::eGraphics;
         return createInfo;

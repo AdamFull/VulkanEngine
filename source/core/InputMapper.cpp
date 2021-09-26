@@ -38,26 +38,78 @@ namespace Engine
     void InputMapper::Update(float fDeltaTime)
     {
         m_fDeltaTime = fDeltaTime;
-        for(auto& [key, value] : m_mKeyStates)
+
+        for(auto& [key, value] : m_mInputDescriptor)
         {
-            HandleActions(key, value);
+            auto keyState = m_mKeyStates.find(key);
+            if(keyState != m_mKeyStates.end())
+            {
+                //If we have multiple bindings to this key
+                auto range = m_mInputDescriptor.equal_range(key);
+                for(auto range_it = range.first; range_it != range.second; ++range_it)
+                {
+                    HandleActions(range_it->second, key, keyState->second);
+                }
 
-            if(value == EKeyState::ePress)
-                value = EKeyState::ePressed;
-            else if(value == EKeyState::eRelease)
-                value = EKeyState::eReleased;
+                if(keyState->second == EKeyState::ePress)
+                    keyState->second = EKeyState::ePressed;
+                else if(keyState->second == EKeyState::eRelease)
+                    keyState->second = EKeyState::eReleased;
+            }
+
+            auto keyAxis = m_mAxisStates.find(key);
+            if(keyAxis != m_mAxisStates.end())
+            {
+                //If we have multiple bindings to this key
+                auto range = m_mInputDescriptor.equal_range(key);
+                for(auto range_it = range.first; range_it != range.second; ++range_it)
+                {
+                    HandleAxis(range_it->second, keyAxis->second);
+                }
+
+                m_mAxisStates[key] = {};        //Reset axis
+            }
         }
-
-        for(auto& [key, value] : m_mAxisStates)
-        {
-            HandleAxis(key, value);
-        }
-
-        m_mAxisStates[EActionKey::eCursorDelta] = {};
-        m_mAxisStates[EActionKey::eCursorDelta] = {};
     }
 
-    FInputAction InputMapper::MakeBindAction(EKeyState eState, EasyDelegate::TDelegate<void()>&& dCallback)
+    void InputMapper::HandleActions(std::string srActionName, EActionKey eKey, const EKeyState& eKeyState)
+    {
+        auto it = m_mInputActions.find(srActionName);
+        if(it != m_mInputActions.end())
+        {
+            auto range = m_mInputActions.equal_range(srActionName);
+            for(auto range_it = range.first; range_it != range.second; ++range_it)
+            {
+                if(range_it->second.eState == eKeyState)
+                {
+                    auto& vListeners = range_it->second.vListeners;
+                    for(auto& listener : vListeners)
+                    {
+                        listener(eKey);
+                    }
+                }
+            }
+        }
+    }
+
+    void InputMapper::HandleAxis(std::string srActionName, glm::vec2 fValue)
+    {
+        auto it = m_mInputAxis.find(srActionName);
+        if (it != m_mInputAxis.end())
+        {
+            auto range = m_mInputAxis.equal_range(srActionName);
+            for (auto range_it = range.first; range_it != range.second; ++range_it)
+            {
+                auto &vListeners = range_it->second.vListeners;
+                for (auto &listener : vListeners)
+                {
+                    listener(fValue.x, fValue.y);
+                }
+            }
+        }
+    }
+
+    FInputAction InputMapper::MakeBindAction(EKeyState eState, EasyDelegate::TDelegate<void(EActionKey)>&& dCallback)
     {
         FInputAction newAction;
         newAction.eState = eState;
@@ -70,46 +122,5 @@ namespace Engine
         FInputAxis newAxis;
         newAxis.vListeners.emplace_back(std::move(dCallback));
         return newAxis;
-    }
-
-    void InputMapper::HandleActions(const EActionKey& eActionKey, const EKeyState& eKeyState)
-    {
-        auto it = m_mInputActions.find(eActionKey);
-        if(it != m_mInputActions.end())
-        {
-            auto range = m_mInputActions.equal_range(eActionKey);
-            for(auto range_it = range.first; range_it != range.second; ++range_it)
-            {
-                if(range_it->second.eState == eKeyState)
-                {
-                    auto& vListeners = range_it->second.vListeners;
-                    for(auto& listener : vListeners)
-                    {
-                        listener();
-                    }
-                }
-            }
-        }
-    }
-
-    void InputMapper::HandleAxis(const EActionKey& eActionKey, glm::vec2 fValue)
-    {
-        auto axisIt = m_mAxisStates.find(eActionKey);
-        if(axisIt != m_mAxisStates.end())
-        {
-            auto it = m_mInputAxis.find(eActionKey);
-            if(it != m_mInputAxis.end())
-            {
-                auto range = m_mInputAxis.equal_range(eActionKey);
-                for(auto range_it = range.first; range_it != range.second; ++range_it)
-                {
-                    auto& vListeners = range_it->second.vListeners;
-                    for(auto& listener : vListeners)
-                    {
-                        listener(axisIt->second.x, axisIt->second.y);
-                    }
-                }
-            }
-        }
     }
 }

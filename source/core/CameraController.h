@@ -1,4 +1,5 @@
 #pragma once
+#include "KeycodeConfig.h"
 
 namespace Engine
 {
@@ -12,12 +13,7 @@ namespace Engine
         void AttachCamera(std::unique_ptr<CameraBase>& camera);
 
     private:
-        void MoveForward();
-        void MoveBackward();
-        void MoveLeft();
-        void MoveRight();
-        void MoveUp();
-        void MoveDown();
+        void CameraMovement(EActionKey eKey);
         void MouseRotation(float fX, float fY);
 
         glm::vec3 m_vecRotation{0.f, 0.f, 0.f};

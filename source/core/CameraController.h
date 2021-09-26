@@ -1,6 +1,5 @@
 #pragma once
 #include "KeycodeConfig.h"
-#include "DataTypes/VulkanVertex.h"
 
 namespace Engine
 {
@@ -11,20 +10,22 @@ namespace Engine
     {
     public:
         void Initialize(std::unique_ptr<InputMapper>& mapper);
-        void AttachCamera(std::unique_ptr<CameraBase>& camera);
-
         void Update(float fDeltaTime);
+
+        inline std::shared_ptr<CameraBase>& GetCamera() { return m_pCamera; }
+        void UpdateProjection(float fAspectRatio);
 
     private:
         void CameraMovement(EActionKey eKey);
         void MouseRotation(float fX, float fY);
+        void CameraToPoint(float fX, float fY);
 
-        FTransform transform;
+        std::shared_ptr<CameraBase> m_pCamera;
 
-        EasyDelegate::TDelegate<void(glm::vec3, glm::vec3)> ViewRotation;
-
-        float m_fDeltaTime{0.f};
-        float m_fMoveSpeed{3.f};
-        float m_fLookSpeed{500.f};
+        bool m_bRotatePass{false};
+        float m_fDeltaTime{ 0.f };
+        float m_fMoveSpeed{ 5.f };
+        float m_fScrollSpeed{ 100.f };
+        float m_fLookSpeed{ 1000.f };
     };
 }

@@ -7,7 +7,8 @@ namespace Engine
     InputMapper::InputMapper()
     {
         WindowHandle::KeyCodeCallback.attach(this, &InputMapper::KeyBoardInput);
-        WindowHandle::MousePositionCallback.attach(this, &InputMapper::MouseInput);
+        WindowHandle::MousePositionCallback.attach(this, &InputMapper::MouseMovementInput);
+        WindowHandle::MouseWheelCallback.attach(this, &InputMapper::MouseWheelInput);
     }
 
     void InputMapper::KeyBoardInput(int key, int scancode, int action, int mods)
@@ -25,14 +26,19 @@ namespace Engine
         }
     }
 
-    void InputMapper::MouseInput(double xpos, double ypos, double xmax, double ymax)
-    {   
+    void InputMapper::MouseMovementInput(double xpos, double ypos, double xmax, double ymax)
+    {
         //Calculate on screen position
         fPosOld = m_mAxisStates[EActionKey::eCursorPos];
         m_mAxisStates[EActionKey::eCursorPos] = {Math::RangeToRange(xpos, 0.0, xmax, -1.0, 1.0), Math::RangeToRange(ypos, 0.0, ymax, -1.0, 1.0)};
 
         //Calculate cursor pos delta
         m_mAxisStates[EActionKey::eCursorDelta] = (m_mAxisStates[EActionKey::eCursorPos] - fPosOld)*m_fDeltaTime;
+    }
+
+    void InputMapper::MouseWheelInput(double xpos, double ypos)
+    {
+        m_mAxisStates[EActionKey::eScrol] = glm::vec2{xpos * m_fDeltaTime, ypos * m_fDeltaTime};
     }
 
     void InputMapper::Update(float fDeltaTime)

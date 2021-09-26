@@ -6,16 +6,16 @@ namespace Engine
 {
     void CameraController::Initialize(std::unique_ptr<InputMapper>& mapper)
     {
-        mapper->CreateAction("CameraMovement", EActionKey::eW, EActionKey::eS, EActionKey::eA, EActionKey::eD, EActionKey::eSpace, EActionKey::eLeftControl);
+        mapper->CreateAction("CameraMovement", EActionKey::eW, EActionKey::eS, EActionKey::eA, 
+        EActionKey::eD, EActionKey::eSpace, EActionKey::eLeftControl, EActionKey::eMouseMiddle);
         mapper->CreateAction("CameraRotation", EActionKey::eCursorDelta);
+        mapper->CreateAction("CameraMovementToPoint", EActionKey::eScrol);
         
         mapper->BindAction("CameraMovement", EKeyState::ePressed, this, &CameraController::CameraMovement);
         mapper->BindAxis("CameraRotation", this, &CameraController::MouseRotation);
-    }
+        mapper->BindAxis("CameraMovementToPoint", this, &CameraController::CameraToPoint);
 
-    void CameraController::AttachCamera(std::unique_ptr<CameraBase>& camera)
-    {
-        ViewRotation = EasyDelegate::TDelegate<void(glm::vec3, glm::vec3)>(camera.get(), &CameraBase::SetViewYXZ);
+        m_pCamera = std::make_shared<CameraBase>();
     }
 
     void CameraController::Update(float fDeltaTime)
@@ -25,24 +25,21 @@ namespace Engine
 
     void CameraController::CameraMovement(EActionKey eKey)
     {
-        //TODO: Move forward vector and right vector to camera
-        float yaw = transform.rot.y;
-        const glm::vec3 forwardVector{sin(yaw), 0.f, cos(yaw)};
-        const glm::vec3 rightVector{forwardVector.z, 0.f, -forwardVector.x};
-        const glm::vec3 upVector{0.f, -1.f, 0.f};
+        FTransform transform = m_pCamera->GetTransform();
 
         glm::vec3 direction{0.f};
         switch (eKey)
         {
-        case EActionKey::eW: direction += forwardVector; break;
-        case EActionKey::eS: direction -= forwardVector; break;
-        case EActionKey::eA: direction += rightVector; break;
-        case EActionKey::eD: direction -= rightVector; break;
-        case EActionKey::eSpace: direction += upVector; break;
-        case EActionKey::eLeftControl: direction -= upVector; break;
-        
-        default:
-            break;
+            case EActionKey::eW: direction += m_pCamera->GetForwardVector(); break;
+            case EActionKey::eS: direction -= m_pCamera->GetForwardVector(); break;
+            case EActionKey::eA: direction -= m_pCamera->GetRightVector(); break;
+            case EActionKey::eD: direction += m_pCamera->GetRightVector(); break;
+            case EActionKey::eSpace: direction += m_pCamera->GetUpVector(); break;
+            case EActionKey::eLeftControl: direction -= m_pCamera->GetUpVector(); break;
+            case EActionKey::eMouseMiddle: m_bRotatePass = true; break;
+            
+            default:
+                break;
         }
 
         if (glm::dot(direction, direction) > std::numeric_limits<float>::epsilon())
@@ -50,14 +47,15 @@ namespace Engine
             transform.pos += m_fMoveSpeed * m_fDeltaTime * glm::normalize(direction);
         }
         
-        if(ViewRotation)
-        {
-            ViewRotation(transform.pos, transform.rot);
-        }
+        m_pCamera->SetViewYXZ(transform);
     }
 
     void CameraController::MouseRotation(float fX, float fY)
     {
+        if(!m_bRotatePass)
+            return;
+
+        FTransform transform = m_pCamera->GetTransform();
         glm::vec3 rotate = glm::vec3{fY * m_fLookSpeed * -1.f, fX * m_fLookSpeed, 0.f};
 
         if(glm::dot(rotate, rotate) > std::numeric_limits<float>::epsilon())
@@ -68,9 +66,20 @@ namespace Engine
         transform.rot.x = glm::clamp(transform.rot.x, -1.5f, 1.5f);
         transform.rot.y = glm::mod(transform.rot.y, glm::two_pi<float>());
 
-        if (ViewRotation)
+        m_pCamera->SetViewYXZ(transform);
+        m_bRotatePass = false;
+    }
+
+    void CameraController::CameraToPoint(float fX, float fY)
+    {
+        FTransform transform = m_pCamera->GetTransform();
+        glm::vec3 direction = m_pCamera->GetForwardVector() * fY;
+
+        if (glm::dot(direction, direction) > std::numeric_limits<float>::epsilon())
         {
-            ViewRotation(transform.pos, transform.rot);
+            transform.pos += m_fScrollSpeed * direction;
         }
+        
+        m_pCamera->SetViewYXZ(transform);
     }
 }

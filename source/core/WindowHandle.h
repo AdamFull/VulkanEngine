@@ -37,6 +37,7 @@ namespace Engine
 
         static EasyDelegate::TDelegate<void(int, int, int, int)> KeyCodeCallback;
         static EasyDelegate::TDelegate<void(double, double, double, double)> MousePositionCallback;
+        static EasyDelegate::TDelegate<void(double, double)> MouseWheelCallback;
         static int32_t m_iWidth;
         static int32_t m_iHeight;
         static bool m_bWasResized;
@@ -46,6 +47,8 @@ namespace Engine
         static void FramebufferResizeCallback(GLFWwindow *window, int width, int height);
         static void KeyBoardInputCallback(GLFWwindow *window, int key, int scancode, int action, int mods);
         static void MousePositionInputCallback(GLFWwindow *window, double xpos, double ypos);
+        static void MouseButtonInputCallback(GLFWwindow *window, int button, int action, int mods);
+        static void MouseWheelInputCallback(GLFWwindow *window, double xpos, double ypos);
         
     };
 }

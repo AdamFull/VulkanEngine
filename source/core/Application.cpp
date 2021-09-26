@@ -1,4 +1,5 @@
 #include "Application.h"
+#include "Camera.h"
 
 namespace Engine
 {
@@ -11,11 +12,8 @@ namespace Engine
         m_pInputMapper->CreateAction("ServiceHandles", EActionKey::eEscape, EActionKey::eF1);
         m_pInputMapper->BindAction("ServiceHandles", EKeyState::eRelease, this, &Application::ServiceHandle);
 
-        m_pCamera = std::make_unique<CameraBase>();
-        m_pCamera->SetViewYXZ({0, 0, 0}, {0, 0, 0});
         m_pCameraController = std::make_unique<CameraController>();
         m_pCameraController->Initialize(m_pInputMapper);
-        m_pCameraController->AttachCamera(m_pCamera);
 
         m_pRender = std::make_unique<VulkanHighLevel>();
         m_pRender->Create(m_pWindow, "Vulkan", VK_MAKE_VERSION(1, 0, 0), "GENGINE", VK_MAKE_VERSION(1, 0, 0), VK_API_VERSION_1_0);
@@ -60,8 +58,9 @@ namespace Engine
             m_pCameraController->Update(delta_time);
 
             auto aspectRatio = m_pRender->GetAspect();
-            m_pCamera->SetPerspectiveProjection(glm::radians(45.f), aspectRatio, 0.1f, 50.f);
-            auto projectionView = m_pCamera->GetProjection() * m_pCamera->GetView();
+            auto camera = m_pCameraController->GetCamera();
+            camera->SetPerspectiveProjection(glm::radians(90.f), aspectRatio, 0.1f, 50.f);
+            auto projectionView = camera->GetProjection() * camera->GetView();
             m_pRender->SetProjectionView(projectionView);
 
             m_pRender->DrawFrame(delta_time);

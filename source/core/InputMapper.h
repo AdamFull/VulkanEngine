@@ -80,7 +80,8 @@ namespace Engine
         void Update(float fDeltaTime);
     private:
         void KeyBoardInput(int key, int scancode, int action, int mods);
-        void MouseInput(double xpos, double ypos, double xmax, double ymax);
+        void MouseMovementInput(double xpos, double ypos, double xmax, double ymax);
+        void MouseWheelInput(double xpos, double ypos);
 
         void HandleActions(std::string srActionName, EActionKey eKey, const EKeyState& eKeyState);
         void HandleAxis(std::string srAxisName,  glm::vec2 fValue);
@@ -96,7 +97,7 @@ namespace Engine
         std::map<EActionKey, EKeyState> m_mKeyStates;
         std::map<EActionKey, glm::vec2> m_mAxisStates;
 
-         glm::vec2 fPosOld{0.f, 0.f};
+        glm::vec2 fPosOld{0.f, 0.f};
         float m_fDeltaTime{0};
     };
 }

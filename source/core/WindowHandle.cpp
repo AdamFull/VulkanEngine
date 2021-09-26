@@ -4,6 +4,7 @@ namespace Engine
 {
     EasyDelegate::TDelegate<void(int, int, int, int)> WindowHandle::KeyCodeCallback;
     EasyDelegate::TDelegate<void(double, double, double, double)> WindowHandle::MousePositionCallback;
+    EasyDelegate::TDelegate<void(double, double)> WindowHandle::MouseWheelCallback;
     int32_t WindowHandle::m_iWidth{800};
     int32_t WindowHandle::m_iHeight{600};
     bool WindowHandle::m_bWasResized{false};
@@ -32,6 +33,22 @@ namespace Engine
         }
     }
 
+    void WindowHandle::MouseButtonInputCallback(GLFWwindow* window, int button, int action, int mods)
+    {
+        if (KeyCodeCallback)
+        {
+            KeyCodeCallback(button, 0, action, mods);
+        }
+    }
+
+    void WindowHandle::MouseWheelInputCallback(GLFWwindow *window, double xpos, double ypos)
+    {
+        if (MouseWheelCallback)
+        {
+            MouseWheelCallback(xpos, ypos);
+        }
+    }
+
     WindowHandle::WindowHandle()
     {
         glfwInit();
@@ -54,6 +71,8 @@ namespace Engine
         glfwSetFramebufferSizeCallback(m_pWindow, &WindowHandle::FramebufferResizeCallback);
         glfwSetKeyCallback(m_pWindow, &WindowHandle::KeyBoardInputCallback);
         glfwSetCursorPosCallback(m_pWindow, &WindowHandle::MousePositionInputCallback);
+        glfwSetMouseButtonCallback(m_pWindow, &WindowHandle::MouseButtonInputCallback);
+        glfwSetScrollCallback(m_pWindow, &WindowHandle::MouseWheelInputCallback);
     }
 
     void WindowHandle::CreateWindowSurface(vk::UniqueInstance &instance, vk::SurfaceKHR &surface)

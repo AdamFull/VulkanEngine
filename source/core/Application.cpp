@@ -8,6 +8,9 @@ namespace Engine
         m_pWindow->Create(1920, 1080, "Vulkan");
 
         m_pInputMapper = std::make_unique<InputMapper>();
+        m_pInputMapper->CreateAction("ServiceHandles", EActionKey::eEscape, EActionKey::eF1);
+        m_pInputMapper->BindAction("ServiceHandles", EKeyState::eRelease, this, &Application::ServiceHandle);
+
         m_pCamera = std::make_unique<CameraBase>();
         m_pCamera->SetViewYXZ({0, 0, 0}, {0, 0, 0});
         m_pCameraController = std::make_unique<CameraController>();
@@ -34,6 +37,15 @@ namespace Engine
         m_pRender->CreateCommandBuffers();
     }
 
+    void Application::ServiceHandle(EActionKey eKey)
+    {
+        switch (eKey)
+        {
+        case EActionKey::eEscape: std::exit(10); break;
+        default: break;
+        }
+    }
+
     void Application::run()
     {
         m_pRender->ValidateRunAbility();
@@ -45,6 +57,7 @@ namespace Engine
 
             m_pWindow->PollEvents();
             m_pInputMapper->Update(delta_time);
+            m_pCameraController->Update(delta_time);
 
             auto aspectRatio = m_pRender->GetAspect();
             m_pCamera->SetPerspectiveProjection(glm::radians(45.f), aspectRatio, 0.1f, 50.f);

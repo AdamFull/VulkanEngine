@@ -16,6 +16,8 @@ namespace Engine
 
         void CreatePipeline(const std::map<vk::ShaderStageFlagBits, std::string>& mShaders);
 
+        void ServiceHandle(EActionKey eKey);
+
         void run();
     private:
         std::unique_ptr<WindowHandle> m_pWindow;

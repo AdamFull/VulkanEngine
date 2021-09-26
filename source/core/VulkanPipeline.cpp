@@ -1,4 +1,6 @@
 #include "VulkanPipeline.h"
+#include "VulkanDevice.h"
+#include "VulkanSwapChain.h"
 #include "filesystem/FilesystemHelper.h"
 
 namespace Engine
@@ -13,11 +15,11 @@ namespace Engine
 
     }
 
-    void PipelineBase::Create(FPipelineCreateInfo createInfo, vk::UniqueDevice& device, vk::DescriptorSetLayout& descriptorSetLayout, vk::RenderPass& renderPass)
+    void PipelineBase::Create(FPipelineCreateInfo createInfo, std::unique_ptr<Device>& device, std::unique_ptr<SwapChain>& swapchain, vk::DescriptorSetLayout& descriptorSetLayout)
     {
         savedInfo = std::move(createInfo);
         CreatePipelineLayout(device, descriptorSetLayout);
-        CreatePipeline(device, renderPass);
+        CreatePipeline(device, swapchain);
     }
 
     FPipelineCreateInfo PipelineBase::CreatePipelineConfig(uint32_t width, uint32_t height, vk::PrimitiveTopology topology, 
@@ -97,7 +99,8 @@ namespace Engine
         //commandBuffer.pushConstants(data.layout, vk::ShaderStageFlagBits::eVertex | vk::ShaderStageFlagBits::eFragment, 0, sizeof(FUniformData), &ubo);
     }
 
-    void PipelineBase::CreatePipelineLayout(vk::UniqueDevice& device, vk::DescriptorSetLayout& descriptorSetLayout)
+    //TODO: In future move it to render main
+    void PipelineBase::CreatePipelineLayout(std::unique_ptr<Device>& device, vk::DescriptorSetLayout& descriptorSetLayout)
     {
         vk::PipelineLayoutCreateInfo pipelineLayoutInfo = {};
         pipelineLayoutInfo.setLayoutCount = 1;
@@ -105,14 +108,14 @@ namespace Engine
         pipelineLayoutInfo.pushConstantRangeCount = 0;
         pipelineLayoutInfo.pPushConstantRanges = nullptr;
 
-        data.layout = device->createPipelineLayout(pipelineLayoutInfo);
+        data.layout = device->Make<vk::PipelineLayout, vk::PipelineLayoutCreateInfo>(pipelineLayoutInfo);
         assert(data.layout && "Pipeline layout was not created");
     }
 
-    void PipelineBase::CreatePipeline(vk::UniqueDevice& device, vk::RenderPass renderPass)
+    void PipelineBase::CreatePipeline(std::unique_ptr<Device>& device, std::unique_ptr<SwapChain>& swapchain)
     {
         assert(device && "Cannot create pipeline, cause logical device is not valid.");
-        assert(renderPass && "Cannot create pipeline, cause render pass is not valid.");
+        assert(swapchain && "Cannot create pipeline, cause render pass is not valid.");
         vk::PipelineVertexInputStateCreateInfo vertexInputInfo = {};
         vertexInputInfo.vertexBindingDescriptionCount = 0;
         vertexInputInfo.vertexAttributeDescriptionCount = 0;
@@ -144,22 +147,22 @@ namespace Engine
         pipelineInfo.pColorBlendState = &savedInfo.colorBlending;
         pipelineInfo.pDepthStencilState = &savedInfo.depthStencil;
         pipelineInfo.layout = data.layout;
-        pipelineInfo.renderPass = renderPass;
+        pipelineInfo.renderPass = swapchain->get().renderPass;
         pipelineInfo.subpass = 0;
         pipelineInfo.basePipelineHandle = nullptr;
 
-        data.pipeline = device->createGraphicsPipeline(nullptr, pipelineInfo).value;
+        data.pipeline = device->Make<vk::Pipeline, vk::GraphicsPipelineCreateInfo>(pipelineInfo);
         assert(data.pipeline && "Failed creating pipeline.");
     }
 
-    void PipelineBase::LoadShader(vk::UniqueDevice& device, const std::string& srShaderPath, vk::ShaderStageFlagBits fShaderType)
+    void PipelineBase::LoadShader(std::unique_ptr<Device>& device, const std::string& srShaderPath, vk::ShaderStageFlagBits fShaderType)
     {
         auto shader_code = FilesystemHelper::ReadFile(srShaderPath);
         m_vShaderCache.emplace_back(FShaderCache{ fShaderType, shader_code});
         LoadShader(device, shader_code, fShaderType);
     }
 
-    void PipelineBase::LoadShader(vk::UniqueDevice& device, const std::map<vk::ShaderStageFlagBits, std::string>& mShaders)
+    void PipelineBase::LoadShader(std::unique_ptr<Device>& device, const std::map<vk::ShaderStageFlagBits, std::string>& mShaders)
     {
         for(auto& [key, value]: mShaders)
         {
@@ -167,14 +170,15 @@ namespace Engine
         }
     }
 
-    void PipelineBase::LoadShader(vk::UniqueDevice& device, const std::vector<char>& vShaderCode, vk::ShaderStageFlagBits fShaderType) 
+    void PipelineBase::LoadShader(std::unique_ptr<Device>& device, const std::vector<char>& vShaderCode, vk::ShaderStageFlagBits fShaderType) 
     {
         vk::ShaderModule shaderModule;
 
         try
         {
-            shaderModule = device->createShaderModule
+            shaderModule = device->Make<vk::ShaderModule, vk::ShaderModuleCreateInfo>
             (
+                vk::ShaderModuleCreateInfo
                 {
                     vk::ShaderModuleCreateFlags(),
                     vShaderCode.size(),
@@ -196,7 +200,7 @@ namespace Engine
         );
     }
 
-    void PipelineBase::RecreateShaders(vk::UniqueDevice& device)
+    void PipelineBase::RecreateShaders(std::unique_ptr<Device>& device)
     {
         m_vShaderBuffer.clear();
 
@@ -206,24 +210,24 @@ namespace Engine
         }
     }
 
-    void PipelineBase::RecreatePipeline(vk::UniqueDevice& device, vk::DescriptorSetLayout& descriptorSetLayout, vk::RenderPass& renderPass, vk::Extent2D swapChainExtent)
+    void PipelineBase::RecreatePipeline(std::unique_ptr<Device>& device, std::unique_ptr<SwapChain>& swapchain, vk::DescriptorSetLayout& descriptorSetLayout)
     {
 
-        device->destroyPipeline(data.pipeline);
-        device->destroyPipelineLayout(data.layout);
+        device->Destroy(data.pipeline);
+        device->Destroy(data.layout);
 
-        savedInfo.viewport.width = swapChainExtent.width;
-        savedInfo.viewport.height = swapChainExtent.height;
-        savedInfo.scissor.extent = swapChainExtent;
+        savedInfo.viewport.width = swapchain->get().extent.width;
+        savedInfo.viewport.height = swapchain->get().extent.height;
+        savedInfo.scissor.extent = swapchain->get().extent;
 
         RecreateShaders(device);
         CreatePipelineLayout(device, descriptorSetLayout);
-        CreatePipeline(device, renderPass);
+        CreatePipeline(device, swapchain);
     }
 
-    void PipelineBase::Cleanup(vk::UniqueDevice& device)
+    void PipelineBase::Cleanup(std::unique_ptr<Device>& device)
     {
-        device->destroyPipeline(data.pipeline);
-        device->destroyPipelineLayout(data.layout);
+        device->Destroy(data.pipeline);
+        device->Destroy(data.layout);
     }
 }

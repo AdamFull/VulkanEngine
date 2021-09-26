@@ -68,6 +68,8 @@ namespace Engine
         vk::Result resultPresent;
         resultPresent = device->get().qPresentQueue.presentKHR(presentInfo);
 
+        data.currentFrame = (data.currentFrame + 1) % data.iFramesInFlight;
+
         return resultPresent;
     }
 

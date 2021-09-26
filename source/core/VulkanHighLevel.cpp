@@ -346,7 +346,7 @@ namespace Engine
         vk::Result resultPresent;
         try
         {
-            resultPresent = m_pSwapChain->SubmitCommandBuffers(m_pDevice, &m_vCommandBuffer[m_pSwapChain->get().currentFrame], &imageIndex);
+            resultPresent = m_pSwapChain->SubmitCommandBuffers(m_pDevice, &m_vCommandBuffer[imageIndex], &imageIndex);
         }
         catch (vk::OutOfDateKHRError err)
         {
@@ -363,8 +363,6 @@ namespace Engine
             RecreateSwapChain();
             return;
         }
-
-        m_pSwapChain->get().currentFrame = (m_pSwapChain->get().currentFrame + 1) % m_pSwapChain->get().iFramesInFlight;
     }
 
     void VulkanHighLevel::Cleanup()

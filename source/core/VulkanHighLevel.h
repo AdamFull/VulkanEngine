@@ -1,16 +1,16 @@
 #pragma once
-#include "DataTypes/VulkanVertex.h"
+#include "Pipeline/PipelineConfig.h"
+#include "VulkanDevice.h"
+#include "Pipeline/GraphicsPipeline.h"
 #include "DataTypes/VulkanQueueFamilies.h"
 #include "DataTypes/VulkanTexture.h"
 #include "DataTypes/VulkanMesh.h"
-#include "VulkanDevice.h"
-#include "VulkanPipeline.h"
-#include "VulkanSwapChain.h"
+#include "VulkanUniform.h"
 
 namespace Engine
 {
     class WindowHandle;
-    class PipelineBase;
+    class SwapChain;
 
     class VulkanHighLevel
     {
@@ -24,22 +24,15 @@ namespace Engine
 
         void AddPipeline(const std::map<vk::ShaderStageFlagBits, std::string>& mShaders, FPipelineCreateInfo createInfo);
 
-        //Descriptors
-        void CreateDescriptorSetLayout();
-        void CreateDescriptorPool();
         void CreateDescriptorSets();
-
         void CreateCommandBuffers();
-
-        //Uniform
-        void CreateUniformBuffers();
-        void UpdateUniformBuffer(uint32_t index);
 
         void AddVulkanTexture(std::string, uint32_t);
 
-        void AddVulkanMesh(std::string, FTransform);
+        void AddVulkanMesh(std::string);
 
-        void DrawFrame(float);
+        void BeginFrame(float);
+        void EndFrame();
 
         void CleanupSwapChain();
         //void CleanupTexture();
@@ -48,27 +41,30 @@ namespace Engine
 
         void ValidateRunAbility();
 
-        float GetAspect() { return m_pSwapChain->GetAspectRatio(); }
-
         void SetProjectionView(glm::mat4 projectionView) { m_matProjectionView = projectionView; }
 
+        //Getters
+
+        inline std::unique_ptr<Device>& GetDevice() { return m_pDevice; }
+        inline std::unique_ptr<SwapChain>& GetSwapChain() { return m_pSwapChain; }
+        inline std::unique_ptr<PipelineBase>& GetPipeline() { return m_pPipeline; }
+        inline std::unique_ptr<UniformBuffer>&  GetUniformBuffer() { return m_pUniform; }
+        inline uint32_t GetCurrentImage() { return m_iImageIndex; }
     private:
         //Device
         std::unique_ptr<Device> m_pDevice;
         //SwapChain
         std::unique_ptr<SwapChain> m_pSwapChain;
 
-        //Pipeline
-        std::vector<std::unique_ptr<PipelineBase>> m_vPipelines;
+        //Pipeline. Pipelines should be in material. May be shared
+        std::unique_ptr<PipelineBase> m_pPipeline;
 
         //Descriptors
-        vk::DescriptorSetLayout m_DescriptorSetLayout;
-        vk::DescriptorPool m_DescriptorPool;
+        std::unique_ptr<UniformBuffer> m_pUniform;
+
         std::vector<vk::DescriptorSet> m_vDescriptorSets;
 
         //Uniform
-        std::vector<vk::Buffer> m_vUniformBuffers;
-        std::vector<vk::DeviceMemory> m_vUniformBuffersMemory;
         glm::mat4 m_matProjectionView;
 
         std::vector<vk::CommandBuffer, std::allocator<vk::CommandBuffer>> m_vCommandBuffer;
@@ -78,6 +74,8 @@ namespace Engine
         //Loaded texture
         std::unique_ptr<VulkanTextureBase> m_pTexture;
         std::vector<VulkanStaticMesh> m_vMeshes;
+
+        uint32_t m_iImageIndex{0};
 
         float m_fDeltaTime{0.0f};
     };

@@ -1,5 +1,6 @@
 #include "Application.h"
-#include "Camera.h"
+#include "VulkanSwapChain.h"
+#include "Objects/Camera.h"
 
 namespace Engine
 {
@@ -26,12 +27,12 @@ namespace Engine
 
     void Application::LoadMesh(std::string srPath)
     {
-        m_pRender->AddVulkanMesh(srPath, {{}, {}, {1, 1, 1}});
+        m_pRender->AddVulkanMesh(srPath);
     }
 
     void Application::CreatePipeline(const std::map<vk::ShaderStageFlagBits, std::string>& mShaders)
     {
-        m_pRender->AddPipeline(mShaders, PipelineBase::CreateDefaultPipelineConfig(1920, 1080, vk::SampleCountFlagBits::e1));
+        m_pRender->AddPipeline(mShaders, PipelineConfig::CreateDefaultPipelineConfig(1920, 1080, vk::SampleCountFlagBits::e1));
         m_pRender->CreateCommandBuffers();
     }
 
@@ -54,16 +55,21 @@ namespace Engine
             auto startTime = std::chrono::high_resolution_clock::now();
 
             m_pWindow->PollEvents();
+
+            m_pRender->BeginFrame(delta_time);
+
             m_pInputMapper->Update(delta_time);
             m_pCameraController->Update(delta_time);
 
-            auto aspectRatio = m_pRender->GetAspect();
+            auto aspectRatio = m_pRender->GetSwapChain()->GetAspectRatio();
             auto camera = m_pCameraController->GetCamera();
             camera->SetPerspectiveProjection(glm::radians(90.f), aspectRatio, 0.1f, 50.f);
             auto projectionView = camera->GetProjection() * camera->GetView();
-            m_pRender->SetProjectionView(projectionView);
 
-            m_pRender->DrawFrame(delta_time);
+            glm::mat4 model = glm::rotate(glm::mat4(1.0f), glm::radians(90.0f), glm::vec3(1.0f, 0.0f, 0.0f));
+            m_pRender->GetUniformBuffer()->UpdateUniformBuffer(m_pRender->GetDevice(), m_pRender->GetCurrentImage(), projectionView * model);
+
+            m_pRender->EndFrame();
 
             auto currentTime = std::chrono::high_resolution_clock::now();
             delta_time = std::chrono::duration<float, std::chrono::seconds::period>(currentTime - startTime).count();

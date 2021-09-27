@@ -37,7 +37,6 @@ namespace Engine
         std::vector<vk::Semaphore> vImageAvailableSemaphores;
         std::vector<vk::Semaphore> vRenderFinishedSemaphores;
         std::vector<vk::Fence> vInFlightFences;
-        std::vector<vk::Fence> vImagesInFlight;
         size_t currentFrame = 0;
         uint32_t iFramesInFlight = 3;
     };
@@ -67,10 +66,35 @@ namespace Engine
             return static_cast<float>(data.extent.width) / static_cast<float>(data.extent.height);
         }
 
-        inline size_t GetImagesSize() { return data.vImages.size(); }
-        inline size_t GetFBSize() { return data.vFramebuffers.size(); }
+        //Getters
+        inline vk::Format GetImageFormat() { return data.imageFormat; };
+        inline vk::Format GetDepthFormat() { return data.depthFormat; }
+        inline vk::Extent2D GetExtent() { return data.extent; }
 
-        inline FSwapChain& get() { return data; }
+        inline std::vector<vk::Framebuffer>& GetFramebuffers() { return data.vFramebuffers;}
+        inline vk::RenderPass& GetRenderPass() { return data.renderPass; }
+
+        inline std::vector<vk::Image>& GetImages() { return data.vImages; }
+        inline std::vector<vk::ImageView>& GetImageViews() { return data.vImageViews; }
+
+        inline vk::Image& GetDepthImage() { return data.depthImage;}
+        inline vk::DeviceMemory& GetDepthImageMemory() { return data.depthImageMemory; }
+        inline vk::ImageView& GetDepthImageView() { return data.depthImageView; }
+
+        inline vk::Image& GetMSAAImage() { return data.MSAAImage; }
+        inline vk::DeviceMemory& GetMSAAImageMemory() { return data.MSAAImageMemory; }
+        inline vk::ImageView& GetMSAAImageView() { return data.MSAAImageView; }
+
+        inline vk::Extent2D GetWindowExtent() { return data.windowExtent; }
+
+        inline vk::SwapchainKHR& GetSwapChain() { return data.swapChain; }
+
+        inline std::vector<vk::Semaphore>& GetImageAvailableSemaphores() { return data.vImageAvailableSemaphores; }
+        inline std::vector<vk::Semaphore>& GetRenderFinishedSemaphores() { return data.vRenderFinishedSemaphores; }
+        inline std::vector<vk::Fence>& GetInFlightFences() { return data.vInFlightFences; }
+        inline size_t GetCurrentFrame() { return data.currentFrame; }
+        inline uint32_t GetFramesInFlight() { return data.iFramesInFlight; }
+
     private:
         void CreateSwapChain(std::unique_ptr<Device>& device);
         void CreateSwapChainImageViews(std::unique_ptr<Device>& device);

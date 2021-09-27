@@ -18,9 +18,9 @@ namespace Engine
 
     vk::Result SwapChain::AcquireNextImage(std::unique_ptr<Device>& device, uint32_t *imageIndex)
     {
-        device->get().logical->waitForFences(1, &data.vInFlightFences[data.currentFrame], VK_TRUE, std::numeric_limits<uint64_t>::max());
+        device->GetLogical()->waitForFences(1, &data.vInFlightFences[data.currentFrame], VK_TRUE, std::numeric_limits<uint64_t>::max());
 
-        auto result = device->get().logical->acquireNextImageKHR(
+        auto result = device->GetLogical()->acquireNextImageKHR(
             data.swapChain, std::numeric_limits<uint64_t>::max(),
             data.vImageAvailableSemaphores[data.currentFrame], nullptr, imageIndex);
 
@@ -45,11 +45,11 @@ namespace Engine
         submitInfo.pSignalSemaphores = signalSemaphores;
 
         //TODO: Handle this result
-        device->get().logical->resetFences(1, &data.vInFlightFences[data.currentFrame]);
+        device->GetLogical()->resetFences(1, &data.vInFlightFences[data.currentFrame]);
 
         try
         {
-            device->get().qGraphicsQueue.submit(submitInfo, data.vInFlightFences[data.currentFrame]);
+            device->GetGraphicsQueue().submit(submitInfo, data.vInFlightFences[data.currentFrame]);
         }
         catch (vk::SystemError err)
         {
@@ -66,7 +66,7 @@ namespace Engine
         presentInfo.pImageIndices = imageIndex;
 
         vk::Result resultPresent;
-        resultPresent = device->get().qPresentQueue.presentKHR(presentInfo);
+        resultPresent = device->GetPresentQueue().presentKHR(presentInfo);
 
         data.currentFrame = (data.currentFrame + 1) % data.iFramesInFlight;
 
@@ -136,7 +136,7 @@ namespace Engine
 
         vk::SwapchainCreateInfoKHR createInfo(
             vk::SwapchainCreateFlagsKHR(),
-            device->get().surface,
+            device->GetSurface(),
             imageCount,
             surfaceFormat.format,
             surfaceFormat.colorSpace,
@@ -189,7 +189,7 @@ namespace Engine
         vk::Format colorFormat = data.imageFormat;
 
         device->CreateImage(data.MSAAImage, data.MSAAImageMemory, vk::Extent3D{data.extent, 0}, 1, 
-        device->get().msaaSamples, colorFormat, vk::ImageTiling::eOptimal, 
+        device->GetSamples(), colorFormat, vk::ImageTiling::eOptimal, 
         vk::ImageUsageFlagBits::eTransientAttachment | vk::ImageUsageFlagBits::eColorAttachment, 
         vk::MemoryPropertyFlagBits::eDeviceLocal);
 
@@ -204,7 +204,7 @@ namespace Engine
         vk::FormatFeatureFlagBits::eDepthStencilAttachment);
 
         device->CreateImage(data.depthImage, data.depthImageMemory, vk::Extent3D{data.extent, 0}, 1,
-        device->get().msaaSamples, depthFormat, vk::ImageTiling::eOptimal, 
+        device->GetSamples(), depthFormat, vk::ImageTiling::eOptimal, 
         vk::ImageUsageFlagBits::eDepthStencilAttachment,  vk::MemoryPropertyFlagBits::eDeviceLocal);
 
         data.depthImageView = device->CreateImageView(data.depthImage, 1, depthFormat, vk::ImageAspectFlagBits::eDepth);
@@ -217,7 +217,7 @@ namespace Engine
         assert(device && "Cannot create render pass, cause logical device is not valid.");
         vk::AttachmentDescription colorAttachment = {};
         colorAttachment.format = data.imageFormat;
-        colorAttachment.samples = device->get().msaaSamples;
+        colorAttachment.samples = device->GetSamples();
         colorAttachment.loadOp = vk::AttachmentLoadOp::eClear;
         colorAttachment.storeOp = vk::AttachmentStoreOp::eStore;
         colorAttachment.stencilLoadOp = vk::AttachmentLoadOp::eDontCare;
@@ -229,7 +229,7 @@ namespace Engine
         depthAttachment.format = device->FindSupportedFormat(
             {vk::Format::eD32Sfloat, vk::Format::eD32SfloatS8Uint, vk::Format::eD24UnormS8Uint},
             vk::ImageTiling::eOptimal, vk::FormatFeatureFlagBits::eDepthStencilAttachment);
-        depthAttachment.samples = device->get().msaaSamples;
+        depthAttachment.samples = device->GetSamples();
         depthAttachment.loadOp = vk::AttachmentLoadOp::eClear;
         depthAttachment.storeOp = vk::AttachmentStoreOp::eDontCare;
         depthAttachment.stencilLoadOp = vk::AttachmentLoadOp::eDontCare;

@@ -73,7 +73,7 @@ namespace Engine
     {
         assert(device && "Cannot generate mipmaps, cause device is not valid.");
         vk::FormatProperties formatProperties;
-        device->get().physical.getFormatProperties(format, &formatProperties);
+        device->GetPhysical().getFormatProperties(format, &formatProperties);
 
         if (!(formatProperties.optimalTilingFeatures & vk::FormatFeatureFlagBits::eSampledImageFilterLinear)) 
         {

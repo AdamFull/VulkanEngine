@@ -1,7 +1,6 @@
 #pragma once
 #include "DataTypes/VulkanQueueFamilies.h"
 #include "DataTypes/VulkanSwapChainSipportDetails.h"
-#include "DataTypes/VulkanVertex.h"
 
 namespace Engine
 {

@@ -1,6 +1,6 @@
 #include "CameraController.h"
 #include "InputMapper.h"
-#include "Camera.h"
+#include "Objects/Camera.h"
 
 namespace Engine
 {
@@ -21,6 +21,7 @@ namespace Engine
     void CameraController::Update(float fDeltaTime)
     {
         m_fDeltaTime = fDeltaTime;
+        m_pCamera->Update(fDeltaTime);
     }
 
     void CameraController::CameraMovement(EActionKey eKey)
@@ -44,10 +45,10 @@ namespace Engine
 
         if (glm::dot(direction, direction) > std::numeric_limits<float>::epsilon())
         {
-            transform.pos += m_fMoveSpeed * m_fDeltaTime * glm::normalize(direction);
+            transform.pos += m_fMoveSpeed * m_fDeltaTime * direction;
         }
         
-        m_pCamera->SetViewYXZ(transform);
+        m_pCamera->SetTransform(transform);
     }
 
     void CameraController::MouseRotation(float fX, float fY)
@@ -66,7 +67,7 @@ namespace Engine
         transform.rot.x = glm::clamp(transform.rot.x, -1.5f, 1.5f);
         transform.rot.y = glm::mod(transform.rot.y, glm::two_pi<float>());
 
-        m_pCamera->SetViewYXZ(transform);
+        m_pCamera->SetTransform(transform);
         m_bRotatePass = false;
     }
 
@@ -80,6 +81,6 @@ namespace Engine
             transform.pos += m_fScrollSpeed * direction;
         }
         
-        m_pCamera->SetViewYXZ(transform);
+        m_pCamera->SetTransform(transform);
     }
 }

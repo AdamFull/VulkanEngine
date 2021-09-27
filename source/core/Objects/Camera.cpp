@@ -77,27 +77,10 @@ namespace Engine
         viewMatrix[3][2] = -glm::dot(w, position);
     }
 
-    void CameraBase::SetViewYXZ(FTransform transformNew)
+    void CameraBase::Update(float fDeltaTime)
     {
-        transform = transformNew;
-        SetViewYXZ(transform.pos, transform.rot);
-    }
+        RenderObject::Update(fDeltaTime);
 
-    const glm::vec3 CameraBase::GetForwardVector() 
-    { 
-        float yaw = transform.rot.y;
-        float pitch = transform.rot.x;
-        return glm::vec3{sin(yaw), -pitch, cos(yaw)};
-    }
-
-    const glm::vec3 CameraBase::GetRightVector() 
-    { 
-        auto forward = GetForwardVector();
-        return glm::vec3{forward.z, 0.f, -forward.x};
-    }
-
-    const glm::vec3 CameraBase::GetUpVector() 
-    { 
-        return glm::vec3{0.f, -1.f, 0.f};
+        SetViewYXZ(m_transform.pos, m_transform.rot);
     }
 }

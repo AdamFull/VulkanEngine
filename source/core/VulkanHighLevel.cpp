@@ -1,4 +1,5 @@
 #include "VulkanHighLevel.h"
+#include "VulkanSwapChain.h"
 #include "VulkanStaticHelper.h"
 #include "WindowHandle.h"
 
@@ -17,71 +18,38 @@ namespace Engine
         m_pDevice->Create(pWindow, pApplicationName, applicationVersion, pEngineName, engineVersion, apiVersion);
         m_pSwapChain = std::make_unique<SwapChain>();
         m_pSwapChain->Create(m_pDevice);
-        CreateUniformBuffers();
-        CreateDescriptorSetLayout();
-        CreateDescriptorPool();
+        m_pUniform = std::make_unique<UniformBuffer>();
+        m_pUniform->Create(m_pDevice, m_pSwapChain->GetImages().size());
     }
-    
-    void VulkanHighLevel::CreateDescriptorSetLayout()
+
+    void VulkanHighLevel::AddPipeline(const std::map<vk::ShaderStageFlagBits, std::string>& mShaders, FPipelineCreateInfo createInfo)
     {
-        vk::DescriptorSetLayoutBinding uboLayoutBinding{};
-        uboLayoutBinding.binding = 0;
-        uboLayoutBinding.descriptorType = vk::DescriptorType::eUniformBuffer;
-        uboLayoutBinding.descriptorCount = 1;
-        uboLayoutBinding.pImmutableSamplers = nullptr;
-        uboLayoutBinding.stageFlags = vk::ShaderStageFlagBits::eVertex;
+        m_pPipeline = std::make_unique<GraphicsPipeline>();
+        m_pPipeline->LoadShader(m_pDevice, mShaders);
+        createInfo.multisampling.rasterizationSamples = m_pDevice->GetSamples();
+        m_pPipeline->Create(createInfo, m_pDevice, m_pSwapChain);
 
-        vk::DescriptorSetLayoutBinding samplerLayoutBinding{};
-        samplerLayoutBinding.binding = 1;
-        samplerLayoutBinding.descriptorCount = 1;
-        samplerLayoutBinding.descriptorType = vk::DescriptorType::eCombinedImageSampler;
-        samplerLayoutBinding.pImmutableSamplers = nullptr;
-        samplerLayoutBinding.stageFlags = vk::ShaderStageFlagBits::eFragment;
-
-        std::array<vk::DescriptorSetLayoutBinding, 2> bindings = {uboLayoutBinding, samplerLayoutBinding};
-        vk::DescriptorSetLayoutCreateInfo createInfo{};
-        createInfo.bindingCount = static_cast<uint32_t>(bindings.size());;
-        createInfo.pBindings = bindings.data();
-
-        //TODO: check result
-        auto result = m_pDevice->get().logical->createDescriptorSetLayout(&createInfo, nullptr, &m_DescriptorSetLayout);
+        CreateDescriptorSets();
     }
 
-    void VulkanHighLevel::CreateDescriptorPool()
-    {
-        std::array<vk::DescriptorPoolSize, 2> poolSizes{};
-        poolSizes[0].type = vk::DescriptorType::eUniformBuffer;
-        poolSizes[0].descriptorCount = static_cast<uint32_t>(m_pSwapChain->GetImagesSize());
-        poolSizes[1].type = vk::DescriptorType::eCombinedImageSampler;
-        poolSizes[1].descriptorCount = static_cast<uint32_t>(m_pSwapChain->GetImagesSize());
-
-        vk::DescriptorPoolCreateInfo poolInfo{};
-        poolInfo.flags = vk::DescriptorPoolCreateFlagBits::eFreeDescriptorSet;
-        poolInfo.poolSizeCount = static_cast<uint32_t>(poolSizes.size());
-        poolInfo.pPoolSizes = poolSizes.data();
-        poolInfo.maxSets = static_cast<uint32_t>(m_pSwapChain->GetImagesSize());
-
-        //TODO:: add result checking
-        m_DescriptorPool = m_pDevice->Make<vk::DescriptorPool, vk::DescriptorPoolCreateInfo>(poolInfo);
-    }
-    
     void VulkanHighLevel::CreateDescriptorSets()
     {
-        std::vector<vk::DescriptorSetLayout> vDescriptorSetLayouts(m_pSwapChain->GetImagesSize(), m_DescriptorSetLayout);
+        uint32_t images = m_pSwapChain->GetImages().size();
+        std::vector<vk::DescriptorSetLayout> vDescriptorSetLayouts(images, m_pPipeline->GetDescriptorSetLayout());
 
         vk::DescriptorSetAllocateInfo allocInfo{};
-        allocInfo.descriptorPool = m_DescriptorPool;
-        allocInfo.descriptorSetCount = static_cast<uint32_t>(m_pSwapChain->GetImagesSize());
+        allocInfo.descriptorPool = m_pPipeline->GetDescriptorPool();
+        allocInfo.descriptorSetCount = images;
         allocInfo.pSetLayouts = vDescriptorSetLayouts.data();
 
-        m_vDescriptorSets.resize(m_pSwapChain->GetImagesSize());
+        m_vDescriptorSets.resize(images);
 
-        auto result = m_pDevice->get().logical->allocateDescriptorSets(&allocInfo, m_vDescriptorSets.data());
+        auto result = m_pDevice->GetLogical()->allocateDescriptorSets(&allocInfo, m_vDescriptorSets.data());
 
-        for (size_t i = 0; i < m_pSwapChain->GetImagesSize(); i++)
+        for (size_t i = 0; i < images; i++)
         {
             vk::DescriptorBufferInfo bufferInfo{};
-            bufferInfo.buffer = m_vUniformBuffers[i];
+            bufferInfo.buffer = m_pUniform->GetUniformBuffers().at(i);
             bufferInfo.offset = 0;
             bufferInfo.range = sizeof(FUniformData);
 
@@ -100,60 +68,16 @@ namespace Engine
             descriptorWrites[1].descriptorCount = 1;
             descriptorWrites[1].pImageInfo = &m_pTexture->descriptor;
 
-            m_pDevice->get().logical->updateDescriptorSets(static_cast<uint32_t>(descriptorWrites.size()), descriptorWrites.data(), 0, nullptr);
+            m_pDevice->GetLogical()->updateDescriptorSets(static_cast<uint32_t>(descriptorWrites.size()), descriptorWrites.data(), 0, nullptr);
         }
-    }
-
-    void VulkanHighLevel::CreateUniformBuffers()
-    {
-        vk::DeviceSize bufferSize = sizeof(FUniformData);
-
-        m_vUniformBuffers.resize(m_pSwapChain->GetImagesSize());
-        m_vUniformBuffersMemory.resize(m_pSwapChain->GetImagesSize());
-
-        for (size_t i = 0; i < m_pSwapChain->GetImagesSize(); i++) 
-        {
-            m_pDevice->CreateOnDeviceBuffer
-            (
-                bufferSize, 
-                vk::BufferUsageFlagBits::eUniformBuffer, 
-                vk::MemoryPropertyFlagBits::eHostVisible | vk::MemoryPropertyFlagBits::eHostCoherent, 
-                m_vUniformBuffers[i], 
-                m_vUniformBuffersMemory[i]
-            );
-        }
-    }
-
-    void VulkanHighLevel::UpdateUniformBuffer(uint32_t index)
-    {
-        glm::mat4 model = glm::rotate(glm::mat4(1.0f), glm::radians(90.0f), glm::vec3(1.0f, 0.0f, 0.0f));
-        /*glm::mat4 view = glm::lookAt(glm::vec3(2.0f, 2.0f, 2.0f), glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3(0.0f, 0.0f, 1.0f));
-        glm::mat4 proj = glm::perspective(glm::radians(45.0f), m_SwapChainExtent.width / (float)m_SwapChainExtent.height, 0.1f, 10.0f);
-        proj[1][1] *= -1;
-        auto projectionView = proj * view;*/
-
-        FUniformData ubo{};
-        ubo.transform = m_matProjectionView * model;
-
-        m_pDevice->MoveToMemory(&ubo, m_vUniformBuffersMemory[index], sizeof(ubo));
-    }
-
-    void VulkanHighLevel::AddPipeline(const std::map<vk::ShaderStageFlagBits, std::string>& mShaders, FPipelineCreateInfo createInfo)
-    {
-        CreateDescriptorSets();
-        auto newPipeline = std::make_unique<PipelineBase>();
-        newPipeline->LoadShader(m_pDevice, mShaders);
-        createInfo.multisampling.rasterizationSamples = m_pDevice->get().msaaSamples;
-        newPipeline->Create(createInfo, m_pDevice, m_pSwapChain ,m_DescriptorSetLayout);
-        m_vPipelines.emplace_back(std::move(newPipeline));
     }
 
     void VulkanHighLevel::CreateCommandBuffers()
     {
         assert(m_pDevice && "Cannot create command buffers, cause logical device is not valid.");
         assert(m_pSwapChain && "Cannot create command buffers, cause swap chain is not valid.");
-        assert(!m_vPipelines.empty() && "Cannot create command buffers, cause pipeline is not valid.");
-        m_vCommandBuffer.resize(m_pSwapChain->GetFBSize());
+        assert(m_pPipeline && "Cannot create command buffers, cause pipeline is not valid.");
+        m_vCommandBuffer.resize(m_pSwapChain->GetFramebuffers().size());
 
         m_vCommandBuffer = m_pDevice->CreateCommandBuffer(vk::CommandBufferLevel::ePrimary, (uint32_t)m_vCommandBuffer.size());
         assert(!m_vCommandBuffer.empty() && "Created command buffers is not valid.");
@@ -166,10 +90,10 @@ namespace Engine
             m_vCommandBuffer[i].begin(beginInfo);
 
             vk::RenderPassBeginInfo renderPassInfo = {};
-            renderPassInfo.renderPass = m_pSwapChain->get().renderPass;
-            renderPassInfo.framebuffer = m_pSwapChain->get().vFramebuffers[i];
+            renderPassInfo.renderPass = m_pSwapChain->GetRenderPass();
+            renderPassInfo.framebuffer = m_pSwapChain->GetFramebuffers().at(i);
             renderPassInfo.renderArea.offset = vk::Offset2D{0, 0};
-            renderPassInfo.renderArea.extent =  m_pSwapChain->get().extent;
+            renderPassInfo.renderArea.extent =  m_pSwapChain->GetExtent();
 
             std::array<vk::ClearValue, 2> clearValues{};
             clearValues[0].color = {std::array<float, 4>{0.0f, 0.0f, 0.0f, 1.0f}};
@@ -180,7 +104,7 @@ namespace Engine
 
             m_vCommandBuffer[i].beginRenderPass(renderPassInfo, vk::SubpassContents::eInline);
 
-            m_vPipelines[0]->Bind(m_vCommandBuffer[i]);
+            m_pPipeline->Bind(m_vCommandBuffer[i]);
 
             for(auto& mesh : m_vMeshes)
             {
@@ -188,7 +112,7 @@ namespace Engine
                 mesh.Draw(m_vCommandBuffer[i]);
             }
 
-            m_vCommandBuffer[i].bindDescriptorSets(vk::PipelineBindPoint::eGraphics, m_vPipelines[0]->get().layout, 0, 1, &m_vDescriptorSets[i], 0, nullptr);
+            m_pUniform->Bind(m_vCommandBuffer[i], m_pPipeline->GetPipelineLayout(), m_vDescriptorSets[i]);
 
             m_vCommandBuffer[i].endRenderPass();
 
@@ -196,10 +120,10 @@ namespace Engine
         }
     }
 
-    void VulkanHighLevel::AddVulkanMesh(std::string srPath, FTransform transform)
+    void VulkanHighLevel::AddVulkanMesh(std::string srPath)
     {
         VulkanStaticMesh mesh;
-        mesh.LoadStaticMesh(m_pDevice, srPath, transform);
+        mesh.LoadStaticMesh(m_pDevice, srPath);
         m_vMeshes.push_back(mesh);
     }
 
@@ -216,10 +140,7 @@ namespace Engine
         CleanupSwapChain();
         m_pSwapChain->ReCreate(m_pDevice);
         
-        for(auto& pipeline : m_vPipelines)
-        {
-            pipeline->RecreatePipeline(m_pDevice, m_pSwapChain, m_DescriptorSetLayout);
-        }
+        m_pPipeline->RecreatePipeline(m_pDevice, m_pSwapChain);
 
         CreateCommandBuffers();
     }
@@ -229,7 +150,7 @@ namespace Engine
         assert(m_pDevice && "Abstract device is not valid.");
         if(VulkanStaticHelper::m_bEnableValidationLayers)
         assert(m_pSwapChain && "Abstract swap chain is not valid.");
-        assert(!m_vPipelines.empty() && "No binded pipelines found.");
+        assert(m_pPipeline && "No binded pipelines found.");
     }
 
     void VulkanHighLevel::AddVulkanTexture(std::string srPath, uint32_t idx)
@@ -239,15 +160,14 @@ namespace Engine
         m_pTexture->Load(m_pDevice, srPath, idx);
     }
 
-    void VulkanHighLevel::DrawFrame(float fDeltaTime)
+    void VulkanHighLevel::BeginFrame(float fDeltaTime)
     {
         m_fDeltaTime = fDeltaTime;
         //TODO: Add result handles
 
-        uint32_t imageIndex;
         try
         {
-            m_pSwapChain->AcquireNextImage(m_pDevice, &imageIndex);
+            m_pSwapChain->AcquireNextImage(m_pDevice, &m_iImageIndex);
         }
         catch (vk::OutOfDateKHRError err)
         {
@@ -258,13 +178,14 @@ namespace Engine
         {
             throw std::runtime_error("Failed to acquire swap chain image!");
         }
-
-        UpdateUniformBuffer(imageIndex);
-
+    }
+        
+    void VulkanHighLevel::EndFrame()
+    {
         vk::Result resultPresent;
         try
         {
-            resultPresent = m_pSwapChain->SubmitCommandBuffers(m_pDevice, &m_vCommandBuffer[imageIndex], &imageIndex);
+            resultPresent = m_pSwapChain->SubmitCommandBuffers(m_pDevice, &m_vCommandBuffer[m_iImageIndex], &m_iImageIndex);
         }
         catch (vk::OutOfDateKHRError err)
         {
@@ -287,10 +208,7 @@ namespace Engine
     {
         CleanupSwapChain();
 
-        for(auto& pipeline : m_vPipelines)
-        {
-            pipeline->Cleanup(m_pDevice);
-        }
+        m_pPipeline->Cleanup(m_pDevice);
 
         //Move it to model
         for(auto& mesh : m_vMeshes)

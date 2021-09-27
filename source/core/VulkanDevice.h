@@ -73,7 +73,16 @@ namespace Engine
         void CopyOnDeviceBuffer(vk::Buffer srcBuffer, vk::Buffer dstBuffer, vk::DeviceSize size);
 
         /**************************************************Getters********************************************/
-        inline FDevice& get() { return data; }
+        inline vk::UniqueInstance& GetVkInstance() { return data.vkInstance; }
+        inline vk::SurfaceKHR& GetSurface() { return data.surface; }
+        inline vk::CommandPool& GetCommandPool() { return data.commandPool; }
+
+        inline vk::PhysicalDevice GetPhysical() { return data.physical; }
+        inline vk::UniqueDevice& GetLogical() { return data.logical; }
+        inline vk::Queue& GetGraphicsQueue() { return data.qGraphicsQueue; }
+        inline vk::Queue& GetPresentQueue() { return data.qPresentQueue; }
+
+        inline vk::SampleCountFlagBits GetSamples() { return data.msaaSamples; }
 
         /********************************************Specializations***************************************/
         template<class OutType, class InitializerType> OutType Make(InitializerType& initializer) {}

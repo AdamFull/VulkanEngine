@@ -76,9 +76,7 @@ namespace Engine
             auto projectionView = camera->GetProjection() * camera->GetView();
 
             glm::mat4 model = glm::rotate(glm::mat4(1.0f), glm::radians(90.0f), glm::vec3(1.0f, 0.0f, 0.0f));
-            m_pRender->GetUniformBuffer()->UpdateUniformBuffer(m_pRender->GetDevice(), m_pRender->GetCurrentImage(), projectionView * model);
-
-            m_pRender->EndFrame();
+            m_pRender->GetUniformBuffer()->UpdateUniformBuffer(m_pRender->GetDevice(), m_pRender->Get->GetCurrentImage(), projectionView * model);
 
             auto currentTime = std::chrono::high_resolution_clock::now();
             delta_time = std::chrono::duration<float, std::chrono::seconds::period>(currentTime - startTime).count();

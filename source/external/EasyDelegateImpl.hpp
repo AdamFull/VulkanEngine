@@ -387,7 +387,7 @@ namespace EasyDelegate
          */
         inline void detach() noexcept
         {
-            //base_t::_Set(nullptr);
+            m_pDelegate = nullptr;
         }
 
         /**

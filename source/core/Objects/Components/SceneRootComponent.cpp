@@ -13,8 +13,8 @@ namespace Engine
         RenderObject::Render(fDeltaTime, commandBuffer);
     }
 
-    void SceneRootComponent::Update(float fDeltaTime)
+    void SceneRootComponent::Update(float fDeltaTime, std::unique_ptr<SwapChain>& swapchain)
     {
-        RenderObject::Update(fDeltaTime);
+        RenderObject::Update(fDeltaTime, swapchain);
     }
 }

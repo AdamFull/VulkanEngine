@@ -24,13 +24,18 @@ namespace Engine
 
     class InputMapper
     {
-    public:
+    protected:
         InputMapper();
 
+        static std::unique_ptr<InputMapper> m_pInstance;
+    public:
+        ~InputMapper();
         InputMapper(const InputMapper&) = delete;
         void operator=(const InputMapper&) = delete;
         InputMapper(InputMapper&&) = delete;
         InputMapper& operator=(InputMapper&&) = delete;
+
+        static std::unique_ptr<InputMapper>& GetInstance();
 
         template<class ...Args>
         void CreateAction(std::string srActionName, Args &&...args)

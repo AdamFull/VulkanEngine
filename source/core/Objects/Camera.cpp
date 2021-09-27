@@ -1,4 +1,5 @@
 #include "Camera.h"
+#include "VulkanSwapChain.h"
 
 namespace Engine
 {
@@ -77,10 +78,12 @@ namespace Engine
         viewMatrix[3][2] = -glm::dot(w, position);
     }
 
-    void CameraBase::Update(float fDeltaTime)
+    void CameraBase::Update(float fDeltaTime, std::unique_ptr<SwapChain>& swapchain)
     {
-        RenderObject::Update(fDeltaTime);
+        RenderObject::Update(fDeltaTime, swapchain);
 
+        auto aspect = swapchain->GetAspectRatio();
+        SetPerspectiveProjection(glm::radians(90.f), aspect, 0.1f, 50.f);
         SetViewYXZ(m_transform.pos, m_transform.rot);
     }
 }

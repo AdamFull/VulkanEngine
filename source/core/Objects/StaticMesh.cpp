@@ -9,9 +9,9 @@ namespace Engine
         m_pStaticMesh = std::make_unique<VulkanStaticMesh>();
     }
 
-    void StaticMesh::Update(float fDeltaTime)
+    void StaticMesh::Update(float fDeltaTime, std::unique_ptr<SwapChain>& swapchain)
     {
-        RenderObject::Update(fDeltaTime);
+        RenderObject::Update(fDeltaTime, swapchain);
     }
 
     void StaticMesh::Render(float fDeltaTime, vk::CommandBuffer& commandBuffer)

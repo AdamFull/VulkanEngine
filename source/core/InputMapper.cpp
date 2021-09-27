@@ -4,11 +4,29 @@
 
 namespace Engine
 {
+    std::unique_ptr<InputMapper> InputMapper::m_pInstance{nullptr};
+
     InputMapper::InputMapper()
     {
         WindowHandle::KeyCodeCallback.attach(this, &InputMapper::KeyBoardInput);
         WindowHandle::MousePositionCallback.attach(this, &InputMapper::MouseMovementInput);
         WindowHandle::MouseWheelCallback.attach(this, &InputMapper::MouseWheelInput);
+    }
+
+    InputMapper::~InputMapper()
+    {
+        WindowHandle::KeyCodeCallback.detach();
+        WindowHandle::MousePositionCallback.detach();
+        WindowHandle::MouseWheelCallback.detach();
+    }
+
+    std::unique_ptr<InputMapper>& InputMapper::GetInstance()
+    {
+        if(!m_pInstance)
+        {
+            m_pInstance.reset(new InputMapper());
+        }
+        return m_pInstance;
     }
 
     void InputMapper::KeyBoardInput(int key, int scancode, int action, int mods)

@@ -9,7 +9,7 @@ namespace Engine
         void SetOrthographicProjection(float left, float right, float top, float bottom, float near, float far);
         void SetPerspectiveProjection(float fovy, float aspect, float near, float far);
 
-        void Update(float fDeltaTime) override;
+        void Update(float fDeltaTime, std::unique_ptr<SwapChain>& swapchain) override;
 
         const inline glm::mat4& GetProjection() const { return projectionMatrix; }
         const inline glm::mat4& GetView() const { return viewMatrix; }

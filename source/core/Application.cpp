@@ -1,5 +1,7 @@
 #include "Application.h"
+#include "InputMapper.h"
 #include "VulkanSwapChain.h"
+#include "Objects/Controllers/CameraEditorController.h"
 #include "Objects/Camera.h"
 
 namespace Engine
@@ -9,15 +11,19 @@ namespace Engine
         m_pWindow = std::make_unique<WindowHandle>();
         m_pWindow->Create(1920, 1080, "Vulkan");
 
-        m_pInputMapper = std::make_unique<InputMapper>();
-        m_pInputMapper->CreateAction("ServiceHandles", EActionKey::eEscape, EActionKey::eF1);
-        m_pInputMapper->BindAction("ServiceHandles", EKeyState::eRelease, this, &Application::ServiceHandle);
+        
+        InputMapper::GetInstance()->CreateAction("ServiceHandles", EActionKey::eEscape, EActionKey::eF1);
+        InputMapper::GetInstance()->BindAction("ServiceHandles", EKeyState::eRelease, this, &Application::ServiceHandle);
 
-        m_pCameraController = std::make_unique<CameraController>();
-        m_pCameraController->Initialize(m_pInputMapper);
+        m_pRoot = std::make_shared<SceneRootComponent>();
+
+        auto camera_controller = std::make_shared<CameraEditorController>();
+        camera_controller->SetParent(m_pRoot);
 
         m_pRender = std::make_unique<VulkanHighLevel>();
         m_pRender->Create(m_pWindow, "Vulkan", VK_MAKE_VERSION(1, 0, 0), "GENGINE", VK_MAKE_VERSION(1, 0, 0), VK_API_VERSION_1_0);
+
+        m_pRoot->Create(m_pRender->GetDevice());
     }
 
     void Application::LoadTexture(std::string srPath)
@@ -58,12 +64,15 @@ namespace Engine
 
             m_pRender->BeginFrame(delta_time);
 
-            m_pInputMapper->Update(delta_time);
-            m_pCameraController->Update(delta_time);
+            //TODO: remove update from input mapper. Don't need anymore
+            InputMapper::GetInstance()->Update(delta_time);
+            m_pRoot->Update(delta_time, m_pRender->GetSwapChain());
+            m_pRoot->Render(delta_time, vk::CommandBuffer{});
 
-            auto aspectRatio = m_pRender->GetSwapChain()->GetAspectRatio();
-            auto camera = m_pCameraController->GetCamera();
-            camera->SetPerspectiveProjection(glm::radians(90.f), aspectRatio, 0.1f, 50.f);
+            //TODO: bad practice
+            auto cameraRaw = m_pRoot->GetChilds().front()->GetChilds().front();
+            auto camera = std::static_pointer_cast<CameraBase>(cameraRaw);
+
             auto projectionView = camera->GetProjection() * camera->GetView();
 
             glm::mat4 model = glm::rotate(glm::mat4(1.0f), glm::radians(90.0f), glm::vec3(1.0f, 0.0f, 0.0f));

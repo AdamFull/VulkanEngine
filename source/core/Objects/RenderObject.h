@@ -3,6 +3,7 @@
 namespace Engine
 {
     class Device;
+    class SwapChain;
 
     struct FTransform
     {
@@ -21,7 +22,7 @@ namespace Engine
 
         virtual void Create(std::unique_ptr<Device>& device);
         virtual void Render(float fDeltaTime, vk::CommandBuffer& commandBuffer);
-        virtual void Update(float fDeltaTime);
+        virtual void Update(float fDeltaTime, std::unique_ptr<SwapChain>& swapchain);
 
         virtual const glm::vec3 GetForwardVector();
         virtual const glm::vec3 GetRightVector();

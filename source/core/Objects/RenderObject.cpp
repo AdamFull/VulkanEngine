@@ -74,10 +74,10 @@ namespace Engine
             child->Render(fDeltaTime, commandBuffer);
     }
 
-    void RenderObject::Update(float fDeltaTime) 
+    void RenderObject::Update(float fDeltaTime, std::unique_ptr<SwapChain>& swapchain) 
     {
         for(auto& child : m_vChilds)
-            child->Update(fDeltaTime);
+            child->Update(fDeltaTime, swapchain);
     }
 
     const glm::vec3 RenderObject::GetForwardVector() 

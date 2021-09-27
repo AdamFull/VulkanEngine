@@ -10,6 +10,6 @@ namespace Engine
     public:
         void Create(std::unique_ptr<Device>& device) override;
         void Render(float fDeltaTime, vk::CommandBuffer& commandBuffer) override;
-        void Update(float fDeltaTime) override;
+        void Update(float fDeltaTime, std::unique_ptr<SwapChain>& swapchain) override;
     };
 }

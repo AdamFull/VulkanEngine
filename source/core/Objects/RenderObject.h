@@ -18,11 +18,19 @@ namespace Engine
     class RenderObject : public std::enable_shared_from_this<RenderObject>
     {
     public:
+        RenderObject() = default;
+        explicit RenderObject(std::string srName)
+        {
+            m_srName = srName;
+        }
+
         virtual ~RenderObject() {}
 
         virtual void Create(std::unique_ptr<Device>& device);
         virtual void Render(float fDeltaTime, vk::CommandBuffer& commandBuffer);
         virtual void Update(float fDeltaTime, std::unique_ptr<SwapChain>& swapchain);
+
+        virtual std::shared_ptr<RenderObject> Find(std::string srName);
 
         virtual const glm::vec3 GetForwardVector();
         virtual const glm::vec3 GetRightVector();
@@ -34,14 +42,17 @@ namespace Engine
         virtual void Attach(std::shared_ptr<RenderObject> child);
         virtual void Detach(std::shared_ptr<RenderObject> child);
 
+        virtual inline std::string GetName() { return m_srName; }
+
         virtual inline std::shared_ptr<RenderObject>& GetParent() { return m_pParent; }
-        virtual inline std::vector<std::shared_ptr<RenderObject>>& GetChilds() { return m_vChilds; }
+        virtual inline std::map<std::string, std::shared_ptr<RenderObject>>& GetChilds() { return m_mChilds; }
     protected:
         virtual void AddChild(std::shared_ptr<RenderObject> child);
         FTransform m_transform;
+        std::string m_srName;
     private:
         std::shared_ptr<RenderObject> m_pParent;
         std::shared_ptr<RenderObject> m_pParentOld;
-        std::vector<std::shared_ptr<RenderObject>> m_vChilds;
+        std::map<std::string, std::shared_ptr<RenderObject>> m_mChilds;
     };
 }

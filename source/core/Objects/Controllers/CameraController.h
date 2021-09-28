@@ -7,11 +7,17 @@ namespace Engine
     class CameraController : public RenderObject
     {
     public:
+        CameraController() = default;
+        explicit CameraController(std::string srName) 
+        {
+            m_srName = srName;
+        }
         void Create(std::unique_ptr<Device>& device) override;
         void Update(float fDeltaTime, std::unique_ptr<SwapChain>& swapchain) override;
         void Render(float fDeltaTime, vk::CommandBuffer& commandBuffer) override;
 
-        virtual inline std::shared_ptr<RenderObject> GetCamera(uint32_t index) { return GetChilds().at(index); }
+        //TODO: make it better
+        virtual inline std::shared_ptr<RenderObject> GetCamera(std::string srName) { return GetChilds()[srName]; }
 
         //Getters
     protected:

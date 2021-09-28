@@ -6,6 +6,11 @@ namespace Engine
     class CameraBase : public RenderObject
     {
     public:
+        explicit CameraBase(std::string srName) 
+        {
+            m_srName = srName;
+        }
+        
         void SetOrthographicProjection(float left, float right, float top, float bottom, float near, float far);
         void SetPerspectiveProjection(float fovy, float aspect, float near, float far);
 

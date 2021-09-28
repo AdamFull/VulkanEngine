@@ -34,7 +34,7 @@ namespace Engine
 
     void CameraEditorController::CameraMovement(EActionKey eKey)
     {
-        for(auto& camera : GetChilds())
+        for(auto& [name, camera] : GetChilds())
         {
             FTransform transform = camera->GetTransform();
 
@@ -66,7 +66,7 @@ namespace Engine
         if(!m_bRotatePass)
             return;
 
-        for(auto& camera : GetChilds())
+        for(auto& [name, camera] : GetChilds())
         {
             FTransform transform = camera->GetTransform();
             glm::vec3 rotate = glm::vec3{fY * m_fLookSpeed * -1.f, fX * m_fLookSpeed, 0.f};
@@ -86,7 +86,7 @@ namespace Engine
 
     void CameraEditorController::CameraToPoint(float fX, float fY)
     {
-        for(auto& camera : GetChilds())
+        for(auto& [name, camera] : GetChilds())
         {
             FTransform transform = camera->GetTransform();
             glm::vec3 direction = camera->GetForwardVector() * fY;

@@ -8,7 +8,11 @@ namespace Engine
     class StaticMesh : public RenderObject
     {
     public:
-        ~StaticMesh() {}
+        explicit StaticMesh(std::string srName) 
+        {
+            m_srName = srName;
+        }
+        
         void Create(std::unique_ptr<Device>& device) override;
         void Update(float fDeltaTime, std::unique_ptr<SwapChain>& swapchain) override;
         void Render(float fDeltaTime, vk::CommandBuffer& commandBuffer) override;

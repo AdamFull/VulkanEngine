@@ -64,20 +64,32 @@ namespace Engine
 
     void RenderObject::Create(std::unique_ptr<Device>& device)
     {
-        for(auto& child : m_vChilds)
+        for(auto& [name, child] : m_mChilds)
             child->Create(device);
     }
 
     void RenderObject::Render(float fDeltaTime, vk::CommandBuffer& commandBuffer) 
     {
-        for(auto& child : m_vChilds)
+        for(auto& [name, child] : m_mChilds)
             child->Render(fDeltaTime, commandBuffer);
     }
 
     void RenderObject::Update(float fDeltaTime, std::unique_ptr<SwapChain>& swapchain) 
     {
-        for(auto& child : m_vChilds)
+        for(auto& [name, child] : m_mChilds)
             child->Update(fDeltaTime, swapchain);
+    }
+
+    std::shared_ptr<RenderObject> RenderObject::Find(std::string srName)
+    {
+        auto it = m_mChilds.find(srName);
+        if(it != m_mChilds.end())
+            return it->second;
+        
+        for(auto& [name, child] : m_mChilds)
+            child->Find(srName);
+
+        return nullptr;
     }
 
     const glm::vec3 RenderObject::GetForwardVector() 
@@ -110,22 +122,18 @@ namespace Engine
 
     void RenderObject::AddChild(std::shared_ptr<RenderObject> child)
     {
-        m_vChilds.push_back(child);
+        m_mChilds.emplace(child->GetName(), child);
     }
 
     void RenderObject::Attach(std::shared_ptr<RenderObject> child)
     {
-        //Shared pointer from this
         child->SetParent(shared_from_this());
     }
 
     void RenderObject::Detach(std::shared_ptr<RenderObject> child)
     {
-        auto it = std::remove_if(m_vChilds.begin(), m_vChilds.end(), [&child](const std::shared_ptr<RenderObject>& cur)
-        {
-            return child == cur;
-        });
-
-        m_vChilds.erase(it);
+        auto it = m_mChilds.find(child->GetName());
+        if(it != m_mChilds.end())
+            m_mChilds.erase(it);
     }
 }

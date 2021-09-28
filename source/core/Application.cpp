@@ -17,7 +17,7 @@ namespace Engine
 
         m_pRoot = std::make_shared<SceneRootComponent>();
 
-        auto camera_controller = std::make_shared<CameraEditorController>();
+        auto camera_controller = std::make_shared<CameraEditorController>("default_camera");
         camera_controller->SetParent(m_pRoot);
 
         m_pRender = std::make_unique<VulkanHighLevel>();
@@ -39,7 +39,6 @@ namespace Engine
     void Application::CreatePipeline(const std::map<vk::ShaderStageFlagBits, std::string>& mShaders)
     {
         m_pRender->AddPipeline(mShaders, PipelineConfig::CreateDefaultPipelineConfig(1920, 1080, vk::SampleCountFlagBits::e1));
-        m_pRender->CreateCommandBuffers();
     }
 
     void Application::ServiceHandle(EActionKey eKey)
@@ -69,14 +68,12 @@ namespace Engine
             m_pRoot->Update(delta_time, m_pRender->GetSwapChain());
             m_pRoot->Render(delta_time, vk::CommandBuffer{});
 
-            //TODO: bad practice
-            auto cameraRaw = m_pRoot->GetChilds().front()->GetChilds().front();
-            auto camera = std::static_pointer_cast<CameraBase>(cameraRaw);
+            auto camera = std::static_pointer_cast<CameraBase>(m_pRoot->Find("default_camera"));
 
             auto projectionView = camera->GetProjection() * camera->GetView();
 
             glm::mat4 model = glm::rotate(glm::mat4(1.0f), glm::radians(90.0f), glm::vec3(1.0f, 0.0f, 0.0f));
-            m_pRender->GetUniformBuffer()->UpdateUniformBuffer(m_pRender->GetDevice(), m_pRender->Get->GetCurrentImage(), projectionView * model);
+            m_pRender->GetUniformBuffer()->UpdateUniformBuffer(m_pRender->GetDevice(), m_pRender->GetRenderer()->GetImageIndex(), projectionView * model);
 
             auto currentTime = std::chrono::high_resolution_clock::now();
             delta_time = std::chrono::duration<float, std::chrono::seconds::period>(currentTime - startTime).count();

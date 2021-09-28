@@ -4,12 +4,10 @@ namespace Engine
 {
     class Device;
     class SwapChain;
-    class GraphicsPipeline;
-    class UniformBuffer;
+    class PipelineBase;
 
     struct FRenderer
     {
-        std::vector<vk::DescriptorSet> vDescriptorSets;
         std::vector<vk::CommandBuffer, std::allocator<vk::CommandBuffer>> vCommandBuffers;
         uint32_t imageIndex{0};
         bool bFrameStarted;
@@ -18,28 +16,26 @@ namespace Engine
     class Renderer
     {
     public:
-        void Create(std::unique_ptr<Device>& device, std::unique_ptr<SwapChain>& swapchain, std::unique_ptr<GraphicsPipeline>& pipeline, std::unique_ptr<UniformBuffer>& uniform);
+        void Create(std::unique_ptr<Device>& device, std::shared_ptr<SwapChain> swapchain);
 
-        vk::CommandBuffer BeginFrame(std::unique_ptr<Device>& device, std::unique_ptr<SwapChain>& swapchain, std::unique_ptr<GraphicsPipeline>& pipeline, std::unique_ptr<UniformBuffer>& uniform);
-        void EndFrame(std::unique_ptr<Device>& device, std::unique_ptr<SwapChain>& swapchain, std::unique_ptr<GraphicsPipeline>& pipeline, std::unique_ptr<UniformBuffer>& uniform);
+        void ReCreate(std::unique_ptr<Device>& device);
 
-        void BeginRender(vk::CommandBuffer commandBuffer, std::unique_ptr<SwapChain>& swapchain);
+        vk::CommandBuffer BeginFrame(std::unique_ptr<Device>& device);
+        vk::Result EndFrame(std::unique_ptr<Device>& device);
+
+        void BeginRender(vk::CommandBuffer commandBuffer);
         void EndRender(vk::CommandBuffer commandBuffer);
 
-        vk::DescriptorSet Renderer::GetCurrentDescriptorSets() const;
-
-        void CleanupSwapChain(std::unique_ptr<Device>& device, std::unique_ptr<SwapChain>& swapchain);
-
         //Getters
-        inline std::vector<vk::DescriptorSet>& GetDescriptorSets() { return data.vDescriptorSets; }
         inline std::vector<vk::CommandBuffer, std::allocator<vk::CommandBuffer>>& GetCommandBuffers() { return data.vCommandBuffers; }
         inline uint32_t GetImageIndex() { return data.imageIndex; }
     private:
-        void RecreateSwapChain(std::unique_ptr<Device>& device, std::unique_ptr<SwapChain>& swapchain, std::unique_ptr<GraphicsPipeline>& pipeline, std::unique_ptr<UniformBuffer>& uniform);
-        void Renderer::CreateCommandBuffers(std::unique_ptr<Device>& device, std::unique_ptr<SwapChain>& swapchain, std::unique_ptr<GraphicsPipeline>& pipeline, std::unique_ptr<UniformBuffer>& uniform);
-        void CreateDescriptorSets(std::unique_ptr<Device>& device, std::unique_ptr<SwapChain>& swapchain, std::unique_ptr<GraphicsPipeline>& pipeline, std::unique_ptr<UniformBuffer>& uniform);
+        
+        void Renderer::CreateCommandBuffers(std::unique_ptr<Device>& device);
 
         vk::CommandBuffer GetCurrentCommandBuffer() const;
+
+        std::shared_ptr<SwapChain> m_pSwapChain;
 
         FRenderer data;
     };

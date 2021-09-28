@@ -2,14 +2,14 @@
 
 namespace Engine
 {
-    void CameraController::Create(std::unique_ptr<Device>& device)
+    void CameraController::Create(std::unique_ptr<Device>& device, std::shared_ptr<SwapChain> swapchain, std::shared_ptr<UniformBuffer> uniform)
     {
-        RenderObject::Create(device);
+        RenderObject::Create(device, swapchain, uniform);
     }
 
-    void CameraController::Update(float fDeltaTime, std::unique_ptr<SwapChain>& swapchain)
+    void CameraController::Update(float fDeltaTime)
     {
-        RenderObject::Update(fDeltaTime, swapchain);
+        RenderObject::Update(fDeltaTime);
         m_fDeltaTime = fDeltaTime;
     }
 

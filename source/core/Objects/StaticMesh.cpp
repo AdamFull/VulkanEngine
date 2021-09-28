@@ -3,15 +3,15 @@
 
 namespace Engine
 {
-    void StaticMesh::Create(std::unique_ptr<Device>& device)
+    void StaticMesh::Create(std::unique_ptr<Device>& device, std::shared_ptr<SwapChain> swapchain, std::shared_ptr<UniformBuffer> uniform)
     {
-        RenderObject::Create(device);
+        RenderObject::Create(device, swapchain, uniform);
         m_pStaticMesh = std::make_unique<VulkanStaticMesh>();
     }
 
-    void StaticMesh::Update(float fDeltaTime, std::unique_ptr<SwapChain>& swapchain)
+    void StaticMesh::Update(float fDeltaTime)
     {
-        RenderObject::Update(fDeltaTime, swapchain);
+        RenderObject::Update(fDeltaTime);
     }
 
     void StaticMesh::Render(float fDeltaTime, vk::CommandBuffer& commandBuffer)

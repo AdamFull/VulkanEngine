@@ -78,11 +78,11 @@ namespace Engine
         viewMatrix[3][2] = -glm::dot(w, position);
     }
 
-    void CameraBase::Update(float fDeltaTime, std::unique_ptr<SwapChain>& swapchain)
+    void CameraBase::Update(float fDeltaTime)
     {
-        RenderObject::Update(fDeltaTime, swapchain);
+        RenderObject::Update(fDeltaTime);
 
-        auto aspect = swapchain->GetAspectRatio();
+        auto aspect = m_pSwapChain->GetAspectRatio();
         SetPerspectiveProjection(glm::radians(90.f), aspect, 0.1f, 50.f);
         SetViewYXZ(m_transform.pos, m_transform.rot);
     }

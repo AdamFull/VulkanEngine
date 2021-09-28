@@ -4,9 +4,9 @@
 
 namespace Engine
 {
-    void CameraEditorController::Create(std::unique_ptr<Device>& device)
+    void CameraEditorController::Create(std::unique_ptr<Device>& device, std::shared_ptr<SwapChain> swapchain, std::shared_ptr<UniformBuffer> uniform)
     {
-        CameraController::Create(device);
+        CameraController::Create(device, swapchain, uniform);
 
         InputMapper::GetInstance()->CreateAction("CameraMovement", EActionKey::eW, EActionKey::eS, EActionKey::eA, 
         EActionKey::eD, EActionKey::eSpace, EActionKey::eLeftControl, EActionKey::eMouseMiddle);
@@ -22,9 +22,9 @@ namespace Engine
         camera->SetParent(shared_from_this());
     }
 
-    void CameraEditorController::Update(float fDeltaTime, std::unique_ptr<SwapChain>& swapchain)
+    void CameraEditorController::Update(float fDeltaTime)
     {
-        CameraController::Update(fDeltaTime, swapchain);
+        CameraController::Update(fDeltaTime);
     }
 
     void CameraEditorController::Render(float fDeltaTime, vk::CommandBuffer& commandBuffer)

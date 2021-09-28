@@ -3,9 +3,9 @@
 
 namespace Engine
 {
-    void SceneRootComponent::Create(std::unique_ptr<Device> &device)
+    void SceneRootComponent::Create(std::unique_ptr<Device>& device, std::shared_ptr<SwapChain> swapchain, std::shared_ptr<UniformBuffer> uniform)
     {
-        RenderObject::Create(device);
+        RenderObject::Create(device, swapchain, uniform);
     }
 
     void SceneRootComponent::Render(float fDeltaTime, vk::CommandBuffer &commandBuffer)
@@ -13,8 +13,8 @@ namespace Engine
         RenderObject::Render(fDeltaTime, commandBuffer);
     }
 
-    void SceneRootComponent::Update(float fDeltaTime, std::unique_ptr<SwapChain>& swapchain)
+    void SceneRootComponent::Update(float fDeltaTime)
     {
-        RenderObject::Update(fDeltaTime, swapchain);
+        RenderObject::Update(fDeltaTime);
     }
 }

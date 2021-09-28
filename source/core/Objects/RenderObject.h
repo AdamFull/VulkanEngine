@@ -1,9 +1,10 @@
 #pragma once
+#include "VulkanSwapChain.h"
+#include "VulkanUniform.h"
 
 namespace Engine
 {
     class Device;
-    class SwapChain;
 
     struct FTransform
     {
@@ -24,11 +25,21 @@ namespace Engine
             m_srName = srName;
         }
 
-        virtual ~RenderObject() {}
+        virtual ~RenderObject() 
+        {
+            
+        }
 
-        virtual void Create(std::unique_ptr<Device>& device);
+        //Create render object
+        virtual void Create(std::unique_ptr<Device>& device, std::shared_ptr<SwapChain> swapchain, std::shared_ptr<UniformBuffer> uniform);
+        //Recreate render object
+        virtual void ReCreate(std::unique_ptr<Device>& device);
+        //Do render things
         virtual void Render(float fDeltaTime, vk::CommandBuffer& commandBuffer);
-        virtual void Update(float fDeltaTime, std::unique_ptr<SwapChain>& swapchain);
+        //Update object
+        virtual void Update(float fDeltaTime);
+        //Cleanup object
+        virtual void Cleanup(std::unique_ptr<Device>& device);
 
         virtual std::shared_ptr<RenderObject> Find(std::string srName);
 
@@ -50,9 +61,14 @@ namespace Engine
         virtual void AddChild(std::shared_ptr<RenderObject> child);
         FTransform m_transform;
         std::string m_srName;
+
+        std::shared_ptr<SwapChain> m_pSwapChain;
+        std::shared_ptr<UniformBuffer> m_pUniform;
     private:
         std::shared_ptr<RenderObject> m_pParent;
         std::shared_ptr<RenderObject> m_pParentOld;
         std::map<std::string, std::shared_ptr<RenderObject>> m_mChilds;
+
+        
     };
 }

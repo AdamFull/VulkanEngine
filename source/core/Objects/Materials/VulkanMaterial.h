@@ -1,12 +1,13 @@
 #pragma once
+#include "Objects/RenderObject.h"
 
 namespace Engine
 {
     class VulkanTextureBase;
     class Device;
-    class Pipeline;
+    class GraphicsPipelineDiffuse;
 
-    class MaterialBase
+    class MaterialBase : public RenderObject
     {
     public:
         virtual void Create(std::unique_ptr<Device>& device) {}
@@ -14,7 +15,7 @@ namespace Engine
         virtual void Bind(vk::CommandBuffer& commandBuffer) {}
         virtual void Draw(vk::CommandBuffer& commandBuffer) {}
     protected:
-        std::unique_ptr<Pipeline> m_pPipeline;
+        std::shared_ptr<GraphicsPipelineDiffuse> m_pPipeline;
         std::shared_ptr<VulkanTextureBase> m_pColor;
     };
 

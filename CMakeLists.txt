@@ -45,7 +45,7 @@ else()
 endif()
 
 # Initializing project
-project(VulkanBasedEngine)
+project(IncenerateRenderEngine)
 
 set(VULKAN_LIB_LIST "vulkan-1")
 if(${CMAKE_SYSTEM_NAME} MATCHES "Windows")

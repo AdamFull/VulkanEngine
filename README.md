@@ -1,4 +1,4 @@
-# VulkanEngine
+# Incenerate - Vulkan based renderer
  
 ### Most interesting resources
 

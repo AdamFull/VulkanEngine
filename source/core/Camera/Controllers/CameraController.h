@@ -1,20 +1,20 @@
 #pragma once
-#include "core/KeycodeConfig.h"
-#include "core/Objects/RenderObject.h"
+#include "core/KeyMapping/KeycodeConfig.h"
 
 namespace Engine
 {
-    class CameraController : public RenderObject
+    class CameraController
     {
     public:
         CameraController() = default;
         explicit CameraController(std::string srName) 
         {
-            m_srName = srName;
+            
         }
-        void Create(std::unique_ptr<Device>& device, std::shared_ptr<SwapChain> swapchain, std::shared_ptr<UniformBuffer> uniform) override;
-        void Update(float fDeltaTime) override;
-        void Render(float fDeltaTime, vk::CommandBuffer& commandBuffer) override;
+
+        virtual void Create(std::unique_ptr<Device>& device, std::shared_ptr<SwapChain> swapchain, std::shared_ptr<UniformBuffer> uniform);
+        virtual void Update(float fDeltaTime);
+        virtual void Render(float fDeltaTime, vk::CommandBuffer& commandBuffer);
 
         //TODO: make it better
         virtual inline std::shared_ptr<RenderObject> GetCamera(std::string srName) { return GetChilds()[srName]; }

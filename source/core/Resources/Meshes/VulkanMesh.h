@@ -1,4 +1,5 @@
 #pragma once
+#include "Resources/ResourceBase.h"
 
 namespace Engine
 {
@@ -27,9 +28,17 @@ namespace Engine
         (hashCombine(seed, rest), ...);
     };
 
-    class VulkanMeshBase
+    class MeshBase : public ResourceBase
     {
     public:
+        void Create(std::unique_ptr<Device>& device, std::shared_ptr<SwapChain> swapchain, std::shared_ptr<UniformBuffer> uniform) override;
+        void ReCreate(std::unique_ptr<Device>& device) override;
+        void Bind(std::unique_ptr<Device>& device, vk::CommandBuffer commandBuffer) override;
+        void Destroy(std::unique_ptr<Device>& device) override;
+    protected:
+        virtual void CreateVertexBuffer(std::unique_ptr<Device>& device);
+        virtual void CreateIndexBuffer(std::unique_ptr<Device>& device);
+
         std::vector<Vertex> vertices;
         vk::Buffer vertexBuffer;
         vk::DeviceMemory vertexBufferMemory;
@@ -39,16 +48,16 @@ namespace Engine
         vk::DeviceMemory indiciesBufferMemory;
     };
 
-    class VulkanStaticMesh : public VulkanMeshBase
+    class StaticMesh : public MeshBase
     {
     public:
-        void LoadStaticMesh(std::unique_ptr<Device>& device, std::string srPath);
+        void Create(std::unique_ptr<Device>& device, std::shared_ptr<SwapChain> swapchain, std::shared_ptr<UniformBuffer> uniform) override;
+        void ReCreate(std::unique_ptr<Device>& device) override;
+        void Bind(std::unique_ptr<Device>& device, vk::CommandBuffer commandBuffer) override;
+        void Destroy(std::unique_ptr<Device>& device) override;
+
+        void Load(std::unique_ptr<Device>& device, std::string srPath);
         
-        void Bind(vk::CommandBuffer& commandBuffer);
-        void Draw(vk::CommandBuffer& commandBuffer);
-    private:
-        void CreateVertexBuffer(std::unique_ptr<Device>& device);
-        void CreateIndexBuffer(std::unique_ptr<Device>& device);
     };
 }
 

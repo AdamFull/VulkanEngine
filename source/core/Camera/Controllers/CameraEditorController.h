@@ -3,12 +3,16 @@
 
 namespace Engine
 {
+    class Device;
+    class SwapChain;
+    class UniformBuffer;
+    
     class CameraEditorController : public CameraController
     {
     public:
         explicit CameraEditorController(std::string srName) 
         {
-            m_srName = srName;
+            
         }
         
         void Create(std::unique_ptr<Device>& device, std::shared_ptr<SwapChain> swapchain, std::shared_ptr<UniformBuffer> uniform) override;

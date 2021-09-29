@@ -1,8 +1,6 @@
 #include "Application.h"
-#include "InputMapper.h"
-#include "VulkanSwapChain.h"
-#include "Objects/Controllers/CameraEditorController.h"
-#include "Objects/Camera.h"
+#include "VulkanHighLevel.h"
+#include "KeyMapping/InputMapper.h"
 
 namespace Engine
 {
@@ -15,11 +13,12 @@ namespace Engine
         InputMapper::GetInstance()->CreateAction("ServiceHandles", EActionKey::eEscape, EActionKey::eF1);
         InputMapper::GetInstance()->BindAction("ServiceHandles", EKeyState::eRelease, this, &Application::ServiceHandle);
 
-        m_pRender = std::make_unique<VulkanHighLevel>();
-        m_pRender->Create(m_pWindow, "Vulkan", VK_MAKE_VERSION(1, 0, 0), "GENGINE", VK_MAKE_VERSION(1, 0, 0), VK_API_VERSION_1_0);
+        VulkanHighLevel::GetInstance()->Create(m_pWindow, "Vulkan", VK_MAKE_VERSION(1, 0, 0), "GENGINE", VK_MAKE_VERSION(1, 0, 0), VK_API_VERSION_1_0);
 
-        auto camera_controller = std::make_shared<CameraEditorController>("default_camera");
-        m_pRender->Attach(camera_controller);
+        m_pCameraController = std::make_unique<CameraEditorController>();
+        m_pCameraController->Create();
+
+        m_pRenderScene = std::make_unique<RenderScene>();
     }
 
     void Application::ServiceHandle(EActionKey eKey)
@@ -30,19 +29,24 @@ namespace Engine
         default: break;
         }
     }
+    /*
+    чтобы попробовать запустить, нужно создать камеру,
+    забиндить её в менеджер камеры, потом загрузить все ресурсы: материалы и мэши
+    и потом уже аттачить их к сцене и стартовать. ПОка что костыльно. Потом нужно будет прикрутить менеджер ресов.
+    */
 
     void Application::run()
     {
-        m_pRender->CreateObjects();
-
+        m_pRenderScene->CreateObjects();
         float delta_time{0.0f};
         while(!m_pWindow->IsShouldClose())
         {
             auto startTime = std::chrono::high_resolution_clock::now();
 
             m_pWindow->PollEvents();
+            m_pCameraController->Update(delta_time);
 
-            m_pRender->BeginFrame(delta_time);
+            m_pRenderScene->Render(delta_time);
 
             //TODO: remove update from input mapper. Don't need anymore
             InputMapper::GetInstance()->Update(delta_time);

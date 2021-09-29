@@ -1,8 +1,8 @@
 #pragma once
 #include "WindowHandle.h"
-#include "KeycodeConfig.h"
-#include "Objects/Components/SceneRootComponent.h"
-#include "VulkanHighLevel.h"
+#include "KeyMapping/KeycodeConfig.h"
+#include "Camera/Controllers/CameraEditorController.h"
+#include "RenderScene.h"
 
 namespace Engine
 {
@@ -10,13 +10,11 @@ namespace Engine
     {
     public:
         void Create();
-        void LoadMesh(std::string srPath);
-
         void ServiceHandle(EActionKey eKey);
-
         void run();
     private:
         std::unique_ptr<WindowHandle> m_pWindow;
-        std::unique_ptr<VulkanHighLevel> m_pRender;
+        std::unique_ptr<RenderScene> m_pRenderScene;
+        std::unique_ptr<CameraController> m_pCameraController;
     };
 }

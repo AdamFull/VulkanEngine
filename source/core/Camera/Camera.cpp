@@ -1,5 +1,6 @@
 #include "Camera.h"
 #include "VulkanSwapChain.h"
+#include "VulkanHighLevel.h"
 
 namespace Engine
 {
@@ -82,7 +83,7 @@ namespace Engine
     {
         RenderObject::Update(fDeltaTime);
 
-        auto aspect = m_pSwapChain->GetAspectRatio();
+        auto aspect = VulkanHighLevel::GetInstance()->GetSwapChain()->GetAspectRatio();
         SetPerspectiveProjection(glm::radians(90.f), aspect, 0.1f, 50.f);
         SetViewYXZ(m_transform.pos, m_transform.rot);
     }

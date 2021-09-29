@@ -31,15 +31,15 @@ namespace Engine
         }
 
         //Create render object
-        virtual void Create(std::unique_ptr<Device>& device, std::shared_ptr<SwapChain> swapchain, std::shared_ptr<UniformBuffer> uniform);
+        virtual void Create();
         //Recreate render object
-        virtual void ReCreate(std::unique_ptr<Device>& device);
+        virtual void ReCreate();
         //Do render things
-        virtual void Render(float fDeltaTime, vk::CommandBuffer& commandBuffer);
+        virtual void Render(vk::CommandBuffer& commandBuffer, uint32_t imageIndex);
         //Update object
         virtual void Update(float fDeltaTime);
         //Cleanup object
-        virtual void Cleanup(std::unique_ptr<Device>& device);
+        virtual void Cleanup();
 
         virtual std::shared_ptr<RenderObject> Find(std::string srName);
 
@@ -61,9 +61,6 @@ namespace Engine
         virtual void AddChild(std::shared_ptr<RenderObject> child);
         FTransform m_transform;
         std::string m_srName;
-
-        std::shared_ptr<SwapChain> m_pSwapChain;
-        std::shared_ptr<UniformBuffer> m_pUniform;
     private:
         std::shared_ptr<RenderObject> m_pParent;
         std::shared_ptr<RenderObject> m_pParentOld;

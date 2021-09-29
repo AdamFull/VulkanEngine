@@ -4,7 +4,6 @@ namespace Engine
 {
     class Device;
     class SwapChain;
-    class PipelineBase;
 
     struct FRenderer
     {
@@ -16,27 +15,22 @@ namespace Engine
     class Renderer
     {
     public:
-        void Create(std::unique_ptr<Device>& device, std::shared_ptr<SwapChain> swapchain);
+        void Create(std::unique_ptr<Device>& device, std::unique_ptr<SwapChain>& swapchain);
 
-        void ReCreate(std::unique_ptr<Device>& device);
+        void ReCreate(std::unique_ptr<Device>& device, std::unique_ptr<SwapChain>& swapchain);
 
-        vk::CommandBuffer BeginFrame(std::unique_ptr<Device>& device);
-        vk::Result EndFrame(std::unique_ptr<Device>& device);
+        vk::CommandBuffer BeginFrame(std::unique_ptr<Device>& device, std::unique_ptr<SwapChain>& swapchain);
+        vk::Result EndFrame(std::unique_ptr<Device>& device, std::unique_ptr<SwapChain>& swapchain);
 
-        void BeginRender(vk::CommandBuffer commandBuffer);
-        void EndRender(vk::CommandBuffer commandBuffer);
+        void BeginRender(vk::CommandBuffer commandBuffer, std::unique_ptr<SwapChain>& swapchain);
+        void EndRender(vk::CommandBuffer commandBuffer, std::unique_ptr<SwapChain>& swapchain);
 
         //Getters
         inline std::vector<vk::CommandBuffer, std::allocator<vk::CommandBuffer>>& GetCommandBuffers() { return data.vCommandBuffers; }
         inline uint32_t GetImageIndex() { return data.imageIndex; }
     private:
-        
-        void Renderer::CreateCommandBuffers(std::unique_ptr<Device>& device);
-
+        void Renderer::CreateCommandBuffers(std::unique_ptr<Device>& device, std::unique_ptr<SwapChain>& swapchain);
         vk::CommandBuffer GetCurrentCommandBuffer() const;
-
-        std::shared_ptr<SwapChain> m_pSwapChain;
-
         FRenderer data;
     };
 }

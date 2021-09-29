@@ -2,12 +2,12 @@
 
 namespace Engine
 {
-    class Camera;
+    class CameraBase;
 
     class CameraManager
     {
     protected:
-        CameraManager();
+        CameraManager() = default;
 
         static std::unique_ptr<CameraManager> m_pInstance;
     public:
@@ -16,13 +16,13 @@ namespace Engine
         CameraManager(CameraManager&&) = delete;
         CameraManager& operator=(CameraManager&&) = delete;
 
-        std::unique_ptr<CameraManager>& GetInstance();
+        static std::unique_ptr<CameraManager>& GetInstance();
 
-        std::shared_ptr<Camera> GetCurrentCamera();
+        std::shared_ptr<CameraBase> GetCurrentCamera();
         void SetCurrentCameraIndex(size_t index);
-        void Attach(std::shared_ptr<Camera> newCamera);
+        void Attach(std::shared_ptr<CameraBase> newCamera);
     private:
-        std::vector<std::shared_ptr<Camera>> m_vCameras;
+        std::vector<std::shared_ptr<CameraBase>> m_vCameras;
         size_t m_iCameraIndex{0};
     };
 }

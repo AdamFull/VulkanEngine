@@ -62,25 +62,22 @@ namespace Engine
         };
     }
 
-    void RenderObject::Create(std::unique_ptr<Device>& device, std::shared_ptr<SwapChain> swapchain, std::shared_ptr<UniformBuffer> uniform)
+    void RenderObject::Create()
     {
-        m_pSwapChain = swapchain;
-        m_pUniform = uniform;
-        
         for(auto& [name, child] : m_mChilds)
-            child->Create(device, swapchain, uniform);
+            child->Create();
     }
 
-    void RenderObject::ReCreate(std::unique_ptr<Device>& device)
+    void RenderObject::ReCreate()
     {
         for(auto& [name, child] : m_mChilds)
-            child->ReCreate(device);
+            child->ReCreate();
     }
 
-    void RenderObject::Render(float fDeltaTime, vk::CommandBuffer& commandBuffer) 
+    void RenderObject::Render(vk::CommandBuffer& commandBuffer, uint32_t imageIndex) 
     {
         for(auto& [name, child] : m_mChilds)
-            child->Render(fDeltaTime, commandBuffer);
+            child->Render(commandBuffer, imageIndex);
     }
 
     void RenderObject::Update(float fDeltaTime) 
@@ -89,10 +86,10 @@ namespace Engine
             child->Update(fDeltaTime);
     }
 
-    void RenderObject::Cleanup(std::unique_ptr<Device>& device)
+    void RenderObject::Cleanup()
     {
         for(auto& [name, child] : m_mChilds)
-            child->Cleanup(device);
+            child->Cleanup();
     }
 
     std::shared_ptr<RenderObject> RenderObject::Find(std::string srName)

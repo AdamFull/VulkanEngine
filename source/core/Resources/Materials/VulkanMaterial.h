@@ -3,34 +3,36 @@
 
 namespace Engine
 {
-    class TextureBase;
+    class Texture2D;
     class PipelineBase;
 
     class MaterialBase : public ResourceBase
     {
     public:
-        void Create(std::unique_ptr<Device>& device, std::shared_ptr<SwapChain> swapchain, std::shared_ptr<UniformBuffer> uniform) override;
-        void ReCreate(std::unique_ptr<Device>& device) override;
-        void Bind(std::unique_ptr<Device>& device, vk::CommandBuffer commandBuffer) override;
-        void Destroy(std::unique_ptr<Device>& device) override;
+        void Create(std::string srResourcePath) override;
+        void ReCreate() override;
+        void Update(uint32_t imageIndex) override;
+        void Bind(vk::CommandBuffer commandBuffer, uint32_t imageIndex) override;
+        void Destroy() override;
 
     protected:
         std::shared_ptr<PipelineBase> m_pPipeline;
-        std::shared_ptr<TextureBase> m_pColor;
+        std::shared_ptr<Texture2D> m_pColor;
     };
 
     class MaterialDiffuse : public MaterialBase
     {
     public:
-        void Create(std::unique_ptr<Device>& device, std::shared_ptr<SwapChain> swapchain, std::shared_ptr<UniformBuffer> uniform) override;
-        void ReCreate(std::unique_ptr<Device>& device) override;
-        void Bind(std::unique_ptr<Device>& device, vk::CommandBuffer commandBuffer) override;
-        void Destroy(std::unique_ptr<Device>& device) override;
+        void Create(std::string srResourcePath) override;
+        void ReCreate() override;
+        void Update(uint32_t imageIndex) override;
+        void Bind(vk::CommandBuffer commandBuffer, uint32_t imageIndex) override;
+        void Destroy() override;
 
     private:
-        std::shared_ptr<TextureBase> m_pAmbient;
-        std::shared_ptr<TextureBase> m_pSpecular;
-        std::shared_ptr<TextureBase> m_pNormal;
+        std::shared_ptr<Texture2D> m_pAmbient;
+        std::shared_ptr<Texture2D> m_pSpecular;
+        std::shared_ptr<Texture2D> m_pNormal;
     };
     
 }

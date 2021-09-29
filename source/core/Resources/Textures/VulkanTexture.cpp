@@ -1,34 +1,41 @@
 #include "VulkanTexture.h"
 #include "VulkanDevice.h"
+#include "VulkanHighLevel.h"
 
 #define STB_IMAGE_IMPLEMENTATION
 #include "external/stb_image.h"
 
 namespace Engine
 {
-    void TextureBase::Create(std::unique_ptr<Device>& device, std::shared_ptr<SwapChain> swapchain, std::shared_ptr<UniformBuffer> uniform)
+    void TextureBase::Create(std::string srResourceName)
     {
-        ResourceBase::Create(device, swapchain, uniform);
+        ResourceBase::Create(srResourceName);
     }
 
-    void TextureBase::ReCreate(std::unique_ptr<Device>& device)
+    void TextureBase::ReCreate()
     {
-        ResourceBase::ReCreate(device);
+        ResourceBase::ReCreate();
     }
 
-    void TextureBase::Bind(std::unique_ptr<Device>& device, vk::CommandBuffer commandBuffer)
+    void TextureBase::Update(uint32_t imageIndex)
     {
-        ResourceBase::Bind(device, commandBuffer);
+        ResourceBase::Update(imageIndex);
+        UpdateDescriptor();
     }
 
-    void TextureBase::Destroy(std::unique_ptr<Device>& device)
+    void TextureBase::Bind(vk::CommandBuffer commandBuffer, uint32_t imageIndex)
     {
-        ResourceBase::Destroy(device);
+        ResourceBase::Bind(commandBuffer, imageIndex);
+    }
 
-        device->Destroy(sampler);
-        device->Destroy(view);
-        device->Destroy(image);
-        device->Destroy(deviceMemory);
+    void TextureBase::Destroy()
+    {
+        ResourceBase::Destroy();
+
+        VulkanHighLevel::GetInstance()->GetDevice()->Destroy(sampler);
+        VulkanHighLevel::GetInstance()->GetDevice()->Destroy(view);
+        VulkanHighLevel::GetInstance()->GetDevice()->Destroy(image);
+        VulkanHighLevel::GetInstance()->GetDevice()->Destroy(deviceMemory);
     }
 
     void TextureBase::UpdateDescriptor()
@@ -38,18 +45,17 @@ namespace Engine
 		descriptor.imageLayout = imageLayout;
     }
 
-    void TextureBase::GenerateMipmaps(std::unique_ptr<Device>& device, vk::Image &image, uint32_t mipLevels, vk::Format format, vk::Extent3D sizes, vk::ImageAspectFlags aspectFlags)
+    void TextureBase::GenerateMipmaps(vk::Image &image, uint32_t mipLevels, vk::Format format, vk::Extent3D sizes, vk::ImageAspectFlags aspectFlags)
     {
-        assert(device && "Cannot generate mipmaps, cause device is not valid.");
         vk::FormatProperties formatProperties;
-        device->GetPhysical().getFormatProperties(format, &formatProperties);
+        VulkanHighLevel::GetInstance()->GetDevice()->GetPhysical().getFormatProperties(format, &formatProperties);
 
         if (!(formatProperties.optimalTilingFeatures & vk::FormatFeatureFlagBits::eSampledImageFilterLinear)) 
         {
             throw std::runtime_error("Texture image format does not support linear blitting!");
         }
 
-        vk::CommandBuffer commandBuffer = device->BeginSingleTimeCommands();
+        vk::CommandBuffer commandBuffer = VulkanHighLevel::GetInstance()->GetDevice()->BeginSingleTimeCommands();
 
         vk::ImageMemoryBarrier barrier{};
         barrier.image = image;
@@ -127,31 +133,37 @@ namespace Engine
             0, nullptr,
             1, &barrier);
 
-        device->EndSingleTimeCommands(commandBuffer);
+        VulkanHighLevel::GetInstance()->GetDevice()->EndSingleTimeCommands(commandBuffer);
     }
     
     /*******************************************************Texture2D*****************************************************************/
-    void Texture2D::Create(std::unique_ptr<Device>& device, std::shared_ptr<SwapChain> swapchain, std::shared_ptr<UniformBuffer> uniform)
+    void Texture2D::Create(std::string srResourceName)
     {
-        TextureBase::Create(device, swapchain, uniform);
+        TextureBase::Create(srResourceName);
+        Load(srResourceName);
     }
 
-    void Texture2D::ReCreate(std::unique_ptr<Device>& device)
+    void Texture2D::ReCreate()
     {
-        TextureBase::ReCreate(device);
+        TextureBase::ReCreate();
     }
 
-    void Texture2D::Bind(std::unique_ptr<Device>& device, vk::CommandBuffer commandBuffer)
+    void Texture2D::Update(uint32_t imageIndex)
     {
-        TextureBase::Bind(device, commandBuffer);
+        TextureBase::Update(imageIndex);
     }
 
-    void Texture2D::Destroy(std::unique_ptr<Device>& device)
+    void Texture2D::Bind(vk::CommandBuffer commandBuffer, uint32_t imageIndex)
     {
-        TextureBase::Destroy(device);
+        TextureBase::Bind(commandBuffer, imageIndex);
     }
 
-    void Texture2D::Load(std::unique_ptr<Device>& device, std::string srPath, uint32_t idx)
+    void Texture2D::Destroy()
+    {
+        TextureBase::Destroy();
+    }
+
+    void Texture2D::Load(std::string srPath)
     {
         int w, h, c;
         unsigned char* raw_data = stbi_load(srPath.c_str(), &w, &h, &c, STBI_rgb_alpha);
@@ -171,52 +183,55 @@ namespace Engine
 
         vk::Buffer stagingBuffer;
         vk::DeviceMemory stagingBufferMemory;
-        device->CreateOnDeviceBuffer(imgSize, vk::BufferUsageFlagBits::eTransferSrc,
+        VulkanHighLevel::GetInstance()->GetDevice()->CreateOnDeviceBuffer(imgSize, vk::BufferUsageFlagBits::eTransferSrc,
                              vk::MemoryPropertyFlagBits::eHostVisible | vk::MemoryPropertyFlagBits::eHostCoherent,
                              stagingBuffer,
                              stagingBufferMemory);
 
-        device->MoveToMemory(raw_data, stagingBufferMemory , imgSize);
+        VulkanHighLevel::GetInstance()->GetDevice()->MoveToMemory(raw_data, stagingBufferMemory , imgSize);
 
         stbi_image_free(raw_data);
 
-        device->CreateImage(image, deviceMemory, compiledSize, mipLevels, vk::SampleCountFlagBits::e1, vk::Format::eR8G8B8A8Srgb, 
+        VulkanHighLevel::GetInstance()->GetDevice()->CreateImage(image, deviceMemory, compiledSize, mipLevels, vk::SampleCountFlagBits::e1, vk::Format::eR8G8B8A8Srgb, 
                     vk::ImageTiling::eOptimal, vk::ImageUsageFlagBits::eTransferSrc | vk::ImageUsageFlagBits::eTransferDst | 
                     vk::ImageUsageFlagBits::eSampled, vk::MemoryPropertyFlagBits::eDeviceLocal);
 
-        device->TransitionImageLayout(image, mipLevels, vk::ImageAspectFlagBits::eColor, vk::ImageLayout::eUndefined, vk::ImageLayout::eTransferDstOptimal);
-        device->CopyBufferToImage(stagingBuffer, image, compiledSize);
-        GenerateMipmaps(device, image, mipLevels, vk::Format::eR8G8B8A8Srgb, compiledSize, vk::ImageAspectFlagBits::eColor);
+        VulkanHighLevel::GetInstance()->GetDevice()->TransitionImageLayout(image, mipLevels, vk::ImageAspectFlagBits::eColor, vk::ImageLayout::eUndefined, vk::ImageLayout::eTransferDstOptimal);
+        VulkanHighLevel::GetInstance()->GetDevice()->CopyBufferToImage(stagingBuffer, image, compiledSize);
+        GenerateMipmaps(image, mipLevels, vk::Format::eR8G8B8A8Srgb, compiledSize, vk::ImageAspectFlagBits::eColor);
 
-        device->Destroy(stagingBuffer);
-        device->Destroy(stagingBufferMemory);
+        VulkanHighLevel::GetInstance()->GetDevice()->Destroy(stagingBuffer);
+        VulkanHighLevel::GetInstance()->GetDevice()->Destroy(stagingBufferMemory);
 
-        view = device->CreateImageView(image, mipLevels, vk::Format::eR8G8B8A8Srgb, vk::ImageAspectFlagBits::eColor);
+        view = VulkanHighLevel::GetInstance()->GetDevice()->CreateImageView(image, mipLevels, vk::Format::eR8G8B8A8Srgb, vk::ImageAspectFlagBits::eColor);
 
-        device->CreateSampler(sampler, mipLevels);
+        VulkanHighLevel::GetInstance()->GetDevice()->CreateSampler(sampler, mipLevels);
         imageLayout = vk::ImageLayout::eShaderReadOnlyOptimal;
-
-        UpdateDescriptor();
     }
 
     /*******************************************************TextureCubemap*****************************************************************/
-    void TextureCubemap::Create(std::unique_ptr<Device>& device, std::shared_ptr<SwapChain> swapchain, std::shared_ptr<UniformBuffer> uniform)
+    void TextureCubemap::Create(std::string srResourcePath)
     {
-        TextureBase::Create(device, swapchain, uniform);
+        TextureBase::Create(srResourcePath);
     }
 
-    void TextureCubemap::ReCreate(std::unique_ptr<Device>& device)
+    void TextureCubemap::ReCreate()
     {
-        TextureBase::ReCreate(device);
+        TextureBase::ReCreate();
     }
 
-    void TextureCubemap::Bind(std::unique_ptr<Device>& device, vk::CommandBuffer commandBuffer)
+    void TextureCubemap::Update(uint32_t imageIndex)
     {
-        TextureBase::Bind(device, commandBuffer);
+        TextureBase::Update(imageIndex);
     }
 
-    void TextureCubemap::Destroy(std::unique_ptr<Device>& device)
+    void TextureCubemap::Bind(vk::CommandBuffer commandBuffer, uint32_t imageIndex)
     {
-        TextureBase::Destroy(device);
+        TextureBase::Bind(commandBuffer, imageIndex);
+    }
+
+    void TextureCubemap::Destroy()
+    {
+        TextureBase::Destroy();
     }
 }

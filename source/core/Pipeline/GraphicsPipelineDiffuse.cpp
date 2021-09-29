@@ -1,17 +1,17 @@
 #include "GraphicsPipelineDiffuse.h"
 #include "core/VulkanDevice.h"
-#include "core/VulkanSwapChain.h"
+#include "VulkanSwapChain.h"
 
 namespace Engine
 {
-    void GraphicsPipelineDiffuse::Create(FPipelineCreateInfo createInfo, std::unique_ptr<Device>& device, std::shared_ptr<SwapChain>)
+    void GraphicsPipelineDiffuse::Create(FPipelineCreateInfo createInfo, std::unique_ptr<Device>& device, std::unique_ptr<SwapChain>& swapchain)
     {
         savedInfo = std::move(createInfo);
         CreateDescriptorSetLayout(device);
-        CreateDescriptorPool(device);
-        CreateDescriptorSets(device);
+        CreateDescriptorPool(device, swapchain);
+        CreateDescriptorSets(device, swapchain);
         CreatePipelineLayout(device);
-        CreatePipeline(device);
+        CreatePipeline(device, swapchain);
     }
 
     void GraphicsPipelineDiffuse::CreateDescriptorSetLayout(std::unique_ptr<Device>& device)
@@ -39,9 +39,9 @@ namespace Engine
         auto result = device->GetLogical()->createDescriptorSetLayout(&createInfo, nullptr, &data.descriptorSetLayout);
     }
 
-    void GraphicsPipelineDiffuse::CreateDescriptorPool(std::unique_ptr<Device>& device)
+    void GraphicsPipelineDiffuse::CreateDescriptorPool(std::unique_ptr<Device>& device, std::unique_ptr<SwapChain>& swapchain)
     {
-        uint32_t images = m_pSwapChain->GetImages().size();
+        uint32_t images = swapchain->GetImages().size();
 
         std::array<vk::DescriptorPoolSize, 2> poolSizes{};
         poolSizes[0].type = vk::DescriptorType::eUniformBuffer;
@@ -59,9 +59,9 @@ namespace Engine
         data.descriptorPool = device->Make<vk::DescriptorPool, vk::DescriptorPoolCreateInfo>(poolInfo);
     }
 
-    void GraphicsPipelineDiffuse::CreateDescriptorSets(std::unique_ptr<Device>& device)
+    void GraphicsPipelineDiffuse::CreateDescriptorSets(std::unique_ptr<Device>& device, std::unique_ptr<SwapChain>& swapchain)
     {
-        uint32_t images = m_pSwapChain->GetImages().size();
+        uint32_t images = swapchain->GetImages().size();
         std::vector<vk::DescriptorSetLayout> vDescriptorSetLayouts(images, data.descriptorSetLayout);
 
         vk::DescriptorSetAllocateInfo allocInfo{};
@@ -87,10 +87,10 @@ namespace Engine
         assert(data.layout && "Pipeline layout was not created");
     }
 
-    void GraphicsPipelineDiffuse::CreatePipeline(std::unique_ptr<Device>& device)
+    void GraphicsPipelineDiffuse::CreatePipeline(std::unique_ptr<Device>& device, std::unique_ptr<SwapChain>& swapchain)
     {
         assert(device && "Cannot create pipeline, cause logical device is not valid.");
-        assert(m_pSwapChain && "Cannot create pipeline, cause render pass is not valid.");
+        assert(swapchain && "Cannot create pipeline, cause render pass is not valid.");
         vk::PipelineVertexInputStateCreateInfo vertexInputInfo = {};
         vertexInputInfo.vertexBindingDescriptionCount = 0;
         vertexInputInfo.vertexAttributeDescriptionCount = 0;
@@ -122,7 +122,7 @@ namespace Engine
         pipelineInfo.pColorBlendState = &savedInfo.colorBlending;
         pipelineInfo.pDepthStencilState = &savedInfo.depthStencil;
         pipelineInfo.layout = data.layout;
-        pipelineInfo.renderPass = m_pSwapChain->GetRenderPass();
+        pipelineInfo.renderPass = swapchain->GetRenderPass();
         pipelineInfo.subpass = 0;
         pipelineInfo.basePipelineHandle = nullptr;
 
@@ -130,9 +130,9 @@ namespace Engine
         assert(data.pipeline && "Failed creating pipeline.");
     }
 
-    void GraphicsPipelineDiffuse::RecreatePipeline(std::unique_ptr<Device>& device)
+    void GraphicsPipelineDiffuse::RecreatePipeline(std::unique_ptr<Device>& device, std::unique_ptr<SwapChain>& swapchain)
     {
-        auto extent = m_pSwapChain->GetExtent();
+        auto extent = swapchain->GetExtent();
         device->Destroy(data.pipeline);
         device->Destroy(data.layout);
 
@@ -142,7 +142,7 @@ namespace Engine
 
         RecreateShaders(device);
         CreatePipelineLayout(device);
-        CreatePipeline(device);
+        CreatePipeline(device, swapchain);
     }
 
     void GraphicsPipelineDiffuse::Cleanup(std::unique_ptr<Device>& device)

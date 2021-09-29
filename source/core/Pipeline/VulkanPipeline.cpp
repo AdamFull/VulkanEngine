@@ -5,9 +5,9 @@
 
 namespace Engine
 {
-    void PipelineBase::Create(FPipelineCreateInfo createInfo, std::unique_ptr<Device>& device, std::shared_ptr<SwapChain> swapchain)
+    void PipelineBase::Create(FPipelineCreateInfo createInfo, std::unique_ptr<Device>& device, std::unique_ptr<SwapChain>& swapchain)
     {
-        m_pSwapChain = swapchain;
+        
     }
 
     void PipelineBase::Bind(vk::CommandBuffer& commandBuffer)

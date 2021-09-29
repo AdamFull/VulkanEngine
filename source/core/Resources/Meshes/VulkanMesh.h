@@ -31,13 +31,14 @@ namespace Engine
     class MeshBase : public ResourceBase
     {
     public:
-        void Create(std::unique_ptr<Device>& device, std::shared_ptr<SwapChain> swapchain, std::shared_ptr<UniformBuffer> uniform) override;
-        void ReCreate(std::unique_ptr<Device>& device) override;
-        void Bind(std::unique_ptr<Device>& device, vk::CommandBuffer commandBuffer) override;
-        void Destroy(std::unique_ptr<Device>& device) override;
+        void Create(std::string srResourcePath) override;
+        void ReCreate() override;
+        void Update(uint32_t imageIndex) override;
+        void Bind(vk::CommandBuffer commandBuffer, uint32_t imageIndex) override;
+        void Destroy() override;
     protected:
-        virtual void CreateVertexBuffer(std::unique_ptr<Device>& device);
-        virtual void CreateIndexBuffer(std::unique_ptr<Device>& device);
+        virtual void CreateVertexBuffer();
+        virtual void CreateIndexBuffer();
 
         std::vector<Vertex> vertices;
         vk::Buffer vertexBuffer;
@@ -51,12 +52,13 @@ namespace Engine
     class StaticMesh : public MeshBase
     {
     public:
-        void Create(std::unique_ptr<Device>& device, std::shared_ptr<SwapChain> swapchain, std::shared_ptr<UniformBuffer> uniform) override;
-        void ReCreate(std::unique_ptr<Device>& device) override;
-        void Bind(std::unique_ptr<Device>& device, vk::CommandBuffer commandBuffer) override;
-        void Destroy(std::unique_ptr<Device>& device) override;
+        void Create(std::string srResourcePath) override;
+        void ReCreate() override;
+        void Update(uint32_t imageIndex) override;
+        void Bind(vk::CommandBuffer commandBuffer, uint32_t imageIndex) override;
+        void Destroy() override;
 
-        void Load(std::unique_ptr<Device>& device, std::string srPath);
+        void Load(std::string srPath);
         
     };
 }

@@ -8,6 +8,17 @@
 
 namespace Engine
 {
+    std::unique_ptr<VulkanHighLevel> VulkanHighLevel::m_pInstance {nullptr};
+
+    std::unique_ptr<VulkanHighLevel>& VulkanHighLevel::GetInstance()
+    {
+        if(!m_pInstance)
+        {
+            m_pInstance.reset(new VulkanHighLevel());
+        }
+        return m_pInstance;
+    }
+
     VulkanHighLevel::~VulkanHighLevel()
     {
         //Cleanup();
@@ -28,75 +39,30 @@ namespace Engine
         m_pRenderer->Create(m_pDevice, m_pSwapChain);
     }
 
-    /*void VulkanHighLevel::AddPipeline(const std::map<vk::ShaderStageFlagBits, std::string>& mShaders, FPipelineCreateInfo createInfo)
+    vk::CommandBuffer VulkanHighLevel::BeginFrame(bool* bResult)
     {
-        m_pPipeline->LoadShader(m_pDevice, mShaders);
-        createInfo.multisampling.rasterizationSamples = m_pDevice->GetSamples();
-        m_pPipeline->Create(createInfo, m_pDevice, m_pSwapChain);
-        m_pRenderer->Create(m_pDevice, m_pSwapChain, m_pPipeline, m_pUniform);
-    }*/
-
-    /*void VulkanHighLevel::AddVulkanMesh(std::string srPath)
-    {
-        VulkanStaticMesh mesh;
-        mesh.LoadStaticMesh(m_pDevice, srPath);
-        m_vMeshes.push_back(mesh);
-    }*/
-
-    void VulkanHighLevel::ValidateRunAbility()
-    {
-        /*assert(m_pDevice && "Abstract device is not valid.");
-        if(VulkanStaticHelper::m_bEnableValidationLayers)
-        assert(m_pSwapChain && "Abstract swap chain is not valid.");
-        assert(m_pPipeline && "No binded pipelines found.");*/
-    }
-
-    /*void VulkanHighLevel::AddVulkanTexture(std::string srPath, uint32_t idx)
-    {
-        //TODO: Add indexed layer of textures
-        m_pTexture = std::make_unique<VulkanTextureBase>();
-        m_pTexture->Load(m_pDevice, srPath, idx);
-    }*/
-
-    void VulkanHighLevel::BeginFrame(float fDeltaTime)
-    {
-        m_fDeltaTime = fDeltaTime;
-        //TODO: Add result handles
-
-        m_pRoot->Update(fDeltaTime);
-
         vk::CommandBuffer commandBuffer;
-        try { commandBuffer = m_pRenderer->BeginFrame(m_pDevice); }
+        try { commandBuffer = m_pRenderer->BeginFrame(m_pDevice, m_pSwapChain); }
         catch (vk::OutOfDateKHRError err)
         {
             RecreateSwapChain();
-            return;
+            *bResult = false;
+            return nullptr;
         }
         catch (vk::SystemError err) { throw std::runtime_error("Failed to acquire swap chain image!"); }
 
-        m_pRenderer->BeginRender(commandBuffer);
+        m_pRenderer->BeginRender(commandBuffer, m_pSwapChain);
 
-        m_pRoot->Render(fDeltaTime, commandBuffer);
-        /*auto camera = std::static_pointer_cast<CameraBase>(m_pRoot->Find("default_camera"));
-            auto projectionView = camera->GetProjection() * camera->GetView();
+        *bResult = true;
+        return commandBuffer;
+    }
 
-            glm::mat4 model = glm::rotate(glm::mat4(1.0f), glm::radians(90.0f), glm::vec3(1.0f, 0.0f, 0.0f));
-            m_pRender->GetUniformBuffer()->UpdateUniformBuffer(m_pRender->GetDevice(), m_pRender->GetRenderer()->GetImageIndex(), projectionView * model);*/
-        //Rendering
-        //m_pPipeline->Bind(commandBuffer);
-
-        /*for(auto& mesh : m_vMeshes)
-        {
-            mesh.Bind(commandBuffer);
-            mesh.Draw(commandBuffer);
-        }*/
-
-        //m_pUniform->Bind(commandBuffer, m_pPipeline->GetPipelineLayout(), m_pRenderer->GetCurrentDescriptorSets());
-
-        m_pRenderer->EndRender(commandBuffer);
+    void VulkanHighLevel::EndFrame(vk::CommandBuffer commandBuffer, bool* bResult)
+    {
+        m_pRenderer->EndRender(commandBuffer, m_pSwapChain);
 
         vk::Result resultPresent;
-        try { resultPresent = m_pRenderer->EndFrame(m_pDevice); }
+        try { resultPresent = m_pRenderer->EndFrame(m_pDevice, m_pSwapChain); }
         catch (vk::OutOfDateKHRError err) { resultPresent = vk::Result::eErrorOutOfDateKHR; }
         catch (vk::SystemError err) { throw std::runtime_error("failed to present swap chain image!"); }
 
@@ -104,9 +70,9 @@ namespace Engine
         {
             WindowHandle::m_bWasResized = false;
             RecreateSwapChain();
+            *bResult = false;
             return;
         }
-       
     }
 
     void VulkanHighLevel::RecreateSwapChain()
@@ -115,11 +81,8 @@ namespace Engine
 
         CleanupSwapChain();
         m_pSwapChain->ReCreate(m_pDevice);
-        
-        //TODO: add method ReCreate to render object
-        m_pRoot->ReCreate(m_pDevice);
 
-        m_pRenderer->ReCreate(m_pDevice);
+        m_pRenderer->ReCreate(m_pDevice, m_pSwapChain);
     }
 
     void VulkanHighLevel::CleanupSwapChain()
@@ -130,28 +93,7 @@ namespace Engine
     void VulkanHighLevel::Cleanup()
     {
         CleanupSwapChain();
-
-        //Cleanup from scene graph
-        //m_pPipeline->Cleanup(m_pDevice);
-        m_pRoot->ReCreate(m_pDevice);
-
-        //Move it to model
-        /*for(auto& mesh : m_vMeshes)
-        {
-            mesh.vertices.clear();
-            m_pDevice->Destroy(mesh.vertexBuffer);
-            m_pDevice->Destroy(mesh.vertexBufferMemory);
-
-            mesh.indices.clear();
-            m_pDevice->Destroy(mesh.indexBuffer);
-            m_pDevice->Destroy(mesh.indiciesBufferMemory);
-        }
-        m_vMeshes.clear();*/
-
         m_pSwapChain->Destroy(m_pDevice);
-
         m_pDevice->Cleanup();
-
-        //Engine::PEngine()->PWindow()->Close();
     }
 }

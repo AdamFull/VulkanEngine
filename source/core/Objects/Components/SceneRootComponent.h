@@ -13,8 +13,8 @@ namespace Engine
             m_srName = srName;
         }
         
-        void Create(std::unique_ptr<Device>& device, std::shared_ptr<SwapChain> swapchain, std::shared_ptr<UniformBuffer> uniform) override;
-        void Render(float fDeltaTime, vk::CommandBuffer& commandBuffer) override;
+        void Create() override;
+        void Render( vk::CommandBuffer& commandBuffer, uint32_t imageIndex) override;
         void Update(float fDeltaTime) override;
     };
 }

@@ -1,18 +1,18 @@
 #include "CameraEditorController.h"
 #include "core/KeyMapping/InputMapper.h"
 #include "Camera/CameraManager.h"
+#include "Camera/Camera.h"
 
 namespace Engine
 {
-    void CameraEditorController::Create(std::unique_ptr<Device>& device, std::shared_ptr<SwapChain> swapchain, std::shared_ptr<UniformBuffer> uniform)
+    void CameraEditorController::Create()
     {
-        CameraController::Create(device, swapchain, uniform);
 
-        InputMapper::GetInstance()->CreateAction("CameraMovement", EActionKey::eW, EActionKey::eS, EActionKey::eA, 
-        EActionKey::eD, EActionKey::eSpace, EActionKey::eLeftControl, EActionKey::eMouseMiddle);
+        InputMapper::GetInstance()->CreateAction("CameraMovement", EActionKey::eW, EActionKey::eS, EActionKey::eA,
+                                                 EActionKey::eD, EActionKey::eSpace, EActionKey::eLeftControl, EActionKey::eMouseMiddle);
         InputMapper::GetInstance()->CreateAction("CameraRotation", EActionKey::eCursorDelta);
         InputMapper::GetInstance()->CreateAction("CameraMovementToPoint", EActionKey::eScrol);
-        
+
         InputMapper::GetInstance()->BindAction("CameraMovement", EKeyState::ePressed, this, &CameraEditorController::CameraMovement);
         InputMapper::GetInstance()->BindAxis("CameraRotation", this, &CameraEditorController::MouseRotation);
         InputMapper::GetInstance()->BindAxis("CameraMovementToPoint", this, &CameraEditorController::CameraToPoint);
@@ -21,11 +21,6 @@ namespace Engine
     void CameraEditorController::Update(float fDeltaTime)
     {
         CameraController::Update(fDeltaTime);
-    }
-
-    void CameraEditorController::Render(float fDeltaTime, vk::CommandBuffer& commandBuffer)
-    {
-        CameraController::Render(fDeltaTime, commandBuffer);
     }
 
     void CameraEditorController::CameraMovement(EActionKey eKey)
@@ -92,16 +87,14 @@ namespace Engine
 
     void CameraEditorController::CameraToPoint(float fX, float fY)
     {
-        for(auto& [name, camera] : GetChilds())
-        {
-            FTransform transform = camera->GetTransform();
-            glm::vec3 direction = camera->GetForwardVector() * fY;
+        auto camera = CameraManager::GetInstance()->GetCurrentCamera();
+        FTransform transform = camera->GetTransform();
+        glm::vec3 direction = camera->GetForwardVector() * fY;
 
-            if (glm::dot(direction, direction) > std::numeric_limits<float>::epsilon())
-            {
-                transform.pos += m_fScrollSpeed * direction;
-                camera->SetTransform(transform);
-            }
+        if (glm::dot(direction, direction) > std::numeric_limits<float>::epsilon())
+        {
+            transform.pos += m_fScrollSpeed * direction;
+            camera->SetTransform(transform);
         }
     }
 }

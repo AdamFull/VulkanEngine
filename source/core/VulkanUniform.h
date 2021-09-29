@@ -27,6 +27,7 @@ namespace Engine
 
         // Getters
         inline std::vector<vk::Buffer>& GetUniformBuffers() { return data.vUniformBuffers; }
+        inline vk::Buffer& GetUniformBuffer(uint32_t index) { return data.vUniformBuffers[index]; }
         inline std::vector<vk::DeviceMemory>& GetUniformBuffersMemory() { return data.vUniformBuffersMemory; }
     private:
         void CreateUniformBuffers(std::unique_ptr<Device>& device, size_t images);

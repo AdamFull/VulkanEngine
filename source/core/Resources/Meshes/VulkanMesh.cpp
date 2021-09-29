@@ -1,5 +1,6 @@
 #include "VulkanMesh.h"
 #include "VulkanDevice.h"
+#include "VulkanHighLevel.h"
 
 #define TINYOBJLOADER_IMPLEMENTATION
 #include "external/tiny_obj_loader.h"
@@ -43,19 +44,24 @@ namespace Engine
         return bindingDescription;
     }
 
-    void MeshBase::Create(std::unique_ptr<Device>& device, std::shared_ptr<SwapChain> swapchain, std::shared_ptr<UniformBuffer> uniform)
+    void MeshBase::Create(std::string srResourcePath)
     {
-        ResourceBase::Create(device, swapchain, uniform);
+        ResourceBase::Create(srResourcePath);
     }
 
-    void MeshBase::ReCreate(std::unique_ptr<Device>& device)
+    void MeshBase::ReCreate()
     {
-        ResourceBase::ReCreate(device);
+        ResourceBase::ReCreate();
     }
 
-    void MeshBase::Bind(std::unique_ptr<Device>& device, vk::CommandBuffer commandBuffer)
+    void MeshBase::Update(uint32_t imageIndex)
     {
-        ResourceBase::Bind(device, commandBuffer);
+        ResourceBase::Update(imageIndex);
+    }
+
+    void MeshBase::Bind(vk::CommandBuffer commandBuffer, uint32_t imageIndex)
+    {
+        ResourceBase::Bind(commandBuffer, imageIndex);
 
         vk::Buffer vertexBuffers[] = {vertexBuffer};
         vk::DeviceSize offsets[] = {0};
@@ -65,69 +71,81 @@ namespace Engine
         commandBuffer.drawIndexed(static_cast<uint32_t>(indices.size()), 1, 0, 0, 0);
     }
 
-    void MeshBase::Destroy(std::unique_ptr<Device>& device)
+    void MeshBase::Destroy()
     {
-        ResourceBase::Destroy(device);
+        ResourceBase::Destroy();
 
-        device->Destroy(vertexBuffer);
-        device->Destroy(vertexBufferMemory);
-        device->Destroy(indexBuffer);
-        device->Destroy(indiciesBufferMemory);
+        VulkanHighLevel::GetInstance()->GetDevice()->Destroy(vertexBuffer);
+        VulkanHighLevel::GetInstance()->GetDevice()->Destroy(vertexBufferMemory);
+        VulkanHighLevel::GetInstance()->GetDevice()->Destroy(indexBuffer);
+        VulkanHighLevel::GetInstance()->GetDevice()->Destroy(indiciesBufferMemory);
     }
 
-    void MeshBase::CreateVertexBuffer(std::unique_ptr<Device>& device)
+    void MeshBase::CreateVertexBuffer()
     {
         vk::DeviceSize bufferSize = sizeof(vertices[0]) * vertices.size();
 
         vk::Buffer stagingBuffer;
         vk::DeviceMemory stagingBufferMemory;
-        device->CreateOnDeviceBuffer(bufferSize, vk::BufferUsageFlagBits::eTransferSrc, vk::MemoryPropertyFlagBits::eHostVisible | vk::MemoryPropertyFlagBits::eHostCoherent, stagingBuffer, stagingBufferMemory);
-        device->MoveToMemory(vertices.data(), stagingBufferMemory, bufferSize);
-        device->CreateOnDeviceBuffer(bufferSize, vk::BufferUsageFlagBits::eTransferDst | vk::BufferUsageFlagBits::eVertexBuffer, vk::MemoryPropertyFlagBits::eDeviceLocal, vertexBuffer, vertexBufferMemory);
-        device->CopyOnDeviceBuffer(stagingBuffer, vertexBuffer, bufferSize);
+        VulkanHighLevel::GetInstance()->GetDevice()->CreateOnDeviceBuffer(bufferSize, vk::BufferUsageFlagBits::eTransferSrc, vk::MemoryPropertyFlagBits::eHostVisible | vk::MemoryPropertyFlagBits::eHostCoherent, stagingBuffer, stagingBufferMemory);
+        VulkanHighLevel::GetInstance()->GetDevice()->MoveToMemory(vertices.data(), stagingBufferMemory, bufferSize);
+        VulkanHighLevel::GetInstance()->GetDevice()->CreateOnDeviceBuffer(bufferSize, vk::BufferUsageFlagBits::eTransferDst | vk::BufferUsageFlagBits::eVertexBuffer, vk::MemoryPropertyFlagBits::eDeviceLocal, vertexBuffer, vertexBufferMemory);
+        VulkanHighLevel::GetInstance()->GetDevice()->CopyOnDeviceBuffer(stagingBuffer, vertexBuffer, bufferSize);
 
-        device->Destroy(stagingBuffer);
-        device->Destroy(stagingBufferMemory);
+        VulkanHighLevel::GetInstance()->GetDevice()->Destroy(stagingBuffer);
+        VulkanHighLevel::GetInstance()->GetDevice()->Destroy(stagingBufferMemory);
     }
 
-    void MeshBase::CreateIndexBuffer(std::unique_ptr<Device>& device)
+    void MeshBase::CreateIndexBuffer()
     {
         vk::DeviceSize bufferSize = sizeof(indices[0]) * indices.size();
 
         vk::Buffer stagingBuffer;
         vk::DeviceMemory stagingBufferMemory;
-        device->CreateOnDeviceBuffer(bufferSize, vk::BufferUsageFlagBits::eTransferSrc, vk::MemoryPropertyFlagBits::eHostVisible | vk::MemoryPropertyFlagBits::eHostCoherent, stagingBuffer, stagingBufferMemory);
-        device->MoveToMemory(indices.data(), stagingBufferMemory, bufferSize);
-        device->CreateOnDeviceBuffer(bufferSize, vk::BufferUsageFlagBits::eTransferDst | vk::BufferUsageFlagBits::eIndexBuffer, vk::MemoryPropertyFlagBits::eDeviceLocal, indexBuffer, indiciesBufferMemory);
-        device->CopyOnDeviceBuffer(stagingBuffer, indexBuffer, bufferSize);
+        VulkanHighLevel::GetInstance()->GetDevice()->CreateOnDeviceBuffer(bufferSize, vk::BufferUsageFlagBits::eTransferSrc, vk::MemoryPropertyFlagBits::eHostVisible | vk::MemoryPropertyFlagBits::eHostCoherent, stagingBuffer, stagingBufferMemory);
+        VulkanHighLevel::GetInstance()->GetDevice()->MoveToMemory(indices.data(), stagingBufferMemory, bufferSize);
+        VulkanHighLevel::GetInstance()->GetDevice()->CreateOnDeviceBuffer(bufferSize, vk::BufferUsageFlagBits::eTransferDst | vk::BufferUsageFlagBits::eIndexBuffer, vk::MemoryPropertyFlagBits::eDeviceLocal, indexBuffer, indiciesBufferMemory);
+        VulkanHighLevel::GetInstance()->GetDevice()->CopyOnDeviceBuffer(stagingBuffer, indexBuffer, bufferSize);
 
-        device->Destroy(stagingBuffer);
-        device->Destroy(stagingBufferMemory);
+        VulkanHighLevel::GetInstance()->GetDevice()->Destroy(stagingBuffer);
+        VulkanHighLevel::GetInstance()->GetDevice()->Destroy(stagingBufferMemory);
     }
 
     /***************************************************StaticMesh*********************************************************************/
-    void StaticMesh::Create(std::unique_ptr<Device>& device, std::shared_ptr<SwapChain> swapchain, std::shared_ptr<UniformBuffer> uniform)
+    void StaticMesh::Create(std::string srResourcePath)
     {
-        MeshBase::Create(device, swapchain, uniform);
+        MeshBase::Create(srResourcePath);
+
+        Load(srResourcePath);
+
+        if(!vertices.empty())
+        CreateVertexBuffer();
+        if(!indices.empty())
+        CreateIndexBuffer();
     }
 
-    void StaticMesh::ReCreate(std::unique_ptr<Device>& device)
+    void StaticMesh::ReCreate()
     {
-        MeshBase::ReCreate(device);
+        MeshBase::ReCreate();
     }
 
-    void StaticMesh::Bind(std::unique_ptr<Device>& device, vk::CommandBuffer commandBuffer)
+    void StaticMesh::Update(uint32_t imageIndex)
     {
-        MeshBase::Bind(device, commandBuffer);
+        MeshBase::Update(imageIndex);
     }
 
-    void StaticMesh::Destroy(std::unique_ptr<Device>& device)
+    void StaticMesh::Bind(vk::CommandBuffer commandBuffer, uint32_t imageIndex)
     {
-        MeshBase::Destroy(device);
+        MeshBase::Bind(commandBuffer, imageIndex);
+    }
+
+    void StaticMesh::Destroy()
+    {
+        MeshBase::Destroy();
     }
 
     //Static mesh
-    void StaticMesh::Load(std::unique_ptr<Device>& device, std::string srPath)
+    void StaticMesh::Load(std::string srPath)
     {
         tinyobj::attrib_t attrib;
         std::vector<tinyobj::shape_t> shapes;
@@ -189,10 +207,5 @@ namespace Engine
                 indices.push_back(uniqueVertices[vertex]);
             }
         }
-
-        if(!vertices.empty())
-        CreateVertexBuffer(device);
-        if(!indices.empty())
-        CreateIndexBuffer(device);
     }
 }

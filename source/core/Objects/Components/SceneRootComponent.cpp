@@ -3,14 +3,14 @@
 
 namespace Engine
 {
-    void SceneRootComponent::Create(std::unique_ptr<Device>& device, std::shared_ptr<SwapChain> swapchain, std::shared_ptr<UniformBuffer> uniform)
+    void SceneRootComponent::Create()
     {
-        RenderObject::Create(device, swapchain, uniform);
+        RenderObject::Create();
     }
 
-    void SceneRootComponent::Render(float fDeltaTime, vk::CommandBuffer &commandBuffer)
+    void SceneRootComponent::Render(vk::CommandBuffer& commandBuffer, uint32_t imageIndex)
     {
-        RenderObject::Render(fDeltaTime, commandBuffer);
+        RenderObject::Render(commandBuffer, imageIndex);
     }
 
     void SceneRootComponent::Update(float fDeltaTime)

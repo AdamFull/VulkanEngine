@@ -3,21 +3,15 @@
 
 namespace Engine
 {
+    class Device;
+    class SwapChain;
+    class UniformBuffer;
+
     class CameraController
     {
     public:
-        CameraController() = default;
-        explicit CameraController(std::string srName) 
-        {
-            
-        }
-
-        virtual void Create(std::unique_ptr<Device>& device, std::shared_ptr<SwapChain> swapchain, std::shared_ptr<UniformBuffer> uniform);
+        virtual void Create();
         virtual void Update(float fDeltaTime);
-        virtual void Render(float fDeltaTime, vk::CommandBuffer& commandBuffer);
-
-        //TODO: make it better
-        virtual inline std::shared_ptr<RenderObject> GetCamera(std::string srName) { return GetChilds()[srName]; }
 
         //Getters
     protected:

@@ -8,7 +8,7 @@ namespace Engine
     class TextureBase : public ResourceBase
     {
     public:
-        void Create(std::string srResourcePath) override;
+        void Create(std::string srResourcePath);
         void ReCreate() override;
         void Update(uint32_t imageIndex) override;
         void Bind(vk::CommandBuffer commandBuffer, uint32_t imageIndex) override;
@@ -34,7 +34,7 @@ namespace Engine
     class Texture2D : public TextureBase
     {
     public:
-        void Create(std::string srResourcePath) override;
+        void Create(std::string srResourcePath);
         void ReCreate() override;
         void Update(uint32_t imageIndex) override;
         void Bind(vk::CommandBuffer commandBuffer, uint32_t imageIndex) override;
@@ -46,7 +46,7 @@ namespace Engine
     class TextureCubemap : public TextureBase
     {
     public:
-        void Create(std::string srResourcePath) override;
+        void Create(std::string srResourcePath);
         void ReCreate() override;
         void Update(uint32_t imageIndex) override;
         void Bind(vk::CommandBuffer commandBuffer, uint32_t imageIndex) override;

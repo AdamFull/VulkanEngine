@@ -11,8 +11,6 @@ namespace Engine
     void StaticMeshComponent::Create()
     {
         RenderObject::Create();
-        m_pStaticMesh = std::make_unique<StaticMesh>();
-        m_pStaticMesh->Create("../../assets/meshes/viking_room.obj");
     }
 
     void StaticMeshComponent::Update(float fDeltaTime)
@@ -28,7 +26,7 @@ namespace Engine
         
         auto camera = CameraManager::GetInstance()->GetCurrentCamera();
         auto matrix = camera->GetProjection() * camera->GetView() * m_transform.GetModel();
-        VulkanHighLevel::GetInstance()->GetUniformBuffer()->UpdateUniformBuffer(VulkanHighLevel::GetInstance()->GetDevice(), imageIndex, matrix);
+        UUniform->UpdateUniformBuffer(UDevice, imageIndex, matrix);
 
         m_pStaticMesh->Update(imageIndex);
         m_pStaticMesh->Bind(commandBuffer, imageIndex);

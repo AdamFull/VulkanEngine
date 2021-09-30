@@ -9,7 +9,7 @@ namespace Engine
     class MaterialBase : public ResourceBase
     {
     public:
-        void Create(std::string srResourcePath) override;
+        void Create(std::shared_ptr<Texture2D> color);
         void ReCreate() override;
         void Update(uint32_t imageIndex) override;
         void Bind(vk::CommandBuffer commandBuffer, uint32_t imageIndex) override;
@@ -23,7 +23,7 @@ namespace Engine
     class MaterialDiffuse : public MaterialBase
     {
     public:
-        void Create(std::string srResourcePath) override;
+        void Create(std::shared_ptr<Texture2D> color);
         void ReCreate() override;
         void Update(uint32_t imageIndex) override;
         void Bind(vk::CommandBuffer commandBuffer, uint32_t imageIndex) override;

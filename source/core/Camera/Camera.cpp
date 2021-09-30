@@ -83,7 +83,7 @@ namespace Engine
     {
         RenderObject::Update(fDeltaTime);
 
-        auto aspect = VulkanHighLevel::GetInstance()->GetSwapChain()->GetAspectRatio();
+        auto aspect = USwapChain->GetAspectRatio();
         SetPerspectiveProjection(glm::radians(90.f), aspect, 0.1f, 50.f);
         SetViewYXZ(m_transform.pos, m_transform.rot);
     }

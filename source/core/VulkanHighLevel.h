@@ -1,5 +1,11 @@
 #pragma once
 
+#define UHLInstance Engine::VulkanHighLevel::GetInstance()
+#define UDevice UHLInstance->GetDevice()
+#define USwapChain UHLInstance->GetSwapChain()
+#define UUniform UHLInstance->GetUniformBuffer()
+#define URenderer UHLInstance->GetRenderer()
+
 namespace Engine
 {
     class WindowHandle;

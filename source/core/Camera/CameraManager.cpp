@@ -26,6 +26,6 @@ namespace Engine
 
     void CameraManager::Attach(std::shared_ptr<CameraBase> newCamera)
     {
-        m_vCameras.emplace_back(newCamera);
+        m_vCameras.push_back(newCamera);
     }
 }

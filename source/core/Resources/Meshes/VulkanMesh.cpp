@@ -46,7 +46,7 @@ namespace Engine
 
     void MeshBase::Create(std::string srResourcePath)
     {
-        ResourceBase::Create(srResourcePath);
+        
     }
 
     void MeshBase::ReCreate()
@@ -75,10 +75,10 @@ namespace Engine
     {
         ResourceBase::Destroy();
 
-        VulkanHighLevel::GetInstance()->GetDevice()->Destroy(vertexBuffer);
-        VulkanHighLevel::GetInstance()->GetDevice()->Destroy(vertexBufferMemory);
-        VulkanHighLevel::GetInstance()->GetDevice()->Destroy(indexBuffer);
-        VulkanHighLevel::GetInstance()->GetDevice()->Destroy(indiciesBufferMemory);
+        UDevice->Destroy(vertexBuffer);
+        UDevice->Destroy(vertexBufferMemory);
+        UDevice->Destroy(indexBuffer);
+        UDevice->Destroy(indiciesBufferMemory);
     }
 
     void MeshBase::CreateVertexBuffer()
@@ -87,13 +87,13 @@ namespace Engine
 
         vk::Buffer stagingBuffer;
         vk::DeviceMemory stagingBufferMemory;
-        VulkanHighLevel::GetInstance()->GetDevice()->CreateOnDeviceBuffer(bufferSize, vk::BufferUsageFlagBits::eTransferSrc, vk::MemoryPropertyFlagBits::eHostVisible | vk::MemoryPropertyFlagBits::eHostCoherent, stagingBuffer, stagingBufferMemory);
-        VulkanHighLevel::GetInstance()->GetDevice()->MoveToMemory(vertices.data(), stagingBufferMemory, bufferSize);
-        VulkanHighLevel::GetInstance()->GetDevice()->CreateOnDeviceBuffer(bufferSize, vk::BufferUsageFlagBits::eTransferDst | vk::BufferUsageFlagBits::eVertexBuffer, vk::MemoryPropertyFlagBits::eDeviceLocal, vertexBuffer, vertexBufferMemory);
-        VulkanHighLevel::GetInstance()->GetDevice()->CopyOnDeviceBuffer(stagingBuffer, vertexBuffer, bufferSize);
+        UDevice->CreateOnDeviceBuffer(bufferSize, vk::BufferUsageFlagBits::eTransferSrc, vk::MemoryPropertyFlagBits::eHostVisible | vk::MemoryPropertyFlagBits::eHostCoherent, stagingBuffer, stagingBufferMemory);
+        UDevice->MoveToMemory(vertices.data(), stagingBufferMemory, bufferSize);
+        UDevice->CreateOnDeviceBuffer(bufferSize, vk::BufferUsageFlagBits::eTransferDst | vk::BufferUsageFlagBits::eVertexBuffer, vk::MemoryPropertyFlagBits::eDeviceLocal, vertexBuffer, vertexBufferMemory);
+        UDevice->CopyOnDeviceBuffer(stagingBuffer, vertexBuffer, bufferSize);
 
-        VulkanHighLevel::GetInstance()->GetDevice()->Destroy(stagingBuffer);
-        VulkanHighLevel::GetInstance()->GetDevice()->Destroy(stagingBufferMemory);
+        UDevice->Destroy(stagingBuffer);
+        UDevice->Destroy(stagingBufferMemory);
     }
 
     void MeshBase::CreateIndexBuffer()
@@ -102,13 +102,13 @@ namespace Engine
 
         vk::Buffer stagingBuffer;
         vk::DeviceMemory stagingBufferMemory;
-        VulkanHighLevel::GetInstance()->GetDevice()->CreateOnDeviceBuffer(bufferSize, vk::BufferUsageFlagBits::eTransferSrc, vk::MemoryPropertyFlagBits::eHostVisible | vk::MemoryPropertyFlagBits::eHostCoherent, stagingBuffer, stagingBufferMemory);
-        VulkanHighLevel::GetInstance()->GetDevice()->MoveToMemory(indices.data(), stagingBufferMemory, bufferSize);
-        VulkanHighLevel::GetInstance()->GetDevice()->CreateOnDeviceBuffer(bufferSize, vk::BufferUsageFlagBits::eTransferDst | vk::BufferUsageFlagBits::eIndexBuffer, vk::MemoryPropertyFlagBits::eDeviceLocal, indexBuffer, indiciesBufferMemory);
-        VulkanHighLevel::GetInstance()->GetDevice()->CopyOnDeviceBuffer(stagingBuffer, indexBuffer, bufferSize);
+        UDevice->CreateOnDeviceBuffer(bufferSize, vk::BufferUsageFlagBits::eTransferSrc, vk::MemoryPropertyFlagBits::eHostVisible | vk::MemoryPropertyFlagBits::eHostCoherent, stagingBuffer, stagingBufferMemory);
+        UDevice->MoveToMemory(indices.data(), stagingBufferMemory, bufferSize);
+        UDevice->CreateOnDeviceBuffer(bufferSize, vk::BufferUsageFlagBits::eTransferDst | vk::BufferUsageFlagBits::eIndexBuffer, vk::MemoryPropertyFlagBits::eDeviceLocal, indexBuffer, indiciesBufferMemory);
+        UDevice->CopyOnDeviceBuffer(stagingBuffer, indexBuffer, bufferSize);
 
-        VulkanHighLevel::GetInstance()->GetDevice()->Destroy(stagingBuffer);
-        VulkanHighLevel::GetInstance()->GetDevice()->Destroy(stagingBufferMemory);
+        UDevice->Destroy(stagingBuffer);
+        UDevice->Destroy(stagingBufferMemory);
     }
 
     /***************************************************StaticMesh*********************************************************************/

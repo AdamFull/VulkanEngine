@@ -2,10 +2,6 @@
 
 namespace Engine
 {
-    void ResourceBase::Create(std::string srResourcePath)
-    {
-    }
-
     void ResourceBase::ReCreate()
     {
 

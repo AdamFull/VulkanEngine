@@ -1,6 +1,12 @@
 #include "Application.h"
 #include "VulkanHighLevel.h"
 #include "KeyMapping/InputMapper.h"
+#include "Camera/Camera.h"
+#include "Camera/CameraManager.h"
+#include "Resources/Textures/VulkanTexture.h"
+#include "Resources/Materials/VulkanMaterial.h"
+#include "Resources/Meshes/VulkanMesh.h"
+#include "Objects/Components/StaticMeshComponent.h"
 
 namespace Engine
 {
@@ -13,12 +19,49 @@ namespace Engine
         InputMapper::GetInstance()->CreateAction("ServiceHandles", EActionKey::eEscape, EActionKey::eF1);
         InputMapper::GetInstance()->BindAction("ServiceHandles", EKeyState::eRelease, this, &Application::ServiceHandle);
 
-        VulkanHighLevel::GetInstance()->Create(m_pWindow, "Vulkan", VK_MAKE_VERSION(1, 0, 0), "GENGINE", VK_MAKE_VERSION(1, 0, 0), VK_API_VERSION_1_0);
+        UHLInstance->Create(m_pWindow, "Vulkan", VK_MAKE_VERSION(1, 0, 0), "GENGINE", VK_MAKE_VERSION(1, 0, 0), VK_API_VERSION_1_0);
 
         m_pCameraController = std::make_unique<CameraEditorController>();
         m_pCameraController->Create();
 
         m_pRenderScene = std::make_unique<RenderScene>();
+        m_pRenderScene->Create();
+
+        auto texture = std::make_shared<Texture2D>();
+        texture->Create("../../assets/textures/viking_room.png");
+
+        auto material = std::make_shared<MaterialDiffuse>();
+        material->Create(texture);
+
+        auto mesh = std::make_shared<StaticMesh>();
+        mesh->Create("../../assets/meshes/viking_room.obj");
+
+        //Scene objects
+        auto mesh_component = std::make_shared<StaticMeshComponent>("static_mesh_component");
+        mesh_component->SetMesh(mesh);
+        mesh_component->SetMaterial(material);
+        FTransform transform1;
+        transform1.rot = {glm::radians(90.f), 0.f, 0.f};
+        mesh_component->SetTransform(transform1);
+        m_pRenderScene->AttachObject(mesh_component);
+
+        auto mesh_component1 = std::make_shared<StaticMeshComponent>("static_mesh_component1");
+        mesh_component1->SetMesh(mesh);
+        mesh_component1->SetMaterial(material);
+        FTransform transform2;
+        transform2.pos = {0.f, 0.f, 0.5f};
+        transform2.rot = {glm::radians(90.f), 0.f, 0.f};
+        mesh_component1->SetTransform(transform2);
+        m_pRenderScene->AttachObject(mesh_component1);
+
+        //Camera
+        auto camera = std::make_shared<CameraBase>("world_camera");
+        FTransform transform3;
+        transform3.pos = {1.f, -0.5f, 0.1f};
+        transform3.rot = {0.f, glm::radians(-90.f), 0.f};
+        camera->SetTransform(transform3);
+        m_pRenderScene->AttachObject(camera);
+        CameraManager::GetInstance()->Attach(camera);
     }
 
     void Application::ServiceHandle(EActionKey eKey)

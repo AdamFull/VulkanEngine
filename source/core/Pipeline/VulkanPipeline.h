@@ -30,9 +30,9 @@ namespace Engine
 
         virtual void Create(FPipelineCreateInfo createInfo, std::unique_ptr<Device>& device, std::unique_ptr<SwapChain>& swapchain);
 
-        void Bind(vk::CommandBuffer& commandBuffer);
+        virtual void Bind(vk::CommandBuffer& commandBuffer);
 
-        void LoadShader(std::unique_ptr<Device>& device, const std::map<vk::ShaderStageFlagBits, std::string>& mShaders);
+        virtual void LoadShader(std::unique_ptr<Device>& device, const std::map<vk::ShaderStageFlagBits, std::string>& mShaders);
         virtual void RecreatePipeline(std::unique_ptr<Device>& device, std::unique_ptr<SwapChain>& swapchain) = 0;
 
         virtual void Cleanup(std::unique_ptr<Device>& device) = 0;
@@ -53,8 +53,8 @@ namespace Engine
         virtual void CreatePipelineLayout(std::unique_ptr<Device>& device) {}
         virtual void CreatePipeline(std::unique_ptr<Device>& device, std::unique_ptr<SwapChain>& swapchain) {}
 
-        void LoadShader(std::unique_ptr<Device>& device, const std::string& srShaderPath, vk::ShaderStageFlagBits fShaderType);
-        void LoadShader(std::unique_ptr<Device>& device, const std::vector<char>& vShaderCode, vk::ShaderStageFlagBits fShaderType);
+        virtual void LoadShader(std::unique_ptr<Device>& device, const std::string& srShaderPath, vk::ShaderStageFlagBits fShaderType);
+        virtual void LoadShader(std::unique_ptr<Device>& device, const std::vector<char>& vShaderCode, vk::ShaderStageFlagBits fShaderType);
         virtual void RecreateShaders(std::unique_ptr<Device>& device);
 
         std::vector<FShaderCache> m_vShaderCache;

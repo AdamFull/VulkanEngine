@@ -6,6 +6,7 @@ namespace Engine
     class CameraBase : public RenderObject
     {
     public:
+        CameraBase() = default;
         explicit CameraBase(std::string srName) 
         {
             m_srName = srName;

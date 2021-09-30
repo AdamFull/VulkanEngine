@@ -5,14 +5,22 @@
 #include "VulkanHighLevel.h"
 #include "Pipeline/GraphicsPipelineDiffuse.h"
 
+std::map<vk::ShaderStageFlagBits, std::string> vShList = 
+{
+    {vk::ShaderStageFlagBits::eVertex, "../../assets/shaders/vert.spv"},
+    {vk::ShaderStageFlagBits::eFragment, "../../assets/shaders/frag.spv"}
+};
+
 namespace Engine
 {
-    void MaterialBase::Create(std::string srResourcePath)
+    void MaterialBase::Create(std::shared_ptr<Texture2D> color)
     {
-        ResourceBase::Create(srResourcePath);
-        m_pColor = std::make_shared<Texture2D>();
-        //TODO: create resource manager
-        m_pColor->Create("../../assets/textures/viking_room.png");
+        m_pColor = color;
+        m_pPipeline = std::make_shared<GraphicsPipelineDiffuse>();
+
+        FPipelineCreateInfo createInfo = PipelineConfig::CreateDefaultPipelineConfig(1920, 1080, UDevice->GetSamples());
+        m_pPipeline->LoadShader(UDevice, vShList);
+        m_pPipeline->Create(createInfo, UDevice, USwapChain);
     }
 
     void MaterialBase::ReCreate()
@@ -29,7 +37,8 @@ namespace Engine
     void MaterialBase::Bind(vk::CommandBuffer commandBuffer, uint32_t imageIndex)
     {
         ResourceBase::Bind(commandBuffer, imageIndex);
-        VulkanHighLevel::GetInstance()->GetUniformBuffer()->Bind(commandBuffer, m_pPipeline->GetPipelineLayout(), m_pPipeline->GetDescriptorSets()[imageIndex]);
+        m_pPipeline->Bind(commandBuffer);
+        UUniform->Bind(commandBuffer, m_pPipeline->GetPipelineLayout(), m_pPipeline->GetDescriptorSet(imageIndex));
     }
 
     void MaterialBase::Destroy()
@@ -39,9 +48,14 @@ namespace Engine
     }
 
     /****************************************************DiffuseMaterial***************************************************************/
-    void MaterialDiffuse::Create(std::string srResourcePath)
+    void MaterialDiffuse::Create(std::shared_ptr<Texture2D> color)
     {
-        MaterialBase::Create(srResourcePath);
+        m_pColor = color;
+        m_pPipeline = std::make_shared<GraphicsPipelineDiffuse>();
+
+        FPipelineCreateInfo createInfo = PipelineConfig::CreateDefaultPipelineConfig(1920, 1080, UDevice->GetSamples());
+        m_pPipeline->LoadShader(UDevice, vShList);
+        m_pPipeline->Create(createInfo, UDevice, USwapChain);
     }
 
     void MaterialDiffuse::ReCreate()
@@ -53,7 +67,7 @@ namespace Engine
     {
         MaterialBase::Update(imageIndex);
 
-        auto& uniformBuffer = VulkanHighLevel::GetInstance()->GetUniformBuffer()->GetUniformBuffer(imageIndex);
+        auto& uniformBuffer = UUniform->GetUniformBuffer(imageIndex);
         auto& descriptorSet = m_pPipeline->GetDescriptorSet(imageIndex);
 
         vk::DescriptorBufferInfo bufferInfo{};
@@ -77,7 +91,7 @@ namespace Engine
         descriptorWrites[1].descriptorCount = 1;
         descriptorWrites[1].pImageInfo = &m_pColor->GetDescriptor();
 
-        VulkanHighLevel::GetInstance()->GetDevice()->GetLogical()->updateDescriptorSets(static_cast<uint32_t>(descriptorWrites.size()), descriptorWrites.data(), 0, nullptr);
+        UDevice->GetLogical()->updateDescriptorSets(static_cast<uint32_t>(descriptorWrites.size()), descriptorWrites.data(), 0, nullptr);
     }
 
     void MaterialDiffuse::Bind(vk::CommandBuffer commandBuffer, uint32_t imageIndex)

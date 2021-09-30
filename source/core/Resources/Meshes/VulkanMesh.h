@@ -31,7 +31,7 @@ namespace Engine
     class MeshBase : public ResourceBase
     {
     public:
-        void Create(std::string srResourcePath) override;
+        void Create(std::string srResourcePath);
         void ReCreate() override;
         void Update(uint32_t imageIndex) override;
         void Bind(vk::CommandBuffer commandBuffer, uint32_t imageIndex) override;
@@ -52,7 +52,7 @@ namespace Engine
     class StaticMesh : public MeshBase
     {
     public:
-        void Create(std::string srResourcePath) override;
+        void Create(std::string srResourcePath);
         void ReCreate() override;
         void Update(uint32_t imageIndex) override;
         void Bind(vk::CommandBuffer commandBuffer, uint32_t imageIndex) override;

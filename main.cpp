@@ -5,12 +5,6 @@ int main()
     Engine::Application app;
     app.Create();
 
-    std::map<vk::ShaderStageFlagBits, std::string> vShList = 
-    {
-        {vk::ShaderStageFlagBits::eVertex, "../../assets/shaders/vert.spv"},
-        {vk::ShaderStageFlagBits::eFragment, "../../assets/shaders/frag.spv"}
-    };
-
     try
     {
         app.run();

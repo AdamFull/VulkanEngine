@@ -29,14 +29,14 @@ namespace Engine
         m_pRoot->Update(fDeltaTime);
 
         bool bResult;
-        auto commandBuffer = VulkanHighLevel::GetInstance()->BeginFrame(&bResult);
+        auto commandBuffer = UHLInstance->BeginFrame(&bResult);
         if(!bResult)
             m_pRoot->ReCreate();
 
-        uint32_t currentFrame = VulkanHighLevel::GetInstance()->GetRenderer()->GetImageIndex();
+        uint32_t currentFrame = URenderer->GetImageIndex();
         m_pRoot->Render(commandBuffer, currentFrame);
 
-        VulkanHighLevel::GetInstance()->EndFrame(commandBuffer, &bResult);
+        UHLInstance->EndFrame(commandBuffer, &bResult);
         if(!bResult)
             m_pRoot->ReCreate();
     }

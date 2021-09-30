@@ -9,7 +9,7 @@ namespace Engine
 {
     void TextureBase::Create(std::string srResourceName)
     {
-        ResourceBase::Create(srResourceName);
+        
     }
 
     void TextureBase::ReCreate()
@@ -32,10 +32,10 @@ namespace Engine
     {
         ResourceBase::Destroy();
 
-        VulkanHighLevel::GetInstance()->GetDevice()->Destroy(sampler);
-        VulkanHighLevel::GetInstance()->GetDevice()->Destroy(view);
-        VulkanHighLevel::GetInstance()->GetDevice()->Destroy(image);
-        VulkanHighLevel::GetInstance()->GetDevice()->Destroy(deviceMemory);
+        UDevice->Destroy(sampler);
+        UDevice->Destroy(view);
+        UDevice->Destroy(image);
+        UDevice->Destroy(deviceMemory);
     }
 
     void TextureBase::UpdateDescriptor()
@@ -48,14 +48,14 @@ namespace Engine
     void TextureBase::GenerateMipmaps(vk::Image &image, uint32_t mipLevels, vk::Format format, vk::Extent3D sizes, vk::ImageAspectFlags aspectFlags)
     {
         vk::FormatProperties formatProperties;
-        VulkanHighLevel::GetInstance()->GetDevice()->GetPhysical().getFormatProperties(format, &formatProperties);
+        UDevice->GetPhysical().getFormatProperties(format, &formatProperties);
 
         if (!(formatProperties.optimalTilingFeatures & vk::FormatFeatureFlagBits::eSampledImageFilterLinear)) 
         {
             throw std::runtime_error("Texture image format does not support linear blitting!");
         }
 
-        vk::CommandBuffer commandBuffer = VulkanHighLevel::GetInstance()->GetDevice()->BeginSingleTimeCommands();
+        vk::CommandBuffer commandBuffer = UDevice->BeginSingleTimeCommands();
 
         vk::ImageMemoryBarrier barrier{};
         barrier.image = image;
@@ -133,13 +133,12 @@ namespace Engine
             0, nullptr,
             1, &barrier);
 
-        VulkanHighLevel::GetInstance()->GetDevice()->EndSingleTimeCommands(commandBuffer);
+        UDevice->EndSingleTimeCommands(commandBuffer);
     }
     
     /*******************************************************Texture2D*****************************************************************/
     void Texture2D::Create(std::string srResourceName)
     {
-        TextureBase::Create(srResourceName);
         Load(srResourceName);
     }
 
@@ -183,30 +182,32 @@ namespace Engine
 
         vk::Buffer stagingBuffer;
         vk::DeviceMemory stagingBufferMemory;
-        VulkanHighLevel::GetInstance()->GetDevice()->CreateOnDeviceBuffer(imgSize, vk::BufferUsageFlagBits::eTransferSrc,
+        UDevice->CreateOnDeviceBuffer(imgSize, vk::BufferUsageFlagBits::eTransferSrc,
                              vk::MemoryPropertyFlagBits::eHostVisible | vk::MemoryPropertyFlagBits::eHostCoherent,
                              stagingBuffer,
                              stagingBufferMemory);
 
-        VulkanHighLevel::GetInstance()->GetDevice()->MoveToMemory(raw_data, stagingBufferMemory , imgSize);
+        UDevice->MoveToMemory(raw_data, stagingBufferMemory , imgSize);
 
         stbi_image_free(raw_data);
 
-        VulkanHighLevel::GetInstance()->GetDevice()->CreateImage(image, deviceMemory, compiledSize, mipLevels, vk::SampleCountFlagBits::e1, vk::Format::eR8G8B8A8Srgb, 
+        UDevice->CreateImage(image, deviceMemory, compiledSize, mipLevels, vk::SampleCountFlagBits::e1, vk::Format::eR8G8B8A8Srgb, 
                     vk::ImageTiling::eOptimal, vk::ImageUsageFlagBits::eTransferSrc | vk::ImageUsageFlagBits::eTransferDst | 
                     vk::ImageUsageFlagBits::eSampled, vk::MemoryPropertyFlagBits::eDeviceLocal);
 
-        VulkanHighLevel::GetInstance()->GetDevice()->TransitionImageLayout(image, mipLevels, vk::ImageAspectFlagBits::eColor, vk::ImageLayout::eUndefined, vk::ImageLayout::eTransferDstOptimal);
-        VulkanHighLevel::GetInstance()->GetDevice()->CopyBufferToImage(stagingBuffer, image, compiledSize);
+        UDevice->TransitionImageLayout(image, mipLevels, vk::ImageAspectFlagBits::eColor, vk::ImageLayout::eUndefined, vk::ImageLayout::eTransferDstOptimal);
+        UDevice->CopyBufferToImage(stagingBuffer, image, compiledSize);
         GenerateMipmaps(image, mipLevels, vk::Format::eR8G8B8A8Srgb, compiledSize, vk::ImageAspectFlagBits::eColor);
 
-        VulkanHighLevel::GetInstance()->GetDevice()->Destroy(stagingBuffer);
-        VulkanHighLevel::GetInstance()->GetDevice()->Destroy(stagingBufferMemory);
+        UDevice->Destroy(stagingBuffer);
+        UDevice->Destroy(stagingBufferMemory);
 
-        view = VulkanHighLevel::GetInstance()->GetDevice()->CreateImageView(image, mipLevels, vk::Format::eR8G8B8A8Srgb, vk::ImageAspectFlagBits::eColor);
+        view = UDevice->CreateImageView(image, mipLevels, vk::Format::eR8G8B8A8Srgb, vk::ImageAspectFlagBits::eColor);
 
-        VulkanHighLevel::GetInstance()->GetDevice()->CreateSampler(sampler, mipLevels);
+        UDevice->CreateSampler(sampler, mipLevels);
         imageLayout = vk::ImageLayout::eShaderReadOnlyOptimal;
+
+        UpdateDescriptor();
     }
 
     /*******************************************************TextureCubemap*****************************************************************/

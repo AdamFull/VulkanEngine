@@ -41,7 +41,7 @@ namespace Engine
         auto commandBuffer = GetCurrentCommandBuffer();
 
         commandBuffer.end();
-
+        data.bFrameStarted = false;
         return swapchain->SubmitCommandBuffers(device, &commandBuffer, &data.imageIndex);
     }
 

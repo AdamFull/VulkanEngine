@@ -18,6 +18,7 @@ namespace Engine
         void Create(std::unique_ptr<Device>& device, std::unique_ptr<SwapChain>& swapchain);
 
         void ReCreate(std::unique_ptr<Device>& device, std::unique_ptr<SwapChain>& swapchain);
+        void Cleanup(std::unique_ptr<Device>& device);
 
         vk::CommandBuffer BeginFrame(std::unique_ptr<Device>& device, std::unique_ptr<SwapChain>& swapchain);
         vk::Result EndFrame(std::unique_ptr<Device>& device, std::unique_ptr<SwapChain>& swapchain);

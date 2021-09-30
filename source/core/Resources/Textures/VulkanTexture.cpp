@@ -1,6 +1,6 @@
 #include "VulkanTexture.h"
-#include "VulkanDevice.h"
-#include "VulkanHighLevel.h"
+#include "Renderer/VulkanDevice.h"
+#include "Renderer/VulkanHighLevel.h"
 
 #define STB_IMAGE_IMPLEMENTATION
 #include "external/stb_image.h"

@@ -1,7 +1,7 @@
 #pragma once
-#include "VulkanDevice.h"
-#include "VulkanSwapChain.h"
-#include "VulkanUniform.h"
+#include "Renderer/VulkanDevice.h"
+#include "Renderer/VulkanSwapChain.h"
+#include "Renderer/VulkanUniform.h"
 
 namespace Engine
 {

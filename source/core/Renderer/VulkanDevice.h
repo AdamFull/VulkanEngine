@@ -110,6 +110,8 @@ namespace Engine
         template<> void Destroy(vk::CommandBuffer& instance) { data.logical->freeCommandBuffers(data.commandPool, instance); }
         template<> void Destroy(vk::CommandPool& instance) { data.logical->destroyCommandPool(instance); }
         template<> void Destroy(vk::SurfaceKHR& instance) { data.vkInstance->destroySurfaceKHR(instance); }
+        template<> void Destroy(vk::DescriptorSetLayout& instance) { data.logical->destroyDescriptorSetLayout(instance); }
+        template<> void Destroy(vk::DescriptorPool& instance) { data.logical->destroyDescriptorPool(instance); }
     private:
         void CreateInstance(const char *pApplicationName, uint32_t applicationVersion,
                                          const char *pEngineName, uint32_t engineVersion,

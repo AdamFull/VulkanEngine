@@ -1,6 +1,6 @@
 #include "VulkanMesh.h"
-#include "VulkanDevice.h"
-#include "VulkanHighLevel.h"
+#include "Renderer/VulkanDevice.h"
+#include "Renderer/VulkanHighLevel.h"
 
 #define TINYOBJLOADER_IMPLEMENTATION
 #include "external/tiny_obj_loader.h"

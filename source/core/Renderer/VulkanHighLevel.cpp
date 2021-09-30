@@ -21,7 +21,7 @@ namespace Engine
 
     VulkanHighLevel::~VulkanHighLevel()
     {
-        //Cleanup();
+        Cleanup();
     }
 
     void VulkanHighLevel::Create(std::unique_ptr<WindowHandle>& pWindow, const char *pApplicationName, uint32_t applicationVersion,
@@ -81,6 +81,7 @@ namespace Engine
 
         CleanupSwapChain();
         m_pSwapChain->ReCreate(m_pDevice);
+        m_pUniform->ReCreate(m_pDevice, m_pSwapChain->GetImages().size());
 
         m_pRenderer->ReCreate(m_pDevice, m_pSwapChain);
     }
@@ -88,6 +89,8 @@ namespace Engine
     void VulkanHighLevel::CleanupSwapChain()
     {
         m_pSwapChain->Cleanup(m_pDevice);
+        m_pUniform->Cleanup(m_pDevice);
+        m_pRenderer->Cleanup(m_pDevice);
     }
 
     void VulkanHighLevel::Cleanup()

@@ -20,6 +20,9 @@ namespace Engine
     {
     public:
         void Create(std::unique_ptr<Device>& device, size_t images);
+        void ReCreate(std::unique_ptr<Device>& device, size_t images);
+
+        void Cleanup(std::unique_ptr<Device>& device);
 
         void Bind(vk::CommandBuffer& commandBuffer, vk::PipelineLayout& layout, vk::DescriptorSet descriptorSet);
 

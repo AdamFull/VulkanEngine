@@ -117,6 +117,7 @@ namespace Engine
         CreateRenderPass(device);
         CreateMSAAResources(device);
         CreateDepthResources(device);
+        CreateFrameBuffers(device);
     }
 
     void SwapChain::CreateSwapChain(std::unique_ptr<Device>& device)

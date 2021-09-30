@@ -33,9 +33,10 @@ namespace Engine
         virtual void Bind(vk::CommandBuffer& commandBuffer);
 
         virtual void LoadShader(std::unique_ptr<Device>& device, const std::map<vk::ShaderStageFlagBits, std::string>& mShaders);
-        virtual void RecreatePipeline(std::unique_ptr<Device>& device, std::unique_ptr<SwapChain>& swapchain) = 0;
+        virtual void RecreatePipeline(std::unique_ptr<Device>& device, std::unique_ptr<SwapChain>& swapchain);
 
-        virtual void Cleanup(std::unique_ptr<Device>& device) = 0;
+        virtual void Cleanup(std::unique_ptr<Device>& device);
+        virtual void Destroy(std::unique_ptr<Device>& device);
 
         inline virtual vk::DescriptorSetLayout& GetDescriptorSetLayout() { return data.descriptorSetLayout; }
         inline virtual vk::DescriptorPool& GetDescriptorPool() { return data.descriptorPool; }

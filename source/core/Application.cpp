@@ -1,5 +1,5 @@
 #include "Application.h"
-#include "VulkanHighLevel.h"
+#include "Renderer/VulkanHighLevel.h"
 #include "KeyMapping/InputMapper.h"
 #include "Camera/Camera.h"
 #include "Camera/CameraManager.h"
@@ -44,15 +44,6 @@ namespace Engine
         transform1.rot = {glm::radians(90.f), 0.f, 0.f};
         mesh_component->SetTransform(transform1);
         m_pRenderScene->AttachObject(mesh_component);
-
-        auto mesh_component1 = std::make_shared<StaticMeshComponent>("static_mesh_component1");
-        mesh_component1->SetMesh(mesh);
-        mesh_component1->SetMaterial(material);
-        FTransform transform2;
-        transform2.pos = {0.f, 0.f, 0.5f};
-        transform2.rot = {glm::radians(90.f), 0.f, 0.f};
-        mesh_component1->SetTransform(transform2);
-        m_pRenderScene->AttachObject(mesh_component1);
 
         //Camera
         auto camera = std::make_shared<CameraBase>("world_camera");

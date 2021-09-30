@@ -1,6 +1,6 @@
 #pragma once
-#include "VulkanSwapChain.h"
-#include "VulkanUniform.h"
+#include "Renderer/VulkanSwapChain.h"
+#include "Renderer/VulkanUniform.h"
 
 namespace Engine
 {

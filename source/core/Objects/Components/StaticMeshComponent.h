@@ -16,6 +16,7 @@ namespace Engine
         }
         
         void Create() override;
+        void ReCreate() override;
         void Update(float fDeltaTime) override;
         void Render(vk::CommandBuffer& commandBuffer, uint32_t imageIndex) override;
 

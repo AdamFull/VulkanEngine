@@ -19,6 +19,11 @@ namespace Engine
         CreateCommandBuffers(device, swapchain);
     }
 
+    void Renderer::Cleanup(std::unique_ptr<Device>& device)
+    {
+        device->GetLogical()->freeCommandBuffers(device->GetCommandPool(), data.vCommandBuffers);
+    }
+
     vk::CommandBuffer Renderer::BeginFrame(std::unique_ptr<Device>& device, std::unique_ptr<SwapChain>& swapchain)
     {
         assert(!data.bFrameStarted && "Can't call beginFrame while already in progress");

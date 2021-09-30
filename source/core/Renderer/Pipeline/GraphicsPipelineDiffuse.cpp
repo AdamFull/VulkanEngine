@@ -1,6 +1,6 @@
 #include "GraphicsPipelineDiffuse.h"
-#include "core/VulkanDevice.h"
-#include "VulkanSwapChain.h"
+#include "Renderer/VulkanDevice.h"
+#include "Renderer/VulkanSwapChain.h"
 
 namespace Engine
 {
@@ -133,21 +133,16 @@ namespace Engine
     void GraphicsPipelineDiffuse::RecreatePipeline(std::unique_ptr<Device>& device, std::unique_ptr<SwapChain>& swapchain)
     {
         auto extent = swapchain->GetExtent();
-        device->Destroy(data.pipeline);
-        device->Destroy(data.layout);
 
         savedInfo.viewport.width = extent.width;
         savedInfo.viewport.height = extent.height;
         savedInfo.scissor.extent = extent;
 
         RecreateShaders(device);
+        CreateDescriptorSetLayout(device);
+        CreateDescriptorPool(device, swapchain);
+        CreateDescriptorSets(device, swapchain);
         CreatePipelineLayout(device);
         CreatePipeline(device, swapchain);
-    }
-
-    void GraphicsPipelineDiffuse::Cleanup(std::unique_ptr<Device>& device)
-    {
-        device->Destroy(data.pipeline);
-        device->Destroy(data.layout);
     }
 }

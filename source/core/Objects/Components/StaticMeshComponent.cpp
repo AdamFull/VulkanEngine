@@ -1,6 +1,6 @@
 #include "StaticMeshComponent.h"
-#include "VulkanDevice.h"
-#include "VulkanHighLevel.h"
+#include "Renderer/VulkanDevice.h"
+#include "Renderer/VulkanHighLevel.h"
 #include "Resources/Meshes/VulkanMesh.h"
 #include "Resources/Materials/VulkanMaterial.h"
 #include "Camera/CameraManager.h"
@@ -11,6 +11,12 @@ namespace Engine
     void StaticMeshComponent::Create()
     {
         RenderObject::Create();
+    }
+
+    void StaticMeshComponent::ReCreate()
+    {
+        RenderObject::ReCreate();
+        m_pMaterial->ReCreate();
     }
 
     void StaticMeshComponent::Update(float fDeltaTime)

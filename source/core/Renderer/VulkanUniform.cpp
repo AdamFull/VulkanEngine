@@ -8,6 +8,19 @@ namespace Engine
         CreateUniformBuffers(device, images);
     }
 
+    void UniformBuffer::ReCreate(std::unique_ptr<Device>& device, size_t images)
+    {
+        CreateUniformBuffers(device, images);
+    }
+
+    void UniformBuffer::Cleanup(std::unique_ptr<Device>& device)
+    {
+        for(auto& buffer : data.vUniformBuffers)
+            device->Destroy(buffer);
+        for(auto& memory : data.vUniformBuffersMemory)
+            device->Destroy(memory);
+    }
+
     void UniformBuffer::Bind(vk::CommandBuffer& commandBuffer, vk::PipelineLayout& layout, vk::DescriptorSet descriptorSet)
     {
         commandBuffer.bindDescriptorSets(vk::PipelineBindPoint::eGraphics, layout, 0, 1, &descriptorSet, 0, nullptr);

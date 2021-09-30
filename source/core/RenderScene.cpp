@@ -1,6 +1,6 @@
 #include "RenderScene.h"
-#include "VulkanRenderer.h"
-#include "VulkanHighLevel.h"
+#include "Renderer/VulkanRenderer.h"
+#include "Renderer/VulkanHighLevel.h"
 
 namespace Engine
 {

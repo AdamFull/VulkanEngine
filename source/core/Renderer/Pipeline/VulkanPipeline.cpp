@@ -1,6 +1,6 @@
 #include "VulkanPipeline.h"
-#include "core/VulkanDevice.h"
-#include "core/VulkanSwapChain.h"
+#include "Renderer/VulkanDevice.h"
+#include "Renderer/VulkanSwapChain.h"
 #include "filesystem/FilesystemHelper.h"
 
 namespace Engine
@@ -8,6 +8,25 @@ namespace Engine
     void PipelineBase::Create(FPipelineCreateInfo createInfo, std::unique_ptr<Device>& device, std::unique_ptr<SwapChain>& swapchain)
     {
         
+    }
+
+    void PipelineBase::RecreatePipeline(std::unique_ptr<Device>& device, std::unique_ptr<SwapChain>& swapchain)
+    {
+        
+    }
+
+    void PipelineBase::Cleanup(std::unique_ptr<Device>& device)
+    {
+        device->Destroy(data.pipeline);
+        device->Destroy(data.layout);
+        device->GetLogical()->freeDescriptorSets(data.descriptorPool, data.vDescriptorSets);
+        device->Destroy(data.descriptorSetLayout);
+        device->Destroy(data.descriptorPool);
+    }
+
+    void PipelineBase::Destroy(std::unique_ptr<Device>& device)
+    {
+        Cleanup(device);
     }
 
     void PipelineBase::Bind(vk::CommandBuffer& commandBuffer)

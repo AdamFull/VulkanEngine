@@ -1,9 +1,9 @@
 #include "VulkanMaterial.h"
 #include "Resources/Textures/VulkanTexture.h"
-#include "VulkanUniform.h"
-#include "VulkanDevice.h"
-#include "VulkanHighLevel.h"
-#include "Pipeline/GraphicsPipelineDiffuse.h"
+#include "Renderer/VulkanUniform.h"
+#include "Renderer/VulkanDevice.h"
+#include "Renderer/VulkanHighLevel.h"
+#include "Renderer/Pipeline/GraphicsPipelineDiffuse.h"
 
 std::map<vk::ShaderStageFlagBits, std::string> vShList = 
 {
@@ -26,7 +26,7 @@ namespace Engine
     void MaterialBase::ReCreate()
     {
         ResourceBase::ReCreate();
-        
+        m_pPipeline->RecreatePipeline(UDevice, USwapChain);
     }
 
     void MaterialBase::Update(uint32_t imageIndex)
@@ -45,6 +45,7 @@ namespace Engine
     {
         ResourceBase::Destroy();
         m_pColor->Destroy();
+        m_pPipeline->Destroy(UDevice);
     }
 
     /****************************************************DiffuseMaterial***************************************************************/

@@ -1,0 +1,11 @@
+{
+    "viking_room_asset":
+    {
+        "type": "StaticMeshComponent",
+        "mesh": "viking_room_mesh",
+        "materials": 
+        [
+            "viking_room_diffuse_material"
+        ]
+    }
+}

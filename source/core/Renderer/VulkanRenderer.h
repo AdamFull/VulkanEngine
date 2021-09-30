@@ -19,6 +19,7 @@ namespace Engine
 
         void ReCreate(std::unique_ptr<Device>& device, std::unique_ptr<SwapChain>& swapchain);
         void Cleanup(std::unique_ptr<Device>& device);
+        void Destroy(std::unique_ptr<Device>& device);
 
         vk::CommandBuffer BeginFrame(std::unique_ptr<Device>& device, std::unique_ptr<SwapChain>& swapchain);
         vk::Result EndFrame(std::unique_ptr<Device>& device, std::unique_ptr<SwapChain>& swapchain);
@@ -29,9 +30,10 @@ namespace Engine
         //Getters
         inline std::vector<vk::CommandBuffer, std::allocator<vk::CommandBuffer>>& GetCommandBuffers() { return data.vCommandBuffers; }
         inline uint32_t GetImageIndex() { return data.imageIndex; }
+        inline bool GetFrameStartFlag() { return data.bFrameStarted; }
+        vk::CommandBuffer GetCurrentCommandBuffer() const;
     private:
         void Renderer::CreateCommandBuffers(std::unique_ptr<Device>& device, std::unique_ptr<SwapChain>& swapchain);
-        vk::CommandBuffer GetCurrentCommandBuffer() const;
         FRenderer data;
     };
 }

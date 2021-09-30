@@ -27,6 +27,7 @@ namespace Engine
     void PipelineBase::Destroy(std::unique_ptr<Device>& device)
     {
         Cleanup(device);
+        DestroyShaders(device);
     }
 
     void PipelineBase::Bind(vk::CommandBuffer& commandBuffer)
@@ -81,11 +82,20 @@ namespace Engine
 
     void PipelineBase::RecreateShaders(std::unique_ptr<Device>& device)
     {
-        m_vShaderBuffer.clear();
-
+        DestroyShaders(device);
         for(auto& cached : m_vShaderCache)
         {
             LoadShader(device, cached.srShaderData, cached.sShaderType);
         }
+    }
+
+    void PipelineBase::DestroyShaders(std::unique_ptr<Device>& device)
+    {
+        for(auto& stageInfo : m_vShaderBuffer)
+        {
+            device->Destroy(stageInfo.module);
+        }
+
+        m_vShaderBuffer.clear();
     }
 }

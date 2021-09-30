@@ -59,15 +59,14 @@ namespace Engine
     {
         switch (eKey)
         {
-        case EActionKey::eEscape: std::exit(10); break;
+        case EActionKey::eEscape: 
+        {
+            m_pRenderScene->Cleanup();
+            std::exit(10); 
+        }break;
         default: break;
         }
     }
-    /*
-    чтобы попробовать запустить, нужно создать камеру,
-    забиндить её в менеджер камеры, потом загрузить все ресурсы: материалы и мэши
-    и потом уже аттачить их к сцене и стартовать. ПОка что костыльно. Потом нужно будет прикрутить менеджер ресов.
-    */
 
     void Application::run()
     {

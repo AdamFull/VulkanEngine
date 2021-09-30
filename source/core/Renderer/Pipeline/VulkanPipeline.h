@@ -57,6 +57,7 @@ namespace Engine
         virtual void LoadShader(std::unique_ptr<Device>& device, const std::string& srShaderPath, vk::ShaderStageFlagBits fShaderType);
         virtual void LoadShader(std::unique_ptr<Device>& device, const std::vector<char>& vShaderCode, vk::ShaderStageFlagBits fShaderType);
         virtual void RecreateShaders(std::unique_ptr<Device>& device);
+        virtual void DestroyShaders(std::unique_ptr<Device>& device);
 
         std::vector<FShaderCache> m_vShaderCache;
         std::vector<vk::PipelineShaderStageCreateInfo> m_vShaderBuffer;

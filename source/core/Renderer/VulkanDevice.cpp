@@ -175,6 +175,7 @@ namespace Engine
         QueueFamilyIndices queueFamilyIndices = FindQueueFamilies(data.physical);
 
         vk::CommandPoolCreateInfo poolInfo = {};
+        poolInfo.flags = vk::CommandPoolCreateFlagBits::eResetCommandBuffer;
         poolInfo.queueFamilyIndex = queueFamilyIndices.graphicsFamily.value();
 
         data.commandPool = data.logical->createCommandPool(poolInfo);

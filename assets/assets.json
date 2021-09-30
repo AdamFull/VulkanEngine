@@ -7,5 +7,9 @@
         [
             "viking_room_diffuse_material"
         ]
+    },
+    "default_scene_camera_asset":
+    {
+        "type": "CameraBase"
     }
 }

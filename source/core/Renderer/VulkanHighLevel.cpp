@@ -21,7 +21,7 @@ namespace Engine
 
     VulkanHighLevel::~VulkanHighLevel()
     {
-        Cleanup();
+        Destroy();
     }
 
     void VulkanHighLevel::Create(std::unique_ptr<WindowHandle>& pWindow, const char *pApplicationName, uint32_t applicationVersion,
@@ -95,7 +95,20 @@ namespace Engine
 
     void VulkanHighLevel::Cleanup()
     {
+        m_pDevice->GPUWait();
+
         CleanupSwapChain();
+        m_pSwapChain->Destroy(m_pDevice);
+        m_pDevice->Cleanup();
+    }
+
+    void VulkanHighLevel::Destroy()
+    {
+        m_pDevice->GPUWait();
+
+        m_pSwapChain->Cleanup(m_pDevice);
+        m_pUniform->Cleanup(m_pDevice);
+        m_pRenderer->Destroy(m_pDevice);
         m_pSwapChain->Destroy(m_pDevice);
         m_pDevice->Cleanup();
     }

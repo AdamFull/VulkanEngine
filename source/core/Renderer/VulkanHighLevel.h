@@ -39,6 +39,8 @@ namespace Engine
         //TODO: Dont forget about clean textures
         void Cleanup();
 
+        void Destroy();
+
         //Getters
 
         inline std::unique_ptr<Device>& GetDevice() { return m_pDevice; }

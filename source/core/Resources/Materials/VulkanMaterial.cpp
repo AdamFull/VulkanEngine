@@ -45,6 +45,7 @@ namespace Engine
     {
         ResourceBase::Destroy();
         m_pColor->Destroy();
+        //For now, in future move it to another class
         m_pPipeline->Destroy(UDevice);
     }
 
@@ -103,8 +104,10 @@ namespace Engine
     void MaterialDiffuse::Destroy()
     {
         MaterialBase::Destroy();
+        /*
         m_pAmbient->Destroy();
         m_pSpecular->Destroy();
         m_pNormal->Destroy();
+        */
     }
 }

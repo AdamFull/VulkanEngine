@@ -1,4 +1,5 @@
 #include "RenderScene.h"
+#include "Renderer/VulkanDevice.h"
 #include "Renderer/VulkanRenderer.h"
 #include "Renderer/VulkanHighLevel.h"
 
@@ -7,6 +8,19 @@ namespace Engine
     void RenderScene::Create()
     {
         m_pRoot = std::make_shared<SceneRootComponent>();
+    }
+
+    void RenderScene::Cleanup()
+    {
+        UDevice->GPUWait();
+        if(URenderer->GetFrameStartFlag())
+        {
+            bool bResult;
+            auto commandBuffer = URenderer->GetCurrentCommandBuffer();
+            UHLInstance->EndFrame(commandBuffer, &bResult);
+        }
+
+        m_pRoot->Cleanup();
     }
 
     void RenderScene::AttachObject(std::shared_ptr<RenderObject> object)

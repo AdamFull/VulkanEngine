@@ -7,6 +7,7 @@ namespace Engine
     {
     public:
         void Create();
+        void Cleanup();
         void AttachObject(std::shared_ptr<RenderObject> object);
         void CreateObjects();
         std::shared_ptr<RenderObject> FindSceneObject(std::string srName);

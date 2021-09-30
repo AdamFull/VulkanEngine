@@ -19,6 +19,7 @@ namespace Engine
         void ReCreate() override;
         void Update(float fDeltaTime) override;
         void Render(vk::CommandBuffer& commandBuffer, uint32_t imageIndex) override;
+        void Cleanup() override;
 
         void SetMesh(std::shared_ptr<StaticMesh> mesh) { m_pStaticMesh = mesh; }
         void SetMaterial(std::shared_ptr<MaterialBase> material) { m_pMaterial = material; }

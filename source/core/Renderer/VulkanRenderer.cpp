@@ -15,13 +15,17 @@ namespace Engine
 
     void Renderer::ReCreate(std::unique_ptr<Device>& device, std::unique_ptr<SwapChain>& swapchain)
     {
-        device->Destroy(data.vCommandBuffers);
         CreateCommandBuffers(device, swapchain);
     }
 
     void Renderer::Cleanup(std::unique_ptr<Device>& device)
     {
         device->GetLogical()->freeCommandBuffers(device->GetCommandPool(), data.vCommandBuffers);
+    }
+
+    void Renderer::Destroy(std::unique_ptr<Device>& device)
+    {
+        device->Destroy(data.vCommandBuffers);
     }
 
     vk::CommandBuffer Renderer::BeginFrame(std::unique_ptr<Device>& device, std::unique_ptr<SwapChain>& swapchain)

@@ -37,4 +37,12 @@ namespace Engine
         m_pStaticMesh->Update(imageIndex);
         m_pStaticMesh->Bind(commandBuffer, imageIndex);
     }
+
+    void StaticMeshComponent::Cleanup()
+    {
+        RenderObject::Cleanup();
+
+        m_pMaterial->Destroy();
+        m_pStaticMesh->Destroy();
+    }
 }

@@ -18,10 +18,10 @@ namespace Engine
     class PipelineConfig
     {
     public:
-        static FPipelineCreateInfo CreatePipelineConfig(uint32_t width, uint32_t height, vk::PrimitiveTopology topology, 
-                                                           vk::PolygonMode polygonMode, vk::CullModeFlags cullMode,
-                                                           vk::FrontFace fontFace, vk::SampleCountFlagBits samples);
-        static FPipelineCreateInfo CreateDefaultPipelineConfig(uint32_t width, uint32_t height, vk::SampleCountFlagBits samples);
-        static FPipelineCreateInfo CreateDefaultDebugPipelineConfig(uint32_t width, uint32_t height, vk::SampleCountFlagBits samples);
+        static FPipelineCreateInfo CreatePipelineConfig(vk::PrimitiveTopology topology, vk::PolygonMode polygonMode, 
+                                                        vk::CullModeFlags cullMode, vk::FrontFace fontFace, 
+                                                        vk::SampleCountFlagBits samples);
+        static FPipelineCreateInfo CreateDefaultPipelineConfig(vk::SampleCountFlagBits samples);
+        static FPipelineCreateInfo CreateDefaultDebugPipelineConfig(vk::SampleCountFlagBits samples);
     };
 }

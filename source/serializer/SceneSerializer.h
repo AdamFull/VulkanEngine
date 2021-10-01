@@ -4,7 +4,7 @@ namespace Engine
 {
     struct FSceneInitializer
     {
-        std::string srName;
+        std::string srAsset;
         std::string srType;
         std::map<std::string, std::string> mResources;
     };

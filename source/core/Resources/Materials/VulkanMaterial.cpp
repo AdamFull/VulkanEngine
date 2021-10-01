@@ -3,30 +3,19 @@
 #include "Renderer/VulkanUniform.h"
 #include "Renderer/VulkanDevice.h"
 #include "Renderer/VulkanHighLevel.h"
-#include "Renderer/Pipeline/GraphicsPipelineDiffuse.h"
-
-std::map<vk::ShaderStageFlagBits, std::string> vShList = 
-{
-    {vk::ShaderStageFlagBits::eVertex, "../../assets/shaders/vert.spv"},
-    {vk::ShaderStageFlagBits::eFragment, "../../assets/shaders/frag.spv"}
-};
+#include "Renderer/Pipeline/VulkanPipeline.h"
+#include "Renderer/Pipeline/PipelineManager.h"
 
 namespace Engine
 {
     void MaterialBase::Create(std::shared_ptr<Texture2D> color)
     {
         m_pColor = color;
-        m_pPipeline = std::make_shared<GraphicsPipelineDiffuse>();
-
-        FPipelineCreateInfo createInfo = PipelineConfig::CreateDefaultPipelineConfig(1920, 1080, UDevice->GetSamples());
-        m_pPipeline->LoadShader(UDevice, vShList);
-        m_pPipeline->Create(createInfo, UDevice, USwapChain);
     }
 
     void MaterialBase::ReCreate()
     {
         ResourceBase::ReCreate();
-        m_pPipeline->RecreatePipeline(UDevice, USwapChain);
     }
 
     void MaterialBase::Update(uint32_t imageIndex)
@@ -37,27 +26,18 @@ namespace Engine
     void MaterialBase::Bind(vk::CommandBuffer commandBuffer, uint32_t imageIndex)
     {
         ResourceBase::Bind(commandBuffer, imageIndex);
-        m_pPipeline->Bind(commandBuffer);
-        UUniform->Bind(commandBuffer, m_pPipeline->GetPipelineLayout(), m_pPipeline->GetDescriptorSet(imageIndex));
     }
 
     void MaterialBase::Destroy()
     {
         ResourceBase::Destroy();
         m_pColor->Destroy();
-        //For now, in future move it to another class
-        m_pPipeline->Destroy(UDevice);
     }
 
     /****************************************************DiffuseMaterial***************************************************************/
     void MaterialDiffuse::Create(std::shared_ptr<Texture2D> color)
     {
         m_pColor = color;
-        m_pPipeline = std::make_shared<GraphicsPipelineDiffuse>();
-
-        FPipelineCreateInfo createInfo = PipelineConfig::CreateDefaultPipelineConfig(1920, 1080, UDevice->GetSamples());
-        m_pPipeline->LoadShader(UDevice, vShList);
-        m_pPipeline->Create(createInfo, UDevice, USwapChain);
     }
 
     void MaterialDiffuse::ReCreate()
@@ -70,7 +50,7 @@ namespace Engine
         MaterialBase::Update(imageIndex);
 
         auto& uniformBuffer = UUniform->GetUniformBuffer(imageIndex);
-        auto& descriptorSet = m_pPipeline->GetDescriptorSet(imageIndex);
+        auto& descriptorSet = UGPipelineDiffuse->GetDescriptorSet(imageIndex);
 
         vk::DescriptorBufferInfo bufferInfo{};
         //GetCurrentUniform
@@ -99,6 +79,8 @@ namespace Engine
     void MaterialDiffuse::Bind(vk::CommandBuffer commandBuffer, uint32_t imageIndex)
     {
         MaterialBase::Bind(commandBuffer, imageIndex);
+        UGPipelineDiffuse->Bind(commandBuffer);
+        UUniform->Bind(commandBuffer, UGPipelineDiffuse->GetPipelineLayout(), UGPipelineDiffuse->GetDescriptorSet(imageIndex));
     }
 
     void MaterialDiffuse::Destroy()

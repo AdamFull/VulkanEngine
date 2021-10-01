@@ -45,6 +45,26 @@ namespace Engine
         mesh_component->SetTransform(transform1);
         m_pRenderScene->AttachObject(mesh_component);
 
+        auto texture1 = std::make_shared<Texture2D>();
+        texture1->Create("../../assets/textures/femalebody_1.png");
+
+        auto material1 = std::make_shared<MaterialDiffuse>();
+        material1->Create(texture1);
+
+        auto mesh1 = std::make_shared<StaticMesh>();
+        mesh1->Create("../../assets/meshes/femalebody.obj");
+
+        //Scene objects
+        auto mesh_component1 = std::make_shared<StaticMeshComponent>("static_mesh_component1");
+        mesh_component1->SetMesh(mesh1);
+        mesh_component1->SetMaterial(material1);
+        FTransform transform4;
+        transform4.pos = {1.f, 0.f, 1.f};
+        transform4.rot = {glm::radians(90.f), 0.f, 0.f};
+        transform4.scale = {0.1, 0.1, 0.1};
+        mesh_component1->SetTransform(transform4);
+        m_pRenderScene->AttachObject(mesh_component1);
+
         //Camera
         auto camera = std::make_shared<CameraBase>("world_camera");
         FTransform transform3;

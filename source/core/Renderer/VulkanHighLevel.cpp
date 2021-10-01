@@ -3,6 +3,7 @@
 #include "VulkanSwapChain.h"
 #include "VulkanUniform.h"
 #include "VulkanRenderer.h"
+#include "Pipeline/PipelineManager.h"
 #include "VulkanStaticHelper.h"
 #include "WindowHandle.h"
 
@@ -37,6 +38,7 @@ namespace Engine
         m_pSwapChain->Create(m_pDevice);
         m_pUniform->Create(m_pDevice, m_pSwapChain->GetImages().size());
         m_pRenderer->Create(m_pDevice, m_pSwapChain);
+        UPipelineMGR->Create(m_pDevice, m_pSwapChain);
     }
 
     vk::CommandBuffer VulkanHighLevel::BeginFrame(bool* bResult)
@@ -84,6 +86,7 @@ namespace Engine
         m_pUniform->ReCreate(m_pDevice, m_pSwapChain->GetImages().size());
 
         m_pRenderer->ReCreate(m_pDevice, m_pSwapChain);
+        UPipelineMGR->RecreatePipeline(m_pDevice, m_pSwapChain);
     }
 
     void VulkanHighLevel::CleanupSwapChain()
@@ -91,6 +94,7 @@ namespace Engine
         m_pSwapChain->Cleanup(m_pDevice);
         m_pUniform->Cleanup(m_pDevice);
         m_pRenderer->Cleanup(m_pDevice);
+        UPipelineMGR->Cleanup(m_pDevice);
     }
 
     void VulkanHighLevel::Cleanup()
@@ -109,6 +113,7 @@ namespace Engine
         m_pSwapChain->Cleanup(m_pDevice);
         m_pUniform->Cleanup(m_pDevice);
         m_pRenderer->Destroy(m_pDevice);
+        UPipelineMGR->Destroy(m_pDevice);
         m_pSwapChain->Destroy(m_pDevice);
         m_pDevice->Cleanup();
     }

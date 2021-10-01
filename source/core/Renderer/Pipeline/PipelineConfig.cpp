@@ -1,10 +1,11 @@
 #include "PipelineConfig.h"
+#include "WindowHandle.h"
 
 namespace Engine
 {
-    FPipelineCreateInfo PipelineConfig::CreatePipelineConfig(uint32_t width, uint32_t height, vk::PrimitiveTopology topology, 
-                                                           vk::PolygonMode polygonMode, vk::CullModeFlags cullMode, vk::FrontFace fontFace, 
-                                                           vk::SampleCountFlagBits samples)
+    FPipelineCreateInfo PipelineConfig::CreatePipelineConfig(vk::PrimitiveTopology topology, vk::PolygonMode polygonMode, 
+                                                             vk::CullModeFlags cullMode, vk::FrontFace fontFace, 
+                                                             vk::SampleCountFlagBits samples)
     {
         FPipelineCreateInfo createInfo{};
 
@@ -13,13 +14,13 @@ namespace Engine
 
         createInfo.viewport.x = 0.0f;
         createInfo.viewport.y = 0.0f;
-        createInfo.viewport.width = (float)width;
-        createInfo.viewport.height = (float)height;
+        createInfo.viewport.width = (float)WindowHandle::m_iWidth;
+        createInfo.viewport.height = (float)WindowHandle::m_iHeight;
         createInfo.viewport.minDepth = 0.0f;
         createInfo.viewport.maxDepth = 1.0f;
 
         createInfo.scissor.offset = vk::Offset2D{0, 0};
-        createInfo.scissor.extent = vk::Extent2D{width, height};
+        createInfo.scissor.extent = vk::Extent2D{static_cast<uint32_t>(WindowHandle::m_iWidth), static_cast<uint32_t>(WindowHandle::m_iHeight)};
 
         createInfo.rasterizer.depthClampEnable = VK_FALSE;
         createInfo.rasterizer.rasterizerDiscardEnable = VK_FALSE;
@@ -53,17 +54,17 @@ namespace Engine
         return createInfo;
     }
 
-    FPipelineCreateInfo PipelineConfig::CreateDefaultPipelineConfig(uint32_t width, uint32_t height, vk::SampleCountFlagBits samples)
+    FPipelineCreateInfo PipelineConfig::CreateDefaultPipelineConfig(vk::SampleCountFlagBits samples)
     {
-        FPipelineCreateInfo createInfo = CreatePipelineConfig(width, height, vk::PrimitiveTopology::eTriangleList, vk::PolygonMode::eFill,
+        FPipelineCreateInfo createInfo = CreatePipelineConfig(vk::PrimitiveTopology::eTriangleList, vk::PolygonMode::eFill,
                                     vk::CullModeFlagBits::eBack, vk::FrontFace::eCounterClockwise, samples);
         createInfo.bindPoint = vk::PipelineBindPoint::eGraphics;
         return createInfo;
     }
 
-    FPipelineCreateInfo PipelineConfig::CreateDefaultDebugPipelineConfig(uint32_t width, uint32_t height, vk::SampleCountFlagBits samples)
+    FPipelineCreateInfo PipelineConfig::CreateDefaultDebugPipelineConfig(vk::SampleCountFlagBits samples)
     {
-        FPipelineCreateInfo createInfo = CreatePipelineConfig(width, height, vk::PrimitiveTopology::eTriangleList, vk::PolygonMode::eLine,
+        FPipelineCreateInfo createInfo = CreatePipelineConfig(vk::PrimitiveTopology::eTriangleList, vk::PolygonMode::eLine,
                                     vk::CullModeFlagBits::eBack, vk::FrontFace::eCounterClockwise, samples);
         createInfo.bindPoint = vk::PipelineBindPoint::eGraphics;
         return createInfo;

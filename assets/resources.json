@@ -1,21 +1,23 @@
 {
-    "viking_room_diffuse":
-    {
-        "type": "Texture2D",
-        "path": "../../assets/textures/viking_room.png"
-    },
-    "viking_room_mesh": 
-    {
-        "type": "StaticMesh",
-        "path": "../../assets/meshes/viking_room.obj"
-    },
-    "viking_room_diffuse_material":
-    {
-        "type": "Material",
-        "sub_type": "Diffuse",
-        "resources": 
+    "resources": 
+    [
         {
-            "color": "viking_room_diffuse"
+            "name": "viking_room_diffuse",
+            "type": "Texture2D",
+            "path": "../../assets/textures/viking_room.png"
+        },
+        {
+            "name": "viking_room_mesh",
+            "type": "StaticMesh",
+            "path": "../../assets/meshes/viking_room.obj"
+        },
+        {
+            "name": "viking_room_diffuse_material",
+            "type": "MaterialDiffuse",
+            "resources": 
+            {
+                "color": "viking_room_diffuse"
+            }
         }
-    }
+    ]
 }

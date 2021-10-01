@@ -1,8 +1,10 @@
 #include "core/Application.h"
+#include "Resources/ResourceManager.h"
 
 int main()
 {
-    Engine::Application app;
+    Engine::ResourceManager::GetInstance()->Load("../../assets/resources.json");
+    /*Engine::Application app;
     app.Create();
 
     try
@@ -13,7 +15,7 @@ int main()
     {
         std::cerr << e.what() << std::endl;
         return EXIT_FAILURE;
-    }
+    }*/
 
     return EXIT_SUCCESS;
 }

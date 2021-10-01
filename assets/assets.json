@@ -1,15 +1,18 @@
 {
-    "viking_room_asset":
-    {
-        "type": "StaticMeshComponent",
-        "mesh": "viking_room_mesh",
-        "materials": 
-        [
-            "viking_room_diffuse_material"
-        ]
-    },
-    "default_scene_camera_asset":
-    {
-        "type": "CameraBase"
-    }
+    "assets": 
+    [
+        {
+            "name": "viking_room_asset",
+            "type": "StaticMeshComponent",
+            "resources": 
+            {
+                "mesh": "viking_room_mesh",
+                "materials": "viking_room_diffuse_material"
+            }
+        },
+        {
+            "name": "default_scene_camera_asset",
+            "type": "CameraBase"
+        }
+    ]
 }

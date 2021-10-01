@@ -1,22 +1,23 @@
 {
-    "viking_room_asset":
-    {
-        "asset": "viking_room_asset",
-        "transform":
+    "objects":
+    [
         {
-            "pos": [0.0, 0.0, 0.0],
-            "rot": [0.0, 90.0, 0.0],
-            "scale": [1.0, 1.0, 1.0]
-        }
-    },
-    "scene camera":
-    {
-        "asset": "default_scene_camera_asset",
-        "transform":
+            "asset": "viking_room_asset",
+            "transform":
+            {
+                "pos": [0.0, 0.0, 0.0],
+                "rot": [0.0, 90.0, 0.0],
+                "scale": [1.0, 1.0, 1.0]
+            }
+        },
         {
-            "pos": [0.0, 0.0, 0.0],
-            "rot": [0.0, 90.0, 0.0],
-            "scale": [1.0, 1.0, 1.0]
+            "asset": "default_scene_camera_asset",
+            "transform":
+            {
+                "pos": [0.0, 0.0, 0.0],
+                "rot": [0.0, 90.0, 0.0],
+                "scale": [1.0, 1.0, 1.0]
+            }
         }
-    }
+    ]
 }

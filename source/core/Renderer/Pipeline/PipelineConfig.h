@@ -13,6 +13,7 @@ namespace Engine
         vk::PipelineColorBlendStateCreateInfo colorBlending;
         vk::PipelineDepthStencilStateCreateInfo depthStencil;
         vk::PipelineBindPoint bindPoint;
+        vk::PipelineLayout pipelineLayout;
     };
 
     class PipelineConfig
@@ -20,8 +21,8 @@ namespace Engine
     public:
         static FPipelineCreateInfo CreatePipelineConfig(vk::PrimitiveTopology topology, vk::PolygonMode polygonMode, 
                                                         vk::CullModeFlags cullMode, vk::FrontFace fontFace, 
-                                                        vk::SampleCountFlagBits samples);
-        static FPipelineCreateInfo CreateDefaultPipelineConfig(vk::SampleCountFlagBits samples);
-        static FPipelineCreateInfo CreateDefaultDebugPipelineConfig(vk::SampleCountFlagBits samples);
+                                                        vk::SampleCountFlagBits samples, vk::PipelineLayout pipelineLayout);
+        static FPipelineCreateInfo CreateDefaultPipelineConfig(vk::SampleCountFlagBits samples, vk::PipelineLayout pipelineLayout);
+        static FPipelineCreateInfo CreateDefaultDebugPipelineConfig(vk::SampleCountFlagBits samples, vk::PipelineLayout pipelineLayout);
     };
 }

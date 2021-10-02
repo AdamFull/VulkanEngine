@@ -92,6 +92,12 @@ namespace Engine
             child->Cleanup();
     }
 
+    void RenderObject::Destroy()
+    {
+        for(auto& [name, child] : m_mChilds)
+            child->Destroy();
+    }
+
     std::shared_ptr<RenderObject> RenderObject::Find(std::string srName)
     {
         auto it = m_mChilds.find(srName);

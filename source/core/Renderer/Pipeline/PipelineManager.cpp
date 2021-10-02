@@ -18,14 +18,14 @@ namespace Engine
 
     void PipelineManager::Create(std::unique_ptr<Device>& device, std::unique_ptr<SwapChain>& swapchain)
     {
-        m_mPipelines.emplace(EPipelineType::eGraphicsDiffuse, PipelineFactory::CreatePipeline(device, swapchain, EPipelineType::eGraphicsDiffuse));
+        //m_mPipelines.emplace(EPipelineType::eGraphics, PipelineFactory::CreatePipeline(device, swapchain, EPipelineType::eGraphics));
     }
 
     void PipelineManager::RecreatePipeline(std::unique_ptr<Device>& device, std::unique_ptr<SwapChain>& swapchain)
     {
         for(auto& [key, value] : m_mPipelines)
         {
-            value->RecreatePipeline(device, swapchain);
+            //value->RecreatePipeline(device, swapchain);
         }
     }
 

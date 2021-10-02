@@ -38,8 +38,10 @@ namespace Engine
         virtual void Render(vk::CommandBuffer& commandBuffer, uint32_t imageIndex);
         //Update object
         virtual void Update(float fDeltaTime);
-        //Cleanup object
+        //Cleanup object( not deleting)
         virtual void Cleanup();
+        //Destroy objects( deleting );
+        virtual void Destroy();
 
         virtual std::shared_ptr<RenderObject> Find(std::string srName);
 

@@ -1,6 +1,5 @@
 #include "PipelineFactory.h"
-#include "PipelineConfig.h"
-#include "GraphicsPipelineDiffuse.h"
+#include "GraphicsPipeline.h"
 
 namespace Engine
 {
@@ -25,19 +24,19 @@ namespace Engine
 
     std::map<EPipelineType, std::function<PipelineFactory::signature>> PipelineFactory::m_mFactory =
     {
-        {EPipelineType::eGraphicsDiffuse, 
-            [](std::unique_ptr<Device>& device, std::unique_ptr<SwapChain>& swapchain)
+        {EPipelineType::eGraphics, 
+            [](FPipelineCreateInfo createInfo, std::unique_ptr<Device>& device, std::unique_ptr<SwapChain>& swapchain)
             {
-                auto pipeline = std::make_unique<GraphicsPipelineDiffuse>();
+                auto pipeline = std::make_unique<GraphicsPipeline>();
                 pipeline->LoadShader(device, vDiffuse);
-                pipeline->Create(PipelineConfig::CreateDefaultPipelineConfig(device->GetSamples()), device, swapchain);
+                pipeline->Create(createInfo, device, swapchain);
                 return pipeline;
             }
         }
     };
 
-    std::unique_ptr<PipelineBase> PipelineFactory::CreatePipeline(std::unique_ptr<Device>& device, std::unique_ptr<SwapChain>& swapchain, EPipelineType eType)
+    std::unique_ptr<PipelineBase> PipelineFactory::CreatePipeline(FPipelineCreateInfo createInfo, std::unique_ptr<Device>& device, std::unique_ptr<SwapChain>& swapchain, EPipelineType eType)
     {
-        return m_mFactory[eType](device, swapchain);
+        return m_mFactory[eType](createInfo, device, swapchain);
     }
 }

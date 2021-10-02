@@ -71,6 +71,11 @@ namespace Engine
         commandBuffer.drawIndexed(static_cast<uint32_t>(indices.size()), 1, 0, 0, 0);
     }
 
+    void MeshBase::Cleanup()
+    {
+        ResourceBase::Cleanup();
+    }
+
     void MeshBase::Destroy()
     {
         ResourceBase::Destroy();
@@ -139,6 +144,11 @@ namespace Engine
     void StaticMesh::Bind(vk::CommandBuffer commandBuffer, uint32_t imageIndex)
     {
         MeshBase::Bind(commandBuffer, imageIndex);
+    }
+
+    void StaticMesh::Cleanup()
+    {
+        MeshBase::Cleanup();
     }
 
     void StaticMesh::Destroy()

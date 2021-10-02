@@ -18,6 +18,7 @@ namespace Engine
         virtual void ReCreate();
         virtual void Update(uint32_t imageIndex);
         virtual void Bind(vk::CommandBuffer commandBuffer, uint32_t imageIndex);
+        virtual void Cleanup();
         virtual void Destroy();
     };
 }

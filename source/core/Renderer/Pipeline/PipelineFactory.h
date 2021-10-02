@@ -1,5 +1,6 @@
 #pragma once
 #include <functional>
+#include "PipelineConfig.h"
 
 namespace Engine
 {
@@ -10,7 +11,7 @@ namespace Engine
     enum class EPipelineType
     {
         eNone = -1,
-        eGraphicsDiffuse
+        eGraphics
     };
 
     /*struct FPipelineComp
@@ -21,8 +22,8 @@ namespace Engine
 
     struct PipelineFactory
     {
-        using signature = std::unique_ptr<PipelineBase>(std::unique_ptr<Device>& device, std::unique_ptr<SwapChain>& swapchain);
-        static std::unique_ptr<PipelineBase> CreatePipeline(std::unique_ptr<Device>& device, std::unique_ptr<SwapChain>& swapchain, EPipelineType eType);
+        using signature = std::unique_ptr<PipelineBase>(FPipelineCreateInfo, std::unique_ptr<Device>&, std::unique_ptr<SwapChain>&);
+        static std::unique_ptr<PipelineBase> CreatePipeline(FPipelineCreateInfo createInfo, std::unique_ptr<Device>& device, std::unique_ptr<SwapChain>& swapchain, EPipelineType eType);
         static std::map<EPipelineType, std::function<signature>> m_mFactory;
 
         static std::map<vk::ShaderStageFlagBits, std::string> vDiffuse;

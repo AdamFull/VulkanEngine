@@ -28,6 +28,11 @@ namespace Engine
         ResourceBase::Bind(commandBuffer, imageIndex);
     }
 
+    void TextureBase::Cleanup()
+    {
+        ResourceBase::Cleanup();
+    }
+
     void TextureBase::Destroy()
     {
         ResourceBase::Destroy();
@@ -157,6 +162,11 @@ namespace Engine
         TextureBase::Bind(commandBuffer, imageIndex);
     }
 
+    void Texture2D::Cleanup()
+    {
+        TextureBase::Cleanup();
+    }
+
     void Texture2D::Destroy()
     {
         TextureBase::Destroy();
@@ -229,6 +239,11 @@ namespace Engine
     void TextureCubemap::Bind(vk::CommandBuffer commandBuffer, uint32_t imageIndex)
     {
         TextureBase::Bind(commandBuffer, imageIndex);
+    }
+
+    void TextureCubemap::Cleanup()
+    {
+        TextureBase::Cleanup();
     }
 
     void TextureCubemap::Destroy()

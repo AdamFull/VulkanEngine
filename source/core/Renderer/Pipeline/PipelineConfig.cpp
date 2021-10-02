@@ -5,7 +5,7 @@ namespace Engine
 {
     FPipelineCreateInfo PipelineConfig::CreatePipelineConfig(vk::PrimitiveTopology topology, vk::PolygonMode polygonMode, 
                                                              vk::CullModeFlags cullMode, vk::FrontFace fontFace, 
-                                                             vk::SampleCountFlagBits samples)
+                                                             vk::SampleCountFlagBits samples, vk::PipelineLayout pipelineLayout)
     {
         FPipelineCreateInfo createInfo{};
 
@@ -51,21 +51,23 @@ namespace Engine
         createInfo.depthStencil.depthBoundsTestEnable = VK_FALSE;
         createInfo.depthStencil.stencilTestEnable = VK_FALSE;
 
+        createInfo.pipelineLayout = pipelineLayout;
+
         return createInfo;
     }
 
-    FPipelineCreateInfo PipelineConfig::CreateDefaultPipelineConfig(vk::SampleCountFlagBits samples)
+    FPipelineCreateInfo PipelineConfig::CreateDefaultPipelineConfig(vk::SampleCountFlagBits samples, vk::PipelineLayout pipelineLayout)
     {
         FPipelineCreateInfo createInfo = CreatePipelineConfig(vk::PrimitiveTopology::eTriangleList, vk::PolygonMode::eFill,
-                                    vk::CullModeFlagBits::eBack, vk::FrontFace::eCounterClockwise, samples);
+                                    vk::CullModeFlagBits::eBack, vk::FrontFace::eCounterClockwise, samples, pipelineLayout);
         createInfo.bindPoint = vk::PipelineBindPoint::eGraphics;
         return createInfo;
     }
 
-    FPipelineCreateInfo PipelineConfig::CreateDefaultDebugPipelineConfig(vk::SampleCountFlagBits samples)
+    FPipelineCreateInfo PipelineConfig::CreateDefaultDebugPipelineConfig(vk::SampleCountFlagBits samples, vk::PipelineLayout pipelineLayout)
     {
         FPipelineCreateInfo createInfo = CreatePipelineConfig(vk::PrimitiveTopology::eTriangleList, vk::PolygonMode::eLine,
-                                    vk::CullModeFlagBits::eBack, vk::FrontFace::eCounterClockwise, samples);
+                                    vk::CullModeFlagBits::eBack, vk::FrontFace::eCounterClockwise, samples, pipelineLayout);
         createInfo.bindPoint = vk::PipelineBindPoint::eGraphics;
         return createInfo;
     }

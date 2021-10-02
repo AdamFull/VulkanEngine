@@ -17,6 +17,11 @@ namespace Engine
 
     }
 
+    void ResourceBase::Cleanup()
+    {
+
+    }
+
     void ResourceBase::Destroy()
     {
 

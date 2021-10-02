@@ -42,6 +42,14 @@ namespace Engine
     {
         RenderObject::Cleanup();
 
+        m_pMaterial->Cleanup();
+        m_pStaticMesh->Cleanup();
+    }
+
+    void StaticMeshComponent::Destroy()
+    {
+        RenderObject::Destroy();
+
         m_pMaterial->Destroy();
         m_pStaticMesh->Destroy();
     }

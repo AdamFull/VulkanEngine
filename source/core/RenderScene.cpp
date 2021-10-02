@@ -13,7 +13,7 @@ namespace Engine
         m_pRoot = std::make_shared<SceneRootComponent>();
     }
 
-    void RenderScene::Cleanup()
+    void RenderScene::Destroy()
     {
         UDevice->GPUWait();
         if(URenderer->GetFrameStartFlag())
@@ -23,7 +23,7 @@ namespace Engine
             UHLInstance->EndFrame(commandBuffer, &bResult);
         }
 
-        m_pRoot->Cleanup();
+        m_pRoot->Destroy();
     }
 
     void RenderScene::AttachObject(std::shared_ptr<RenderObject> object)
@@ -48,7 +48,10 @@ namespace Engine
         bool bResult;
         auto commandBuffer = UHLInstance->BeginFrame(&bResult);
         if(!bResult)
+        {
+            m_pRoot->Cleanup();
             m_pRoot->ReCreate();
+        }
 
         uint32_t currentFrame = URenderer->GetImageIndex();
         auto camera = CameraManager::GetInstance()->GetCurrentCamera();
@@ -64,6 +67,9 @@ namespace Engine
 
         UHLInstance->EndFrame(commandBuffer, &bResult);
         if(!bResult)
+        {
+            m_pRoot->Cleanup();
             m_pRoot->ReCreate();
+        }
     }
 }

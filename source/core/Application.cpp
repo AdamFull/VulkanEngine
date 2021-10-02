@@ -80,7 +80,7 @@ namespace Engine
         {
         case EActionKey::eEscape: 
         {
-            m_pRenderScene->Cleanup();
+            m_pRenderScene->Destroy();
             std::exit(10); 
         }break;
         default: break;

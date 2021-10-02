@@ -69,12 +69,12 @@ set(CPP_FILES
 find_package(glfw3 REQUIRED)
 find_package(glm REQUIRED)
 find_package(nlohmann_json REQUIRED)
-# find_package(imgui REQUIRED)
+find_package(imgui REQUIRED)
 
 add_executable(${PROJECT_NAME} ${CPP_FILES} ${HPP_FILES})
 
 # Link the debug and release libraries to the project
-target_link_libraries( ${PROJECT_NAME} PRIVATE ${VULKAN_LIB_LIST} glfw nlohmann_json::nlohmann_json)
+target_link_libraries( ${PROJECT_NAME} PRIVATE ${VULKAN_LIB_LIST} glfw nlohmann_json::nlohmann_json imgui::imgui)
 target_include_directories( ${PROJECT_NAME} PRIVATE ${GLM_INCLUDE_DIRS} ${GLFW_INCLUDE_DIRS} ${CMAKE_CURRENT_SOURCE_DIR}/source/ ${CMAKE_CURRENT_SOURCE_DIR}/source/core)
 target_precompile_headers( ${PROJECT_NAME} PUBLIC ${CMAKE_CURRENT_SOURCE_DIR}/common.h)
 

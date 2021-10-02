@@ -210,6 +210,7 @@ namespace Engine
                     };
                 };
 
+
                 if (uniqueVertices.count(vertex) == 0)
                 {
                     uniqueVertices[vertex] = static_cast<uint32_t>(vertices.size());

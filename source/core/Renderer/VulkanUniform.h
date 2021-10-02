@@ -22,7 +22,7 @@ namespace Engine
 
         void Bind(vk::CommandBuffer& commandBuffer, vk::PipelineLayout& layout, vk::DescriptorSet descriptorSet);
 
-        void UpdateUniformBuffer(std::unique_ptr<Device>& device, uint32_t index, glm::mat4 transform, glm::vec3 light_pos);
+        void UpdateUniformBuffer(std::unique_ptr<Device>& device, uint32_t index, FUniformData ubo);
 
         // Getters
         inline std::vector<std::unique_ptr<VulkanBuffer>>& GetUniformBuffers() { return m_pBuffers; }

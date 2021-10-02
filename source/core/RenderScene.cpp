@@ -56,8 +56,13 @@ namespace Engine
         uint32_t currentFrame = URenderer->GetImageIndex();
         auto camera = CameraManager::GetInstance()->GetCurrentCamera();
 
-        /*FUniformData ubo{};
-        ubo.transform = camera->GetProjection() * camera->GetView();*/
+        auto matrix = camera->GetProjection() * camera->GetView();
+        auto transform = m_pRoot->Find("static_mesh_component1")->GetTransform();
+        FUniformData ubo{};
+        ubo.transform = matrix * transform.GetModel();
+        ubo.worldNormal = transform.GetNormal();
+        ubo.lightPosition = camera->GetTransform().pos;
+        UUniform->UpdateUniformBuffer(UDevice, currentFrame, ubo);
 
         UHLInstance->BeginRender(commandBuffer);
 

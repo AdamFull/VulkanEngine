@@ -48,7 +48,7 @@ namespace Engine
         virtual const glm::vec3 GetForwardVector();
         virtual const glm::vec3 GetRightVector();
         virtual const glm::vec3 GetUpVector();
-        virtual inline const FTransform GetTransform() { return m_transform; }
+        virtual inline FTransform GetTransform() { return m_transform; }
         virtual inline void SetTransform(FTransform transformNew) { m_transform = transformNew; }
 
         virtual void SetParent(std::shared_ptr<RenderObject> parent);

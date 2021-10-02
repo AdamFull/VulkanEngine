@@ -27,10 +27,7 @@ namespace Engine
         m_pRenderScene = std::make_unique<RenderScene>();
         m_pRenderScene->Create();
 
-        auto texture = std::make_shared<Texture2D>();
-        texture->Create("../../assets/textures/viking_room.png");
-
-        auto material = std::make_shared<MaterialDiffuse>();
+        /*auto material = std::make_shared<MaterialDiffuse>();
         material->Create(texture);
 
         auto mesh = std::make_shared<StaticMesh>();
@@ -43,32 +40,37 @@ namespace Engine
         FTransform transform1;
         transform1.rot = {glm::radians(90.f), 0.f, 0.f};
         mesh_component->SetTransform(transform1);
-        m_pRenderScene->AttachObject(mesh_component);
+        m_pRenderScene->AttachObject(mesh_component);*/
 
-        auto texture1 = std::make_shared<Texture2D>();
-        texture1->Create("../../assets/textures/femalebody_1.png");
+        auto texture_diffuse = std::make_shared<Texture2D>();
+        texture_diffuse->Create("../../assets/textures/femalebody_1.png");
 
-        auto material1 = std::make_shared<MaterialDiffuse>();
-        material1->Create(texture1);
+        auto texture_normal = std::make_shared<Texture2D>();
+        texture_normal->Create("../../assets/textures/femalebody_1_msn.png");
 
-        auto mesh1 = std::make_shared<StaticMesh>();
-        mesh1->Create("../../assets/meshes/femalebody.obj");
+        auto texture_specular = std::make_shared<Texture2D>();
+        texture_specular->Create("../../assets/textures/femalebody_1_s.png");
+
+        auto material_diffuse = std::make_shared<MaterialDiffuse>();
+        material_diffuse->Create(texture_diffuse, texture_normal, texture_specular);
+
+        auto body_mesh = std::make_shared<StaticMesh>();
+        body_mesh->Create("../../assets/meshes/femalebody.obj");
 
         //Scene objects
-        auto mesh_component1 = std::make_shared<StaticMeshComponent>("static_mesh_component1");
-        mesh_component1->SetMesh(mesh1);
-        mesh_component1->SetMaterial(material1);
-        FTransform transform4;
-        transform4.pos = {1.f, 0.f, 1.f};
-        transform4.rot = {glm::radians(90.f), 0.f, 0.f};
-        mesh_component1->SetTransform(transform4);
-        m_pRenderScene->AttachObject(mesh_component1);
+        auto mesh_component = std::make_shared<StaticMeshComponent>("static_mesh_component1");
+        mesh_component->SetMesh(body_mesh);
+        mesh_component->SetMaterial(material_diffuse);
+        FTransform transform;
+        transform.pos = {0.f, 0.f, 0.f};
+        transform.rot = {0.f, glm::radians(90.f), 0.f};
+        mesh_component->SetTransform(transform);
+        m_pRenderScene->AttachObject(mesh_component);
 
         //Camera
         auto camera = std::make_shared<CameraBase>("world_camera");
         FTransform transform3;
         transform3.pos = {1.f, -0.5f, 0.1f};
-        transform3.rot = {0.f, glm::radians(-90.f), 0.f};
         camera->SetTransform(transform3);
         m_pRenderScene->AttachObject(camera);
         CameraManager::GetInstance()->Attach(camera);

@@ -43,11 +43,8 @@ namespace Engine
         }
     }
 
-    void UniformBuffer::UpdateUniformBuffer(std::unique_ptr<Device>& device, uint32_t index, glm::mat4 transform, glm::vec3 light_pos)
+    void UniformBuffer::UpdateUniformBuffer(std::unique_ptr<Device>& device, uint32_t index, FUniformData ubo)
     {
-        FUniformData ubo{};
-        ubo.transform = transform;
-
         m_pBuffers[index]->Write(device, &ubo);
         m_pBuffers[index]->Flush(device);
     }

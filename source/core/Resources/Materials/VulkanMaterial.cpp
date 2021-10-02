@@ -1,6 +1,7 @@
 #include "VulkanMaterial.h"
 #include "Resources/Textures/VulkanTexture.h"
 #include "Renderer/VulkanUniform.h"
+#include "Renderer/VulkanBuffer.h"
 #include "Renderer/VulkanDevice.h"
 #include "Renderer/VulkanHighLevel.h"
 #include "Renderer/Pipeline/VulkanPipeline.h"
@@ -49,7 +50,7 @@ namespace Engine
     {
         MaterialBase::Update(imageIndex);
 
-        auto& uniformBuffer = UUniform->GetUniformBuffer(imageIndex);
+        auto& uniformBuffer = UUniform->GetUniformBuffer(imageIndex)->GetBuffer();
         auto& descriptorSet = UGPipelineDiffuse->GetDescriptorSet(imageIndex);
 
         vk::DescriptorBufferInfo bufferInfo{};

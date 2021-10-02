@@ -61,7 +61,6 @@ namespace Engine
         FTransform transform4;
         transform4.pos = {1.f, 0.f, 1.f};
         transform4.rot = {glm::radians(90.f), 0.f, 0.f};
-        transform4.scale = {0.1, 0.1, 0.1};
         mesh_component1->SetTransform(transform4);
         m_pRenderScene->AttachObject(mesh_component1);
 

@@ -13,10 +13,10 @@ layout(binding = 0) uniform FUniformData
 {
   mat4 transform; // projection * view * model
   mat4 normalMatrix;
+  vec3 light_direction;
 } ubo;
 
-const vec3 light_direction = normalize(vec3(1.0, -3.0, -1.0));
-const float ambient = 0.1;
+const float ambient = 0.8;
 
 void main() 
 {
@@ -24,7 +24,7 @@ void main()
 
     vec3 world_normal = normalize(mat3(ubo.normalMatrix) * inNormal);
 
-    float light_pow = ambient + max(dot(world_normal, light_direction), 0);
+    float light_pow = ambient + max(dot(world_normal, ubo.light_direction), 0);
     fragColor = vec4(inColor * light_pow, 1.0);
 
     fragTexCoord = inTexCoord;

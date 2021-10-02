@@ -1,5 +1,6 @@
 #pragma once
 #include "Resources/ResourceBase.h"
+#include "Renderer/VulkanBuffer.h"
 
 namespace Engine
 {
@@ -41,12 +42,10 @@ namespace Engine
         virtual void CreateIndexBuffer();
 
         std::vector<Vertex> vertices;
-        vk::Buffer vertexBuffer;
-        vk::DeviceMemory vertexBufferMemory;
+        std::unique_ptr<VulkanBuffer> vertexBuffer;
 
         std::vector<uint32_t> indices;
-        vk::Buffer indexBuffer;
-        vk::DeviceMemory indiciesBufferMemory;
+        std::unique_ptr<VulkanBuffer> indexBuffer;
     };
 
     class StaticMesh : public MeshBase

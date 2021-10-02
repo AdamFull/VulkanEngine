@@ -32,7 +32,7 @@ namespace Engine
         
         auto camera = CameraManager::GetInstance()->GetCurrentCamera();
         auto matrix = camera->GetProjection() * camera->GetView() * m_transform.GetModel();
-        UUniform->UpdateUniformBuffer(UDevice, imageIndex, matrix);
+        UUniform->UpdateUniformBuffer(UDevice, imageIndex, matrix, camera->GetTransform().pos);
 
         m_pStaticMesh->Update(imageIndex);
         m_pStaticMesh->Bind(commandBuffer, imageIndex);

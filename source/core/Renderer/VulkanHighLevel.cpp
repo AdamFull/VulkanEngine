@@ -2,6 +2,7 @@
 #include "VulkanDevice.h"
 #include "VulkanSwapChain.h"
 #include "VulkanUniform.h"
+#include "VulkanBuffer.h"
 #include "VulkanRenderer.h"
 #include "Pipeline/PipelineManager.h"
 #include "VulkanStaticHelper.h"
@@ -53,16 +54,12 @@ namespace Engine
         }
         catch (vk::SystemError err) { throw std::runtime_error("Failed to acquire swap chain image!"); }
 
-        m_pRenderer->BeginRender(commandBuffer, m_pSwapChain);
-
         *bResult = true;
         return commandBuffer;
     }
 
     void VulkanHighLevel::EndFrame(vk::CommandBuffer commandBuffer, bool* bResult)
     {
-        m_pRenderer->EndRender(commandBuffer, m_pSwapChain);
-
         vk::Result resultPresent;
         try { resultPresent = m_pRenderer->EndFrame(m_pDevice, m_pSwapChain); }
         catch (vk::OutOfDateKHRError err) { resultPresent = vk::Result::eErrorOutOfDateKHR; }
@@ -75,6 +72,17 @@ namespace Engine
             *bResult = false;
             return;
         }
+    }
+
+    void VulkanHighLevel::BeginRender(vk::CommandBuffer commandBuffer)
+    {
+        m_pRenderer->BeginRender(commandBuffer, m_pSwapChain);
+    }
+
+    void VulkanHighLevel::EndRender(vk::CommandBuffer commandBuffer)
+    {
+        m_pRenderer->EndRender(commandBuffer, m_pSwapChain);
+
     }
 
     void VulkanHighLevel::RecreateSwapChain()

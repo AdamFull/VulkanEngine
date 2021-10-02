@@ -12,6 +12,7 @@ namespace Engine
     class Device;
     class SwapChain;
     class UniformBuffer;
+    class VulkanBuffer;
     class Renderer;
 
     class VulkanHighLevel
@@ -36,6 +37,9 @@ namespace Engine
 
         vk::CommandBuffer BeginFrame(bool* bResult);
         void EndFrame(vk::CommandBuffer commandBuffer, bool* bResult);
+
+        void BeginRender(vk::CommandBuffer commandBuffer);
+        void EndRender(vk::CommandBuffer commandBuffer);
         //TODO: Dont forget about clean textures
         void Cleanup();
 

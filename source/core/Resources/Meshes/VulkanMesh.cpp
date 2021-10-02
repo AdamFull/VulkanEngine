@@ -63,10 +63,10 @@ namespace Engine
     {
         ResourceBase::Bind(commandBuffer, imageIndex);
 
-        vk::Buffer vertexBuffers[] = {vertexBuffer};
+        vk::Buffer vertexBuffers[] = {vertexBuffer->GetBuffer()};
         vk::DeviceSize offsets[] = {0};
         commandBuffer.bindVertexBuffers(0, 1, vertexBuffers, offsets);
-        commandBuffer.bindIndexBuffer(indexBuffer, 0, vk::IndexType::eUint32);
+        commandBuffer.bindIndexBuffer(indexBuffer->GetBuffer(), 0, vk::IndexType::eUint32);
         //Draw
         commandBuffer.drawIndexed(static_cast<uint32_t>(indices.size()), 1, 0, 0, 0);
     }
@@ -75,40 +75,42 @@ namespace Engine
     {
         ResourceBase::Destroy();
 
-        UDevice->Destroy(vertexBuffer);
-        UDevice->Destroy(vertexBufferMemory);
-        UDevice->Destroy(indexBuffer);
-        UDevice->Destroy(indiciesBufferMemory);
+        vertexBuffer->Destroy(UDevice);
+        indexBuffer->Destroy(UDevice);
     }
 
     void MeshBase::CreateVertexBuffer()
     {
         vk::DeviceSize bufferSize = sizeof(vertices[0]) * vertices.size();
+        uint32_t vertexSize = sizeof(vertices[0]);
 
-        vk::Buffer stagingBuffer;
-        vk::DeviceMemory stagingBufferMemory;
-        UDevice->CreateOnDeviceBuffer(bufferSize, vk::BufferUsageFlagBits::eTransferSrc, vk::MemoryPropertyFlagBits::eHostVisible | vk::MemoryPropertyFlagBits::eHostCoherent, stagingBuffer, stagingBufferMemory);
-        UDevice->MoveToMemory(vertices.data(), stagingBufferMemory, bufferSize);
-        UDevice->CreateOnDeviceBuffer(bufferSize, vk::BufferUsageFlagBits::eTransferDst | vk::BufferUsageFlagBits::eVertexBuffer, vk::MemoryPropertyFlagBits::eDeviceLocal, vertexBuffer, vertexBufferMemory);
-        UDevice->CopyOnDeviceBuffer(stagingBuffer, vertexBuffer, bufferSize);
+        VulkanBuffer stagingBuffer;
+        stagingBuffer.Create(UDevice, vertexSize, vertices.size(), vk::BufferUsageFlagBits::eTransferSrc, vk::MemoryPropertyFlagBits::eHostVisible | vk::MemoryPropertyFlagBits::eHostCoherent);
+        stagingBuffer.MapMem(UDevice);
+        stagingBuffer.Write(UDevice, (void*)vertices.data());
 
-        UDevice->Destroy(stagingBuffer);
-        UDevice->Destroy(stagingBufferMemory);
+        vertexBuffer = std::make_unique<VulkanBuffer>();
+        vertexBuffer->Create(UDevice, vertexSize, vertices.size(), vk::BufferUsageFlagBits::eTransferDst | vk::BufferUsageFlagBits::eVertexBuffer, vk::MemoryPropertyFlagBits::eDeviceLocal);
+        UDevice->CopyOnDeviceBuffer(stagingBuffer.GetBuffer(), vertexBuffer->GetBuffer(), bufferSize);
+
+        stagingBuffer.Destroy(UDevice);
     }
 
     void MeshBase::CreateIndexBuffer()
     {
         vk::DeviceSize bufferSize = sizeof(indices[0]) * indices.size();
+        uint32_t indexSize = sizeof(indices[0]);
 
-        vk::Buffer stagingBuffer;
-        vk::DeviceMemory stagingBufferMemory;
-        UDevice->CreateOnDeviceBuffer(bufferSize, vk::BufferUsageFlagBits::eTransferSrc, vk::MemoryPropertyFlagBits::eHostVisible | vk::MemoryPropertyFlagBits::eHostCoherent, stagingBuffer, stagingBufferMemory);
-        UDevice->MoveToMemory(indices.data(), stagingBufferMemory, bufferSize);
-        UDevice->CreateOnDeviceBuffer(bufferSize, vk::BufferUsageFlagBits::eTransferDst | vk::BufferUsageFlagBits::eIndexBuffer, vk::MemoryPropertyFlagBits::eDeviceLocal, indexBuffer, indiciesBufferMemory);
-        UDevice->CopyOnDeviceBuffer(stagingBuffer, indexBuffer, bufferSize);
+        VulkanBuffer stagingBuffer;
+        stagingBuffer.Create(UDevice, indexSize, indices.size(), vk::BufferUsageFlagBits::eTransferSrc, vk::MemoryPropertyFlagBits::eHostVisible | vk::MemoryPropertyFlagBits::eHostCoherent);
+        stagingBuffer.MapMem(UDevice);
+        stagingBuffer.Write(UDevice, (void*)indices.data());
 
-        UDevice->Destroy(stagingBuffer);
-        UDevice->Destroy(stagingBufferMemory);
+        indexBuffer = std::make_unique<VulkanBuffer>();
+        indexBuffer->Create(UDevice, indexSize, indices.size(), vk::BufferUsageFlagBits::eTransferDst | vk::BufferUsageFlagBits::eIndexBuffer, vk::MemoryPropertyFlagBits::eDeviceLocal);
+        UDevice->CopyOnDeviceBuffer(stagingBuffer.GetBuffer(), indexBuffer->GetBuffer(), bufferSize);
+
+        stagingBuffer.Destroy(UDevice);
     }
 
     /***************************************************StaticMesh*********************************************************************/

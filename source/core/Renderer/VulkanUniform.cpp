@@ -1,24 +1,24 @@
 #include "VulkanUniform.h"
 #include "VulkanDevice.h"
+#include "VulkanBuffer.h"
 
 namespace Engine
 {
-    void UniformBuffer::Create(std::unique_ptr<Device>& device, size_t images)
+    void UniformBuffer::Create(std::unique_ptr<Device>& device, uint32_t inFlightFrames)
     {
-        CreateUniformBuffers(device, images);
+        CreateUniformBuffers(device, inFlightFrames);
     }
 
-    void UniformBuffer::ReCreate(std::unique_ptr<Device>& device, size_t images)
+    void UniformBuffer::ReCreate(std::unique_ptr<Device>& device, uint32_t inFlightFrames)
     {
-        CreateUniformBuffers(device, images);
+        Create(device, inFlightFrames);
     }
 
     void UniformBuffer::Cleanup(std::unique_ptr<Device>& device)
     {
-        for(auto& buffer : data.vUniformBuffers)
-            device->Destroy(buffer);
-        for(auto& memory : data.vUniformBuffersMemory)
-            device->Destroy(memory);
+        for(auto& buffer : m_pBuffers)
+            buffer->Destroy(device);
+        m_pBuffers.clear();
     }
 
     void UniformBuffer::Bind(vk::CommandBuffer& commandBuffer, vk::PipelineLayout& layout, vk::DescriptorSet descriptorSet)
@@ -26,31 +26,29 @@ namespace Engine
         commandBuffer.bindDescriptorSets(vk::PipelineBindPoint::eGraphics, layout, 0, 1, &descriptorSet, 0, nullptr);
     }
 
-    void UniformBuffer::CreateUniformBuffers(std::unique_ptr<Device>& device, size_t images)
+    void UniformBuffer::CreateUniformBuffers(std::unique_ptr<Device>& device, uint32_t inFlightFrames)
     {
-        vk::DeviceSize bufferSize = sizeof(FUniformData);
+        m_pBuffers.resize(inFlightFrames);
 
-        data.vUniformBuffers.resize(images);
-        data.vUniformBuffersMemory.resize(images);
-
-        for (size_t i = 0; i < images; i++) 
+        auto physProps = device->GetPhysical().getProperties();
+        auto minOffsetAllignment = std::lcm(physProps.limits.minUniformBufferOffsetAlignment, physProps.limits.nonCoherentAtomSize);
+        for (size_t i = 0; i < inFlightFrames; i++) 
         {
-            device->CreateOnDeviceBuffer
-            (
-                bufferSize, 
-                vk::BufferUsageFlagBits::eUniformBuffer, 
-                vk::MemoryPropertyFlagBits::eHostVisible | vk::MemoryPropertyFlagBits::eHostCoherent, 
-                data.vUniformBuffers[i], 
-                data.vUniformBuffersMemory[i]
-            );
+            auto uniform = std::make_unique<VulkanBuffer>();
+            uniform->Create(device, sizeof(FUniformData), 1, vk::BufferUsageFlagBits::eUniformBuffer,
+            vk::MemoryPropertyFlagBits::eHostVisible | vk::MemoryPropertyFlagBits::eHostCoherent, minOffsetAllignment);
+            uniform->MapMem(device);
+
+            m_pBuffers[i] = std::move(uniform);
         }
     }
 
-    void UniformBuffer::UpdateUniformBuffer(std::unique_ptr<Device>& device, uint32_t index, glm::mat4 transform)
+    void UniformBuffer::UpdateUniformBuffer(std::unique_ptr<Device>& device, uint32_t index, glm::mat4 transform, glm::vec3 light_pos)
     {
         FUniformData ubo{};
         ubo.transform = transform;
 
-        device->MoveToMemory(&ubo, data.vUniformBuffersMemory[index], sizeof(ubo));
+        m_pBuffers[index]->Write(device, &ubo);
+        m_pBuffers[index]->Flush(device);
     }
 }

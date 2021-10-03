@@ -86,7 +86,7 @@ namespace Engine
         surface = rawSurface;
     }
 
-    void WindowHandle::ReCreate()
+    void WindowHandle::Wait()
     {
         while (m_iWidth == 0 || m_iHeight == 0)
         {

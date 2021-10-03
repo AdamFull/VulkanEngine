@@ -23,7 +23,7 @@ namespace Engine
         WindowHandle& operator=(WindowHandle&&) = delete;
 
         void Create(FWindowCreateInfo createInfo);
-        void ReCreate();
+        void Wait();
         void Close();
 
         void ResizeWindow(uint32_t, uint32_t);

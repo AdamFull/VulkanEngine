@@ -17,10 +17,15 @@ namespace Engine
         void Render(vk::CommandBuffer commandBuffer);
         void ProcessInterface();
 
+        void CreateDebugOverlay();
+        void CreateMenuBar();
+        void ShowMenuFile();
+
     private:
         bool show_demo_window = true;
-        bool show_another_window = false;
-        ImVec4 clear_color = ImVec4(0.45f, 0.55f, 0.60f, 1.00f);
+        float values[90] = {1.f};
+        int values_offset{0};
+        double refresh_time{0.f};
         vk::DescriptorPool m_descriptorPool;
     };
 }

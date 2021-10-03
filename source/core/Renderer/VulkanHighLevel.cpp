@@ -85,6 +85,7 @@ namespace Engine
 
     void VulkanHighLevel::RecreateSwapChain()
     {
+        m_pWinHandle->Wait();
         m_pDevice->GPUWait();
 
         CleanupSwapChain();

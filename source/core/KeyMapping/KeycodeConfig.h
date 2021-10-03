@@ -157,6 +157,7 @@ namespace Engine
         eRightAlt = GLFW_KEY_RIGHT_ALT,
         eRightSuper = GLFW_KEY_RIGHT_SUPER,
         eMenu = GLFW_KEY_MENU,
+        eCursorOriginal,
         eCursorPos,
         eCursorDelta,
         eScrol

@@ -29,7 +29,7 @@ namespace Engine
         m_pWinHandle = std::make_unique<WindowHandle>();
         m_pDevice = std::make_unique<Device>();
         m_pSwapChain = std::make_unique<SwapChain>();
-        m_pUniform = std::make_unique<UniformBuffer>();
+        m_pUniform = std::make_unique<UniformBuffer<FUniformData>>();
         m_pRenderer = std::make_unique<Renderer>();
 
         m_pWinHandle->Create(createInfo.window);

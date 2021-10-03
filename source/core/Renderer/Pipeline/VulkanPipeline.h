@@ -1,5 +1,4 @@
 #pragma once
-#include "Resources/Meshes/VulkanMesh.h"
 #include "PipelineConfig.h"
 
 namespace Engine

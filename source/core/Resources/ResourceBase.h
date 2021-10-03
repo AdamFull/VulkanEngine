@@ -16,7 +16,7 @@ namespace Engine
     {
     public:
         virtual void ReCreate();
-        virtual void Update(uint32_t imageIndex);
+        virtual void Update(uint32_t imageIndex, std::unique_ptr<VulkanBuffer>& pUniformBuffer);
         virtual void Bind(vk::CommandBuffer commandBuffer, uint32_t imageIndex);
         virtual void Cleanup();
         virtual void Destroy();

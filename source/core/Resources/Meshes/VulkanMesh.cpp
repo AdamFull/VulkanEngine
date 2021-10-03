@@ -7,43 +7,6 @@
 
 namespace Engine
 {
-    std::array<vk::VertexInputAttributeDescription, 4> Vertex::getAttributeDescriptions()
-    {
-        std::array<vk::VertexInputAttributeDescription, 4> attributeDescriptions = {};
-        attributeDescriptions[0].binding = 0;
-        attributeDescriptions[0].location = 0;
-        attributeDescriptions[0].format = vk::Format::eR32G32B32Sfloat;
-        attributeDescriptions[0].offset = offsetof(Vertex, pos);
-
-        attributeDescriptions[1].binding = 0;
-        attributeDescriptions[1].location = 1;
-        attributeDescriptions[1].format = vk::Format::eR32G32B32Sfloat;
-        attributeDescriptions[1].offset = offsetof(Vertex, color);
-
-        attributeDescriptions[2].binding = 0;
-        attributeDescriptions[2].location = 2;
-        attributeDescriptions[2].format = vk::Format::eR32G32B32Sfloat;
-        attributeDescriptions[2].offset = offsetof(Vertex, normal);
-
-        attributeDescriptions[3].binding = 0;
-        attributeDescriptions[3].location = 3;
-        attributeDescriptions[3].format = vk::Format::eR32G32Sfloat;
-        attributeDescriptions[3].offset = offsetof(Vertex, texcoord);
-
-        return attributeDescriptions;
-    }
-
-    //Vertex
-    vk::VertexInputBindingDescription Vertex::getBindingDescription()
-    {
-        vk::VertexInputBindingDescription bindingDescription = {};
-        bindingDescription.binding = 0;
-        bindingDescription.stride = sizeof(Vertex);
-        bindingDescription.inputRate = vk::VertexInputRate::eVertex;
-
-        return bindingDescription;
-    }
-
     void MeshBase::Create(std::string srResourcePath)
     {
         
@@ -54,9 +17,9 @@ namespace Engine
         ResourceBase::ReCreate();
     }
 
-    void MeshBase::Update(uint32_t imageIndex)
+    void MeshBase::Update(uint32_t imageIndex, std::unique_ptr<VulkanBuffer>& pUniformBuffer)
     {
-        ResourceBase::Update(imageIndex);
+        ResourceBase::Update(imageIndex, pUniformBuffer);
     }
 
     void MeshBase::Bind(vk::CommandBuffer commandBuffer, uint32_t imageIndex)
@@ -136,9 +99,9 @@ namespace Engine
         MeshBase::ReCreate();
     }
 
-    void StaticMesh::Update(uint32_t imageIndex)
+    void StaticMesh::Update(uint32_t imageIndex, std::unique_ptr<VulkanBuffer>& pUniformBuffer)
     {
-        MeshBase::Update(imageIndex);
+        MeshBase::Update(imageIndex, pUniformBuffer);
     }
 
     void StaticMesh::Bind(vk::CommandBuffer commandBuffer, uint32_t imageIndex)

@@ -1,5 +1,5 @@
 #include "InputMapper.h"
-#include "WindowHandle.h"
+#include "Renderer/WindowHandle.h"
 #include "EngineMath.hpp"
 
 namespace Engine
@@ -46,6 +46,7 @@ namespace Engine
 
     void InputMapper::MouseMovementInput(double xpos, double ypos, double xmax, double ymax)
     {
+        m_mAxisStates[EActionKey::eCursorOriginal] = {xpos, ypos};
         //Calculate on screen position
         fPosOld = m_mAxisStates[EActionKey::eCursorPos];
         m_mAxisStates[EActionKey::eCursorPos] = {Math::RangeToRange(xpos, 0.0, xmax, -1.0, 1.0), Math::RangeToRange(ypos, 0.0, ymax, -1.0, 1.0)};

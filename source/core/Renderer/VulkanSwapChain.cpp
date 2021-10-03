@@ -189,7 +189,7 @@ namespace Engine
     {
         vk::Format colorFormat = data.imageFormat;
 
-        device->CreateImage(data.MSAAImage, data.MSAAImageMemory, vk::Extent3D{data.extent, 0}, 1, 
+        device->CreateImage(data.MSAAImage, data.MSAAImageMemory, data.extent.width, data.extent.height, 1, 
         device->GetSamples(), colorFormat, vk::ImageTiling::eOptimal, 
         vk::ImageUsageFlagBits::eTransientAttachment | vk::ImageUsageFlagBits::eColorAttachment, 
         vk::MemoryPropertyFlagBits::eDeviceLocal);
@@ -204,7 +204,7 @@ namespace Engine
         vk::ImageTiling::eOptimal,
         vk::FormatFeatureFlagBits::eDepthStencilAttachment);
 
-        device->CreateImage(data.depthImage, data.depthImageMemory, vk::Extent3D{data.extent, 0}, 1,
+        device->CreateImage(data.depthImage, data.depthImageMemory, data.extent.width, data.extent.height, 1,
         device->GetSamples(), depthFormat, vk::ImageTiling::eOptimal, 
         vk::ImageUsageFlagBits::eDepthStencilAttachment,  vk::MemoryPropertyFlagBits::eDeviceLocal);
 

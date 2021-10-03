@@ -10,6 +10,7 @@ namespace Engine
     {
     public:
         void Create();
+        void ReCreate();
         void Destroy();
         void AttachObject(std::shared_ptr<RenderObject> object);
         void CreateObjects();

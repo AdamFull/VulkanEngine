@@ -18,9 +18,9 @@ namespace Engine
         ResourceBase::ReCreate();
     }
 
-    void TextureBase::Update(uint32_t imageIndex)
+    void TextureBase::Update(uint32_t imageIndex, std::unique_ptr<VulkanBuffer>& pUniformBuffer)
     {
-        ResourceBase::Update(imageIndex);
+        ResourceBase::Update(imageIndex, pUniformBuffer);
         UpdateDescriptor();
     }
 
@@ -51,7 +51,7 @@ namespace Engine
 		descriptor.imageLayout = imageLayout;
     }
 
-    void TextureBase::GenerateMipmaps(vk::Image &image, uint32_t mipLevels, vk::Format format, vk::Extent3D sizes, vk::ImageAspectFlags aspectFlags)
+    void TextureBase::GenerateMipmaps(vk::Image &image, uint32_t mipLevels, vk::Format format, uint32_t width, uint32_t height, vk::ImageAspectFlags aspectFlags)
     {
         vk::FormatProperties formatProperties;
         UDevice->GetPhysical().getFormatProperties(format, &formatProperties);
@@ -72,8 +72,8 @@ namespace Engine
         barrier.subresourceRange.layerCount = 1;
         barrier.subresourceRange.levelCount = 1;
 
-        int32_t mipWidth = sizes.width;
-        int32_t mipHeight = sizes.height;
+        int32_t mipWidth = width;
+        int32_t mipHeight = height;
 
         for (uint32_t i = 1; i < mipLevels; i++) 
         {
@@ -153,9 +153,9 @@ namespace Engine
         TextureBase::ReCreate();
     }
 
-    void Texture2D::Update(uint32_t imageIndex)
+    void Texture2D::Update(uint32_t imageIndex, std::unique_ptr<VulkanBuffer>& pUniformBuffer)
     {
-        TextureBase::Update(imageIndex);
+        TextureBase::Update(imageIndex, pUniformBuffer);
     }
 
     void Texture2D::Bind(vk::CommandBuffer commandBuffer, uint32_t imageIndex)
@@ -183,32 +183,42 @@ namespace Engine
             //TODO: check result
         }
 
-        width = static_cast<uint32_t>(w);
-        height = static_cast<uint32_t>(h);
-        channels = static_cast<uint32_t>(c);
-        mipLevels = static_cast<uint32_t>(std::floor(std::log2(std::max(width, height)))) + 1;
+        uint32_t mips = static_cast<uint32_t>(std::floor(std::log2(std::max(width, height)))) + 1;
 
-        vk::DeviceSize imgSize = width * height * 4;
-        auto compiledSize = vk::Extent3D{width, height, channels};
-
-        VulkanBuffer stagingBuffer;
-        stagingBuffer.Create(UDevice, imgSize, 1, vk::BufferUsageFlagBits::eTransferSrc, vk::MemoryPropertyFlagBits::eHostVisible | vk::MemoryPropertyFlagBits::eHostCoherent);
-        stagingBuffer.MapMem(UDevice);
-        stagingBuffer.Write(UDevice, raw_data);
+        Load(raw_data, w, h, c, mips, vk::Format::eR8G8B8A8Srgb);
 
         stbi_image_free(raw_data);
+    }
 
-        UDevice->CreateImage(image, deviceMemory, compiledSize, mipLevels, vk::SampleCountFlagBits::e1, vk::Format::eR8G8B8A8Srgb, 
+    void Texture2D::Load(unsigned char* data, uint32_t iwidth, uint32_t iheight, uint32_t ichannels, uint32_t imipLevels, vk::Format imageFormat)
+    {
+        width = iwidth;
+        height = iheight;
+        channels = ichannels;
+        mipLevels = imipLevels;
+
+        vk::DeviceSize imgSize = width * height * 4;
+
+        auto physProps = UDevice->GetPhysical().getProperties();
+        auto minOffsetAllignment = std::lcm(physProps.limits.minUniformBufferOffsetAlignment, physProps.limits.nonCoherentAtomSize);
+
+        VulkanBuffer stagingBuffer;
+        stagingBuffer.Create(UDevice, imgSize, 1, vk::BufferUsageFlagBits::eTransferSrc, vk::MemoryPropertyFlagBits::eHostVisible | vk::MemoryPropertyFlagBits::eHostCoherent, minOffsetAllignment);
+        stagingBuffer.MapMem(UDevice);
+        stagingBuffer.Write(UDevice, (void*)data);
+
+        UDevice->CreateImage(image, deviceMemory, width, height, mipLevels, vk::SampleCountFlagBits::e1, imageFormat, 
                     vk::ImageTiling::eOptimal, vk::ImageUsageFlagBits::eTransferSrc | vk::ImageUsageFlagBits::eTransferDst | 
                     vk::ImageUsageFlagBits::eSampled, vk::MemoryPropertyFlagBits::eDeviceLocal);
 
         UDevice->TransitionImageLayout(image, mipLevels, vk::ImageAspectFlagBits::eColor, vk::ImageLayout::eUndefined, vk::ImageLayout::eTransferDstOptimal);
-        UDevice->CopyBufferToImage(stagingBuffer.GetBuffer(), image, compiledSize);
-        GenerateMipmaps(image, mipLevels, vk::Format::eR8G8B8A8Srgb, compiledSize, vk::ImageAspectFlagBits::eColor);
+        UDevice->CopyBufferToImage(stagingBuffer.GetBuffer(), image, width, height);
+        GenerateMipmaps(image, mipLevels, imageFormat, width, height, vk::ImageAspectFlagBits::eColor);
+        //UDevice->TransitionImageLayout(image, mipLevels, vk::ImageAspectFlagBits::eColor, vk::ImageLayout::eUndefined, vk::ImageLayout::eShaderReadOnlyOptimal);
 
         stagingBuffer.Destroy(UDevice);
 
-        view = UDevice->CreateImageView(image, mipLevels, vk::Format::eR8G8B8A8Srgb, vk::ImageAspectFlagBits::eColor);
+        view = UDevice->CreateImageView(image, mipLevels, imageFormat, vk::ImageAspectFlagBits::eColor);
 
         UDevice->CreateSampler(sampler, mipLevels);
         imageLayout = vk::ImageLayout::eShaderReadOnlyOptimal;
@@ -227,9 +237,9 @@ namespace Engine
         TextureBase::ReCreate();
     }
 
-    void TextureCubemap::Update(uint32_t imageIndex)
+    void TextureCubemap::Update(uint32_t imageIndex, std::unique_ptr<VulkanBuffer>& pUniformBuffer)
     {
-        TextureBase::Update(imageIndex);
+        TextureBase::Update(imageIndex, pUniformBuffer);
     }
 
     void TextureCubemap::Bind(vk::CommandBuffer commandBuffer, uint32_t imageIndex)

@@ -4,7 +4,7 @@
 #include "Camera/Camera.h"
 #include "Camera/CameraManager.h"
 #include "Resources/Textures/VulkanTexture.h"
-#include "Resources/Materials/VulkanMaterial.h"
+#include "Resources/Materials/MaterialDiffuse.h"
 #include "Resources/Meshes/VulkanMesh.h"
 #include "Objects/Components/StaticMeshComponent.h"
 
@@ -93,7 +93,7 @@ namespace Engine
     void Application::run()
     {
         m_pRenderScene->CreateObjects();
-        float delta_time{0.0f};
+        float delta_time{0.001f};
         while(!UWinHandle->IsShouldClose())
         {
             auto startTime = std::chrono::high_resolution_clock::now();

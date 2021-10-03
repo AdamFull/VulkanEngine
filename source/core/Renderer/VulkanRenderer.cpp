@@ -73,6 +73,18 @@ namespace Engine
         renderPassInfo.pClearValues = clearValues.data();
 
         commandBuffer.beginRenderPass(renderPassInfo, vk::SubpassContents::eInline);
+
+        vk::Viewport viewport{};
+        viewport.x = 0.0f;
+        viewport.y = 0.0f;
+        viewport.width = static_cast<float>(swapchain->GetExtent().width);
+        viewport.height = static_cast<float>(swapchain->GetExtent().height);
+        viewport.minDepth = 0.0f;
+        viewport.maxDepth = 1.0f;
+        vk::Rect2D scissor{{0, 0}, swapchain->GetExtent()};
+
+        commandBuffer.setViewport(0, 1, &viewport);
+        commandBuffer.setScissor(0, 1, &scissor);
     }
 
     void Renderer::EndRender(vk::CommandBuffer commandBuffer, std::unique_ptr<SwapChain>& swapchain)

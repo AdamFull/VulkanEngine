@@ -1,13 +1,30 @@
 #include "PipelineConfig.h"
-#include "WindowHandle.h"
+#include "Renderer/WindowHandle.h"
+#include "Renderer/DataTypes/VulkanVertex.hpp"
 
 namespace Engine
 {
-    FPipelineCreateInfo PipelineConfig::CreatePipelineConfig(vk::PrimitiveTopology topology, vk::PolygonMode polygonMode, 
+    FPipelineCreateInfo PipelineConfig::CreatePipelineConfig(EPipelineType eType, EShaderSet eSet,
+                                                             vk::PrimitiveTopology topology, vk::PolygonMode polygonMode, 
                                                              vk::CullModeFlags cullMode, vk::FrontFace fontFace, 
-                                                             vk::SampleCountFlagBits samples, vk::PipelineLayout pipelineLayout)
+                                                             vk::SampleCountFlagBits samples, vk::PipelineLayout pipelineLayout,
+                                                             vk::PipelineCache pipelineCache)
     {
         FPipelineCreateInfo createInfo{};
+
+        switch(eSet)
+        {
+            case EShaderSet::eUI:
+            {
+                createInfo.vertexInputDesc = VertexUI::getBindingDescription();
+                createInfo.vertexAtribDesc = VertexUI::getAttributeDescriptions();
+            }break;
+            case EShaderSet::eDiffuse:
+            {
+                createInfo.vertexInputDesc = Vertex::getBindingDescription();
+                createInfo.vertexAtribDesc = Vertex::getAttributeDescriptions();
+            }break;
+        }
 
         createInfo.inputAssembly.topology = topology;
         createInfo.inputAssembly.primitiveRestartEnable = VK_FALSE;
@@ -50,24 +67,33 @@ namespace Engine
         createInfo.depthStencil.depthCompareOp = vk::CompareOp::eLess;
         createInfo.depthStencil.depthBoundsTestEnable = VK_FALSE;
         createInfo.depthStencil.stencilTestEnable = VK_FALSE;
+        
+        createInfo.dynamicStateEnables = {vk::DynamicState::eViewport, vk::DynamicState::eScissor};
+        createInfo.dynamicStateInfo.pDynamicStates = createInfo.dynamicStateEnables.data();
+        createInfo.dynamicStateInfo.dynamicStateCount = static_cast<uint32_t>(createInfo.dynamicStateEnables.size());
+        createInfo.dynamicStateInfo.flags = vk::PipelineDynamicStateCreateFlags{};
 
         createInfo.pipelineLayout = pipelineLayout;
+        createInfo.pipelineCache = pipelineCache;
+
+        createInfo.eType = eType;
+        createInfo.eSet = eSet;
 
         return createInfo;
     }
 
-    FPipelineCreateInfo PipelineConfig::CreateDefaultPipelineConfig(vk::SampleCountFlagBits samples, vk::PipelineLayout pipelineLayout)
+    FPipelineCreateInfo PipelineConfig::CreateDefaultPipelineConfig(EPipelineType eType, EShaderSet eSet,vk::SampleCountFlagBits samples, vk::PipelineLayout pipelineLayout, vk::PipelineCache pipelineCache)
     {
-        FPipelineCreateInfo createInfo = CreatePipelineConfig(vk::PrimitiveTopology::eTriangleList, vk::PolygonMode::eFill,
-                                    vk::CullModeFlagBits::eBack, vk::FrontFace::eCounterClockwise, samples, pipelineLayout);
+        FPipelineCreateInfo createInfo = CreatePipelineConfig(eType, eSet, vk::PrimitiveTopology::eTriangleList, vk::PolygonMode::eFill,
+                                    vk::CullModeFlagBits::eBack, vk::FrontFace::eCounterClockwise, samples, pipelineLayout, pipelineCache);
         createInfo.bindPoint = vk::PipelineBindPoint::eGraphics;
         return createInfo;
     }
 
-    FPipelineCreateInfo PipelineConfig::CreateDefaultDebugPipelineConfig(vk::SampleCountFlagBits samples, vk::PipelineLayout pipelineLayout)
+    FPipelineCreateInfo PipelineConfig::CreateDefaultDebugPipelineConfig(EPipelineType eType, EShaderSet eSet,vk::SampleCountFlagBits samples, vk::PipelineLayout pipelineLayout, vk::PipelineCache pipelineCache)
     {
-        FPipelineCreateInfo createInfo = CreatePipelineConfig(vk::PrimitiveTopology::eTriangleList, vk::PolygonMode::eLine,
-                                    vk::CullModeFlagBits::eBack, vk::FrontFace::eCounterClockwise, samples, pipelineLayout);
+        FPipelineCreateInfo createInfo = CreatePipelineConfig(eType, eSet, vk::PrimitiveTopology::eTriangleList, vk::PolygonMode::eLine,
+                                    vk::CullModeFlagBits::eBack, vk::FrontFace::eCounterClockwise, samples, pipelineLayout, pipelineCache);
         createInfo.bindPoint = vk::PipelineBindPoint::eGraphics;
         return createInfo;
     }

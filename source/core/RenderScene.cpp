@@ -5,6 +5,7 @@
 #include "Renderer/VulkanRenderer.h"
 #include "Renderer/VulkanBuffer.h"
 #include "Renderer/VulkanHighLevel.h"
+#include "KeyMapping/InputMapper.h"
 
 namespace Engine
 {
@@ -12,7 +13,20 @@ namespace Engine
     {
         m_pRoot = std::make_shared<SceneRootComponent>();
         m_pOvelray = std::make_unique<ImguiOverlay>();
-        m_pOvelray->Create(UWinHandle, UDevice, USwapChain);
+        m_pOvelray->Create(UDevice, USwapChain);
+
+        InputMapper::GetInstance()->CreateAction("OverlayMouse", EActionKey::eMouseLeft, EActionKey::eMouseRight);
+        InputMapper::GetInstance()->CreateAction("OverlayMousePosition", EActionKey::eCursorOriginal);
+        InputMapper::GetInstance()->BindAction("OverlayMouse", EKeyState::ePressed, m_pOvelray.get(), &ImguiOverlay::ProcessKeys);
+        InputMapper::GetInstance()->BindAxis("OverlayMousePosition", m_pOvelray.get(), &ImguiOverlay::ProcessCursor);
+    }
+
+    void RenderScene::ReCreate()
+    {
+        m_pOvelray->Cleanup(UDevice);
+        m_pRoot->Cleanup();
+        m_pOvelray->ReCreate(UDevice, USwapChain);
+        m_pRoot->ReCreate();
     }
 
     void RenderScene::Destroy()
@@ -52,8 +66,7 @@ namespace Engine
         auto commandBuffer = UHLInstance->BeginFrame(&bResult);
         if(!bResult)
         {
-            m_pRoot->Cleanup();
-            m_pRoot->ReCreate();
+            ReCreate();
         }
 
         uint32_t currentFrame = URenderer->GetImageIndex();
@@ -67,23 +80,22 @@ namespace Engine
         ubo.lightPosition = camera->GetTransform().pos;
         UUniform->UpdateUniformBuffer(UDevice, currentFrame, ubo);
 
-        m_pOvelray->StartFrame();
+        m_pOvelray->NewFrame();
+        m_pOvelray->Update(UDevice, fDeltaTime);
 
         UHLInstance->BeginRender(commandBuffer);
 
         m_pRoot->Render(commandBuffer, currentFrame);
 
         //Imgui overlays (Demo)
-        m_pOvelray->ProcessInterface();
-        m_pOvelray->Render(commandBuffer);
+        m_pOvelray->DrawFrame(UDevice, commandBuffer, currentFrame);
 
         UHLInstance->EndRender(commandBuffer);
 
         UHLInstance->EndFrame(commandBuffer, &bResult);
         if(!bResult)
         {
-            m_pRoot->Cleanup();
-            m_pRoot->ReCreate();
+            ReCreate();
         }
     }
 }

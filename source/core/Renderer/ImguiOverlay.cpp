@@ -1,11 +1,12 @@
 #include "ImguiOverlay.h"
 #include "WindowHandle.h"
 #include "VulkanDevice.h"
+#include "VulkanBuffer.h"
+#include "Resources/Textures/VulkanTexture.h"
+#include "Resources/Materials/MaterialUI.h"
 #include "Camera/Camera.h"
 #include "Camera/CameraManager.h"
 #include "VulkanSwapChain.h"
-#include <imgui_impl_glfw.h>
-#include <imgui_impl_vulkan.h>
 
 static void check_vk_result(VkResult err) 
 {
@@ -16,90 +17,219 @@ static void check_vk_result(VkResult err)
 
 namespace Engine
 {
-    void ImguiOverlay::Create(std::unique_ptr<WindowHandle>& winhandle, std::unique_ptr<Device>& device, std::unique_ptr<SwapChain>& swapchain)
+    void ImguiOverlay::Create(std::unique_ptr<Device>& device, std::unique_ptr<SwapChain>& swapchain)
     {
-        vk::DescriptorPoolSize pool_sizes[] =
-        {
-            {vk::DescriptorType::eSampler, 1000},
-            {vk::DescriptorType::eCombinedImageSampler, 1000},
-            {vk::DescriptorType::eSampledImage, 1000},
-            {vk::DescriptorType::eStorageImage, 1000},
-            {vk::DescriptorType::eUniformTexelBuffer, 1000},
-            {vk::DescriptorType::eStorageTexelBuffer, 1000},
-            {vk::DescriptorType::eUniformBuffer, 1000},
-            {vk::DescriptorType::eStorageBuffer, 1000},
-            {vk::DescriptorType::eUniformBufferDynamic, 1000},
-            {vk::DescriptorType::eStorageBufferDynamic, 1000},
-            {vk::DescriptorType::eInputAttachment, 1000}
-        };
+        fontTexture = std::make_shared<Texture2D>();
+        fontMaterial = std::make_shared<MaterialUI>();
+        vertexBuffer = std::make_unique<VulkanBuffer>();
+        indexBuffer = std::make_unique<VulkanBuffer>();
+        m_pUniform = std::make_unique<UniformBuffer<FUniformDataUI>>();
 
-        vk::DescriptorPoolCreateInfo pool_info = {};
-        pool_info.flags = vk::DescriptorPoolCreateFlagBits::eFreeDescriptorSet;
-        pool_info.maxSets = 1000 * IM_ARRAYSIZE(pool_sizes);
-        pool_info.poolSizeCount = (uint32_t)IM_ARRAYSIZE(pool_sizes);
-        pool_info.pPoolSizes = pool_sizes;
-
-        m_descriptorPool = device->Make<vk::DescriptorPool, vk::DescriptorPoolCreateInfo>(pool_info);
-
-        // Setup Dear ImGui context
-        IMGUI_CHECKVERSION();
         ImGui::CreateContext();
-        ImGuiIO &io = ImGui::GetIO();
-        (void)io;
+        BaseInitialize();
+        m_pUniform->Create(device, swapchain->GetImages().size());
+        CreateResources(device, swapchain);
+    }
 
-        ImGui::StyleColorsDark();
+    void ImguiOverlay::ReCreate(std::unique_ptr<Device>& device, std::unique_ptr<SwapChain>& swapchain)
+    {
+        fontMaterial->ReCreate();
+        m_pUniform->ReCreate(device, swapchain->GetImages().size());
+    }
 
-        ImGui_ImplGlfw_InitForVulkan(winhandle->GetWindowInstance(), true);
-        ImGui_ImplVulkan_InitInfo init_info = {};
-        init_info.Instance = device->GetVkInstance().get();
-        init_info.PhysicalDevice = device->GetPhysical();
-        init_info.Device = device->GetLogical().get();
-        init_info.QueueFamily = device->FindQueueFamilies().graphicsFamily.value();
-        init_info.Queue = device->GetGraphicsQueue();
-        init_info.MSAASamples = (VkSampleCountFlagBits)device->GetSamples();
-        init_info.PipelineCache = VK_NULL_HANDLE;
-        init_info.DescriptorPool = m_descriptorPool;
-
-        init_info.Allocator = VK_NULL_HANDLE;
-        init_info.MinImageCount = 2;
-        init_info.ImageCount = swapchain->GetImages().size();
-        init_info.CheckVkResultFn = check_vk_result;
-        ImGui_ImplVulkan_Init(&init_info, swapchain->GetRenderPass());
-
-        auto commandBuffer = device->BeginSingleTimeCommands();
-        ImGui_ImplVulkan_CreateFontsTexture(commandBuffer);
-        device->EndSingleTimeCommands(commandBuffer);
-        ImGui_ImplVulkan_DestroyFontUploadObjects();
+    void ImguiOverlay::Cleanup(std::unique_ptr<Device>& device)
+    {
+        fontMaterial->Cleanup();
+        m_pUniform->Cleanup(device);
     }
 
     void ImguiOverlay::Destroy(std::unique_ptr<Device>& device)
     {
-        device->Destroy(m_descriptorPool);
-        ImGui_ImplVulkan_Shutdown();
-        ImGui_ImplGlfw_Shutdown();
         ImGui::DestroyContext();
+        fontMaterial->Destroy();
+        fontTexture->Destroy();
+        vertexBuffer->Destroy(device);
+        indexBuffer->Destroy(device);
+        m_pUniform->Cleanup(device);
     }
 
-    void ImguiOverlay::StartFrame()
+    void ImguiOverlay::BaseInitialize()
     {
-        ImGui_ImplVulkan_NewFrame();
-        ImGui_ImplGlfw_NewFrame();
+        // Color scheme
+		ImGuiStyle& style = ImGui::GetStyle();
+		style.Colors[ImGuiCol_TitleBg] = ImVec4(1.0f, 0.0f, 0.0f, 0.6f);
+		style.Colors[ImGuiCol_TitleBgActive] = ImVec4(1.0f, 0.0f, 0.0f, 0.8f);
+		style.Colors[ImGuiCol_MenuBarBg] = ImVec4(1.0f, 0.0f, 0.0f, 0.4f);
+		style.Colors[ImGuiCol_Header] = ImVec4(1.0f, 0.0f, 0.0f, 0.4f);
+		style.Colors[ImGuiCol_CheckMark] = ImVec4(0.0f, 1.0f, 0.0f, 1.0f);
+		// Dimensions
+		ImGuiIO& io = ImGui::GetIO();
+		io.DisplaySize = ImVec2(WindowHandle::m_iWidth, WindowHandle::m_iHeight);
+		io.DisplayFramebufferScale = ImVec2(1.0f, 1.0f);
+    }
+
+    void ImguiOverlay::CreateResources(std::unique_ptr<Device>& device, std::unique_ptr<SwapChain>& swapchain)
+    {
+        CreateFontResources(device);
+    }
+
+    void ImguiOverlay::CreateFontResources(std::unique_ptr<Device>& device)
+    {
+        ImGuiIO& io = ImGui::GetIO();
+
+		// Create font texture
+		unsigned char* fontData;
+		int texWidth, texHeight;
+		io.Fonts->GetTexDataAsRGBA32(&fontData, &texWidth, &texHeight);
+
+		fontTexture->Load(fontData, texWidth, texHeight, 4, 1, vk::Format::eR8G8B8A8Unorm);
+        fontMaterial->Create(fontTexture);
+    }
+
+    void ImguiOverlay::NewFrame()
+    {
         ImGui::NewFrame();
-    }
 
-    void ImguiOverlay::Render(vk::CommandBuffer commandBuffer)
-    {
-        ImGui::Render();
-        ImDrawData *drawdata = ImGui::GetDrawData();
-        ImGui_ImplVulkan_RenderDrawData(drawdata, commandBuffer);
-    }
-
-    void ImguiOverlay::ProcessInterface()
-    {
         //if (show_demo_window) ImGui::ShowDemoWindow(&show_demo_window);
 
         CreateDebugOverlay();
         CreateMenuBar();
+
+        ImGui::Render();
+    }
+
+    void ImguiOverlay::Update(std::unique_ptr<Device>& device, float deltaTime)
+    {
+        ImGuiIO& io = ImGui::GetIO();
+
+        io.DisplaySize = ImVec2((float)WindowHandle::m_iWidth, (float)WindowHandle::m_iHeight);
+        io.DeltaTime = deltaTime;
+
+		io.MouseDown[0] = false;
+		io.MouseDown[1] = false;
+
+
+
+        ImDrawData *drawdata = ImGui::GetDrawData();
+        vk::DeviceSize vertexBufferSize = drawdata->TotalVtxCount * sizeof(ImDrawVert);
+		vk::DeviceSize indexBufferSize = drawdata->TotalIdxCount * sizeof(ImDrawIdx);
+
+		if ((vertexBufferSize == 0) || (indexBufferSize == 0)) 
+        {
+			return;
+		}
+
+		// Update buffers only if vertex or index count has been changed compared to current buffer size
+        auto physProps = device->GetPhysical().getProperties();
+        auto minOffsetAllignment = std::lcm(physProps.limits.minUniformBufferOffsetAlignment, physProps.limits.nonCoherentAtomSize);
+		// Vertex buffer
+		if (!vertexBuffer->GetBuffer() || !vertexBuffer->GetMappedMemory()) 
+        {
+			vertexBuffer->UnmapMem(device);
+			vertexBuffer->Destroy(device);
+            vertexBuffer->Create(device, sizeof(ImDrawVert), drawdata->TotalVtxCount, vk::BufferUsageFlagBits::eVertexBuffer, vk::MemoryPropertyFlagBits::eHostVisible, minOffsetAllignment);
+			vertexBuffer->MapMem(device);
+		}
+
+		// Index buffer
+		if (!indexBuffer->GetBuffer() || !indexBuffer->GetMappedMemory()) 
+        {
+			indexBuffer->UnmapMem(device);
+			indexBuffer->Destroy(device);
+            indexBuffer->Create(device, sizeof(ImDrawIdx), drawdata->TotalIdxCount, vk::BufferUsageFlagBits::eIndexBuffer, vk::MemoryPropertyFlagBits::eHostVisible, minOffsetAllignment);
+			indexBuffer->MapMem(device);
+		}
+
+		// Upload data
+		ImDrawVert* vtxDst = (ImDrawVert*)vertexBuffer->GetMappedMemory();
+		ImDrawIdx* idxDst = (ImDrawIdx*)indexBuffer->GetMappedMemory();
+
+		for (int n = 0; n < drawdata->CmdListsCount; n++) 
+        {
+			const ImDrawList* cmd_list = drawdata->CmdLists[n];
+			memcpy(vtxDst, cmd_list->VtxBuffer.Data, cmd_list->VtxBuffer.Size * sizeof(ImDrawVert));
+			memcpy(idxDst, cmd_list->IdxBuffer.Data, cmd_list->IdxBuffer.Size * sizeof(ImDrawIdx));
+			vtxDst += cmd_list->VtxBuffer.Size;
+			idxDst += cmd_list->IdxBuffer.Size;
+		}
+
+		// Flush to make writes visible to GPU
+		vertexBuffer->Flush(device);
+		indexBuffer->Flush(device);
+    }
+
+    void ImguiOverlay::DrawFrame(std::unique_ptr<Device>& device, vk::CommandBuffer commandBuffer, uint32_t index)
+    {
+        ImGuiIO& io = ImGui::GetIO();
+
+        fontMaterial->Update(index, m_pUniform->GetUniformBuffer(index));
+		fontMaterial->Bind(commandBuffer, index);
+        
+		vk::Viewport viewport{};
+        viewport.width = ImGui::GetIO().DisplaySize.x;
+        viewport.height = ImGui::GetIO().DisplaySize.y;
+        viewport.minDepth = 0.0f;
+        viewport.maxDepth = 1.0f;
+        commandBuffer.setViewport(0, 1, &viewport);
+
+        FUniformDataUI ubo{};
+        ubo.scale =  glm::vec2(2.0f / io.DisplaySize.x, 2.0f / io.DisplaySize.y);
+        ubo.translate = glm::vec2(-1.0f);
+        m_pUniform->UpdateUniformBuffer(device, index, ubo);
+
+		// Render commands
+		ImDrawData* imDrawData = ImGui::GetDrawData();
+		int32_t vertexOffset = 0;
+		int32_t indexOffset = 0;
+
+		if (imDrawData->CmdListsCount > 0) 
+        {
+
+			vk::DeviceSize offsets[1] = { 0 };
+            commandBuffer.bindVertexBuffers(0, 1, &vertexBuffer->GetBuffer(), offsets);
+            commandBuffer.bindIndexBuffer(indexBuffer->GetBuffer(), 0, vk::IndexType::eUint16);
+
+			for (int32_t i = 0; i < imDrawData->CmdListsCount; i++)
+			{
+				const ImDrawList* cmd_list = imDrawData->CmdLists[i];
+				for (int32_t j = 0; j < cmd_list->CmdBuffer.Size; j++)
+				{
+					const ImDrawCmd* pcmd = &cmd_list->CmdBuffer[j];
+					vk::Rect2D scissorRect;
+					scissorRect.offset.x = std::max((int32_t)(pcmd->ClipRect.x), 0);
+					scissorRect.offset.y = std::max((int32_t)(pcmd->ClipRect.y), 0);
+					scissorRect.extent.width = (uint32_t)(pcmd->ClipRect.z - pcmd->ClipRect.x);
+					scissorRect.extent.height = (uint32_t)(pcmd->ClipRect.w - pcmd->ClipRect.y);
+                    commandBuffer.setScissor(0, 1, &scissorRect);
+                    commandBuffer.drawIndexed(pcmd->ElemCount, 1, indexOffset, vertexOffset, 0);
+					indexOffset += pcmd->ElemCount;
+				}
+				vertexOffset += cmd_list->VtxBuffer.Size;
+			}
+		}
+    }
+
+    void ImguiOverlay::ProcessKeys(EActionKey eKey)
+    {
+        ImGuiIO& io = ImGui::GetIO();
+
+        switch (eKey)
+        {
+            case EActionKey::eMouseLeft:
+            {
+                io.MouseDown[0] = true;
+            }break;
+            case EActionKey::eMouseRight:
+            {
+                io.MouseDown[1] = true;
+            }break;
+        }
+    }
+
+    void ImguiOverlay::ProcessCursor(float fX, float fY)
+    {
+        ImGuiIO& io = ImGui::GetIO();
+        io.MousePos = ImVec2(fX, fY);
     }
 
     void ImguiOverlay::CreateDebugOverlay()

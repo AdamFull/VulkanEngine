@@ -16,10 +16,22 @@ namespace Engine
         return EPipelineType::eNone;
     }*/
 
-    std::map<vk::ShaderStageFlagBits, std::string> PipelineFactory::vDiffuse
+    std::map<EShaderSet, std::map<vk::ShaderStageFlagBits, std::string>> PipelineFactory::mShaderSets
     {
-        {vk::ShaderStageFlagBits::eVertex, "../../assets/shaders/vert.spv"},
-        {vk::ShaderStageFlagBits::eFragment, "../../assets/shaders/frag.spv"}
+        {
+            EShaderSet::eUI,
+            {
+                {vk::ShaderStageFlagBits::eVertex, "../../assets/shaders/ui_vert.spv"},
+                {vk::ShaderStageFlagBits::eFragment, "../../assets/shaders/ui_frag.spv"}
+            }
+        },
+        {
+            EShaderSet::eDiffuse,
+            {
+                {vk::ShaderStageFlagBits::eVertex, "../../assets/shaders/diffuse_vert.spv"},
+                {vk::ShaderStageFlagBits::eFragment, "../../assets/shaders/diffuse_frag.spv"}
+            }
+        }
     };
 
     std::map<EPipelineType, std::function<PipelineFactory::signature>> PipelineFactory::m_mFactory =
@@ -28,15 +40,15 @@ namespace Engine
             [](FPipelineCreateInfo createInfo, std::unique_ptr<Device>& device, std::unique_ptr<SwapChain>& swapchain)
             {
                 auto pipeline = std::make_unique<GraphicsPipeline>();
-                pipeline->LoadShader(device, vDiffuse);
+                pipeline->LoadShader(device, mShaderSets[createInfo.eSet]);
                 pipeline->Create(createInfo, device, swapchain);
                 return pipeline;
             }
         }
     };
 
-    std::unique_ptr<PipelineBase> PipelineFactory::CreatePipeline(FPipelineCreateInfo createInfo, std::unique_ptr<Device>& device, std::unique_ptr<SwapChain>& swapchain, EPipelineType eType)
+    std::unique_ptr<PipelineBase> PipelineFactory::CreatePipeline(FPipelineCreateInfo createInfo, std::unique_ptr<Device>& device, std::unique_ptr<SwapChain>& swapchain)
     {
-        return m_mFactory[eType](createInfo, device, swapchain);
+        return m_mFactory[createInfo.eType](createInfo, device, swapchain);
     }
 }

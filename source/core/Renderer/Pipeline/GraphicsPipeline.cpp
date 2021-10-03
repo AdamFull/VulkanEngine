@@ -18,13 +18,10 @@ namespace Engine
         vertexInputInfo.vertexBindingDescriptionCount = 0;
         vertexInputInfo.vertexAttributeDescriptionCount = 0;
 
-        auto bindingDescription = Vertex::getBindingDescription();
-        auto attributeDescriptions = Vertex::getAttributeDescriptions();
-
         vertexInputInfo.vertexBindingDescriptionCount = 1;
-        vertexInputInfo.vertexAttributeDescriptionCount = static_cast<uint32_t>(attributeDescriptions.size());
-        vertexInputInfo.pVertexBindingDescriptions = &bindingDescription;
-        vertexInputInfo.pVertexAttributeDescriptions = attributeDescriptions.data();
+        vertexInputInfo.vertexAttributeDescriptionCount = static_cast<uint32_t>(savedInfo.vertexAtribDesc.size());
+        vertexInputInfo.pVertexBindingDescriptions = &savedInfo.vertexInputDesc;
+        vertexInputInfo.pVertexAttributeDescriptions = savedInfo.vertexAtribDesc.data();
 
         vk::PipelineViewportStateCreateInfo viewportState{};
         viewportState.viewportCount = 1;
@@ -48,8 +45,9 @@ namespace Engine
         pipelineInfo.renderPass = swapchain->GetRenderPass();
         pipelineInfo.subpass = 0;
         pipelineInfo.basePipelineHandle = nullptr;
+        pipelineInfo.pDynamicState = &savedInfo.dynamicStateInfo;
 
-        data.pipeline = device->Make<vk::Pipeline, vk::GraphicsPipelineCreateInfo>(pipelineInfo);
+        device->GetLogical()->createGraphicsPipelines(savedInfo.pipelineCache, 1, &pipelineInfo, nullptr, &data.pipeline);
         assert(data.pipeline && "Failed creating pipeline.");
     }
 

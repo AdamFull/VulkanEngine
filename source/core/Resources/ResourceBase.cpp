@@ -7,7 +7,7 @@ namespace Engine
 
     }
     
-    void ResourceBase::Update(uint32_t imageIndex)
+    void ResourceBase::Update(uint32_t imageIndex, std::unique_ptr<VulkanBuffer>& pUniformBuffer)
     {
 
     }

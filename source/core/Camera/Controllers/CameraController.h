@@ -1,11 +1,10 @@
 #pragma once
-#include "core/KeyMapping/KeycodeConfig.h"
+#include "KeyMapping/KeycodeConfig.h"
 
 namespace Engine
 {
     class Device;
     class SwapChain;
-    class UniformBuffer;
 
     class CameraController
     {

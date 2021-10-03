@@ -68,10 +68,10 @@ namespace Engine
         void EndSingleTimeCommands(vk::CommandBuffer commandBuffer);
 
         /*****************************************Image work helpers*****************************************/
-        void CreateImage(vk::Image& image, vk::DeviceMemory& memory, vk::Extent3D size, uint32_t mip_levels, vk::SampleCountFlagBits num_samples, 
+        void CreateImage(vk::Image& image, vk::DeviceMemory& memory, uint32_t width, uint32_t height, uint32_t mip_levels, vk::SampleCountFlagBits num_samples, 
                                       vk::Format format, vk::ImageTiling tiling, vk::ImageUsageFlags usage, vk::MemoryPropertyFlags properties);
         void TransitionImageLayout(vk::Image& image, uint32_t mip_levels, vk::ImageAspectFlags aspectFlags, vk::ImageLayout oldLayout, vk::ImageLayout newLayout);
-        void CopyBufferToImage(vk::Buffer& buffer, vk::Image& image, vk::Extent3D sizes);
+        void CopyBufferToImage(vk::Buffer& buffer, vk::Image& image, uint32_t width, uint32_t height);
         vk::ImageView CreateImageView(vk::Image& pImage, uint32_t mip_levels, vk::Format eFormat, vk::ImageAspectFlags aspectFlags);
         void CreateSampler(vk::Sampler& sampler, uint32_t mip_levels);
 
@@ -114,6 +114,7 @@ namespace Engine
         template<> void Destroy(vk::SwapchainKHR& instance) { data.logical->destroySwapchainKHR(instance); }
         template<> void Destroy(vk::Pipeline& instance) { data.logical->destroyPipeline(instance); }
         template<> void Destroy(vk::PipelineLayout& instance) { data.logical->destroyPipelineLayout(instance); }
+        template<> void Destroy(vk::PipelineCache& instance) { data.logical->destroyPipelineCache(instance); }
         template<> void Destroy(vk::ShaderModule& instance) { data.logical->destroyShaderModule(instance); }
         template<> void Destroy(std::vector<vk::CommandBuffer, std::allocator<vk::CommandBuffer>>& instance) { data.logical->freeCommandBuffers(data.commandPool, instance); }
         template<> void Destroy(vk::CommandPool& instance) { data.logical->destroyCommandPool(instance); }

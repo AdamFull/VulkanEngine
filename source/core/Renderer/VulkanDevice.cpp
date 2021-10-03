@@ -333,14 +333,14 @@ namespace Engine
     }
 
     /*****************************************Image work helpers*****************************************/
-    void Device::CreateImage(vk::Image& image, vk::DeviceMemory& memory, vk::Extent3D size, uint32_t mip_levels, vk::SampleCountFlagBits num_samples, 
+    void Device::CreateImage(vk::Image& image, vk::DeviceMemory& memory, uint32_t width, uint32_t height, uint32_t mip_levels, vk::SampleCountFlagBits num_samples, 
                                       vk::Format format, vk::ImageTiling tiling, vk::ImageUsageFlags usage, vk::MemoryPropertyFlags properties)
     {
         assert(data.logical && "Cannot create image, cause logical device is not valid.");
         vk::ImageCreateInfo imageInfo{};
         imageInfo.imageType = vk::ImageType::e2D;
-        imageInfo.extent.width = static_cast<uint32_t>(size.width);
-        imageInfo.extent.height = static_cast<uint32_t>(size.height);
+        imageInfo.extent.width = width;
+        imageInfo.extent.height = height;
         imageInfo.extent.depth = 1;
         imageInfo.mipLevels = mip_levels;
         imageInfo.arrayLayers = 1;
@@ -351,7 +351,6 @@ namespace Engine
         imageInfo.sharingMode = vk::SharingMode::eExclusive;
         imageInfo.samples = num_samples;
 
-        //TODO: Check valid
         image = data.logical->createImage(imageInfo, nullptr);
         assert(image && "Image was not created");
 
@@ -425,7 +424,7 @@ namespace Engine
         EndSingleTimeCommands(commandBuffer);
     }
 
-    void Device::CopyBufferToImage(vk::Buffer& buffer, vk::Image& image, vk::Extent3D sizes)
+    void Device::CopyBufferToImage(vk::Buffer& buffer, vk::Image& image, uint32_t width, uint32_t height)
     {
         vk::CommandBuffer commandBuffer = BeginSingleTimeCommands();
 
@@ -442,8 +441,8 @@ namespace Engine
         region.imageOffset = vk::Offset3D{0, 0, 0};
         region.imageExtent = vk::Extent3D
         {
-            static_cast<uint32_t>(sizes.width),
-            static_cast<uint32_t>(sizes.height),
+            width,
+            height,
             1
         };
 

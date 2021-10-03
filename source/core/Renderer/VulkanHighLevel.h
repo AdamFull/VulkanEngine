@@ -1,5 +1,6 @@
 #pragma once
 #include "WindowHandle.h"
+#include "VulkanUniform.h"
 
 #define UHLInstance Engine::VulkanHighLevel::GetInstance()
 #define UWinHandle UHLInstance->GetWinHandle()
@@ -12,7 +13,6 @@ namespace Engine
 {
     class Device;
     class SwapChain;
-    class UniformBuffer;
     class VulkanBuffer;
     class Renderer;
 
@@ -58,7 +58,7 @@ namespace Engine
         inline std::unique_ptr<WindowHandle>& GetWinHandle() { return m_pWinHandle; }
         inline std::unique_ptr<Device>& GetDevice() { return m_pDevice; }
         inline std::unique_ptr<SwapChain>& GetSwapChain() { return m_pSwapChain; }
-        inline std::unique_ptr<UniformBuffer>&  GetUniformBuffer() { return m_pUniform; }
+        inline std::unique_ptr<UniformBuffer<FUniformData>>&  GetUniformBuffer() { return m_pUniform; }
         inline std::unique_ptr<Renderer>&  GetRenderer() { return m_pRenderer; }
     private:
         void RecreateSwapChain();
@@ -72,7 +72,7 @@ namespace Engine
         std::unique_ptr<SwapChain> m_pSwapChain;
 
         //Descriptors
-        std::unique_ptr<UniformBuffer> m_pUniform;
+        std::unique_ptr<UniformBuffer<FUniformData>> m_pUniform;
 
         std::unique_ptr<Renderer> m_pRenderer;
     };

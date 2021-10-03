@@ -27,10 +27,10 @@ namespace Engine
     void StaticMeshComponent::Render(vk::CommandBuffer& commandBuffer, uint32_t imageIndex)
     {
         RenderObject::Render(commandBuffer, imageIndex);
-        m_pMaterial->Update(imageIndex);
+        m_pMaterial->Update(imageIndex, UUniform->GetUniformBuffer(imageIndex));
         m_pMaterial->Bind(commandBuffer, imageIndex);
 
-        m_pStaticMesh->Update(imageIndex);
+        m_pStaticMesh->Update(imageIndex, UUniform->GetUniformBuffer(imageIndex));
         m_pStaticMesh->Bind(commandBuffer, imageIndex);
     }
 

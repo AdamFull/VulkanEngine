@@ -12,20 +12,25 @@ namespace Engine
 {
     void Application::Create()
     {
-        m_pWindow = std::make_unique<WindowHandle>();
-        m_pWindow->Create(1920, 1080, "Vulkan");
-
-        
         InputMapper::GetInstance()->CreateAction("ServiceHandles", EActionKey::eEscape, EActionKey::eF1);
         InputMapper::GetInstance()->BindAction("ServiceHandles", EKeyState::eRelease, this, &Application::ServiceHandle);
 
-        UHLInstance->Create(m_pWindow, "Vulkan", VK_MAKE_VERSION(1, 0, 0), "GENGINE", VK_MAKE_VERSION(1, 0, 0), VK_API_VERSION_1_0);
+        FEngineCreateInfo createInfo;
+        createInfo.window.width = 1920;
+        createInfo.window.height = 1080;
+        createInfo.window.name = "Vulkan";
+        createInfo.appName = "Vulkan";
+        createInfo.apiVersion = VK_MAKE_VERSION(1, 0, 0);
+        createInfo.engineName = "IncenerateEngine";
+        createInfo.engineVersion = VK_MAKE_VERSION(1, 0, 0);
+        createInfo.apiVersion = VK_API_VERSION_1_0;
+        UHLInstance->Create(createInfo);
 
         m_pCameraController = std::make_unique<CameraEditorController>();
         m_pCameraController->Create();
 
         m_pRenderScene = std::make_unique<RenderScene>();
-        m_pRenderScene->Create(m_pWindow);
+        m_pRenderScene->Create();
 
         /*auto material = std::make_shared<MaterialDiffuse>();
         material->Create(texture);
@@ -93,11 +98,11 @@ namespace Engine
     {
         m_pRenderScene->CreateObjects();
         float delta_time{0.0f};
-        while(!m_pWindow->IsShouldClose())
+        while(!UWinHandle->IsShouldClose())
         {
             auto startTime = std::chrono::high_resolution_clock::now();
 
-            m_pWindow->PollEvents();
+            UWinHandle->PollEvents();
             m_pCameraController->Update(delta_time);
 
             m_pRenderScene->Render(delta_time);

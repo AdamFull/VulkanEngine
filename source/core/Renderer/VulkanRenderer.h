@@ -15,6 +15,12 @@ namespace Engine
     class Renderer
     {
     public:
+        Renderer() = default;
+        Renderer(const Renderer&) = delete;
+        void operator=(const Renderer&) = delete;
+        Renderer(Renderer&&) = delete;
+        Renderer& operator=(Renderer&&) = delete;
+
         void Create(std::unique_ptr<Device>& device, std::unique_ptr<SwapChain>& swapchain);
 
         void ReCreate(std::unique_ptr<Device>& device, std::unique_ptr<SwapChain>& swapchain);

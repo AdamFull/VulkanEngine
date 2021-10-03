@@ -21,6 +21,12 @@ namespace Engine
     class VulkanBuffer
     {
     public:
+        VulkanBuffer() = default;
+        VulkanBuffer(const VulkanBuffer&) = delete;
+        void operator=(const VulkanBuffer&) = delete;
+        VulkanBuffer(VulkanBuffer&&) = delete;
+        VulkanBuffer& operator=(VulkanBuffer&&) = delete;
+
         void Create(std::unique_ptr<Device>& device, vk::DeviceSize instanceSize, uint32_t instanceCount,
                     vk::BufferUsageFlags usageFlags, vk::MemoryPropertyFlags memoryPropertyFlags,
                     vk::DeviceSize minOffsetAlignment = 1);

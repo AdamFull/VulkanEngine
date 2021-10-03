@@ -5,7 +5,6 @@
 #include "VulkanBuffer.h"
 #include "VulkanRenderer.h"
 #include "VulkanStaticHelper.h"
-#include "WindowHandle.h"
 
 namespace Engine
 {
@@ -25,16 +24,17 @@ namespace Engine
         Destroy();
     }
 
-    void VulkanHighLevel::Create(std::unique_ptr<WindowHandle>& pWindow, const char *pApplicationName, uint32_t applicationVersion,
-                                         const char *pEngineName, uint32_t engineVersion,
-                                         uint32_t apiVersion)
+    void VulkanHighLevel::Create(FEngineCreateInfo createInfo)
     {
+        m_pWinHandle = std::make_unique<WindowHandle>();
         m_pDevice = std::make_unique<Device>();
         m_pSwapChain = std::make_unique<SwapChain>();
         m_pUniform = std::make_unique<UniformBuffer>();
         m_pRenderer = std::make_unique<Renderer>();
 
-        m_pDevice->Create(pWindow, pApplicationName, applicationVersion, pEngineName, engineVersion, apiVersion);
+        m_pWinHandle->Create(createInfo.window);
+
+        m_pDevice->Create(m_pWinHandle, createInfo.appName.c_str(), createInfo.appVersion, createInfo.engineName.c_str(), createInfo.engineVersion, createInfo.apiVersion);
         m_pSwapChain->Create(m_pDevice);
         m_pUniform->Create(m_pDevice, m_pSwapChain->GetImages().size());
         m_pRenderer->Create(m_pDevice, m_pSwapChain);

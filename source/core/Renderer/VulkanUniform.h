@@ -15,6 +15,12 @@ namespace Engine
     class UniformBuffer
     {
     public:
+        UniformBuffer() = default;
+        UniformBuffer(const UniformBuffer&) = delete;
+        void operator=(const UniformBuffer&) = delete;
+        UniformBuffer(UniformBuffer&&) = delete;
+        UniformBuffer& operator=(UniformBuffer&&) = delete;
+
         void Create(std::unique_ptr<Device>& device, uint32_t inFlightFrames);
         void ReCreate(std::unique_ptr<Device>& device, uint32_t inFlightFrames);
 

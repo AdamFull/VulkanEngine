@@ -8,11 +8,11 @@
 
 namespace Engine
 {
-    void RenderScene::Create(std::unique_ptr<WindowHandle>& winhandle)
+    void RenderScene::Create()
     {
         m_pRoot = std::make_shared<SceneRootComponent>();
         m_pOvelray = std::make_unique<ImguiOverlay>();
-        m_pOvelray->Create(winhandle, UDevice, USwapChain);
+        m_pOvelray->Create(UWinHandle, UDevice, USwapChain);
     }
 
     void RenderScene::Destroy()

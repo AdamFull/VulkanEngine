@@ -9,7 +9,7 @@ namespace Engine
     class RenderScene
     {
     public:
-        void Create(std::unique_ptr<WindowHandle>& winhandle);
+        void Create();
         void Destroy();
         void AttachObject(std::shared_ptr<RenderObject> object);
         void CreateObjects();

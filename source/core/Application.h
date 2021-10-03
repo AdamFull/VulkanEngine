@@ -1,5 +1,4 @@
 #pragma once
-#include "WindowHandle.h"
 #include "KeyMapping/KeycodeConfig.h"
 #include "Camera/Controllers/CameraEditorController.h"
 #include "RenderScene.h"
@@ -13,7 +12,6 @@ namespace Engine
         void ServiceHandle(EActionKey eKey);
         void run();
     private:
-        std::unique_ptr<WindowHandle> m_pWindow;
         std::unique_ptr<RenderScene> m_pRenderScene;
         std::unique_ptr<CameraController> m_pCameraController;
     };

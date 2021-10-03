@@ -28,6 +28,12 @@ namespace Engine
     class Device
     {
     public:
+        Device() = default;
+        Device(const Device&) = delete;
+        void operator=(const Device&) = delete;
+        Device(Device&&) = delete;
+        Device& operator=(Device&&) = delete;
+
         void Create(std::unique_ptr<WindowHandle>& pWindow, const char *pApplicationName, uint32_t applicationVersion,
                                          const char *pEngineName, uint32_t engineVersion,
                                          uint32_t apiVersion);

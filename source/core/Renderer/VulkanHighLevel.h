@@ -1,6 +1,8 @@
 #pragma once
+#include "WindowHandle.h"
 
 #define UHLInstance Engine::VulkanHighLevel::GetInstance()
+#define UWinHandle UHLInstance->GetWinHandle()
 #define UDevice UHLInstance->GetDevice()
 #define USwapChain UHLInstance->GetSwapChain()
 #define UUniform UHLInstance->GetUniformBuffer()
@@ -8,12 +10,21 @@
 
 namespace Engine
 {
-    class WindowHandle;
     class Device;
     class SwapChain;
     class UniformBuffer;
     class VulkanBuffer;
     class Renderer;
+
+    struct FEngineCreateInfo
+    {
+        FWindowCreateInfo window;
+        std::string appName;
+        uint32_t appVersion;
+        std::string engineName;
+        uint32_t engineVersion;
+        uint32_t apiVersion;
+    };
 
     class VulkanHighLevel
     {
@@ -30,10 +41,7 @@ namespace Engine
 
         static std::unique_ptr<VulkanHighLevel>& GetInstance();
 
-        void Create(std::unique_ptr<WindowHandle>& pWindow, const char *pApplicationName, uint32_t applicationVersion,
-                                         const char *pEngineName, uint32_t engineVersion,
-                                         uint32_t apiVersion);
-
+        void Create(FEngineCreateInfo createInfo);
 
         vk::CommandBuffer BeginFrame(bool* bResult);
         void EndFrame(vk::CommandBuffer commandBuffer, bool* bResult);
@@ -47,6 +55,7 @@ namespace Engine
 
         //Getters
 
+        inline std::unique_ptr<WindowHandle>& GetWinHandle() { return m_pWinHandle; }
         inline std::unique_ptr<Device>& GetDevice() { return m_pDevice; }
         inline std::unique_ptr<SwapChain>& GetSwapChain() { return m_pSwapChain; }
         inline std::unique_ptr<UniformBuffer>&  GetUniformBuffer() { return m_pUniform; }
@@ -55,6 +64,8 @@ namespace Engine
         void RecreateSwapChain();
         void CleanupSwapChain();
 
+        //Window
+        std::unique_ptr<WindowHandle> m_pWinHandle;
         //Device
         std::unique_ptr<Device> m_pDevice;
         //SwapChain

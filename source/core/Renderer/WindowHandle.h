@@ -3,6 +3,14 @@
 
 namespace Engine
 {
+    struct FWindowCreateInfo
+    {
+        uint32_t width;
+        uint32_t height;
+        std::string name;
+        std::string backend;
+    };
+
     class WindowHandle
     {
     public:
@@ -14,7 +22,7 @@ namespace Engine
         WindowHandle(WindowHandle&&) = delete;
         WindowHandle& operator=(WindowHandle&&) = delete;
 
-        void Create(uint32_t, uint32_t, const std::string&);
+        void Create(FWindowCreateInfo createInfo);
         void ReCreate();
         void Close();
 

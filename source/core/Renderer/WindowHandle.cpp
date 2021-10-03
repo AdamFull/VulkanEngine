@@ -59,12 +59,12 @@ namespace Engine
     {
     }
 
-    void WindowHandle::Create(uint32_t iWidth, uint32_t iHeight, const std::string &srWinName)
+    void WindowHandle::Create(FWindowCreateInfo createInfo)
     {
-        ResizeWindow(iWidth, iHeight);
+        ResizeWindow(createInfo.width, createInfo.height);
         FrameBufferUpdated();
 
-        m_pWindow = glfwCreateWindow(iWidth, iHeight, srWinName.c_str(), nullptr, nullptr);
+        m_pWindow = glfwCreateWindow(createInfo.width, createInfo.height, createInfo.name.c_str(), nullptr, nullptr);
         glfwSetWindowUserPointer(m_pWindow, this);
         glfwSetInputMode(m_pWindow, GLFW_STICKY_KEYS, GLFW_TRUE);
         //glfwSetInputMode(m_pWindow, GLFW_CURSOR, GLFW_CURSOR_DISABLED);

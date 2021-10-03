@@ -12,6 +12,14 @@ namespace Engine
         glm::vec3 rot{};
         glm::vec3 scale{1.f, 1.f, 1.f};
 
+        FTransform& operator+=(const FTransform& rhs)
+        {
+            this->pos += rhs.pos;
+            this->rot += rhs.rot;
+            this->scale *= rhs.scale;
+            return *this;
+        }
+
         glm::mat4 GetModel();
         glm::mat3 GetNormal();
     };
@@ -48,8 +56,15 @@ namespace Engine
         virtual const glm::vec3 GetForwardVector();
         virtual const glm::vec3 GetRightVector();
         virtual const glm::vec3 GetUpVector();
-        virtual inline FTransform GetTransform() { return m_transform; }
+        virtual FTransform GetTransform();
+        virtual glm::vec3 GetPosition();
+        virtual glm::vec3 GetRotation();
+        virtual glm::vec3 GetScale();
+
         virtual inline void SetTransform(FTransform transformNew) { m_transform = transformNew; }
+        virtual inline void SetPosition(glm::vec3 position) { m_transform.pos = position; }
+        virtual inline void SetRotation(glm::vec3 rotation) { m_transform.rot = rotation; }
+        virtual inline void SetScale(glm::vec3 scale) { m_transform.scale = scale; }
 
         virtual void SetParent(std::shared_ptr<RenderObject> parent);
         virtual void Attach(std::shared_ptr<RenderObject> child);
@@ -67,7 +82,5 @@ namespace Engine
         std::shared_ptr<RenderObject> m_pParent;
         std::shared_ptr<RenderObject> m_pParentOld;
         std::map<std::string, std::shared_ptr<RenderObject>> m_mChilds;
-
-        
     };
 }

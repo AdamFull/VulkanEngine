@@ -128,6 +128,38 @@ namespace Engine
         return glm::vec3{0.f, -1.f, 0.f};
     }
 
+    FTransform RenderObject::GetTransform()
+    {
+        FTransform transform = m_transform;
+        if (m_pParent)
+            transform += m_pParent->GetTransform();
+        return transform;
+    }
+
+    glm::vec3 RenderObject::GetPosition()
+    {
+        glm::vec3 position = m_transform.pos;
+        if (m_pParent)
+            position += m_pParent->GetPosition();
+        return position;
+    }
+
+    glm::vec3 RenderObject::GetRotation()
+    {
+        glm::vec3 rotation = m_transform.rot;
+        if (m_pParent)
+            rotation += m_pParent->GetRotation();
+        return rotation;
+    }
+
+    glm::vec3 RenderObject::GetScale()
+    {
+        glm::vec3 scale = m_transform.scale;
+        if (m_pParent)
+            scale *= m_pParent->GetScale();
+        return scale;
+    }
+
     void RenderObject::SetParent(std::shared_ptr<RenderObject> parent)
     {
         m_pParentOld = m_pParent;

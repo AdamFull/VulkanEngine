@@ -60,10 +60,10 @@ namespace Engine
         ResourceBase::Cleanup();
         
         m_pPipeline->Destroy(UDevice);
-        UDevice->Destroy(m_pipelineLayout);
         UDevice->GetLogical()->freeDescriptorSets(m_descriptorPool, m_vDescriptorSets);
         UDevice->Destroy(m_descriptorSetLayout);
         UDevice->Destroy(m_descriptorPool);
+        UDevice->Destroy(m_pipelineLayout);
     }
 
     void MaterialBase::CreateDescriptorSets()

@@ -1,6 +1,8 @@
 #include "ImguiOverlay.h"
 #include "WindowHandle.h"
 #include "VulkanDevice.h"
+#include "Camera/Camera.h"
+#include "Camera/CameraManager.h"
 #include "VulkanSwapChain.h"
 #include <imgui_impl_glfw.h>
 #include <imgui_impl_vulkan.h>
@@ -94,7 +96,7 @@ namespace Engine
 
     void ImguiOverlay::ProcessInterface()
     {
-        if (show_demo_window) ImGui::ShowDemoWindow(&show_demo_window);
+        //if (show_demo_window) ImGui::ShowDemoWindow(&show_demo_window);
 
         CreateDebugOverlay();
         CreateMenuBar();
@@ -103,29 +105,30 @@ namespace Engine
     void ImguiOverlay::CreateDebugOverlay()
     {
         float fFrameTime = 1000.0f / ImGui::GetIO().Framerate;
-        if (refresh_time == 0.0)
+        auto camera = CameraManager::GetInstance()->GetCurrentCamera();
+        auto pos = camera->GetPosition();
+        /*if (refresh_time == 0.0)
             refresh_time = ImGui::GetTime();
-        while (refresh_time < ImGui::GetTime()) // Create data at fixed 60 Hz rate for the demo
+        while (refresh_time < ImGui::GetTime())
         {
             values[values_offset] = fFrameTime;
             values_offset = (values_offset + 1) % IM_ARRAYSIZE(values);
             refresh_time += 1.0f / 60.0f;
-        }
+        }*/
 
         ImGui::Begin("Debug info");
-        ImGui::Checkbox("Demo Window", &show_demo_window);
+        //ImGui::Checkbox("Demo Window", &show_demo_window);
 
         //ImGui::SliderFloat("float", &f, 0.0f, 1.0f);
         //ImGui::ColorEdit3("clear color", (float *)&clear_color);
 
         //ImGui::SameLine();
 
-        char overlay[32];
+        /*char overlay[32];
         sprintf(overlay, "Frame time %f", fFrameTime);
-        ImGui::PlotLines("Lines", values, IM_ARRAYSIZE(values), values_offset, overlay, 0.0f, 2.0f, ImVec2(0, 80.0f));
+        ImGui::PlotLines("Lines", values, IM_ARRAYSIZE(values), values_offset, overlay, 0.0f, 2.0f, ImVec2(0, 80.0f));*/
         ImGui::Text("Application average %.3f ms/frame (%.1f FPS)", fFrameTime, ImGui::GetIO().Framerate);
-
-        values_offset += 1;
+        ImGui::Text("Camera position: {x:%.1f, y:%.1f, z:%.1f}", pos.x, pos.y, pos.z);
 
         ImGui::End();
     }

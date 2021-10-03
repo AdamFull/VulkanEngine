@@ -66,17 +66,13 @@ namespace Engine
         auto mesh_component = std::make_shared<StaticMeshComponent>("static_mesh_component1");
         mesh_component->SetMesh(body_mesh);
         mesh_component->SetMaterial(material_diffuse);
-        FTransform transform;
-        transform.pos = {0.f, 0.f, 0.f};
-        transform.rot = {0.f, glm::radians(90.f), 0.f};
-        mesh_component->SetTransform(transform);
+        mesh_component->SetPosition({0.f, 0.f, 0.f});
+        mesh_component->SetRotation({0.f, 0.f, glm::radians(180.f)});
         m_pRenderScene->AttachObject(mesh_component);
 
         //Camera
         auto camera = std::make_shared<CameraBase>("world_camera");
-        FTransform transform3;
-        transform3.pos = {1.f, -0.5f, 0.1f};
-        camera->SetTransform(transform3);
+        camera->SetPosition({0.f, -2.4f, -1.8f});
         m_pRenderScene->AttachObject(camera);
         CameraManager::GetInstance()->Attach(camera);
     }

@@ -1,12 +1,15 @@
 #pragma once
 #include "Objects/Components/SceneRootComponent.h"
+#include "Renderer/ImguiOverlay.h"
 
 namespace Engine
 {
+    class WindowHandle;
+
     class RenderScene
     {
     public:
-        void Create();
+        void Create(std::unique_ptr<WindowHandle>& winhandle);
         void Destroy();
         void AttachObject(std::shared_ptr<RenderObject> object);
         void CreateObjects();
@@ -14,5 +17,6 @@ namespace Engine
         void Render(float fDeltaTime);
     private:
         std::shared_ptr<SceneRootComponent> m_pRoot;
+        std::unique_ptr<ImguiOverlay> m_pOvelray;
     };
 }

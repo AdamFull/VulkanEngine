@@ -25,7 +25,7 @@ namespace Engine
         m_pCameraController->Create();
 
         m_pRenderScene = std::make_unique<RenderScene>();
-        m_pRenderScene->Create();
+        m_pRenderScene->Create(m_pWindow);
 
         /*auto material = std::make_shared<MaterialDiffuse>();
         material->Create(texture);

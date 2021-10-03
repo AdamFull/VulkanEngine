@@ -58,12 +58,18 @@ endif()
 
 include_directories(${CMAKE_CURRENT_SOURCE_DIR}/core)
 
-file(GLOB_RECURSE CPP_FILES_BASE ${CMAKE_CURRENT_SOURCE_DIR}/source/*.cpp)
+file(GLOB_RECURSE CPP_FILES_CORE ${CMAKE_CURRENT_SOURCE_DIR}/source/core/*.cpp)
+file(GLOB_RECURSE CPP_FILES_FS ${CMAKE_CURRENT_SOURCE_DIR}/source/filesystem/*.cpp)
+file(GLOB_RECURSE CPP_FILES_SERIALIZE ${CMAKE_CURRENT_SOURCE_DIR}/source/serializer/*.cpp)
 file(GLOB_RECURSE HPP_FILES ${CMAKE_CURRENT_SOURCE_DIR}/core/*.h)
+file(GLOB_RECURSE CPP_FILES_IMGUI ${CMAKE_CURRENT_SOURCE_DIR}/source/external/imgui/*.cpp)
 
 set(CPP_FILES
 	${CMAKE_CURRENT_SOURCE_DIR}/main.cpp
-	${CPP_FILES_BASE}
+	${CPP_FILES_CORE}
+	${CPP_FILES_FS}
+	${CPP_FILES_SERIALIZE}
+	${CPP_FILES_IMGUI}
 )
 
 find_package(glfw3 REQUIRED)
@@ -75,7 +81,14 @@ add_executable(${PROJECT_NAME} ${CPP_FILES} ${HPP_FILES})
 
 # Link the debug and release libraries to the project
 target_link_libraries( ${PROJECT_NAME} PRIVATE ${VULKAN_LIB_LIST} glfw nlohmann_json::nlohmann_json imgui::imgui)
-target_include_directories( ${PROJECT_NAME} PRIVATE ${GLM_INCLUDE_DIRS} ${GLFW_INCLUDE_DIRS} ${CMAKE_CURRENT_SOURCE_DIR}/source/ ${CMAKE_CURRENT_SOURCE_DIR}/source/core)
+	target_include_directories( ${PROJECT_NAME} PRIVATE 
+	${GLM_INCLUDE_DIRS} 
+	${GLFW_INCLUDE_DIRS} 
+	${CMAKE_CURRENT_SOURCE_DIR}/source/ 
+	${CMAKE_CURRENT_SOURCE_DIR}/source/core
+	${CMAKE_CURRENT_SOURCE_DIR}/source/external/imgui
+)
+
 target_precompile_headers( ${PROJECT_NAME} PUBLIC ${CMAKE_CURRENT_SOURCE_DIR}/common.h)
 
 # Define project properties

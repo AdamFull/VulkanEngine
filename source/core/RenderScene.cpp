@@ -8,9 +8,11 @@
 
 namespace Engine
 {
-    void RenderScene::Create()
+    void RenderScene::Create(std::unique_ptr<WindowHandle>& winhandle)
     {
         m_pRoot = std::make_shared<SceneRootComponent>();
+        m_pOvelray = std::make_unique<ImguiOverlay>();
+        m_pOvelray->Create(winhandle, UDevice, USwapChain);
     }
 
     void RenderScene::Destroy()
@@ -23,6 +25,7 @@ namespace Engine
             UHLInstance->EndFrame(commandBuffer, &bResult);
         }
 
+        m_pOvelray->Destroy(UDevice);
         m_pRoot->Destroy();
     }
 
@@ -64,9 +67,15 @@ namespace Engine
         ubo.lightPosition = camera->GetTransform().pos;
         UUniform->UpdateUniformBuffer(UDevice, currentFrame, ubo);
 
+        m_pOvelray->StartFrame();
+
         UHLInstance->BeginRender(commandBuffer);
 
         m_pRoot->Render(commandBuffer, currentFrame);
+
+        //Imgui overlays (Demo)
+        m_pOvelray->ProcessInterface();
+        m_pOvelray->Render(commandBuffer);
 
         UHLInstance->EndRender(commandBuffer);
 

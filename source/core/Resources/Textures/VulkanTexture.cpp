@@ -1,5 +1,6 @@
 #include "VulkanTexture.h"
 #include "Renderer/VulkanDevice.h"
+#include "Renderer/VulkanBuffer.h"
 #include "Renderer/VulkanHighLevel.h"
 
 #define STB_IMAGE_IMPLEMENTATION
@@ -190,14 +191,10 @@ namespace Engine
         vk::DeviceSize imgSize = width * height * 4;
         auto compiledSize = vk::Extent3D{width, height, channels};
 
-        vk::Buffer stagingBuffer;
-        vk::DeviceMemory stagingBufferMemory;
-        UDevice->CreateOnDeviceBuffer(imgSize, vk::BufferUsageFlagBits::eTransferSrc,
-                             vk::MemoryPropertyFlagBits::eHostVisible | vk::MemoryPropertyFlagBits::eHostCoherent,
-                             stagingBuffer,
-                             stagingBufferMemory);
-
-        UDevice->MoveToMemory(raw_data, stagingBufferMemory , imgSize);
+        VulkanBuffer stagingBuffer;
+        stagingBuffer.Create(UDevice, imgSize, 1, vk::BufferUsageFlagBits::eTransferSrc, vk::MemoryPropertyFlagBits::eHostVisible | vk::MemoryPropertyFlagBits::eHostCoherent);
+        stagingBuffer.MapMem(UDevice);
+        stagingBuffer.Write(UDevice, raw_data);
 
         stbi_image_free(raw_data);
 
@@ -206,11 +203,10 @@ namespace Engine
                     vk::ImageUsageFlagBits::eSampled, vk::MemoryPropertyFlagBits::eDeviceLocal);
 
         UDevice->TransitionImageLayout(image, mipLevels, vk::ImageAspectFlagBits::eColor, vk::ImageLayout::eUndefined, vk::ImageLayout::eTransferDstOptimal);
-        UDevice->CopyBufferToImage(stagingBuffer, image, compiledSize);
+        UDevice->CopyBufferToImage(stagingBuffer.GetBuffer(), image, compiledSize);
         GenerateMipmaps(image, mipLevels, vk::Format::eR8G8B8A8Srgb, compiledSize, vk::ImageAspectFlagBits::eColor);
 
-        UDevice->Destroy(stagingBuffer);
-        UDevice->Destroy(stagingBufferMemory);
+        stagingBuffer.Destroy(UDevice);
 
         view = UDevice->CreateImageView(image, mipLevels, vk::Format::eR8G8B8A8Srgb, vk::ImageAspectFlagBits::eColor);
 

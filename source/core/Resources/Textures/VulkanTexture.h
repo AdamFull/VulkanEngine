@@ -4,6 +4,7 @@
 namespace Engine
 {
     class Device;
+    class VulkanBuffer;
 
     class TextureBase : public ResourceBase
     {

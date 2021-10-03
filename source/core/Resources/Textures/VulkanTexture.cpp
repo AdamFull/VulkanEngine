@@ -197,15 +197,13 @@ namespace Engine
         channels = ichannels;
         mipLevels = imipLevels;
 
-        vk::DeviceSize imgSize = width * height * 4;
-
-        auto physProps = UDevice->GetPhysical().getProperties();
-        auto minOffsetAllignment = std::lcm(physProps.limits.minUniformBufferOffsetAlignment, physProps.limits.nonCoherentAtomSize);
+        vk::DeviceSize imgSize = width * height * 4 * sizeof(char);
 
         VulkanBuffer stagingBuffer;
-        stagingBuffer.Create(UDevice, imgSize, 1, vk::BufferUsageFlagBits::eTransferSrc, vk::MemoryPropertyFlagBits::eHostVisible | vk::MemoryPropertyFlagBits::eHostCoherent, minOffsetAllignment);
+        stagingBuffer.Create(UDevice, imgSize, 1, vk::BufferUsageFlagBits::eTransferSrc, vk::MemoryPropertyFlagBits::eHostVisible | vk::MemoryPropertyFlagBits::eHostCoherent);
         stagingBuffer.MapMem(UDevice);
         stagingBuffer.Write(UDevice, (void*)data);
+        stagingBuffer.UnmapMem(UDevice);
 
         UDevice->CreateImage(image, deviceMemory, width, height, mipLevels, vk::SampleCountFlagBits::e1, imageFormat, 
                     vk::ImageTiling::eOptimal, vk::ImageUsageFlagBits::eTransferSrc | vk::ImageUsageFlagBits::eTransferDst | 

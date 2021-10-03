@@ -43,6 +43,9 @@ namespace Engine
         std::unique_ptr<VulkanBuffer> vertexBuffer;
         std::unique_ptr<VulkanBuffer> indexBuffer;
 
+        float fMouseX{0.f};
+        float fMouseY{0.f};
+
         bool show_demo_window = true;
         float values[90] = {1.f};
         int values_offset{0};

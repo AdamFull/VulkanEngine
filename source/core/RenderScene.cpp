@@ -18,6 +18,7 @@ namespace Engine
         InputMapper::GetInstance()->CreateAction("OverlayMouse", EActionKey::eMouseLeft, EActionKey::eMouseRight);
         InputMapper::GetInstance()->CreateAction("OverlayMousePosition", EActionKey::eCursorOriginal);
         InputMapper::GetInstance()->BindAction("OverlayMouse", EKeyState::ePressed, m_pOvelray.get(), &ImguiOverlay::ProcessKeys);
+        InputMapper::GetInstance()->BindAction("OverlayMouse", EKeyState::eRelease, m_pOvelray.get(), &ImguiOverlay::ProcessKeys);
         InputMapper::GetInstance()->BindAxis("OverlayMousePosition", m_pOvelray.get(), &ImguiOverlay::ProcessCursor);
     }
 
@@ -78,10 +79,11 @@ namespace Engine
         ubo.transform = matrix * transform.GetModel();
         ubo.worldNormal = transform.GetNormal();
         ubo.lightPosition = camera->GetTransform().pos;
-        UUniform->UpdateUniformBuffer(UDevice, currentFrame, ubo);
 
         m_pOvelray->NewFrame();
         m_pOvelray->Update(UDevice, fDeltaTime);
+
+        UUniform->UpdateUniformBuffer(UDevice, currentFrame, ubo);
 
         UHLInstance->BeginRender(commandBuffer);
 

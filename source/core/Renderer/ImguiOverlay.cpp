@@ -90,7 +90,7 @@ namespace Engine
     {
         ImGui::NewFrame();
 
-        //if (show_demo_window) ImGui::ShowDemoWindow(&show_demo_window);
+        if (show_demo_window) ImGui::ShowDemoWindow(&show_demo_window);
 
         CreateDebugOverlay();
         CreateMenuBar();
@@ -101,14 +101,6 @@ namespace Engine
     void ImguiOverlay::Update(std::unique_ptr<Device>& device, float deltaTime)
     {
         ImGuiIO& io = ImGui::GetIO();
-
-        io.DisplaySize = ImVec2((float)WindowHandle::m_iWidth, (float)WindowHandle::m_iHeight);
-        io.DeltaTime = deltaTime;
-
-		io.MouseDown[0] = false;
-		io.MouseDown[1] = false;
-
-
 
         ImDrawData *drawdata = ImGui::GetDrawData();
         vk::DeviceSize vertexBufferSize = drawdata->TotalVtxCount * sizeof(ImDrawVert);
@@ -156,6 +148,9 @@ namespace Engine
 		// Flush to make writes visible to GPU
 		vertexBuffer->Flush(device);
 		indexBuffer->Flush(device);
+
+        io.DisplaySize = ImVec2((float)WindowHandle::m_iWidth, (float)WindowHandle::m_iHeight);
+        io.DeltaTime = deltaTime;
     }
 
     void ImguiOverlay::DrawFrame(std::unique_ptr<Device>& device, vk::CommandBuffer commandBuffer, uint32_t index)
@@ -217,11 +212,11 @@ namespace Engine
         {
             case EActionKey::eMouseLeft:
             {
-                io.MouseDown[0] = true;
+                io.MouseDown[0] = !io.MouseDown[0];
             }break;
             case EActionKey::eMouseRight:
             {
-                io.MouseDown[1] = true;
+                io.MouseDown[1] = !io.MouseDown[1];
             }break;
         }
     }
@@ -229,7 +224,8 @@ namespace Engine
     void ImguiOverlay::ProcessCursor(float fX, float fY)
     {
         ImGuiIO& io = ImGui::GetIO();
-        io.MousePos = ImVec2(fX, fY);
+        if(io.WantCaptureMouse)
+            io.MousePos = ImVec2(fX, fY);
     }
 
     void ImguiOverlay::CreateDebugOverlay()

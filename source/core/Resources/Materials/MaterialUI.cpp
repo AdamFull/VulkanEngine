@@ -20,7 +20,7 @@ namespace Engine
         CreateDescriptorSets(USwapChain->GetImages().size());
         CreatePipelineLayout(USwapChain->GetImages().size());
 
-        FPipelineCreateInfo createInfo = PipelineConfig::CreateDefaultPipelineConfig(EPipelineType::eGraphics, EShaderSet::eUI, UDevice->GetSamples(), pipelineLayout, pipelineCache);
+        FPipelineCreateInfo createInfo = PipelineConfig::CreateDefaultPipelineConfig(EPipelineType::eGraphics, EShaderSet::eUI, vk::CullModeFlagBits::eNone, UDevice->GetSamples(), pipelineLayout, pipelineCache);
         m_pPipeline = PipelineFactory::CreatePipeline(createInfo, UDevice, USwapChain);
     }
 
@@ -34,7 +34,7 @@ namespace Engine
         CreatePipelineCache();
         CreatePipelineLayout(USwapChain->GetImages().size());
 
-        FPipelineCreateInfo createInfo = PipelineConfig::CreateDefaultPipelineConfig(EPipelineType::eGraphics, EShaderSet::eUI, UDevice->GetSamples(), pipelineLayout, pipelineCache);
+        FPipelineCreateInfo createInfo = PipelineConfig::CreateDefaultPipelineConfig(EPipelineType::eGraphics, EShaderSet::eUI, vk::CullModeFlagBits::eNone, UDevice->GetSamples(), pipelineLayout, pipelineCache);
         m_pPipeline->RecreatePipeline(createInfo, UDevice, USwapChain);
     }
 

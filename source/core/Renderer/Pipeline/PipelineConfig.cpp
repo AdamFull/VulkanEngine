@@ -89,18 +89,18 @@ namespace Engine
         return createInfo;
     }
 
-    FPipelineCreateInfo PipelineConfig::CreateDefaultPipelineConfig(EPipelineType eType, EShaderSet eSet,vk::SampleCountFlagBits samples, vk::PipelineLayout pipelineLayout, vk::PipelineCache pipelineCache)
+    FPipelineCreateInfo PipelineConfig::CreateDefaultPipelineConfig(EPipelineType eType, EShaderSet eSet, vk::CullModeFlags cullFlags, vk::SampleCountFlagBits samples, vk::PipelineLayout pipelineLayout, vk::PipelineCache pipelineCache)
     {
         FPipelineCreateInfo createInfo = CreatePipelineConfig(eType, eSet, vk::PrimitiveTopology::eTriangleList, vk::PolygonMode::eFill,
-                                    vk::CullModeFlagBits::eNone, vk::FrontFace::eCounterClockwise, samples, pipelineLayout, pipelineCache);
+                                    cullFlags, vk::FrontFace::eCounterClockwise, samples, pipelineLayout, pipelineCache);
         createInfo.bindPoint = vk::PipelineBindPoint::eGraphics;
         return createInfo;
     }
 
-    FPipelineCreateInfo PipelineConfig::CreateDefaultDebugPipelineConfig(EPipelineType eType, EShaderSet eSet,vk::SampleCountFlagBits samples, vk::PipelineLayout pipelineLayout, vk::PipelineCache pipelineCache)
+    FPipelineCreateInfo PipelineConfig::CreateDefaultDebugPipelineConfig(EPipelineType eType, EShaderSet eSet, vk::CullModeFlags cullFlags, vk::SampleCountFlagBits samples, vk::PipelineLayout pipelineLayout, vk::PipelineCache pipelineCache)
     {
         FPipelineCreateInfo createInfo = CreatePipelineConfig(eType, eSet, vk::PrimitiveTopology::eTriangleList, vk::PolygonMode::eLine,
-                                    vk::CullModeFlagBits::eBack, vk::FrontFace::eCounterClockwise, samples, pipelineLayout, pipelineCache);
+                                    cullFlags, vk::FrontFace::eCounterClockwise, samples, pipelineLayout, pipelineCache);
         createInfo.bindPoint = vk::PipelineBindPoint::eGraphics;
         return createInfo;
     }

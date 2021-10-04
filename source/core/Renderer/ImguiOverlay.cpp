@@ -29,6 +29,9 @@ namespace Engine
         BaseInitialize();
         m_pUniform->Create(device, swapchain->GetImages().size());
         CreateResources(device, swapchain);
+
+        WindowHandle::FocusCallback.attach(this, &ImguiOverlay::UpdateFocusStatus);
+        WindowHandle::CharInputCallback.attach(this, &ImguiOverlay::UpdateInputChar);
     }
 
     void ImguiOverlay::ReCreate(std::unique_ptr<Device>& device, std::unique_ptr<SwapChain>& swapchain)
@@ -74,6 +77,7 @@ namespace Engine
 		style.Colors[ImGuiCol_ButtonActive] = ImVec4(1.0f, 0.0f, 0.0f, 0.8f);
 		// Dimensions
 		ImGuiIO& io = ImGui::GetIO();
+        io.ConfigFlags |= 1 << 6;
 		io.DisplaySize = ImVec2(WindowHandle::m_iWidth, WindowHandle::m_iHeight);
 		io.DisplayFramebufferScale = ImVec2(1.0f, 1.0f);
     }
@@ -169,6 +173,21 @@ namespace Engine
 		io.MousePos = ImVec2(controls.fMouseX, controls.fMouseY);
 		io.MouseDown[0] = controls.bLMbtn;
 		io.MouseDown[1] = controls.bRMbtn;
+
+        controls.bLMbtn = true;
+        controls.bRMbtn = true;
+    }
+
+    void ImguiOverlay::UpdateFocusStatus(int focus)
+    {
+        ImGuiIO& io = ImGui::GetIO();
+        io.AddFocusEvent(focus != 0);
+    }
+
+    void ImguiOverlay::UpdateInputChar(unsigned char c)
+    {
+        ImGuiIO& io = ImGui::GetIO();
+        io.AddInputCharacter(c);
     }
 
     void ImguiOverlay::DrawFrame(std::unique_ptr<Device>& device, vk::CommandBuffer commandBuffer, uint32_t index)
@@ -228,11 +247,11 @@ namespace Engine
         {
             case EActionKey::eMouseLeft:
             {
-                controls.bLMbtn = !controls.bLMbtn;
+                controls.bLMbtn = false;
             }break;
             case EActionKey::eMouseRight:
             {
-                controls.bRMbtn = !controls.bRMbtn;
+                controls.bRMbtn = false;
             }break;
         }
     }
@@ -255,33 +274,24 @@ namespace Engine
         float position[3] = {pos.x, pos.y, pos.z};
         auto rot = camera->GetRotation();
         float rotation[3] = {rot.x, rot.y, rot.z};
-        /*if (refresh_time == 0.0)
-            refresh_time = ImGui::GetTime();
-        while (refresh_time < ImGui::GetTime())
-        {
-            values[values_offset] = fFrameTime;
-            values_offset = (values_offset + 1) % IM_ARRAYSIZE(values);
-            refresh_time += 1.0f / 60.0f;
-        }*/
 
-        ImGui::SetNextWindowSize(ImVec2(300, 400));
+        int viewport_size[2] = {WindowHandle::m_iWidth, WindowHandle::m_iHeight};
+        
+        std::rotate(frameTimes.begin(), frameTimes.begin() + 1, frameTimes.end());
+        frameTimes.back() = fFrameTime;
+
         ImGui::Begin("Debug info");
-        //ImGui::Checkbox("Demo Window", &show_demo_window);
 
-        //ImGui::SliderFloat("float", &f, 0.0f, 1.0f);
-        //ImGui::ColorEdit3("clear color", (float *)&clear_color);
+        ImGui::Text("Frame info");
+        char overlay[32];
+        sprintf(overlay, "dt: %.3f | fps: %.3f", fFrameTime, ImGui::GetIO().Framerate);
+        ImGui::PlotLines("", &frameTimes[0], 50, 0, overlay, frameTimeMin, frameTimeMax, ImVec2(0, 80));
 
-        //ImGui::SameLine();
+        ImGui::InputInt2("Viewport size", viewport_size);
 
-        /*char overlay[32];
-        sprintf(overlay, "Frame time %f", fFrameTime);
-        ImGui::PlotLines("Lines", values, IM_ARRAYSIZE(values), values_offset, overlay, 0.0f, 2.0f, ImVec2(0, 80.0f));*/
         ImGui::Text("Camera");
 		ImGui::InputFloat3("Position", (float*)position);
         ImGui::InputFloat3("Rotation", (float*)rotation);
-
-        ImGui::Text("Frame info");
-        ImGui::Text("Application average %.3f ms/frame (%.1f FPS)", fFrameTime, ImGui::GetIO().Framerate);
 
         ImGui::End();
     }

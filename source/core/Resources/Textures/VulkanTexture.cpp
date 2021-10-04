@@ -203,7 +203,6 @@ namespace Engine
         stagingBuffer.Create(UDevice, imgSize, 1, vk::BufferUsageFlagBits::eTransferSrc, vk::MemoryPropertyFlagBits::eHostVisible | vk::MemoryPropertyFlagBits::eHostCoherent);
         stagingBuffer.MapMem(UDevice);
         stagingBuffer.Write(UDevice, (void*)data);
-        stagingBuffer.UnmapMem(UDevice);
 
         UDevice->CreateImage(image, deviceMemory, width, height, mipLevels, vk::SampleCountFlagBits::e1, imageFormat, 
                     vk::ImageTiling::eOptimal, vk::ImageUsageFlagBits::eTransferSrc | vk::ImageUsageFlagBits::eTransferDst | 

@@ -2,12 +2,30 @@
 
 namespace Engine
 {
+    EasyDelegate::TDelegate<void(int)> WindowHandle::FocusCallback;
+    EasyDelegate::TDelegate<void(unsigned int)> WindowHandle::CharInputCallback;
     EasyDelegate::TDelegate<void(int, int, int, int)> WindowHandle::KeyCodeCallback;
     EasyDelegate::TDelegate<void(double, double, double, double)> WindowHandle::MousePositionCallback;
     EasyDelegate::TDelegate<void(double, double)> WindowHandle::MouseWheelCallback;
     int32_t WindowHandle::m_iWidth{800};
     int32_t WindowHandle::m_iHeight{600};
     bool WindowHandle::m_bWasResized{false};
+
+    void WindowHandle::FocusChangeCallback(GLFWwindow *window, int focus)
+    {
+        if(FocusCallback)
+        {
+            FocusCallback(focus);
+        }
+    }
+
+    void WindowHandle::CharPressedCallback(GLFWwindow *window, unsigned int c)
+    {
+        if(CharInputCallback)
+        {
+            CharInputCallback(c);
+        }
+    }
 
     void WindowHandle::FramebufferResizeCallback(GLFWwindow *window, int width, int height)
     {
@@ -68,6 +86,8 @@ namespace Engine
         glfwSetWindowUserPointer(m_pWindow, this);
         glfwSetInputMode(m_pWindow, GLFW_STICKY_KEYS, GLFW_TRUE);
         //glfwSetInputMode(m_pWindow, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
+        glfwSetWindowFocusCallback(m_pWindow, &WindowHandle::FocusChangeCallback);
+        glfwSetCharCallback(m_pWindow, &WindowHandle::CharPressedCallback);
         glfwSetFramebufferSizeCallback(m_pWindow, &WindowHandle::FramebufferResizeCallback);
         glfwSetKeyCallback(m_pWindow, &WindowHandle::KeyBoardInputCallback);
         glfwSetCursorPosCallback(m_pWindow, &WindowHandle::MousePositionInputCallback);

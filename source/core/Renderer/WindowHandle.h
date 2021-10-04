@@ -43,6 +43,8 @@ namespace Engine
             return m_pWindow;
         }
 
+        static EasyDelegate::TDelegate<void(int)> FocusCallback;
+        static EasyDelegate::TDelegate<void(unsigned int)> CharInputCallback;
         static EasyDelegate::TDelegate<void(int, int, int, int)> KeyCodeCallback;
         static EasyDelegate::TDelegate<void(double, double, double, double)> MousePositionCallback;
         static EasyDelegate::TDelegate<void(double, double)> MouseWheelCallback;
@@ -51,7 +53,8 @@ namespace Engine
         static bool m_bWasResized;
     private:
         GLFWwindow* m_pWindow;
-
+        static void FocusChangeCallback(GLFWwindow *window, int focus);
+        static void CharPressedCallback(GLFWwindow *window, unsigned int c);
         static void FramebufferResizeCallback(GLFWwindow *window, int width, int height);
         static void KeyBoardInputCallback(GLFWwindow *window, int key, int scancode, int action, int mods);
         static void MousePositionInputCallback(GLFWwindow *window, double xpos, double ypos);

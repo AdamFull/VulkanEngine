@@ -14,8 +14,8 @@ namespace Engine
 
     struct FGUIControls
     {
-        bool bLMbtn = false;
-        bool bRMbtn = false;
+        bool bLMbtn = true;
+        bool bRMbtn = true;
         float fMouseX{0.f};
         float fMouseY{0.f};
     };
@@ -42,6 +42,8 @@ namespace Engine
         void CreateResources(std::unique_ptr<Device>& device, std::unique_ptr<SwapChain>& swapchain);
 
         void UpdateControls(float fDeltaTime);
+        void UpdateFocusStatus(int focus);
+        void UpdateInputChar(unsigned char c);
 
         void CreateDebugOverlay();
         void CreateMenuBar();
@@ -56,8 +58,7 @@ namespace Engine
         FGUIControls controls;
 
         bool show_demo_window = true;
-        float values[90] = {1.f};
-        int values_offset{0};
-        double refresh_time{0.f};
+        std::array<float, 50> frameTimes{};
+	    float frameTimeMin = 0.0f, frameTimeMax = 1.5f;
     };
 }

@@ -6,9 +6,10 @@ namespace Engine
 {
     struct FUniformData 
     {
-        glm::mat4 transform{1.f};
-        glm::mat4 worldNormal{1.f};
-        glm::vec3 lightPosition{0.f, 1.f, 0.f};
+        glm::mat4 model{};
+        glm::mat4 view{};
+        glm::mat4 projection{};
+        glm::vec4 lightPosition{};
     };
 
     struct FUniformDataUI 

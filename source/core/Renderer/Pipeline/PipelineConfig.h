@@ -45,7 +45,7 @@ namespace Engine
                                                         vk::CullModeFlags cullMode, vk::FrontFace fontFace, 
                                                         vk::SampleCountFlagBits samples, vk::PipelineLayout pipelineLayout,
                                                         vk::PipelineCache pipelineCache);
-        static FPipelineCreateInfo CreateDefaultPipelineConfig(EPipelineType eType, EShaderSet eSet,vk::SampleCountFlagBits samples, vk::PipelineLayout pipelineLayout, vk::PipelineCache pipelineCache = VK_NULL_HANDLE);
-        static FPipelineCreateInfo CreateDefaultDebugPipelineConfig(EPipelineType eType, EShaderSet eSet,vk::SampleCountFlagBits samples, vk::PipelineLayout pipelineLayout, vk::PipelineCache pipelineCache = VK_NULL_HANDLE);
+        static FPipelineCreateInfo CreateDefaultPipelineConfig(EPipelineType eType, EShaderSet eSet, vk::CullModeFlags cullFlags, vk::SampleCountFlagBits samples, vk::PipelineLayout pipelineLayout, vk::PipelineCache pipelineCache = VK_NULL_HANDLE);
+        static FPipelineCreateInfo CreateDefaultDebugPipelineConfig(EPipelineType eType, EShaderSet eSet, vk::CullModeFlags cullFlags, vk::SampleCountFlagBits samples, vk::PipelineLayout pipelineLayout, vk::PipelineCache pipelineCache = VK_NULL_HANDLE);
     };
 }

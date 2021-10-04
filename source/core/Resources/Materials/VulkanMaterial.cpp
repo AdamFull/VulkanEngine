@@ -30,8 +30,8 @@ namespace Engine
     void MaterialBase::Bind(vk::CommandBuffer commandBuffer, uint32_t imageIndex)
     {
         ResourceBase::Bind(commandBuffer, imageIndex);
-        m_pPipeline->Bind(commandBuffer);
         commandBuffer.bindDescriptorSets(m_pPipeline->GetBindPoint(), pipelineLayout, 0, 1, &vDescriptorSets[imageIndex], 0, nullptr);
+        m_pPipeline->Bind(commandBuffer);
     }
 
     void MaterialBase::Destroy()

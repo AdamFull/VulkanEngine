@@ -47,7 +47,6 @@ namespace Engine
     {
         ImGui::DestroyContext();
         fontMaterial->Destroy();
-        fontTexture->Destroy();
         vertexBuffer->Destroy(device);
         indexBuffer->Destroy(device);
         m_pUniform->Cleanup(device);
@@ -111,8 +110,7 @@ namespace Engine
 
     void ImguiOverlay::Update(std::unique_ptr<Device>& device, float deltaTime)
     {
-        ImGuiIO& io = ImGui::GetIO();
-
+        UpdateControls(deltaTime);
         ImDrawData *drawdata = ImGui::GetDrawData();
         vk::DeviceSize vertexBufferSize = drawdata->TotalVtxCount * sizeof(ImDrawVert);
 		vk::DeviceSize indexBufferSize = drawdata->TotalIdxCount * sizeof(ImDrawIdx);
@@ -159,9 +157,18 @@ namespace Engine
 		// Flush to make writes visible to GPU
 		vertexBuffer->Flush(device);
 		indexBuffer->Flush(device);
+    }
 
-        io.DisplaySize = ImVec2((float)WindowHandle::m_iWidth, (float)WindowHandle::m_iHeight);
-        io.DeltaTime = deltaTime;
+    void ImguiOverlay::UpdateControls(float fDeltaTime)
+    {
+        ImGuiIO& io = ImGui::GetIO();
+
+		io.DisplaySize = ImVec2((float)WindowHandle::m_iWidth, (float)WindowHandle::m_iHeight);
+		io.DeltaTime = fDeltaTime;
+
+		io.MousePos = ImVec2(controls.fMouseX, controls.fMouseY);
+		io.MouseDown[0] = controls.bLMbtn;
+		io.MouseDown[1] = controls.bRMbtn;
     }
 
     void ImguiOverlay::DrawFrame(std::unique_ptr<Device>& device, vk::CommandBuffer commandBuffer, uint32_t index)
@@ -217,17 +224,15 @@ namespace Engine
 
     void ImguiOverlay::ProcessKeys(EActionKey eKey)
     {
-        ImGuiIO& io = ImGui::GetIO();
-
         switch (eKey)
         {
             case EActionKey::eMouseLeft:
             {
-                io.MouseDown[0] = !io.MouseDown[0];
+                controls.bLMbtn = !controls.bLMbtn;
             }break;
             case EActionKey::eMouseRight:
             {
-                io.MouseDown[1] = !io.MouseDown[1];
+                controls.bRMbtn = !controls.bRMbtn;
             }break;
         }
     }
@@ -236,7 +241,10 @@ namespace Engine
     {
         ImGuiIO& io = ImGui::GetIO();
         if(io.WantCaptureMouse)
-            io.MousePos = ImVec2(fX, fY);
+        {
+            controls.fMouseX = fX;
+            controls.fMouseY = fY;
+        }
     }
 
     void ImguiOverlay::CreateDebugOverlay()
@@ -244,6 +252,9 @@ namespace Engine
         float fFrameTime = 1000.0f / ImGui::GetIO().Framerate;
         auto camera = CameraManager::GetInstance()->GetCurrentCamera();
         auto pos = camera->GetPosition();
+        float position[3] = {pos.x, pos.y, pos.z};
+        auto rot = camera->GetRotation();
+        float rotation[3] = {rot.x, rot.y, rot.z};
         /*if (refresh_time == 0.0)
             refresh_time = ImGui::GetTime();
         while (refresh_time < ImGui::GetTime())
@@ -253,6 +264,7 @@ namespace Engine
             refresh_time += 1.0f / 60.0f;
         }*/
 
+        ImGui::SetNextWindowSize(ImVec2(300, 400));
         ImGui::Begin("Debug info");
         //ImGui::Checkbox("Demo Window", &show_demo_window);
 
@@ -264,8 +276,12 @@ namespace Engine
         /*char overlay[32];
         sprintf(overlay, "Frame time %f", fFrameTime);
         ImGui::PlotLines("Lines", values, IM_ARRAYSIZE(values), values_offset, overlay, 0.0f, 2.0f, ImVec2(0, 80.0f));*/
+        ImGui::Text("Camera");
+		ImGui::InputFloat3("Position", (float*)position);
+        ImGui::InputFloat3("Rotation", (float*)rotation);
+
+        ImGui::Text("Frame info");
         ImGui::Text("Application average %.3f ms/frame (%.1f FPS)", fFrameTime, ImGui::GetIO().Framerate);
-        ImGui::Text("Camera position: {x:%.1f, y:%.1f, z:%.1f}", pos.x, pos.y, pos.z);
 
         ImGui::End();
     }

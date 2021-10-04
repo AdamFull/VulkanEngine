@@ -92,6 +92,7 @@ namespace Engine
                     HandleAxis(range_it->second, keyAxis->second);
                 }
 
+                if(key != EActionKey::eCursorOriginal)
                 m_mAxisStates[key] = {};        //Reset axis
             }
         }

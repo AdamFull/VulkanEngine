@@ -17,7 +17,7 @@ namespace Engine
 
         InputMapper::GetInstance()->CreateAction("OverlayMouse", EActionKey::eMouseLeft, EActionKey::eMouseRight);
         InputMapper::GetInstance()->CreateAction("OverlayMousePosition", EActionKey::eCursorOriginal);
-        InputMapper::GetInstance()->BindAction("OverlayMouse", EKeyState::ePressed, m_pOvelray.get(), &ImguiOverlay::ProcessKeys);
+        InputMapper::GetInstance()->BindAction("OverlayMouse", EKeyState::ePress, m_pOvelray.get(), &ImguiOverlay::ProcessKeys);
         InputMapper::GetInstance()->BindAction("OverlayMouse", EKeyState::eRelease, m_pOvelray.get(), &ImguiOverlay::ProcessKeys);
         InputMapper::GetInstance()->BindAxis("OverlayMousePosition", m_pOvelray.get(), &ImguiOverlay::ProcessCursor);
     }

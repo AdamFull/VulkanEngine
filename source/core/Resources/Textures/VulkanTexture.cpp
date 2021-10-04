@@ -38,10 +38,10 @@ namespace Engine
     {
         ResourceBase::Destroy();
 
-        UDevice->Destroy(sampler);
-        UDevice->Destroy(view);
         UDevice->Destroy(image);
+        UDevice->Destroy(view);
         UDevice->Destroy(deviceMemory);
+        UDevice->Destroy(sampler);
     }
 
     void TextureBase::UpdateDescriptor()

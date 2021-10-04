@@ -12,6 +12,14 @@ namespace Engine
     class VulkanBuffer;
     class WindowHandle;
 
+    struct FGUIControls
+    {
+        bool bLMbtn = false;
+        bool bRMbtn = false;
+        float fMouseX{0.f};
+        float fMouseY{0.f};
+    };
+
     class ImguiOverlay
     {
     public:
@@ -33,6 +41,8 @@ namespace Engine
         void CreateFontResources(std::unique_ptr<Device>& device);
         void CreateResources(std::unique_ptr<Device>& device, std::unique_ptr<SwapChain>& swapchain);
 
+        void UpdateControls(float fDeltaTime);
+
         void CreateDebugOverlay();
         void CreateMenuBar();
         void ShowMenuFile();
@@ -43,8 +53,7 @@ namespace Engine
         std::unique_ptr<VulkanBuffer> vertexBuffer;
         std::unique_ptr<VulkanBuffer> indexBuffer;
 
-        float fMouseX{0.f};
-        float fMouseY{0.f};
+        FGUIControls controls;
 
         bool show_demo_window = true;
         float values[90] = {1.f};

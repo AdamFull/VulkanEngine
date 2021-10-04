@@ -52,7 +52,13 @@ namespace Engine
         createInfo.multisampling.rasterizationSamples = samples;
 
         createInfo.colorBlendAttachment.colorWriteMask = vk::ColorComponentFlagBits::eR | vk::ColorComponentFlagBits::eG | vk::ColorComponentFlagBits::eB | vk::ColorComponentFlagBits::eA;
-        createInfo.colorBlendAttachment.blendEnable = VK_FALSE;
+        createInfo.colorBlendAttachment.blendEnable = VK_TRUE;
+        createInfo.colorBlendAttachment.srcColorBlendFactor = vk::BlendFactor::eSrcAlpha;
+        createInfo.colorBlendAttachment.dstColorBlendFactor = vk::BlendFactor::eOneMinusSrcAlpha;
+        createInfo.colorBlendAttachment.colorBlendOp = vk::BlendOp::eAdd;
+        createInfo.colorBlendAttachment.srcAlphaBlendFactor = vk::BlendFactor::eOneMinusSrcAlpha;
+        createInfo.colorBlendAttachment.dstAlphaBlendFactor = vk::BlendFactor::eZero;
+        createInfo.colorBlendAttachment.alphaBlendOp = vk::BlendOp::eAdd;
 
         createInfo.colorBlending.logicOpEnable = VK_FALSE;
         createInfo.colorBlending.logicOp = vk::LogicOp::eCopy;
@@ -64,7 +70,8 @@ namespace Engine
 
         createInfo.depthStencil.depthTestEnable = VK_TRUE;
         createInfo.depthStencil.depthWriteEnable = VK_TRUE;
-        createInfo.depthStencil.depthCompareOp = vk::CompareOp::eLess;
+        createInfo.depthStencil.depthCompareOp = vk::CompareOp::eLessOrEqual;
+        createInfo.depthStencil.back.compareOp = vk::CompareOp::eAlways;
         createInfo.depthStencil.depthBoundsTestEnable = VK_FALSE;
         createInfo.depthStencil.stencilTestEnable = VK_FALSE;
         
@@ -85,7 +92,7 @@ namespace Engine
     FPipelineCreateInfo PipelineConfig::CreateDefaultPipelineConfig(EPipelineType eType, EShaderSet eSet,vk::SampleCountFlagBits samples, vk::PipelineLayout pipelineLayout, vk::PipelineCache pipelineCache)
     {
         FPipelineCreateInfo createInfo = CreatePipelineConfig(eType, eSet, vk::PrimitiveTopology::eTriangleList, vk::PolygonMode::eFill,
-                                    vk::CullModeFlagBits::eBack, vk::FrontFace::eCounterClockwise, samples, pipelineLayout, pipelineCache);
+                                    vk::CullModeFlagBits::eNone, vk::FrontFace::eCounterClockwise, samples, pipelineLayout, pipelineCache);
         createInfo.bindPoint = vk::PipelineBindPoint::eGraphics;
         return createInfo;
     }

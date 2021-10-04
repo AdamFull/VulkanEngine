@@ -77,7 +77,7 @@ namespace Engine
         CameraManager::GetInstance()->Attach(camera);
     }
 
-    void Application::ServiceHandle(EActionKey eKey)
+    void Application::ServiceHandle(EActionKey eKey, EKeyState eState)
     {
         switch (eKey)
         {

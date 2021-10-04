@@ -15,10 +15,10 @@ namespace Engine
         m_pOvelray = std::make_unique<ImguiOverlay>();
         m_pOvelray->Create(UDevice, USwapChain);
 
-        InputMapper::GetInstance()->CreateAction("OverlayMouse", EActionKey::eMouseLeft, EActionKey::eMouseRight);
+        InputMapper::GetInstance()->CreateAction("OverlayMouse", EActionKey::eMouseLeft, EActionKey::eMouseRight, EActionKey::eLeftShift, EActionKey::eLeftControl);
         InputMapper::GetInstance()->CreateAction("OverlayMousePosition", EActionKey::eCursorOriginal);
         InputMapper::GetInstance()->BindAction("OverlayMouse", EKeyState::ePressed, m_pOvelray.get(), &ImguiOverlay::ProcessKeys);
-        //InputMapper::GetInstance()->BindAction("OverlayMouse", EKeyState::eRelease, m_pOvelray.get(), &ImguiOverlay::ProcessKeys);
+        InputMapper::GetInstance()->BindAction("OverlayMouse", EKeyState::eRelease, m_pOvelray.get(), &ImguiOverlay::ProcessKeys);
         InputMapper::GetInstance()->BindAxis("OverlayMousePosition", m_pOvelray.get(), &ImguiOverlay::ProcessCursor);
     }
 

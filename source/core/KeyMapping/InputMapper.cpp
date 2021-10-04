@@ -111,7 +111,7 @@ namespace Engine
                     auto& vListeners = range_it->second.vListeners;
                     for(auto& listener : vListeners)
                     {
-                        listener(eKey);
+                        listener(eKey, eKeyState);
                     }
                 }
             }
@@ -135,7 +135,7 @@ namespace Engine
         }
     }
 
-    FInputAction InputMapper::MakeBindAction(EKeyState eState, EasyDelegate::TDelegate<void(EActionKey)>&& dCallback)
+    FInputAction InputMapper::MakeBindAction(EKeyState eState, EasyDelegate::TDelegate<void(EActionKey, EKeyState)>&& dCallback)
     {
         FInputAction newAction;
         newAction.eState = eState;

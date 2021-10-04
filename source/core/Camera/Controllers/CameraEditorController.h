@@ -9,7 +9,7 @@ namespace Engine
         void Create() override;
         void Update(float fDeltaTime) override;
     private:
-        void CameraMovement(EActionKey eKey);
+        void CameraMovement(EActionKey eKey, EKeyState eState);
         void MouseRotation(float fX, float fY);
         void CameraToPoint(float fX, float fY);
 

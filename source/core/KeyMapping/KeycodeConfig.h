@@ -5,6 +5,14 @@ namespace Engine
     constexpr const int PressedState = GLFW_PRESS;
     constexpr const int ReleasedState = GLFW_RELEASE;
 
+    enum class EKeyState
+    {
+        ePress,         // Just pressed
+        ePressed,       // Pressed and not released
+        eRelease,       // Just released
+        eReleased       // Flying
+    };
+
     enum class EActionKey
     {
         //Mouse

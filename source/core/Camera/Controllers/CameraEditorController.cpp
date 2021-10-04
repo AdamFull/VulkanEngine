@@ -23,7 +23,7 @@ namespace Engine
         CameraController::Update(fDeltaTime);
     }
 
-    void CameraEditorController::CameraMovement(EActionKey eKey)
+    void CameraEditorController::CameraMovement(EActionKey eKey, EKeyState eState)
     {
         auto camera = CameraManager::GetInstance()->GetCurrentCamera();
         FTransform transform = camera->GetTransform();

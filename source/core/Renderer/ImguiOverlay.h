@@ -33,7 +33,7 @@ namespace Engine
         void Update(std::unique_ptr<Device>& device, float deltaTime);
         void DrawFrame(std::unique_ptr<Device>& device, vk::CommandBuffer commandBuffer, uint32_t index);
 
-        void ProcessKeys(EActionKey eKey);
+        void ProcessKeys(EActionKey eKey, EKeyState eState);
         void ProcessCursor(float fX, float fY);
 
     private:
@@ -46,6 +46,8 @@ namespace Engine
         void UpdateInputChar(unsigned char c);
 
         void CreateDebugOverlay();
+        void ShowConsole();
+        void ShowLog();
         void CreateMenuBar();
         void ShowMenuFile();
 
@@ -54,6 +56,13 @@ namespace Engine
         std::shared_ptr<MaterialUI> fontMaterial;
         std::unique_ptr<VulkanBuffer> vertexBuffer;
         std::unique_ptr<VulkanBuffer> indexBuffer;
+        int vertexCount{0};
+        int indexCount{0};
+
+        ImGuiTextBuffer     Buf;
+        ImGuiTextFilter     Filter;
+        ImVector<int>       LineOffsets;
+        bool                AutoScroll; 
 
         FGUIControls controls;
 

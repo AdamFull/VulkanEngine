@@ -3,18 +3,10 @@
 
 namespace Engine
 {
-    enum class EKeyState
-    {
-        ePress,         // Just pressed
-        ePressed,       // Pressed and not released
-        eRelease,       // Just released
-        eReleased       // Flying
-    };
-
     struct FInputAction
     {
         EKeyState eState;
-        std::vector<EasyDelegate::TDelegate<void(EActionKey)>> vListeners;
+        std::vector<EasyDelegate::TDelegate<void(EActionKey, EKeyState)>> vListeners;
     };
 
     struct FInputAxis
@@ -59,12 +51,12 @@ namespace Engine
                 {
                     if(range_it->second.eState == eState)
                     {
-                        range_it->second.vListeners.emplace_back(EasyDelegate::TDelegate<void(EActionKey)>(std::forward<Args>(args)...));
+                        range_it->second.vListeners.emplace_back(EasyDelegate::TDelegate<void(EActionKey, EKeyState)>(std::forward<Args>(args)...));
                         return;
                     }
                 }
             }
-            m_mInputActions.emplace(srActionName, MakeBindAction(eState, EasyDelegate::TDelegate<void(EActionKey)>(std::forward<Args>(args)...)));
+            m_mInputActions.emplace(srActionName, MakeBindAction(eState, EasyDelegate::TDelegate<void(EActionKey, EKeyState)>(std::forward<Args>(args)...)));
         }
 
         template<class ...Args>
@@ -91,7 +83,7 @@ namespace Engine
         void HandleActions(std::string srActionName, EActionKey eKey, const EKeyState& eKeyState);
         void HandleAxis(std::string srAxisName,  glm::vec2 fValue);
 
-        FInputAction MakeBindAction(EKeyState eState, EasyDelegate::TDelegate<void(EActionKey)>&& dCallback);
+        FInputAction MakeBindAction(EKeyState eState, EasyDelegate::TDelegate<void(EActionKey, EKeyState)>&& dCallback);
         FInputAxis MakeBindAxis(EasyDelegate::TDelegate<void(float, float)>&& dCallback);
 
         std::multimap<EActionKey, std::string> m_mInputDescriptor;

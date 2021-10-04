@@ -9,7 +9,7 @@ namespace Engine
     {
     public:
         void Create();
-        void ServiceHandle(EActionKey eKey);
+        void ServiceHandle(EActionKey eKey, EKeyState eState);
         void run();
     private:
         std::unique_ptr<RenderScene> m_pRenderScene;

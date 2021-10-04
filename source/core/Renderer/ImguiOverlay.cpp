@@ -59,25 +59,27 @@ namespace Engine
     {
         // Color scheme
 		ImGuiStyle& style = ImGui::GetStyle();
-		style.Colors[ImGuiCol_TitleBg] = ImVec4(1.0f, 0.0f, 0.0f, 1.0f);
-		style.Colors[ImGuiCol_TitleBgActive] = ImVec4(1.0f, 0.0f, 0.0f, 1.0f);
-		style.Colors[ImGuiCol_TitleBgCollapsed] = ImVec4(1.0f, 0.0f, 0.0f, 0.1f);
-		style.Colors[ImGuiCol_MenuBarBg] = ImVec4(1.0f, 0.0f, 0.0f, 0.4f);
-		style.Colors[ImGuiCol_Header] = ImVec4(0.8f, 0.0f, 0.0f, 0.4f);
-		style.Colors[ImGuiCol_HeaderActive] = ImVec4(1.0f, 0.0f, 0.0f, 0.4f);
-		style.Colors[ImGuiCol_HeaderHovered] = ImVec4(1.0f, 0.0f, 0.0f, 0.4f);
+		style.Colors[ImGuiCol_TitleBg] = ImVec4(1.0f, 0.4f, 0.0f, 1.0f);
+		style.Colors[ImGuiCol_TitleBgActive] = ImVec4(1.0f, 0.4f, 0.0f, 1.0f);
+		style.Colors[ImGuiCol_TitleBgCollapsed] = ImVec4(1.0f, 0.4f, 0.0f, 0.1f);
+		style.Colors[ImGuiCol_MenuBarBg] = ImVec4(1.0f, 0.4f, 0.0f, 0.4f);
+		style.Colors[ImGuiCol_Header] = ImVec4(0.8f, 0.4f, 0.0f, 0.4f);
+		style.Colors[ImGuiCol_HeaderActive] = ImVec4(1.0f, 0.4f, 0.0f, 0.4f);
+		style.Colors[ImGuiCol_HeaderHovered] = ImVec4(1.0f, 0.4f, 0.0f, 0.4f);
 		style.Colors[ImGuiCol_FrameBg] = ImVec4(0.0f, 0.0f, 0.0f, 0.8f);
-		style.Colors[ImGuiCol_CheckMark] = ImVec4(1.0f, 0.0f, 0.0f, 0.8f);
-		style.Colors[ImGuiCol_SliderGrab] = ImVec4(1.0f, 0.0f, 0.0f, 0.4f);
-		style.Colors[ImGuiCol_SliderGrabActive] = ImVec4(1.0f, 0.0f, 0.0f, 0.8f);
+		style.Colors[ImGuiCol_CheckMark] = ImVec4(1.0f, 0.4f, 0.0f, 0.8f);
+		style.Colors[ImGuiCol_SliderGrab] = ImVec4(1.0f, 0.4f, 0.0f, 0.4f);
+		style.Colors[ImGuiCol_SliderGrabActive] = ImVec4(1.0f, 0.4f, 0.0f, 0.8f);
 		style.Colors[ImGuiCol_FrameBgHovered] = ImVec4(1.0f, 1.0f, 1.0f, 0.1f);
 		style.Colors[ImGuiCol_FrameBgActive] = ImVec4(1.0f, 1.0f, 1.0f, 0.2f);
-		style.Colors[ImGuiCol_Button] = ImVec4(1.0f, 0.0f, 0.0f, 0.4f);
-		style.Colors[ImGuiCol_ButtonHovered] = ImVec4(1.0f, 0.0f, 0.0f, 0.6f);
-		style.Colors[ImGuiCol_ButtonActive] = ImVec4(1.0f, 0.0f, 0.0f, 0.8f);
+		style.Colors[ImGuiCol_Button] = ImVec4(1.0f, 0.4f, 0.0f, 0.4f);
+		style.Colors[ImGuiCol_ButtonHovered] = ImVec4(1.0f, 0.4f, 0.0f, 0.6f);
+		style.Colors[ImGuiCol_ButtonActive] = ImVec4(1.0f, 0.4f, 0.0f, 0.8f);
+		style.Colors[ImGuiCol_DockingEmptyBg] = ImVec4(0.0f, 0.0f, 0.0f, 0.0f);
+		style.Colors[ImGuiCol_DockingPreview] = ImVec4(1.0f, 0.4f, 0.0f, 1.0f);
 		// Dimensions
 		ImGuiIO& io = ImGui::GetIO();
-        io.ConfigFlags |= 1 << 6;
+        io.ConfigFlags |= ImGuiConfigFlags_DockingEnable | ImGuiConfigFlags_ViewportsEnable;
 		io.DisplaySize = ImVec2(WindowHandle::m_iWidth, WindowHandle::m_iHeight);
 		io.DisplayFramebufferScale = ImVec2(1.0f, 1.0f);
     }
@@ -104,10 +106,13 @@ namespace Engine
     {
         ImGui::NewFrame();
 
+        ImGui::DockSpaceOverViewport();
         if (show_demo_window) ImGui::ShowDemoWindow(&show_demo_window);
 
+        ShowConsole();
+        ShowLog();
         CreateDebugOverlay();
-        CreateMenuBar();
+        //CreateMenuBar();
 
         ImGui::Render();
     }
@@ -128,21 +133,23 @@ namespace Engine
         auto physProps = device->GetPhysical().getProperties();
         auto minOffsetAllignment = std::lcm(physProps.limits.minUniformBufferOffsetAlignment, physProps.limits.nonCoherentAtomSize);
 		// Vertex buffer
-		if (!vertexBuffer->GetBuffer() || !vertexBuffer->GetMappedMemory()) 
+		if (!vertexBuffer->GetBuffer() /*|| vertexCount != drawdata->TotalVtxCount*/) 
         {
 			vertexBuffer->UnmapMem(device);
 			vertexBuffer->Destroy(device);
-            vertexBuffer->Create(device, sizeof(ImDrawVert), drawdata->TotalVtxCount, vk::BufferUsageFlagBits::eVertexBuffer, vk::MemoryPropertyFlagBits::eHostVisible, minOffsetAllignment);
+            vertexBuffer->Create(device, sizeof(ImDrawVert), 10000, vk::BufferUsageFlagBits::eVertexBuffer, vk::MemoryPropertyFlagBits::eHostVisible, minOffsetAllignment);
 			vertexBuffer->MapMem(device);
+            vertexCount = drawdata->TotalVtxCount;
 		}
 
 		// Index buffer
-		if (!indexBuffer->GetBuffer() || !indexBuffer->GetMappedMemory()) 
+		if (!indexBuffer->GetBuffer() /*|| indexCount != drawdata->TotalIdxCount*/) 
         {
 			indexBuffer->UnmapMem(device);
 			indexBuffer->Destroy(device);
-            indexBuffer->Create(device, sizeof(ImDrawIdx), drawdata->TotalIdxCount, vk::BufferUsageFlagBits::eIndexBuffer, vk::MemoryPropertyFlagBits::eHostVisible, minOffsetAllignment);
+            indexBuffer->Create(device, sizeof(ImDrawIdx), 20000, vk::BufferUsageFlagBits::eIndexBuffer, vk::MemoryPropertyFlagBits::eHostVisible, minOffsetAllignment);
 			indexBuffer->MapMem(device);
+            indexCount = drawdata->TotalIdxCount;
 		}
 
 		// Upload data
@@ -173,9 +180,6 @@ namespace Engine
 		io.MousePos = ImVec2(controls.fMouseX, controls.fMouseY);
 		io.MouseDown[0] = controls.bLMbtn;
 		io.MouseDown[1] = controls.bRMbtn;
-
-        controls.bLMbtn = true;
-        controls.bRMbtn = true;
     }
 
     void ImguiOverlay::UpdateFocusStatus(int focus)
@@ -241,17 +245,22 @@ namespace Engine
 		}
     }
 
-    void ImguiOverlay::ProcessKeys(EActionKey eKey)
+    void ImguiOverlay::ProcessKeys(EActionKey eKey, EKeyState eState)
     {
+        ImGuiIO& io = ImGui::GetIO();
         switch (eKey)
         {
             case EActionKey::eMouseLeft:
             {
-                controls.bLMbtn = false;
+                controls.bLMbtn = eState == EKeyState::ePressed;
             }break;
             case EActionKey::eMouseRight:
             {
-                controls.bRMbtn = false;
+                controls.bRMbtn = eState == EKeyState::ePressed;
+            }break;
+            default:
+            {
+                io.KeysDown[(int)eKey] = (eState == EKeyState::ePressed);
             }break;
         }
     }
@@ -337,5 +346,84 @@ namespace Engine
         if (ImGui::MenuItem("Save", "Ctrl+S")) {}
         if (ImGui::MenuItem("Save As..", "Ctrl+Shift+S")) {}
         if (ImGui::MenuItem("Exit")) {}
+    }
+
+    void ImguiOverlay::ShowConsole()
+    {
+        if (!ImGui::Begin("Console"))
+        {
+            ImGui::End();
+            return;
+        }
+
+        // Options menu
+        if (ImGui::BeginPopup("Options"))
+        {
+            ImGui::Checkbox("Auto-scroll", &AutoScroll);
+            ImGui::EndPopup();
+        }
+
+        // Main window
+        if (ImGui::Button("Options"))
+            ImGui::OpenPopup("Options");
+        ImGui::SameLine();
+        bool clear = ImGui::Button("Clear");
+        ImGui::SameLine();
+        bool copy = ImGui::Button("Copy");
+        ImGui::SameLine();
+        Filter.Draw("Filter", -100.0f);
+
+        ImGui::Separator();
+        ImGui::BeginChild("scrolling", ImVec2(0, 0), false, ImGuiWindowFlags_HorizontalScrollbar);
+
+        /*if (clear)
+            Clear();
+        if (copy)
+            ImGui::LogToClipboard();*/
+
+        ImGui::PushStyleVar(ImGuiStyleVar_ItemSpacing, ImVec2(0, 0));
+        const char* buf = Buf.begin();
+        const char* buf_end = Buf.end();
+        if (Filter.IsActive())
+        {
+            // In this example we don't use the clipper when Filter is enabled.
+            // This is because we don't have a random access on the result on our filter.
+            // A real application processing logs with ten of thousands of entries may want to store the result of
+            // search/filter.. especially if the filtering function is not trivial (e.g. reg-exp).
+            for (int line_no = 0; line_no < LineOffsets.Size; line_no++)
+            {
+                const char* line_start = buf + LineOffsets[line_no];
+                const char* line_end = (line_no + 1 < LineOffsets.Size) ? (buf + LineOffsets[line_no + 1] - 1) : buf_end;
+                if (Filter.PassFilter(line_start, line_end))
+                    ImGui::TextUnformatted(line_start, line_end);
+            }
+        }
+        else
+        {
+            ImGuiListClipper clipper;
+            clipper.Begin(LineOffsets.Size);
+            while (clipper.Step())
+            {
+                for (int line_no = clipper.DisplayStart; line_no < clipper.DisplayEnd; line_no++)
+                {
+                    const char* line_start = buf + LineOffsets[line_no];
+                    const char* line_end = (line_no + 1 < LineOffsets.Size) ? (buf + LineOffsets[line_no + 1] - 1) : buf_end;
+                    ImGui::TextUnformatted(line_start, line_end);
+                }
+            }
+            clipper.End();
+        }
+        ImGui::PopStyleVar();
+
+        if (AutoScroll && ImGui::GetScrollY() >= ImGui::GetScrollMaxY())
+            ImGui::SetScrollHereY(1.0f);
+
+        ImGui::EndChild();
+        ImGui::End();
+    }
+
+    void ImguiOverlay::ShowLog()
+    {
+        //
     }
 }

@@ -1,6 +1,6 @@
 #pragma once
 #include "Objects/Components/SceneRootComponent.h"
-#include "Renderer/ImguiOverlay.h"
+#include "Renderer/Overlay/ImguiOverlay.h"
 
 namespace Engine
 {

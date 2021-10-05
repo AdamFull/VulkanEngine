@@ -1,7 +1,8 @@
 #pragma once
 #include <imgui.h>
-#include "VulkanUniform.h"
+#include "Renderer/VulkanUniform.h"
 #include "KeyMapping/KeycodeConfig.h"
+#include "Overlays/OverlayBase.h"
 
 namespace Engine
 {
@@ -45,12 +46,6 @@ namespace Engine
         void UpdateFocusStatus(int focus);
         void UpdateInputChar(unsigned char c);
 
-        void CreateDebugOverlay();
-        void ShowConsole();
-        void ShowLog();
-        void CreateMenuBar();
-        void ShowMenuFile();
-
         std::unique_ptr<UniformBuffer<FUniformDataUI>> m_pUniform;
         std::shared_ptr<Texture2D> fontTexture;
         std::shared_ptr<MaterialUI> fontMaterial;
@@ -59,15 +54,8 @@ namespace Engine
         int vertexCount{0};
         int indexCount{0};
 
-        ImGuiTextBuffer     Buf;
-        ImGuiTextFilter     Filter;
-        ImVector<int>       LineOffsets;
-        bool                AutoScroll; 
+        std::vector<std::shared_ptr<OverlayBase>> m_vOverlays;
 
         FGUIControls controls;
-
-        bool show_demo_window = true;
-        std::array<float, 50> frameTimes{};
-	    float frameTimeMin = 0.0f, frameTimeMax = 1.5f;
     };
 }

@@ -1,5 +1,5 @@
 #include "InputMapper.h"
-#include "Renderer/WindowHandle.h"
+#include "Renderer/Window/WindowHandle.h"
 #include "EngineMath.hpp"
 
 namespace Engine

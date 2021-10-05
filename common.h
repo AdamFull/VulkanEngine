@@ -16,7 +16,7 @@
 #include <glm/gtc/matrix_transform.hpp>
 #include <glm/gtx/hash.hpp>
 
-#include "external/EasyDelegateImpl.hpp"
+#include "external/EasyDelegate/EasyDelegateImpl.hpp"
 
 #include <cassert>
 #include <iostream>

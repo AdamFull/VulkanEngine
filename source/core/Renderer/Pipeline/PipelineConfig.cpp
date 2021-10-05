@@ -1,5 +1,5 @@
 #include "PipelineConfig.h"
-#include "Renderer/WindowHandle.h"
+#include "Renderer/Window/WindowHandle.h"
 #include "Renderer/DataTypes/VulkanVertex.hpp"
 
 namespace Engine

@@ -1,71 +1,11 @@
 #include "WindowHandle.h"
+#include "WinCallbacks.h"
 
 namespace Engine
 {
-    EasyDelegate::TDelegate<void(int)> WindowHandle::FocusCallback;
-    EasyDelegate::TDelegate<void(unsigned int)> WindowHandle::CharInputCallback;
-    EasyDelegate::TDelegate<void(int, int, int, int)> WindowHandle::KeyCodeCallback;
-    EasyDelegate::TDelegate<void(double, double, double, double)> WindowHandle::MousePositionCallback;
-    EasyDelegate::TDelegate<void(double, double)> WindowHandle::MouseWheelCallback;
     int32_t WindowHandle::m_iWidth{800};
     int32_t WindowHandle::m_iHeight{600};
     bool WindowHandle::m_bWasResized{false};
-
-    void WindowHandle::FocusChangeCallback(GLFWwindow *window, int focus)
-    {
-        if(FocusCallback)
-        {
-            FocusCallback(focus);
-        }
-    }
-
-    void WindowHandle::CharPressedCallback(GLFWwindow *window, unsigned int c)
-    {
-        if(CharInputCallback)
-        {
-            CharInputCallback(c);
-        }
-    }
-
-    void WindowHandle::FramebufferResizeCallback(GLFWwindow *window, int width, int height)
-    {
-        auto pThis = reinterpret_cast<WindowHandle *>(glfwGetWindowUserPointer(window));
-        pThis->ResizeWindow(width, height);
-    }
-
-    void WindowHandle::KeyBoardInputCallback(GLFWwindow *window, int key, int scancode, int action, int mods)
-    {
-        if (KeyCodeCallback)
-        {
-            KeyCodeCallback(key, scancode, action, mods);
-        }
-    }
-
-    void WindowHandle::MousePositionInputCallback(GLFWwindow *window, double xpos, double ypos)
-    {
-        if (MousePositionCallback)
-        {
-            double xmax = static_cast<double>(m_iWidth);
-            double ymax = static_cast<double>(m_iHeight);
-            MousePositionCallback(xpos, ypos, xmax, ymax);
-        }
-    }
-
-    void WindowHandle::MouseButtonInputCallback(GLFWwindow* window, int button, int action, int mods)
-    {
-        if (KeyCodeCallback)
-        {
-            KeyCodeCallback(button, 0, action, mods);
-        }
-    }
-
-    void WindowHandle::MouseWheelInputCallback(GLFWwindow *window, double xpos, double ypos)
-    {
-        if (MouseWheelCallback)
-        {
-            MouseWheelCallback(xpos, ypos);
-        }
-    }
 
     WindowHandle::WindowHandle()
     {
@@ -86,13 +26,14 @@ namespace Engine
         glfwSetWindowUserPointer(m_pWindow, this);
         glfwSetInputMode(m_pWindow, GLFW_STICKY_KEYS, GLFW_TRUE);
         //glfwSetInputMode(m_pWindow, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
-        glfwSetWindowFocusCallback(m_pWindow, &WindowHandle::FocusChangeCallback);
-        glfwSetCharCallback(m_pWindow, &WindowHandle::CharPressedCallback);
-        glfwSetFramebufferSizeCallback(m_pWindow, &WindowHandle::FramebufferResizeCallback);
-        glfwSetKeyCallback(m_pWindow, &WindowHandle::KeyBoardInputCallback);
-        glfwSetCursorPosCallback(m_pWindow, &WindowHandle::MousePositionInputCallback);
-        glfwSetMouseButtonCallback(m_pWindow, &WindowHandle::MouseButtonInputCallback);
-        glfwSetScrollCallback(m_pWindow, &WindowHandle::MouseWheelInputCallback);
+
+        glfwSetWindowFocusCallback(m_pWindow, &WinCallbacks::WinInputFocusChangeCallback);
+        glfwSetCursorEnterCallback(m_pWindow, &WinCallbacks::WinInputCursorEnterCallback);
+        glfwSetMouseButtonCallback(m_pWindow, &WinCallbacks::WinInputMouseButtonCallback);
+        glfwSetScrollCallback(m_pWindow, &WinCallbacks::WinInputScrollCallback);
+        glfwSetKeyCallback(m_pWindow, &WinCallbacks::WinInputKeyCallback);
+        glfwSetCharCallback(m_pWindow, &WinCallbacks::WinInputCharCallback);
+        glfwSetMonitorCallback(&WinCallbacks::WinInputMonitorCallback);
     }
 
     void WindowHandle::CreateWindowSurface(vk::UniqueInstance &instance, vk::SurfaceKHR &surface)

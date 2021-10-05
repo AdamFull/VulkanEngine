@@ -1,5 +1,6 @@
 #include "InputMapper.h"
 #include "Renderer/Window/WindowHandle.h"
+#include "Renderer/Window/WinCallbacks.h"
 #include "EngineMath.hpp"
 
 namespace Engine
@@ -8,7 +9,8 @@ namespace Engine
 
     InputMapper::InputMapper()
     {
-        WindowHandle::KeyCodeCallback.attach(this, &InputMapper::KeyBoardInput);
+        WinCallbacks::Subscribe(EWinCallbackType::eInputKey, this, &InputMapper::KeyBoardInput);
+        WinCallbacks::Subscribe(EWinCallbackType::
         WindowHandle::MousePositionCallback.attach(this, &InputMapper::MouseMovementInput);
         WindowHandle::MouseWheelCallback.attach(this, &InputMapper::MouseWheelInput);
     }

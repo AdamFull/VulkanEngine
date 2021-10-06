@@ -2,9 +2,6 @@
 #include "Renderer/VulkanDevice.h"
 #include "Renderer/VulkanHighLevel.h"
 
-#define TINYOBJLOADER_IMPLEMENTATION
-#include "external/tiny_obj_loader.h"
-
 namespace Engine
 {
     void MeshBase::Create(std::string srResourcePath)

@@ -3,9 +3,6 @@
 #include "Renderer/VulkanBuffer.h"
 #include "Renderer/VulkanHighLevel.h"
 
-#define STB_IMAGE_IMPLEMENTATION
-#include "external/stb_image.h"
-
 namespace Engine
 {
     void TextureBase::Create(std::string srResourceName)

@@ -10,6 +10,7 @@ namespace Engine
         OverlayLog(std::string srName)
         {
             srOverlayName = srName;
+            bOverlayState = false;
         }
         void Draw() override;
         

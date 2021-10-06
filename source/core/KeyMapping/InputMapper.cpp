@@ -9,17 +9,17 @@ namespace Engine
 
     InputMapper::InputMapper()
     {
-        WinCallbacks::Subscribe(EWinCallbackType::eInputKey, this, &InputMapper::KeyBoardInput);
-        WinCallbacks::Subscribe(EWinCallbackType::
-        WindowHandle::MousePositionCallback.attach(this, &InputMapper::MouseMovementInput);
-        WindowHandle::MouseWheelCallback.attach(this, &InputMapper::MouseWheelInput);
+        WinCallbacks::SubscribeKeyInput(this, &InputMapper::KeyBoardInput);
+        WinCallbacks::SubscribeMousePosition(this, &InputMapper::MouseMovementInput);
+        WinCallbacks::SubscribeMouseScroll(this, &InputMapper::MouseWheelInput);
+        WinCallbacks::SubscribeMouseButton(this, &InputMapper::MouseButtonInput);
     }
 
     InputMapper::~InputMapper()
     {
-        WindowHandle::KeyCodeCallback.detach();
+        /*WindowHandle::KeyCodeCallback.detach();
         WindowHandle::MousePositionCallback.detach();
-        WindowHandle::MouseWheelCallback.detach();
+        WindowHandle::MouseWheelCallback.detach();*/
     }
 
     std::unique_ptr<InputMapper>& InputMapper::GetInstance()
@@ -46,18 +46,30 @@ namespace Engine
         }
     }
 
-    void InputMapper::MouseMovementInput(double xpos, double ypos, double xmax, double ymax)
+    void InputMapper::MouseButtonInput(int button, int action, int mods)
     {
+        KeyBoardInput(button, 0, action, mods);
+    }
+
+    void InputMapper::MouseMovementInput(float xpos, float ypos)
+    {
+        float xmax = static_cast<float>(WindowHandle::m_iWidth);
+        float ymax = static_cast<float>(WindowHandle::m_iHeight);
+
         m_mAxisStates[EActionKey::eCursorOriginal] = {xpos, ypos};
         //Calculate on screen position
         fPosOld = m_mAxisStates[EActionKey::eCursorPos];
-        m_mAxisStates[EActionKey::eCursorPos] = {Math::RangeToRange(xpos, 0.0, xmax, -1.0, 1.0), Math::RangeToRange(ypos, 0.0, ymax, -1.0, 1.0)};
+        m_mAxisStates[EActionKey::eCursorPos] = 
+        {
+            Math::RangeToRange<float>(xpos, 0.0, xmax, -1.0, 1.0), 
+            Math::RangeToRange<float>(ypos, 0.0, ymax, -1.0, 1.0)
+        };
 
         //Calculate cursor pos delta
         m_mAxisStates[EActionKey::eCursorDelta] = (m_mAxisStates[EActionKey::eCursorPos] - fPosOld)*m_fDeltaTime;
     }
 
-    void InputMapper::MouseWheelInput(double xpos, double ypos)
+    void InputMapper::MouseWheelInput(float xpos, float ypos)
     {
         m_mAxisStates[EActionKey::eScrol] = glm::vec2{xpos * m_fDeltaTime, ypos * m_fDeltaTime};
     }

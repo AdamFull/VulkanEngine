@@ -8,6 +8,7 @@ namespace Engine
         Commands.push_back("help");
         Commands.push_back("clear");
         Commands.push_back("exit");
+        bOverlayState = false;
     }
 
     OverlayConsole::~OverlayConsole()

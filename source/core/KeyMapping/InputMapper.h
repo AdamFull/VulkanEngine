@@ -77,8 +77,9 @@ namespace Engine
         void Update(float fDeltaTime);
     private:
         void KeyBoardInput(int key, int scancode, int action, int mods);
-        void MouseMovementInput(double xpos, double ypos, double xmax, double ymax);
-        void MouseWheelInput(double xpos, double ypos);
+        void MouseButtonInput(int button, int action, int mods);
+        void MouseMovementInput(float xpos, float ypos);
+        void MouseWheelInput(float xpos, float ypos);
 
         void HandleActions(std::string srActionName, EActionKey eKey, const EKeyState& eKeyState);
         void HandleAxis(std::string srAxisName,  glm::vec2 fValue);

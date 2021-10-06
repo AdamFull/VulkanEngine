@@ -1,8 +1,21 @@
 # Blender MTL File: 'None'
-# Material Count: 1
+# Material Count: 2
 
-newmtl NoMaterial_1
-Ns 225.000000
+newmtl body
+Ns 81.000006
+Ka 1.000000 1.000000 1.000000
+Kd 0.800000 0.800000 0.800000
+Ks 0.509901 0.509901 0.509901
+Ke 0.000000 0.000000 0.000000
+Ni 1.450000
+d 1.000000
+illum 2
+map_Bump -bm 0.100000 D:\\Assets\\Unreal\\cbbe_normalized\\textures\\body\\femalebody_1_msn.png
+map_Kd D:\\Assets\\Unreal\\cbbe_normalized\\textures\\body\\femalebody_1.png
+map_Ks D:\\Assets\\Unreal\\cbbe_normalized\\textures\\body\\femalebody_1_s.png
+
+newmtl hands
+Ns 143.999983
 Ka 1.000000 1.000000 1.000000
 Kd 0.800000 0.800000 0.800000
 Ks 0.500000 0.500000 0.500000
@@ -10,3 +23,6 @@ Ke 0.000000 0.000000 0.000000
 Ni 1.450000
 d 1.000000
 illum 2
+map_Bump -bm 0.100000 D:\\Assets\\Unreal\\cbbe_normalized\\textures\\hands\\femalehands_1_msn.png
+map_Kd D:\\Assets\\Unreal\\cbbe_normalized\\textures\\hands\\femalehands_1.png
+map_Ks D:\\Assets\\Unreal\\cbbe_normalized\\textures\\hands\\femalehands_1_s.png

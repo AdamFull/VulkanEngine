@@ -1,7 +1,6 @@
 #pragma once
 #include <imgui.h>
 #include "Renderer/VulkanUniform.h"
-#include "KeyMapping/KeycodeConfig.h"
 #include "Overlays/OverlayBase.h"
 
 namespace Engine
@@ -24,7 +23,7 @@ namespace Engine
     class ImguiOverlay
     {
     public:
-        void Create(std::unique_ptr<Device>& device, std::unique_ptr<SwapChain>& swapchain);
+        void Create(std::unique_ptr<WindowHandle>& window, std::unique_ptr<Device>& device, std::unique_ptr<SwapChain>& swapchain);
         void ReCreate(std::unique_ptr<Device>& device, std::unique_ptr<SwapChain>& swapchain);
         void Cleanup(std::unique_ptr<Device>& device);
         void Destroy(std::unique_ptr<Device>& device);
@@ -34,17 +33,21 @@ namespace Engine
         void Update(std::unique_ptr<Device>& device, float deltaTime);
         void DrawFrame(std::unique_ptr<Device>& device, vk::CommandBuffer commandBuffer, uint32_t index);
 
-        void ProcessKeys(EActionKey eKey, EKeyState eState);
-        void ProcessCursor(float fX, float fY);
-
     private:
         void BaseInitialize();
         void CreateFontResources(std::unique_ptr<Device>& device);
         void CreateResources(std::unique_ptr<Device>& device, std::unique_ptr<SwapChain>& swapchain);
 
-        void UpdateControls(float fDeltaTime);
-        void UpdateFocusStatus(int focus);
-        void UpdateInputChar(unsigned char c);
+        void InitializeWindowBackend();
+
+        void OnFocusChange(int focused);
+        void OnCursorEnter(int enter);
+        void OnMouseButtonDown(int button, int action, int mods);
+        void OnMousePositionUpdate(float xpos, float ypos);
+        void OnMouseScroll(float xpos, float ypos);
+        void OnKeyboardInput(int key, int scancode, int action, int mods);
+        void OnInputChar(unsigned int c);
+        void OnMonitorEvent(int monitor);
 
         std::unique_ptr<UniformBuffer<FUniformDataUI>> m_pUniform;
         std::shared_ptr<Texture2D> fontTexture;
@@ -55,6 +58,7 @@ namespace Engine
         int indexCount{0};
 
         std::vector<std::shared_ptr<OverlayBase>> m_vOverlays;
+        bool bEnabled = false;
 
         FGUIControls controls;
     };

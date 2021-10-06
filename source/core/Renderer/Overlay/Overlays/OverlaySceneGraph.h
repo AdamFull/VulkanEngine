@@ -10,6 +10,7 @@ namespace Engine
         OverlaySceneGraph(std::string srName)
         {
             srOverlayName = srName;
+            bOverlayState = false;
         }
         void Draw() override;
     private:

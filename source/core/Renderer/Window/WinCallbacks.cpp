@@ -5,6 +5,7 @@ namespace Engine
     std::vector<EasyDelegate::TDelegate<void(int)>> WinCallbacks::focusChangeCallbacks;
     std::vector<EasyDelegate::TDelegate<void(int)>> WinCallbacks::cursorEnterCallbacks;
     std::vector<EasyDelegate::TDelegate<void(int, int, int)>> WinCallbacks::mouseButtonCallbacks;
+    std::vector<EasyDelegate::TDelegate<void(float, float)>> WinCallbacks::mousePositionCallbacks;
     std::vector<EasyDelegate::TDelegate<void(float, float)>> WinCallbacks::scrollCallbacks;
     std::vector<EasyDelegate::TDelegate<void(int, int, int, int)>> WinCallbacks::keyCallbacks;
     std::vector<EasyDelegate::TDelegate<void(unsigned int)>> WinCallbacks::charCallbacks;
@@ -26,6 +27,12 @@ namespace Engine
     {
         for(auto& callback : mouseButtonCallbacks)
             callback(button, action, mods);
+    }
+
+    void WinCallbacks::WinInputCursorPositionCallback(GLFWwindow *window, double xpos, double ypos)
+    {
+        for(auto& callback : mousePositionCallbacks)
+            callback((float)xpos, (float)ypos);
     }
 
     void WinCallbacks::WinInputScrollCallback(GLFWwindow *window, double xoffset, double yoffset)

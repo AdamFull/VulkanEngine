@@ -29,6 +29,7 @@ namespace Engine
 
         glfwSetWindowFocusCallback(m_pWindow, &WinCallbacks::WinInputFocusChangeCallback);
         glfwSetCursorEnterCallback(m_pWindow, &WinCallbacks::WinInputCursorEnterCallback);
+        glfwSetCursorPosCallback(m_pWindow, &WinCallbacks::WinInputCursorPositionCallback);
         glfwSetMouseButtonCallback(m_pWindow, &WinCallbacks::WinInputMouseButtonCallback);
         glfwSetScrollCallback(m_pWindow, &WinCallbacks::WinInputScrollCallback);
         glfwSetKeyCallback(m_pWindow, &WinCallbacks::WinInputKeyCallback);

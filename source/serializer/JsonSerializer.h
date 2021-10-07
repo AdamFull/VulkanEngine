@@ -1,5 +1,5 @@
 #pragma once
-#include 
+#include "external/gltf/json.hpp"
 
 #define BEGIN_BIND_FROM_JSON(type) \
 void from_json(const nlohmann::json& json, type& dt) { 

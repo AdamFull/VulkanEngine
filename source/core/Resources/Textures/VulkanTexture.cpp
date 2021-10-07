@@ -5,11 +5,6 @@
 
 namespace Engine
 {
-    void TextureBase::Create(std::string srResourceName)
-    {
-        
-    }
-
     void TextureBase::ReCreate()
     {
         ResourceBase::ReCreate();
@@ -140,11 +135,6 @@ namespace Engine
     }
     
     /*******************************************************Texture2D*****************************************************************/
-    void Texture2D::Create(std::string srResourceName)
-    {
-        Load(srResourceName);
-    }
-
     void Texture2D::ReCreate()
     {
         TextureBase::ReCreate();
@@ -170,10 +160,10 @@ namespace Engine
         TextureBase::Destroy();
     }
 
-    void Texture2D::Load(std::string srPath)
+    void Texture2D::Load(unsigned char* srPath)
     {
         int w, h, c;
-        unsigned char* raw_data = stbi_load(srPath.c_str(), &w, &h, &c, STBI_rgb_alpha);
+        unsigned char* raw_data = stbi_load((const char*)srPath, &w, &h, &c, STBI_rgb_alpha);
 
         if (!raw_data)
         {
@@ -221,11 +211,6 @@ namespace Engine
     }
 
     /*******************************************************TextureCubemap*****************************************************************/
-    void TextureCubemap::Create(std::string srResourcePath)
-    {
-        TextureBase::Create(srResourcePath);
-    }
-
     void TextureCubemap::ReCreate()
     {
         TextureBase::ReCreate();

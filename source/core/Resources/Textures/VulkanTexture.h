@@ -9,7 +9,6 @@ namespace Engine
     class TextureBase : public ResourceBase
     {
     public:
-        void Create(std::string srResourcePath);
         void ReCreate() override;
         void Update(uint32_t imageIndex, std::unique_ptr<VulkanBuffer>& pUniformBuffer) override;
         void Bind(vk::CommandBuffer commandBuffer, uint32_t imageIndex) override;
@@ -36,21 +35,19 @@ namespace Engine
     class Texture2D : public TextureBase
     {
     public:
-        void Create(std::string srResourcePath);
         void ReCreate() override;
         void Update(uint32_t imageIndex, std::unique_ptr<VulkanBuffer>& pUniformBuffer) override;
         void Bind(vk::CommandBuffer commandBuffer, uint32_t imageIndex) override;
         void Cleanup() override;
         void Destroy() override;
 
-        void Load(std::string srPath);
+        void Load(unsigned char* srPath);
         void Load(unsigned char* data, uint32_t iwidth, uint32_t iheight, uint32_t ichannels, uint32_t imipLevels, vk::Format imageFormat);
     };
 
     class TextureCubemap : public TextureBase
     {
     public:
-        void Create(std::string srResourcePath);
         void ReCreate() override;
         void Update(uint32_t imageIndex, std::unique_ptr<VulkanBuffer>& pUniformBuffer) override;
         void Bind(vk::CommandBuffer commandBuffer, uint32_t imageIndex) override;

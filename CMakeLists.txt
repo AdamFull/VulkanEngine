@@ -73,7 +73,6 @@ set(CPP_FILES
 )
 
 find_package(glm REQUIRED)
-find_package(nlohmann_json REQUIRED)
 
 add_subdirectory(${CMAKE_CURRENT_SOURCE_DIR}/source/external/glfw)
 set(GLFW_INCLUDE_DIR ${CMAKE_CURRENT_SOURCE_DIR}/source/external/glfw/include)
@@ -86,7 +85,6 @@ target_link_libraries( ${PROJECT_NAME} PUBLIC
 	glfw
 	${VULKAN_LIB_LIST} 
 	imgui
-	nlohmann_json::nlohmann_json
 )
 
 target_include_directories( ${PROJECT_NAME} PRIVATE 

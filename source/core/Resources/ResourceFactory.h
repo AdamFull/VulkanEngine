@@ -51,7 +51,6 @@ namespace Engine
     struct FMaterialCreateInfo
     {
         //Add material indexing
-        bool bInitialized{false};
         EMaterialType eType;
         std::vector<FTextureCreateInfo> vTextures;
     };
@@ -65,7 +64,6 @@ namespace Engine
 
     struct FMeshCreateInfo
     {
-        bool bInitialized{false};
         EMeshType eType;
         std::vector<FMaterialCreateInfo> vMaterials;
     };

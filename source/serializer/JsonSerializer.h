@@ -1,17 +1,14 @@
 #pragma once
 #include "external/gltf/json.hpp"
 
-#define BEGIN_BIND_FROM_JSON(type) \
-void from_json(const nlohmann::json& json, type& dt) { 
+template<class Type>
+void to_json(nlohmann::json& json, const Type& type)
+{
 
-#define ADD_BINDING_FROM_RULE(MemberName, MemberInstance) json.at(MemberName).get_to(MemberInstance);
+}
 
-#define END_BIND_FROM_JSON }
+template<class Type>
+void from_json(nlohmann::json& json, const Type& type)
+{
 
-#define BEGIN_BIND_TO_JSON(type) \
-void to_json(nlohmann::json& json, const type& dt) { \
-j = {
-
-#define ADD_BINDING_TO_RULE(MemberName, MemberInstance) {MemberName, MemberInstance},
-
-#define END_BIND_TO_JSON };}
+}

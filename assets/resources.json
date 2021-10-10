@@ -1,23 +1,80 @@
 {
-    "resources": 
-    [
-        {
-            "name": "viking_room_diffuse",
-            "type": "Texture2D",
-            "path": "../../assets/textures/viking_room.png"
-        },
-        {
-            "name": "viking_room_mesh",
-            "type": "StaticMesh",
-            "path": "../../assets/meshes/viking_room.obj"
-        },
-        {
-            "name": "viking_room_diffuse_material",
-            "type": "MaterialDiffuse",
-            "resources": 
+    "resources":
+    {
+        "textures": 
+        [
             {
-                "color": "viking_room_diffuse"
+                "name": "femalebody_diffuse",
+                "type": "2d",
+                "attachment": "color",
+                "src": "../../assets/textures/femalebody_1.png"
+            },
+            {
+                "name": "femalebody_specular",
+                "type": "2d",
+                "attachment": "specular",
+                "src": "../../assets/textures/femalebody_1_s.png"
+            },
+            {
+                "name": "femalebody_normal",
+                "type": "2d",
+                "attachment": "normal",
+                "src": "../../assets/textures/femalebody_1_msn.png"
             }
-        }
-    ]
+        ],
+        "materials":
+        [
+            {
+                "name": "femalebody_material",
+                "type": "diffuse",
+                "attachments": ["femalebody_diffuse", "femalebody_specular", "femalebody_normal"],
+                "params": 
+                {
+                    "cutoff": 1.0,
+                    "metalic": 1.0,
+                    "roughness": 1.0
+                }
+            }
+        ],
+        "meshes":
+        [
+            {
+                "name": "femalebody_obj",
+                "type": "static",
+                "attachments": ["femalebody_material"]
+            },
+            {
+                "name": "femalebody_obj_all_in_one",
+                "type": "static",
+                "materials": [
+                    {
+                        "type": "diffuse",
+                        "textures": [
+                            {
+                                "type": "2d",
+                                "attachment": "color",
+                                "src": "../../assets/textures/femalebody_1.png"
+                            },
+                            {
+                                "type": "2d",
+                                "attachment": "specular",
+                                "src": "../../assets/textures/femalebody_1_s.png"
+                            },
+                            {
+                                "type": "2d",
+                                "attachment": "normal",
+                                "src": "../../assets/textures/femalebody_1_msn.png"
+                            }
+                        ],
+                        "params": 
+                        {
+                            "cutoff": 1.0,
+                            "metalic": 1.0,
+                            "roughness": 1.0
+                        }
+                    }
+                ]
+            }
+        ]
+    }
 }

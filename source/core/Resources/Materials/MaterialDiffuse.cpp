@@ -9,11 +9,9 @@
 
 namespace Engine
 {
-    void MaterialDiffuse::Create(std::shared_ptr<Texture2D> color, 
-                                 std::shared_ptr<Texture2D> normal,
-                                 std::shared_ptr<Texture2D> specular)
+    void MaterialDiffuse::Create()
     {
-        MaterialBase::Create(color, normal, specular);
+        MaterialBase::Create();
 
         auto images = USwapChain->GetImages().size();
         CreateDescriptorSetLayout();
@@ -66,21 +64,21 @@ namespace Engine
         descriptorWrites[1].dstArrayElement = 0;
         descriptorWrites[1].descriptorType = vk::DescriptorType::eCombinedImageSampler;
         descriptorWrites[1].descriptorCount = 1;
-        descriptorWrites[1].pImageInfo = &m_pColor->GetDescriptor();
+        descriptorWrites[1].pImageInfo = &m_mTextures[ETextureAttachmentType::eColor]->GetDescriptor();
 
         descriptorWrites[2].dstSet = descriptorSet;
         descriptorWrites[2].dstBinding = 2;
         descriptorWrites[2].dstArrayElement = 0;
         descriptorWrites[2].descriptorType = vk::DescriptorType::eCombinedImageSampler;
         descriptorWrites[2].descriptorCount = 1;
-        descriptorWrites[2].pImageInfo = &m_pNormal->GetDescriptor();
+        descriptorWrites[2].pImageInfo = &m_mTextures[ETextureAttachmentType::eNormal]->GetDescriptor();
 
         descriptorWrites[3].dstSet = descriptorSet;
         descriptorWrites[3].dstBinding = 3;
         descriptorWrites[3].dstArrayElement = 0;
         descriptorWrites[3].descriptorType = vk::DescriptorType::eCombinedImageSampler;
         descriptorWrites[3].descriptorCount = 1;
-        descriptorWrites[3].pImageInfo = &m_pSpecular->GetDescriptor();
+        descriptorWrites[3].pImageInfo = &m_mTextures[ETextureAttachmentType::eSpecular]->GetDescriptor();
 
         UDevice->GetLogical()->updateDescriptorSets(static_cast<uint32_t>(descriptorWrites.size()), descriptorWrites.data(), 0, nullptr);
     }

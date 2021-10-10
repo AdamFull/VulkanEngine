@@ -8,13 +8,18 @@
 
 namespace Engine
 {
-    void MaterialBase::Create(std::shared_ptr<Texture2D> color, 
-                                 std::shared_ptr<Texture2D> normal,
-                                 std::shared_ptr<Texture2D> specular)
+    void MaterialBase::Create()
     {
-        m_pColor = color;
-        m_pNormal = normal;
-        m_pSpecular = specular;
+    }
+
+    void MaterialBase::AddTexture(ETextureAttachmentType eAttachment, std::shared_ptr<TextureBase> pTexture)
+    {
+        m_mTextures.emplace(eAttachment, pTexture);
+    }
+
+    void MaterialBase::AddTextures(std::map<ETextureAttachmentType, std::shared_ptr<TextureBase>> mTextures)
+    {
+        m_mTextures = mTextures;
     }
 
     void MaterialBase::ReCreate()
@@ -37,14 +42,6 @@ namespace Engine
     void MaterialBase::Destroy()
     {
         ResourceBase::Destroy();
-        if(m_pColor)
-            m_pColor->Destroy();
-        if(m_pNormal)
-            m_pNormal->Destroy();
-        if(m_pSpecular)
-            m_pSpecular->Destroy();
-        if(m_pAmbient)
-            m_pAmbient->Destroy();
         Cleanup();
     }
 

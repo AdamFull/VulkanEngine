@@ -1,6 +1,6 @@
 #include "ResourceManager.h"
 #include "filesystem/FilesystemHelper.h"
-#include "serializer/ResourceSerializer.h"
+#include "serializer/JsonSerializer.h"
 
 namespace Engine
 {
@@ -17,8 +17,21 @@ namespace Engine
 
     void ResourceManager::Load(std::string srResourcesPath)
     {
-        auto deserialized = ResourceSerializer::DeSerialize(FilesystemHelper::ReadFile(srResourcesPath));
-        
+        auto input = FilesystemHelper::ReadFile(srResourcesPath);
+        auto res_json = nlohmann::json::parse(input).front();
+
+        std::vector<Engine::FTextureCreateInfo> vTextures;
+        std::vector<Engine::FMaterialCreateInfo> vMaterials;
+        std::vector<Engine::FMeshCreateInfo> vMeshes;
+
+        res_json.at("textures").get_to(vTextures);
+        res_json.at("materials").get_to(vMaterials);
+        res_json.at("meshes").get_to(vMeshes);
+
+        for(auto texture : vTextures)
+        {
+            m_mTextures.emplace
+        }
     }
 
     void ResourceManager::AddResource(std::string srResourceName, std::shared_ptr<ResourceBase> pResource)

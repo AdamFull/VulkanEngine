@@ -6,68 +6,6 @@
 
 namespace Engine
 {
-    enum class EResourceType
-    {
-        eTexture,
-        eMaterial,
-        eMesh
-    };
-
-    enum class ETextureType
-    {
-        e2D,
-        e3D,
-        eCubemap
-    };
-
-    enum class ETextureAttachmentType
-    {
-        eColor,
-        eMetalicRoughness,
-        eNormal,
-        eHeight,
-        eOcclusion,
-        eEmissive,
-        eSpecular
-    };
-
-    struct FTextureCreateInfo
-    {
-        bool bInitialized{false};
-        ETextureType eType;
-        ETextureAttachmentType eAttachment;
-        std::vector<unsigned char> vResourceData;
-        uint32_t width, height, channels, mipLevels;
-        vk::Format format;
-    };
-
-    enum class EMaterialType
-    {
-        eUI,
-        eDiffuse,
-        eGLTF
-    };
-
-    struct FMaterialCreateInfo
-    {
-        //Add material indexing
-        EMaterialType eType;
-        std::vector<FTextureCreateInfo> vTextures;
-    };
- 
-    enum class EMeshType
-    {
-        eStatic,
-        eSkeletal,
-        eGLTF
-    };
-
-    struct FMeshCreateInfo
-    {
-        EMeshType eType;
-        std::vector<FMaterialCreateInfo> vMaterials;
-    };
-
     struct ResourceFactory
     {
         using texture_t = std::unique_ptr<TextureBase>;

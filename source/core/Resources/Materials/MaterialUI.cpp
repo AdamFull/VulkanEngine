@@ -9,11 +9,9 @@
 
 namespace Engine
 {
-    void MaterialUI::Create(std::shared_ptr<Texture2D> color, 
-                                 std::shared_ptr<Texture2D> normal,
-                                 std::shared_ptr<Texture2D> specular)
+    void MaterialUI::Create()
     {
-        MaterialBase::Create(color, normal, specular);
+        MaterialBase::Create();
 
         CreateDescriptorSetLayout();
         CreateDescriptorPool(USwapChain->GetImages().size());
@@ -64,7 +62,7 @@ namespace Engine
         descriptorWrites[1].dstArrayElement = 0;
         descriptorWrites[1].descriptorType = vk::DescriptorType::eCombinedImageSampler;
         descriptorWrites[1].descriptorCount = 1;
-        descriptorWrites[1].pImageInfo = &m_pColor->GetDescriptor();
+        descriptorWrites[1].pImageInfo = &m_mTextures[ETextureAttachmentType::eColor]->GetDescriptor();
 
         UDevice->GetLogical()->updateDescriptorSets(static_cast<uint32_t>(descriptorWrites.size()), descriptorWrites.data(), 0, nullptr);
     }

@@ -1,5 +1,6 @@
 #pragma once
 #include "Resources/ResourceBase.h"
+#include "Resources/ResourceCunstruct.h"
 
 namespace Engine
 {
@@ -9,9 +10,9 @@ namespace Engine
     class MaterialBase : public ResourceBase
     {
     public:
-        virtual void Create(std::shared_ptr<Texture2D> color, 
-                                 std::shared_ptr<Texture2D> normal = nullptr,
-                                 std::shared_ptr<Texture2D> specular = nullptr);
+        virtual void Create();
+        virtual void AddTexture(ETextureAttachmentType eAttachment, std::shared_ptr<TextureBase> pTexture);
+        virtual void AddTextures(std::map<ETextureAttachmentType, std::shared_ptr<TextureBase>> mTextures);
         void ReCreate() override;
         void Update(uint32_t imageIndex, std::unique_ptr<VulkanBuffer>& pUniformBuffer) override;
         void Bind(vk::CommandBuffer commandBuffer, uint32_t imageIndex) override;
@@ -32,9 +33,6 @@ namespace Engine
         vk::PipelineCache pipelineCache;
         std::shared_ptr<PipelineBase> m_pPipeline;
         
-        std::shared_ptr<Texture2D> m_pColor;
-        std::shared_ptr<Texture2D> m_pAmbient;
-        std::shared_ptr<Texture2D> m_pSpecular;
-        std::shared_ptr<Texture2D> m_pNormal;
+        std::map<ETextureAttachmentType, std::shared_ptr<TextureBase>> m_mTextures;
     };    
 }

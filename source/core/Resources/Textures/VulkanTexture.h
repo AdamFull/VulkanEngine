@@ -19,7 +19,7 @@ namespace Engine
         virtual void SetAttachment(ETextureAttachmentType eAttachment);
         virtual ETextureAttachmentType GetAttachment();
 
-        virtual void Load(unsigned char* srPath);
+        virtual void Load(std::string srPath);
         virtual void Load(unsigned char* data, uint32_t iwidth, uint32_t iheight, uint32_t ichannels, uint32_t imipLevels, vk::Format imageFormat);
 
         virtual vk::DescriptorImageInfo& GetDescriptor() { return descriptor; }

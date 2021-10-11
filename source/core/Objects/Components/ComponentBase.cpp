@@ -32,6 +32,7 @@ namespace Engine
     void ComponentBase::Destroy()
     {
         RenderObject::Destroy();
+        pResourceManager->DestroyAll();
     }
 
 }

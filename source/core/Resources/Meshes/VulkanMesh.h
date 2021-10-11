@@ -11,7 +11,7 @@ namespace Engine
     class MeshBase : public ResourceBase
     {
     public:
-        void Create(std::string srResourcePath);
+        virtual void Create();
         virtual void AddMaterial(std::shared_ptr<MaterialBase> material);
         void ReCreate() override;
         void Update(uint32_t imageIndex, std::unique_ptr<VulkanBuffer>& pUniformBuffer) override;

@@ -10,39 +10,37 @@ namespace Engine
 {
     void StaticMeshComponent::Create()
     {
-        RenderObject::Create();
+        ComponentBase::Create();
         pResourceManager->Load("../../assets/resources.json");
         m_pStaticMesh = pResourceManager->Get<MeshBase>("femalebody_obj");
     }
 
     void StaticMeshComponent::ReCreate()
     {
-        RenderObject::ReCreate();
+        ComponentBase::ReCreate();
         m_pStaticMesh->ReCreate();
     }
 
     void StaticMeshComponent::Update(float fDeltaTime)
     {
-        RenderObject::Update(fDeltaTime);
+        ComponentBase::Update(fDeltaTime);
     }
 
     void StaticMeshComponent::Render(vk::CommandBuffer& commandBuffer, uint32_t imageIndex)
     {
-        RenderObject::Render(commandBuffer, imageIndex);
+        ComponentBase::Render(commandBuffer, imageIndex);
         m_pStaticMesh->Update(imageIndex, UUniform->GetUniformBuffer(imageIndex));
         m_pStaticMesh->Bind(commandBuffer, imageIndex);
     }
 
     void StaticMeshComponent::Cleanup()
     {
-        RenderObject::Cleanup();
+        ComponentBase::Cleanup();
         m_pStaticMesh->Cleanup();
     }
 
     void StaticMeshComponent::Destroy()
     {
-        RenderObject::Destroy();
-        m_pStaticMesh->Destroy();
-        pResourceManager->DestroyAll();
+        ComponentBase::Destroy();
     }
 }

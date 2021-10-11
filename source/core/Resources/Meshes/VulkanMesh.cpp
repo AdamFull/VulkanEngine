@@ -5,9 +5,12 @@
 
 namespace Engine
 {
-    void MeshBase::Create(std::string srResourcePath)
+    void MeshBase::Create()
     {
-        
+        if(!vertices.empty())
+        CreateVertexBuffer();
+        if(!indices.empty())
+        CreateIndexBuffer();
     }
 
     void MeshBase::AddMaterial(std::shared_ptr<MaterialBase> material)
@@ -49,7 +52,6 @@ namespace Engine
     void MeshBase::Destroy()
     {
         ResourceBase::Destroy();
-        vMaterials.front()->Destroy();
 
         vertexBuffer->Destroy(UDevice);
         indexBuffer->Destroy(UDevice);

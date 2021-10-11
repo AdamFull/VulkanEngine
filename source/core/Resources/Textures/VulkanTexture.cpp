@@ -147,10 +147,10 @@ namespace Engine
         UDevice->EndSingleTimeCommands(commandBuffer);
     }
 
-    void TextureBase::Load(unsigned char* srPath)
+    void TextureBase::Load(std::string srPath)
     {
         int w, h, c;
-        unsigned char* raw_data = stbi_load((const char*)srPath, &w, &h, &c, STBI_rgb_alpha);
+        unsigned char* raw_data = stbi_load(srPath.c_str(), &w, &h, &c, STBI_rgb_alpha);
 
         if (!raw_data)
         {

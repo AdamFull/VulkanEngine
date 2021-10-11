@@ -6,16 +6,9 @@
 
 namespace Engine
 {
-    void StaticMesh::Create(std::string srResourcePath)
+    void StaticMesh::Create()
     {
-        MeshBase::Create(srResourcePath);
-
-        Load(srResourcePath);
-
-        if(!vertices.empty())
-        CreateVertexBuffer();
-        if(!indices.empty())
-        CreateIndexBuffer();
+        MeshBase::Create();
     }
 
     void StaticMesh::ReCreate()

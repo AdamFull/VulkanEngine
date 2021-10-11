@@ -1,5 +1,6 @@
 #pragma once
 #include "ResourceCunstruct.h"
+#include "ResourceFactory.h"
 
 #include "Textures/VulkanTexture.h"
 #include "Materials/VulkanMaterial.h"
@@ -16,6 +17,13 @@ namespace Engine
         void AddExisting(std::string srResourceName, std::shared_ptr<ResType> pResource)
         {
             assert(false && "Cannot find resource type");
+        }
+
+        template<class ResType, class InfoType>
+        std::shared_ptr<ResType> Add(InfoType info)
+        {
+            assert(false && "Cannot find resource type");
+            return nullptr;
         }
 
         template<class ResType>
@@ -39,6 +47,14 @@ namespace Engine
             if(it != m_mTextures.end())
                 assert(false && "Resource named: is already exists.");
             m_mTextures.emplace(srResourceName, pResource);
+        }
+
+        template<>
+        std::shared_ptr<TextureBase> Add(FTextureCreateInfo info)
+        {
+            std::shared_ptr<TextureBase> texture = ResourceFactory::CreateTexture(shared_from_this(), info);
+            AddExisting(info.srName, texture);
+            return nullptr;
         }
 
         template<>
@@ -70,6 +86,14 @@ namespace Engine
         }
 
         template<>
+        std::shared_ptr<MaterialBase> Add(FMaterialCreateInfo info)
+        {
+            std::shared_ptr<MaterialBase> material = ResourceFactory::CreateMaterial(shared_from_this(), info);
+            AddExisting(info.srName, material);
+            return nullptr;
+        }
+
+        template<>
         std::shared_ptr<MaterialBase> Get(std::string srResourceName)
         {
             auto it = m_mMaterials.find(srResourceName);
@@ -95,6 +119,14 @@ namespace Engine
             if(it != m_mMeshes.end())
                 assert(false && "Resource named: is already exists.");
             m_mMeshes.emplace(srResourceName, pResource);
+        }
+
+        template<>
+        std::shared_ptr<MeshBase> Add(FMeshCreateInfo info)
+        {
+            std::shared_ptr<MeshBase> mesh = ResourceFactory::CreateMesh(shared_from_this(), info);
+            AddExisting(info.srName, mesh);
+            return nullptr;
         }
 
         template<>

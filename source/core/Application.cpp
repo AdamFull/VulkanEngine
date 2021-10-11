@@ -33,6 +33,7 @@ namespace Engine
         auto mesh_component = std::make_shared<StaticMeshComponent>("static_mesh_component1");
         mesh_component->SetPosition({0.f, 0.f, 0.f});
         mesh_component->SetRotation({0.f, 0.f, glm::radians(180.f)});
+        m_pRenderScene->AttachObject(mesh_component);
 
         //Camera
         auto camera = std::make_shared<CameraBase>("world_camera");

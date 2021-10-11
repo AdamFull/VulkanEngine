@@ -98,6 +98,7 @@ namespace Engine
         {
             {"name", type.srName},
             {"type", type.eType},
+            {"src", type.srSrc},
             {"attachments", type.srAttachments},
             {"materials", {type.vMaterials}}
         };
@@ -108,6 +109,7 @@ namespace Engine
         if(json.find("name") != json.end())
         json.at("name").get_to(type.srName);
         json.at("type").get_to(type.eType);
+        json.at("src").get_to(type.srSrc);
 
         if(json.find("attachments") != json.end())
         json.at("attachments").get_to(type.srAttachments);

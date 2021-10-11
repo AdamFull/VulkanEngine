@@ -1,5 +1,4 @@
 #include "ResourceManager.h"
-#include "ResourceFactory.h"
 #include "filesystem/FilesystemHelper.h"
 #include "serializer/JsonSerializer.h"
 
@@ -10,22 +9,22 @@ namespace Engine
         auto input = FilesystemHelper::ReadFile(srResourcesPath);
         auto res_json = nlohmann::json::parse(input).front();
 
-        std::vector<Engine::FTextureCreateInfo> vTextures;
-        std::vector<Engine::FMaterialCreateInfo> vMaterials;
-        std::vector<Engine::FMeshCreateInfo> vMeshes;
+        std::vector<FTextureCreateInfo> vTextures;
+        std::vector<FMaterialCreateInfo> vMaterials;
+        std::vector<FMeshCreateInfo> vMeshes;
 
         res_json.at("textures").get_to(vTextures);
         res_json.at("materials").get_to(vMaterials);
         res_json.at("meshes").get_to(vMeshes);
 
         for(auto texture : vTextures)
-            m_mTextures.emplace(texture.srName, ResourceFactory::CreateTexture(shared_from_this(), texture));
+            Add<TextureBase>(texture);
 
         for(auto material : vMaterials)
-            m_mMaterials.emplace(material.srName, ResourceFactory::CreateMaterial(shared_from_this(), material));
+            Add<MaterialBase>(material);
 
         for(auto mesh : vMeshes)
-            m_mMeshes.emplace(mesh.srName, ResourceFactory::CreateMesh(shared_from_this(), mesh));
+            Add<MeshBase>(mesh);
     }
 
     void ResourceManager::DestroyAll()

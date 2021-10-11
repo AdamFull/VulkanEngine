@@ -7,7 +7,7 @@ namespace Engine
 {
     class Device;
     class SwapChain;
-    class Texture2D;
+    class TextureBase;
     class MaterialUI;
     class VulkanBuffer;
     class WindowHandle;
@@ -50,7 +50,7 @@ namespace Engine
         void OnMonitorEvent(int monitor);
 
         std::unique_ptr<UniformBuffer<FUniformDataUI>> m_pUniform;
-        std::shared_ptr<Texture2D> fontTexture;
+        std::shared_ptr<TextureBase> fontTexture;
         std::shared_ptr<MaterialUI> fontMaterial;
         std::unique_ptr<VulkanBuffer> vertexBuffer;
         std::unique_ptr<VulkanBuffer> indexBuffer;

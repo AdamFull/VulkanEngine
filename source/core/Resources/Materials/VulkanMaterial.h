@@ -1,10 +1,9 @@
 #pragma once
 #include "Resources/ResourceBase.h"
-#include "Resources/ResourceCunstruct.h"
 
 namespace Engine
 {
-    class Texture2D;
+    class TextureBase;
     class PipelineBase;
 
     class MaterialBase : public ResourceBase

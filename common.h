@@ -6,19 +6,10 @@
 #include <GLFW/glfw3.h>
 #include <vulkan/vulkan.hpp>
 
+#define STB_IMAGE_STATIC
+
 #define _USE_MATH_DEFINES
 #include <cmath>
-
-#define STB_IMAGE_IMPLEMENTATION
-#include "external/gltf/stb_image.h"
-
-#define TINYGLTF_IMPLEMENTATION
-#define STB_IMAGE_IMPLEMENTATION
-#define TINYGLTF_NO_STB_IMAGE_WRITE
-#include "external/gltf/tiny_gltf.h"
-
-#define TINYOBJLOADER_IMPLEMENTATION
-#include "external/tiny_obj_loader.h"
 
 #define GLM_FORCE_RADIANS
 #define GLM_FORCE_DEPTH_ZERO_TO_ONE

@@ -72,12 +72,12 @@ set(CPP_FILES
 	${CPP_FILES_IMGUI}
 )
 
-find_package(glm REQUIRED)
-
 add_subdirectory(${CMAKE_CURRENT_SOURCE_DIR}/source/external/glfw)
 set(GLFW_INCLUDE_DIR ${CMAKE_CURRENT_SOURCE_DIR}/source/external/glfw/include)
 add_subdirectory(${CMAKE_CURRENT_SOURCE_DIR}/source/external/imgui)
 set(IMGUI_INCLUDE_DIR ${CMAKE_CURRENT_SOURCE_DIR}/source/external/imgui)
+add_subdirectory(${CMAKE_CURRENT_SOURCE_DIR}/source/external/glm)
+set(GLM_INCLUDE_DIR ${CMAKE_CURRENT_SOURCE_DIR}/source/external/glm)
 
 add_executable(${PROJECT_NAME} ${CPP_FILES} ${HPP_FILES})
 # Link the debug and release libraries to the project
@@ -88,7 +88,7 @@ target_link_libraries( ${PROJECT_NAME} PUBLIC
 )
 
 target_include_directories( ${PROJECT_NAME} PRIVATE 
-	${GLM_INCLUDE_DIRS} 
+	${GLM_INCLUDE_DIR} 
 	${GLFW_INCLUDE_DIR}
 	${CMAKE_CURRENT_SOURCE_DIR}/source/ 
 	${CMAKE_CURRENT_SOURCE_DIR}/source/core

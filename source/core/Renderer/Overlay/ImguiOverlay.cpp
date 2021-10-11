@@ -19,7 +19,7 @@ namespace Engine
 {
     void ImguiOverlay::Create(std::unique_ptr<WindowHandle> &window, std::unique_ptr<Device> &device, std::unique_ptr<SwapChain> &swapchain)
     {
-        fontTexture = std::make_shared<Texture2D>();
+        fontTexture = std::make_shared<TextureBase>();
         fontMaterial = std::make_shared<MaterialUI>();
         vertexBuffer = std::make_unique<VulkanBuffer>();
         indexBuffer = std::make_unique<VulkanBuffer>();
@@ -105,7 +105,8 @@ namespace Engine
         io.Fonts->GetTexDataAsRGBA32(&fontData, &texWidth, &texHeight);
 
         fontTexture->Load(fontData, texWidth, texHeight, 4, 1, vk::Format::eR8G8B8A8Unorm);
-        fontMaterial->Create(fontTexture);
+        fontMaterial->AddTexture(ETextureAttachmentType::eColor, fontTexture);
+        fontMaterial->Create();
     }
 
     void ImguiOverlay::NewFrame()

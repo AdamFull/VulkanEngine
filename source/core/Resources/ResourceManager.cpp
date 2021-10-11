@@ -1,20 +1,10 @@
 #include "ResourceManager.h"
+#include "ResourceFactory.h"
 #include "filesystem/FilesystemHelper.h"
 #include "serializer/JsonSerializer.h"
 
 namespace Engine
 {
-    std::unique_ptr<ResourceManager> ResourceManager::m_pInstance{nullptr};
-
-    std::unique_ptr<ResourceManager>& ResourceManager::GetInstance()
-    {
-        if(!m_pInstance)
-        {
-            m_pInstance.reset(new ResourceManager());
-        }
-        return m_pInstance;
-    }
-
     void ResourceManager::Load(std::string srResourcesPath)
     {
         auto input = FilesystemHelper::ReadFile(srResourcesPath);
@@ -29,40 +19,22 @@ namespace Engine
         res_json.at("meshes").get_to(vMeshes);
 
         for(auto texture : vTextures)
-        {
-            m_mTextures.emplace
-        }
-    }
+            m_mTextures.emplace(texture.srName, ResourceFactory::CreateTexture(shared_from_this(), texture));
 
-    void ResourceManager::AddResource(std::string srResourceName, std::shared_ptr<ResourceBase> pResource)
-    {
-        auto it = m_mResources.find(srResourceName);
-        if(it != m_mResources.end())
-            assert(false && "Resource named: is already exists.");
-        m_mResources.emplace(srResourceName, pResource);
-    }
+        for(auto material : vMaterials)
+            m_mMaterials.emplace(material.srName, ResourceFactory::CreateMaterial(shared_from_this(), material));
 
-    std::shared_ptr<ResourceBase> ResourceManager::GetResource(std::string srResourceName)
-    {
-        auto it = m_mResources.find(srResourceName);
-        if(it != m_mResources.end())
-            return it->second;
-        return nullptr;
-    }
-
-    void ResourceManager::Destroy(std::string srResourceName)
-    {
-        auto it = m_mResources.find(srResourceName);
-        if(it != m_mResources.end())
-            it->second->Destroy();
-        assert(false && "Cannot find resource named: .");
+        for(auto mesh : vMeshes)
+            m_mMeshes.emplace(mesh.srName, ResourceFactory::CreateMesh(shared_from_this(), mesh));
     }
 
     void ResourceManager::DestroyAll()
     {
-        for(auto& [key, value] : m_mResources)
-        {
+        for(auto& [key, value] : m_mTextures)
             value->Destroy();
-        }
+        for(auto& [key, value] : m_mMaterials)
+            value->Destroy();
+        for(auto& [key, value] : m_mMeshes)
+            value->Destroy();
     }
 }

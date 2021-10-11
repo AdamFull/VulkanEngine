@@ -1,11 +1,11 @@
 #pragma once
-#include "core/Objects/RenderObject.h"
+#include "ComponentBase.h"
 
 namespace Engine
 {
     class Device;
 
-    class SceneRootComponent : public RenderObject
+    class SceneRootComponent : public ComponentBase
     {
     public:
         explicit SceneRootComponent(std::string srName = "SceneRoot") 

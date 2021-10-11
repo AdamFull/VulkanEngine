@@ -12,8 +12,8 @@ namespace Engine
             m_srName = srName;
         }
         
-        void SetOrthographicProjection(float left, float right, float top, float bottom, float near, float far);
-        void SetPerspectiveProjection(float fovy, float aspect, float near, float far);
+        void SetOrthographicProjection(float fLeft, float fRight, float fTop, float fBottom, float fNear, float fFar);
+        void SetPerspectiveProjection(float fovy, float aspect, float fNear, float fFar);
 
         void Update(float fDeltaTime) override;
 

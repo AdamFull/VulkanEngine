@@ -3,6 +3,9 @@
 #include "Renderer/VulkanBuffer.h"
 #include "Renderer/VulkanHighLevel.h"
 
+#define STB_IMAGE_IMPLEMENTATION
+#include "external/gltf/stb_image.h"
+
 namespace Engine
 {
     void TextureBase::ReCreate()
@@ -41,6 +44,16 @@ namespace Engine
         descriptor.sampler = sampler;
 		descriptor.imageView = view;
 		descriptor.imageLayout = imageLayout;
+    }
+
+    void TextureBase::SetAttachment(ETextureAttachmentType eAttachment)
+    {
+        attachment = eAttachment;
+    }
+
+    ETextureAttachmentType TextureBase::GetAttachment()
+    {
+        return attachment;
     }
 
     void TextureBase::GenerateMipmaps(vk::Image &image, uint32_t mipLevels, vk::Format format, uint32_t width, uint32_t height, vk::ImageAspectFlags aspectFlags)
@@ -133,34 +146,8 @@ namespace Engine
 
         UDevice->EndSingleTimeCommands(commandBuffer);
     }
-    
-    /*******************************************************Texture2D*****************************************************************/
-    void Texture2D::ReCreate()
-    {
-        TextureBase::ReCreate();
-    }
 
-    void Texture2D::Update(uint32_t imageIndex, std::unique_ptr<VulkanBuffer>& pUniformBuffer)
-    {
-        TextureBase::Update(imageIndex, pUniformBuffer);
-    }
-
-    void Texture2D::Bind(vk::CommandBuffer commandBuffer, uint32_t imageIndex)
-    {
-        TextureBase::Bind(commandBuffer, imageIndex);
-    }
-
-    void Texture2D::Cleanup()
-    {
-        TextureBase::Cleanup();
-    }
-
-    void Texture2D::Destroy()
-    {
-        TextureBase::Destroy();
-    }
-
-    void Texture2D::Load(unsigned char* srPath)
+    void TextureBase::Load(unsigned char* srPath)
     {
         int w, h, c;
         unsigned char* raw_data = stbi_load((const char*)srPath, &w, &h, &c, STBI_rgb_alpha);
@@ -177,7 +164,7 @@ namespace Engine
         stbi_image_free(raw_data);
     }
 
-    void Texture2D::Load(unsigned char* data, uint32_t iwidth, uint32_t iheight, uint32_t ichannels, uint32_t imipLevels, vk::Format imageFormat)
+    void TextureBase::Load(unsigned char* data, uint32_t iwidth, uint32_t iheight, uint32_t ichannels, uint32_t imipLevels, vk::Format imageFormat)
     {
         width = iwidth;
         height = iheight;
@@ -208,31 +195,5 @@ namespace Engine
         imageLayout = vk::ImageLayout::eShaderReadOnlyOptimal;
 
         UpdateDescriptor();
-    }
-
-    /*******************************************************TextureCubemap*****************************************************************/
-    void TextureCubemap::ReCreate()
-    {
-        TextureBase::ReCreate();
-    }
-
-    void TextureCubemap::Update(uint32_t imageIndex, std::unique_ptr<VulkanBuffer>& pUniformBuffer)
-    {
-        TextureBase::Update(imageIndex, pUniformBuffer);
-    }
-
-    void TextureCubemap::Bind(vk::CommandBuffer commandBuffer, uint32_t imageIndex)
-    {
-        TextureBase::Bind(commandBuffer, imageIndex);
-    }
-
-    void TextureCubemap::Cleanup()
-    {
-        TextureBase::Cleanup();
-    }
-
-    void TextureCubemap::Destroy()
-    {
-        TextureBase::Destroy();
     }
 }

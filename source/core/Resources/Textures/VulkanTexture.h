@@ -16,6 +16,11 @@ namespace Engine
         void Destroy() override;
 
         virtual void UpdateDescriptor();
+        virtual void SetAttachment(ETextureAttachmentType eAttachment);
+        virtual ETextureAttachmentType GetAttachment();
+
+        virtual void Load(unsigned char* srPath);
+        virtual void Load(unsigned char* data, uint32_t iwidth, uint32_t iheight, uint32_t ichannels, uint32_t imipLevels, vk::Format imageFormat);
 
         virtual vk::DescriptorImageInfo& GetDescriptor() { return descriptor; }
     protected:
@@ -30,30 +35,6 @@ namespace Engine
         uint32_t                layerCount;
         vk::DescriptorImageInfo descriptor;
         vk::Sampler             sampler;
-    };
-
-    class Texture2D : public TextureBase
-    {
-    public:
-        void ReCreate() override;
-        void Update(uint32_t imageIndex, std::unique_ptr<VulkanBuffer>& pUniformBuffer) override;
-        void Bind(vk::CommandBuffer commandBuffer, uint32_t imageIndex) override;
-        void Cleanup() override;
-        void Destroy() override;
-
-        void Load(unsigned char* srPath);
-        void Load(unsigned char* data, uint32_t iwidth, uint32_t iheight, uint32_t ichannels, uint32_t imipLevels, vk::Format imageFormat);
-    };
-
-    class TextureCubemap : public TextureBase
-    {
-    public:
-        void ReCreate() override;
-        void Update(uint32_t imageIndex, std::unique_ptr<VulkanBuffer>& pUniformBuffer) override;
-        void Bind(vk::CommandBuffer commandBuffer, uint32_t imageIndex) override;
-        void Cleanup() override;
-        void Destroy() override;
-
-        void Load();
+        ETextureAttachmentType  attachment;
     };
 }

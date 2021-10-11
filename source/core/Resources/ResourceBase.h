@@ -1,17 +1,11 @@
 #pragma once
+#include "ResourceCunstruct.h"
 #include "Renderer/VulkanDevice.h"
 #include "Renderer/VulkanSwapChain.h"
 #include "Renderer/VulkanUniform.h"
 
 namespace Engine
 {
-    enum class FResourceType 
-    {
-        eTexture2D,
-        eTextureCubemap,
-        eStaticMesh
-    };
-
     class ResourceBase
     {
     public:

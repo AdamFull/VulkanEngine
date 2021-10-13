@@ -116,9 +116,9 @@ namespace Engine
             ImGui_ImplGlfw_NewFrame();
             ImGui::NewFrame();
 
-            ImGui::DockSpaceOverViewport();
+            //ImGui::DockSpaceOverViewport();
 
-            ImGui::ShowDemoWindow();
+            //ImGui::ShowDemoWindow();
             for (auto &overlay : m_vOverlays)
             {
                 overlay->Draw();

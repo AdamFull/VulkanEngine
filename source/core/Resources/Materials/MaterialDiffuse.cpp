@@ -51,7 +51,7 @@ namespace Engine
         bufferInfo.offset = 0;
         bufferInfo.range = sizeof(FUniformData);
 
-        std::array<vk::WriteDescriptorSet, 4> descriptorWrites{};
+        std::array<vk::WriteDescriptorSet, 6> descriptorWrites{};
         descriptorWrites[0].dstSet = descriptorSet;
         descriptorWrites[0].dstBinding = 0;
         descriptorWrites[0].dstArrayElement = 0;
@@ -79,6 +79,20 @@ namespace Engine
         descriptorWrites[3].descriptorType = vk::DescriptorType::eCombinedImageSampler;
         descriptorWrites[3].descriptorCount = 1;
         descriptorWrites[3].pImageInfo = &m_mTextures[ETextureAttachmentType::eSpecular]->GetDescriptor();
+
+        descriptorWrites[4].dstSet = descriptorSet;
+        descriptorWrites[4].dstBinding = 4;
+        descriptorWrites[4].dstArrayElement = 0;
+        descriptorWrites[4].descriptorType = vk::DescriptorType::eCombinedImageSampler;
+        descriptorWrites[4].descriptorCount = 1;
+        descriptorWrites[4].pImageInfo = &m_mTextures[ETextureAttachmentType::eAlbedo]->GetDescriptor();
+
+        descriptorWrites[5].dstSet = descriptorSet;
+        descriptorWrites[5].dstBinding = 5;
+        descriptorWrites[5].dstArrayElement = 0;
+        descriptorWrites[5].descriptorType = vk::DescriptorType::eCombinedImageSampler;
+        descriptorWrites[5].descriptorCount = 1;
+        descriptorWrites[5].pImageInfo = &m_mTextures[ETextureAttachmentType::eOcclusion]->GetDescriptor();
 
         UDevice->GetLogical()->updateDescriptorSets(static_cast<uint32_t>(descriptorWrites.size()), descriptorWrites.data(), 0, nullptr);
     }
@@ -130,7 +144,21 @@ namespace Engine
         specularLayoutBinding.pImmutableSamplers = nullptr;
         specularLayoutBinding.stageFlags = vk::ShaderStageFlagBits::eFragment;
 
-        std::array<vk::DescriptorSetLayoutBinding, 4> bindings = {uboLayoutBinding, diffuseLayoutBinding, normalLayoutBinding, specularLayoutBinding};
+        vk::DescriptorSetLayoutBinding albedoLayoutBinding{};
+        albedoLayoutBinding.binding = 4;
+        albedoLayoutBinding.descriptorCount = 1;
+        albedoLayoutBinding.descriptorType = vk::DescriptorType::eCombinedImageSampler;
+        albedoLayoutBinding.pImmutableSamplers = nullptr;
+        albedoLayoutBinding.stageFlags = vk::ShaderStageFlagBits::eFragment;
+
+        vk::DescriptorSetLayoutBinding aoLayoutBinding{};
+        aoLayoutBinding.binding = 5;
+        aoLayoutBinding.descriptorCount = 1;
+        aoLayoutBinding.descriptorType = vk::DescriptorType::eCombinedImageSampler;
+        aoLayoutBinding.pImmutableSamplers = nullptr;
+        aoLayoutBinding.stageFlags = vk::ShaderStageFlagBits::eFragment;
+
+        std::array<vk::DescriptorSetLayoutBinding, 6> bindings = {uboLayoutBinding, diffuseLayoutBinding, normalLayoutBinding, specularLayoutBinding, albedoLayoutBinding, aoLayoutBinding};
         vk::DescriptorSetLayoutCreateInfo createInfo{};
         createInfo.bindingCount = static_cast<uint32_t>(bindings.size());;
         createInfo.pBindings = bindings.data();
@@ -143,7 +171,7 @@ namespace Engine
     {
         MaterialBase::CreateDescriptorPool(images);
 
-        std::array<vk::DescriptorPoolSize, 4> poolSizes{};
+        std::array<vk::DescriptorPoolSize, 6> poolSizes{};
         poolSizes[0].type = vk::DescriptorType::eUniformBuffer;
         poolSizes[0].descriptorCount = images;
         poolSizes[1].type = vk::DescriptorType::eCombinedImageSampler;
@@ -152,6 +180,10 @@ namespace Engine
         poolSizes[2].descriptorCount = 1;
         poolSizes[3].type = vk::DescriptorType::eCombinedImageSampler;
         poolSizes[3].descriptorCount = 1;
+        poolSizes[4].type = vk::DescriptorType::eCombinedImageSampler;
+        poolSizes[4].descriptorCount = 1;
+        poolSizes[5].type = vk::DescriptorType::eCombinedImageSampler;
+        poolSizes[5].descriptorCount = 1;
 
         vk::DescriptorPoolCreateInfo poolInfo{};
         poolInfo.flags = vk::DescriptorPoolCreateFlagBits::eFreeDescriptorSet;

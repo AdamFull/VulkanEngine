@@ -9,10 +9,12 @@ namespace Engine
         glm::vec3 color{};
         glm::vec3 normal{};
         glm::vec2 texcoord{};
+        glm::vec3 tangent{};
+        glm::vec3 binormal{};
 
         bool operator==(const Vertex& other) const 
         {
-            return pos == other.pos && color == other.color && normal == other.normal && texcoord == other.texcoord;
+            return pos == other.pos && color == other.color && normal == other.normal && texcoord == other.texcoord && tangent == other.tangent && binormal == other.binormal;
         }
 
         static vk::VertexInputBindingDescription getBindingDescription()
@@ -28,7 +30,7 @@ namespace Engine
         static std::vector<vk::VertexInputAttributeDescription> getAttributeDescriptions()
         {
             std::vector<vk::VertexInputAttributeDescription> attributeDescriptions = {};
-            attributeDescriptions.resize(4);
+            attributeDescriptions.resize(6);
 
             attributeDescriptions[0].binding = 0;
             attributeDescriptions[0].location = 0;
@@ -49,6 +51,16 @@ namespace Engine
             attributeDescriptions[3].location = 3;
             attributeDescriptions[3].format = vk::Format::eR32G32Sfloat;
             attributeDescriptions[3].offset = offsetof(Vertex, texcoord);
+
+            attributeDescriptions[4].binding = 0;
+            attributeDescriptions[4].location = 4;
+            attributeDescriptions[4].format = vk::Format::eR32G32B32Sfloat;
+            attributeDescriptions[4].offset = offsetof(Vertex, tangent);
+
+            attributeDescriptions[5].binding = 0;
+            attributeDescriptions[5].location = 5;
+            attributeDescriptions[5].format = vk::Format::eR32G32B32Sfloat;
+            attributeDescriptions[5].offset = offsetof(Vertex, binormal);
 
             return attributeDescriptions;
         }
@@ -106,7 +118,7 @@ namespace std
         size_t operator()(Engine::Vertex const &vertex) const
         {
             size_t seed = 0;
-            Engine::hashCombine(seed, vertex.pos, vertex.color, vertex.normal, vertex.texcoord);
+            Engine::hashCombine(seed, vertex.pos, vertex.color, vertex.normal, vertex.texcoord, vertex.tangent, vertex.binormal);
             return seed;
         }
     };

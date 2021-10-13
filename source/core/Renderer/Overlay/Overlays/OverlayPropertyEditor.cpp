@@ -4,13 +4,16 @@ namespace Engine
 {
     void OverlayPropertyEditor::Draw()
     {
-        if (!ImGui::Begin(srOverlayName.c_str(), &bOverlayState))
+        if (bOverlayState)
         {
-            ImGui::End();
-            return;
-        }
+            if (!ImGui::Begin(srOverlayName.c_str(), &bOverlayState))
+            {
+                ImGui::End();
+                return;
+            }
 
-        ImGui::End();
+            ImGui::End();
+        }
     }
 
 }

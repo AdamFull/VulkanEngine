@@ -12,6 +12,7 @@ namespace Engine
     enum class ETextureAttachmentType
     {
         eColor,
+        eAlbedo,
         eMetalicRoughness,
         eNormal,
         eHeight,

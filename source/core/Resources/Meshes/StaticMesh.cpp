@@ -36,6 +36,46 @@ namespace Engine
         MeshBase::Destroy();
     }
 
+    void StaticMesh::CalcTangent()
+    {
+        for(size_t i = 0; i < indices.size(); i += 3)
+        {
+            glm::vec3 vertex0 = vertices.at(indices.at(i)).pos;
+            glm::vec3 vertex1 = vertices.at(indices.at(i + 1)).pos;
+            glm::vec3 vertex2 = vertices.at(indices.at(i + 2)).pos;
+
+            glm::vec3 normal = glm::cross((vertex1 - vertex0),(vertex2 - vertex0));
+
+            glm::vec3 deltaPos;
+            if(vertex0 == vertex1)
+                deltaPos = vertex2 - vertex0;
+            else
+                deltaPos = vertex1 - vertex0;
+            
+            glm::vec2 uv0 = vertices.at(indices.at(i)).texcoord;
+            glm::vec2 uv1 = vertices.at(indices.at(i + 1)).texcoord;
+            glm::vec2 uv2 = vertices.at(indices.at(i + 2)).texcoord;
+
+            glm::vec2 deltaUV1 = uv1 - uv0;
+            glm::vec2 deltaUV2 = uv2 - uv0;
+
+            glm::vec3 tan, bin;
+            if(deltaUV1.s != 0)
+                tan = deltaPos / deltaUV1.s;
+            else
+                tan = deltaPos / 1.0f;
+
+            tan = glm::normalize(tan - glm::dot(normal,tan)*normal);
+            bin = glm::normalize(glm::cross(tan, normal));
+
+            for(size_t j = 0; j < 3; j++)
+            {
+                vertices.at(indices.at(i + j)).tangent = tan;
+                vertices.at(indices.at(i + j)).binormal = bin;
+            }
+        }
+    }
+
     //Static mesh
     void StaticMesh::Load(std::string srPath)
     {
@@ -100,5 +140,7 @@ namespace Engine
                 indices.push_back(uniqueVertices[vertex]);
             }
         }
+
+        CalcTangent();
     }
 }

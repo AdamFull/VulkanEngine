@@ -27,16 +27,28 @@
                                 "src": "../../assets/textures/femalebody_1.png"
                             },
                             {
+                                "name": "femalebody_normal",
+                                "type": "2d",
+                                "attachment": "normal",
+                                "src": "../../assets/textures/femalebody_1_msn.png"
+                            },
+                            {
                                 "name": "femalebody_specular",
                                 "type": "2d",
                                 "attachment": "specular",
                                 "src": "../../assets/textures/femalebody_1_s.png"
                             },
                             {
-                                "name": "femalebody_normal",
+                                "name": "femalebody_albedo",
                                 "type": "2d",
-                                "attachment": "normal",
-                                "src": "../../assets/textures/femalebody_1_msn.png"
+                                "attachment": "albedo",
+                                "src": "../../assets/textures/femalebody_1_alb.png"
+                            },
+                            {
+                                "name": "femalebody_ao",
+                                "type": "2d",
+                                "attachment": "occlusion",
+                                "src": "../../assets/textures/femalebody_1_ao.png"
                             }
                         ],
                         "params": 

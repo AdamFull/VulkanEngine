@@ -10,6 +10,7 @@ namespace Engine
 
     NLOHMANN_JSON_SERIALIZE_ENUM(ETextureAttachmentType, {
         {ETextureAttachmentType::eColor, "color"},
+        {ETextureAttachmentType::eAlbedo, "albedo"},
         {ETextureAttachmentType::eMetalicRoughness, "roughness"},
         {ETextureAttachmentType::eNormal, "normal"},
         {ETextureAttachmentType::eHeight, "height"},

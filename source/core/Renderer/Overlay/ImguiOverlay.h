@@ -58,7 +58,7 @@ namespace Engine
         int indexCount{0};
 
         std::vector<std::shared_ptr<OverlayBase>> m_vOverlays;
-        bool bEnabled = false;
+        bool bEnabled = true;
 
         FGUIControls controls;
     };

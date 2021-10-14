@@ -104,7 +104,17 @@ namespace Engine
         int texWidth, texHeight;
         io.Fonts->GetTexDataAsRGBA32(&fontData, &texWidth, &texHeight);
 
-        fontTexture->Load(fontData, texWidth, texHeight, 4, 1, vk::Format::eR8G8B8A8Unorm);
+        FImageLoadInfo info;
+        info.format = vk::Format::eR8G8B8A8Unorm;
+        info.width = static_cast<uint32_t>(texWidth);
+        info.height = static_cast<uint32_t>(texHeight);
+        info.channels = 4;
+        info.mipLevels = 1;
+        info.size = static_cast<uint32_t>(texWidth * texHeight * 4);
+        info.layers = 1;
+        info.faces = 1;
+
+        fontTexture->Load(fontData, info);
         fontMaterial->AddTexture(ETextureAttachmentType::eColor, fontTexture);
         fontMaterial->Create();
     }

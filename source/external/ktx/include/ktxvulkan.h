@@ -5,8 +5,19 @@
 #define KTX_H_C54B42AEE39611E68E1E4FF8C51D1C66
 
 /*
- * Copyright 2017-2020 The Khronos Group, Inc.
- * SPDX-License-Identifier: Apache-2.0
+ * ©2017 Mark Callow.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
  */
 
 /**
@@ -19,8 +30,8 @@
  *
  * A separate header file is used to avoid extra dependencies for those not
  * using Vulkan. The nature of the Vulkan API, rampant structures and enums,
- * means that vulkan.h must be included @e before including this file. The
- * alternative is duplicating unattractively large parts of it.
+ * means that vulkan.h must be included. The alternative is duplicating
+ * unattractively large parts of it.
  *
  * @author Mark Callow, Edgewise Consulting
  *
@@ -28,6 +39,7 @@
  */
 
 #include <ktx.h>
+#include <vulkan/vulkan.h>
 
 #if 0
 /* Avoid Vulkan include file */
@@ -79,7 +91,7 @@ typedef struct ktxVulkanTexture
     uint32_t layerCount; /*!< The number of array layers in the image. */
 } ktxVulkanTexture;
 
-KTX_API void KTX_APIENTRY
+void
 ktxVulkanTexture_Destruct(ktxVulkanTexture* This, VkDevice device,
                           const VkAllocationCallbacks* pAllocator);
 
@@ -122,55 +134,34 @@ typedef struct ktxVulkanDeviceInfo {
     VkPhysicalDeviceMemoryProperties deviceMemoryProperties;
 } ktxVulkanDeviceInfo;
 
-KTX_API ktxVulkanDeviceInfo* KTX_APIENTRY
+ktxVulkanDeviceInfo*
 ktxVulkanDeviceInfo_Create(VkPhysicalDevice physicalDevice, VkDevice device,
                            VkQueue queue, VkCommandPool cmdPool,
                            const VkAllocationCallbacks* pAllocator);
-KTX_API KTX_error_code KTX_APIENTRY
+KTX_error_code
 ktxVulkanDeviceInfo_Construct(ktxVulkanDeviceInfo* This,
                          VkPhysicalDevice physicalDevice, VkDevice device,
                          VkQueue queue, VkCommandPool cmdPool,
                          const VkAllocationCallbacks* pAllocator);
-KTX_API void KTX_APIENTRY
+void
 ktxVulkanDeviceInfo_Destruct(ktxVulkanDeviceInfo* This);
-KTX_API void KTX_APIENTRY
+void
 ktxVulkanDeviceInfo_Destroy(ktxVulkanDeviceInfo* This);
-KTX_API KTX_error_code KTX_APIENTRY
+
+
+KTX_error_code
 ktxTexture_VkUploadEx(ktxTexture* This, ktxVulkanDeviceInfo* vdi,
                       ktxVulkanTexture* vkTexture,
                       VkImageTiling tiling,
                       VkImageUsageFlags usageFlags,
-                      VkImageLayout finalLayout);
-KTX_API KTX_error_code KTX_APIENTRY
-ktxTexture_VkUpload(ktxTexture* texture, ktxVulkanDeviceInfo* vdi,
-                    ktxVulkanTexture *vkTexture);
-KTX_API KTX_error_code KTX_APIENTRY
-ktxTexture1_VkUploadEx(ktxTexture1* This, ktxVulkanDeviceInfo* vdi,
-                       ktxVulkanTexture* vkTexture,
-                       VkImageTiling tiling,
-                       VkImageUsageFlags usageFlags,
-                       VkImageLayout finalLayout);
-KTX_API KTX_error_code KTX_APIENTRY
-ktxTexture1_VkUpload(ktxTexture1* texture, ktxVulkanDeviceInfo* vdi,
-                    ktxVulkanTexture *vkTexture);
-KTX_API KTX_error_code KTX_APIENTRY
-ktxTexture2_VkUploadEx(ktxTexture2* This, ktxVulkanDeviceInfo* vdi,
-                       ktxVulkanTexture* vkTexture,
-                       VkImageTiling tiling,
-                       VkImageUsageFlags usageFlags,
-                       VkImageLayout finalLayout);
-KTX_API KTX_error_code KTX_APIENTRY
-ktxTexture2_VkUpload(ktxTexture2* texture, ktxVulkanDeviceInfo* vdi,
-                     ktxVulkanTexture *vkTexture);
+                      VkImageLayout layout);
 
-KTX_API VkFormat KTX_APIENTRY
+KTX_error_code
+ktxTexture_VkUpload(ktxTexture* This, ktxVulkanDeviceInfo* vdi,
+                    ktxVulkanTexture *vkTexture);
+
+VkFormat
 ktxTexture_GetVkFormat(ktxTexture* This);
-
-KTX_API VkFormat KTX_APIENTRY
-ktxTexture1_GetVkFormat(ktxTexture1* This);
-
-KTX_API VkFormat KTX_APIENTRY
-ktxTexture2_GetVkFormat(ktxTexture2* This);
 
 #ifdef __cplusplus
 }

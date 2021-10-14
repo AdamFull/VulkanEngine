@@ -3,9 +3,6 @@
 #include "Renderer/VulkanBuffer.h"
 #include "Renderer/VulkanHighLevel.h"
 
-#define STB_IMAGE_IMPLEMENTATION
-#include "external/gltf/stb_image.h"
-
 namespace Engine
 {
     void TextureBase::ReCreate()
@@ -149,27 +146,22 @@ namespace Engine
 
     void TextureBase::Load(std::string srPath)
     {
-        int w, h, c;
-        unsigned char* raw_data = stbi_load(srPath.c_str(), &w, &h, &c, STBI_rgb_alpha);
+        unsigned char* raw_data{nullptr};
 
-        if (!raw_data)
-        {
-            //TODO: check result
-        }
+        FImageLoadInfo info;
+        FilesystemHelper::LoadImage(&raw_data, srPath.c_str(), &info);
 
-        uint32_t mips = static_cast<uint32_t>(std::floor(std::log2(std::max(width, height)))) + 1;
+        Load(raw_data, info);
 
-        Load(raw_data, w, h, c, mips, vk::Format::eR8G8B8A8Srgb);
-
-        stbi_image_free(raw_data);
+        free(raw_data);
     }
 
-    void TextureBase::Load(unsigned char* data, uint32_t iwidth, uint32_t iheight, uint32_t ichannels, uint32_t imipLevels, vk::Format imageFormat)
+    void TextureBase::Load(unsigned char* data, FImageLoadInfo info)
     {
-        width = iwidth;
-        height = iheight;
-        channels = ichannels;
-        mipLevels = imipLevels;
+        width = info.width;
+        height = info.height;
+        channels = info.channels;
+        mipLevels = info.mipLevels;
 
         vk::DeviceSize imgSize = width * height * 4 * sizeof(char);
 
@@ -178,18 +170,18 @@ namespace Engine
         stagingBuffer.MapMem(UDevice);
         stagingBuffer.Write(UDevice, (void*)data);
 
-        UDevice->CreateImage(image, deviceMemory, width, height, mipLevels, vk::SampleCountFlagBits::e1, imageFormat, 
+        UDevice->CreateImage(image, deviceMemory, width, height, mipLevels, vk::SampleCountFlagBits::e1, info.format, 
                     vk::ImageTiling::eOptimal, vk::ImageUsageFlagBits::eTransferSrc | vk::ImageUsageFlagBits::eTransferDst | 
                     vk::ImageUsageFlagBits::eSampled, vk::MemoryPropertyFlagBits::eDeviceLocal);
 
         UDevice->TransitionImageLayout(image, mipLevels, vk::ImageAspectFlagBits::eColor, vk::ImageLayout::eUndefined, vk::ImageLayout::eTransferDstOptimal);
         UDevice->CopyBufferToImage(stagingBuffer.GetBuffer(), image, width, height);
-        GenerateMipmaps(image, mipLevels, imageFormat, width, height, vk::ImageAspectFlagBits::eColor);
+        GenerateMipmaps(image, mipLevels, info.format, width, height, vk::ImageAspectFlagBits::eColor);
         //UDevice->TransitionImageLayout(image, mipLevels, vk::ImageAspectFlagBits::eColor, vk::ImageLayout::eUndefined, vk::ImageLayout::eShaderReadOnlyOptimal);
 
         stagingBuffer.Destroy(UDevice);
 
-        view = UDevice->CreateImageView(image, mipLevels, imageFormat, vk::ImageAspectFlagBits::eColor);
+        view = UDevice->CreateImageView(image, mipLevels, info.format, vk::ImageAspectFlagBits::eColor);
 
         UDevice->CreateSampler(sampler, mipLevels);
         imageLayout = vk::ImageLayout::eShaderReadOnlyOptimal;

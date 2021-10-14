@@ -6,13 +6,17 @@
 #include "Renderer/VulkanBuffer.h"
 #include "Renderer/VulkanHighLevel.h"
 #include "KeyMapping/InputMapper.h"
+#include "Resources/ResourceManager.h"
 
 namespace Engine
 {
-    void RenderScene::Create()
+    void RenderScene::Create(std::string srResourcesPath)
     {
         m_pRoot = std::make_shared<SceneRootComponent>();
         m_pOvelray = std::make_unique<ImguiOverlay>();
+        m_pResourceManager = std::make_shared<ResourceManager>();
+        m_pResourceManager->Load(srResourcesPath);
+
         m_pOvelray->Create(UWinHandle, UDevice, USwapChain);
     }
 

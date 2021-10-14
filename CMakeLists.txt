@@ -78,6 +78,8 @@ add_subdirectory(${CMAKE_CURRENT_SOURCE_DIR}/source/external/imgui)
 set(IMGUI_INCLUDE_DIR ${CMAKE_CURRENT_SOURCE_DIR}/source/external/imgui)
 add_subdirectory(${CMAKE_CURRENT_SOURCE_DIR}/source/external/glm)
 set(GLM_INCLUDE_DIR ${CMAKE_CURRENT_SOURCE_DIR}/source/external/glm)
+add_subdirectory(${CMAKE_CURRENT_SOURCE_DIR}/source/external/ktx)
+set(KTX_INCLUDE_DIR ${CMAKE_CURRENT_SOURCE_DIR}/source/external/ktx/include)
 
 add_executable(${PROJECT_NAME} ${CPP_FILES} ${HPP_FILES})
 # Link the debug and release libraries to the project
@@ -85,6 +87,7 @@ target_link_libraries( ${PROJECT_NAME} PUBLIC
 	glfw
 	${VULKAN_LIB_LIST} 
 	imgui
+	libktx
 )
 
 target_include_directories( ${PROJECT_NAME} PRIVATE 

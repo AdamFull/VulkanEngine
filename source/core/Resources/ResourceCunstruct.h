@@ -6,7 +6,8 @@ namespace Engine
     {
         e2D,
         e3D,
-        eCubemap
+        eCubemap,
+        eArray
     };
 
     enum class ETextureAttachmentType

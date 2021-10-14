@@ -1,22 +1,47 @@
 {
+    "resources": "../../assets/resources.json",
     "objects":
     [
         {
-            "asset": "viking_room_asset",
+            "name": "scene_camera_component",
+            "type": "camera",
             "transform":
             {
-                "pos": [0.0, 0.0, 0.0],
-                "rot": [0.0, 90.0, 0.0],
-                "scale": [1.0, 1.0, 1.0]
+                "pos": {"x": 0.0, "y": 0.0, "z": 0.0},
+                "rot": {"x": 0.0, "y": 90.0, "z": 0.0},
+                "scale": {"x": 1.0, "y": 1.0, "z": 1.0}
             }
         },
         {
-            "asset": "default_scene_camera_asset",
+            "name": "skybox_component",
+            "type": "skybox",
+            "resources": 
+            {
+                "textures": [],
+                "materials": [],
+                "meshes": ["skybox_obj"]
+            },
             "transform":
             {
-                "pos": [0.0, 0.0, 0.0],
-                "rot": [0.0, 90.0, 0.0],
-                "scale": [1.0, 1.0, 1.0]
+                "pos": {"x": 0.0, "y": 0.0, "z": 0.0},
+                "rot": {"x": 0.0, "y": 90.0, "z": 0.0},
+                "scale": {"x": 1.0, "y": 1.0, "z": 1.0}
+            }
+        },
+        {
+            "name": "femalebody_mesh_component",
+            "type": "static_mesh",
+            "resources": 
+            {
+                "textures": [],
+                "materials": [],
+                "meshes": ["femalebody_obj"]
+            },
+            "transform":
+            {
+                "pos": {"x": 0.0, "y": 0.0, "z": 0.0},
+                "rot": {"x": 0.0, "y": 90.0, "z": 0.0},
+                "scale": {"x": 1.0, "y": 1.0, "z": 1.0}
             }
         }
     ]

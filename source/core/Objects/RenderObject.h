@@ -1,28 +1,13 @@
 #pragma once
 #include "Renderer/VulkanSwapChain.h"
 #include "Renderer/VulkanUniform.h"
+#include "Transform.h"
+#include "SceneConstruct.h"
 
 namespace Engine
 {
     class Device;
-
-    struct FTransform
-    {
-        glm::vec3 pos{};
-        glm::vec3 rot{};
-        glm::vec3 scale{1.f, 1.f, 1.f};
-
-        FTransform& operator+=(const FTransform& rhs)
-        {
-            this->pos += rhs.pos;
-            this->rot += rhs.rot;
-            this->scale *= rhs.scale;
-            return *this;
-        }
-
-        glm::mat4 GetModel();
-        glm::mat3 GetNormal();
-    };
+    class ResourceManager;
 
     class RenderObject : public std::enable_shared_from_this<RenderObject>
     {
@@ -39,7 +24,7 @@ namespace Engine
         }
 
         //Create render object
-        virtual void Create();
+        virtual void Create(std::shared_ptr<ResourceManager> resourceMgr);
         //Recreate render object
         virtual void ReCreate();
         //Do render things
@@ -70,6 +55,8 @@ namespace Engine
         virtual void Attach(std::shared_ptr<RenderObject> child);
         virtual void Detach(std::shared_ptr<RenderObject> child);
 
+        virtual void SetResources(FSceneObjectResourceBindings bindings) { fBindings = bindings; }
+
         virtual inline std::string GetName() { return m_srName; }
 
         virtual inline std::shared_ptr<RenderObject>& GetParent() { return m_pParent; }
@@ -78,6 +65,7 @@ namespace Engine
         virtual void AddChild(std::shared_ptr<RenderObject> child);
         FTransform m_transform;
         std::string m_srName;
+        FSceneObjectResourceBindings fBindings;
     private:
         std::shared_ptr<RenderObject> m_pParent;
         std::shared_ptr<RenderObject> m_pParentOld;

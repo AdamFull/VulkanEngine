@@ -1,12 +1,11 @@
 #include "FilesystemHelper.h"
 #include <filesystem>
+#include "external/ktx/lib/vk_format.h"
 
 namespace fs = std::filesystem;
 
 #define STB_IMAGE_IMPLEMENTATION
 #include "external/gltf/stb_image.h"
-
-#include "external/ktx/include/ktx.h"
 
 namespace Engine
 {
@@ -21,43 +20,69 @@ namespace Engine
         return fs::exists(srPath);
     }
 
-    bool FilesystemHelper::LoadImage(unsigned char** raw_data, char const *filename, FImageLoadInfo* imageInfo)
+    bool FilesystemHelper::LoadImage(char const *filename, ktxTexture** target, vk::Format* format)
     {
         fs::path filepath{filename};
 
         if(filepath.extension() == ".ktx")
-            return LoadKTX(raw_data, filename, imageInfo);
+            return LoadKTX(filename, target, format);
         else
-            return LoadSTB(raw_data, filename, imageInfo);
+            return LoadSTB(filename, target, format);
 
         return false;
     }
 
-    bool FilesystemHelper::LoadSTB(unsigned char** raw_data, char const *filename, FImageLoadInfo* imageInfo)
+    void FilesystemHelper::CloseImage(ktxTexture** target)
+    {
+        ktxTexture_Destroy((*target));
+    }
+
+    bool FilesystemHelper::AllocateRawDataAsKTXTexture(unsigned char* data, ktxTexture** target, vk::Format* format, int width, int height, bool calcMips)
+    {
+        ktxTextureCreateInfo info;
+        info.glInternalformat = GL_SRGB8_ALPHA8;
+        info.baseWidth = static_cast<uint32_t>(width);
+        info.baseHeight = static_cast<uint32_t>(height);
+        info.baseDepth = 1;
+        info.numLevels = calcMips ? static_cast<uint32_t>(std::floor(std::log2(std::max(width, height)))) + 1 : 1;
+        info.numDimensions = 2;
+        info.generateMipmaps = calcMips;
+        info.isArray = false;
+        info.numLayers = 1;
+        info.numFaces = 1;
+
+        auto result = ktxTexture_Create(&info, KTX_TEXTURE_CREATE_NO_STORAGE, target);
+
+        (*target)->dataSize = width * height * 4;
+        (*target)->pData = static_cast<unsigned char*>(calloc((*target)->dataSize, sizeof(unsigned char)));
+        memcpy((*target)->pData, data, (*target)->dataSize);
+
+        (*target)->baseDepth = 1;
+
+        VkFormat raw_format = vkGetFormatFromOpenGLFormat((*target)->glFormat, (*target)->glType);
+        *format = static_cast<vk::Format>(raw_format);
+
+        return result == KTX_SUCCESS;
+    }
+
+    bool FilesystemHelper::LoadSTB(char const *filename, ktxTexture** target, vk::Format* format)
     {
         int w, h, c;
         unsigned char* data = stbi_load(filename, &w, &h, &c, STBI_rgb_alpha);
 
-        imageInfo->format = vk::Format::eR8G8B8A8Srgb;
-        imageInfo->width = static_cast<uint32_t>(w);
-        imageInfo->height = static_cast<uint32_t>(h);
-        imageInfo->channels = static_cast<uint32_t>(c);
-        imageInfo->size = static_cast<uint32_t>(w * h * 4);
-        imageInfo->mipLevels = static_cast<uint32_t>(std::floor(std::log2(std::max(w, h)))) + 1;
-        imageInfo->layers = 1;
-        imageInfo->faces = 1;
+        bool result = AllocateRawDataAsKTXTexture(data, target, format, w, h, true);
+        // *format = vk::Format::eR8G8B8A8Srgb;
 
-        (*raw_data) = static_cast<unsigned char*>(calloc(imageInfo->size, sizeof(unsigned char)));
-        memcpy((*raw_data), data, imageInfo->size * sizeof(unsigned char));
-        stbi_image_free(data);
-
-        return (*raw_data) != nullptr;
+        return result;
     }
 
-    bool FilesystemHelper::LoadKTX(unsigned char** raw_data, char const *filename, FImageLoadInfo* imageInfo)
+    bool FilesystemHelper::LoadKTX(char const *filename, ktxTexture** target, vk::Format* format)
     {
-        ktxTexture** target;
-        //auto result = ktxTexture_CreateFromNamedFile(filename, KTX_TEXTURE_CREATE_LOAD_IMAGE_DATA_BIT, target);
-        return true;
+        auto result = ktxTexture_CreateFromNamedFile(filename, KTX_TEXTURE_CREATE_LOAD_IMAGE_DATA_BIT, target);
+
+        VkFormat raw_format = vkGetFormatFromOpenGLFormat((*target)->glFormat, (*target)->glType);
+        *format = static_cast<vk::Format>(raw_format);
+
+        return result == KTX_SUCCESS;
     }
 }

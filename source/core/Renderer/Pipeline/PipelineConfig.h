@@ -13,6 +13,8 @@ namespace Engine
         eNone = -1,
         eUI,
         eDiffuse,
+        eSkybox,
+        eReflect
     };
 
     struct FPipelineCreateInfo
@@ -44,8 +46,10 @@ namespace Engine
                                                         vk::PrimitiveTopology topology, vk::PolygonMode polygonMode, 
                                                         vk::CullModeFlags cullMode, vk::FrontFace fontFace, 
                                                         vk::SampleCountFlagBits samples, vk::PipelineLayout pipelineLayout,
-                                                        vk::PipelineCache pipelineCache);
-        static FPipelineCreateInfo CreateDefaultPipelineConfig(EPipelineType eType, EShaderSet eSet, vk::CullModeFlags cullFlags, vk::SampleCountFlagBits samples, vk::PipelineLayout pipelineLayout, vk::PipelineCache pipelineCache = VK_NULL_HANDLE);
-        static FPipelineCreateInfo CreateDefaultDebugPipelineConfig(EPipelineType eType, EShaderSet eSet, vk::CullModeFlags cullFlags, vk::SampleCountFlagBits samples, vk::PipelineLayout pipelineLayout, vk::PipelineCache pipelineCache = VK_NULL_HANDLE);
+                                                        vk::PipelineCache pipelineCache, bool depthTest, bool depthWrite);
+        static FPipelineCreateInfo CreateUIPipeline(vk::SampleCountFlagBits samples, vk::PipelineLayout pipelineLayout, vk::PipelineCache pipelineCache = VK_NULL_HANDLE);
+        static FPipelineCreateInfo CreateDiffusePipeline(vk::SampleCountFlagBits samples, vk::PipelineLayout pipelineLayout, vk::PipelineCache pipelineCache = VK_NULL_HANDLE);
+        static FPipelineCreateInfo CreateSkyboxPipeline(vk::SampleCountFlagBits samples, vk::PipelineLayout pipelineLayout, vk::PipelineCache pipelineCache = VK_NULL_HANDLE);
+        static FPipelineCreateInfo CreateReflectPipeline(vk::SampleCountFlagBits samples, vk::PipelineLayout pipelineLayout, vk::PipelineCache pipelineCache = VK_NULL_HANDLE);
     };
 }

@@ -2,9 +2,10 @@
 #include "filesystem/FilesystemHelper.h"
 #include "RenderScene.h"
 
-#include "Objects/Components/ComponentBase.h"
+#include "Objects/RenderObject.h"
 #include "Objects/Components/StaticMeshComponent.h"
-#include "Camera/Camera.h"
+#include "Objects/Components/Camera/CameraComponent.h"
+#include "Objects/Components/Camera/CameraManager.h"
 
 namespace Engine
 {
@@ -15,8 +16,9 @@ namespace Engine
             ESceneObjectType::eCamera,
             [](FSceneObject info)
             {
-                auto camera = std::make_unique<CameraBase>(info.srName);
+                auto camera = std::make_shared<CameraComponent>(info.srName);
                 camera->SetTransform(info.fTransform);
+                CameraManager::GetInstance()->Attach(camera);
                 return camera;
             }
         },
@@ -24,9 +26,9 @@ namespace Engine
             ESceneObjectType::eMeshComponent,
             [](FSceneObject info)
             {
-                auto mesh_component = std::make_unique<StaticMeshComponent>(info.srName);
+                auto mesh_component = std::make_shared<StaticMeshComponent>(info.srName);
                 mesh_component->SetTransform(info.fTransform);
-                info.vResourceBindings; // TODO: bind mesh
+                mesh_component->SetResources(info.resourceBindings);
                 return mesh_component;
             }
         },
@@ -34,9 +36,9 @@ namespace Engine
             ESceneObjectType::eSkybox,
             [](FSceneObject info)
             {
-                auto skybox = std::make_unique<StaticMeshComponent>(info.srName);
+                auto skybox = std::make_shared<StaticMeshComponent>(info.srName);
                 skybox->SetTransform(info.fTransform);
-                info.vResourceBindings; // TODO: bind mesh
+                skybox->SetResources(info.resourceBindings);
                 return skybox;
             }
         }
@@ -54,6 +56,8 @@ namespace Engine
         pRenderScene->Create(info.resources_path);
 
         CreateComponents(pRenderScene->GetRoot(), info.vSceneObjects);
+
+        return pRenderScene;
     }
 
     void SceneFactory::CreateComponents(std::shared_ptr<RenderObject> pRoot, std::vector<FSceneObject> sceneObjects)

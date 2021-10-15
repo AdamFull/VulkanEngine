@@ -12,27 +12,6 @@
         "meshes":
         [
             {
-                "name": "skybox_obj",
-                "type": "static",
-                "src": "../../assets/meshes/skybox.obj",
-                "materials":
-                [
-                    {
-                        "name": "skybox_cubemap_mat",
-                        "type": "diffuse",
-                        "textures": 
-                        [
-                            {
-                                "name": "skybox_cubemap_tex",
-                                "type": "cube",
-                                "attachment": "color",
-                                "src": "../../assets/textures/cubemaps/cubemap_yokohama_rgba.ktx"
-                            }
-                        ]
-                    }
-                ]
-            },
-            {
                 "name": "femalebody_obj",
                 "type": "static",
                 "src": "../../assets/meshes/femalebody.obj",

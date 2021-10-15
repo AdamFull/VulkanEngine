@@ -68,11 +68,10 @@ namespace Engine
         void EndSingleTimeCommands(vk::CommandBuffer commandBuffer);
 
         /*****************************************Image work helpers*****************************************/
-        void CreateImage(vk::Image& image, vk::DeviceMemory& memory, uint32_t width, uint32_t height, uint32_t mip_levels, vk::SampleCountFlagBits num_samples, 
-                                      vk::Format format, vk::ImageTiling tiling, vk::ImageUsageFlags usage, vk::MemoryPropertyFlags properties);
-        void TransitionImageLayout(vk::Image& image, uint32_t mip_levels, vk::ImageAspectFlags aspectFlags, vk::ImageLayout oldLayout, vk::ImageLayout newLayout);
-        void CopyBufferToImage(vk::Buffer& buffer, vk::Image& image, uint32_t width, uint32_t height);
-        vk::ImageView CreateImageView(vk::Image& pImage, uint32_t mip_levels, vk::Format eFormat, vk::ImageAspectFlags aspectFlags);
+        void CreateImage(vk::Image& image, vk::DeviceMemory& memory, vk::ImageCreateInfo createInfo, vk::MemoryPropertyFlags properties);
+        void TransitionImageLayout(vk::Image& image, std::vector<vk::ImageMemoryBarrier> vBarriers, vk::ImageLayout oldLayout, vk::ImageLayout newLayout);
+        void CopyBufferToImage(vk::Buffer& buffer, vk::Image& image, std::vector<vk::BufferImageCopy> vRegions);
+        vk::ImageView CreateImageView(vk::Image& pImage, vk::ImageViewCreateInfo viewInfo);
         void CreateSampler(vk::Sampler& sampler, uint32_t mip_levels);
 
         void CreateOnDeviceBuffer(vk::DeviceSize size, vk::BufferUsageFlags usage, vk::MemoryPropertyFlags properties, vk::Buffer &buffer, vk::DeviceMemory &bufferMemory);

@@ -181,7 +181,16 @@ namespace Engine
 
         for (size_t i = 0; i < data.vImages.size(); i++)
         {
-            data.vImageViews[i] = device->CreateImageView(data.vImages[i], 1, data.imageFormat, vk::ImageAspectFlagBits::eColor);
+            vk::ImageViewCreateInfo viewInfo{};
+            viewInfo.viewType = vk::ImageViewType::e2D;
+            viewInfo.format = data.imageFormat;
+            viewInfo.subresourceRange.aspectMask = vk::ImageAspectFlagBits::eColor;
+            viewInfo.subresourceRange.baseMipLevel = 0;
+            viewInfo.subresourceRange.levelCount = 1;
+            viewInfo.subresourceRange.baseArrayLayer = 0;
+            viewInfo.subresourceRange.layerCount = 1;
+
+            data.vImageViews[i] = device->CreateImageView(data.vImages[i], viewInfo);
         }
     }
 
@@ -189,12 +198,32 @@ namespace Engine
     {
         vk::Format colorFormat = data.imageFormat;
 
-        device->CreateImage(data.MSAAImage, data.MSAAImageMemory, data.extent.width, data.extent.height, 1, 
-        device->GetSamples(), colorFormat, vk::ImageTiling::eOptimal, 
-        vk::ImageUsageFlagBits::eTransientAttachment | vk::ImageUsageFlagBits::eColorAttachment, 
-        vk::MemoryPropertyFlagBits::eDeviceLocal);
+        vk::ImageCreateInfo imageInfo{};
+        imageInfo.imageType = vk::ImageType::e2D;
+        imageInfo.extent.width = data.extent.width;
+        imageInfo.extent.height = data.extent.height;
+        imageInfo.extent.depth = 1;
+        imageInfo.mipLevels = 1;
+        imageInfo.arrayLayers = 1;
+        imageInfo.format = colorFormat;
+        imageInfo.tiling = vk::ImageTiling::eOptimal;
+        imageInfo.initialLayout = vk::ImageLayout::eUndefined;
+        imageInfo.usage = vk::ImageUsageFlagBits::eTransientAttachment | vk::ImageUsageFlagBits::eColorAttachment;
+        imageInfo.sharingMode = vk::SharingMode::eExclusive;
+        imageInfo.samples = device->GetSamples();
 
-        data.MSAAImageView = device->CreateImageView(data.MSAAImage, 1, colorFormat, vk::ImageAspectFlagBits::eColor);
+        device->CreateImage(data.MSAAImage, data.MSAAImageMemory, imageInfo, vk::MemoryPropertyFlagBits::eDeviceLocal);
+
+        vk::ImageViewCreateInfo viewInfo{};
+        viewInfo.viewType = vk::ImageViewType::e2D;
+        viewInfo.format = colorFormat;
+        viewInfo.subresourceRange.aspectMask = vk::ImageAspectFlagBits::eColor;
+        viewInfo.subresourceRange.baseMipLevel = 0;
+        viewInfo.subresourceRange.levelCount = 1;
+        viewInfo.subresourceRange.baseArrayLayer = 0;
+        viewInfo.subresourceRange.layerCount = 1;
+
+        data.MSAAImageView = device->CreateImageView(data.MSAAImage, viewInfo);
     }
 
     void SwapChain::CreateDepthResources(std::unique_ptr<Device>& device)
@@ -204,13 +233,45 @@ namespace Engine
         vk::ImageTiling::eOptimal,
         vk::FormatFeatureFlagBits::eDepthStencilAttachment);
 
-        device->CreateImage(data.depthImage, data.depthImageMemory, data.extent.width, data.extent.height, 1,
-        device->GetSamples(), depthFormat, vk::ImageTiling::eOptimal, 
-        vk::ImageUsageFlagBits::eDepthStencilAttachment,  vk::MemoryPropertyFlagBits::eDeviceLocal);
+        vk::ImageCreateInfo imageInfo{};
+        imageInfo.imageType = vk::ImageType::e2D;
+        imageInfo.extent.width = data.extent.width;
+        imageInfo.extent.height = data.extent.height;
+        imageInfo.extent.depth = 1;
+        imageInfo.mipLevels = 1;
+        imageInfo.arrayLayers = 1;
+        imageInfo.format = depthFormat;
+        imageInfo.tiling = vk::ImageTiling::eOptimal;
+        imageInfo.initialLayout = vk::ImageLayout::eUndefined;
+        imageInfo.usage = vk::ImageUsageFlagBits::eDepthStencilAttachment;
+        imageInfo.sharingMode = vk::SharingMode::eExclusive;
+        imageInfo.samples = device->GetSamples();
 
-        data.depthImageView = device->CreateImageView(data.depthImage, 1, depthFormat, vk::ImageAspectFlagBits::eDepth);
+        device->CreateImage(data.depthImage, data.depthImageMemory, imageInfo, vk::MemoryPropertyFlagBits::eDeviceLocal);
 
-        device->TransitionImageLayout(data.depthImage, 1, vk::ImageAspectFlagBits::eDepth, vk::ImageLayout::eUndefined, vk::ImageLayout::eDepthStencilAttachmentOptimal);
+        vk::ImageViewCreateInfo viewInfo{};
+        viewInfo.viewType = vk::ImageViewType::e2D;
+        viewInfo.format = depthFormat;
+        viewInfo.subresourceRange.aspectMask = vk::ImageAspectFlagBits::eDepth;
+        viewInfo.subresourceRange.baseMipLevel = 0;
+        viewInfo.subresourceRange.levelCount = 1;
+        viewInfo.subresourceRange.baseArrayLayer = 0;
+        viewInfo.subresourceRange.layerCount = 1;
+
+        data.depthImageView = device->CreateImageView(data.depthImage, viewInfo);
+
+        std::vector<vk::ImageMemoryBarrier> vBarriers;
+        vk::ImageMemoryBarrier barrier{};
+        barrier.srcQueueFamilyIndex = VK_QUEUE_FAMILY_IGNORED;
+        barrier.dstQueueFamilyIndex = VK_QUEUE_FAMILY_IGNORED;
+        barrier.subresourceRange.aspectMask = vk::ImageAspectFlagBits::eDepth;
+        barrier.subresourceRange.baseMipLevel = 0;
+        barrier.subresourceRange.levelCount = 1;
+        barrier.subresourceRange.baseArrayLayer = 0;
+        barrier.subresourceRange.layerCount = 1;
+        vBarriers.push_back(barrier);
+
+        device->TransitionImageLayout(data.depthImage, vBarriers, vk::ImageLayout::eUndefined, vk::ImageLayout::eDepthStencilAttachmentOptimal);
     }
 
     void SwapChain::CreateRenderPass(std::unique_ptr<Device>& device)

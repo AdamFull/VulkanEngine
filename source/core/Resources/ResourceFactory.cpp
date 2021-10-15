@@ -6,6 +6,7 @@
 
 #include "Resources/Materials/MaterialUI.h"
 #include "Resources/Materials/MaterialDiffuse.h"
+#include "Resources/Materials/MaterialSkybox.h"
 
 #include "Resources/Meshes/StaticMesh.h"
 #include "Resources/Meshes/GLTFMesh.h"
@@ -63,9 +64,9 @@ namespace Engine
             }
         },
         {
-            EMaterialType::eGLTF, []()
+            EMaterialType::eSkybox, []()
             {
-                auto material = std::make_unique<MaterialDiffuse>();
+                auto material = std::make_unique<MaterialSkybox>();
                 material->Create();
                 return material;
             }

@@ -1,7 +1,7 @@
 #include "CameraEditorController.h"
-#include "core/KeyMapping/InputMapper.h"
-#include "Camera/CameraManager.h"
-#include "Camera/Camera.h"
+#include "KeyMapping/InputMapper.h"
+#include "Objects/Components/Camera/CameraComponent.h"
+#include "Objects/Components/Camera/CameraManager.h"
 
 namespace Engine
 {

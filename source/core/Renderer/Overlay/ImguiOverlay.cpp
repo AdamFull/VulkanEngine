@@ -104,19 +104,15 @@ namespace Engine
         int texWidth, texHeight;
         io.Fonts->GetTexDataAsRGBA32(&fontData, &texWidth, &texHeight);
 
-        FImageLoadInfo info;
-        info.format = vk::Format::eR8G8B8A8Unorm;
-        info.width = static_cast<uint32_t>(texWidth);
-        info.height = static_cast<uint32_t>(texHeight);
-        info.channels = 4;
-        info.mipLevels = 1;
-        info.size = static_cast<uint32_t>(texWidth * texHeight * 4);
-        info.layers = 1;
-        info.faces = 1;
+        vk::Format format;
+        ktxTexture* texture;
+        bool result = FilesystemHelper::AllocateRawDataAsKTXTexture(fontData, &texture, &format, texWidth, texHeight);
 
-        fontTexture->Load(fontData, info);
+        fontTexture->Load(texture, format);
         fontMaterial->AddTexture(ETextureAttachmentType::eColor, fontTexture);
         fontMaterial->Create();
+
+        FilesystemHelper::CloseImage(&texture);
     }
 
     void ImguiOverlay::NewFrame()

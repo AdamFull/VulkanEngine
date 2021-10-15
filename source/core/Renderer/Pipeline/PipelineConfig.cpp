@@ -8,7 +8,7 @@ namespace Engine
                                                              vk::PrimitiveTopology topology, vk::PolygonMode polygonMode, 
                                                              vk::CullModeFlags cullMode, vk::FrontFace fontFace, 
                                                              vk::SampleCountFlagBits samples, vk::PipelineLayout pipelineLayout,
-                                                             vk::PipelineCache pipelineCache)
+                                                             vk::PipelineCache pipelineCache, bool depthTest, bool depthWrite)
     {
         FPipelineCreateInfo createInfo{};
 
@@ -19,7 +19,7 @@ namespace Engine
                 createInfo.vertexInputDesc = VertexUI::getBindingDescription();
                 createInfo.vertexAtribDesc = VertexUI::getAttributeDescriptions();
             }break;
-            case EShaderSet::eDiffuse:
+            default:
             {
                 createInfo.vertexInputDesc = Vertex::getBindingDescription();
                 createInfo.vertexAtribDesc = Vertex::getAttributeDescriptions();
@@ -68,8 +68,8 @@ namespace Engine
         createInfo.colorBlending.blendConstants[2] = 0.0f;
         createInfo.colorBlending.blendConstants[3] = 0.0f;
 
-        createInfo.depthStencil.depthTestEnable = VK_TRUE;
-        createInfo.depthStencil.depthWriteEnable = VK_TRUE;
+        createInfo.depthStencil.depthTestEnable = depthTest;
+        createInfo.depthStencil.depthWriteEnable = depthWrite;
         createInfo.depthStencil.depthCompareOp = vk::CompareOp::eLessOrEqual;
         createInfo.depthStencil.back.compareOp = vk::CompareOp::eAlways;
         createInfo.depthStencil.depthBoundsTestEnable = VK_FALSE;
@@ -89,18 +89,86 @@ namespace Engine
         return createInfo;
     }
 
-    FPipelineCreateInfo PipelineConfig::CreateDefaultPipelineConfig(EPipelineType eType, EShaderSet eSet, vk::CullModeFlags cullFlags, vk::SampleCountFlagBits samples, vk::PipelineLayout pipelineLayout, vk::PipelineCache pipelineCache)
+    FPipelineCreateInfo PipelineConfig::CreateUIPipeline(vk::SampleCountFlagBits samples, vk::PipelineLayout pipelineLayout, vk::PipelineCache pipelineCache)
     {
-        FPipelineCreateInfo createInfo = CreatePipelineConfig(eType, eSet, vk::PrimitiveTopology::eTriangleList, vk::PolygonMode::eFill,
-                                    cullFlags, vk::FrontFace::eCounterClockwise, samples, pipelineLayout, pipelineCache);
+        FPipelineCreateInfo createInfo = 
+        CreatePipelineConfig
+        (
+            EPipelineType::eGraphics, 
+            EShaderSet::eUI, 
+            vk::PrimitiveTopology::eTriangleList, 
+            vk::PolygonMode::eFill,
+            vk::CullModeFlagBits::eNone, 
+            vk::FrontFace::eCounterClockwise, 
+            samples, 
+            pipelineLayout, 
+            pipelineCache,
+            true,
+            true
+        );
         createInfo.bindPoint = vk::PipelineBindPoint::eGraphics;
         return createInfo;
     }
 
-    FPipelineCreateInfo PipelineConfig::CreateDefaultDebugPipelineConfig(EPipelineType eType, EShaderSet eSet, vk::CullModeFlags cullFlags, vk::SampleCountFlagBits samples, vk::PipelineLayout pipelineLayout, vk::PipelineCache pipelineCache)
+    FPipelineCreateInfo PipelineConfig::CreateDiffusePipeline(vk::SampleCountFlagBits samples, vk::PipelineLayout pipelineLayout, vk::PipelineCache pipelineCache)
     {
-        FPipelineCreateInfo createInfo = CreatePipelineConfig(eType, eSet, vk::PrimitiveTopology::eTriangleList, vk::PolygonMode::eLine,
-                                    cullFlags, vk::FrontFace::eCounterClockwise, samples, pipelineLayout, pipelineCache);
+        FPipelineCreateInfo createInfo = 
+        CreatePipelineConfig
+        (
+            EPipelineType::eGraphics, 
+            EShaderSet::eDiffuse, 
+            vk::PrimitiveTopology::eTriangleList, 
+            vk::PolygonMode::eFill,
+            vk::CullModeFlagBits::eBack, 
+            vk::FrontFace::eCounterClockwise, 
+            samples, 
+            pipelineLayout, 
+            pipelineCache,
+            true,
+            true
+        );
+        createInfo.bindPoint = vk::PipelineBindPoint::eGraphics;
+        return createInfo;
+    }
+
+    FPipelineCreateInfo PipelineConfig::CreateSkyboxPipeline(vk::SampleCountFlagBits samples, vk::PipelineLayout pipelineLayout, vk::PipelineCache pipelineCache)
+    {
+        FPipelineCreateInfo createInfo = 
+        CreatePipelineConfig
+        (
+            EPipelineType::eGraphics, 
+            EShaderSet::eSkybox, 
+            vk::PrimitiveTopology::eTriangleList, 
+            vk::PolygonMode::eFill,
+            vk::CullModeFlagBits::eFront, 
+            vk::FrontFace::eCounterClockwise, 
+            samples, 
+            pipelineLayout, 
+            pipelineCache,
+            false,
+            false
+        );
+        createInfo.bindPoint = vk::PipelineBindPoint::eGraphics;
+        return createInfo;
+    }
+
+    FPipelineCreateInfo PipelineConfig::CreateReflectPipeline(vk::SampleCountFlagBits samples, vk::PipelineLayout pipelineLayout, vk::PipelineCache pipelineCache)
+    {
+        FPipelineCreateInfo createInfo = 
+        CreatePipelineConfig
+        (
+            EPipelineType::eGraphics, 
+            EShaderSet::eReflect, 
+            vk::PrimitiveTopology::eTriangleList, 
+            vk::PolygonMode::eFill,
+            vk::CullModeFlagBits::eBack, 
+            vk::FrontFace::eCounterClockwise, 
+            samples, 
+            pipelineLayout, 
+            pipelineCache,
+            true,
+            true
+        );
         createInfo.bindPoint = vk::PipelineBindPoint::eGraphics;
         return createInfo;
     }

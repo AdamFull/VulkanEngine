@@ -333,25 +333,11 @@ namespace Engine
     }
 
     /*****************************************Image work helpers*****************************************/
-    void Device::CreateImage(vk::Image& image, vk::DeviceMemory& memory, uint32_t width, uint32_t height, uint32_t mip_levels, vk::SampleCountFlagBits num_samples, 
-                                      vk::Format format, vk::ImageTiling tiling, vk::ImageUsageFlags usage, vk::MemoryPropertyFlags properties)
+    void Device::CreateImage(vk::Image& image, vk::DeviceMemory& memory, vk::ImageCreateInfo createInfo, vk::MemoryPropertyFlags properties)
     {
         assert(data.logical && "Cannot create image, cause logical device is not valid.");
-        vk::ImageCreateInfo imageInfo{};
-        imageInfo.imageType = vk::ImageType::e2D;
-        imageInfo.extent.width = width;
-        imageInfo.extent.height = height;
-        imageInfo.extent.depth = 1;
-        imageInfo.mipLevels = mip_levels;
-        imageInfo.arrayLayers = 1;
-        imageInfo.format = format;
-        imageInfo.tiling = tiling;
-        imageInfo.initialLayout = vk::ImageLayout::eUndefined;
-        imageInfo.usage = usage;
-        imageInfo.sharingMode = vk::SharingMode::eExclusive;
-        imageInfo.samples = num_samples;
 
-        image = data.logical->createImage(imageInfo, nullptr);
+        image = data.logical->createImage(createInfo, nullptr);
         assert(image && "Image was not created");
 
         vk::MemoryRequirements memReq{};
@@ -367,102 +353,70 @@ namespace Engine
         data.logical->bindImageMemory(image, memory, 0);
     }
 
-    void Device::TransitionImageLayout(vk::Image& image, uint32_t mip_levels, vk::ImageAspectFlags aspectFlags, vk::ImageLayout oldLayout, vk::ImageLayout newLayout)
+    void Device::TransitionImageLayout(vk::Image& image, std::vector<vk::ImageMemoryBarrier> vBarriers, vk::ImageLayout oldLayout, vk::ImageLayout newLayout)
     {
         vk::CommandBuffer commandBuffer = BeginSingleTimeCommands();
-
-        vk::ImageMemoryBarrier barrier{};
-        barrier.oldLayout = oldLayout;
-        barrier.newLayout = newLayout;
-        barrier.srcQueueFamilyIndex = VK_QUEUE_FAMILY_IGNORED;
-        barrier.dstQueueFamilyIndex = VK_QUEUE_FAMILY_IGNORED;
-        barrier.image = image;
-        barrier.subresourceRange.aspectMask = aspectFlags;
-        barrier.subresourceRange.baseMipLevel = 0;
-        barrier.subresourceRange.levelCount = mip_levels;
-        barrier.subresourceRange.baseArrayLayer = 0;
-        barrier.subresourceRange.layerCount = 1;
 
         vk::PipelineStageFlags sourceStage;
         vk::PipelineStageFlags destinationStage;
 
-        if (oldLayout == vk::ImageLayout::eUndefined && newLayout == vk::ImageLayout::eTransferDstOptimal) 
+        for(auto& barrier : vBarriers)
         {
-            barrier.srcAccessMask = (vk::AccessFlagBits)0;
-            barrier.dstAccessMask = vk::AccessFlagBits::eTransferWrite;
+            barrier.oldLayout = oldLayout;
+            barrier.newLayout = newLayout;
+            barrier.image = image;
 
-            sourceStage = vk::PipelineStageFlagBits::eTopOfPipe;
-            destinationStage = vk::PipelineStageFlagBits::eTransfer;
-        } 
-        else if (oldLayout == vk::ImageLayout::eTransferDstOptimal && newLayout == vk::ImageLayout::eShaderReadOnlyOptimal) 
-        {
-            barrier.srcAccessMask = vk::AccessFlagBits::eTransferWrite;
-            barrier.dstAccessMask = vk::AccessFlagBits::eShaderRead;
+            if (oldLayout == vk::ImageLayout::eUndefined && newLayout == vk::ImageLayout::eTransferDstOptimal) 
+            {
+                barrier.srcAccessMask = (vk::AccessFlagBits)0;
+                barrier.dstAccessMask = vk::AccessFlagBits::eTransferWrite;
 
-            sourceStage = vk::PipelineStageFlagBits::eTransfer;
-            destinationStage = vk::PipelineStageFlagBits::eFragmentShader;
-        } 
-        else if (oldLayout == vk::ImageLayout::eUndefined && newLayout == vk::ImageLayout::eDepthStencilAttachmentOptimal) 
-        {
-            barrier.srcAccessMask = (vk::AccessFlagBits)0;
-            barrier.dstAccessMask = vk::AccessFlagBits::eDepthStencilAttachmentRead | vk::AccessFlagBits::eDepthStencilAttachmentWrite;
+                sourceStage = vk::PipelineStageFlagBits::eTopOfPipe;
+                destinationStage = vk::PipelineStageFlagBits::eTransfer;
+            } 
+            else if (oldLayout == vk::ImageLayout::eTransferDstOptimal && newLayout == vk::ImageLayout::eShaderReadOnlyOptimal) 
+            {
+                barrier.srcAccessMask = vk::AccessFlagBits::eTransferWrite;
+                barrier.dstAccessMask = vk::AccessFlagBits::eShaderRead;
 
-            sourceStage = vk::PipelineStageFlagBits::eTopOfPipe;
-            destinationStage = vk::PipelineStageFlagBits::eEarlyFragmentTests;
-        }
-        else 
-        {
-            throw std::invalid_argument("Unsupported layout transition!");
+                sourceStage = vk::PipelineStageFlagBits::eTransfer;
+                destinationStage = vk::PipelineStageFlagBits::eFragmentShader;
+            } 
+            else if (oldLayout == vk::ImageLayout::eUndefined && newLayout == vk::ImageLayout::eDepthStencilAttachmentOptimal) 
+            {
+                barrier.srcAccessMask = (vk::AccessFlagBits)0;
+                barrier.dstAccessMask = vk::AccessFlagBits::eDepthStencilAttachmentRead | vk::AccessFlagBits::eDepthStencilAttachmentWrite;
+
+                sourceStage = vk::PipelineStageFlagBits::eTopOfPipe;
+                destinationStage = vk::PipelineStageFlagBits::eEarlyFragmentTests;
+            }
+            else 
+            {
+                throw std::invalid_argument("Unsupported layout transition!");
+            }
         }
 
         commandBuffer.pipelineBarrier(
             sourceStage,
             destinationStage,
             vk::DependencyFlags(),
-            0,nullptr, 0, nullptr, 1, &barrier);
+            0,nullptr, 0, nullptr, 
+            static_cast<uint32_t>(vBarriers.size()), vBarriers.data());
 
         EndSingleTimeCommands(commandBuffer);
     }
 
-    void Device::CopyBufferToImage(vk::Buffer& buffer, vk::Image& image, uint32_t width, uint32_t height)
+    void Device::CopyBufferToImage(vk::Buffer& buffer, vk::Image& image, std::vector<vk::BufferImageCopy> vRegions)
     {
         vk::CommandBuffer commandBuffer = BeginSingleTimeCommands();
-
-        vk::BufferImageCopy region{};
-        region.bufferOffset = 0;
-        region.bufferRowLength = 0;
-        region.bufferImageHeight = 0;
-
-        region.imageSubresource.aspectMask = vk::ImageAspectFlagBits::eColor;
-        region.imageSubresource.mipLevel = 0;
-        region.imageSubresource.baseArrayLayer = 0;
-        region.imageSubresource.layerCount = 1;
-
-        region.imageOffset = vk::Offset3D{0, 0, 0};
-        region.imageExtent = vk::Extent3D
-        {
-            width,
-            height,
-            1
-        };
-
-        commandBuffer.copyBufferToImage(buffer, image, vk::ImageLayout::eTransferDstOptimal, 1, &region);
-
+        commandBuffer.copyBufferToImage(buffer, image, vk::ImageLayout::eTransferDstOptimal, static_cast<uint32_t>(vRegions.size()), vRegions.data());
         EndSingleTimeCommands(commandBuffer);
     }
 
-    vk::ImageView Device::CreateImageView(vk::Image& pImage, uint32_t mip_levels, vk::Format eFormat, vk::ImageAspectFlags aspectFlags)
+    vk::ImageView Device::CreateImageView(vk::Image& pImage, vk::ImageViewCreateInfo viewInfo)
     {
         assert(data.logical && "Cannot create image view, cause logical device is not valid.");
-        vk::ImageViewCreateInfo viewInfo{};
         viewInfo.image = pImage;
-        viewInfo.viewType = vk::ImageViewType::e2D;
-        viewInfo.format = eFormat;
-        viewInfo.subresourceRange.aspectMask = aspectFlags;;
-        viewInfo.subresourceRange.baseMipLevel = 0;
-        viewInfo.subresourceRange.levelCount = mip_levels;
-        viewInfo.subresourceRange.baseArrayLayer = 0;
-        viewInfo.subresourceRange.layerCount = 1;
 
         vk::ImageView imageView;
         //TODO: Handle result

@@ -1,5 +1,5 @@
 #pragma once
-#include "Objects/RenderObject.h"
+#include "Objects/Transform.h"
 
 namespace Engine
 {
@@ -21,7 +21,7 @@ namespace Engine
     {
         std::string srName;
         ESceneObjectType eObjectType;
-        std::vector<FSceneObjectResourceBindings> vResourceBindings;
+        FSceneObjectResourceBindings resourceBindings;
         FTransform fTransform;
         std::vector<FSceneObject> vSceneObjects;
     };

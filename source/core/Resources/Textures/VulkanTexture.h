@@ -21,11 +21,12 @@ namespace Engine
         virtual ETextureAttachmentType GetAttachment();
 
         virtual void Load(std::string srPath);
-        virtual void Load(unsigned char* data, FImageLoadInfo info);
+        virtual void Load(ktxTexture* info, vk::Format format);
 
         virtual vk::DescriptorImageInfo& GetDescriptor() { return descriptor; }
     protected:
         virtual void GenerateMipmaps(vk::Image &image, uint32_t mipLevels, vk::Format format, uint32_t width, uint32_t height, vk::ImageAspectFlags aspectFlags);
+        static vk::ImageType TypeFromKtx(uint32_t type);
 
         vk::Image               image;
         vk::ImageLayout         imageLayout;

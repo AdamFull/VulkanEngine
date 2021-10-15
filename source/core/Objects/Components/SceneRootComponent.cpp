@@ -1,11 +1,12 @@
 #include "SceneRootComponent.h"
 #include "Renderer/VulkanDevice.h"
+#include "Resources/ResourceManager.h"
 
 namespace Engine
 {
-    void SceneRootComponent::Create()
+    void SceneRootComponent::Create(std::shared_ptr<ResourceManager> resourceMgr)
     {
-        RenderObject::Create();
+        RenderObject::Create(resourceMgr);
     }
 
     void SceneRootComponent::Render(vk::CommandBuffer& commandBuffer, uint32_t imageIndex)

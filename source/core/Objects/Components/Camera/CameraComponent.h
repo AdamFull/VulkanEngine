@@ -3,11 +3,11 @@
 
 namespace Engine
 {
-    class CameraBase : public RenderObject
+    class CameraComponent : public RenderObject
     {
     public:
-        CameraBase() = default;
-        explicit CameraBase(std::string srName) 
+        CameraComponent() = default;
+        explicit CameraComponent(std::string srName) 
         {
             m_srName = srName;
         }

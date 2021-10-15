@@ -9,7 +9,7 @@ namespace Engine
 
     struct SceneFactory
     {
-        using object_creator_t = std::unique_ptr<RenderObject>(FSceneObject);
+        using object_creator_t = std::shared_ptr<RenderObject>(FSceneObject);
         static std::unique_ptr<RenderScene> Create(std::string srScenePath);
     private:
         static std::map<ESceneObjectType, std::function<object_creator_t>> m_mFactories;

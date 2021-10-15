@@ -1,5 +1,5 @@
 #include "CameraManager.h"
-#include "Camera.h"
+#include "CameraComponent.h"
 
 namespace Engine
 {
@@ -14,7 +14,7 @@ namespace Engine
         return m_pInstance;
     }
 
-    std::shared_ptr<CameraBase> CameraManager::GetCurrentCamera()
+    std::shared_ptr<CameraComponent> CameraManager::GetCurrentCamera()
     {
         return m_vCameras.at(m_iCameraIndex);
     }
@@ -24,7 +24,7 @@ namespace Engine
         m_iCameraIndex = index;
     }
 
-    void CameraManager::Attach(std::shared_ptr<CameraBase> newCamera)
+    void CameraManager::Attach(std::shared_ptr<CameraComponent> newCamera)
     {
         m_vCameras.push_back(newCamera);
     }

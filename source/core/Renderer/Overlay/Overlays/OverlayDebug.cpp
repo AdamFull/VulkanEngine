@@ -1,8 +1,8 @@
 #include "OverlayDebug.h"
 #include <Renderer/Window/WindowHandle.h>
 #include <imgui.h>
-#include <Camera/Camera.h>
-#include <Camera/CameraManager.h>
+#include <Objects/Components/Camera/CameraComponent.h>
+#include <Objects/Components/Camera/CameraManager.h>
 
 namespace Engine
 {

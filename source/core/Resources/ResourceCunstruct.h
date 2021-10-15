@@ -19,7 +19,8 @@ namespace Engine
         eHeight,
         eOcclusion,
         eEmissive,
-        eSpecular
+        eSpecular,
+        eCubemap
     };
 
     struct FTextureCreateInfo
@@ -34,7 +35,7 @@ namespace Engine
     {
         eUI,
         eDiffuse,
-        eGLTF
+        eSkybox
     };
 
     struct FMaterialParams

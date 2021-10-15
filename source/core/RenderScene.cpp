@@ -1,6 +1,6 @@
 #include "RenderScene.h"
-#include "Camera/Camera.h"
-#include "Camera/CameraManager.h"
+#include "Objects/Components/Camera/CameraComponent.h"
+#include "Objects/Components/Camera/CameraManager.h"
 #include "Renderer/VulkanDevice.h"
 #include "Renderer/VulkanRenderer.h"
 #include "Renderer/VulkanBuffer.h"
@@ -49,12 +49,7 @@ namespace Engine
 
     void RenderScene::CreateObjects()
     {
-        m_pRoot->Create();
-    }
-
-    std::shared_ptr<RenderObject> RenderScene::FindSceneObject(std::string srName)
-    {
-        return m_pRoot->Find(srName);
+        m_pRoot->Create(m_pResourceManager);
     }
 
     void RenderScene::Render(float fDeltaTime)
@@ -71,7 +66,7 @@ namespace Engine
         uint32_t currentFrame = URenderer->GetImageIndex();
         auto camera = CameraManager::GetInstance()->GetCurrentCamera();
 
-        auto transform = m_pRoot->Find("static_mesh_component1")->GetTransform();
+        auto transform = m_pRoot->Find("femalebody_mesh_component")->GetTransform();
         FUniformData ubo{};
         ubo.model = transform.GetModel();
         ubo.view = camera->GetView();

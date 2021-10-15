@@ -1,10 +1,12 @@
 #pragma once
-#include "ComponentBase.h"
+#include "Objects/RenderObject.h"
 
 namespace Engine
 {
     class MeshBase;
-    class StaticMeshComponent : public ComponentBase
+    class ResourceManager;
+
+    class StaticMeshComponent : public RenderObject
     {
     public:
         StaticMeshComponent() = default;
@@ -13,7 +15,7 @@ namespace Engine
             m_srName = srName;
         }
         
-        void Create() override;
+        void Create(std::shared_ptr<ResourceManager> resourceMgr) override;
         void ReCreate() override;
         void Update(float fDeltaTime) override;
         void Render(vk::CommandBuffer& commandBuffer, uint32_t imageIndex) override;

@@ -31,7 +31,7 @@ namespace Engine
     NLOHMANN_JSON_SERIALIZE_ENUM(ETextureType, {
         {ETextureType::e2D, "2d"},
         {ETextureType::e3D, "3d"},
-        {ETextureType::eCubemap, "cube"},
+        {ETextureType::eCubemap, "cubemap"},
         {ETextureType::eArray, "array"}
         })
 
@@ -43,12 +43,13 @@ namespace Engine
         {ETextureAttachmentType::eHeight, "height"},
         {ETextureAttachmentType::eOcclusion, "occlusion"},
         {ETextureAttachmentType::eEmissive, "emissive"},
-        {ETextureAttachmentType::eSpecular, "specular"}})
+        {ETextureAttachmentType::eSpecular, "specular"},
+        {ETextureAttachmentType::eCubemap, "cubemap"}})
 
     NLOHMANN_JSON_SERIALIZE_ENUM(EMaterialType, {
         {EMaterialType::eUI, "ui"},
         {EMaterialType::eDiffuse, "diffuse"},
-        {EMaterialType::eGLTF, "gltf"}})
+        {EMaterialType::eSkybox, "skybox"}})
 
     NLOHMANN_JSON_SERIALIZE_ENUM(EMeshType, {
         {EMeshType::eStatic, "static"},
@@ -187,9 +188,9 @@ namespace Engine
     /*SCENE*/
     NLOHMANN_JSON_SERIALIZE_ENUM(ESceneObjectType, 
     {
-        {ESceneObjectType::eCamera, "2d"},
-        {ESceneObjectType::eSkybox, "3d"},
-        {ESceneObjectType::eMeshComponent, "cube"}
+        {ESceneObjectType::eCamera, "camera"},
+        {ESceneObjectType::eSkybox, "skybox"},
+        {ESceneObjectType::eMeshComponent, "static_mesh"}
     })
 
     void to_json(nlohmann::json &json, const FTransform &type)
@@ -248,7 +249,7 @@ namespace Engine
         {
             {"name", type.srName},
             {"type", type.eObjectType},
-            {"resources", {type.vResourceBindings}},
+            {"resources", type.resourceBindings},
             {"transform", type.fTransform},
             {"childs", {type.vSceneObjects}}
         };
@@ -266,7 +267,7 @@ namespace Engine
 
         //Required
         if(json.find("resources") != json.end())
-            json.at("resources").get_to(type.vResourceBindings);
+            json.at("resources").get_to(type.resourceBindings);
 
         //Optional
         if(json.find("transform") != json.end())

@@ -31,6 +31,20 @@ namespace Engine
                 {vk::ShaderStageFlagBits::eVertex, "../../assets/shaders/diffuse_vert.spv"},
                 {vk::ShaderStageFlagBits::eFragment, "../../assets/shaders/diffuse_frag.spv"}
             }
+        },
+        {
+            EShaderSet::eSkybox,
+            {
+                {vk::ShaderStageFlagBits::eVertex, "../../assets/shaders/skybox/skybox_vert.spv"},
+                {vk::ShaderStageFlagBits::eFragment, "../../assets/shaders/skybox/skybox_frag.spv"}
+            }
+        },
+        {
+            EShaderSet::eSkybox,
+            {
+                {vk::ShaderStageFlagBits::eVertex, "../../assets/shaders/skybox/reflect_vert.spv"},
+                {vk::ShaderStageFlagBits::eFragment, "../../assets/shaders/skybox/reflect_frag.spv"}
+            }
         }
     };
 

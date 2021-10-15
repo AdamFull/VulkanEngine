@@ -1,6 +1,6 @@
 #pragma once
 #include "KeyMapping/KeycodeConfig.h"
-#include "Camera/Controllers/CameraEditorController.h"
+#include "Controllers/CameraEditorController.h"
 #include "RenderScene.h"
 
 namespace Engine

@@ -16,7 +16,6 @@ namespace Engine
         void AttachObject(std::shared_ptr<RenderObject> object);
         inline std::shared_ptr<RenderObject>& GetRoot() { return m_pRoot; }
         void CreateObjects();
-        std::shared_ptr<RenderObject> FindSceneObject(std::string srName);
         void Render(float fDeltaTime);
     private:
         std::shared_ptr<RenderObject> m_pRoot;

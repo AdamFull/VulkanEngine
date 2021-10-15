@@ -1,9 +1,10 @@
 #include "Application.h"
 #include "Renderer/VulkanHighLevel.h"
 #include "KeyMapping/InputMapper.h"
-#include "Camera/Camera.h"
-#include "Camera/CameraManager.h"
+#include "Objects/Components/Camera/CameraComponent.h"
+#include "Objects/Components/Camera/CameraManager.h"
 #include "Objects/Components/StaticMeshComponent.h"
+#include "SceneFactory.h"
 
 namespace Engine
 {
@@ -26,20 +27,7 @@ namespace Engine
         m_pCameraController = std::make_unique<CameraEditorController>();
         m_pCameraController->Create();
 
-        m_pRenderScene = std::make_unique<RenderScene>();
-        m_pRenderScene->Create();
-
-        //Scene objects
-        auto mesh_component = std::make_shared<StaticMeshComponent>("static_mesh_component1");
-        mesh_component->SetPosition({0.f, 0.f, 0.f});
-        mesh_component->SetRotation({0.f, 0.f, glm::radians(180.f)});
-        m_pRenderScene->AttachObject(mesh_component);
-
-        //Camera
-        auto camera = std::make_shared<CameraBase>("world_camera");
-        camera->SetPosition({0.f, -2.4f, -1.8f});
-        m_pRenderScene->AttachObject(camera);
-        CameraManager::GetInstance()->Attach(camera);
+        m_pRenderScene = SceneFactory::Create("../../assets/scene.json");
     }
 
     void Application::ServiceHandle(EActionKey eKey, EKeyState eState)

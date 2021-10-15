@@ -1,4 +1,4 @@
-#include "MaterialUI.h"
+#include "MaterialSkybox.h"
 #include "Renderer/VulkanHighLevel.h"
 #include "Renderer/VulkanUniform.h"
 #include "Renderer/VulkanBuffer.h"
@@ -9,45 +9,53 @@
 
 namespace Engine
 {
-    void MaterialUI::Create()
+    void MaterialSkybox::Create()
     {
         MaterialBase::Create();
 
+        auto images = USwapChain->GetImages().size();
         CreateDescriptorSetLayout();
-        CreateDescriptorPool(USwapChain->GetImages().size());
-        CreateDescriptorSets(USwapChain->GetImages().size());
-        CreatePipelineLayout(USwapChain->GetImages().size());
+        CreateDescriptorPool(images);
+        CreateDescriptorSets(images);
+        CreatePipelineLayout(images);
 
-        FPipelineCreateInfo createInfo = PipelineConfig::CreateUIPipeline(UDevice->GetSamples(), pipelineLayout, pipelineCache);
-        m_pPipeline = PipelineFactory::CreatePipeline(createInfo, UDevice, USwapChain);
+        FPipelineCreateInfo skyboxInfo = PipelineConfig::CreateSkyboxPipeline(UDevice->GetSamples(), pipelineLayout, pipelineCache);
+        m_pPipeline = PipelineFactory::CreatePipeline(skyboxInfo, UDevice, USwapChain);
+
+        /*FPipelineCreateInfo reflectInfo = PipelineConfig::CreateReflectPipeline(UDevice->GetSamples(), pipelineLayout, pipelineCache);
+        m_pReflectPipeline = PipelineFactory::CreatePipeline(reflectInfo, UDevice, USwapChain);*/
     }
 
-    void MaterialUI::ReCreate()
+    void MaterialSkybox::ReCreate()
     {
         MaterialBase::ReCreate();
 
+        auto images = USwapChain->GetImages().size();
         CreateDescriptorSetLayout();
-        CreateDescriptorPool(USwapChain->GetImages().size());
-        CreateDescriptorSets(USwapChain->GetImages().size());
+        CreateDescriptorPool(images);
+        CreateDescriptorSets(images);
         CreatePipelineCache();
-        CreatePipelineLayout(USwapChain->GetImages().size());
+        CreatePipelineLayout(images);
 
-        FPipelineCreateInfo createInfo = PipelineConfig::CreateUIPipeline(UDevice->GetSamples(), pipelineLayout, pipelineCache);
-        m_pPipeline->RecreatePipeline(createInfo, UDevice, USwapChain);
+        FPipelineCreateInfo skyboxInfo = PipelineConfig::CreateSkyboxPipeline(UDevice->GetSamples(), pipelineLayout, pipelineCache);
+        m_pPipeline->RecreatePipeline(skyboxInfo, UDevice, USwapChain);
+
+        /*FPipelineCreateInfo reflectInfo = PipelineConfig::CreateReflectPipeline(UDevice->GetSamples(), pipelineLayout, pipelineCache);
+        m_pReflectPipeline->RecreatePipeline(reflectInfo, UDevice, USwapChain);*/
     }
 
-    void MaterialUI::Update(uint32_t imageIndex, std::unique_ptr<VulkanBuffer>& pUniformBuffer)
+    void MaterialSkybox::Update(uint32_t imageIndex, std::unique_ptr<VulkanBuffer>& pUniformBuffer)
     {
         MaterialBase::Update(imageIndex, pUniformBuffer);
 
-        auto& uniformBuffer = pUniformBuffer->GetBuffer();
+        auto& uniformBuffer = UUniform->GetUniformBuffer(imageIndex)->GetBuffer();
         auto& descriptorSet = vDescriptorSets[imageIndex];
 
         vk::DescriptorBufferInfo bufferInfo{};
         //GetCurrentUniform
         bufferInfo.buffer = uniformBuffer;
         bufferInfo.offset = 0;
-        bufferInfo.range = sizeof(FUniformDataUI);
+        bufferInfo.range = sizeof(FUniformData);
 
         std::array<vk::WriteDescriptorSet, 2> descriptorWrites{};
         descriptorWrites[0].dstSet = descriptorSet;
@@ -67,22 +75,22 @@ namespace Engine
         UDevice->GetLogical()->updateDescriptorSets(static_cast<uint32_t>(descriptorWrites.size()), descriptorWrites.data(), 0, nullptr);
     }
 
-    void MaterialUI::Bind(vk::CommandBuffer commandBuffer, uint32_t imageIndex)
+    void MaterialSkybox::Bind(vk::CommandBuffer commandBuffer, uint32_t imageIndex)
     {
         MaterialBase::Bind(commandBuffer, imageIndex);
     }
 
-    void MaterialUI::Cleanup()
+    void MaterialSkybox::Cleanup()
     {
         MaterialBase::Cleanup();
     }
 
-    void MaterialUI::Destroy()
+    void MaterialSkybox::Destroy()
     {
         MaterialBase::Destroy();
     }
 
-    void MaterialUI::CreateDescriptorSetLayout()
+    void MaterialSkybox::CreateDescriptorSetLayout()
     {
         MaterialBase::CreateDescriptorSetLayout();
 
@@ -109,7 +117,7 @@ namespace Engine
         auto result = UDevice->GetLogical()->createDescriptorSetLayout(&createInfo, nullptr, &descriptorSetLayout);
     }
 
-    void MaterialUI::CreateDescriptorPool(uint32_t images)
+    void MaterialSkybox::CreateDescriptorPool(uint32_t images)
     {
         MaterialBase::CreateDescriptorPool(images);
 
@@ -117,7 +125,7 @@ namespace Engine
         poolSizes[0].type = vk::DescriptorType::eUniformBuffer;
         poolSizes[0].descriptorCount = images;
         poolSizes[1].type = vk::DescriptorType::eCombinedImageSampler;
-        poolSizes[1].descriptorCount = images;
+        poolSizes[1].descriptorCount = 1;
 
         vk::DescriptorPoolCreateInfo poolInfo{};
         poolInfo.flags = vk::DescriptorPoolCreateFlagBits::eFreeDescriptorSet;
@@ -129,17 +137,17 @@ namespace Engine
         descriptorPool = UDevice->Make<vk::DescriptorPool, vk::DescriptorPoolCreateInfo>(poolInfo);
     }
 
-    void MaterialUI::CreateDescriptorSets(uint32_t images)
+    void MaterialSkybox::CreateDescriptorSets(uint32_t images)
     {
         MaterialBase::CreateDescriptorSets(images);
     }
 
-    void MaterialUI::CreatePipelineCache()
+    void MaterialSkybox::CreatePipelineCache()
     {
         MaterialBase::CreatePipelineCache();
     }
 
-    void MaterialUI::CreatePipelineLayout(uint32_t images)
+    void MaterialSkybox::CreatePipelineLayout(uint32_t images)
     {
         MaterialBase::CreatePipelineLayout(images);
     }

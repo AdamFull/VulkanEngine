@@ -14,13 +14,17 @@ namespace Engine
     {
         eColor,
         eAlbedo,
-        eMetalicRoughness,
+        eMetalic,
+        eRoughness,
         eNormal,
         eHeight,
         eOcclusion,
         eEmissive,
         eSpecular,
-        eCubemap
+        eCubemap,
+        eIrradiance,
+        eBRDFLUT,
+        ePrefiltred
     };
 
     struct FTextureCreateInfo
@@ -35,7 +39,8 @@ namespace Engine
     {
         eUI,
         eDiffuse,
-        eSkybox
+        eSkybox,
+        ePBR
     };
 
     struct FMaterialParams

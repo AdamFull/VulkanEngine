@@ -14,7 +14,7 @@ namespace Engine
         eUI,
         eDiffuse,
         eSkybox,
-        eReflect
+        ePBR
     };
 
     struct FPipelineCreateInfo
@@ -45,5 +45,6 @@ namespace Engine
         static FPipelineCreateInfo CreateUIPipeline(vk::SampleCountFlagBits samples, vk::PipelineLayout pipelineLayout, vk::PipelineCache pipelineCache = VK_NULL_HANDLE);
         static FPipelineCreateInfo CreateDiffusePipeline(vk::SampleCountFlagBits samples, vk::PipelineLayout pipelineLayout, vk::PipelineCache pipelineCache = VK_NULL_HANDLE);
         static FPipelineCreateInfo CreateSkyboxPipeline(vk::SampleCountFlagBits samples, vk::PipelineLayout pipelineLayout, vk::PipelineCache pipelineCache = VK_NULL_HANDLE);
+        static FPipelineCreateInfo CreatePBRPipeline(vk::SampleCountFlagBits samples, vk::PipelineLayout pipelineLayout, vk::PipelineCache pipelineCache = VK_NULL_HANDLE);
     };
 }

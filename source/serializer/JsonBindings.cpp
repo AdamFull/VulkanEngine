@@ -38,18 +38,24 @@ namespace Engine
     NLOHMANN_JSON_SERIALIZE_ENUM(ETextureAttachmentType, {
         {ETextureAttachmentType::eColor, "color"},
         {ETextureAttachmentType::eAlbedo, "albedo"},
-        {ETextureAttachmentType::eMetalicRoughness, "roughness"},
+        {ETextureAttachmentType::eMetalic, "metalic"},
+        {ETextureAttachmentType::eRoughness, "roughness"},
         {ETextureAttachmentType::eNormal, "normal"},
         {ETextureAttachmentType::eHeight, "height"},
         {ETextureAttachmentType::eOcclusion, "occlusion"},
         {ETextureAttachmentType::eEmissive, "emissive"},
         {ETextureAttachmentType::eSpecular, "specular"},
-        {ETextureAttachmentType::eCubemap, "cubemap"}})
+        {ETextureAttachmentType::eCubemap, "cubemap"},
+        {ETextureAttachmentType::eIrradiance, "irradiate"},
+        {ETextureAttachmentType::eBRDFLUT, "brdflut"},
+        {ETextureAttachmentType::ePrefiltred, "prefiltred"}})
+        
 
     NLOHMANN_JSON_SERIALIZE_ENUM(EMaterialType, {
         {EMaterialType::eUI, "ui"},
         {EMaterialType::eDiffuse, "diffuse"},
-        {EMaterialType::eSkybox, "skybox"}})
+        {EMaterialType::eSkybox, "skybox"},
+        {EMaterialType::ePBR, "pbr"}})
 
     NLOHMANN_JSON_SERIALIZE_ENUM(EMeshType, {
         {EMeshType::eStatic, "static"},

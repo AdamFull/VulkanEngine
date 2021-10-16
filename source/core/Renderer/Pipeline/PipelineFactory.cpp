@@ -45,6 +45,13 @@ namespace Engine
                 {vk::ShaderStageFlagBits::eVertex, "../../assets/shaders/skybox/reflect_vert.spv"},
                 {vk::ShaderStageFlagBits::eFragment, "../../assets/shaders/skybox/reflect_frag.spv"}
             }
+        },
+        {
+            EShaderSet::ePBR,
+            {
+                {vk::ShaderStageFlagBits::eVertex, "../../assets/shaders/pbr/pbr_base_vert.spv"},
+                {vk::ShaderStageFlagBits::eFragment, "../../assets/shaders/pbr/pbr_base_frag.spv"}
+            }
         }
     };
 

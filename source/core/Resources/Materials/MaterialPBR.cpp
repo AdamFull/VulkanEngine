@@ -1,4 +1,4 @@
-#include "MaterialDiffuse.h"
+#include "MaterialPBR.h"
 #include "Renderer/VulkanHighLevel.h"
 #include "Renderer/VulkanUniform.h"
 #include "Renderer/VulkanBuffer.h"
@@ -6,7 +6,7 @@
 
 namespace Engine
 {
-    void MaterialDiffuse::Create()
+    void MaterialPBR::Create()
     {
         MaterialBase::Create();
 
@@ -17,11 +17,11 @@ namespace Engine
         CreatePipelineLayout(images);
 
         auto pso = m_mPSO.at(GetShaderSet());
-        FPipelineCreateInfo createInfo = PipelineConfig::CreateDiffusePipeline(UDevice->GetSamples(), pso->pipelineLayout, pso->pipelineCache);
+        FPipelineCreateInfo createInfo = PipelineConfig::CreatePBRPipeline(UDevice->GetSamples(), pso->pipelineLayout, pso->pipelineCache);
         pso->pPipeline = PipelineFactory::CreatePipeline(createInfo, UDevice, USwapChain);
     }
 
-    void MaterialDiffuse::ReCreate()
+    void MaterialPBR::ReCreate()
     {
         MaterialBase::ReCreate();
 
@@ -33,11 +33,11 @@ namespace Engine
         CreatePipelineLayout(images);
 
         auto pso = m_mPSO.at(GetShaderSet());
-        FPipelineCreateInfo createInfo = PipelineConfig::CreateDiffusePipeline(UDevice->GetSamples(), pso->pipelineLayout, pso->pipelineCache);
+        FPipelineCreateInfo createInfo = PipelineConfig::CreatePBRPipeline(UDevice->GetSamples(), pso->pipelineLayout, pso->pipelineCache);
         pso->pPipeline->RecreatePipeline(createInfo, UDevice, USwapChain);
     }
 
-    void MaterialDiffuse::Update(uint32_t imageIndex, std::unique_ptr<VulkanBuffer>& pUniformBuffer)
+    void MaterialPBR::Update(uint32_t imageIndex, std::unique_ptr<VulkanBuffer>& pUniformBuffer)
     {
         MaterialBase::Update(imageIndex, pUniformBuffer);
 
@@ -51,7 +51,7 @@ namespace Engine
         bufferInfo.offset = 0;
         bufferInfo.range = sizeof(FUniformData);
 
-        std::array<vk::WriteDescriptorSet, 4> descriptorWrites{};
+        std::array<vk::WriteDescriptorSet, 6> descriptorWrites{};
         descriptorWrites[0].dstSet = descriptorSet;
         descriptorWrites[0].dstBinding = 0;
         descriptorWrites[0].dstArrayElement = 0;
@@ -80,25 +80,39 @@ namespace Engine
         descriptorWrites[3].descriptorCount = 1;
         descriptorWrites[3].pImageInfo = &m_mTextures[ETextureAttachmentType::eSpecular]->GetDescriptor();
 
+        descriptorWrites[4].dstSet = descriptorSet;
+        descriptorWrites[4].dstBinding = 4;
+        descriptorWrites[4].dstArrayElement = 0;
+        descriptorWrites[4].descriptorType = vk::DescriptorType::eCombinedImageSampler;
+        descriptorWrites[4].descriptorCount = 1;
+        descriptorWrites[4].pImageInfo = &m_mTextures[ETextureAttachmentType::eAlbedo]->GetDescriptor();
+
+        descriptorWrites[5].dstSet = descriptorSet;
+        descriptorWrites[5].dstBinding = 5;
+        descriptorWrites[5].dstArrayElement = 0;
+        descriptorWrites[5].descriptorType = vk::DescriptorType::eCombinedImageSampler;
+        descriptorWrites[5].descriptorCount = 1;
+        descriptorWrites[5].pImageInfo = &m_mTextures[ETextureAttachmentType::eOcclusion]->GetDescriptor();
+
         UDevice->GetLogical()->updateDescriptorSets(static_cast<uint32_t>(descriptorWrites.size()), descriptorWrites.data(), 0, nullptr);
     }
 
-    void MaterialDiffuse::Bind(vk::CommandBuffer commandBuffer, uint32_t imageIndex)
+    void MaterialPBR::Bind(vk::CommandBuffer commandBuffer, uint32_t imageIndex)
     {
         MaterialBase::Bind(commandBuffer, imageIndex);
     }
 
-    void MaterialDiffuse::Cleanup()
+    void MaterialPBR::Cleanup()
     {
         MaterialBase::Cleanup();
     }
 
-    void MaterialDiffuse::Destroy()
+    void MaterialPBR::Destroy()
     {
         MaterialBase::Destroy();
     }
 
-    void MaterialDiffuse::CreateDescriptorSetLayout()
+    void MaterialPBR::CreateDescriptorSetLayout()
     {
         MaterialBase::CreateDescriptorSetLayout();
 
@@ -131,7 +145,21 @@ namespace Engine
         specularLayoutBinding.pImmutableSamplers = nullptr;
         specularLayoutBinding.stageFlags = vk::ShaderStageFlagBits::eFragment;
 
-        std::array<vk::DescriptorSetLayoutBinding, 4> bindings = {uboLayoutBinding, diffuseLayoutBinding, normalLayoutBinding, specularLayoutBinding};
+        vk::DescriptorSetLayoutBinding albedoLayoutBinding{};
+        albedoLayoutBinding.binding = 4;
+        albedoLayoutBinding.descriptorCount = 1;
+        albedoLayoutBinding.descriptorType = vk::DescriptorType::eCombinedImageSampler;
+        albedoLayoutBinding.pImmutableSamplers = nullptr;
+        albedoLayoutBinding.stageFlags = vk::ShaderStageFlagBits::eFragment;
+
+        vk::DescriptorSetLayoutBinding aoLayoutBinding{};
+        aoLayoutBinding.binding = 5;
+        aoLayoutBinding.descriptorCount = 1;
+        aoLayoutBinding.descriptorType = vk::DescriptorType::eCombinedImageSampler;
+        aoLayoutBinding.pImmutableSamplers = nullptr;
+        aoLayoutBinding.stageFlags = vk::ShaderStageFlagBits::eFragment;
+
+        std::array<vk::DescriptorSetLayoutBinding, 6> bindings = {uboLayoutBinding, diffuseLayoutBinding, normalLayoutBinding, specularLayoutBinding, albedoLayoutBinding, aoLayoutBinding};
         vk::DescriptorSetLayoutCreateInfo createInfo{};
         createInfo.bindingCount = static_cast<uint32_t>(bindings.size());;
         createInfo.pBindings = bindings.data();
@@ -140,12 +168,12 @@ namespace Engine
         auto result = UDevice->GetLogical()->createDescriptorSetLayout(&createInfo, nullptr, &pso->descriptorSetLayout);
     }
 
-    void MaterialDiffuse::CreateDescriptorPool(uint32_t images)
+    void MaterialPBR::CreateDescriptorPool(uint32_t images)
     {
         MaterialBase::CreateDescriptorPool(images);
 
         auto pso = m_mPSO.at(GetShaderSet());
-        std::array<vk::DescriptorPoolSize, 4> poolSizes{};
+        std::array<vk::DescriptorPoolSize, 6> poolSizes{};
         poolSizes[0].type = vk::DescriptorType::eUniformBuffer;
         poolSizes[0].descriptorCount = images;
         poolSizes[1].type = vk::DescriptorType::eCombinedImageSampler;
@@ -154,6 +182,10 @@ namespace Engine
         poolSizes[2].descriptorCount = 1;
         poolSizes[3].type = vk::DescriptorType::eCombinedImageSampler;
         poolSizes[3].descriptorCount = 1;
+        poolSizes[4].type = vk::DescriptorType::eCombinedImageSampler;
+        poolSizes[4].descriptorCount = 1;
+        poolSizes[5].type = vk::DescriptorType::eCombinedImageSampler;
+        poolSizes[5].descriptorCount = 1;
 
         vk::DescriptorPoolCreateInfo poolInfo{};
         poolInfo.flags = vk::DescriptorPoolCreateFlagBits::eFreeDescriptorSet;
@@ -165,17 +197,17 @@ namespace Engine
         pso->descriptorPool = UDevice->Make<vk::DescriptorPool, vk::DescriptorPoolCreateInfo>(poolInfo);
     }
 
-    void MaterialDiffuse::CreateDescriptorSets(uint32_t images)
+    void MaterialPBR::CreateDescriptorSets(uint32_t images)
     {
         MaterialBase::CreateDescriptorSets(images);
     }
 
-    void MaterialDiffuse::CreatePipelineCache()
+    void MaterialPBR::CreatePipelineCache()
     {
         MaterialBase::CreatePipelineCache();
     }
 
-    void MaterialDiffuse::CreatePipelineLayout(uint32_t images)
+    void MaterialPBR::CreatePipelineLayout(uint32_t images)
     {
         MaterialBase::CreatePipelineLayout(images);
     }

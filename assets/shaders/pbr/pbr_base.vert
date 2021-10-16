@@ -14,7 +14,6 @@ layout(location = 2) out vec3 outNormal;
 layout(location = 3) out vec4 outTangent;
 layout(location = 4) out vec3 fragPos;
 layout(location = 5) out vec3 viewPos;
-layout(location = 6) out vec3 lightPos;
 
 layout(binding = 0) uniform FUniformData 
 {
@@ -24,13 +23,14 @@ layout(binding = 0) uniform FUniformData
   vec4 viewPosition;
 } ubo;
 
+vec3 lightPosition = vec3(0.0, -1.7, -1.137);
+
 void main() 
 {
     fragColor = inColor;
     fragTexCoord = inTexCoord;
     viewPos = vec3(ubo.viewPosition);
     fragPos = vec3(ubo.model * vec4(inPosition, 1.0));
-    lightPos = vec3(0.0, -1.7, -1.137);
     gl_Position = ubo.projection * ubo.view * vec4(fragPos, 1.0);
     
     outNormal = mat3(ubo.model) * inNormal;

@@ -71,7 +71,7 @@ namespace Engine
         unsigned char* data = stbi_load(filename, &w, &h, &c, STBI_rgb_alpha);
 
         bool result = AllocateRawDataAsKTXTexture(data, target, format, w, h, true);
-        // *format = vk::Format::eR8G8B8A8Srgb;
+        *format = vk::Format::eR8G8B8A8Srgb;
 
         return result;
     }

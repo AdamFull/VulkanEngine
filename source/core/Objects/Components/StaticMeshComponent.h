@@ -23,5 +23,6 @@ namespace Engine
         void Destroy() override;
     private:
         std::shared_ptr<MeshBase> m_pStaticMesh;
+        std::shared_ptr<UniformBuffer<FUniformData>> m_pUniform;
     };
 }

@@ -2,14 +2,12 @@
 #include "Renderer/VulkanUniform.h"
 #include "Renderer/VulkanDevice.h"
 #include "Renderer/VulkanHighLevel.h"
-#include "Renderer/Pipeline/VulkanPipeline.h"
-#include "Renderer/Pipeline/PipelineFactory.h"
-#include "Resources/Textures/VulkanTexture.h"
 
 namespace Engine
 {
     void MaterialBase::Create()
     {
+        m_mPSO.emplace(GetShaderSet(), std::make_shared<FPipelineState>());
     }
 
     void MaterialBase::AddTexture(ETextureAttachmentType eAttachment, std::shared_ptr<TextureBase> pTexture)
@@ -34,9 +32,10 @@ namespace Engine
 
     void MaterialBase::Bind(vk::CommandBuffer commandBuffer, uint32_t imageIndex)
     {
+        auto pso = m_mPSO.at(GetShaderSet());
         ResourceBase::Bind(commandBuffer, imageIndex);
-        commandBuffer.bindDescriptorSets(m_pPipeline->GetBindPoint(), pipelineLayout, 0, 1, &vDescriptorSets[imageIndex], 0, nullptr);
-        m_pPipeline->Bind(commandBuffer);
+        commandBuffer.bindDescriptorSets(pso->pPipeline->GetBindPoint(), pso->pipelineLayout, 0, 1, &pso->vDescriptorSets[imageIndex], 0, nullptr);
+        pso->pPipeline->Bind(commandBuffer);
     }
 
     void MaterialBase::Destroy()
@@ -48,43 +47,50 @@ namespace Engine
     void MaterialBase::Cleanup()
     {
         ResourceBase::Cleanup();
-        m_pPipeline->Destroy(UDevice);
-        UDevice->GetLogical()->freeDescriptorSets(descriptorPool, vDescriptorSets);
-        UDevice->Destroy(descriptorSetLayout);
-        UDevice->Destroy(descriptorPool);
-        UDevice->Destroy(pipelineCache);
-        UDevice->Destroy(pipelineLayout);
+
+        for(auto& [key, pso] : m_mPSO)
+        {
+            pso->pPipeline->Destroy(UDevice);
+            UDevice->GetLogical()->freeDescriptorSets(pso->descriptorPool, pso->vDescriptorSets);
+            UDevice->Destroy(pso->descriptorSetLayout);
+            UDevice->Destroy(pso->descriptorPool);
+            UDevice->Destroy(pso->pipelineCache);
+            UDevice->Destroy(pso->pipelineLayout);
+        }
     }
 
     void MaterialBase::CreateDescriptorSets(uint32_t images)
     {
-        std::vector<vk::DescriptorSetLayout> vDescriptorSetLayouts(images, descriptorSetLayout);
+        auto pso = m_mPSO.at(GetShaderSet());
+        std::vector<vk::DescriptorSetLayout> vDescriptorSetLayouts(images, pso->descriptorSetLayout);
 
         vk::DescriptorSetAllocateInfo allocInfo{};
-        allocInfo.descriptorPool = descriptorPool;
+        allocInfo.descriptorPool = pso->descriptorPool;
         allocInfo.descriptorSetCount = images;
         allocInfo.pSetLayouts = vDescriptorSetLayouts.data();
 
-        vDescriptorSets.resize(images);
+        pso->vDescriptorSets.resize(images);
 
-        auto result = UDevice->GetLogical()->allocateDescriptorSets(&allocInfo, vDescriptorSets.data());
+        auto result = UDevice->GetLogical()->allocateDescriptorSets(&allocInfo, pso->vDescriptorSets.data());
     }
 
     void MaterialBase::CreatePipelineCache()
     {
+        auto pso = m_mPSO.at(GetShaderSet());
         vk::PipelineCacheCreateInfo pipelineCacheCreateInfo = {};
-        pipelineCache = UDevice->GetLogical()->createPipelineCache(pipelineCacheCreateInfo);
+        pso->pipelineCache = UDevice->GetLogical()->createPipelineCache(pipelineCacheCreateInfo);
     }
 
     void MaterialBase::CreatePipelineLayout(uint32_t images)
     {
+        auto pso = m_mPSO.at(GetShaderSet());
         vk::PipelineLayoutCreateInfo pipelineLayoutInfo = {};
         pipelineLayoutInfo.setLayoutCount = 1;
-        pipelineLayoutInfo.pSetLayouts = &descriptorSetLayout;
+        pipelineLayoutInfo.pSetLayouts = &pso->descriptorSetLayout;
         pipelineLayoutInfo.pushConstantRangeCount = 0;
         pipelineLayoutInfo.pPushConstantRanges = nullptr;
 
-        pipelineLayout = UDevice->Make<vk::PipelineLayout, vk::PipelineLayoutCreateInfo>(pipelineLayoutInfo);
-        assert(pipelineLayout && "Pipeline layout was not created");
+        pso->pipelineLayout = UDevice->Make<vk::PipelineLayout, vk::PipelineLayoutCreateInfo>(pipelineLayoutInfo);
+        assert(pso->pipelineLayout && "Pipeline layout was not created");
     }
 }

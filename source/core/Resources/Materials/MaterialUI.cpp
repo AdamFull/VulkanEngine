@@ -3,9 +3,6 @@
 #include "Renderer/VulkanUniform.h"
 #include "Renderer/VulkanBuffer.h"
 #include "Renderer/VulkanDevice.h"
-#include "Renderer/Pipeline/VulkanPipeline.h"
-#include "Renderer/Pipeline/PipelineFactory.h"
-#include "Resources/Textures/VulkanTexture.h"
 
 namespace Engine
 {
@@ -18,8 +15,9 @@ namespace Engine
         CreateDescriptorSets(USwapChain->GetImages().size());
         CreatePipelineLayout(USwapChain->GetImages().size());
 
-        FPipelineCreateInfo createInfo = PipelineConfig::CreateUIPipeline(UDevice->GetSamples(), pipelineLayout, pipelineCache);
-        m_pPipeline = PipelineFactory::CreatePipeline(createInfo, UDevice, USwapChain);
+        auto pso = m_mPSO.at(GetShaderSet());
+        FPipelineCreateInfo createInfo = PipelineConfig::CreateUIPipeline(UDevice->GetSamples(), pso->pipelineLayout, pso->pipelineCache);
+        pso->pPipeline = PipelineFactory::CreatePipeline(createInfo, UDevice, USwapChain);
     }
 
     void MaterialUI::ReCreate()
@@ -32,16 +30,18 @@ namespace Engine
         CreatePipelineCache();
         CreatePipelineLayout(USwapChain->GetImages().size());
 
-        FPipelineCreateInfo createInfo = PipelineConfig::CreateUIPipeline(UDevice->GetSamples(), pipelineLayout, pipelineCache);
-        m_pPipeline->RecreatePipeline(createInfo, UDevice, USwapChain);
+        auto pso = m_mPSO.at(GetShaderSet());
+        FPipelineCreateInfo createInfo = PipelineConfig::CreateUIPipeline(UDevice->GetSamples(), pso->pipelineLayout, pso->pipelineCache);
+        pso->pPipeline->RecreatePipeline(createInfo, UDevice, USwapChain);
     }
 
     void MaterialUI::Update(uint32_t imageIndex, std::unique_ptr<VulkanBuffer>& pUniformBuffer)
     {
         MaterialBase::Update(imageIndex, pUniformBuffer);
 
+        auto pso = m_mPSO.at(GetShaderSet());
         auto& uniformBuffer = pUniformBuffer->GetBuffer();
-        auto& descriptorSet = vDescriptorSets[imageIndex];
+        auto& descriptorSet = pso->vDescriptorSets[imageIndex];
 
         vk::DescriptorBufferInfo bufferInfo{};
         //GetCurrentUniform
@@ -85,6 +85,7 @@ namespace Engine
     void MaterialUI::CreateDescriptorSetLayout()
     {
         MaterialBase::CreateDescriptorSetLayout();
+        auto pso = m_mPSO.at(GetShaderSet());
 
         vk::DescriptorSetLayoutBinding uboLayoutBinding{};
         uboLayoutBinding.binding = 0;
@@ -106,13 +107,14 @@ namespace Engine
         createInfo.pBindings = bindings.data();
 
         //TODO: check result
-        auto result = UDevice->GetLogical()->createDescriptorSetLayout(&createInfo, nullptr, &descriptorSetLayout);
+        auto result = UDevice->GetLogical()->createDescriptorSetLayout(&createInfo, nullptr, &pso->descriptorSetLayout);
     }
 
     void MaterialUI::CreateDescriptorPool(uint32_t images)
     {
         MaterialBase::CreateDescriptorPool(images);
 
+        auto pso = m_mPSO.at(GetShaderSet());
         std::array<vk::DescriptorPoolSize, 2> poolSizes{};
         poolSizes[0].type = vk::DescriptorType::eUniformBuffer;
         poolSizes[0].descriptorCount = images;
@@ -126,7 +128,7 @@ namespace Engine
         poolInfo.maxSets = images;
 
         //TODO:: add result checking
-        descriptorPool = UDevice->Make<vk::DescriptorPool, vk::DescriptorPoolCreateInfo>(poolInfo);
+        pso->descriptorPool = UDevice->Make<vk::DescriptorPool, vk::DescriptorPoolCreateInfo>(poolInfo);
     }
 
     void MaterialUI::CreateDescriptorSets(uint32_t images)

@@ -26,7 +26,7 @@
                                 "name": "skybox_cubemap_tex",
                                 "type": "cubemap",
                                 "attachment": "cubemap",
-                                "src": "../../assets/textures/cubemaps/cubemap_yokohama_rgba.ktx"
+                                "src": "../../assets/textures/cubemaps/cubemap_space.ktx"
                             }
                         ]
                     }

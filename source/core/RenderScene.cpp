@@ -64,19 +64,11 @@ namespace Engine
         }
 
         uint32_t currentFrame = URenderer->GetImageIndex();
-        auto camera = CameraManager::GetInstance()->GetCurrentCamera();
-
-        auto transform = m_pRoot->Find("femalebody_mesh_component")->GetTransform();
-        FUniformData ubo{};
-        ubo.model = transform.GetModel();
-        ubo.view = camera->GetView();
-        ubo.projection = camera->GetProjection();
-        ubo.lightPosition = glm::vec4(camera->GetTransform().pos, 1.f);
 
         m_pOvelray->NewFrame();
         m_pOvelray->Update(UDevice, fDeltaTime);
 
-        UUniform->UpdateUniformBuffer(UDevice, currentFrame, ubo);
+        //UUniform->UpdateUniformBuffer(UDevice, currentFrame, ubo);
 
         UHLInstance->BeginRender(commandBuffer);
 

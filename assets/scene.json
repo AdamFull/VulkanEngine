@@ -13,6 +13,22 @@
             }
         },
         {
+            "name": "skybox_component",
+            "type": "skybox",
+            "resources": 
+            {
+                "textures": [],
+                "materials": [],
+                "meshes": ["skybox_obj"]
+            },
+            "transform":
+            {
+                "pos": {"x": 0.0, "y": 0.0, "z": 0.0},
+                "rot": {"x": 0.0, "y": 0.0, "z": 0.0},
+                "scale": {"x": 1.0, "y": 1.0, "z": 1.0}
+            }
+        },
+        {
             "name": "femalebody_mesh_component",
             "type": "static_mesh",
             "resources": 

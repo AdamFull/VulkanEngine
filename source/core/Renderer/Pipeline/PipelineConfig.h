@@ -42,14 +42,8 @@ namespace Engine
     class PipelineConfig
     {
     public:
-        static FPipelineCreateInfo CreatePipelineConfig(EPipelineType eType, EShaderSet eSet, 
-                                                        vk::PrimitiveTopology topology, vk::PolygonMode polygonMode, 
-                                                        vk::CullModeFlags cullMode, vk::FrontFace fontFace, 
-                                                        vk::SampleCountFlagBits samples, vk::PipelineLayout pipelineLayout,
-                                                        vk::PipelineCache pipelineCache, bool depthTest, bool depthWrite);
         static FPipelineCreateInfo CreateUIPipeline(vk::SampleCountFlagBits samples, vk::PipelineLayout pipelineLayout, vk::PipelineCache pipelineCache = VK_NULL_HANDLE);
         static FPipelineCreateInfo CreateDiffusePipeline(vk::SampleCountFlagBits samples, vk::PipelineLayout pipelineLayout, vk::PipelineCache pipelineCache = VK_NULL_HANDLE);
         static FPipelineCreateInfo CreateSkyboxPipeline(vk::SampleCountFlagBits samples, vk::PipelineLayout pipelineLayout, vk::PipelineCache pipelineCache = VK_NULL_HANDLE);
-        static FPipelineCreateInfo CreateReflectPipeline(vk::SampleCountFlagBits samples, vk::PipelineLayout pipelineLayout, vk::PipelineCache pipelineCache = VK_NULL_HANDLE);
     };
 }

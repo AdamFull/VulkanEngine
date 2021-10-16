@@ -3,9 +3,6 @@
 #include "Renderer/VulkanUniform.h"
 #include "Renderer/VulkanBuffer.h"
 #include "Renderer/VulkanDevice.h"
-#include "Renderer/Pipeline/VulkanPipeline.h"
-#include "Renderer/Pipeline/PipelineFactory.h"
-#include "Resources/Textures/VulkanTexture.h"
 
 namespace Engine
 {
@@ -19,11 +16,9 @@ namespace Engine
         CreateDescriptorSets(images);
         CreatePipelineLayout(images);
 
-        FPipelineCreateInfo skyboxInfo = PipelineConfig::CreateSkyboxPipeline(UDevice->GetSamples(), pipelineLayout, pipelineCache);
-        m_pPipeline = PipelineFactory::CreatePipeline(skyboxInfo, UDevice, USwapChain);
-
-        /*FPipelineCreateInfo reflectInfo = PipelineConfig::CreateReflectPipeline(UDevice->GetSamples(), pipelineLayout, pipelineCache);
-        m_pReflectPipeline = PipelineFactory::CreatePipeline(reflectInfo, UDevice, USwapChain);*/
+        auto pso = m_mPSO.at(GetShaderSet());
+        FPipelineCreateInfo skyboxInfo = PipelineConfig::CreateSkyboxPipeline(UDevice->GetSamples(), pso->pipelineLayout, pso->pipelineCache);
+        pso->pPipeline = PipelineFactory::CreatePipeline(skyboxInfo, UDevice, USwapChain);
     }
 
     void MaterialSkybox::ReCreate()
@@ -37,19 +32,18 @@ namespace Engine
         CreatePipelineCache();
         CreatePipelineLayout(images);
 
-        FPipelineCreateInfo skyboxInfo = PipelineConfig::CreateSkyboxPipeline(UDevice->GetSamples(), pipelineLayout, pipelineCache);
-        m_pPipeline->RecreatePipeline(skyboxInfo, UDevice, USwapChain);
-
-        /*FPipelineCreateInfo reflectInfo = PipelineConfig::CreateReflectPipeline(UDevice->GetSamples(), pipelineLayout, pipelineCache);
-        m_pReflectPipeline->RecreatePipeline(reflectInfo, UDevice, USwapChain);*/
+        auto pso = m_mPSO.at(GetShaderSet());
+        FPipelineCreateInfo skyboxInfo = PipelineConfig::CreateSkyboxPipeline(UDevice->GetSamples(), pso->pipelineLayout, pso->pipelineCache);
+        pso->pPipeline->RecreatePipeline(skyboxInfo, UDevice, USwapChain);
     }
 
     void MaterialSkybox::Update(uint32_t imageIndex, std::unique_ptr<VulkanBuffer>& pUniformBuffer)
     {
         MaterialBase::Update(imageIndex, pUniformBuffer);
 
-        auto& uniformBuffer = UUniform->GetUniformBuffer(imageIndex)->GetBuffer();
-        auto& descriptorSet = vDescriptorSets[imageIndex];
+        auto pso = m_mPSO.at(GetShaderSet());
+        auto& uniformBuffer = pUniformBuffer->GetBuffer();
+        auto& descriptorSet = pso->vDescriptorSets[imageIndex];
 
         vk::DescriptorBufferInfo bufferInfo{};
         //GetCurrentUniform
@@ -70,7 +64,7 @@ namespace Engine
         descriptorWrites[1].dstArrayElement = 0;
         descriptorWrites[1].descriptorType = vk::DescriptorType::eCombinedImageSampler;
         descriptorWrites[1].descriptorCount = 1;
-        descriptorWrites[1].pImageInfo = &m_mTextures[ETextureAttachmentType::eColor]->GetDescriptor();
+        descriptorWrites[1].pImageInfo = &m_mTextures[ETextureAttachmentType::eCubemap]->GetDescriptor();
 
         UDevice->GetLogical()->updateDescriptorSets(static_cast<uint32_t>(descriptorWrites.size()), descriptorWrites.data(), 0, nullptr);
     }
@@ -94,6 +88,7 @@ namespace Engine
     {
         MaterialBase::CreateDescriptorSetLayout();
 
+        auto pso = m_mPSO.at(GetShaderSet());
         vk::DescriptorSetLayoutBinding uboLayoutBinding{};
         uboLayoutBinding.binding = 0;
         uboLayoutBinding.descriptorType = vk::DescriptorType::eUniformBuffer;
@@ -114,13 +109,14 @@ namespace Engine
         createInfo.pBindings = bindings.data();
 
         //TODO: check result
-        auto result = UDevice->GetLogical()->createDescriptorSetLayout(&createInfo, nullptr, &descriptorSetLayout);
+        auto result = UDevice->GetLogical()->createDescriptorSetLayout(&createInfo, nullptr, &pso->descriptorSetLayout);
     }
 
     void MaterialSkybox::CreateDescriptorPool(uint32_t images)
     {
         MaterialBase::CreateDescriptorPool(images);
 
+        auto pso = m_mPSO.at(GetShaderSet());
         std::array<vk::DescriptorPoolSize, 2> poolSizes{};
         poolSizes[0].type = vk::DescriptorType::eUniformBuffer;
         poolSizes[0].descriptorCount = images;
@@ -134,7 +130,7 @@ namespace Engine
         poolInfo.maxSets = images;
 
         //TODO:: add result checking
-        descriptorPool = UDevice->Make<vk::DescriptorPool, vk::DescriptorPoolCreateInfo>(poolInfo);
+        pso->descriptorPool = UDevice->Make<vk::DescriptorPool, vk::DescriptorPoolCreateInfo>(poolInfo);
     }
 
     void MaterialSkybox::CreateDescriptorSets(uint32_t images)

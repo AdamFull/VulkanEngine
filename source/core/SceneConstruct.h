@@ -29,6 +29,7 @@ namespace Engine
     struct FSceneCreateInfo
     {
         std::string resources_path;
+        FSceneObject skybox;
         std::vector<FSceneObject> vSceneObjects;
     };
 }

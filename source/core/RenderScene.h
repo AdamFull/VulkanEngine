@@ -6,6 +6,7 @@ namespace Engine
 {
     class WindowHandle;
     class ResourceManager;
+    class StaticMeshComponent;
 
     class RenderScene
     {
@@ -14,10 +15,12 @@ namespace Engine
         void ReCreate();
         void Destroy();
         void AttachObject(std::shared_ptr<RenderObject> object);
+        void SetSkybox(std::shared_ptr<RenderObject> pSkybox);
         inline std::shared_ptr<RenderObject>& GetRoot() { return m_pRoot; }
         void CreateObjects();
         void Render(float fDeltaTime);
     private:
+        std::shared_ptr<RenderObject> m_pSkybox;
         std::shared_ptr<RenderObject> m_pRoot;
         std::unique_ptr<ImguiOverlay> m_pOvelray;
         std::shared_ptr<ResourceManager> m_pResourceManager;

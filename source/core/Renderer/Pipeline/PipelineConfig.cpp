@@ -162,14 +162,17 @@ namespace Engine
         createInfo.rasterizer.cullMode = vk::CullModeFlagBits::eFront;
         createInfo.rasterizer.frontFace = vk::FrontFace::eCounterClockwise;
 
+        createInfo.multisampling.sampleShadingEnable = VK_TRUE;
+        createInfo.multisampling.minSampleShading = .2f;
         createInfo.multisampling.rasterizationSamples = samples;
 
-        createInfo.colorBlendAttachment.colorWriteMask = static_cast<vk::ColorComponentFlags>(0xf);
+        createInfo.colorBlendAttachment.colorWriteMask = vk::ColorComponentFlagBits::eR | vk::ColorComponentFlagBits::eG | vk::ColorComponentFlagBits::eB | vk::ColorComponentFlagBits::eA;
         createInfo.colorBlendAttachment.blendEnable = VK_FALSE;
+        
 
         createInfo.colorBlending.attachmentCount = 1;
 
-        createInfo.depthStencil.depthTestEnable = VK_TRUE;
+        createInfo.depthStencil.depthTestEnable = VK_FALSE;
         createInfo.depthStencil.depthWriteEnable = VK_FALSE;
         createInfo.depthStencil.depthCompareOp = vk::CompareOp::eLessOrEqual;
         createInfo.depthStencil.back.compareOp = vk::CompareOp::eAlways;

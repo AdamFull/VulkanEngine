@@ -10,12 +10,7 @@ namespace Engine
 
     struct FPipelineState
     {
-        vk::DescriptorSetLayout descriptorSetLayout;
-        vk::DescriptorPool descriptorPool;
         std::vector<vk::DescriptorSet> vDescriptorSets;
-
-        vk::PipelineLayout pipelineLayout;
-        vk::PipelineCache pipelineCache;
         std::shared_ptr<PipelineBase> pPipeline;
     };
 
@@ -33,11 +28,7 @@ namespace Engine
 
     protected:
         virtual inline EShaderSet GetShaderSet() { return EShaderSet::eNone; }
-        virtual void CreateDescriptorSetLayout() {}
-        virtual void CreateDescriptorPool(uint32_t images) {}
         virtual void CreateDescriptorSets(uint32_t images);
-        virtual void CreatePipelineCache();
-        virtual void CreatePipelineLayout(uint32_t images);
         
         std::map<EShaderSet, std::shared_ptr<FPipelineState>> m_mPSO;
         std::map<ETextureAttachmentType, std::shared_ptr<TextureBase>> m_mTextures;

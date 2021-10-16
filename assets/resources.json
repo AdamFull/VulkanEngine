@@ -26,7 +26,7 @@
                                 "name": "skybox_cubemap_tex",
                                 "type": "cubemap",
                                 "attachment": "cubemap",
-                                "src": "../../assets/textures/cubemaps/cubemap_space.ktx"
+                                "src": "../../assets/textures/cubemaps/cubemap_vulkan.ktx"
                             }
                         ]
                     }
@@ -66,6 +66,39 @@
                             "metalic": 1.0,
                             "roughness": 1.0
                         }
+                    }
+                ]
+            },
+            {
+                "name": "floor_obj",
+                "type": "static",
+                "src": "../../assets/meshes/plane.obj",
+                "materials":
+                [
+                    {
+                        "name": "floor_diffuse_mat",
+                        "type": "diffuse",
+                        "textures": 
+                        [
+                            {
+                                "name": "floor_diffuse_tex",
+                                "type": "2d",
+                                "attachment": "color",
+                                "src": "../../assets/textures/floor/floor_diffuse.jpg"
+                            },
+                            {
+                                "name": "floor_normal_tex",
+                                "type": "2d",
+                                "attachment": "normal",
+                                "src": "../../assets/textures/floor/floor_normal.jpg"
+                            },
+                            {
+                                "name": "floor_specular_tex",
+                                "type": "2d",
+                                "attachment": "specular",
+                                "src": "../../assets/textures/floor/floor_roughness.jpg"
+                            }
+                        ]
                     }
                 ]
             }

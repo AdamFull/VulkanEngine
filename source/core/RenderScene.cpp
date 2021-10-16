@@ -1,6 +1,7 @@
 #include "RenderScene.h"
 #include "Objects/Components/Camera/CameraComponent.h"
 #include "Objects/Components/Camera/CameraManager.h"
+#include "Objects/Components/StaticMeshComponent.h"
 #include "Renderer/VulkanDevice.h"
 #include "Renderer/VulkanRenderer.h"
 #include "Renderer/VulkanBuffer.h"
@@ -25,6 +26,7 @@ namespace Engine
         m_pOvelray->Cleanup(UDevice);
         m_pRoot->Cleanup();
         m_pOvelray->ReCreate(UDevice, USwapChain);
+        m_pSkybox->ReCreate();
         m_pRoot->ReCreate();
     }
 
@@ -39,6 +41,7 @@ namespace Engine
         }
 
         m_pOvelray->Destroy(UDevice);
+        m_pSkybox->Destroy();
         m_pRoot->Destroy();
     }
 
@@ -47,13 +50,20 @@ namespace Engine
         object->SetParent(m_pRoot);
     }
 
+    void RenderScene::SetSkybox(std::shared_ptr<RenderObject> pSkybox)
+    {
+        m_pSkybox = pSkybox;
+    }
+
     void RenderScene::CreateObjects()
     {
+        m_pSkybox->Create(m_pResourceManager);
         m_pRoot->Create(m_pResourceManager);
     }
 
     void RenderScene::Render(float fDeltaTime)
     {
+        m_pSkybox->Update(fDeltaTime);
         m_pRoot->Update(fDeltaTime);
 
         bool bResult;
@@ -68,10 +78,9 @@ namespace Engine
         m_pOvelray->NewFrame();
         m_pOvelray->Update(UDevice, fDeltaTime);
 
-        //UUniform->UpdateUniformBuffer(UDevice, currentFrame, ubo);
-
         UHLInstance->BeginRender(commandBuffer);
 
+        m_pSkybox->Render(commandBuffer, currentFrame);
         m_pRoot->Render(commandBuffer, currentFrame);
 
         //Imgui overlays (Demo)

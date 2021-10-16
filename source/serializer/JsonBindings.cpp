@@ -289,6 +289,7 @@ namespace Engine
         json = nlohmann::json
         {
             {"resources", type.resources_path},
+            {"skybox", type.skybox},
             {"objects", {type.vSceneObjects}}
         };
     }
@@ -298,6 +299,10 @@ namespace Engine
         //Required
         if(json.find("resources") != json.end())
             json.at("resources").get_to(type.resources_path);
+
+        //Optional
+        if(json.find("skybox") != json.end())
+            json.at("skybox").get_to(type.skybox);
         
         //Optional
         if(json.find("objects") != json.end())  

@@ -54,6 +54,8 @@ namespace Engine
 
         auto pRenderScene = std::make_unique<RenderScene>();
         pRenderScene->Create(info.resources_path);
+        //TODO: check is skybox exists
+        pRenderScene->SetSkybox(CreateComponent(info.skybox));
 
         CreateComponents(pRenderScene->GetRoot(), info.vSceneObjects);
 

@@ -154,18 +154,18 @@ namespace Engine
         }
     }
 
-    void TextureBase::Load(std::string srPath)
+    void TextureBase::LoadFromFile(std::string srPath)
     {
         ktxTexture* texture;
         vk::Format format;
         FilesystemHelper::LoadImage(srPath.c_str(), &texture, &format);
 
-        Load(texture, format);
+        LoadFromMemory(texture, format);
 
         FilesystemHelper::CloseImage(&texture);
     }
 
-    void TextureBase::Load(ktxTexture* info, vk::Format format)
+    void TextureBase::LoadFromMemory(ktxTexture* info, vk::Format format)
     {
         width = info->baseWidth;
         height = info->baseHeight;

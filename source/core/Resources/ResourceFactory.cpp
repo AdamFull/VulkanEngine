@@ -21,7 +21,7 @@ namespace Engine
             {
                 auto texture = std::make_unique<Texture2D>();
                 texture->SetAttachment(info.eAttachment);
-                texture->Load(info.srSrc);
+                texture->LoadFromFile(info.srSrc);
                 return texture;
             }
         },
@@ -30,7 +30,7 @@ namespace Engine
             {
                 auto texture = std::make_unique<Texture2D>();
                 texture->SetAttachment(info.eAttachment);
-                texture->Load(info.srSrc);
+                texture->LoadFromFile(info.srSrc);
                 return texture;
             }
         },
@@ -39,7 +39,7 @@ namespace Engine
             {
                 auto texture = std::make_unique<TextureCubemap>();
                 texture->SetAttachment(info.eAttachment);
-                texture->Load(info.srSrc);
+                texture->LoadFromFile(info.srSrc);
                 return texture;
             }
         }

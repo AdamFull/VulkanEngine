@@ -108,7 +108,7 @@ namespace Engine
         ktxTexture* texture;
         bool result = FilesystemHelper::AllocateRawDataAsKTXTexture(fontData, &texture, &format, texWidth, texHeight);
 
-        fontTexture->Load(texture, format);
+        fontTexture->LoadFromMemory(texture, format);
         fontMaterial->AddTexture(ETextureAttachmentType::eColor, fontTexture);
         fontMaterial->Create();
 

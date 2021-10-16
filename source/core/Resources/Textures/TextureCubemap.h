@@ -12,6 +12,6 @@ namespace Engine
         void Cleanup() override;
         void Destroy() override;
 
-        /*void Load(ktxTexture* info, vk::Format format) override;*/
+        void LoadFromMemory(ktxTexture* info, vk::Format format) override;
     };
 }

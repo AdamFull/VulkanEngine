@@ -30,7 +30,7 @@ namespace Engine
         TextureBase::Destroy();
     }
 
-    /*void TextureCubemap::Load(ktxTexture* info, vk::Format format)
+    void TextureCubemap::LoadFromMemory(ktxTexture* info, vk::Format format)
     {
         width = info->baseWidth;
         height = info->baseHeight;
@@ -45,7 +45,7 @@ namespace Engine
         stagingBuffer.Write(UDevice, (void*)info->pData);
 
         vk::ImageCreateInfo imageInfo{};
-        imageInfo.imageType = static_cast<vk::ImageType>(info->numDimensions);
+        imageInfo.imageType = TypeFromKtx(info->numDimensions);
         imageInfo.extent.width = info->baseWidth;
         imageInfo.extent.height = info->baseHeight;
         imageInfo.extent.depth = info->baseDepth;
@@ -69,7 +69,7 @@ namespace Engine
         barrier.subresourceRange.baseMipLevel = 0;
         barrier.subresourceRange.levelCount = info->numLevels;
         barrier.subresourceRange.baseArrayLayer = 0;
-        barrier.subresourceRange.layerCount = info->numLayers;
+        barrier.subresourceRange.layerCount = info->numFaces;
         vBarriers.push_back(barrier);
 
         UDevice->TransitionImageLayout(image, vBarriers, vk::ImageLayout::eUndefined, vk::ImageLayout::eTransferDstOptimal);
@@ -96,16 +96,27 @@ namespace Engine
         }
         UDevice->CopyBufferToImage(stagingBuffer.GetBuffer(), image, vRegions);
 
-        GenerateMipmaps(image, mipLevels, format, width, height, vk::ImageAspectFlagBits::eColor);
+        UDevice->TransitionImageLayout(image, vBarriers, vk::ImageLayout::eTransferDstOptimal, vk::ImageLayout::eShaderReadOnlyOptimal);
+
+        //GenerateMipmaps(image, mipLevels, format, width, height, vk::ImageAspectFlagBits::eColor);
         //UDevice->TransitionImageLayout(image, mipLevels, vk::ImageAspectFlagBits::eColor, vk::ImageLayout::eUndefined, vk::ImageLayout::eShaderReadOnlyOptimal);
 
         stagingBuffer.Destroy(UDevice);
 
-        view = UDevice->CreateImageView(image, mipLevels, format, vk::ImageAspectFlagBits::eColor);
+
+        vk::ImageViewCreateInfo viewInfo{};
+        viewInfo.viewType = vk::ImageViewType::eCube;
+        viewInfo.format = format;
+        viewInfo.subresourceRange.aspectMask = vk::ImageAspectFlagBits::eColor;
+        viewInfo.subresourceRange.baseMipLevel = 0;
+        viewInfo.subresourceRange.levelCount = info->numLevels;
+        viewInfo.subresourceRange.baseArrayLayer = 0;
+        viewInfo.subresourceRange.layerCount = info->numFaces;
+        view = UDevice->CreateImageView(image, viewInfo);
 
         UDevice->CreateSampler(sampler, mipLevels);
         imageLayout = vk::ImageLayout::eShaderReadOnlyOptimal;
 
         UpdateDescriptor();
-    }*/
+    }
 }

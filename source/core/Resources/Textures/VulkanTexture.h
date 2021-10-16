@@ -20,8 +20,8 @@ namespace Engine
         virtual void SetAttachment(ETextureAttachmentType eAttachment);
         virtual ETextureAttachmentType GetAttachment();
 
-        virtual void Load(std::string srPath);
-        virtual void Load(ktxTexture* info, vk::Format format);
+        virtual void LoadFromFile(std::string srPath);
+        virtual void LoadFromMemory(ktxTexture* info, vk::Format format);
 
         virtual vk::DescriptorImageInfo& GetDescriptor() { return descriptor; }
     protected:

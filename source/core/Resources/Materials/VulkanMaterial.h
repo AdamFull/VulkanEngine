@@ -8,12 +8,6 @@ namespace Engine
 {
     class TextureBase;
 
-    struct FPipelineState
-    {
-        std::vector<vk::DescriptorSet> vDescriptorSets;
-        std::shared_ptr<PipelineBase> pPipeline;
-    };
-
     class MaterialBase : public ResourceBase
     {
     public:
@@ -29,8 +23,9 @@ namespace Engine
     protected:
         virtual inline EShaderSet GetShaderSet() { return EShaderSet::eNone; }
         virtual void CreateDescriptorSets(uint32_t images);
-        
-        std::map<EShaderSet, std::shared_ptr<FPipelineState>> m_mPSO;
+
+        std::vector<vk::DescriptorSet> vDescriptorSets;
+        std::shared_ptr<PipelineBase> pPipeline;
         std::map<ETextureAttachmentType, std::shared_ptr<TextureBase>> m_mTextures;
     };    
 }

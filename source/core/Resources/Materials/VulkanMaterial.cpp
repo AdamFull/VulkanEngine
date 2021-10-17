@@ -8,7 +8,7 @@ namespace Engine
 {
     void MaterialBase::Create()
     {
-        m_mPSO.emplace(GetShaderSet(), std::make_shared<FPipelineState>());
+        pPipeline = UPipelineMGR->Get(GetShaderSet());
     }
 
     void MaterialBase::AddTexture(ETextureAttachmentType eAttachment, std::shared_ptr<TextureBase> pTexture)
@@ -33,10 +33,9 @@ namespace Engine
 
     void MaterialBase::Bind(vk::CommandBuffer commandBuffer, uint32_t imageIndex)
     {
-        auto pso = m_mPSO.at(GetShaderSet());
         ResourceBase::Bind(commandBuffer, imageIndex);
-        commandBuffer.bindDescriptorSets(pso->pPipeline->GetBindPoint(), UPMGR_PL, 0, 1, &pso->vDescriptorSets[imageIndex], 0, nullptr);
-        pso->pPipeline->Bind(commandBuffer);
+        commandBuffer.bindDescriptorSets(pPipeline->GetBindPoint(), UPMGR_PL, 0, 1, &vDescriptorSets[imageIndex], 0, nullptr);
+        pPipeline->Bind(commandBuffer);
     }
 
     void MaterialBase::Destroy()
@@ -48,21 +47,11 @@ namespace Engine
     void MaterialBase::Cleanup()
     {
         ResourceBase::Cleanup();
-
-        for(auto& [key, pso] : m_mPSO)
-        {
-            pso->pPipeline->Destroy(UDevice);
-            UDevice->GetLogical()->freeDescriptorSets(UPMGR_DP, pso->vDescriptorSets);
-            //UDevice->Destroy(pso->descriptorSetLayout);
-            //UDevice->Destroy(pso->descriptorPool);
-            //UDevice->Destroy(pso->pipelineCache);
-            //UDevice->Destroy(pso->pipelineLayout);
-        }
+        UDevice->GetLogical()->freeDescriptorSets(UPMGR_DP, vDescriptorSets);
     }
 
     void MaterialBase::CreateDescriptorSets(uint32_t images)
     {
-        auto pso = m_mPSO.at(GetShaderSet());
         std::vector<vk::DescriptorSetLayout> vDescriptorSetLayouts(images, UPMGR_DSL);
 
         vk::DescriptorSetAllocateInfo allocInfo{};
@@ -70,15 +59,8 @@ namespace Engine
         allocInfo.descriptorSetCount = images;
         allocInfo.pSetLayouts = vDescriptorSetLayouts.data();
 
-        pso->vDescriptorSets.resize(images);
+        vDescriptorSets.resize(images);
 
-        auto result = UDevice->GetLogical()->allocateDescriptorSets(&allocInfo, pso->vDescriptorSets.data());
+        auto result = UDevice->GetLogical()->allocateDescriptorSets(&allocInfo, vDescriptorSets.data());
     }
-
-    /*void MaterialBase::CreatePipelineCache()
-    {
-        auto pso = m_mPSO.at(GetShaderSet());
-        vk::PipelineCacheCreateInfo pipelineCacheCreateInfo = {};
-        pso->pipelineCache = UDevice->GetLogical()->createPipelineCache(pipelineCacheCreateInfo);
-    }*/
 }

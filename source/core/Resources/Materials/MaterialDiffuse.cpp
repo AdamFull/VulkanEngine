@@ -3,7 +3,6 @@
 #include "Renderer/VulkanUniform.h"
 #include "Renderer/VulkanBuffer.h"
 #include "Renderer/VulkanDevice.h"
-#include "Renderer/Pipeline/PipelineManager.h"
 
 namespace Engine
 {
@@ -13,10 +12,6 @@ namespace Engine
 
         auto images = USwapChain->GetImages().size();
         CreateDescriptorSets(images);
-
-        auto pso = m_mPSO.at(GetShaderSet());
-        FPipelineCreateInfo createInfo = PipelineConfig::CreateDiffusePipeline(UDevice->GetSamples(), UPMGR_PL, UPMGR_PC);
-        pso->pPipeline = PipelineFactory::CreatePipeline(createInfo, UDevice, USwapChain);
     }
 
     void MaterialDiffuse::ReCreate()
@@ -25,19 +20,14 @@ namespace Engine
 
         auto images = USwapChain->GetImages().size();
         CreateDescriptorSets(images);
-
-        auto pso = m_mPSO.at(GetShaderSet());
-        FPipelineCreateInfo createInfo = PipelineConfig::CreateDiffusePipeline(UDevice->GetSamples(), UPMGR_PL, UPMGR_PC);
-        pso->pPipeline->RecreatePipeline(createInfo, UDevice, USwapChain);
     }
 
     void MaterialDiffuse::Update(uint32_t imageIndex, std::unique_ptr<VulkanBuffer>& pUniformBuffer)
     {
         MaterialBase::Update(imageIndex, pUniformBuffer);
 
-        auto pso = m_mPSO.at(GetShaderSet());
         auto& uniformBuffer = pUniformBuffer->GetBuffer();
-        auto& descriptorSet = pso->vDescriptorSets[imageIndex];
+        auto& descriptorSet = vDescriptorSets[imageIndex];
 
         vk::DescriptorBufferInfo bufferInfo{};
         //GetCurrentUniform

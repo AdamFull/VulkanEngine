@@ -5,6 +5,7 @@
 #include "VulkanBuffer.h"
 #include "VulkanRenderer.h"
 #include "VulkanStaticHelper.h"
+#include "Pipeline/PipelineManager.h"
 
 namespace Engine
 {
@@ -38,6 +39,7 @@ namespace Engine
         m_pSwapChain->Create(m_pDevice);
         m_pUniform->Create(m_pDevice, m_pSwapChain->GetImages().size());
         m_pRenderer->Create(m_pDevice, m_pSwapChain);
+        UPipelineMGR->Create(m_pDevice, m_pSwapChain);
     }
 
     vk::CommandBuffer VulkanHighLevel::BeginFrame(bool* bResult)
@@ -93,12 +95,14 @@ namespace Engine
         m_pUniform->ReCreate(m_pDevice, m_pSwapChain->GetImages().size());
 
         m_pRenderer->ReCreate(m_pDevice, m_pSwapChain);
+        UPipelineMGR->RecreatePipeline(m_pDevice, m_pSwapChain);
     }
 
     void VulkanHighLevel::CleanupSwapChain()
     {
         m_pSwapChain->Cleanup(m_pDevice);
         m_pUniform->Cleanup(m_pDevice);
+        UPipelineMGR->Cleanup(m_pDevice);
         m_pRenderer->Cleanup(m_pDevice);
     }
 
@@ -117,6 +121,7 @@ namespace Engine
 
         m_pSwapChain->Cleanup(m_pDevice);
         m_pUniform->Cleanup(m_pDevice);
+        UPipelineMGR->Destroy(m_pDevice);
         m_pRenderer->Destroy(m_pDevice);
         m_pSwapChain->Destroy(m_pDevice);
         m_pDevice->Cleanup();

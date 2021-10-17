@@ -30,21 +30,22 @@ namespace Engine
         void Cleanup(std::unique_ptr<Device>& device);
         void Destroy(std::unique_ptr<Device>& device);
 
-        std::unique_ptr<PipelineBase>& Get(EPipelineType eType);
+        std::shared_ptr<PipelineBase>& Get(EShaderSet eType);
         inline vk::DescriptorSetLayout& GetDescriptorSetLayout() { return descriptorSetLayout; }
         inline vk::DescriptorPool& GetDescriptorPool() { return descriptorPool; }
         inline vk::PipelineLayout& GetPipelineLayout() { return pipelineLayout; }
         inline vk::PipelineCache& GetPipelineCache() { return pipelineCache; }
     private:
-        void CreateDescriptorSetLayout();
-        void CreateDescriptorPool(uint32_t images);
-        void CreatePipelineLayout(uint32_t images);
-        void CreatePipelineCache();
+        FPipelineCreateInfo CreateInfo(std::unique_ptr<Device>& device, EShaderSet eSet);
+        void CreateDescriptorSetLayout(std::unique_ptr<Device>& device);
+        void CreateDescriptorPool(std::unique_ptr<Device>& device, uint32_t images);
+        void CreatePipelineLayout(std::unique_ptr<Device>& device, uint32_t images);
+        void CreatePipelineCache(std::unique_ptr<Device>& device);
 
         vk::DescriptorSetLayout descriptorSetLayout;
         vk::DescriptorPool descriptorPool;
         vk::PipelineLayout pipelineLayout;
         vk::PipelineCache pipelineCache;
-        std::map<EPipelineType, std::unique_ptr<PipelineBase>> m_mPipelines; 
+        std::map<EShaderSet, std::shared_ptr<PipelineBase>> m_mPipelines; 
     };
 }

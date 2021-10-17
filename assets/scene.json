@@ -40,9 +40,25 @@
             },
             "transform":
             {
-                "pos": {"x": 1.0, "y": 1.0, "z": 0.0},
+                "pos": {"x": 0.0, "y": 0.0, "z": 0.0},
                 "rot": {"x": 0.0, "y": 0.0, "z": 3.14159},
                 "scale": {"x": 1.0, "y": 1.0, "z": 1.0}
+            }
+        },
+        {
+            "name": "nanosuit_mesh_component",
+            "type": "static_mesh",
+            "resources": 
+            {
+                "textures": [],
+                "materials": [],
+                "meshes": ["nanosuit_obj"]
+            },
+            "transform":
+            {
+                "pos": {"x": 1.0, "y": 0.0, "z": 0.0},
+                "rot": {"x": 0.0, "y": 0.0, "z": 3.14159},
+                "scale": {"x": 0.1, "y": 0.1, "z": 0.1}
             }
         },
         {

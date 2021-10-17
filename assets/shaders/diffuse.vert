@@ -37,7 +37,7 @@ void main()
   outTBN = transpose(mat3(T, B, N));
 
   viewPos = outTBN * vec3(ubo.viewPosition);
-  lightPos = outTBN * vec3(0.0, -2.0, -0.513);
+  lightPos = outTBN * vec3(0.0, -1.6, -0.35);
   fragPos = outTBN * fragPos;
   
   gl_Position = ubo.projection * ubo.view * ubo.model * vec4(inPosition, 1.0);

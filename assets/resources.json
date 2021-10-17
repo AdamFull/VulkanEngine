@@ -70,6 +70,43 @@
                 ]
             },
             {
+                "name": "nanosuit_obj",
+                "type": "static",
+                "src": "../../assets/meshes/nanosuit.obj",
+                "materials": [
+                    {
+                        "name": "nanosuit_material",
+                        "type": "diffuse",
+                        "textures": [
+                            {
+                                "name": "nanosuit_diffuse",
+                                "type": "2d",
+                                "attachment": "color",
+                                "src": "../../assets/textures/nanosuit/Body_diffuse.png"
+                            },
+                            {
+                                "name": "nanosuit_normal",
+                                "type": "2d",
+                                "attachment": "normal",
+                                "src": "../../assets/textures/nanosuit/Body_normal.png"
+                            },
+                            {
+                                "name": "nanosuit_specular",
+                                "type": "2d",
+                                "attachment": "specular",
+                                "src": "../../assets/textures/nanosuit/Body_specularGlossiness.png"
+                            }
+                        ],
+                        "params": 
+                        {
+                            "cutoff": 1.0,
+                            "metalic": 1.0,
+                            "roughness": 1.0
+                        }
+                    }
+                ]
+            },
+            {
                 "name": "floor_obj",
                 "type": "static",
                 "src": "../../assets/meshes/plane.obj",

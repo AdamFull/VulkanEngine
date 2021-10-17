@@ -1,11 +1,11 @@
 #include "PipelineManager.h"
 #include "Renderer/VulkanDevice.h"
 #include "Renderer/VulkanSwapChain.h"
-#include "Renderer/VulkanHighLevel.h"
 #include "VulkanPipeline.h"
 
 namespace Engine
 {
+    constexpr std::array<EShaderSet, 4> aShaderSets { EShaderSet::eUI, EShaderSet::eDiffuse, EShaderSet::eSkybox, EShaderSet::ePBR };
     std::unique_ptr<PipelineManager> PipelineManager::m_pInstance;
 
     std::unique_ptr<PipelineManager>& PipelineManager::GetInstance()
@@ -13,26 +13,35 @@ namespace Engine
         if(!m_pInstance)
         {
             m_pInstance.reset(new PipelineManager());
-
-            uint32_t images = USwapChain->GetImages().size();
-            m_pInstance->CreateDescriptorSetLayout();
-            m_pInstance->CreateDescriptorPool(images);
-            m_pInstance->CreatePipelineLayout(images);
-            m_pInstance->CreatePipelineCache();
         }
         return m_pInstance;
     }
 
     void PipelineManager::Create(std::unique_ptr<Device>& device, std::unique_ptr<SwapChain>& swapchain)
     {
-        //m_mPipelines.emplace(EPipelineType::eGraphics, PipelineFactory::CreatePipeline(device, swapchain, EPipelineType::eGraphics));
+        uint32_t images = swapchain->GetImages().size();
+        m_pInstance->CreateDescriptorSetLayout(device);
+        m_pInstance->CreateDescriptorPool(device, images);
+        m_pInstance->CreatePipelineLayout(device, images);
+        m_pInstance->CreatePipelineCache(device);
+
+        for(auto& eSet : aShaderSets)
+        {
+            m_mPipelines.emplace(eSet, PipelineFactory::CreatePipeline(CreateInfo(device, eSet), device, swapchain));
+        }
     }
 
     void PipelineManager::RecreatePipeline(std::unique_ptr<Device>& device, std::unique_ptr<SwapChain>& swapchain)
     {
+        uint32_t images = swapchain->GetImages().size();
+        m_pInstance->CreateDescriptorSetLayout(device);
+        m_pInstance->CreateDescriptorPool(device, images);
+        m_pInstance->CreatePipelineLayout(device, images);
+        m_pInstance->CreatePipelineCache(device);
+
         for(auto& [key, value] : m_mPipelines)
         {
-            //value->RecreatePipeline(device, swapchain);
+            value->RecreatePipeline(CreateInfo(device, key), device, swapchain);
         }
     }
 
@@ -42,6 +51,11 @@ namespace Engine
         {
             value->Cleanup(device);
         }
+
+        device->Destroy(descriptorSetLayout);
+        device->Destroy(descriptorPool);
+        device->Destroy(pipelineCache);
+        device->Destroy(pipelineLayout);
     }
 
     void PipelineManager::Destroy(std::unique_ptr<Device> &device)
@@ -50,17 +64,35 @@ namespace Engine
         {
             value->Destroy(device);
         }
+
+        device->Destroy(descriptorSetLayout);
+        device->Destroy(descriptorPool);
+        device->Destroy(pipelineCache);
+        device->Destroy(pipelineLayout);
     }
 
-    std::unique_ptr<PipelineBase>& PipelineManager::Get(EPipelineType eType)
+    std::shared_ptr<PipelineBase>& PipelineManager::Get(EShaderSet eType)
     {
         auto it = m_mPipelines.find(eType);
         if(it != m_mPipelines.end())
             return it->second;
-        return std::unique_ptr<PipelineBase>(nullptr);
+        return std::shared_ptr<PipelineBase>(nullptr);
     }
 
-    void PipelineManager::CreateDescriptorSetLayout()
+    FPipelineCreateInfo PipelineManager::CreateInfo(std::unique_ptr<Device>& device, EShaderSet eSet)
+    {
+        switch (eSet)
+        {
+            case EShaderSet::eUI: return PipelineConfig::CreateUIPipeline(device->GetSamples(), pipelineLayout, pipelineCache); break;
+            case EShaderSet::eDiffuse: return PipelineConfig::CreateDiffusePipeline(device->GetSamples(), pipelineLayout, pipelineCache); break;
+            case EShaderSet::eSkybox: return PipelineConfig::CreateSkyboxPipeline(device->GetSamples(), pipelineLayout, pipelineCache); break;
+            case EShaderSet::ePBR: return PipelineConfig::CreatePBRPipeline(device->GetSamples(), pipelineLayout, pipelineCache); break;
+        }
+
+        return FPipelineCreateInfo{};
+    }
+
+    void PipelineManager::CreateDescriptorSetLayout(std::unique_ptr<Device>& device)
     {
         vk::DescriptorSetLayoutBinding uboLayoutBinding{};
         uboLayoutBinding.binding = 0;
@@ -96,10 +128,10 @@ namespace Engine
         createInfo.pBindings = bindings.data();
 
         //TODO: check result
-        auto result = UDevice->GetLogical()->createDescriptorSetLayout(&createInfo, nullptr, &descriptorSetLayout);
+        auto result = device->GetLogical()->createDescriptorSetLayout(&createInfo, nullptr, &descriptorSetLayout);
     }
 
-    void PipelineManager::CreateDescriptorPool(uint32_t images)
+    void PipelineManager::CreateDescriptorPool(std::unique_ptr<Device>& device, uint32_t images)
     {
         std::array<vk::DescriptorPoolSize, 2> poolSizes{};
         poolSizes[0].type = vk::DescriptorType::eUniformBuffer;
@@ -113,10 +145,10 @@ namespace Engine
         poolInfo.pPoolSizes = poolSizes.data();
         poolInfo.maxSets = 1000;
 
-        descriptorPool = UDevice->Make<vk::DescriptorPool, vk::DescriptorPoolCreateInfo>(poolInfo);
+        descriptorPool = device->Make<vk::DescriptorPool, vk::DescriptorPoolCreateInfo>(poolInfo);
     }
 
-    void PipelineManager::CreatePipelineLayout(uint32_t images)
+    void PipelineManager::CreatePipelineLayout(std::unique_ptr<Device>& device, uint32_t images)
     {
         vk::PipelineLayoutCreateInfo pipelineLayoutInfo = {};
         pipelineLayoutInfo.setLayoutCount = 1;
@@ -124,13 +156,13 @@ namespace Engine
         pipelineLayoutInfo.pushConstantRangeCount = 0;
         pipelineLayoutInfo.pPushConstantRanges = nullptr;
 
-        pipelineLayout = UDevice->Make<vk::PipelineLayout, vk::PipelineLayoutCreateInfo>(pipelineLayoutInfo);
+        pipelineLayout = device->Make<vk::PipelineLayout, vk::PipelineLayoutCreateInfo>(pipelineLayoutInfo);
         assert(pipelineLayout && "Pipeline layout was not created");
     }
 
-    void PipelineManager::CreatePipelineCache()
+    void PipelineManager::CreatePipelineCache(std::unique_ptr<Device>& device)
     {
         vk::PipelineCacheCreateInfo pipelineCacheCreateInfo = {};
-        pipelineCache = UDevice->GetLogical()->createPipelineCache(pipelineCacheCreateInfo);
+        pipelineCache = device->GetLogical()->createPipelineCache(pipelineCacheCreateInfo);
     }
 }

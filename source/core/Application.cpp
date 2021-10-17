@@ -5,7 +5,6 @@
 #include "Objects/Components/Camera/CameraManager.h"
 #include "Objects/Components/StaticMeshComponent.h"
 #include "SceneFactory.h"
-#include "Renderer/Pipeline/PipelineManager.h"
 
 namespace Engine
 {
@@ -24,7 +23,6 @@ namespace Engine
         createInfo.engineVersion = VK_MAKE_VERSION(1, 0, 0);
         createInfo.apiVersion = VK_API_VERSION_1_0;
         UHLInstance->Create(createInfo);
-        UPipelineMGR;
 
         m_pCameraController = std::make_unique<CameraEditorController>();
         m_pCameraController->Create();

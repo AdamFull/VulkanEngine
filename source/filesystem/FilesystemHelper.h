@@ -11,6 +11,7 @@ namespace Engine
         static bool LoadImage(char const *filename, ktxTexture** target, vk::Format* format);
         static void CloseImage(ktxTexture** target);
         static bool AllocateRawDataAsKTXTexture(unsigned char* data, ktxTexture** target, vk::Format* format, int width, int height, bool calcMips=false);
+        static bool AllocateRawDataAsKTXTexture(ktxTexture** target, vk::Format* format, int width, int height, bool calcMips=false);
     private:
         static bool LoadSTB(char const *filename, ktxTexture** target, vk::Format* format);
         static bool LoadKTX(char const *filename, ktxTexture** target, vk::Format* format);

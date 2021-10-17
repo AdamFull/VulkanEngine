@@ -39,6 +39,17 @@ namespace Engine
 
     bool FilesystemHelper::AllocateRawDataAsKTXTexture(unsigned char* data, ktxTexture** target, vk::Format* format, int width, int height, bool calcMips)
     {
+        bool result = AllocateRawDataAsKTXTexture(target, format, width, height, calcMips);
+
+        (*target)->dataSize = width * height * 4;
+        (*target)->pData = static_cast<unsigned char*>(calloc((*target)->dataSize, sizeof(unsigned char)));
+        memcpy((*target)->pData, data, (*target)->dataSize);
+
+        return result;
+    }
+
+    bool FilesystemHelper::AllocateRawDataAsKTXTexture(ktxTexture** target, vk::Format* format, int width, int height, bool calcMips=false)
+    {
         ktxTextureCreateInfo info;
         info.glInternalformat = GL_SRGB8_ALPHA8;
         info.baseWidth = static_cast<uint32_t>(width);
@@ -52,11 +63,6 @@ namespace Engine
         info.numFaces = 1;
 
         auto result = ktxTexture_Create(&info, KTX_TEXTURE_CREATE_NO_STORAGE, target);
-
-        (*target)->dataSize = width * height * 4;
-        (*target)->pData = static_cast<unsigned char*>(calloc((*target)->dataSize, sizeof(unsigned char)));
-        memcpy((*target)->pData, data, (*target)->dataSize);
-
         (*target)->baseDepth = 1;
 
         VkFormat raw_format = vkGetFormatFromOpenGLFormat((*target)->glFormat, (*target)->glType);

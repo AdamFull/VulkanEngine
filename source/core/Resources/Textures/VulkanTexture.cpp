@@ -165,19 +165,12 @@ namespace Engine
         FilesystemHelper::CloseImage(&texture);
     }
 
-    void TextureBase::LoadFromMemory(ktxTexture* info, vk::Format format)
+    void TextureBase::CreateEmptyTexture(ktxTexture* info, vk::Format format)
     {
         width = info->baseWidth;
         height = info->baseHeight;
         channels = 4;
         mipLevels = info->numLevels;
-
-        vk::DeviceSize imgSize = info->dataSize;
-
-        VulkanBuffer stagingBuffer;
-        stagingBuffer.Create(UDevice, imgSize, 1, vk::BufferUsageFlagBits::eTransferSrc, vk::MemoryPropertyFlagBits::eHostVisible | vk::MemoryPropertyFlagBits::eHostCoherent);
-        stagingBuffer.MapMem(UDevice);
-        stagingBuffer.Write(UDevice, (void*)info->pData);
 
         vk::ImageCreateInfo imageInfo{};
         imageInfo.imageType = TypeFromKtx(info->numDimensions);
@@ -192,8 +185,29 @@ namespace Engine
         imageInfo.usage = vk::ImageUsageFlagBits::eTransferSrc | vk::ImageUsageFlagBits::eTransferDst | vk::ImageUsageFlagBits::eSampled;
         imageInfo.sharingMode = vk::SharingMode::eExclusive;
         imageInfo.samples = vk::SampleCountFlagBits::e1;
-
         UDevice->CreateImage(image, deviceMemory, imageInfo, vk::MemoryPropertyFlagBits::eDeviceLocal);
+
+        vk::ImageViewCreateInfo viewInfo{};
+        viewInfo.viewType = vk::ImageViewType::e2D;
+        viewInfo.format = format;
+        viewInfo.subresourceRange.aspectMask = vk::ImageAspectFlagBits::eColor;
+        viewInfo.subresourceRange.baseMipLevel = 0;
+        viewInfo.subresourceRange.levelCount = info->numLevels;
+        viewInfo.subresourceRange.baseArrayLayer = 0;
+        viewInfo.subresourceRange.layerCount = info->numLayers;
+        view = UDevice->CreateImageView(image, viewInfo);
+    }
+
+    void TextureBase::LoadFromMemory(ktxTexture* info, vk::Format format)
+    {
+        CreateEmptyTexture(info, format);
+
+        vk::DeviceSize imgSize = info->dataSize;
+
+        VulkanBuffer stagingBuffer;
+        stagingBuffer.Create(UDevice, imgSize, 1, vk::BufferUsageFlagBits::eTransferSrc, vk::MemoryPropertyFlagBits::eHostVisible | vk::MemoryPropertyFlagBits::eHostCoherent);
+        stagingBuffer.MapMem(UDevice);
+        stagingBuffer.Write(UDevice, (void*)info->pData);
 
         std::vector<vk::ImageMemoryBarrier> vBarriers;
         vk::ImageMemoryBarrier barrier{};
@@ -225,17 +239,6 @@ namespace Engine
         //UDevice->TransitionImageLayout(image, mipLevels, vk::ImageAspectFlagBits::eColor, vk::ImageLayout::eUndefined, vk::ImageLayout::eShaderReadOnlyOptimal);
 
         stagingBuffer.Destroy(UDevice);
-
-        vk::ImageViewCreateInfo viewInfo{};
-        viewInfo.viewType = vk::ImageViewType::e2D;
-        viewInfo.format = format;
-        viewInfo.subresourceRange.aspectMask = vk::ImageAspectFlagBits::eColor;
-        viewInfo.subresourceRange.baseMipLevel = 0;
-        viewInfo.subresourceRange.levelCount = info->numLevels;
-        viewInfo.subresourceRange.baseArrayLayer = 0;
-        viewInfo.subresourceRange.layerCount = info->numLayers;
-
-        view = UDevice->CreateImageView(image, viewInfo);
 
         UDevice->CreateSampler(sampler, mipLevels);
         imageLayout = vk::ImageLayout::eShaderReadOnlyOptimal;

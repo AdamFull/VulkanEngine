@@ -2,9 +2,10 @@
 
 namespace Engine
 {
-    void Create()
+    void GeneratorBase::Create()
     {
-
+        m_pGenerated = std::make_shared<TextureBase>();
+        m_pFramebufferImage = std::make_shared<TextureBase>();
     }
 
     void GeneratorBase::ReCreate()
@@ -32,4 +33,17 @@ namespace Engine
         ResourceBase::Destroy();
     }
 
+    void GeneratorBase::CreateRenderPass()
+    {
+    }
+
+    void GeneratorBase::CreateFramebuffer()
+    {
+
+    }
+
+    void GeneratorBase::CreateDescriptorSets(uint32_t images)
+    {
+
+    }
 }

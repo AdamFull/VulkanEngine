@@ -1,5 +1,6 @@
 #pragma once
 #include "Resources/ResourceBase.h"
+#include "Renderer/Pipeline/PipelineManager.h"
 
 namespace Engine
 {
@@ -8,7 +9,6 @@ namespace Engine
     class GeneratorBase : public ResourceBase
     {
     public:
-        public:
         virtual void Create();
         void ReCreate() override;
         void Update(uint32_t imageIndex, std::unique_ptr<VulkanBuffer>& pUniformBuffer) override;
@@ -24,6 +24,7 @@ namespace Engine
         virtual void CreateDescriptorSets(uint32_t images);
 
         std::shared_ptr<TextureBase> m_pGenerated;
+        std::shared_ptr<TextureBase> m_pFramebufferImage;
         vk::RenderPass renderPass;
         vk::Framebuffer framebuffer;
     };

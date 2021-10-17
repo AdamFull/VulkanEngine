@@ -48,7 +48,7 @@ namespace Engine
         return result;
     }
 
-    bool FilesystemHelper::AllocateRawDataAsKTXTexture(ktxTexture** target, vk::Format* format, int width, int height, bool calcMips=false)
+    bool FilesystemHelper::AllocateRawDataAsKTXTexture(ktxTexture** target, vk::Format* format, int width, int height, bool calcMips)
     {
         ktxTextureCreateInfo info;
         info.glInternalformat = GL_SRGB8_ALPHA8;

@@ -1,4 +1,5 @@
 #include "VulkanGenerator.h"
+#include "Resources/Textures/VulkanTexture.h"
 
 namespace Engine
 {

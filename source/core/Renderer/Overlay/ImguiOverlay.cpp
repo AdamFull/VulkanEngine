@@ -106,13 +106,13 @@ namespace Engine
 
         vk::Format format;
         ktxTexture* texture;
-        bool result = FilesystemHelper::AllocateRawDataAsKTXTexture(fontData, &texture, &format, texWidth, texHeight);
+        bool result = ImageLoader::AllocateRawDataAsKTXTexture(fontData, &texture, &format, texWidth, texHeight, 1, 2);
 
         fontTexture->LoadFromMemory(texture, format);
         fontMaterial->AddTexture(ETextureAttachmentType::eColor, fontTexture);
         fontMaterial->Create();
 
-        FilesystemHelper::CloseImage(&texture);
+        ImageLoader::CloseImage(&texture);
     }
 
     void ImguiOverlay::NewFrame()

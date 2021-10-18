@@ -27,12 +27,27 @@ namespace Engine
         ePrefiltred
     };
 
+    enum class ENoisePattern
+    {
+        ePerlin,
+        eFractal
+    };
+
+    struct FNoiseParam
+    {
+        ENoisePattern pattern;
+        uint32_t width;
+        uint32_t height;
+        uint32_t depth;
+    };
+
     struct FTextureCreateInfo
     {
         std::string srName;
         ETextureType eType;
         ETextureAttachmentType eAttachment;
         std::string srSrc;
+        FNoiseParam noise;
     };
 
     enum class EMaterialType

@@ -426,16 +426,16 @@ namespace Engine
         return imageView;
     }
 
-    void Device::CreateSampler(vk::Sampler& sampler, uint32_t mip_levels)
+    void Device::CreateSampler(vk::Sampler& sampler, uint32_t mip_levels, vk::SamplerAddressMode eAddressMode)
     {
         assert(data.physical && "Cannot create sampler, cause physical device is not valid.");
         assert(data.logical && "Cannot create sampler, cause logical device is not valid.");
         vk::SamplerCreateInfo samplerInfo{};
         samplerInfo.magFilter = vk::Filter::eLinear;
         samplerInfo.minFilter = vk::Filter::eLinear;
-        samplerInfo.addressModeU = vk::SamplerAddressMode::eRepeat;
-        samplerInfo.addressModeV = vk::SamplerAddressMode::eRepeat;
-        samplerInfo.addressModeW = vk::SamplerAddressMode::eRepeat;
+        samplerInfo.addressModeU = eAddressMode;
+        samplerInfo.addressModeV = eAddressMode;
+        samplerInfo.addressModeW = eAddressMode;
 
         vk::PhysicalDeviceProperties properties{};
         properties = data.physical.getProperties();

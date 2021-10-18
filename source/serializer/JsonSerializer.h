@@ -12,6 +12,9 @@ namespace glm
 namespace Engine
 {
     /*RESOURCES*/
+    void to_json(nlohmann::json &json, const FNoiseParam &type);
+    void from_json(const nlohmann::json &json, FNoiseParam &type);
+
     void to_json(nlohmann::json &json, const FTextureCreateInfo &type);
     void from_json(const nlohmann::json &json, FTextureCreateInfo &type);
 

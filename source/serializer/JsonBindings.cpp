@@ -62,6 +62,36 @@ namespace Engine
         {EMeshType::eSkeletal, "skeletal"},
         {EMeshType::eGLTF, "gltf"}})
 
+    NLOHMANN_JSON_SERIALIZE_ENUM(ENoisePattern, {
+        {ENoisePattern::ePerlin, "perlin"},
+        {ENoisePattern::eFractal, "fractal"}})
+
+    void to_json(nlohmann::json &json, const FNoiseParam &type)
+    {
+        json = nlohmann::json
+        {
+            {"pattern", type.pattern},
+            {"width", type.width},
+            {"height", type.height},
+            {"depth", type.depth}
+        };
+    }
+
+    void from_json(const nlohmann::json &json, FNoiseParam &type)
+    {
+        if(json.find("pattern") != json.end())
+            json.at("pattern").get_to(type.pattern);
+        
+        if(json.find("width") != json.end())
+            json.at("width").get_to(type.width);
+
+        if(json.find("height") != json.end())
+            json.at("height").get_to(type.height);
+
+        if(json.find("depth") != json.end())
+            json.at("depth").get_to(type.depth);
+    }
+
     void to_json(nlohmann::json &json, const FTextureCreateInfo &type)
     {
         json = nlohmann::json
@@ -69,7 +99,8 @@ namespace Engine
             {"name", type.srName},
             {"type", type.eType},
             {"attachment", type.eAttachment},
-            {"src", type.srSrc}
+            {"src", type.srSrc},
+            {"noise", type.noise}
         };
     }
 
@@ -87,9 +118,13 @@ namespace Engine
         if(json.find("attachment") != json.end())
             json.at("attachment").get_to(type.eAttachment);
 
-        //Required
+        //Optional
         if(json.find("src") != json.end())
             json.at("src").get_to(type.srSrc);
+
+        //Optional
+        if(json.find("noise") != json.end())
+            json.at("noise").get_to(type.noise);
     }
 
     void to_json(nlohmann::json &json, const const FMaterialParams &type)

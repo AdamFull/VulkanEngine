@@ -2,7 +2,9 @@
 #include "ResourceManager.h"
 
 #include "Resources/Textures/Texture2D.h"
+#include "Resources/Textures/Texture3D.h"
 #include "Resources/Textures/TextureCubemap.h"
+#include "Resources/Textures/Texture2DArray.h"
 
 #include "Resources/Materials/MaterialUI.h"
 #include "Resources/Materials/MaterialDiffuse.h"
@@ -29,9 +31,9 @@ namespace Engine
         {
             ETextureType::e3D, [](FTextureCreateInfo info)
             {
-                auto texture = std::make_unique<Texture2D>();
+                auto texture = std::make_unique<Texture3D>();
                 texture->SetAttachment(info.eAttachment);
-                texture->LoadFromFile(info.srSrc);
+                texture->LoadNoise(info.noise.pattern, info.noise.width, info.noise.height, info.noise.depth);
                 return texture;
             }
         },
@@ -39,6 +41,15 @@ namespace Engine
             ETextureType::eCubemap, [](FTextureCreateInfo info)
             {
                 auto texture = std::make_unique<TextureCubemap>();
+                texture->SetAttachment(info.eAttachment);
+                texture->LoadFromFile(info.srSrc);
+                return texture;
+            }
+        },
+        {
+            ETextureType::eArray, [](FTextureCreateInfo info)
+            {
+                auto texture = std::make_unique<Texture2DArray>();
                 texture->SetAttachment(info.eAttachment);
                 texture->LoadFromFile(info.srSrc);
                 return texture;

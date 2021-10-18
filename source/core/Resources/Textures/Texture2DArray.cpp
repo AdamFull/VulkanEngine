@@ -1,31 +1,30 @@
-#include "TextureCubemap.h"
+#include "Texture2DArray.h"
 #include "Renderer/VulkanDevice.h"
-#include "Renderer/VulkanBuffer.h"
 #include "Renderer/VulkanHighLevel.h"
 
 namespace Engine
 {
-    void TextureCubemap::ReCreate()
+    void Texture2DArray::ReCreate()
     {
         TextureBase::ReCreate();
     }
 
-    void TextureCubemap::Update(uint32_t imageIndex, std::unique_ptr<VulkanBuffer>& pUniformBuffer)
+    void Texture2DArray::Update(uint32_t imageIndex, std::unique_ptr<VulkanBuffer>& pUniformBuffer)
     {
         TextureBase::Update(imageIndex, pUniformBuffer);
     }
 
-    void TextureCubemap::Bind(vk::CommandBuffer commandBuffer, uint32_t imageIndex)
+    void Texture2DArray::Bind(vk::CommandBuffer commandBuffer, uint32_t imageIndex)
     {
         TextureBase::Bind(commandBuffer, imageIndex);
     }
 
-    void TextureCubemap::Cleanup()
+    void Texture2DArray::Cleanup()
     {
         TextureBase::Cleanup();
     }
 
-    void TextureCubemap::Destroy()
+    void Texture2DArray::Destroy()
     {
         TextureBase::Destroy();
     }

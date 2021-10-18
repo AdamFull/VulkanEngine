@@ -91,18 +91,13 @@ namespace Engine
     {
         GeneratorBase::CreateFramebuffer();
 
-        vk::Format format;
-        ktxTexture* texture;
-        FilesystemHelper::AllocateRawDataAsKTXTexture(&texture, &format, 64, 64);
-        m_pFramebufferImage->CreateEmptyTexture(texture, format);
-
-        vk::FramebufferCreateInfo createInfo = {};
+        /*vk::FramebufferCreateInfo createInfo = {};
 		createInfo.renderPass = renderPass;
 		createInfo.attachmentCount = 1;
 		createInfo.pAttachments = &m_pFramebufferImage->GetDescriptor().imageView;
 		createInfo.width = texture->baseWidth;
 		createInfo.height = texture->baseHeight;
-		createInfo.layers = 1;
+		createInfo.layers = 1;*/
     }
 
     void IrradianceGenerator::CreateDescriptorSets(uint32_t images)

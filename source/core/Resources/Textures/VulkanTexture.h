@@ -1,11 +1,19 @@
 #pragma once
 #include "Resources/ResourceBase.h"
-#include "filesystem/FilesystemHelper.h"
+#include "ImageLoader.h"
 
 namespace Engine
 {
     class Device;
     class VulkanBuffer;
+
+    struct FTextureParams
+    {
+        uint32_t width, height, depth;
+        uint32_t mipLevels;
+        uint32_t instCount;
+        uint32_t layerCount;
+    };
 
     class TextureBase : public ResourceBase
     {
@@ -20,24 +28,26 @@ namespace Engine
         virtual void SetAttachment(ETextureAttachmentType eAttachment);
         virtual ETextureAttachmentType GetAttachment();
 
+        virtual void CreateEmptyTexture(uint32_t width, uint32_t height, uint32_t depth, uint32_t dims);
+        virtual void InitializeTexture(ktxTexture* info, vk::Format format);
+        virtual void WriteImageData(ktxTexture* info, vk::Format format);
         virtual void LoadFromFile(std::string srPath);
-        virtual void CreateEmptyTexture(ktxTexture* info, vk::Format format);
         virtual void LoadFromMemory(ktxTexture* info, vk::Format format);
 
+        virtual FTextureParams& GetParams() { return fParams; }
         virtual vk::DescriptorImageInfo& GetDescriptor() { return descriptor; }
     protected:
         virtual void GenerateMipmaps(vk::Image &image, uint32_t mipLevels, vk::Format format, uint32_t width, uint32_t height, vk::ImageAspectFlags aspectFlags);
         static vk::ImageType TypeFromKtx(uint32_t type);
+        virtual uint32_t GetInternalFormat() { return 0; }
 
         vk::Image               image;
         vk::ImageLayout         imageLayout;
         vk::DeviceMemory        deviceMemory;
         vk::ImageView           view;
-        uint32_t                width, height, channels;
-        uint32_t                mipLevels;
-        uint32_t                layerCount;
         vk::DescriptorImageInfo descriptor;
         vk::Sampler             sampler;
         ETextureAttachmentType  attachment;
+        FTextureParams fParams;
     };
 }

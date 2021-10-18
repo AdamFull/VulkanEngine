@@ -72,7 +72,7 @@ namespace Engine
         void TransitionImageLayout(vk::Image& image, std::vector<vk::ImageMemoryBarrier> vBarriers, vk::ImageLayout oldLayout, vk::ImageLayout newLayout);
         void CopyBufferToImage(vk::Buffer& buffer, vk::Image& image, std::vector<vk::BufferImageCopy> vRegions);
         vk::ImageView CreateImageView(vk::Image& pImage, vk::ImageViewCreateInfo viewInfo);
-        void CreateSampler(vk::Sampler& sampler, uint32_t mip_levels);
+        void CreateSampler(vk::Sampler& sampler, uint32_t mip_levels, vk::SamplerAddressMode eAddressMode);
 
         void CreateOnDeviceBuffer(vk::DeviceSize size, vk::BufferUsageFlags usage, vk::MemoryPropertyFlags properties, vk::Buffer &buffer, vk::DeviceMemory &bufferMemory);
         void CopyOnDeviceBuffer(vk::Buffer srcBuffer, vk::Buffer dstBuffer, vk::DeviceSize size);

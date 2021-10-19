@@ -8,37 +8,44 @@ layout(location = 3) in vec2 inTexCoord;
 layout(location = 4) in vec3 inTangent;
 layout(location = 5) in vec3 inBinormal;
 
-layout(location = 0) out vec2 fragTexCoord;
-layout(location = 1) out vec3 fragColor;
-layout(location = 2) out vec3 fragPos;
-layout(location = 3) out vec3 viewPos;
-layout(location = 4) out vec3 lightPos;
-layout(location = 5) out mat3 outTBN;
+layout(location = 0) out vec2 outTexCoord;
+layout(location = 1) out vec3 outLightVec;
+layout(location = 2) out vec3 outLightVecB;
+layout(location = 3) out vec3 outLightDir;
+layout(location = 4) out vec3 outViewVec;
 
 layout(binding = 0) uniform FUniformData 
 {
   mat4 model;
   mat4 view;
   mat4 projection;
+  vec4 lightPosition;
   vec4 viewPosition;
 } ubo;
 
 void main() 
 {
-  fragPos = vec3(ubo.model * vec4(inPosition, 1.0));
-  fragTexCoord = inTexCoord;
-  fragColor = inColor;
+  vec3 fragPos = vec3(ubo.model * vec4(inPosition, 1.0));
+  outLightDir = normalize(ubo.lightPosition.xyz - fragPos);
 
-  mat3 normalMatrix = transpose(inverse(mat3(ubo.model)));
-  vec3 T = normalize(normalMatrix * inTangent);
-  vec3 N = normalize(normalMatrix * inNormal);
-  T = normalize(T - dot(T, N) * N);
-  vec3 B = cross(N, T);
-  outTBN = transpose(mat3(T, B, N));
+  vec3 biTangent = cross(inNormal, inTangent);
 
-  viewPos = outTBN * vec3(ubo.viewPosition);
-  lightPos = outTBN * vec3(0.0, -1.6, -0.35);
-  fragPos = outTBN * fragPos;
-  
-  gl_Position = ubo.projection * ubo.view * ubo.model * vec4(inPosition, 1.0);
+  mat3 normal = transpose(inverse(mat3(ubo.model * ubo.view)));
+
+  mat3 tbn;
+	tbn[0] =  mat3(normal) * inTangent;
+	tbn[1] =  mat3(normal) * biTangent;
+	tbn[2] =  mat3(normal) * inNormal;
+
+  outLightVec = vec3(ubo.lightPosition.xyz - fragPos) * tbn;
+
+  vec3 lightDist = ubo.lightPosition.xyz - inPosition;
+	outLightVecB.x = dot(inTangent, lightDist);
+	outLightVecB.y = dot(biTangent, lightDist);
+	outLightVecB.z = dot(inNormal, lightDist);
+
+  outViewVec = ubo.viewPosition.xyz * tbn;
+
+	outTexCoord = inTexCoord;
+	gl_Position =  ubo.projection * ubo.model * ubo.view * vec4(inPosition, 1.0);
 }

@@ -45,19 +45,19 @@
                                 "name": "femalebody_diffuse",
                                 "type": "2d",
                                 "attachment": "color",
-                                "src": "../../assets/textures/femalebody_1.png"
+                                "src": "../../assets/textures/femalebody/femalebody_1.png"
                             },
                             {
                                 "name": "femalebody_normal",
                                 "type": "2d",
                                 "attachment": "normal",
-                                "src": "../../assets/textures/femalebody_1_msn.png"
+                                "src": "../../assets/textures/femalebody/femalebody_1_msn.png"
                             },
                             {
                                 "name": "femalebody_specular",
                                 "type": "2d",
                                 "attachment": "specular",
-                                "src": "../../assets/textures/femalebody_1_s.png"
+                                "src": "../../assets/textures/femalebody/femalebody_1_s.png"
                             }
                         ],
                         "params": 
@@ -70,31 +70,31 @@
                 ]
             },
             {
-                "name": "nanosuit_obj",
+                "name": "gastank_obj",
                 "type": "static",
-                "src": "../../assets/meshes/nanosuit.obj",
+                "src": "../../assets/meshes/gastank.obj",
                 "materials": [
                     {
-                        "name": "nanosuit_material",
+                        "name": "gastank_material",
                         "type": "diffuse",
                         "textures": [
                             {
-                                "name": "nanosuit_diffuse",
+                                "name": "gastank_diffuse",
                                 "type": "2d",
                                 "attachment": "color",
-                                "src": "../../assets/textures/nanosuit/Body_diffuse.png"
+                                "src": "../../assets/textures/gastank/gastank_diffuse.png"
                             },
                             {
-                                "name": "nanosuit_normal",
+                                "name": "gastank_normal",
                                 "type": "2d",
                                 "attachment": "normal",
-                                "src": "../../assets/textures/nanosuit/Body_normal.png"
+                                "src": "../../assets/textures/gastank/gastank_normal.png"
                             },
                             {
-                                "name": "nanosuit_specular",
+                                "name": "gastank_specular",
                                 "type": "2d",
                                 "attachment": "specular",
-                                "src": "../../assets/textures/nanosuit/Body_specularGlossiness.png"
+                                "src": "../../assets/textures/gastank/gastank_roughness.png"
                             }
                         ],
                         "params": 

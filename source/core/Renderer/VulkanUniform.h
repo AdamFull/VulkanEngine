@@ -9,7 +9,17 @@ namespace Engine
         glm::mat4 model{};
         glm::mat4 view{};
         glm::mat4 projection{};
+        //glm::mat4 normalMatrix{};
+
         glm::vec4 lightPosition{};
+        glm::vec4 viewPosition{};
+    };
+
+    struct FLightData
+    {
+        glm::vec4 viewPosition{};
+        glm::vec4 lightPosition{};
+        glm::vec4 lightColor{};
     };
 
     struct FUniformDataUI 

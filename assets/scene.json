@@ -41,24 +41,24 @@
             "transform":
             {
                 "pos": {"x": 0.0, "y": 0.0, "z": 0.0},
-                "rot": {"x": 0.0, "y": 0.0, "z": 3.14159},
+                "rot": {"x": 0.0, "y": 0.0, "z": 0.0},
                 "scale": {"x": 1.0, "y": 1.0, "z": 1.0}
             }
         },
         {
-            "name": "nanosuit_mesh_component",
+            "name": "gastank_mesh_component",
             "type": "static_mesh",
             "resources": 
             {
                 "textures": [],
                 "materials": [],
-                "meshes": ["nanosuit_obj"]
+                "meshes": ["gastank_obj"]
             },
             "transform":
             {
                 "pos": {"x": 1.0, "y": 0.0, "z": 0.0},
-                "rot": {"x": 0.0, "y": 0.0, "z": 3.14159},
-                "scale": {"x": 0.1, "y": 0.1, "z": 0.1}
+                "rot": {"x": 0.0, "y": 0.0, "z": 6.28318},
+                "scale": {"x": 0.2, "y": 0.2, "z": 0.2}
             }
         },
         {
@@ -73,7 +73,7 @@
             "transform":
             {
                 "pos": {"x": 0.0, "y": 0.0, "z": 0.0},
-                "rot": {"x": 0.0, "y": 0.0, "z": 3.14159},
+                "rot": {"x": 0.0, "y": 0.0, "z": 6.28318},
                 "scale": {"x": 1.0, "y": 1.0, "z": 1.0}
             }
         }

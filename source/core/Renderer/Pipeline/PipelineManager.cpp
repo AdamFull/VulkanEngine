@@ -94,38 +94,21 @@ namespace Engine
 
     void PipelineManager::CreateDescriptorSetLayout(std::unique_ptr<Device>& device)
     {
-        vk::DescriptorSetLayoutBinding uboLayoutBinding{};
-        uboLayoutBinding.binding = 0;
-        uboLayoutBinding.descriptorType = vk::DescriptorType::eUniformBuffer;
-        uboLayoutBinding.descriptorCount = 1;
-        uboLayoutBinding.pImmutableSamplers = nullptr;
-        uboLayoutBinding.stageFlags = vk::ShaderStageFlagBits::eVertex;
-
-        vk::DescriptorSetLayoutBinding diffuseLayoutBinding{};
-        diffuseLayoutBinding.binding = 1;
-        diffuseLayoutBinding.descriptorCount = 1;
-        diffuseLayoutBinding.descriptorType = vk::DescriptorType::eCombinedImageSampler;
-        diffuseLayoutBinding.pImmutableSamplers = nullptr;
-        diffuseLayoutBinding.stageFlags = vk::ShaderStageFlagBits::eFragment;
-
-        vk::DescriptorSetLayoutBinding normalLayoutBinding{};
-        normalLayoutBinding.binding = 2;
-        normalLayoutBinding.descriptorCount = 1;
-        normalLayoutBinding.descriptorType = vk::DescriptorType::eCombinedImageSampler;
-        normalLayoutBinding.pImmutableSamplers = nullptr;
-        normalLayoutBinding.stageFlags = vk::ShaderStageFlagBits::eFragment;
-
-        vk::DescriptorSetLayoutBinding specularLayoutBinding{};
-        specularLayoutBinding.binding = 3;
-        specularLayoutBinding.descriptorCount = 1;
-        specularLayoutBinding.descriptorType = vk::DescriptorType::eCombinedImageSampler;
-        specularLayoutBinding.pImmutableSamplers = nullptr;
-        specularLayoutBinding.stageFlags = vk::ShaderStageFlagBits::eFragment;
-
-        std::array<vk::DescriptorSetLayoutBinding, 4> bindings = {uboLayoutBinding, diffuseLayoutBinding, normalLayoutBinding, specularLayoutBinding};
+        std::vector<vk::DescriptorSetLayoutBinding> vBindings;
+        for(size_t i = 0; i < 5; i++)
+        {
+            vk::DescriptorSetLayoutBinding binding;
+            binding.binding = i;
+            binding.descriptorType = (i == 0 ? vk::DescriptorType::eUniformBuffer : vk::DescriptorType::eCombinedImageSampler);
+            binding.descriptorCount = 1;
+            binding.pImmutableSamplers = nullptr;
+            binding.stageFlags = (i == 0 ? vk::ShaderStageFlagBits::eVertex : vk::ShaderStageFlagBits::eFragment);
+            vBindings.emplace_back(binding);
+        }
+        
         vk::DescriptorSetLayoutCreateInfo createInfo{};
-        createInfo.bindingCount = static_cast<uint32_t>(bindings.size());;
-        createInfo.pBindings = bindings.data();
+        createInfo.bindingCount = static_cast<uint32_t>(vBindings.size());;
+        createInfo.pBindings = vBindings.data();
 
         //TODO: check result
         auto result = device->GetLogical()->createDescriptorSetLayout(&createInfo, nullptr, &descriptorSetLayout);

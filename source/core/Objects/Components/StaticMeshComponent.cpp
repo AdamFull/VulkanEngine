@@ -6,6 +6,7 @@
 #include "Objects/Components/Camera/CameraComponent.h"
 #include "Objects/Components/Camera/CameraManager.h"
 #include "Resources/ResourceManager.h"
+#include "GlobalVariables.h"
 
 namespace Engine
 {
@@ -37,7 +38,10 @@ namespace Engine
         ubo.model = transform.GetModel();
         ubo.view = camera->GetView();
         ubo.projection = camera->GetProjection();
-        ubo.lightPosition = glm::vec4(camera->GetTransform().pos, 1.f);
+        //ubo.normalMatrix = glm::transpose(glm::inverse(ubo.model));
+
+        ubo.viewPosition = glm::vec4(camera->GetTransform().pos, 1.0);
+        ubo.lightPosition = glm::vec4(GlobalVariables::lightPosition[0], GlobalVariables::lightPosition[1], GlobalVariables::lightPosition[2], 1.0);
         m_pUniform->UpdateUniformBuffer(UDevice, imageIndex, ubo);
     }
 

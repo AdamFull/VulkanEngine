@@ -3,6 +3,7 @@
 #include <imgui.h>
 #include <Objects/Components/Camera/CameraComponent.h>
 #include <Objects/Components/Camera/CameraManager.h>
+#include <GlobalVariables.h>
 
 namespace Engine
 {
@@ -38,6 +39,11 @@ namespace Engine
             ImGui::Text("Camera");
             ImGui::InputFloat3("Position", (float*)position);
             ImGui::InputFloat3("Rotation", (float*)rotation);
+
+            ImGui::Text("Light");
+            ImGui::DragFloat3("Light pos", (float*)GlobalVariables::lightPosition, 0.01, -100.0, 100.0);
+            ImGui::DragFloat3("Light color", (float*)GlobalVariables::lightColor, 0.005, 0.0, 1.0);
+            //ImGui::InputFloat3("Light pos", (float*)GlobalVariables::lightPosition);
 
             ImGui::End();
         }

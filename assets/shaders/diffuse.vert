@@ -9,10 +9,8 @@ layout(location = 4) in vec3 inTangent;
 layout(location = 5) in vec3 inBinormal;
 
 layout(location = 0) out vec2 outTexCoord;
-layout(location = 1) out vec3 outLightVec;
-layout(location = 2) out vec3 outLightVecB;
-layout(location = 3) out vec3 outLightDir;
-layout(location = 4) out vec3 outViewVec;
+layout(location = 1) out vec3 outLightDir;
+layout(location = 2) out vec3 outHalfwayDir;
 
 layout(binding = 0) uniform FUniformData 
 {
@@ -26,8 +24,6 @@ layout(binding = 0) uniform FUniformData
 void main() 
 {
   vec3 fragPos = vec3(ubo.model * vec4(inPosition, 1.0));
-  outLightDir = normalize(ubo.lightPosition.xyz - fragPos);
-
   vec3 biTangent = cross(inNormal, inTangent);
 
   mat3 normal = transpose(inverse(mat3(ubo.model * ubo.view)));
@@ -37,14 +33,12 @@ void main()
 	tbn[1] =  mat3(normal) * biTangent;
 	tbn[2] =  mat3(normal) * inNormal;
 
-  outLightVec = vec3(ubo.lightPosition.xyz - fragPos) * tbn;
-
-  vec3 lightDist = ubo.lightPosition.xyz - inPosition;
-	outLightVecB.x = dot(inTangent, lightDist);
-	outLightVecB.y = dot(biTangent, lightDist);
-	outLightVecB.z = dot(inNormal, lightDist);
-
-  outViewVec = ubo.viewPosition.xyz * tbn;
+  fragPos = tbn * fragPos;
+  vec3 lightPos = tbn * ubo.lightPosition.xyz;
+  outLightDir = normalize(lightPos - fragPos);
+  vec3 viewPos = tbn * ubo.viewPosition.xyz;
+  vec3 viewDir = normalize(viewPos - fragPos);
+  outHalfwayDir = normalize(outLightDir + viewDir);
 
 	outTexCoord = inTexCoord;
 	gl_Position =  ubo.projection * ubo.model * ubo.view * vec4(inPosition, 1.0);

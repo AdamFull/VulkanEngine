@@ -10,7 +10,6 @@ namespace Engine
 
     const std::vector<const char *> VulkanStaticHelper::m_vValidationLayers =
         {
-            "VK_LAYER_OW_OVERLAY",
             "VK_LAYER_KHRONOS_validation"
         };
 

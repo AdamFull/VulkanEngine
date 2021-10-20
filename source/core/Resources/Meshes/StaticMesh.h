@@ -13,8 +13,6 @@ namespace Engine
         void Cleanup() override;
         void Destroy() override;
 
-        void CalcTangent();
-
         void Load(std::string srPath);
         
     };

@@ -100,6 +100,24 @@ target_include_directories( ${PROJECT_NAME} PRIVATE
 
 target_precompile_headers( ${PROJECT_NAME} PUBLIC ${CMAKE_CURRENT_SOURCE_DIR}/common.h)
 
+# Compile shaders
+set(SHADER_PATH ${CMAKE_CURRENT_SOURCE_DIR}/assets/shaders)
+file(GLOB_RECURSE VERT_SHADER_SOURCES ${SHADER_PATH}/*.vert)
+file(GLOB_RECURSE FRAG_SHADER_SOURCES ${SHADER_PATH}/*.frag)
+
+foreach(cur_path IN LISTS VERT_SHADER_SOURCES)
+	string(REPLACE ".vert" "_vert.spv" CURRENT_OUT_NAME ${cur_path})
+	add_custom_command(TARGET ${PROJECT_NAME} PRE_BUILD COMMAND glslangValidator.exe -V ${cur_path} -o ${CURRENT_OUT_NAME})
+	message(STATUS ${CURRENT_OUT_NAME})
+endforeach()
+
+foreach(cur_path IN LISTS FRAG_SHADER_SOURCES)
+	string(REPLACE ".frag" "_frag.spv" CURRENT_OUT_NAME ${cur_path})
+	add_custom_command(TARGET ${PROJECT_NAME} PRE_BUILD COMMAND glslangValidator.exe -V ${cur_path} -o ${CURRENT_OUT_NAME})
+	message(STATUS ${CURRENT_OUT_NAME})
+endforeach()
+
+
 # Define project properties
 set_property(TARGET ${PROJECT_NAME} PROPERTY RUNTIME_OUTPUT_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/bin)
 set_property(TARGET ${PROJECT_NAME} PROPERTY RUNTIME_OUTPUT_DIRECTORY_DEBUG ${CMAKE_CURRENT_SOURCE_DIR}/bin/debug)

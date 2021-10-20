@@ -84,7 +84,7 @@ namespace Engine
         RenderObject::Update(fDeltaTime);
 
         auto aspect = USwapChain->GetAspectRatio();
-        SetPerspectiveProjection(glm::radians(90.f), aspect, 0.001f, 50.f);
+        SetPerspectiveProjection(glm::radians(60.f), aspect, 0.001f, 50.f);
         SetViewYXZ(m_transform.pos, m_transform.rot);
     }
 }

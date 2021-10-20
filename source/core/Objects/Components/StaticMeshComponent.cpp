@@ -38,7 +38,7 @@ namespace Engine
         ubo.model = transform.GetModel();
         ubo.view = camera->GetView();
         ubo.projection = camera->GetProjection();
-        //ubo.normalMatrix = glm::transpose(glm::inverse(ubo.model));
+        ubo.normal = glm::transpose(glm::inverse(ubo.view * ubo.model));
 
         ubo.viewPosition = glm::vec4(camera->GetTransform().pos, 1.0);
         ubo.lightPosition = glm::vec4(GlobalVariables::lightPosition[0], GlobalVariables::lightPosition[1], GlobalVariables::lightPosition[2], 1.0);

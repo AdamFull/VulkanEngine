@@ -9,7 +9,7 @@ namespace Engine
         glm::mat4 model{};
         glm::mat4 view{};
         glm::mat4 projection{};
-        //glm::mat4 normalMatrix{};
+        glm::mat4 normal{};
 
         glm::vec4 lightPosition{};
         glm::vec4 viewPosition{};

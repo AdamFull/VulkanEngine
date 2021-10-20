@@ -4,3 +4,5 @@ build/
 assets/meshes/
 assets/textures/
 assets/shaders/*.spv
+assets/shaders/skybox/*.spv
+assets/shaders/pbr/*.spv

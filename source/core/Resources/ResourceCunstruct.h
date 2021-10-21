@@ -87,6 +87,7 @@ namespace Engine
         std::string srName;
         EMeshType eType;
         std::string srSrc;
+        bool bUseIncludedMaterial;
         std::vector<std::string> srAttachments;
         std::vector<FMaterialCreateInfo> vMaterials;
     };

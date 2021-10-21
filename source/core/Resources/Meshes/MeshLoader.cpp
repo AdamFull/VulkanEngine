@@ -39,6 +39,7 @@ namespace Engine
 
         std::unordered_map<Vertex, uint32_t> uniqueVertices{};
 
+        #pragma omp parallel for
         for (const auto &shape : shapes)
         {
             uint32_t i = 0;
@@ -143,6 +144,7 @@ namespace Engine
 
     void MeshLoader::CalculateTangents(std::vector<Vertex>& vertices, std::vector<uint32_t>& indices)
     {
+        #pragma omp parallel for
         for (int i = 0; i < vertices.size(); i++) 
         {
             vertices[i].tangent = glm::normalize(vertices[i].tangent);
@@ -153,5 +155,17 @@ namespace Engine
             T = glm::normalize(T - glm::dot(T, N) * N);
             B = glm::cross(N, T);
         }
+    }
+
+    glm::vec4 MeshLoader::GenerateNormal(const glm::vec4& a, const glm::vec4& b, const glm::vec4& c)
+    {
+    glm::vec4 p0(a);
+    glm::vec4 p1(b);
+    glm::vec4 p2(c);
+    glm::vec4 u = p1 - p0;
+    glm::vec4 v = p2 - p0;
+    glm::vec4 p = gmath::Vector::cross(u, v);
+    p = glm::normalize(p);
+    return (gmath::Point)p;
     }
 }

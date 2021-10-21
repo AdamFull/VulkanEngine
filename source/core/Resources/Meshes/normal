@@ -1,0 +1,29 @@
+gmath::Point Computer::generateNormal(const gmath::Point& a, const gmath::Point& b, const gmath::Point& c)
+{
+  gmath::Vector p0(a);
+  gmath::Vector p1(b);
+  gmath::Vector p2(c);
+  gmath::Vector u = p1 - p0;
+  gmath::Vector v = p2 - p0;
+  gmath::Vector p = gmath::Vector::cross(u, v);
+  p = gmath::Vector::Normalize(p);
+  return (gmath::Point)p;
+}
+
+template<typename T>
+T Computer::_genereateAverageNormal(T p)
+{
+  return p;
+}
+template<typename T, typename... Vertexs>
+T Computer::_genereateAverageNormal(T sum, Vertexs&... vert)
+{
+  return sum + _genereateAverageNormal(vert...);
+}
+template<typename T, typename ...Vertexs>
+T Computer::genereateAverageNormal(int c, T sum, Vertexs& ...vert)
+{
+  gmath::Point s = _genereateAverageNormal(sum, vert...);
+  s *= 1.f / c;
+  return s;
+}

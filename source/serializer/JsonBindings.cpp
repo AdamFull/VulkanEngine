@@ -197,6 +197,7 @@ namespace Engine
             {"type", type.eType},
             {"src", type.srSrc},
             {"attachments", type.srAttachments},
+            {"use_included_material", type.bUseIncludedMaterial},
             {"materials", {type.vMaterials}}
         };
     }
@@ -214,6 +215,10 @@ namespace Engine
         //Required
         if(json.find("src") != json.end())
             json.at("src").get_to(type.srSrc);
+
+        //Optional
+        if(json.find("use_included_material") != json.end())
+            json.at("use_included_material").get_to(type.bUseIncludedMaterial);
 
         //Optional
         if(json.find("attachments") != json.end())

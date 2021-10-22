@@ -35,19 +35,19 @@ namespace Engine
 
     struct FNoiseParam
     {
-        ENoisePattern pattern;
-        uint32_t width;
-        uint32_t height;
-        uint32_t depth;
+        ENoisePattern pattern{};
+        uint32_t width{0};
+        uint32_t height{0};
+        uint32_t depth{0};
     };
 
     struct FTextureCreateInfo
     {
-        std::string srName;
-        ETextureType eType;
-        ETextureAttachmentType eAttachment;
-        std::string srSrc;
-        FNoiseParam noise;
+        std::string srName{};
+        ETextureType eType{};
+        ETextureAttachmentType eAttachment{};
+        std::string srSrc{};
+        FNoiseParam noise{};
     };
 
     enum class EMaterialType
@@ -68,11 +68,12 @@ namespace Engine
 
     struct FMaterialCreateInfo
     {
-        std::string srName;
-        EMaterialType eType;
-        std::vector<std::string> srAttachments;
-        std::vector<FTextureCreateInfo> vTextures;
-        FMaterialParams fParams;
+        std::string srName{};
+        std::string srPrimitive{};
+        EMaterialType eType{};
+        std::vector<std::string> srAttachments{};
+        std::vector<FTextureCreateInfo> vTextures{};
+        FMaterialParams fParams{};
     };
  
     enum class EMeshType
@@ -84,11 +85,10 @@ namespace Engine
 
     struct FMeshCreateInfo
     {
-        std::string srName;
-        EMeshType eType;
-        std::string srSrc;
-        bool bUseIncludedMaterial;
-        std::vector<std::string> srAttachments;
-        std::vector<FMaterialCreateInfo> vMaterials;
+        std::string srName{};
+        EMeshType eType{};
+        std::string srSrc{};
+        bool bUseIncludedMaterial{false};
+        std::vector<FMaterialCreateInfo> vMaterials{};
     };
 }

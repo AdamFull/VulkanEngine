@@ -169,6 +169,10 @@ namespace Engine
         //Required
         if(json.find("name") != json.end())
             json.at("name").get_to(type.srName);
+        
+        //Required
+        if(json.find("primitive") != json.end())
+            json.at("primitive").get_to(type.srPrimitive);
 
         //Required
         if(json.find("type") != json.end())
@@ -196,7 +200,6 @@ namespace Engine
             {"name", type.srName},
             {"type", type.eType},
             {"src", type.srSrc},
-            {"attachments", type.srAttachments},
             {"use_included_material", type.bUseIncludedMaterial},
             {"materials", {type.vMaterials}}
         };
@@ -220,15 +223,14 @@ namespace Engine
         if(json.find("use_included_material") != json.end())
             json.at("use_included_material").get_to(type.bUseIncludedMaterial);
 
-        //Optional
-        if(json.find("attachments") != json.end())
-            json.at("attachments").get_to(type.srAttachments);
+        if(!type.bUseIncludedMaterial)
+        {
+            //Optional
+            if(json.find("materials") != json.end())
+                json.at("materials").get_to(type.vMaterials);
 
-        //Optional
-        if(json.find("materials") != json.end())
-            json.at("materials").get_to(type.vMaterials);
-
-        assert((json.find("attachments") != json.end() || json.find("materials") != json.end()) && "Cannot create mesh without materials");
+            assert(json.find("materials") != json.end() && "Cannot create mesh without materials");
+        }
     }
 
     /*SCENE*/

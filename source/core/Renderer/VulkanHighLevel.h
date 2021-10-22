@@ -8,6 +8,7 @@
 #define USwapChain UHLInstance->GetSwapChain()
 #define UUniform UHLInstance->GetUniformBuffer()
 #define URenderer UHLInstance->GetRenderer()
+#define UVBO UHLInstance->GetVBO()
 
 namespace Engine
 {
@@ -15,6 +16,7 @@ namespace Engine
     class SwapChain;
     class VulkanBuffer;
     class Renderer;
+    class VulkanVBO;
 
     struct FEngineCreateInfo
     {
@@ -60,6 +62,7 @@ namespace Engine
         inline std::unique_ptr<SwapChain>& GetSwapChain() { return m_pSwapChain; }
         inline std::unique_ptr<UniformBuffer<FUniformData>>&  GetUniformBuffer() { return m_pUniform; }
         inline std::unique_ptr<Renderer>&  GetRenderer() { return m_pRenderer; }
+        inline std::unique_ptr<VulkanVBO>&  GetVBO() { return m_pVertexBufferObject; }
     private:
         void RecreateSwapChain();
         void CleanupSwapChain();
@@ -75,5 +78,7 @@ namespace Engine
         std::unique_ptr<UniformBuffer<FUniformData>> m_pUniform;
 
         std::unique_ptr<Renderer> m_pRenderer;
+
+        std::unique_ptr<VulkanVBO> m_pVertexBufferObject;
     };
 }

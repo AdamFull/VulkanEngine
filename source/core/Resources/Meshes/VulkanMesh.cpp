@@ -7,87 +7,65 @@ namespace Engine
 {
     void MeshBase::Create()
     {
-        if(!vertices.empty())
-        CreateVertexBuffer();
-        if(!indices.empty())
-        CreateIndexBuffer();
     }
 
-    void MeshBase::AddMaterial(std::shared_ptr<MaterialBase> material)
+    void MeshBase::AddPrimitive(std::string srPrimitiveName, Primitive&& primitive)
     {
-        vMaterials.emplace_back(material);
+        auto it = m_mPrimitives.find(srPrimitiveName);
+        if(it != m_mPrimitives.end())
+            assert(false && "Primitive with name: already exists!");
+        else
+            m_mPrimitives.emplace(srPrimitiveName, primitive);
+    }
+
+    void MeshBase::SetMaterial(std::string srPrimitiveName, std::shared_ptr<MaterialBase> material)
+    {
+        auto it = m_mPrimitives.find(srPrimitiveName);
+        if(it != m_mPrimitives.end())
+            it->second.material = material;
+        else
+            assert(false && "Primitive for material was not found");
     }
 
     void MeshBase::ReCreate()
     {
         ResourceBase::ReCreate();
-        vMaterials.front()->ReCreate();
+        for(auto& [name, primitive] : m_mPrimitives)
+        {
+            primitive.material->ReCreate();
+        }
     }
 
     void MeshBase::Update(uint32_t imageIndex, std::unique_ptr<VulkanBuffer>& pUniformBuffer)
     {
         ResourceBase::Update(imageIndex, pUniformBuffer);
-        vMaterials.front()->Update(imageIndex, pUniformBuffer);
+        for(auto& [name, primitive] : m_mPrimitives)
+        {
+            primitive.material->Update(imageIndex, pUniformBuffer);
+        }
     }
 
     void MeshBase::Bind(vk::CommandBuffer commandBuffer, uint32_t imageIndex)
     {
         ResourceBase::Bind(commandBuffer, imageIndex);
-        vMaterials.front()->Bind(commandBuffer, imageIndex);
-
-        vk::Buffer vertexBuffers[] = {vertexBuffer->GetBuffer()};
-        vk::DeviceSize offsets[] = {0};
-        commandBuffer.bindVertexBuffers(0, 1, vertexBuffers, offsets);
-        commandBuffer.bindIndexBuffer(indexBuffer->GetBuffer(), 0, vk::IndexType::eUint32);
-        //Draw
-        commandBuffer.drawIndexed(static_cast<uint32_t>(indices.size()), 1, 0, 0, 0);
+        for(auto& [name, primitive] : m_mPrimitives)
+        {
+            primitive.material->Bind(commandBuffer, imageIndex);
+            commandBuffer.drawIndexed(primitive.indexCount, 1, primitive.firstIndex, 0, 0);
+        }
     }
 
     void MeshBase::Cleanup()
     {
         ResourceBase::Cleanup();
-        vMaterials.front()->Cleanup();
+        for(auto& [name, primitive] : m_mPrimitives)
+        {
+            primitive.material->Cleanup();
+        }
     }
 
     void MeshBase::Destroy()
     {
         ResourceBase::Destroy();
-
-        vertexBuffer->Destroy(UDevice);
-        indexBuffer->Destroy(UDevice);
-    }
-
-    void MeshBase::CreateVertexBuffer()
-    {
-        vk::DeviceSize bufferSize = sizeof(vertices[0]) * vertices.size();
-        uint32_t vertexSize = sizeof(vertices[0]);
-
-        VulkanBuffer stagingBuffer;
-        stagingBuffer.Create(UDevice, vertexSize, vertices.size(), vk::BufferUsageFlagBits::eTransferSrc, vk::MemoryPropertyFlagBits::eHostVisible | vk::MemoryPropertyFlagBits::eHostCoherent);
-        stagingBuffer.MapMem(UDevice);
-        stagingBuffer.Write(UDevice, (void*)vertices.data());
-
-        vertexBuffer = std::make_unique<VulkanBuffer>();
-        vertexBuffer->Create(UDevice, vertexSize, vertices.size(), vk::BufferUsageFlagBits::eTransferDst | vk::BufferUsageFlagBits::eVertexBuffer, vk::MemoryPropertyFlagBits::eDeviceLocal);
-        UDevice->CopyOnDeviceBuffer(stagingBuffer.GetBuffer(), vertexBuffer->GetBuffer(), bufferSize);
-
-        stagingBuffer.Destroy(UDevice);
-    }
-
-    void MeshBase::CreateIndexBuffer()
-    {
-        vk::DeviceSize bufferSize = sizeof(indices[0]) * indices.size();
-        uint32_t indexSize = sizeof(indices[0]);
-
-        VulkanBuffer stagingBuffer;
-        stagingBuffer.Create(UDevice, indexSize, indices.size(), vk::BufferUsageFlagBits::eTransferSrc, vk::MemoryPropertyFlagBits::eHostVisible | vk::MemoryPropertyFlagBits::eHostCoherent);
-        stagingBuffer.MapMem(UDevice);
-        stagingBuffer.Write(UDevice, (void*)indices.data());
-
-        indexBuffer = std::make_unique<VulkanBuffer>();
-        indexBuffer->Create(UDevice, indexSize, indices.size(), vk::BufferUsageFlagBits::eTransferDst | vk::BufferUsageFlagBits::eIndexBuffer, vk::MemoryPropertyFlagBits::eDeviceLocal);
-        UDevice->CopyOnDeviceBuffer(stagingBuffer.GetBuffer(), indexBuffer->GetBuffer(), bufferSize);
-
-        stagingBuffer.Destroy(UDevice);
     }
 }

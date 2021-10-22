@@ -32,11 +32,4 @@ namespace Engine
     {
         MeshBase::Destroy();
     }
-
-
-    //Static mesh
-    void StaticMesh::Load(std::string srPath)
-    {
-        MeshLoader::Load(srPath, vertices, indices);
-    }
 }

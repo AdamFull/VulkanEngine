@@ -19,6 +19,7 @@
                 [
                     {
                         "name": "skybox_cubemap_mat",
+                        "primitive": "cube",
                         "type": "skybox",
                         "textures": 
                         [
@@ -36,6 +37,7 @@
                 "name": "femalebody_obj",
                 "type": "static",
                 "src": "../../assets/meshes/femalebody.obj",
+                "use_included_material": true,
                 "materials": [
                     {
                         "name": "femalebody_material",
@@ -70,43 +72,6 @@
                 ]
             },
             {
-                "name": "gastank_obj",
-                "type": "static",
-                "src": "../../assets/meshes/gastank.obj",
-                "materials": [
-                    {
-                        "name": "gastank_material",
-                        "type": "diffuse",
-                        "textures": [
-                            {
-                                "name": "gastank_diffuse",
-                                "type": "2d",
-                                "attachment": "color",
-                                "src": "../../assets/textures/gastank/gastank_diffuse.png"
-                            },
-                            {
-                                "name": "gastank_normal",
-                                "type": "2d",
-                                "attachment": "normal",
-                                "src": "../../assets/textures/gastank/gastank_normal.png"
-                            },
-                            {
-                                "name": "gastank_specular",
-                                "type": "2d",
-                                "attachment": "specular",
-                                "src": "../../assets/textures/gastank/gastank_roughness.png"
-                            }
-                        ],
-                        "params": 
-                        {
-                            "cutoff": 1.0,
-                            "metalic": 1.0,
-                            "roughness": 1.0
-                        }
-                    }
-                ]
-            },
-            {
                 "name": "floor_obj",
                 "type": "static",
                 "src": "../../assets/meshes/plane.obj",
@@ -114,6 +79,7 @@
                 [
                     {
                         "name": "floor_diffuse_mat",
+                        "primitive": "Cube",
                         "type": "diffuse",
                         "textures": 
                         [

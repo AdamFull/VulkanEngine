@@ -1,4 +1,8 @@
 #include "MeshLoader.h"
+#include "Renderer/VulkanVBO.h"
+#include "Renderer/VulkanHighLevel.h"
+#include "Resources/Meshes/VulkanMesh.h"
+#include "Resources/Materials/MaterialFactory.h"
 #include <filesystem>
 namespace fs = std::filesystem;
 
@@ -7,41 +11,51 @@ namespace fs = std::filesystem;
 
 namespace Engine
 {
-    bool MeshLoader::Load(std::string srPath, std::vector<Vertex>& vertices, std::vector<uint32_t>& indices, bool bLoadMaterial)
+    bool MeshLoader::Load(std::string srPath, std::shared_ptr<ResourceManager> pResourceManager, std::shared_ptr<MeshBase> pMesh, bool bLoadMaterial)
     {
         fs::path filepath{srPath};
 
         if(filepath.extension() == ".obj")
-            return LoadObj(srPath, vertices, indices, bLoadMaterial);
+            return LoadObj(srPath, pResourceManager, pMesh, bLoadMaterial);
         else if(filepath.extension() == ".nif")
-            return LoadNif(srPath, vertices, indices, bLoadMaterial);
+            return LoadNif(srPath, pResourceManager, pMesh, bLoadMaterial);
         else if(filepath.extension() == ".fbx")
-            return LoadFbx(srPath, vertices, indices, bLoadMaterial);
+            return LoadFbx(srPath, pResourceManager, pMesh, bLoadMaterial);
         else if(filepath.extension() == ".stl")
-            return LoadStl(srPath, vertices, indices, bLoadMaterial);
+            return LoadStl(srPath, pResourceManager, pMesh, bLoadMaterial);
         else if(filepath.extension() == ".gltf")
-            return LoadGltf(srPath, vertices, indices, bLoadMaterial);
+            return LoadGltf(srPath, pResourceManager, pMesh, bLoadMaterial);
 
         return false;
     }
 
-    bool MeshLoader::LoadObj(std::string srPath, std::vector<Vertex>& vertices, std::vector<uint32_t>& indices, bool bLoadMaterial)
+    bool MeshLoader::LoadObj(std::string srPath, std::shared_ptr<ResourceManager> pResourceManager, std::shared_ptr<MeshBase> pMesh, bool bLoadMaterial)
     {
         tinyobj::attrib_t attrib;
         std::vector<tinyobj::shape_t> shapes;
         std::vector<tinyobj::material_t> materials;
         std::string warn, err;
 
+        //UVBO->GetLastIndex()
+
         if (!tinyobj::LoadObj(&attrib, &shapes, &materials, &warn, &err, srPath.c_str()))
         {
             throw std::runtime_error(warn + err);
         }
 
+        std::cout << warn << std::endl;
         std::unordered_map<Vertex, uint32_t> uniqueVertices{};
 
         #pragma omp parallel for
-        for (const auto &shape : shapes)
+        for (size_t shape_index = 0; shape_index < shapes.size(); shape_index++) //const auto &shape : shapes
         {
+            std::vector<Vertex> vertices;
+            std::vector<uint32_t> indices;
+            auto& shape = shapes[shape_index];
+
+            Primitive primitive;
+            primitive.firstIndex = UVBO->GetLastIndex();
+            primitive.firstVertex = UVBO->GetLastVertex();
             uint32_t i = 0;
             for (const auto &index : shape.mesh.indices)
             {
@@ -117,32 +131,69 @@ namespace Engine
                     v2.binormal += TB[1];
                 }
             }
+
+            CalculateTangents(vertices, indices);
+            primitive.indexCount = indices.size();
+            primitive.vertexCount = indices.size();
+
+            if(bLoadMaterial)
+            {
+                // TODO: Create adapters
+                auto& material = materials[i];
+                FTextureCreateInfo textureDiffuse{};
+                textureDiffuse.srName = shape.name + "_diffuse";
+                textureDiffuse.eType = ETextureType::e2D;
+                textureDiffuse.eAttachment = ETextureAttachmentType::eColor;
+                textureDiffuse.srSrc = material.diffuse_texname;
+
+                FTextureCreateInfo textureNormal{};
+                textureNormal.srName = shape.name + "_normal";
+                textureNormal.eType = ETextureType::e2D;
+                textureNormal.eAttachment = ETextureAttachmentType::eNormal;
+                textureNormal.srSrc = material.normal_texname;
+
+                FTextureCreateInfo textureSpecular{};
+                textureSpecular.srName = shape.name + "_specular";
+                textureSpecular.eType = ETextureType::e2D;
+                textureSpecular.eAttachment = ETextureAttachmentType::eSpecular;
+                textureSpecular.srSrc = material.specular_texname;
+
+                FMaterialCreateInfo materialInfo{};
+                materialInfo.srName = shape.name + "_material";
+                materialInfo.eType = EMaterialType::eDiffuse;
+                materialInfo.vTextures = {textureDiffuse, textureNormal, textureSpecular};
+
+                primitive.material = MaterialFactory::Create(pResourceManager, materialInfo);
+            }
+            
+            UVBO->AddMeshData(std::move(vertices), std::move(indices));
+            pMesh->AddPrimitive(shape.name, std::move(primitive));
         }
-        CalculateTangents(vertices, indices);
+        
         return true;
     }
 
-    bool MeshLoader::LoadNif(std::string srPath, std::vector<Vertex>& vertices, std::vector<uint32_t>& indices, bool bLoadMaterial)
+    bool MeshLoader::LoadNif(std::string srPath, std::shared_ptr<ResourceManager> pResourceManager, std::shared_ptr<MeshBase> pMesh, bool bLoadMaterial)
     {
         return true;
     }
 
-    bool MeshLoader::LoadFbx(std::string srPath, std::vector<Vertex>& vertices, std::vector<uint32_t>& indices, bool bLoadMaterial)
+    bool MeshLoader::LoadFbx(std::string srPath, std::shared_ptr<ResourceManager> pResourceManager, std::shared_ptr<MeshBase> pMesh, bool bLoadMaterial)
     {
         return true;
     }
 
-    bool MeshLoader::LoadStl(std::string srPath, std::vector<Vertex>& vertices, std::vector<uint32_t>& indices, bool bLoadMaterial)
+    bool MeshLoader::LoadStl(std::string srPath, std::shared_ptr<ResourceManager> pResourceManager, std::shared_ptr<MeshBase> pMesh, bool bLoadMaterial)
     {
         return true;
     }
 
-    bool MeshLoader::LoadGltf(std::string srPath, std::vector<Vertex>& vertices, std::vector<uint32_t>& indices, bool bLoadMaterial)
+    bool MeshLoader::LoadGltf(std::string srPath, std::shared_ptr<ResourceManager> pResourceManager, std::shared_ptr<MeshBase> pMesh, bool bLoadMaterial)
     {
         return true;
     }
 
-    void MeshLoader::CalculateTangents(std::vector<Vertex>& vertices, std::vector<uint32_t>& indices)
+    void MeshLoader::CalculateTangents(std::vector<Vertex>& vertices, std::vector<uint32_t> indices)
     {
         #pragma omp parallel for
         for (int i = 0; i < vertices.size(); i++) 
@@ -157,15 +208,8 @@ namespace Engine
         }
     }
 
-    glm::vec4 MeshLoader::GenerateNormal(const glm::vec4& a, const glm::vec4& b, const glm::vec4& c)
+    glm::vec4 MeshLoader::GenerateNormals(std::vector<Vertex>& vertices, std::vector<uint32_t> indices)
     {
-    glm::vec4 p0(a);
-    glm::vec4 p1(b);
-    glm::vec4 p2(c);
-    glm::vec4 u = p1 - p0;
-    glm::vec4 v = p2 - p0;
-    glm::vec4 p = gmath::Vector::cross(u, v);
-    p = glm::normalize(p);
-    return (gmath::Point)p;
+        return glm::vec4{};
     }
 }

@@ -12,8 +12,5 @@ namespace Engine
         void Bind(vk::CommandBuffer commandBuffer, uint32_t imageIndex) override;
         void Cleanup() override;
         void Destroy() override;
-
-        void Load(std::string srPath);
-        
     };
 }

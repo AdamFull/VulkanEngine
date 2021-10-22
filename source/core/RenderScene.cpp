@@ -4,6 +4,7 @@
 #include "Objects/Components/StaticMeshComponent.h"
 #include "Renderer/VulkanDevice.h"
 #include "Renderer/VulkanRenderer.h"
+#include "Renderer/VulkanVBO.h"
 #include "Renderer/VulkanBuffer.h"
 #include "Renderer/VulkanHighLevel.h"
 #include "KeyMapping/InputMapper.h"
@@ -59,6 +60,7 @@ namespace Engine
     {
         m_pSkybox->Create(m_pResourceManager);
         m_pRoot->Create(m_pResourceManager);
+        UVBO->Create(UDevice);
     }
 
     void RenderScene::Render(float fDeltaTime)
@@ -80,6 +82,7 @@ namespace Engine
 
         UHLInstance->BeginRender(commandBuffer);
 
+        UVBO->Bind(commandBuffer);
         m_pSkybox->Render(commandBuffer, currentFrame);
         m_pRoot->Render(commandBuffer, currentFrame);
 

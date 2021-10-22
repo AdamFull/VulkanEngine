@@ -4,6 +4,7 @@
 #include "VulkanUniform.h"
 #include "VulkanBuffer.h"
 #include "VulkanRenderer.h"
+#include "VulkanVBO.h"
 #include "VulkanStaticHelper.h"
 #include "Pipeline/PipelineManager.h"
 
@@ -32,6 +33,7 @@ namespace Engine
         m_pSwapChain = std::make_unique<SwapChain>();
         m_pUniform = std::make_unique<UniformBuffer<FUniformData>>();
         m_pRenderer = std::make_unique<Renderer>();
+        m_pVertexBufferObject = std::make_unique<VulkanVBO>();
 
         m_pWinHandle->Create(createInfo.window);
 
@@ -124,6 +126,7 @@ namespace Engine
         UPipelineMGR->Destroy(m_pDevice);
         m_pRenderer->Destroy(m_pDevice);
         m_pSwapChain->Destroy(m_pDevice);
+        m_pVertexBufferObject->Destroy(m_pDevice);
         m_pDevice->Cleanup();
     }
 }

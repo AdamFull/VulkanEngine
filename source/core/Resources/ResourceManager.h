@@ -1,10 +1,13 @@
 #pragma once
 #include "ResourceCunstruct.h"
-#include "ResourceFactory.h"
 
 #include "Textures/VulkanTexture.h"
 #include "Materials/VulkanMaterial.h"
 #include "Meshes/VulkanMesh.h"
+
+#include "Textures/TextureFactory.h"
+#include "Materials/MaterialFactory.h"
+#include "Meshes/MeshFactory.h"
 
 namespace Engine
 {
@@ -50,9 +53,9 @@ namespace Engine
         }
 
         template<>
-        std::shared_ptr<TextureBase> Add(FTextureCreateInfo info)
+        std::shared_ptr<TextureBase> ResourceManager::Add(FTextureCreateInfo info)
         {
-            std::shared_ptr<TextureBase> texture = ResourceFactory::CreateTexture(shared_from_this(), info);
+            std::shared_ptr<TextureBase> texture = TextureFactory::Create(shared_from_this(), info);
             AddExisting(info.srName, texture);
             return nullptr;
         }
@@ -86,9 +89,9 @@ namespace Engine
         }
 
         template<>
-        std::shared_ptr<MaterialBase> Add(FMaterialCreateInfo info)
+        std::shared_ptr<MaterialBase> ResourceManager::Add(FMaterialCreateInfo info)
         {
-            std::shared_ptr<MaterialBase> material = ResourceFactory::CreateMaterial(shared_from_this(), info);
+            std::shared_ptr<MaterialBase> material = MaterialFactory::Create(shared_from_this(), info);
             AddExisting(info.srName, material);
             return nullptr;
         }
@@ -122,9 +125,9 @@ namespace Engine
         }
 
         template<>
-        std::shared_ptr<MeshBase> Add(FMeshCreateInfo info)
+        std::shared_ptr<MeshBase> ResourceManager::Add(FMeshCreateInfo info)
         {
-            std::shared_ptr<MeshBase> mesh = ResourceFactory::CreateMesh(shared_from_this(), info);
+            std::shared_ptr<MeshBase> mesh = MeshFactory::Create(shared_from_this(), info);
             AddExisting(info.srName, mesh);
             return nullptr;
         }

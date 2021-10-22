@@ -5,32 +5,38 @@
 
 namespace Engine
 {
+    void Primitive::setDimensions(glm::vec3 min, glm::vec3 max) 
+    {
+        dimensions.min = min;
+        dimensions.max = max;
+        dimensions.size = max - min;
+        dimensions.center = (min + max) / 2.0f;
+        dimensions.radius = glm::distance(min, max) / 2.0f;
+    }
+
     void MeshBase::Create()
     {
     }
 
-    void MeshBase::AddPrimitive(std::string srPrimitiveName, Primitive&& primitive)
+    void MeshBase::AddPrimitive(Primitive&& primitive)
     {
-        auto it = m_mPrimitives.find(srPrimitiveName);
-        if(it != m_mPrimitives.end())
-            assert(false && "Primitive with name: already exists!");
-        else
-            m_mPrimitives.emplace(srPrimitiveName, primitive);
+        m_vPrimitives.emplace_back(primitive);
     }
 
-    void MeshBase::SetMaterial(std::string srPrimitiveName, std::shared_ptr<MaterialBase> material)
+    void MeshBase::SetMaterial(std::shared_ptr<MaterialBase> material)
     {
-        auto it = m_mPrimitives.find(srPrimitiveName);
-        if(it != m_mPrimitives.end())
+        /*auto it = m_vPrimitives.find(srPrimitiveName);
+        std::find(m_vPrimitives.begin(), m_vPrimitives.end(), )
+        if(it != m_vPrimitives.end())
             it->second.material = material;
         else
-            assert(false && "Primitive for material was not found");
+            assert(false && "Primitive for material was not found");*/
     }
 
     void MeshBase::ReCreate()
     {
         ResourceBase::ReCreate();
-        for(auto& [name, primitive] : m_mPrimitives)
+        for(auto& primitive : m_vPrimitives)
         {
             primitive.material->ReCreate();
         }
@@ -39,7 +45,7 @@ namespace Engine
     void MeshBase::Update(uint32_t imageIndex, std::unique_ptr<VulkanBuffer>& pUniformBuffer)
     {
         ResourceBase::Update(imageIndex, pUniformBuffer);
-        for(auto& [name, primitive] : m_mPrimitives)
+        for(auto& primitive : m_vPrimitives)
         {
             primitive.material->Update(imageIndex, pUniformBuffer);
         }
@@ -48,7 +54,7 @@ namespace Engine
     void MeshBase::Bind(vk::CommandBuffer commandBuffer, uint32_t imageIndex)
     {
         ResourceBase::Bind(commandBuffer, imageIndex);
-        for(auto& [name, primitive] : m_mPrimitives)
+        for(auto& primitive : m_vPrimitives)
         {
             primitive.material->Bind(commandBuffer, imageIndex);
             commandBuffer.drawIndexed(primitive.indexCount, 1, primitive.firstIndex, 0, 0);
@@ -58,7 +64,7 @@ namespace Engine
     void MeshBase::Cleanup()
     {
         ResourceBase::Cleanup();
-        for(auto& [name, primitive] : m_mPrimitives)
+        for(auto& primitive : m_vPrimitives)
         {
             primitive.material->Cleanup();
         }

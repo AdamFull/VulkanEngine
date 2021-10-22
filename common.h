@@ -18,6 +18,7 @@
 #include <glm/gtc/matrix_transform.hpp>
 #include <glm/gtx/hash.hpp>
 #include <glm/gtx/matrix_operation.hpp>
+#include <glm/gtc/type_ptr.hpp>
 
 #include "external/EasyDelegate/EasyDelegateImpl.hpp"
 

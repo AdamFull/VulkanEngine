@@ -36,6 +36,8 @@ namespace Engine
         //Destroy objects( deleting );
         virtual void Destroy();
 
+        virtual inline void SetName(std::string srName) { m_srName = srName; }
+
         virtual std::shared_ptr<RenderObject> Find(std::string srName);
 
         virtual const glm::vec3 GetForwardVector();

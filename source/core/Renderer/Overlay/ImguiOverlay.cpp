@@ -112,7 +112,7 @@ namespace Engine
         fontMaterial->AddTexture(ETextureAttachmentType::eColor, fontTexture);
         fontMaterial->Create();
 
-        ImageLoader::CloseImage(&texture);
+        ImageLoader::Close(&texture);
     }
 
     void ImguiOverlay::NewFrame()

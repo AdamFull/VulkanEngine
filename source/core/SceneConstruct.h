@@ -1,5 +1,6 @@
 #pragma once
 #include "Objects/Transform.h"
+#include "Resources/ResourceCunstruct.h"
 
 namespace Engine
 {
@@ -7,28 +8,21 @@ namespace Engine
     {
         eCamera,
         eSkybox,
-        eMeshComponent
-    };
-
-    struct FSceneObjectResourceBindings
-    {
-        std::vector<std::string> vTextures;
-        std::vector<std::string> vMaterials;
-        std::vector<std::string> vMeshes;
+        eMeshComponent,
+        eGltfMesh
     };
 
     struct FSceneObject
     {
         std::string srName;
         ESceneObjectType eObjectType;
-        FSceneObjectResourceBindings resourceBindings;
+        FMeshCreateInfo mesh;
         FTransform fTransform;
         std::vector<FSceneObject> vSceneObjects;
     };
 
     struct FSceneCreateInfo
     {
-        std::string resources_path;
         FSceneObject skybox;
         std::vector<FSceneObject> vSceneObjects;
     };

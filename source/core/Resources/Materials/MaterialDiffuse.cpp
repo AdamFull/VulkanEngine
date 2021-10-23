@@ -43,7 +43,25 @@ namespace Engine
         descriptorWrites[0].descriptorCount = 1;
         descriptorWrites[0].pBufferInfo = &bufferInfo;
 
-        descriptorWrites[1].dstSet = descriptorSet;
+        for(uint32_t i = 1; i < 4; i++)
+        {
+            auto binding = m_mTextureBindings[i];
+            auto it = m_mTextures.find(binding);
+            std::shared_ptr<TextureBase> texture;
+            if(it != m_mTextures.end())
+                texture = it->second;
+            else
+                texture = m_mTextures[ETextureAttachmentType::eEmpty];
+
+            descriptorWrites[i].dstSet = descriptorSet;
+            descriptorWrites[i].dstBinding = i;
+            descriptorWrites[i].dstArrayElement = 0;
+            descriptorWrites[i].descriptorType = vk::DescriptorType::eCombinedImageSampler;
+            descriptorWrites[i].descriptorCount = 1;
+            descriptorWrites[i].pImageInfo = &texture->GetDescriptor();
+        }
+
+        /*descriptorWrites[1].dstSet = descriptorSet;
         descriptorWrites[1].dstBinding = 1;
         descriptorWrites[1].dstArrayElement = 0;
         descriptorWrites[1].descriptorType = vk::DescriptorType::eCombinedImageSampler;
@@ -62,7 +80,7 @@ namespace Engine
         descriptorWrites[3].dstArrayElement = 0;
         descriptorWrites[3].descriptorType = vk::DescriptorType::eCombinedImageSampler;
         descriptorWrites[3].descriptorCount = 1;
-        descriptorWrites[3].pImageInfo = &m_mTextures[ETextureAttachmentType::eSpecular]->GetDescriptor();
+        descriptorWrites[3].pImageInfo = &m_mTextures[ETextureAttachmentType::eSpecular]->GetDescriptor();*/
 
         UDevice->GetLogical()->updateDescriptorSets(static_cast<uint32_t>(descriptorWrites.size()), descriptorWrites.data(), 0, nullptr);
     }

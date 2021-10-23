@@ -4,7 +4,6 @@
 #include "MeshLoader.h"
 
 #include "StaticMesh.h"
-#include "GLTFMesh.h"
 
 namespace Engine
 {
@@ -47,7 +46,7 @@ namespace Engine
             {
                 std::shared_ptr<MaterialBase> material = MaterialFactory::Create(resourceMgr, matInfo);
                 resourceMgr->AddExisting<MaterialBase>(matInfo.srName, material);
-                mesh->SetMaterial(matInfo.srPrimitive, material);
+                mesh->SetMaterial(material);
             }
         }
         return mesh;

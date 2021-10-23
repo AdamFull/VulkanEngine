@@ -127,7 +127,7 @@ namespace Engine
             json.at("noise").get_to(type.noise);
     }
 
-    void to_json(nlohmann::json &json, const const FMaterialParams &type)
+    void to_json(nlohmann::json &json, const const FMaterialParamsInfo &type)
     {
         json = nlohmann::json
         {
@@ -137,7 +137,7 @@ namespace Engine
         };
     }
 
-    void from_json(const nlohmann::json &json, FMaterialParams &type)
+    void from_json(const nlohmann::json &json, FMaterialParamsInfo &type)
     {
         //Optional
         if(json.find("cutoff") != json.end())
@@ -157,6 +157,7 @@ namespace Engine
         json = nlohmann::json
         {
             {"name", type.srName},
+            {"primitive", type.srPrimitive},
             {"type", type.eType},
             {"attachments", type.srAttachments},
             {"textures", {type.vTextures}},
@@ -238,7 +239,8 @@ namespace Engine
     {
         {ESceneObjectType::eCamera, "camera"},
         {ESceneObjectType::eSkybox, "skybox"},
-        {ESceneObjectType::eMeshComponent, "static_mesh"}
+        {ESceneObjectType::eMeshComponent, "static_mesh"},
+        {ESceneObjectType::eGltfMesh, "gltf_mesh"}
     })
 
     void to_json(nlohmann::json &json, const FTransform &type)
@@ -266,38 +268,13 @@ namespace Engine
             json.at("scale").get_to(type.scale);
     }
 
-    void to_json(nlohmann::json &json, const FSceneObjectResourceBindings &type)
-    {
-        json = nlohmann::json
-        {
-            {"textures", {type.vTextures}},
-            {"materials", {type.vMaterials}},
-            {"meshes", {type.vMeshes}}
-        };
-    }
-
-    void from_json(const nlohmann::json &json, FSceneObjectResourceBindings &type)
-    {
-        //Optional
-        if(json.find("textures") != json.end())
-            json.at("textures").get_to(type.vTextures);
-
-        //Optional
-        if(json.find("materials") != json.end())
-            json.at("materials").get_to(type.vMaterials);
-
-        //Optional
-        if(json.find("meshes") != json.end())
-            json.at("meshes").get_to(type.vMeshes);
-    }
-
     void to_json(nlohmann::json &json, const FSceneObject &type)
     {
         json = nlohmann::json
         {
             {"name", type.srName},
             {"type", type.eObjectType},
-            {"resources", type.resourceBindings},
+            {"mesh", type.mesh},
             {"transform", type.fTransform},
             {"childs", {type.vSceneObjects}}
         };
@@ -313,9 +290,9 @@ namespace Engine
         if(json.find("type") != json.end())
             json.at("type").get_to(type.eObjectType);
 
-        //Required
-        if(json.find("resources") != json.end())
-            json.at("resources").get_to(type.resourceBindings);
+        //Optional
+        if(json.find("mesh") != json.end())
+            json.at("mesh").get_to(type.mesh);
 
         //Optional
         if(json.find("transform") != json.end())
@@ -330,7 +307,6 @@ namespace Engine
     {
         json = nlohmann::json
         {
-            {"resources", type.resources_path},
             {"skybox", type.skybox},
             {"objects", {type.vSceneObjects}}
         };
@@ -338,10 +314,6 @@ namespace Engine
 
     void from_json(const nlohmann::json &json, FSceneCreateInfo &type)
     {
-        //Required
-        if(json.find("resources") != json.end())
-            json.at("resources").get_to(type.resources_path);
-
         //Optional
         if(json.find("skybox") != json.end())
             json.at("skybox").get_to(type.skybox);

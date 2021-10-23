@@ -16,6 +16,10 @@ namespace Engine
 
     void MeshBase::Create()
     {
+        for(auto& primitive : m_vPrimitives)
+        {
+            primitive.material->Create();
+        }
     }
 
     void MeshBase::AddPrimitive(Primitive&& primitive)

@@ -1,14 +1,30 @@
 {
-    "resources": "../../assets/resources.json",
     "skybox":
     {
         "name": "skybox_component",
-        "type": "skybox",
-        "resources": 
+        "type": "gltf_mesh",
+        "mesh": 
         {
-            "textures": [],
-            "materials": [],
-            "meshes": ["skybox_obj"]
+            "name": "skybox_obj",
+            "type": "static",
+            "src": "../../assets/meshes/cube.gltf",
+            "materials":
+            [
+                {
+                    "name": "skybox_cubemap_mat",
+                    "primitive": "cube",
+                    "type": "skybox",
+                    "textures": 
+                    [
+                        {
+                            "name": "skybox_cubemap_tex",
+                            "type": "cubemap",
+                            "attachment": "cubemap",
+                            "src": "../../assets/textures/cubemaps/cubemap_vulkan.ktx"
+                        }
+                    ]
+                }
+            ]
         },
         "transform":
         {
@@ -30,13 +46,14 @@
             }
         },
         {
-            "name": "femalebody_mesh_component",
-            "type": "static_mesh",
-            "resources": 
+            "name": "fireman_mesh_component",
+            "type": "gltf_mesh",
+            "mesh": 
             {
-                "textures": [],
-                "materials": [],
-                "meshes": ["femalebody_obj"]
+                "name": "fireman_gltf",
+                "type": "static",
+                "src": "../../assets/meshes/fireman/scene.gltf",
+                "use_included_material": true
             },
             "transform":
             {
@@ -46,17 +63,18 @@
             }
         },
         {
-            "name": "floor_mesh_component",
-            "type": "static_mesh",
-            "resources": 
+            "name": "nanosuit_mesh_component",
+            "type": "gltf_mesh",
+            "mesh": 
             {
-                "textures": [],
-                "materials": [],
-                "meshes": ["floor_obj"]
+                "name": "nanosuit_gltf",
+                "type": "static",
+                "src": "../../assets/meshes/nanosuit/scene.gltf",
+                "use_included_material": true
             },
             "transform":
             {
-                "pos": {"x": 0.0, "y": 0.0, "z": 0.0},
+                "pos": {"x": 10.0, "y": 0.0, "z": 0.0},
                 "rot": {"x": 0.0, "y": 0.0, "z": 3.14159},
                 "scale": {"x": 1.0, "y": 1.0, "z": 1.0}
             }

@@ -3,7 +3,6 @@
 #include "KeyMapping/InputMapper.h"
 #include "Objects/Components/Camera/CameraComponent.h"
 #include "Objects/Components/Camera/CameraManager.h"
-#include "Objects/Components/StaticMeshComponent.h"
 #include "SceneFactory.h"
 
 namespace Engine

@@ -45,7 +45,7 @@ namespace Engine
 
         WriteImageData(texture, format);
 
-        ImageLoader::CloseImage(&texture);
+        ImageLoader::Close(&texture);
         UpdateDescriptor();
     }
 

@@ -1,44 +1,59 @@
 {
-    "resources":
+    "skybox":
     {
-        "textures": 
-        [
-
-        ],
-        "materials":
-        [
-
-        ],
-        "meshes":
-        [
+        "name": "skybox_component",
+        "type": "skybox",
+        "mesh": 
+        {
+            "name": "skybox_obj",
+            "type": "static",
+            "src": "../../assets/meshes/skybox.obj",
+            "materials":
+            [
+                {
+                    "name": "skybox_cubemap_mat",
+                    "type": "skybox",
+                    "textures": 
+                    [
+                        {
+                            "name": "skybox_cubemap_tex",
+                            "type": "cubemap",
+                            "attachment": "cubemap",
+                            "src": "../../assets/textures/cubemaps/cubemap_vulkan.ktx"
+                        }
+                    ]
+                }
+            ]
+        },
+        "transform":
+        {
+            "pos": {"x": 0.0, "y": 0.0, "z": 0.0},
+            "rot": {"x": 0.0, "y": 0.0, "z": 0.0},
+            "scale": {"x": 1.0, "y": 1.0, "z": 1.0}
+        }
+    },
+    "objects":
+    [
+        {
+            "name": "scene_camera_component",
+            "type": "camera",
+            "transform":
             {
-                "name": "skybox_obj",
-                "type": "static",
-                "src": "../../assets/meshes/skybox.obj",
-                "materials":
-                [
-                    {
-                        "name": "skybox_cubemap_mat",
-                        "primitive": "cube",
-                        "type": "skybox",
-                        "textures": 
-                        [
-                            {
-                                "name": "skybox_cubemap_tex",
-                                "type": "cubemap",
-                                "attachment": "cubemap",
-                                "src": "../../assets/textures/cubemaps/cubemap_vulkan.ktx"
-                            }
-                        ]
-                    }
-                ]
-            },
+                "pos": {"x": 0.0, "y": -2.4, "z": -1.8},
+                "rot": {"x": 0.0, "y": 0.0, "z": 0.0},
+                "scale": {"x": 1.0, "y": 1.0, "z": 1.0}
+            }
+        },
+        {
+            "name": "femalebody_mesh_component",
+            "type": "static_mesh",
+            "resource": 
             {
                 "name": "femalebody_obj",
                 "type": "static",
                 "src": "../../assets/meshes/femalebody.obj",
                 "use_included_material": true,
-                "materials": [
+                "mesh": [
                     {
                         "name": "femalebody_material",
                         "type": "diffuse",
@@ -71,6 +86,17 @@
                     }
                 ]
             },
+            "transform":
+            {
+                "pos": {"x": 0.0, "y": 0.0, "z": 0.0},
+                "rot": {"x": 0.0, "y": 0.0, "z": 3.14159},
+                "scale": {"x": 1.0, "y": 1.0, "z": 1.0}
+            }
+        },
+        {
+            "name": "floor_mesh_component",
+            "type": "static_mesh",
+            "mesh": 
             {
                 "name": "floor_obj",
                 "type": "static",
@@ -104,7 +130,13 @@
                         ]
                     }
                 ]
+            },
+            "transform":
+            {
+                "pos": {"x": 0.0, "y": 0.0, "z": 0.0},
+                "rot": {"x": 0.0, "y": 0.0, "z": 3.14159},
+                "scale": {"x": 1.0, "y": 1.0, "z": 1.0}
             }
-        ]
-    }
+        }
+    ]
 }

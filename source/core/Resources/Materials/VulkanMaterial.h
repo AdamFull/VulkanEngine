@@ -8,6 +8,22 @@ namespace Engine
 {
     class TextureBase;
 
+    struct FMaterialParams
+    {
+        enum class EAlphaMode 
+        { 
+           EOPAQUE, 
+           EMASK, 
+           EBLEND 
+        };
+
+        EAlphaMode alphaMode = EAlphaMode::EOPAQUE;
+        float alphaCutoff = 1.0f;
+		float metallicFactor = 1.0f;
+		float roughnessFactor = 1.0f;
+        glm::vec4 baseColorFactor = glm::vec4(1.0f);
+    };
+
     class MaterialBase : public ResourceBase
     {
     public:
@@ -20,12 +36,15 @@ namespace Engine
         void Cleanup() override;
         void Destroy() override;
 
+        inline void SetParams(FMaterialParams&& params) { m_fMatParams = params; }
     protected:
         virtual inline EShaderSet GetShaderSet() { return EShaderSet::eNone; }
         virtual void CreateDescriptorSets(uint32_t images);
 
+        FMaterialParams m_fMatParams{};
         std::vector<vk::DescriptorSet> vDescriptorSets;
         std::shared_ptr<PipelineBase> pPipeline;
         std::map<ETextureAttachmentType, std::shared_ptr<TextureBase>> m_mTextures;
+        static std::map<int, ETextureAttachmentType> m_mTextureBindings;
     };    
 }

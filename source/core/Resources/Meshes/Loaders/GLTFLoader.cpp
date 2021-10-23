@@ -1,24 +1,34 @@
+#define TINYGLTF_IMPLEMENTATION
+#define STB_IMAGE_IMPLEMENTATION
+#define TINYGLTF_NO_STB_IMAGE_WRITE
+
 #include "GLTFLoader.h"
 #include "Objects/RenderObject.h"
-#include "Objects/Components/GLTFSceneObjectComponent.h"
+#include "Objects/Components/MeshComponentBase.h"
 
 #include "Resources/Meshes/VulkanMesh.h"
 #include "Resources/ResourceManager.h"
+#include "Resources/Textures/ImageLoader.h"
+#include "Resources/Textures/TextureContainer.h"
+#include "Resources/Materials/MaterialDiffuse.h"
 
 #include "Renderer/DataTypes/VulkanVertex.hpp"
 #include "Renderer/VulkanVBO.h"
 #include "Renderer/VulkanHighLevel.h"
 
-#define TINYGLTF_IMPLEMENTATION
-#define STB_IMAGE_IMPLEMENTATION
-#define TINYGLTF_NO_STB_IMAGE_WRITE
-#include "external/gltf/tiny_gltf.h"
-
 //Based on https://github.com/SaschaWillems/Vulkan/blob/master/base/VulkanglTFModel.cpp
 bool loadImageDataFuncEmpty(tinygltf::Image* image, const int imageIndex, std::string* error, std::string* warning, int req_width, int req_height, const unsigned char* bytes, int size, void* userData)
 {
-    // This function will be used for samples that don't require images to be loaded
-    return true;
+    // KTX files will be handled by our own code
+    if (image->uri.find_last_of(".") != std::string::npos)
+    {
+        if (image->uri.substr(image->uri.find_last_of(".") + 1) == "ktx")
+        {
+            return true;
+        }
+    }
+
+    return tinygltf::LoadImageData(image, imageIndex, error, warning, req_width, req_height, bytes, size, userData);
 }
 
 namespace Engine
@@ -27,31 +37,46 @@ namespace Engine
     {
         namespace Model
         {
-            void GLTFLoader::Load(std::string srPath, std::shared_ptr<ResourceManager> pResMgr, std::shared_ptr<RenderObject> pRoot)
+            uint32_t GLTFLoader::current_primitive{0};
+
+            std::shared_ptr<RenderObject> GLTFLoader::Load(std::string srPath, std::string srName, std::shared_ptr<LoaderTemporaryObject> pTmp, std::shared_ptr<ResourceManager> pResMgr)
             {
                 tinygltf::Model gltfModel;
                 tinygltf::TinyGLTF gltfContext;
                 std::string error, warning;
                 gltfContext.SetImageLoader(loadImageDataFuncEmpty, nullptr);
                 bool fileLoaded = gltfContext.LoadASCIIFromFile(&gltfModel, &error, &warning, srPath);
+                current_primitive = 0;
+                
+                pTmp->srModelName = srName;
+                auto pRootComponent = std::make_shared<RenderObject>();
+                pRootComponent->SetName(srName);
 
                 if (fileLoaded) 
                 {
+                    if(pTmp->bLoadMaterials)
+                    {
+                        LoadTextures(pTmp, pResMgr, gltfModel);
+                        LoadMaterials(pTmp, pResMgr, gltfModel);
+                    }
+
                     const tinygltf::Scene &scene = gltfModel.scenes[gltfModel.defaultScene > -1 ? gltfModel.defaultScene : 0];
                     for (size_t i = 0; i < scene.nodes.size(); i++) 
                     {
                         const tinygltf::Node node = gltfModel.nodes[scene.nodes[i]];
-                        LoadNode(nullptr, node, scene.nodes[i], gltfModel, 1.0);
+                        LoadNode(pTmp, pRootComponent, node, scene.nodes[i], gltfModel, 1.0);
                     }
                 }
+
+                return pRootComponent;
             }
 
-            void GLTFLoader::LoadNode(std::shared_ptr<GLTFSceneObjectComponent> pParent, const tinygltf::Node &node, uint32_t nodeIndex, const tinygltf::Model &model, float globalscale)
+            void GLTFLoader::LoadNode(std::shared_ptr<LoaderTemporaryObject> tmp, std::shared_ptr<RenderObject> pParent, const tinygltf::Node &node, uint32_t nodeIndex, const tinygltf::Model &model, float globalscale)
             {
-                auto component = std::make_shared<GLTFSceneObjectComponent>();
+                auto component = std::make_shared<MeshComponentBase>();
                 component->SetIndex(nodeIndex);
-                component->SetParent(pParent);
                 component->SetName(node.name);
+                pParent->AddChild(component);
 
                 //Loading position data
                 if (node.translation.size() == 3) 
@@ -59,8 +84,8 @@ namespace Engine
                 //Loading rotation data
                 if (node.rotation.size() == 4) 
                 {
-                    glm::quat quat = glm::make_quat(node.rotation.data());
-                    //component->SetRotation(glm::vec3(quat));
+                    glm::vec4 quat = glm::make_vec4(node.rotation.data());
+                    component->SetRotation(glm::vec3(quat));
                 }
                 //Loading scale data
                 if (node.scale.size() == 3) 
@@ -71,7 +96,7 @@ namespace Engine
                 {
                     for (auto i = 0; i < node.children.size(); i++) 
                     {
-                        LoadNode(component, model.nodes[node.children[i]], node.children[i], model, globalscale);
+                        LoadNode(tmp, component, model.nodes[node.children[i]], node.children[i], model, globalscale);
                     }
                 }
 
@@ -248,7 +273,17 @@ namespace Engine
                         modelPrim.firstVertex = vertexStart;
                         modelPrim.vertexCount = vertexCount;
                         modelPrim.setDimensions(posMin, posMax);
+
+                        if(tmp->bLoadMaterials)
+                            modelPrim.material = primitive.material > -1 ? tmp->vMaterials.at(primitive.material) : tmp->vMaterials.back();
+                        else
+                        {
+                            modelPrim.material = tmp->vMaterials.at(current_primitive);
+                            current_primitive++;
+                        }
+
                         nativeMesh->AddPrimitive(std::move(modelPrim));
+                        
 
                         UVBO->AddMeshData(std::move(vertexBuffer), std::move(indexBuffer));
                     }
@@ -256,37 +291,45 @@ namespace Engine
                 }
             }
 
-            void GLTFLoader::LoadMaterials(std::shared_ptr<ResourceManager> pResMgr, const tinygltf::Model &model)
+            void GLTFLoader::LoadMaterials(std::shared_ptr<LoaderTemporaryObject> tmp, std::shared_ptr<ResourceManager> pResMgr, const tinygltf::Model &model)
             {
+                uint32_t material_index{0};
                 for (auto& mat : model.materials) 
                 {
-                    //TODO: Add material factory
-                    auto new_material = std::make_shared<MaterialBase>();
+                    std::stringstream ss;
+                    ss << tmp->srModelName << "_" << "material" << "_";
+                    if(!mat.name.empty()) ss << mat.name << "_";
+                    ss << material_index;
+
+                    FMaterialParams params;
+                    std::shared_ptr<MaterialBase> nativeMaterial = std::make_shared<MaterialDiffuse>();
+                    nativeMaterial->SetName(ss.str());
                     if (mat.values.find("baseColorTexture") != mat.values.end())
                     {
-                        mat.values.at("baseColorTexture").TextureIndex();
-                        model.textures;
-                        //TODO: Create unique texture name
-                        //pResMgr->Get<TextureBase>();
+                        auto index = mat.values.at("baseColorTexture").TextureIndex();
+                        nativeMaterial->AddTexture(ETextureAttachmentType::eColor, tmp->vTextures.at(index));
                     }
                     if (mat.values.find("metallicRoughnessTexture") != mat.values.end())
                     {
-                        //material.metallicRoughnessTexture = getTexture(gltfModel.textures[mat.values["metallicRoughnessTexture"].TextureIndex()].source);
+                        auto index = mat.values.at("metallicRoughnessTexture").TextureIndex();
+                        nativeMaterial->AddTexture(ETextureAttachmentType::eSpecular, tmp->vTextures.at(index));
                     }
                     if (mat.values.find("roughnessFactor") != mat.values.end())
                     {
-                        //material.roughnessFactor = static_cast<float>(mat.values["roughnessFactor"].Factor());
+                        params.roughnessFactor = static_cast<float>(mat.values.at("roughnessFactor").Factor());
                     }
                     if (mat.values.find("metallicFactor") != mat.values.end())
                     {
-                        //material.metallicFactor = static_cast<float>(mat.values["metallicFactor"].Factor());
+                        params.metallicFactor = static_cast<float>(mat.values.at("metallicFactor").Factor());
                     }
                     if (mat.values.find("baseColorFactor") != mat.values.end())
                     {
-                        //material.baseColorFactor = glm::make_vec4(mat.values["baseColorFactor"].ColorFactor().data());
+                        params.baseColorFactor = glm::make_vec4(mat.values.at("baseColorFactor").ColorFactor().data());
                     }
                     if (mat.additionalValues.find("normalTexture") != mat.additionalValues.end())
                     {
+                        auto index = mat.additionalValues.at("normalTexture").TextureIndex();
+                        nativeMaterial->AddTexture(ETextureAttachmentType::eNormal, tmp->vTextures.at(index));
                         //material.normalTexture = getTexture(gltfModel.textures[mat.additionalValues["normalTexture"].TextureIndex()].source);
                     }
                     else
@@ -295,41 +338,114 @@ namespace Engine
                     }
                     if (mat.additionalValues.find("emissiveTexture") != mat.additionalValues.end())
                     {
-                       // material.emissiveTexture = getTexture(gltfModel.textures[mat.additionalValues["emissiveTexture"].TextureIndex()].source);
+                        auto index = mat.additionalValues.at("emissiveTexture").TextureIndex();
+                        nativeMaterial->AddTexture(ETextureAttachmentType::eEmissive, tmp->vTextures.at(index));
                     }
                     if (mat.additionalValues.find("occlusionTexture") != mat.additionalValues.end())
                     {
-                        //material.occlusionTexture = getTexture(gltfModel.textures[mat.additionalValues["occlusionTexture"].TextureIndex()].source);
+                        auto index = mat.additionalValues.at("occlusionTexture").TextureIndex();
+                        nativeMaterial->AddTexture(ETextureAttachmentType::eOcclusion, tmp->vTextures.at(index));
                     }
                     if (mat.additionalValues.find("alphaMode") != mat.additionalValues.end())
                     {
-                        /*tinygltf::Parameter param = mat.additionalValues["alphaMode"];
+                        tinygltf::Parameter param = mat.additionalValues.at("alphaMode");
                         if (param.string_value == "BLEND")
-                        {
-                            material.alphaMode = Material::ALPHAMODE_BLEND;
-                        }
+                            params.alphaMode = FMaterialParams::EAlphaMode::EBLEND;
                         if (param.string_value == "MASK")
-                        {
-                            material.alphaMode = Material::ALPHAMODE_MASK;
-                        }*/
+                            params.alphaMode = FMaterialParams::EAlphaMode::EMASK;
                     }
                     if (mat.additionalValues.find("alphaCutoff") != mat.additionalValues.end())
-                    {
-                        //material.alphaCutoff = static_cast<float>(mat.additionalValues["alphaCutoff"].Factor());
-                    }
+                        params.alphaCutoff = static_cast<float>(mat.additionalValues.at("alphaCutoff").Factor());
 
-                    pResMgr->AddExisting(mat.name, new_material);
+                    nativeMaterial->SetParams(std::move(params));
+                    nativeMaterial->AddTexture(ETextureAttachmentType::eEmpty, pResMgr->Get<TextureBase>("no_texture"));
+                    tmp->vMaterials.emplace_back(nativeMaterial);
+                    pResMgr->AddExisting(nativeMaterial->GetName(), nativeMaterial);
+                    material_index++;
                 }
             }
 
-            void GLTFLoader::LoadTextures(std::shared_ptr<ResourceManager> pResMgr, const tinygltf::Model &model)
+            void GLTFLoader::LoadTextures(std::shared_ptr<LoaderTemporaryObject> tmp, std::shared_ptr<ResourceManager> pResMgr, const tinygltf::Model &model)
             {
+                uint32_t index{0};
                 for (auto& image : model.images)
                 {
                     //TODO: Create textures for materials
+                    std::stringstream ss;
+                    ss << tmp->srModelName << "_" << "texture" << "_"; 
+                    if(!image.name.empty()) ss << image.name << "_";
+                    ss << std::to_string(index);
+
+                    std::string srPath = "";
+                    auto texture = LoadTexture(image, srPath);
+                    texture->SetName(ss.str());
+                    tmp->vTextures.emplace_back(texture);
+                    pResMgr->AddExisting(texture->GetName(), texture);
+                    index++;
                 }
             }
 
+            std::shared_ptr<TextureBase> GLTFLoader::LoadTexture(const tinygltf::Image &image, std::string path)
+            {
+                bool isKtx = false;
+                // Image points to an external ktx file
+                if (image.uri.find_last_of(".") != std::string::npos)
+                {
+                    if (image.uri.substr(image.uri.find_last_of(".") + 1) == "ktx")
+                        isKtx = true;
+                }
+
+                vk::Format format;
+                ktxTexture* texture;
+                auto nativeTexture = std::make_shared<TextureBase>();
+                nativeTexture->SetName(image.name);
+                //nativeTexture->LoadFromMemory();
+
+                if (!isKtx)
+                {
+                    ImageLoader::AllocateRawDataAsKTXTexture(&texture, &format, image.width, image.height, 1, 2, GL_SRGB8_ALPHA8, true);
+                    vk::DeviceSize bufferSize = 0;
+                    bool deleteBuffer = false;
+                    if (image.component == 3)
+                    {
+                        // Most devices don't support RGB only on Vulkan so convert if necessary
+                        // TODO: Check actual format support and transform only if required
+                        bufferSize = image.width * image.height * 4;
+                        texture->pData = static_cast<unsigned char*>(calloc(bufferSize, sizeof(unsigned char)));
+                        unsigned char *rgba = texture->pData;
+                        unsigned char *rgb;
+                        memcpy(rgb, image.image.data(), bufferSize);
+
+                        #pragma omp parallel for
+                        for (size_t i = 0; i < image.width * image.height; ++i)
+                        {
+                            for (int32_t j = 0; j < 3; ++j)
+                            {
+                                rgba[j] = rgb[j];
+                            }
+                            rgba += 4;
+                            rgb += 3;
+                        }
+                        deleteBuffer = true;
+                    }
+                    else
+                    {
+                        bufferSize = image.image.size();
+                        texture->pData = static_cast<unsigned char*>(calloc(bufferSize, sizeof(unsigned char)));
+                        memcpy(texture->pData, image.image.data(), bufferSize);
+                    }
+                }
+                else
+                {
+                    std::string srTexturePath = path + "/" + image.uri;
+                    ImageLoader::Load(srTexturePath.c_str(), &texture, &format);
+                }
+                nativeTexture->LoadFromMemory(texture, format);
+                ImageLoader::Close(&texture);
+
+                return nativeTexture;
+            }
+            
         }
     }
 }

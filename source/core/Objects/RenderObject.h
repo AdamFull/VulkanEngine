@@ -57,17 +57,15 @@ namespace Engine
         virtual void Attach(std::shared_ptr<RenderObject> child);
         virtual void Detach(std::shared_ptr<RenderObject> child);
 
-        virtual void SetResources(FSceneObjectResourceBindings bindings) { fBindings = bindings; }
-
         virtual inline std::string GetName() { return m_srName; }
 
         virtual inline std::shared_ptr<RenderObject>& GetParent() { return m_pParent; }
         virtual inline std::map<std::string, std::shared_ptr<RenderObject>>& GetChilds() { return m_mChilds; }
-    protected:
         virtual void AddChild(std::shared_ptr<RenderObject> child);
+        
+    protected:
         FTransform m_transform;
         std::string m_srName;
-        FSceneObjectResourceBindings fBindings;
     private:
         std::shared_ptr<RenderObject> m_pParent;
         std::shared_ptr<RenderObject> m_pParentOld;

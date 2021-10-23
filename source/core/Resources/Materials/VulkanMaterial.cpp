@@ -6,6 +6,13 @@
 
 namespace Engine
 {
+    std::map<int, ETextureAttachmentType> MaterialBase::m_mTextureBindings
+    {
+        {1, ETextureAttachmentType::eColor},
+        {2, ETextureAttachmentType::eNormal},
+        {3, ETextureAttachmentType::eSpecular}
+    };
+
     void MaterialBase::Create()
     {
         pPipeline = UPipelineMGR->Get(GetShaderSet());

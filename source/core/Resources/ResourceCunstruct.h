@@ -12,6 +12,7 @@ namespace Engine
 
     enum class ETextureAttachmentType
     {
+        eEmpty,
         eColor,
         eAlbedo,
         eMetalic,
@@ -58,7 +59,7 @@ namespace Engine
         ePBR
     };
 
-    struct FMaterialParams
+    struct FMaterialParamsInfo
     {
         //glm::vec4 albedo{1.f};
         float alpha_cutoff{1.f};
@@ -73,7 +74,7 @@ namespace Engine
         EMaterialType eType{};
         std::vector<std::string> srAttachments{};
         std::vector<FTextureCreateInfo> vTextures{};
-        FMaterialParams fParams{};
+        FMaterialParamsInfo fParams{};
     };
  
     enum class EMeshType

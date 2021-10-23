@@ -39,7 +39,7 @@ namespace Engine
     protected:
         virtual void GenerateMipmaps(vk::Image &image, uint32_t mipLevels, vk::Format format, uint32_t width, uint32_t height, vk::ImageAspectFlags aspectFlags);
         static vk::ImageType TypeFromKtx(uint32_t type);
-        virtual uint32_t GetInternalFormat() { return 0; }
+        virtual uint32_t GetInternalFormat() { return GL_SRGB8_ALPHA8; }
 
         vk::Image               image;
         vk::ImageLayout         imageLayout;

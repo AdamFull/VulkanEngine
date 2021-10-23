@@ -67,6 +67,8 @@ namespace Engine
             }
         }
 
+        material->AddTexture(ETextureAttachmentType::eEmpty, resourceMgr->Get<TextureBase>("no_texture"));
+
         return material;
     }
 }

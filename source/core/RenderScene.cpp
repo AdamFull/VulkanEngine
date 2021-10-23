@@ -1,7 +1,6 @@
 #include "RenderScene.h"
 #include "Objects/Components/Camera/CameraComponent.h"
 #include "Objects/Components/Camera/CameraManager.h"
-#include "Objects/Components/StaticMeshComponent.h"
 #include "Renderer/VulkanDevice.h"
 #include "Renderer/VulkanRenderer.h"
 #include "Renderer/VulkanVBO.h"
@@ -12,14 +11,18 @@
 
 namespace Engine
 {
-    void RenderScene::Create(std::string srResourcesPath)
+    void RenderScene::Create()
     {
         m_pRoot = std::make_shared<SceneRootComponent>();
         m_pOvelray = std::make_unique<ImguiOverlay>();
         m_pResourceManager = std::make_shared<ResourceManager>();
-        m_pResourceManager->Load(srResourcesPath);
 
         m_pOvelray->Create(UWinHandle, UDevice, USwapChain);
+
+        //TODO: move to another place
+        auto pEmptyTexture = std::make_shared<TextureBase>();
+        pEmptyTexture->CreateEmptyTexture(512, 512, 1, 2);
+        m_pResourceManager->AddExisting("no_texture", pEmptyTexture);
     }
 
     void RenderScene::ReCreate()
@@ -27,7 +30,10 @@ namespace Engine
         m_pOvelray->Cleanup(UDevice);
         m_pRoot->Cleanup();
         m_pOvelray->ReCreate(UDevice, USwapChain);
-        m_pSkybox->ReCreate();
+
+        if(m_pSkybox)
+            m_pSkybox->ReCreate();
+
         m_pRoot->ReCreate();
     }
 
@@ -42,7 +48,10 @@ namespace Engine
         }
 
         m_pOvelray->Destroy(UDevice);
-        m_pSkybox->Destroy();
+        
+        if(m_pSkybox)
+            m_pSkybox->Destroy();
+
         m_pRoot->Destroy();
     }
 
@@ -58,14 +67,18 @@ namespace Engine
 
     void RenderScene::CreateObjects()
     {
-        m_pSkybox->Create(m_pResourceManager);
+        if(m_pSkybox)
+            m_pSkybox->Create(m_pResourceManager);
+
         m_pRoot->Create(m_pResourceManager);
         UVBO->Create(UDevice);
     }
 
     void RenderScene::Render(float fDeltaTime)
     {
-        m_pSkybox->Update(fDeltaTime);
+        if(m_pSkybox)
+            m_pSkybox->Update(fDeltaTime);
+
         m_pRoot->Update(fDeltaTime);
 
         bool bResult;
@@ -83,7 +96,10 @@ namespace Engine
         UHLInstance->BeginRender(commandBuffer);
 
         UVBO->Bind(commandBuffer);
-        m_pSkybox->Render(commandBuffer, currentFrame);
+
+        if(m_pSkybox)
+            m_pSkybox->Render(commandBuffer, currentFrame);
+
         m_pRoot->Render(commandBuffer, currentFrame);
 
         //Imgui overlays (Demo)

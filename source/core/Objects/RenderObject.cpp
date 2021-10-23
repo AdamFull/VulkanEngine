@@ -106,7 +106,6 @@ namespace Engine
         m_pParentOld = m_pParent;
         m_pParent = parent;
         //If you set parent for this, you should attach self to parent's child's
-        m_pParent->AddChild(shared_from_this());
         if(m_pParentOld)
             m_pParentOld->Detach(shared_from_this());
     }
@@ -114,11 +113,12 @@ namespace Engine
     void RenderObject::AddChild(std::shared_ptr<RenderObject> child)
     {
         m_mChilds.emplace(child->GetName(), child);
+        child->SetParent(shared_from_this());
     }
 
     void RenderObject::Attach(std::shared_ptr<RenderObject> child)
     {
-        child->SetParent(shared_from_this());
+        AddChild(child);
     }
 
     void RenderObject::Detach(std::shared_ptr<RenderObject> child)

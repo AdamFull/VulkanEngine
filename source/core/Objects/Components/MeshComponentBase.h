@@ -1,28 +1,24 @@
 #pragma once
-#include "Objects/RenderObject.h"
+#include "ComponentBase.h"
 
 namespace Engine
 {
     class MeshBase;
-    class ResourceManager;
-
-    class StaticMeshComponent : public RenderObject
+    class MeshComponentBase : public ComponentBase
     {
     public:
-        StaticMeshComponent() = default;
-        explicit StaticMeshComponent(std::string srName) 
-        {
-            m_srName = srName;
-        }
-        
         void Create(std::shared_ptr<ResourceManager> resourceMgr) override;
         void ReCreate() override;
         void Update(float fDeltaTime) override;
         void Render(vk::CommandBuffer& commandBuffer, uint32_t imageIndex) override;
         void Cleanup() override;
         void Destroy() override;
-    private:
-        std::shared_ptr<MeshBase> m_pStaticMesh;
+
+        virtual void SetMesh(std::shared_ptr<MeshBase> mesh) { m_pMesh = mesh; }
+        virtual void SetIndex(uint32_t index) { m_iIndex = index; }
+    protected:
+        std::shared_ptr<MeshBase> m_pMesh;
         std::shared_ptr<UniformBuffer<FUniformData>> m_pUniform;
+        uint32_t m_iIndex{0};
     };
 }

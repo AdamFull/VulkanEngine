@@ -158,11 +158,11 @@ namespace Engine
     {
         ktxTexture* texture;
         vk::Format format;
-        ImageLoader::LoadImage(srPath.c_str(), &texture, &format);
+        ImageLoader::Load(srPath.c_str(), &texture, &format);
 
         LoadFromMemory(texture, format);
 
-        ImageLoader::CloseImage(&texture);
+        ImageLoader::Close(&texture);
     }
 
     void TextureBase::CreateEmptyTexture(uint32_t width, uint32_t height, uint32_t depth, uint32_t dims)
@@ -172,8 +172,9 @@ namespace Engine
         ImageLoader::AllocateRawDataAsKTXTexture(&texture, &format, width, height, depth, dims, GetInternalFormat());
 
         InitializeTexture(texture, format);
+        UpdateDescriptor();
 
-        ImageLoader::CloseImage(&texture);
+        ImageLoader::Close(&texture);
     }
 
     void TextureBase::InitializeTexture(ktxTexture* info, vk::Format format)

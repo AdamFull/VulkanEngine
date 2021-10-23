@@ -6,12 +6,11 @@ namespace Engine
 {
     class WindowHandle;
     class ResourceManager;
-    class StaticMeshComponent;
 
     class RenderScene
     {
     public:
-        void Create(std::string srResourcesPath);
+        void Create();
         void ReCreate();
         void Destroy();
         void AttachObject(std::shared_ptr<RenderObject> object);
@@ -19,6 +18,8 @@ namespace Engine
         inline std::shared_ptr<RenderObject>& GetRoot() { return m_pRoot; }
         void CreateObjects();
         void Render(float fDeltaTime);
+
+        std::shared_ptr<ResourceManager> GetResourceManager() { return m_pResourceManager; }
     private:
         std::shared_ptr<RenderObject> m_pSkybox;
         std::shared_ptr<RenderObject> m_pRoot;

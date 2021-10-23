@@ -7,7 +7,7 @@ namespace fs = std::filesystem;
 
 namespace Engine
 {
-     bool ImageLoader::LoadImage(char const *filename, ktxTexture** target, vk::Format* format)
+     bool ImageLoader::Load(char const *filename, ktxTexture** target, vk::Format* format)
     {
         fs::path filepath{filename};
 
@@ -19,7 +19,7 @@ namespace Engine
         return false;
     }
 
-    void ImageLoader::CloseImage(ktxTexture** target)
+    void ImageLoader::Close(ktxTexture** target)
     {
         ktxTexture_Destroy((*target));
     }

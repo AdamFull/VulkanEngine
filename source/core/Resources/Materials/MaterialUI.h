@@ -14,6 +14,7 @@ namespace Engine
         void Destroy() override;
     protected:
         EShaderSet GetShaderSet() override { return EShaderSet::eUI; }
+        void CreateDescriptorSetLayout() override;
         void CreateDescriptorSets(uint32_t images) override;
     };
 }

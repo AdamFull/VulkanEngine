@@ -40,18 +40,24 @@ namespace Engine
     protected:
         virtual inline EShaderSet GetShaderSet() { return EShaderSet::eNone; }
         FPipelineCreateInfo CreateInfo(EShaderSet eSet);
-        void CreateDescriptorSetLayout();
+        virtual void CreateDescriptorSetLayout();
         void CreateDescriptorPool(uint32_t images);
         void CreatePipelineLayout(uint32_t images);
         void CreatePipelineCache();
         virtual void CreateDescriptorSets(uint32_t images);
 
         FMaterialParams m_fMatParams{};
-        std::vector<vk::DescriptorSet> matricesSet;
-        std::vector<vk::DescriptorSet> skinsSet;
-        std::vector<vk::DescriptorSet> texturesSet;
 
-        vk::DescriptorSetLayout descriptorSetLayout;
+        struct FDescriptors
+        {
+            std::vector<vk::DescriptorSet> matricesSet;
+            std::vector<vk::DescriptorSet> skinsSet;
+            std::vector<vk::DescriptorSet> texturesSet;
+            vk::DescriptorSetLayout matricesSetLayout;
+            vk::DescriptorSetLayout skinsSetLayout;
+            vk::DescriptorSetLayout texturesSetLayout;
+        } descriptors;
+
         vk::DescriptorPool descriptorPool;
         vk::PipelineLayout pipelineLayout;
         vk::PipelineCache pipelineCache;

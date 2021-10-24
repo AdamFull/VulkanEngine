@@ -1,6 +1,6 @@
 #pragma once
 #include "Resources/ResourceBase.h"
-#include "Renderer/Pipeline/PipelineManager.h"
+#include "Renderer/Pipeline/PipelineConfig.h"
 
 namespace Engine
 {

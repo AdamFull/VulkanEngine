@@ -36,7 +36,7 @@ namespace Engine
 
         std::vector<vk::WriteDescriptorSet> descriptorWrites{};
         descriptorWrites.resize(1);
-        descriptorWrites[0].dstSet = matricesSet[imageIndex];
+        descriptorWrites[0].dstSet = descriptors.matricesSet[imageIndex];
         descriptorWrites[0].dstBinding = 0;
         descriptorWrites[0].dstArrayElement = 0;
         descriptorWrites[0].descriptorType = vk::DescriptorType::eUniformBuffer;
@@ -57,7 +57,7 @@ namespace Engine
             else
                 texture = m_mTextures[ETextureAttachmentType::eEmpty];
 
-            descriptorWrites[i].dstSet = texturesSet[imageIndex];
+            descriptorWrites[i].dstSet = descriptors.texturesSet[imageIndex];
             descriptorWrites[i].dstBinding = i;
             descriptorWrites[i].dstArrayElement = 0;
             descriptorWrites[i].descriptorType = vk::DescriptorType::eCombinedImageSampler;
@@ -87,25 +87,38 @@ namespace Engine
         MaterialBase::CreateDescriptorSets(images);
     }
 
-    void MaterialBase::CreateDescriptorSetLayout()
+    void MaterialDiffuse::CreateDescriptorSetLayout()
     {
-        std::vector<vk::DescriptorSetLayoutBinding> vBindings;
-        for(size_t i = 0; i < 5; i++)
+        MaterialBase::CreateDescriptorSetLayout();
+        vk::DescriptorSetLayoutBinding matricesBinding;
+        matricesBinding.binding = 0;
+        matricesBinding.descriptorType = vk::DescriptorType::eUniformBuffer;
+        matricesBinding.descriptorCount = 1;
+        matricesBinding.pImmutableSamplers = nullptr;
+        matricesBinding.stageFlags = vk::ShaderStageFlagBits::eVertex;
+
+        vk::DescriptorSetLayoutCreateInfo matricesCreateInfo{};
+        matricesCreateInfo.bindingCount = 1;
+        matricesCreateInfo.pBindings = &matricesBinding;
+
+        auto result = UDevice->GetLogical()->createDescriptorSetLayout(&matricesCreateInfo, nullptr, &descriptors.matricesSetLayout);
+
+       std::vector<vk::DescriptorSetLayoutBinding> vBindings;
+        for(size_t i = 0; i < 4; i++)
         {
             vk::DescriptorSetLayoutBinding binding;
             binding.binding = i;
-            binding.descriptorType = (i == 0 ? vk::DescriptorType::eUniformBuffer : vk::DescriptorType::eCombinedImageSampler);
+            binding.descriptorType = vk::DescriptorType::eCombinedImageSampler;
             binding.descriptorCount = 1;
             binding.pImmutableSamplers = nullptr;
-            binding.stageFlags = (i == 0 ? vk::ShaderStageFlagBits::eVertex : vk::ShaderStageFlagBits::eFragment);
+            binding.stageFlags = vk::ShaderStageFlagBits::eFragment;
             vBindings.emplace_back(binding);
         }
         
-        vk::DescriptorSetLayoutCreateInfo createInfo{};
-        createInfo.bindingCount = static_cast<uint32_t>(vBindings.size());;
-        createInfo.pBindings = vBindings.data();
+        vk::DescriptorSetLayoutCreateInfo texturesCreateInfo{};
+        texturesCreateInfo.bindingCount = static_cast<uint32_t>(vBindings.size());;
+        texturesCreateInfo.pBindings = vBindings.data();
 
-        //TODO: check result
-        auto result = UDevice->GetLogical()->createDescriptorSetLayout(&createInfo, nullptr, &descriptorSetLayout);
+        result = UDevice->GetLogical()->createDescriptorSetLayout(&texturesCreateInfo, nullptr, &descriptors.texturesSetLayout);
     }
 }

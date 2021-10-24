@@ -129,11 +129,11 @@ namespace Engine
         vk::PresentModeKHR presentMode = VulkanStaticHelper::ChooseSwapPresentMode(swapChainSupport.presentModes);
         data.extent = ChooseSwapExtent(swapChainSupport.capabilities);
 
-        uint32_t imageCount = swapChainSupport.capabilities.maxImageCount;
-        if (swapChainSupport.capabilities.maxImageCount > 0 && imageCount > swapChainSupport.capabilities.maxImageCount)
+        uint32_t imageCount = data.iFramesInFlight;//swapChainSupport.capabilities.maxImageCount;
+        /*if (swapChainSupport.capabilities.maxImageCount > 0 && imageCount > swapChainSupport.capabilities.maxImageCount)
         {
             imageCount = swapChainSupport.capabilities.maxImageCount;
-        }
+        }*/
 
         vk::SwapchainCreateInfoKHR createInfo(
             vk::SwapchainCreateFlagsKHR(),

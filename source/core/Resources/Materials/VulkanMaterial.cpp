@@ -8,9 +8,9 @@ namespace Engine
 {
     std::map<int, ETextureAttachmentType> MaterialBase::m_mTextureBindings
     {
-        {1, ETextureAttachmentType::eColor},
-        {2, ETextureAttachmentType::eNormal},
-        {3, ETextureAttachmentType::eSpecular}
+        {0, ETextureAttachmentType::eColor},
+        {1, ETextureAttachmentType::eNormal},
+        {2, ETextureAttachmentType::eSpecular}
     };
 
     void MaterialBase::Create()
@@ -41,7 +41,9 @@ namespace Engine
     void MaterialBase::Bind(vk::CommandBuffer commandBuffer, uint32_t imageIndex)
     {
         ResourceBase::Bind(commandBuffer, imageIndex);
-        commandBuffer.bindDescriptorSets(pPipeline->GetBindPoint(), UPMGR_PL, 0, 1, &vDescriptorSets[imageIndex], 0, nullptr);
+        commandBuffer.bindDescriptorSets(pPipeline->GetBindPoint(), UPMGR_PL, 0, 1, &matricesSet[imageIndex], 0, nullptr);
+        //commandBuffer.bindDescriptorSets(pPipeline->GetBindPoint(), UPMGR_PL, 1, 1, &skinsSet[imageIndex], 0, nullptr);
+        commandBuffer.bindDescriptorSets(pPipeline->GetBindPoint(), UPMGR_PL, 2, 1, &texturesSet[imageIndex], 0, nullptr);
         pPipeline->Bind(commandBuffer);
     }
 
@@ -54,7 +56,9 @@ namespace Engine
     void MaterialBase::Cleanup()
     {
         ResourceBase::Cleanup();
-        UDevice->GetLogical()->freeDescriptorSets(UPMGR_DP, vDescriptorSets);
+        UDevice->GetLogical()->freeDescriptorSets(UPMGR_DP, matricesSet);
+        UDevice->GetLogical()->freeDescriptorSets(UPMGR_DP, skinsSet);
+        UDevice->GetLogical()->freeDescriptorSets(UPMGR_DP, texturesSet);
     }
 
     void MaterialBase::CreateDescriptorSets(uint32_t images)
@@ -66,8 +70,12 @@ namespace Engine
         allocInfo.descriptorSetCount = images;
         allocInfo.pSetLayouts = vDescriptorSetLayouts.data();
 
-        vDescriptorSets.resize(images);
+        matricesSet.resize(images);
+        skinsSet.resize(images);
+        texturesSet.resize(images);
 
-        auto result = UDevice->GetLogical()->allocateDescriptorSets(&allocInfo, vDescriptorSets.data());
+        auto mresult = UDevice->GetLogical()->allocateDescriptorSets(&allocInfo, matricesSet.data());
+        auto sresult = UDevice->GetLogical()->allocateDescriptorSets(&allocInfo, skinsSet.data());
+        auto tresult = UDevice->GetLogical()->allocateDescriptorSets(&allocInfo, texturesSet.data());
     }
 }

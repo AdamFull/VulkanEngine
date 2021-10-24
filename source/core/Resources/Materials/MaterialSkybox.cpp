@@ -27,7 +27,6 @@ namespace Engine
         MaterialBase::Update(imageIndex, pUniformBuffer);
 
         auto& uniformBuffer = pUniformBuffer->GetBuffer();
-        auto& descriptorSet = vDescriptorSets[imageIndex];
 
         vk::DescriptorBufferInfo bufferInfo{};
         //GetCurrentUniform
@@ -35,20 +34,24 @@ namespace Engine
         bufferInfo.offset = 0;
         bufferInfo.range = sizeof(FUniformData);
 
-        std::array<vk::WriteDescriptorSet, 2> descriptorWrites{};
-        descriptorWrites[0].dstSet = descriptorSet;
+        std::vector<vk::WriteDescriptorSet> descriptorWrites{};
+        descriptorWrites.resize(1);
+        descriptorWrites[0].dstSet = matricesSet[imageIndex];
         descriptorWrites[0].dstBinding = 0;
         descriptorWrites[0].dstArrayElement = 0;
         descriptorWrites[0].descriptorType = vk::DescriptorType::eUniformBuffer;
         descriptorWrites[0].descriptorCount = 1;
         descriptorWrites[0].pBufferInfo = &bufferInfo;
 
-        descriptorWrites[1].dstSet = descriptorSet;
-        descriptorWrites[1].dstBinding = 1;
-        descriptorWrites[1].dstArrayElement = 0;
-        descriptorWrites[1].descriptorType = vk::DescriptorType::eCombinedImageSampler;
-        descriptorWrites[1].descriptorCount = 1;
-        descriptorWrites[1].pImageInfo = &m_mTextures[ETextureAttachmentType::eCubemap]->GetDescriptor();
+        UDevice->GetLogical()->updateDescriptorSets(static_cast<uint32_t>(descriptorWrites.size()), descriptorWrites.data(), 0, nullptr);
+
+        descriptorWrites.clear();
+        descriptorWrites[0].dstSet = texturesSet[imageIndex];
+        descriptorWrites[0].dstBinding = 0;
+        descriptorWrites[0].dstArrayElement = 0;
+        descriptorWrites[0].descriptorType = vk::DescriptorType::eCombinedImageSampler;
+        descriptorWrites[0].descriptorCount = 1;
+        descriptorWrites[0].pImageInfo = &m_mTextures[ETextureAttachmentType::eCubemap]->GetDescriptor();
 
         UDevice->GetLogical()->updateDescriptorSets(static_cast<uint32_t>(descriptorWrites.size()), descriptorWrites.data(), 0, nullptr);
     }

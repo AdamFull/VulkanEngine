@@ -27,57 +27,43 @@ namespace Engine
         MaterialBase::Update(imageIndex, pUniformBuffer);
 
         auto& uniformBuffer = pUniformBuffer->GetBuffer();
-        auto& descriptorSet = vDescriptorSets[imageIndex];
-
+        
         vk::DescriptorBufferInfo bufferInfo{};
         //GetCurrentUniform
         bufferInfo.buffer = uniformBuffer;
         bufferInfo.offset = 0;
         bufferInfo.range = sizeof(FUniformData);
 
-        std::array<vk::WriteDescriptorSet, 6> descriptorWrites{};
-        descriptorWrites[0].dstSet = descriptorSet;
+        std::vector<vk::WriteDescriptorSet> descriptorWrites{};
+        descriptorWrites.resize(1);
+        descriptorWrites[0].dstSet = matricesSet[imageIndex];
         descriptorWrites[0].dstBinding = 0;
         descriptorWrites[0].dstArrayElement = 0;
         descriptorWrites[0].descriptorType = vk::DescriptorType::eUniformBuffer;
         descriptorWrites[0].descriptorCount = 1;
         descriptorWrites[0].pBufferInfo = &bufferInfo;
 
-        descriptorWrites[1].dstSet = descriptorSet;
-        descriptorWrites[1].dstBinding = 1;
-        descriptorWrites[1].dstArrayElement = 0;
-        descriptorWrites[1].descriptorType = vk::DescriptorType::eCombinedImageSampler;
-        descriptorWrites[1].descriptorCount = 1;
-        descriptorWrites[1].pImageInfo = &m_mTextures[ETextureAttachmentType::eColor]->GetDescriptor();
+        UDevice->GetLogical()->updateDescriptorSets(static_cast<uint32_t>(descriptorWrites.size()), descriptorWrites.data(), 0, nullptr);
 
-        descriptorWrites[2].dstSet = descriptorSet;
-        descriptorWrites[2].dstBinding = 2;
-        descriptorWrites[2].dstArrayElement = 0;
-        descriptorWrites[2].descriptorType = vk::DescriptorType::eCombinedImageSampler;
-        descriptorWrites[2].descriptorCount = 1;
-        descriptorWrites[2].pImageInfo = &m_mTextures[ETextureAttachmentType::eNormal]->GetDescriptor();
+        descriptorWrites.clear();
+        descriptorWrites.resize(3);
+        for(uint32_t i = 0; i < 3; i++)
+        {
+            auto binding = m_mTextureBindings[i];
+            auto it = m_mTextures.find(binding);
+            std::shared_ptr<TextureBase> texture;
+            if(it != m_mTextures.end())
+                texture = it->second;
+            else
+                texture = m_mTextures[ETextureAttachmentType::eEmpty];
 
-        descriptorWrites[3].dstSet = descriptorSet;
-        descriptorWrites[3].dstBinding = 3;
-        descriptorWrites[3].dstArrayElement = 0;
-        descriptorWrites[3].descriptorType = vk::DescriptorType::eCombinedImageSampler;
-        descriptorWrites[3].descriptorCount = 1;
-        descriptorWrites[3].pImageInfo = &m_mTextures[ETextureAttachmentType::eSpecular]->GetDescriptor();
-
-        descriptorWrites[4].dstSet = descriptorSet;
-        descriptorWrites[4].dstBinding = 4;
-        descriptorWrites[4].dstArrayElement = 0;
-        descriptorWrites[4].descriptorType = vk::DescriptorType::eCombinedImageSampler;
-        descriptorWrites[4].descriptorCount = 1;
-        descriptorWrites[4].pImageInfo = &m_mTextures[ETextureAttachmentType::eAlbedo]->GetDescriptor();
-
-        descriptorWrites[5].dstSet = descriptorSet;
-        descriptorWrites[5].dstBinding = 5;
-        descriptorWrites[5].dstArrayElement = 0;
-        descriptorWrites[5].descriptorType = vk::DescriptorType::eCombinedImageSampler;
-        descriptorWrites[5].descriptorCount = 1;
-        descriptorWrites[5].pImageInfo = &m_mTextures[ETextureAttachmentType::eOcclusion]->GetDescriptor();
-
+            descriptorWrites[i].dstSet = texturesSet[imageIndex];
+            descriptorWrites[i].dstBinding = i;
+            descriptorWrites[i].dstArrayElement = 0;
+            descriptorWrites[i].descriptorType = vk::DescriptorType::eCombinedImageSampler;
+            descriptorWrites[i].descriptorCount = 1;
+            descriptorWrites[i].pImageInfo = &texture->GetDescriptor();
+        }
         UDevice->GetLogical()->updateDescriptorSets(static_cast<uint32_t>(descriptorWrites.size()), descriptorWrites.data(), 0, nullptr);
     }
 

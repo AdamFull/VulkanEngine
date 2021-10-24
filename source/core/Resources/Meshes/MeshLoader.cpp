@@ -30,13 +30,13 @@ namespace Engine
         #pragma omp parallel for
         for (int i = 0; i < vertices.size(); i++) 
         {
-            vertices[i].tangent = glm::normalize(vertices[i].tangent);
+            /*vertices[i].tangent = glm::normalize(vertices[i].tangent);
             vertices[i].binormal = glm::normalize(vertices[i].binormal);
             glm::vec3 &T = vertices[i].tangent;
             glm::vec3 &B = vertices[i].binormal;
             glm::vec3 &N = vertices[i].normal;
             T = glm::normalize(T - glm::dot(T, N) * N);
-            B = glm::cross(N, T);
+            B = glm::cross(N, T);*/
         }
     }
 

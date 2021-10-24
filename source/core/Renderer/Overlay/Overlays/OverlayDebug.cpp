@@ -43,6 +43,9 @@ namespace Engine
             ImGui::Text("Light");
             ImGui::DragFloat3("Light pos", (float*)GlobalVariables::lightPosition, 0.01, -100.0, 100.0);
             ImGui::DragFloat3("Light color", (float*)GlobalVariables::lightColor, 0.005, 0.0, 1.0);
+
+            ImGui::Text("Global");
+            ImGui::DragFloat3("Models rot", (float*)GlobalVariables::modelRotation, 0.01, -100.0, 100.0);
             //ImGui::InputFloat3("Light pos", (float*)GlobalVariables::lightPosition);
 
             ImGui::End();

@@ -1,13 +1,13 @@
 #version 450
 
-layout(binding = 1) uniform samplerCube irradiance_map;
-layout(binding = 2) uniform sampler2D brdflut_tex;
-layout(binding = 3) uniform samplerCube prefiltred_map;
-layout(binding = 4) uniform sampler2D color_tex;
-layout(binding = 5) uniform sampler2D normal_tex;
-layout(binding = 6) uniform sampler2D specular_tex;
-layout(binding = 7) uniform sampler2D albedo_tex;
-layout(binding = 8) uniform sampler2D ao_tex;
+layout(set = 2, binding = 0) uniform samplerCube irradiance_map;
+layout(set = 2, binding = 1) uniform sampler2D brdflut_tex;
+layout(set = 2, binding = 2) uniform samplerCube prefiltred_map;
+layout(set = 2, binding = 3) uniform sampler2D color_tex;
+layout(set = 2, binding = 4) uniform sampler2D normal_tex;
+layout(set = 2, binding = 5) uniform sampler2D specular_tex;
+layout(set = 2, binding = 6) uniform sampler2D albedo_tex;
+layout(set = 2, binding = 7) uniform sampler2D ao_tex;
 
 layout(location = 0) in vec2 fragTexCoord;
 layout(location = 1) in vec3 fragColor;

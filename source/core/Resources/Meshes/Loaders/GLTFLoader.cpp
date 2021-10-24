@@ -84,8 +84,9 @@ namespace Engine
                 //Loading rotation data
                 if (node.rotation.size() == 4) 
                 {
-                    glm::vec4 quat = glm::make_vec4(node.rotation.data());
-                    component->SetRotation(glm::vec3(quat));
+                    glm::quat quat = glm::make_vec4(node.rotation.data());
+                    glm::vec3 rot = glm::eulerAngles(quat) * 3.14159f / 180.f;
+                    component->SetRotation(rot);
                 }
                 //Loading scale data
                 if (node.scale.size() == 3) 
@@ -217,8 +218,8 @@ namespace Engine
                                 }
                                 vert.tangent = bufferTangents ? glm::vec4(glm::make_vec4(&bufferTangents[v * 4])) : glm::vec4(0.0f);
                                 //TODO: Add skinning
-                                //vert.joint0 = hasSkin ? glm::vec4(glm::make_vec4(&bufferJoints[v * 4])) : glm::vec4(0.0f);
-                                //vert.weight0 = hasSkin ? glm::make_vec4(&bufferWeights[v * 4]) : glm::vec4(0.0f);
+                                vert.joint0 = hasSkin ? glm::vec4(glm::make_vec4(&bufferJoints[v * 4])) : glm::vec4(0.0f);
+                                vert.weight0 = hasSkin ? glm::make_vec4(&bufferWeights[v * 4]) : glm::vec4(0.0f);
                                 vertexBuffer.push_back(vert);
                             }
                         }
@@ -444,6 +445,14 @@ namespace Engine
                 ImageLoader::Close(&texture);
 
                 return nativeTexture;
+            }
+
+            void GLTFLoader::LoadSkins(const tinygltf::Model &model)
+            {
+                /*for (tinygltf::Skin &source : gltfModel.skins)
+                {
+
+                }*/
             }
             
         }

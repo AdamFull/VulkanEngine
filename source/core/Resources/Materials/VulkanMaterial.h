@@ -42,7 +42,9 @@ namespace Engine
         virtual void CreateDescriptorSets(uint32_t images);
 
         FMaterialParams m_fMatParams{};
-        std::vector<vk::DescriptorSet> vDescriptorSets;
+        std::vector<vk::DescriptorSet> matricesSet;
+        std::vector<vk::DescriptorSet> skinsSet;
+        std::vector<vk::DescriptorSet> texturesSet;
         std::shared_ptr<PipelineBase> pPipeline;
         std::map<ETextureAttachmentType, std::shared_ptr<TextureBase>> m_mTextures;
         static std::map<int, ETextureAttachmentType> m_mTextureBindings;

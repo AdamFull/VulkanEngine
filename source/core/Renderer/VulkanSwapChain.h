@@ -38,7 +38,7 @@ namespace Engine
         std::vector<vk::Semaphore> vRenderFinishedSemaphores;
         std::vector<vk::Fence> vInFlightFences;
         size_t currentFrame = 0;
-        uint32_t iFramesInFlight = 3;
+        uint32_t iFramesInFlight = 2;
     };
 
     class SwapChain

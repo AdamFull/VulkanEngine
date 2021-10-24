@@ -29,6 +29,7 @@ namespace Engine
                 static void LoadMaterials(std::shared_ptr<LoaderTemporaryObject> tmp, std::shared_ptr<ResourceManager> pResMgr, const tinygltf::Model &model);
                 static void LoadTextures(std::shared_ptr<LoaderTemporaryObject> tmp, std::shared_ptr<ResourceManager> pResMgr, const tinygltf::Model &model);
                 static std::shared_ptr<TextureBase> LoadTexture(const tinygltf::Image &model, std::string path);
+                static void LoadSkins(const tinygltf::Model &model);
 
                 static uint32_t current_primitive;
             };

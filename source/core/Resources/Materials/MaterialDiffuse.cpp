@@ -27,7 +27,6 @@ namespace Engine
         MaterialBase::Update(imageIndex, pUniformBuffer);
 
         auto& uniformBuffer = pUniformBuffer->GetBuffer();
-        auto& descriptorSet = vDescriptorSets[imageIndex];
 
         vk::DescriptorBufferInfo bufferInfo{};
         //GetCurrentUniform
@@ -35,15 +34,20 @@ namespace Engine
         bufferInfo.offset = 0;
         bufferInfo.range = sizeof(FUniformData);
 
-        std::array<vk::WriteDescriptorSet, 4> descriptorWrites{};
-        descriptorWrites[0].dstSet = descriptorSet;
+        std::vector<vk::WriteDescriptorSet> descriptorWrites{};
+        descriptorWrites.resize(1);
+        descriptorWrites[0].dstSet = matricesSet[imageIndex];
         descriptorWrites[0].dstBinding = 0;
         descriptorWrites[0].dstArrayElement = 0;
         descriptorWrites[0].descriptorType = vk::DescriptorType::eUniformBuffer;
         descriptorWrites[0].descriptorCount = 1;
         descriptorWrites[0].pBufferInfo = &bufferInfo;
 
-        for(uint32_t i = 1; i < 4; i++)
+        UDevice->GetLogical()->updateDescriptorSets(static_cast<uint32_t>(descriptorWrites.size()), descriptorWrites.data(), 0, nullptr);
+
+        descriptorWrites.clear();
+        descriptorWrites.resize(3);
+        for(uint32_t i = 0; i < 3; i++)
         {
             auto binding = m_mTextureBindings[i];
             auto it = m_mTextures.find(binding);
@@ -53,35 +57,13 @@ namespace Engine
             else
                 texture = m_mTextures[ETextureAttachmentType::eEmpty];
 
-            descriptorWrites[i].dstSet = descriptorSet;
+            descriptorWrites[i].dstSet = texturesSet[imageIndex];
             descriptorWrites[i].dstBinding = i;
             descriptorWrites[i].dstArrayElement = 0;
             descriptorWrites[i].descriptorType = vk::DescriptorType::eCombinedImageSampler;
             descriptorWrites[i].descriptorCount = 1;
             descriptorWrites[i].pImageInfo = &texture->GetDescriptor();
         }
-
-        /*descriptorWrites[1].dstSet = descriptorSet;
-        descriptorWrites[1].dstBinding = 1;
-        descriptorWrites[1].dstArrayElement = 0;
-        descriptorWrites[1].descriptorType = vk::DescriptorType::eCombinedImageSampler;
-        descriptorWrites[1].descriptorCount = 1;
-        descriptorWrites[1].pImageInfo = &m_mTextures[ETextureAttachmentType::eColor]->GetDescriptor();
-
-        descriptorWrites[2].dstSet = descriptorSet;
-        descriptorWrites[2].dstBinding = 2;
-        descriptorWrites[2].dstArrayElement = 0;
-        descriptorWrites[2].descriptorType = vk::DescriptorType::eCombinedImageSampler;
-        descriptorWrites[2].descriptorCount = 1;
-        descriptorWrites[2].pImageInfo = &m_mTextures[ETextureAttachmentType::eNormal]->GetDescriptor();
-
-        descriptorWrites[3].dstSet = descriptorSet;
-        descriptorWrites[3].dstBinding = 3;
-        descriptorWrites[3].dstArrayElement = 0;
-        descriptorWrites[3].descriptorType = vk::DescriptorType::eCombinedImageSampler;
-        descriptorWrites[3].descriptorCount = 1;
-        descriptorWrites[3].pImageInfo = &m_mTextures[ETextureAttachmentType::eSpecular]->GetDescriptor();*/
-
         UDevice->GetLogical()->updateDescriptorSets(static_cast<uint32_t>(descriptorWrites.size()), descriptorWrites.data(), 0, nullptr);
     }
 

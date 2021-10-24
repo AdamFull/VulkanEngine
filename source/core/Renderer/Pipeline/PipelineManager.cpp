@@ -20,10 +20,6 @@ namespace Engine
     void PipelineManager::Create(std::unique_ptr<Device>& device, std::unique_ptr<SwapChain>& swapchain)
     {
         uint32_t images = swapchain->GetImages().size();
-        m_pInstance->CreateDescriptorSetLayout(device);
-        m_pInstance->CreateDescriptorPool(device, images);
-        m_pInstance->CreatePipelineLayout(device, images);
-        m_pInstance->CreatePipelineCache(device);
 
         for(auto& eSet : aShaderSets)
         {
@@ -51,11 +47,6 @@ namespace Engine
         {
             value->Cleanup(device);
         }
-
-        device->Destroy(descriptorSetLayout);
-        device->Destroy(descriptorPool);
-        device->Destroy(pipelineCache);
-        device->Destroy(pipelineLayout);
     }
 
     void PipelineManager::Destroy(std::unique_ptr<Device> &device)
@@ -64,11 +55,6 @@ namespace Engine
         {
             value->Destroy(device);
         }
-
-        device->Destroy(descriptorSetLayout);
-        device->Destroy(descriptorPool);
-        device->Destroy(pipelineCache);
-        device->Destroy(pipelineLayout);
     }
 
     std::shared_ptr<PipelineBase>& PipelineManager::Get(EShaderSet eType)
@@ -90,62 +76,5 @@ namespace Engine
         }
 
         return FPipelineCreateInfo{};
-    }
-
-    void PipelineManager::CreateDescriptorSetLayout(std::unique_ptr<Device>& device)
-    {
-        std::vector<vk::DescriptorSetLayoutBinding> vBindings;
-        for(size_t i = 0; i < 5; i++)
-        {
-            vk::DescriptorSetLayoutBinding binding;
-            binding.binding = i;
-            binding.descriptorType = (i == 0 ? vk::DescriptorType::eUniformBuffer : vk::DescriptorType::eCombinedImageSampler);
-            binding.descriptorCount = 1;
-            binding.pImmutableSamplers = nullptr;
-            binding.stageFlags = (i == 0 ? vk::ShaderStageFlagBits::eVertex : vk::ShaderStageFlagBits::eFragment);
-            vBindings.emplace_back(binding);
-        }
-        
-        vk::DescriptorSetLayoutCreateInfo createInfo{};
-        createInfo.bindingCount = static_cast<uint32_t>(vBindings.size());;
-        createInfo.pBindings = vBindings.data();
-
-        //TODO: check result
-        auto result = device->GetLogical()->createDescriptorSetLayout(&createInfo, nullptr, &descriptorSetLayout);
-    }
-
-    void PipelineManager::CreateDescriptorPool(std::unique_ptr<Device>& device, uint32_t images)
-    {
-        std::array<vk::DescriptorPoolSize, 2> poolSizes{};
-        poolSizes[0].type = vk::DescriptorType::eUniformBuffer;
-        poolSizes[0].descriptorCount = 1000;
-        poolSizes[1].type = vk::DescriptorType::eCombinedImageSampler;
-        poolSizes[1].descriptorCount = 1000;
-
-        vk::DescriptorPoolCreateInfo poolInfo{};
-        poolInfo.flags = vk::DescriptorPoolCreateFlagBits::eFreeDescriptorSet;
-        poolInfo.poolSizeCount = static_cast<uint32_t>(poolSizes.size());
-        poolInfo.pPoolSizes = poolSizes.data();
-        poolInfo.maxSets = 1000;
-
-        descriptorPool = device->Make<vk::DescriptorPool, vk::DescriptorPoolCreateInfo>(poolInfo);
-    }
-
-    void PipelineManager::CreatePipelineLayout(std::unique_ptr<Device>& device, uint32_t images)
-    {
-        vk::PipelineLayoutCreateInfo pipelineLayoutInfo = {};
-        pipelineLayoutInfo.setLayoutCount = 1;
-        pipelineLayoutInfo.pSetLayouts = &descriptorSetLayout;
-        pipelineLayoutInfo.pushConstantRangeCount = 0;
-        pipelineLayoutInfo.pPushConstantRanges = nullptr;
-
-        pipelineLayout = device->Make<vk::PipelineLayout, vk::PipelineLayoutCreateInfo>(pipelineLayoutInfo);
-        assert(pipelineLayout && "Pipeline layout was not created");
-    }
-
-    void PipelineManager::CreatePipelineCache(std::unique_ptr<Device>& device)
-    {
-        vk::PipelineCacheCreateInfo pipelineCacheCreateInfo = {};
-        pipelineCache = device->GetLogical()->createPipelineCache(pipelineCacheCreateInfo);
     }
 }

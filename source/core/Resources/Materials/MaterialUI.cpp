@@ -18,6 +18,28 @@ namespace Engine
         CreateDescriptorSets(USwapChain->GetImages().size());
     }
 
+    void MaterialBase::CreateDescriptorSetLayout()
+    {
+        std::vector<vk::DescriptorSetLayoutBinding> vBindings;
+        for(size_t i = 0; i < 5; i++)
+        {
+            vk::DescriptorSetLayoutBinding binding;
+            binding.binding = i;
+            binding.descriptorType = (i == 0 ? vk::DescriptorType::eUniformBuffer : vk::DescriptorType::eCombinedImageSampler);
+            binding.descriptorCount = 1;
+            binding.pImmutableSamplers = nullptr;
+            binding.stageFlags = (i == 0 ? vk::ShaderStageFlagBits::eVertex : vk::ShaderStageFlagBits::eFragment);
+            vBindings.emplace_back(binding);
+        }
+        
+        vk::DescriptorSetLayoutCreateInfo createInfo{};
+        createInfo.bindingCount = static_cast<uint32_t>(vBindings.size());;
+        createInfo.pBindings = vBindings.data();
+
+        //TODO: check result
+        auto result = UDevice->GetLogical()->createDescriptorSetLayout(&createInfo, nullptr, &descriptorSetLayout);
+    }
+
     void MaterialUI::Update(uint32_t imageIndex, std::unique_ptr<VulkanBuffer>& pUniformBuffer)
     {
         MaterialBase::Update(imageIndex, pUniformBuffer);

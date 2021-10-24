@@ -37,15 +37,6 @@ namespace Engine
         inline vk::PipelineCache& GetPipelineCache() { return pipelineCache; }
     private:
         FPipelineCreateInfo CreateInfo(std::unique_ptr<Device>& device, EShaderSet eSet);
-        void CreateDescriptorSetLayout(std::unique_ptr<Device>& device);
-        void CreateDescriptorPool(std::unique_ptr<Device>& device, uint32_t images);
-        void CreatePipelineLayout(std::unique_ptr<Device>& device, uint32_t images);
-        void CreatePipelineCache(std::unique_ptr<Device>& device);
-
-        vk::DescriptorSetLayout descriptorSetLayout;
-        vk::DescriptorPool descriptorPool;
-        vk::PipelineLayout pipelineLayout;
-        vk::PipelineCache pipelineCache;
         std::map<EShaderSet, std::shared_ptr<PipelineBase>> m_mPipelines; 
     };
 }

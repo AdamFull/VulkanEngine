@@ -26,6 +26,16 @@ namespace Engine
         device->Destroy(data.memory);
     }
 
+    vk::DescriptorBufferInfo VulkanBuffer::GetDscriptor(vk::DeviceSize size, vk::DeviceSize offset)
+    {
+        return vk::DescriptorBufferInfo{ data.buffer, offset, size };
+    }
+
+    vk::DescriptorBufferInfo VulkanBuffer::GetDscriptor()
+    {
+        return GetDscriptor(data.bufferSize, 0);
+    }
+
     vk::Result VulkanBuffer::MapMem(std::unique_ptr<Device>& device, vk::DeviceSize size, vk::DeviceSize offset)
     {
         assert(device && data.buffer && data.memory && "Called map on buffer before create");

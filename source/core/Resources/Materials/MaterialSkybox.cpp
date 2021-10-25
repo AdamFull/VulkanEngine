@@ -48,7 +48,7 @@ namespace Engine
         m_pMatWriter = std::make_unique<VulkanDescriptorWriter>();
         m_pMatWriter->Create(std::move(matSetLayout), m_pDescriptorPool, std::move(matSet));
 
-         vk::DescriptorBufferInfo bufferInfo{};
+        vk::DescriptorBufferInfo bufferInfo{};
         bufferInfo.buffer = pUniformBuffer->GetBuffer();
         bufferInfo.offset = 0;
         bufferInfo.range = sizeof(FUniformData);

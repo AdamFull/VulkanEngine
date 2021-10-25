@@ -37,6 +37,9 @@ namespace Engine
 
         void Destroy(std::unique_ptr<Device>& device);
 
+        vk::DescriptorBufferInfo GetDscriptor(vk::DeviceSize size, vk::DeviceSize offset);
+        vk::DescriptorBufferInfo GetDscriptor();
+
         vk::Result MapMem(std::unique_ptr<Device>& device, vk::DeviceSize size = VK_WHOLE_SIZE, vk::DeviceSize offset = 0);
         void UnmapMem(std::unique_ptr<Device>& device);
 

@@ -38,7 +38,7 @@ namespace Engine
 
         m_pDevice->Create(m_pWinHandle, createInfo.appName.c_str(), createInfo.appVersion, createInfo.engineName.c_str(), createInfo.engineVersion, createInfo.apiVersion);
         m_pSwapChain->Create(m_pDevice);
-        m_pUniform->Create(m_pDevice, m_pSwapChain->GetImages().size());
+        m_pUniform->Create(m_pDevice);
         m_pRenderer->Create(m_pDevice, m_pSwapChain);
     }
 
@@ -92,7 +92,7 @@ namespace Engine
 
         CleanupSwapChain();
         m_pSwapChain->ReCreate(m_pDevice);
-        m_pUniform->ReCreate(m_pDevice, m_pSwapChain->GetImages().size());
+        m_pUniform->ReCreate(m_pDevice);
 
         m_pRenderer->ReCreate(m_pDevice, m_pSwapChain);
     }

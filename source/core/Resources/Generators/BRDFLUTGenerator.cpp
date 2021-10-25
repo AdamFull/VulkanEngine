@@ -14,7 +14,7 @@ namespace Engine
 
     void BRDFLUTGenerator::Update(uint32_t imageIndex)
     {
-        GeneratorBase::Update(imageIndex, pUniformBuffer);
+        GeneratorBase::Update(imageIndex);
     }
 
     void BRDFLUTGenerator::Bind(vk::CommandBuffer commandBuffer, uint32_t imageIndex)

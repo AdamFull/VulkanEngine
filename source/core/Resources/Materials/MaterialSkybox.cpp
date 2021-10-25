@@ -4,10 +4,6 @@
 #include "Renderer/VulkanBuffer.h"
 #include "Renderer/VulkanDevice.h"
 
-#include "Renderer/Descriptor/DescriptorSetLayout.h"
-#include "Renderer/Descriptor/DescriptorSet.h"
-#include "Renderer/Descriptor/DescriptorWriter.h"
-
 namespace Engine
 {
     void MaterialSkybox::Create(std::unique_ptr<VulkanBuffer>& pUniformBuffer)
@@ -23,9 +19,6 @@ namespace Engine
     void MaterialSkybox::Update(uint32_t imageIndex)
     {
         MaterialBase::Update(imageIndex);
-
-        m_pMatWriter->Update(UDevice, imageIndex);
-        m_pTexWriter->Update(UDevice, imageIndex);
     }
 
     void MaterialSkybox::Bind(vk::CommandBuffer commandBuffer, uint32_t imageIndex)
@@ -68,7 +61,7 @@ namespace Engine
         build(UDevice);
 
         auto texSet = std::make_unique<VulkanDescriptorSet>();
-        matSet->Create(UDevice, m_pDescriptorPool, texSetLayout, images);
+        texSet->Create(UDevice, m_pDescriptorPool, texSetLayout, images);
 
         m_pTexWriter = std::make_unique<VulkanDescriptorWriter>();
         m_pTexWriter->Create(std::move(texSetLayout), m_pDescriptorPool, std::move(texSet));

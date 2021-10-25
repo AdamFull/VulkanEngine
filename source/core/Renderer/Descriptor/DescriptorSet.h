@@ -8,6 +8,7 @@ namespace Engine
     class VulkanDescriptorSet
     {
     public:
+        VulkanDescriptorSet() = default;
         void Create(std::unique_ptr<Device>& device, std::shared_ptr<VulkanDescriptorPool> pool, std::unique_ptr<VulkanDescriptorSetLayout>& setLayout, uint32_t images);
 
         VulkanDescriptorSet(const VulkanDescriptorSet &) = delete;

@@ -1,14 +1,16 @@
 #pragma once
+#include "DescriptorPool.h"
+#include "DescriptorSetLayout.h"
+#include "DescriptorSet.h"
 
 //Based on: https://github.com/blurrypiano/littleVulkanEngine/tree/master/littleVulkanEngine/tutorial20
 namespace Engine
 {
-    class VulkanDescriptorPool;
-    class VulkanDescriptorSetLayout;
-    class VulkanDescriptorSet;
+    class Device;
     class VulkanDescriptorWriter
     {
     public:
+        VulkanDescriptorWriter() = default;
         void Create(std::unique_ptr<VulkanDescriptorSetLayout>&& setLayout, std::shared_ptr<VulkanDescriptorPool> pool, std::unique_ptr<VulkanDescriptorSet>&& set);
 
         void WriteBuffer(uint32_t binding, vk::DescriptorBufferInfo *bufferInfo);
@@ -17,9 +19,9 @@ namespace Engine
         void Update(std::unique_ptr<Device>& device, uint32_t index);
         void Destroy(std::unique_ptr<Device>& device);
 
-        vk::DescriptorSetLayout& GetSetLayout() { return pSetLayout->Get(); }
-        vk::DescriptorPool& GetPool() { return pPool->Get(); }
-        vk::DescriptorSet& GetSet(uint32_t index) { return pSet->Get(index); }
+        vk::DescriptorSetLayout& GetSetLayout();
+        vk::DescriptorPool& GetPool();
+        vk::DescriptorSet& GetSet(uint32_t index);
     private:
         std::unique_ptr<VulkanDescriptorSetLayout> pSetLayout;
         std::shared_ptr<VulkanDescriptorPool> pPool;

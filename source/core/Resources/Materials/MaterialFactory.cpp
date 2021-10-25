@@ -15,7 +15,6 @@ namespace Engine
             EMaterialType::eUI, []()
             {
                 auto material = std::make_unique<MaterialUI>();
-                material->Create();
                 return material;
             }
         },
@@ -23,7 +22,6 @@ namespace Engine
             EMaterialType::eDiffuse, []()
             {
                 auto material = std::make_unique<MaterialDiffuse>();
-                material->Create();
                 return material;
             }
         },
@@ -31,7 +29,6 @@ namespace Engine
             EMaterialType::eSkybox, []()
             {
                 auto material = std::make_unique<MaterialSkybox>();
-                material->Create();
                 return material;
             }
         },
@@ -39,7 +36,6 @@ namespace Engine
             EMaterialType::ePBR, []()
             {
                 auto material = std::make_unique<MaterialPBR>();
-                material->Create();
                 return material;
             }
         }

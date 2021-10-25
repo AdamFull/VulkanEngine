@@ -14,7 +14,7 @@ namespace Engine
 
     void PrefiltredGenerator::Update(uint32_t imageIndex)
     {
-        GeneratorBase::Update(imageIndex, pUniformBuffer);
+        GeneratorBase::Update(imageIndex);
     }
 
     void PrefiltredGenerator::Bind(vk::CommandBuffer commandBuffer, uint32_t imageIndex)

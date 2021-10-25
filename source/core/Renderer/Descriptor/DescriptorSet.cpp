@@ -11,7 +11,7 @@ namespace Engine
         vk::DescriptorSetAllocateInfo allocInfo{};
         allocInfo.descriptorPool = pool->Get();
         allocInfo.descriptorSetCount = images;
-        allocInfo.pSetLayouts = descriptorSets.data();
+        allocInfo.pSetLayouts = vSetLayouts.data();
         descriptorSets.resize(images);
 
         if (device->GetLogical()->allocateDescriptorSets(&allocInfo, descriptorSets.data()) != vk::Result::eSuccess)

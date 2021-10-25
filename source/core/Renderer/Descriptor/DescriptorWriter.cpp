@@ -67,4 +67,19 @@ namespace Engine
         pSet->Destroy(device, pPool);
         pSetLayout->Destroy(device);
     }
+
+    vk::DescriptorSetLayout& VulkanDescriptorWriter::GetSetLayout()
+    { 
+        return pSetLayout->Get(); 
+    }
+    
+    vk::DescriptorPool& VulkanDescriptorWriter::GetPool()
+    { 
+        return pPool->Get(); 
+    }
+
+    vk::DescriptorSet& VulkanDescriptorWriter::GetSet(uint32_t index)
+    { 
+        return pSet->Get(index); 
+    }
 }

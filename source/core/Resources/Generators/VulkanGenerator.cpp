@@ -16,7 +16,7 @@ namespace Engine
 
     void GeneratorBase::Update(uint32_t imageIndex)
     {
-        ResourceBase::Update(imageIndex, pUniformBuffer);
+        ResourceBase::Update(imageIndex);
     }
 
     void GeneratorBase::Bind(vk::CommandBuffer commandBuffer, uint32_t imageIndex)

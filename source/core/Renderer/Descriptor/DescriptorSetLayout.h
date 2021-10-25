@@ -7,6 +7,7 @@ namespace Engine
     class VulkanDescriptorSetLayout
     {
     public:
+        VulkanDescriptorSetLayout() = default;
         class Builder
         {
         public:
@@ -27,10 +28,10 @@ namespace Engine
         void Destroy(std::unique_ptr<Device>& device);
 
         vk::DescriptorSetLayout Get() const { return descriptorSetLayout; }
-        std::unordered_map<uint32_t, vk::DescriptorSetLayoutBinding>& GetBindings() { return bindings; }
+        std::unordered_map<uint32_t, vk::DescriptorSetLayoutBinding>& GetBindings() { return m_mBindings; }
 
     private:
         vk::DescriptorSetLayout descriptorSetLayout;
-        std::unordered_map<uint32_t, vk::DescriptorSetLayoutBinding> bindings;
+        std::unordered_map<uint32_t, vk::DescriptorSetLayoutBinding> m_mBindings;
     };
 }

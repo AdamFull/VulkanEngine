@@ -27,7 +27,7 @@ namespace Engine
 
         ImGui::CreateContext();
         BaseInitialize();
-        m_pUniform->Create(device, swapchain->GetImages().size());
+        m_pUniform->Create(device);
         CreateResources(device, swapchain);
 
         m_vOverlays.emplace_back(std::make_shared<OverlayDebug>("Debug info"));
@@ -42,7 +42,7 @@ namespace Engine
     void ImguiOverlay::ReCreate(std::unique_ptr<Device> &device, std::unique_ptr<SwapChain> &swapchain)
     {
         fontMaterial->ReCreate();
-        m_pUniform->ReCreate(device, swapchain->GetImages().size());
+        m_pUniform->ReCreate(device);
     }
 
     void ImguiOverlay::Cleanup(std::unique_ptr<Device> &device)
@@ -110,7 +110,7 @@ namespace Engine
 
         fontTexture->LoadFromMemory(texture, format);
         fontMaterial->AddTexture(ETextureAttachmentType::eColor, fontTexture);
-        fontMaterial->Create();
+        fontMaterial->Create(m_pUniform->GetUniformBuffer());
 
         ImageLoader::Close(&texture);
     }
@@ -195,7 +195,7 @@ namespace Engine
         {
             ImGuiIO &io = ImGui::GetIO();
 
-            fontMaterial->Update(index, m_pUniform->GetUniformBuffer(index));
+            fontMaterial->Update(index);
             fontMaterial->Bind(commandBuffer, index);
 
             vk::Viewport viewport{};
@@ -208,7 +208,7 @@ namespace Engine
             FUniformDataUI ubo{};
             ubo.scale = glm::vec2(2.0f / io.DisplaySize.x, 2.0f / io.DisplaySize.y);
             ubo.translate = glm::vec2(-1.0f);
-            m_pUniform->UpdateUniformBuffer(device, index, ubo);
+            m_pUniform->UpdateUniformBuffer(device, ubo);
 
             // Render commands
             ImDrawData *imDrawData = ImGui::GetDrawData();

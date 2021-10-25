@@ -9,7 +9,6 @@
 #include "Resources/Meshes/VulkanMesh.h"
 #include "Resources/ResourceManager.h"
 #include "Resources/Textures/ImageLoader.h"
-#include "Resources/Textures/TextureContainer.h"
 #include "Resources/Materials/MaterialDiffuse.h"
 
 #include "Renderer/DataTypes/VulkanVertex.hpp"

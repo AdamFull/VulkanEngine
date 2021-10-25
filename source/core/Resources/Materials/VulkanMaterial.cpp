@@ -3,9 +3,6 @@
 #include "Renderer/VulkanDevice.h"
 #include "Renderer/VulkanHighLevel.h"
 
-#include "Renderer/Descriptor/DescriptorPool.h"
-#include "Renderer/Descriptor/DescriptorWriter.h"
-
 namespace Engine
 {
     FPipelineCreateInfo MaterialBase::CreateInfo(EShaderSet eSet)
@@ -58,6 +55,9 @@ namespace Engine
     void MaterialBase::Update(uint32_t imageIndex)
     {
         ResourceBase::Update(imageIndex);
+
+        m_pMatWriter->Update(UDevice, imageIndex);
+        m_pTexWriter->Update(UDevice, imageIndex);
     }
 
     void MaterialBase::Bind(vk::CommandBuffer commandBuffer, uint32_t imageIndex)
@@ -65,7 +65,7 @@ namespace Engine
         ResourceBase::Bind(commandBuffer, imageIndex);
         commandBuffer.bindDescriptorSets(pPipeline->GetBindPoint(), pipelineLayout, 0, 1, &m_pMatWriter->GetSet(imageIndex), 0, nullptr);
         //commandBuffer.bindDescriptorSets(pPipeline->GetBindPoint(), pipelineLayout, 1, 1, &skinsSet[imageIndex], 0, nullptr);
-        commandBuffer.bindDescriptorSets(pPipeline->GetBindPoint(), pipelineLayout, 2, 1, &m_pTexWriter->GetSet(imageIndex), 0, nullptr);
+        commandBuffer.bindDescriptorSets(pPipeline->GetBindPoint(), pipelineLayout, 1, 1, &m_pTexWriter->GetSet(imageIndex), 0, nullptr);
         pPipeline->Bind(commandBuffer);
     }
 
@@ -92,6 +92,11 @@ namespace Engine
         addPoolSize(vk::DescriptorType::eUniformBuffer, 1000).
         addPoolSize(vk::DescriptorType::eCombinedImageSampler, 1000).
         build(UDevice);
+    }
+
+    void MaterialBase::CreateDescriptors(uint32_t images, std::unique_ptr<VulkanBuffer>& pUniformBuffer)
+    {
+
     }
 
     void MaterialBase::CreatePipelineLayout(uint32_t images)

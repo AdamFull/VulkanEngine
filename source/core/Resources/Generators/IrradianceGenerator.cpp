@@ -17,7 +17,7 @@ namespace Engine
 
     void IrradianceGenerator::Update(uint32_t imageIndex)
     {
-        GeneratorBase::Update(imageIndex, pUniformBuffer);
+        GeneratorBase::Update(imageIndex);
     }
 
     void IrradianceGenerator::Bind(vk::CommandBuffer commandBuffer, uint32_t imageIndex)

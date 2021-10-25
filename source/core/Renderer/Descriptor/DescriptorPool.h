@@ -7,6 +7,7 @@ namespace Engine
     class VulkanDescriptorPool
     {
     public:
+        VulkanDescriptorPool() = default;
         class Builder
         {
         public:

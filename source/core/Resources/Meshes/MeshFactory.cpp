@@ -11,7 +11,6 @@ namespace Engine
             EMeshType::eStatic, [](FMeshCreateInfo info)
             {
                 auto mesh = std::make_shared<MeshBase>();
-                mesh->Create();
                 return mesh;
             }
         },
@@ -19,7 +18,6 @@ namespace Engine
             EMeshType::eSkeletal, [](FMeshCreateInfo info)
             {
                 auto mesh = std::make_shared<MeshBase>();
-                mesh->Create();
                 return mesh;
             }
         },
@@ -27,7 +25,6 @@ namespace Engine
             EMeshType::eGLTF, [](FMeshCreateInfo info)
             {
                 auto mesh = std::make_shared<MeshBase>();
-                mesh->Create();
                 return mesh;
             }
         }

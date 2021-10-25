@@ -4,11 +4,11 @@
 #include "Renderer/Pipeline/PipelineFactory.h"
 #include "Resources/Textures/VulkanTexture.h"
 
+#include "Renderer/Descriptor/DescriptorWriter.h"
+
 namespace Engine
 {
     class TextureBase;
-    class VulkanDescriptorPool;
-    class VulkanDescriptorWriter;
 
     struct FMaterialParams
     {

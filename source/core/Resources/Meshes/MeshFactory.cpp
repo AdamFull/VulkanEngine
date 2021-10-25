@@ -3,8 +3,6 @@
 #include "Resources/Materials/MaterialFactory.h"
 #include "MeshLoader.h"
 
-#include "StaticMesh.h"
-
 namespace Engine
 {
     std::map<EMeshType, std::function<MeshFactory::mesh_t(FMeshCreateInfo)>> MeshFactory::m_mFactory
@@ -12,7 +10,7 @@ namespace Engine
         {
             EMeshType::eStatic, [](FMeshCreateInfo info)
             {
-                auto mesh = std::make_shared<StaticMesh>();
+                auto mesh = std::make_shared<MeshBase>();
                 mesh->Create();
                 return mesh;
             }
@@ -20,7 +18,7 @@ namespace Engine
         {
             EMeshType::eSkeletal, [](FMeshCreateInfo info)
             {
-                auto mesh = std::make_shared<StaticMesh>();
+                auto mesh = std::make_shared<MeshBase>();
                 mesh->Create();
                 return mesh;
             }
@@ -28,7 +26,7 @@ namespace Engine
         {
             EMeshType::eGLTF, [](FMeshCreateInfo info)
             {
-                auto mesh = std::make_shared<StaticMesh>();
+                auto mesh = std::make_shared<MeshBase>();
                 mesh->Create();
                 return mesh;
             }

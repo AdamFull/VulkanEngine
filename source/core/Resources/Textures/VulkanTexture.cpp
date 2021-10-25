@@ -10,9 +10,9 @@ namespace Engine
         ResourceBase::ReCreate();
     }
 
-    void TextureBase::Update(uint32_t imageIndex, std::unique_ptr<VulkanBuffer>& pUniformBuffer)
+    void TextureBase::Update(uint32_t imageIndex)
     {
-        ResourceBase::Update(imageIndex, pUniformBuffer);
+        ResourceBase::Update(imageIndex);
         UpdateDescriptor();
     }
 

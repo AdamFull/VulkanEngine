@@ -9,9 +9,9 @@ namespace Engine
         TextureBase::ReCreate();
     }
 
-    void Texture3D::Update(uint32_t imageIndex, std::unique_ptr<VulkanBuffer>& pUniformBuffer)
+    void Texture3D::Update(uint32_t imageIndex)
     {
-        TextureBase::Update(imageIndex, pUniformBuffer);
+        TextureBase::Update(imageIndex);
     }
 
     void Texture3D::Bind(vk::CommandBuffer commandBuffer, uint32_t imageIndex)

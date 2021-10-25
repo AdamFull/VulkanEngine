@@ -15,7 +15,7 @@ namespace Engine
         GeneratorBase::ReCreate();
     }
 
-    void IrradianceGenerator::Update(uint32_t imageIndex, std::unique_ptr<VulkanBuffer>& pUniformBuffer)
+    void IrradianceGenerator::Update(uint32_t imageIndex)
     {
         GeneratorBase::Update(imageIndex, pUniformBuffer);
     }

@@ -2,9 +2,6 @@
 #include <filesystem>
 namespace fs = std::filesystem;
 
-#include "Loaders/ObjLoader.h"
-#include "Loaders/GLTFLoader.h"
-
 namespace Engine
 {
     bool MeshLoader::Load(std::string srPath, std::shared_ptr<ResourceManager> pResourceManager, std::shared_ptr<MeshBase> pMesh, bool bLoadMaterial)

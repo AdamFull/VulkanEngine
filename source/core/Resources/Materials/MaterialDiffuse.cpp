@@ -4,67 +4,28 @@
 #include "Renderer/VulkanBuffer.h"
 #include "Renderer/VulkanDevice.h"
 
+#include "Renderer/Descriptor/DescriptorSetLayout.h"
+#include "Renderer/Descriptor/DescriptorSet.h"
+#include "Renderer/Descriptor/DescriptorWriter.h"
+
 namespace Engine
 {
-    void MaterialDiffuse::Create()
+    void MaterialDiffuse::Create(std::unique_ptr<VulkanBuffer>& pUniformBuffer)
     {
-        MaterialBase::Create();
-
-        auto images = USwapChain->GetImages().size();
-        CreateDescriptorSets(images);
+        MaterialBase::Create(pUniformBuffer);
     }
 
     void MaterialDiffuse::ReCreate()
     {
         MaterialBase::ReCreate();
-
-        auto images = USwapChain->GetImages().size();
-        CreateDescriptorSets(images);
     }
 
-    void MaterialDiffuse::Update(uint32_t imageIndex, std::unique_ptr<VulkanBuffer>& pUniformBuffer)
+    void MaterialDiffuse::Update(uint32_t imageIndex)
     {
-        MaterialBase::Update(imageIndex, pUniformBuffer);
+        MaterialBase::Update(imageIndex);
 
-        auto& uniformBuffer = pUniformBuffer->GetBuffer();
-
-        vk::DescriptorBufferInfo bufferInfo{};
-        //GetCurrentUniform
-        bufferInfo.buffer = uniformBuffer;
-        bufferInfo.offset = 0;
-        bufferInfo.range = sizeof(FUniformData);
-
-        std::vector<vk::WriteDescriptorSet> descriptorWrites{};
-        descriptorWrites.resize(1);
-        descriptorWrites[0].dstSet = descriptors.matricesSet[imageIndex];
-        descriptorWrites[0].dstBinding = 0;
-        descriptorWrites[0].dstArrayElement = 0;
-        descriptorWrites[0].descriptorType = vk::DescriptorType::eUniformBuffer;
-        descriptorWrites[0].descriptorCount = 1;
-        descriptorWrites[0].pBufferInfo = &bufferInfo;
-
-        UDevice->GetLogical()->updateDescriptorSets(static_cast<uint32_t>(descriptorWrites.size()), descriptorWrites.data(), 0, nullptr);
-
-        descriptorWrites.clear();
-        descriptorWrites.resize(3);
-        for(uint32_t i = 0; i < 3; i++)
-        {
-            auto binding = m_mTextureBindings[i];
-            auto it = m_mTextures.find(binding);
-            std::shared_ptr<TextureBase> texture;
-            if(it != m_mTextures.end())
-                texture = it->second;
-            else
-                texture = m_mTextures[ETextureAttachmentType::eEmpty];
-
-            descriptorWrites[i].dstSet = descriptors.texturesSet[imageIndex];
-            descriptorWrites[i].dstBinding = i;
-            descriptorWrites[i].dstArrayElement = 0;
-            descriptorWrites[i].descriptorType = vk::DescriptorType::eCombinedImageSampler;
-            descriptorWrites[i].descriptorCount = 1;
-            descriptorWrites[i].pImageInfo = &texture->GetDescriptor();
-        }
-        UDevice->GetLogical()->updateDescriptorSets(static_cast<uint32_t>(descriptorWrites.size()), descriptorWrites.data(), 0, nullptr);
+        m_pMatWriter->Update(UDevice, imageIndex);
+        m_pTexWriter->Update(UDevice, imageIndex);
     }
 
     void MaterialDiffuse::Bind(vk::CommandBuffer commandBuffer, uint32_t imageIndex)
@@ -82,43 +43,49 @@ namespace Engine
         MaterialBase::Destroy();
     }
 
-    void MaterialDiffuse::CreateDescriptorSets(uint32_t images)
+    void MaterialDiffuse::CreateDescriptors(uint32_t images, std::unique_ptr<VulkanBuffer>& pUniformBuffer)
     {
-        MaterialBase::CreateDescriptorSets(images);
-    }
+        // Matrices uniform
+        auto matSetLayout = VulkanDescriptorSetLayout::Builder().
+        addBinding(0, vk::DescriptorType::eUniformBuffer, vk::ShaderStageFlagBits::eVertex).build(UDevice);
 
-    void MaterialDiffuse::CreateDescriptorSetLayout()
-    {
-        MaterialBase::CreateDescriptorSetLayout();
-        vk::DescriptorSetLayoutBinding matricesBinding;
-        matricesBinding.binding = 0;
-        matricesBinding.descriptorType = vk::DescriptorType::eUniformBuffer;
-        matricesBinding.descriptorCount = 1;
-        matricesBinding.pImmutableSamplers = nullptr;
-        matricesBinding.stageFlags = vk::ShaderStageFlagBits::eVertex;
+        auto matSet = std::make_unique<VulkanDescriptorSet>();
+        matSet->Create(UDevice, m_pDescriptorPool, matSetLayout, images);
 
-        vk::DescriptorSetLayoutCreateInfo matricesCreateInfo{};
-        matricesCreateInfo.bindingCount = 1;
-        matricesCreateInfo.pBindings = &matricesBinding;
+        m_pMatWriter = std::make_unique<VulkanDescriptorWriter>();
+        m_pMatWriter->Create(std::move(matSetLayout), m_pDescriptorPool, std::move(matSet));
 
-        auto result = UDevice->GetLogical()->createDescriptorSetLayout(&matricesCreateInfo, nullptr, &descriptors.matricesSetLayout);
-
-       std::vector<vk::DescriptorSetLayoutBinding> vBindings;
-        for(size_t i = 0; i < 4; i++)
-        {
-            vk::DescriptorSetLayoutBinding binding;
-            binding.binding = i;
-            binding.descriptorType = vk::DescriptorType::eCombinedImageSampler;
-            binding.descriptorCount = 1;
-            binding.pImmutableSamplers = nullptr;
-            binding.stageFlags = vk::ShaderStageFlagBits::eFragment;
-            vBindings.emplace_back(binding);
-        }
+         vk::DescriptorBufferInfo bufferInfo{};
+        bufferInfo.buffer = pUniformBuffer->GetBuffer();
+        bufferInfo.offset = 0;
+        bufferInfo.range = sizeof(FUniformData);
         
-        vk::DescriptorSetLayoutCreateInfo texturesCreateInfo{};
-        texturesCreateInfo.bindingCount = static_cast<uint32_t>(vBindings.size());;
-        texturesCreateInfo.pBindings = vBindings.data();
+        m_pMatWriter->WriteBuffer(0, &bufferInfo);
+        
+        // Texture uniform
+        auto texSetLayout = VulkanDescriptorSetLayout::Builder().
+        addBinding(0, vk::DescriptorType::eCombinedImageSampler, vk::ShaderStageFlagBits::eFragment).
+        addBinding(1, vk::DescriptorType::eCombinedImageSampler, vk::ShaderStageFlagBits::eFragment).
+        addBinding(2, vk::DescriptorType::eCombinedImageSampler, vk::ShaderStageFlagBits::eFragment).
+        build(UDevice);
 
-        result = UDevice->GetLogical()->createDescriptorSetLayout(&texturesCreateInfo, nullptr, &descriptors.texturesSetLayout);
+        auto texSet = std::make_unique<VulkanDescriptorSet>();
+        matSet->Create(UDevice, m_pDescriptorPool, texSetLayout, images);
+
+        m_pTexWriter = std::make_unique<VulkanDescriptorWriter>();
+        m_pTexWriter->Create(std::move(texSetLayout), m_pDescriptorPool, std::move(texSet));
+
+        for(uint32_t i = 0; i < 3; i++)
+        {
+            auto binding = m_mTextureBindings[i];
+            auto it = m_mTextures.find(binding);
+            std::shared_ptr<TextureBase> texture;
+            if(it != m_mTextures.end())
+                texture = it->second;
+            else
+                texture = m_mTextures[ETextureAttachmentType::eEmpty];
+
+            m_pTexWriter->WriteImage(i, &texture->GetDescriptor());
+        }
     }
 }

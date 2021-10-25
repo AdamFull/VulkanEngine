@@ -31,11 +31,11 @@ namespace Engine
     class MeshBase : public ResourceBase
     {
     public:
-        virtual void Create();
+        void Create(std::unique_ptr<VulkanBuffer>& pUniformBuffer) override;
         virtual void AddPrimitive(Primitive&& primitive);
         virtual void SetMaterial(std::shared_ptr<MaterialBase> material);
         void ReCreate() override;
-        void Update(uint32_t imageIndex, std::unique_ptr<VulkanBuffer>& pUniformBuffer) override;
+        void Update(uint32_t imageIndex) override;
         void Bind(vk::CommandBuffer commandBuffer, uint32_t imageIndex) override;
         void Cleanup() override;
         void Destroy() override;

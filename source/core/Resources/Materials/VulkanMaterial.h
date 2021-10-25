@@ -7,6 +7,8 @@
 namespace Engine
 {
     class TextureBase;
+    class VulkanDescriptorPool;
+    class VulkanDescriptorWriter;
 
     struct FMaterialParams
     {
@@ -27,11 +29,11 @@ namespace Engine
     class MaterialBase : public ResourceBase
     {
     public:
-        virtual void Create();
+        void Create(std::unique_ptr<VulkanBuffer>& pUniformBuffer) override;
         virtual void AddTexture(ETextureAttachmentType eAttachment, std::shared_ptr<TextureBase> pTexture);
         virtual void AddTextures(std::map<ETextureAttachmentType, std::shared_ptr<TextureBase>> mTextures);
         void ReCreate() override;
-        void Update(uint32_t imageIndex, std::unique_ptr<VulkanBuffer>& pUniformBuffer) override;
+        void Update(uint32_t imageIndex) override;
         void Bind(vk::CommandBuffer commandBuffer, uint32_t imageIndex) override;
         void Cleanup() override;
         void Destroy() override;
@@ -40,25 +42,18 @@ namespace Engine
     protected:
         virtual inline EShaderSet GetShaderSet() { return EShaderSet::eNone; }
         FPipelineCreateInfo CreateInfo(EShaderSet eSet);
-        virtual void CreateDescriptorSetLayout();
         void CreateDescriptorPool(uint32_t images);
         void CreatePipelineLayout(uint32_t images);
         void CreatePipelineCache();
-        virtual void CreateDescriptorSets(uint32_t images);
+        virtual void CreateDescriptors(uint32_t images, std::unique_ptr<VulkanBuffer>& pUniformBuffer);
 
         FMaterialParams m_fMatParams{};
 
-        struct FDescriptors
-        {
-            std::vector<vk::DescriptorSet> matricesSet;
-            std::vector<vk::DescriptorSet> skinsSet;
-            std::vector<vk::DescriptorSet> texturesSet;
-            vk::DescriptorSetLayout matricesSetLayout;
-            vk::DescriptorSetLayout skinsSetLayout;
-            vk::DescriptorSetLayout texturesSetLayout;
-        } descriptors;
+        std::unique_ptr<VulkanDescriptorWriter> m_pMatWriter;
+        std::unique_ptr<VulkanDescriptorWriter> m_pSkinWriter;
+        std::unique_ptr<VulkanDescriptorWriter> m_pTexWriter;
+        std::shared_ptr<VulkanDescriptorPool> m_pDescriptorPool;
 
-        vk::DescriptorPool descriptorPool;
         vk::PipelineLayout pipelineLayout;
         vk::PipelineCache pipelineCache;
         std::shared_ptr<PipelineBase> pPipeline;

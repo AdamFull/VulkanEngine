@@ -12,7 +12,7 @@ namespace Engine
         GeneratorBase::ReCreate();
     }
 
-    void PrefiltredGenerator::Update(uint32_t imageIndex, std::unique_ptr<VulkanBuffer>& pUniformBuffer)
+    void PrefiltredGenerator::Update(uint32_t imageIndex)
     {
         GeneratorBase::Update(imageIndex, pUniformBuffer);
     }

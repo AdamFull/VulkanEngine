@@ -2,12 +2,17 @@
 
 namespace Engine
 {
+    void ResourceBase::Create(std::unique_ptr<VulkanBuffer>& pUniformBuffer)
+    {
+
+    }
+
     void ResourceBase::ReCreate()
     {
 
     }
     
-    void ResourceBase::Update(uint32_t imageIndex, std::unique_ptr<VulkanBuffer>& pUniformBuffer)
+    void ResourceBase::Update(uint32_t imageIndex)
     {
 
     }

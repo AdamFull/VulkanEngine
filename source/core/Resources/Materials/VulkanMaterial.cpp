@@ -3,6 +3,9 @@
 #include "Renderer/VulkanDevice.h"
 #include "Renderer/VulkanHighLevel.h"
 
+#include "Renderer/Descriptor/DescriptorPool.h"
+#include "Renderer/Descriptor/DescriptorWriter.h"
+
 namespace Engine
 {
     FPipelineCreateInfo MaterialBase::CreateInfo(EShaderSet eSet)
@@ -25,11 +28,11 @@ namespace Engine
         {2, ETextureAttachmentType::eSpecular}
     };
 
-    void MaterialBase::Create()
+    void MaterialBase::Create(std::unique_ptr<VulkanBuffer>& pUniformBuffer)
     {
         uint32_t images = USwapChain->GetImages().size();
-        CreateDescriptorSetLayout();
         CreateDescriptorPool(images);
+        CreateDescriptors(images, pUniformBuffer);
         CreatePipelineLayout(images);
         CreatePipelineCache();
 
@@ -52,17 +55,17 @@ namespace Engine
         pPipeline->RecreatePipeline(CreateInfo(GetShaderSet()), UDevice, USwapChain);
     }
 
-    void MaterialBase::Update(uint32_t imageIndex, std::unique_ptr<VulkanBuffer>& pUniformBuffer)
+    void MaterialBase::Update(uint32_t imageIndex)
     {
-        ResourceBase::Update(imageIndex, pUniformBuffer);
+        ResourceBase::Update(imageIndex);
     }
 
     void MaterialBase::Bind(vk::CommandBuffer commandBuffer, uint32_t imageIndex)
     {
         ResourceBase::Bind(commandBuffer, imageIndex);
-        commandBuffer.bindDescriptorSets(pPipeline->GetBindPoint(), pipelineLayout, 0, 1, &descriptors.matricesSet[imageIndex], 0, nullptr);
+        commandBuffer.bindDescriptorSets(pPipeline->GetBindPoint(), pipelineLayout, 0, 1, &m_pMatWriter->GetSet(imageIndex), 0, nullptr);
         //commandBuffer.bindDescriptorSets(pPipeline->GetBindPoint(), pipelineLayout, 1, 1, &skinsSet[imageIndex], 0, nullptr);
-        commandBuffer.bindDescriptorSets(pPipeline->GetBindPoint(), pipelineLayout, 2, 1, &descriptors.texturesSet[imageIndex], 0, nullptr);
+        commandBuffer.bindDescriptorSets(pPipeline->GetBindPoint(), pipelineLayout, 2, 1, &m_pTexWriter->GetSet(imageIndex), 0, nullptr);
         pPipeline->Bind(commandBuffer);
     }
 
@@ -75,69 +78,25 @@ namespace Engine
     void MaterialBase::Cleanup()
     {
         ResourceBase::Cleanup();
-        UDevice->GetLogical()->freeDescriptorSets(descriptorPool, descriptors.matricesSet);
-        UDevice->GetLogical()->freeDescriptorSets(descriptorPool, descriptors.skinsSet);
-        UDevice->GetLogical()->freeDescriptorSets(descriptorPool, descriptors.texturesSet);
-        UDevice->Destroy(descriptors.matricesSet);
-        UDevice->Destroy(descriptors.skinsSet);
-        UDevice->Destroy(descriptors.texturesSet);
-        UDevice->Destroy(descriptorPool);
+        m_pMatWriter->Destroy(UDevice);
+        m_pTexWriter->Destroy(UDevice);
+        m_pDescriptorPool->Destroy(UDevice);
         UDevice->Destroy(pipelineLayout);
         UDevice->Destroy(pipelineCache);
     }
 
-    void MaterialBase::CreateDescriptorSetLayout()
-    {
-
-    }
-
-    void MaterialBase::CreateDescriptorSets(uint32_t images)
-    {
-        std::vector<vk::DescriptorSetLayout> vMatricesSetLayouts(images, descriptors.matricesSetLayout);
-        vk::DescriptorSetAllocateInfo allocInfo{};
-        allocInfo.descriptorPool = descriptorPool;
-        allocInfo.descriptorSetCount = images;
-        allocInfo.pSetLayouts = vMatricesSetLayouts.data();
-        descriptors.matricesSet.resize(images);
-        auto mresult = UDevice->GetLogical()->allocateDescriptorSets(&allocInfo, descriptors.matricesSet.data());
-
-        std::vector<vk::DescriptorSetLayout> vSkinsSetLayouts(images, descriptors.skinsSetLayout);
-        vk::DescriptorSetAllocateInfo skinsAllocInfo{};
-        skinsAllocInfo.descriptorPool = descriptorPool;
-        skinsAllocInfo.descriptorSetCount = images;
-        skinsAllocInfo.pSetLayouts = vSkinsSetLayouts.data();
-        descriptors.skinsSet.resize(images);
-        auto sresult = UDevice->GetLogical()->allocateDescriptorSets(&allocInfo, descriptors.skinsSet.data());
-
-        std::vector<vk::DescriptorSetLayout> vTexturesSetLayouts(images, descriptors.texturesSetLayout);
-        vk::DescriptorSetAllocateInfo texturesAllocInfo{};
-        texturesAllocInfo.descriptorPool = descriptorPool;
-        texturesAllocInfo.descriptorSetCount = images;
-        texturesAllocInfo.pSetLayouts = vTexturesSetLayouts.data();
-        descriptors.texturesSet.resize(images);
-        auto tresult = UDevice->GetLogical()->allocateDescriptorSets(&allocInfo, descriptors.texturesSet.data());
-    }
-
     void MaterialBase::CreateDescriptorPool(uint32_t images)
     {
-        std::array<vk::DescriptorPoolSize, 2> poolSizes{};
-        poolSizes[0].type = vk::DescriptorType::eUniformBuffer;
-        poolSizes[0].descriptorCount = 1000;
-        poolSizes[1].type = vk::DescriptorType::eCombinedImageSampler;
-        poolSizes[1].descriptorCount = 1000;
-
-        vk::DescriptorPoolCreateInfo poolInfo{};
-        poolInfo.flags = vk::DescriptorPoolCreateFlagBits::eFreeDescriptorSet;
-        poolInfo.poolSizeCount = static_cast<uint32_t>(poolSizes.size());
-        poolInfo.pPoolSizes = poolSizes.data();
-        poolInfo.maxSets = 1000;
-
-        descriptorPool = UDevice->Make<vk::DescriptorPool, vk::DescriptorPoolCreateInfo>(poolInfo);
+        m_pDescriptorPool = VulkanDescriptorPool::Builder().
+        setMaxSets(1000).
+        addPoolSize(vk::DescriptorType::eUniformBuffer, 1000).
+        addPoolSize(vk::DescriptorType::eCombinedImageSampler, 1000).
+        build(UDevice);
     }
 
     void MaterialBase::CreatePipelineLayout(uint32_t images)
     {
-        std::vector<vk::DescriptorSetLayout> vLayouts = {descriptors.matricesSetLayout/*, descriptors.skinsSetLayout*/, descriptors.texturesSetLayout};
+        std::vector<vk::DescriptorSetLayout> vLayouts = {m_pMatWriter->GetSetLayout()/*, descriptors.skinsSetLayout*/, m_pTexWriter->GetSetLayout()};
         vk::PipelineLayoutCreateInfo pipelineLayoutInfo = {};
         pipelineLayoutInfo.setLayoutCount = vLayouts.size();
         pipelineLayoutInfo.pSetLayouts = vLayouts.data();

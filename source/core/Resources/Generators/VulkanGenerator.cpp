@@ -14,7 +14,7 @@ namespace Engine
 
     }
 
-    void GeneratorBase::Update(uint32_t imageIndex, std::unique_ptr<VulkanBuffer>& pUniformBuffer)
+    void GeneratorBase::Update(uint32_t imageIndex)
     {
         ResourceBase::Update(imageIndex, pUniformBuffer);
     }

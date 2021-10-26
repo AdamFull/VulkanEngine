@@ -20,6 +20,25 @@ namespace Engine
         }
     }
 
+    void VulkanDescriptorSet::UpdatePipelineInfo(vk::PipelineBindPoint bindPoint, vk::PipelineLayout layout)
+    {
+        pipelineBindPoint = bindPoint;
+        pipelineLayout = layout;
+    }
+
+    void VulkanDescriptorSet::Update(std::unique_ptr<Device>& device, std::vector<vk::WriteDescriptorSet>& vWrites, uint32_t index)
+    {
+        for (auto &write : vWrites)
+            write.dstSet = descriptorSets.at(index);
+
+        device->GetLogical()->updateDescriptorSets(static_cast<uint32_t>(vWrites.size()), vWrites.data(), 0, nullptr);
+    }
+
+    void VulkanDescriptorSet::Bind(const vk::CommandBuffer& commandBuffer, uint32_t index, uint32_t set) const
+    {
+        commandBuffer.bindDescriptorSets(pipelineBindPoint, pipelineLayout, set, 1, &descriptorSets.at(index), 0, nullptr);
+    }
+
     void VulkanDescriptorSet::Destroy(std::unique_ptr<Device>& device, std::shared_ptr<VulkanDescriptorPool> pool)
     {
         device->GetLogical()->freeDescriptorSets(pool->Get(), descriptorSets);

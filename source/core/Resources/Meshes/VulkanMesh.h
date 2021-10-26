@@ -31,7 +31,7 @@ namespace Engine
     class MeshBase : public ResourceBase
     {
     public:
-        void Create(std::unique_ptr<VulkanBuffer>& pUniformBuffer) override;
+        void Create() override;
         virtual void AddPrimitive(Primitive&& primitive);
         virtual void SetMaterial(std::shared_ptr<MaterialBase> material);
         void ReCreate() override;

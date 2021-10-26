@@ -5,6 +5,9 @@
 #include <Objects/Components/Camera/CameraManager.h>
 #include <GlobalVariables.h>
 
+#include "Renderer/VulkanVBO.h"
+#include "Renderer/VulkanHighLevel.h"
+
 namespace Engine
 {
     void OverlayDebug::Draw()
@@ -29,6 +32,11 @@ namespace Engine
             std::rotate(frameTimes.begin(), frameTimes.begin() + 1, frameTimes.end());
             frameTimes.back() = fFrameTime;
 
+            if(fFrameTime < frameTimeMin)
+                frameTimeMin = fFrameTime;
+            if(fFrameTime > frameTimeMax)
+                frameTimeMax = fFrameTime;
+
             ImGui::Text("Frame info");
             char overlay[32];
             sprintf(overlay, "dt: %.3f | fps: %.3f", fFrameTime, ImGui::GetIO().Framerate);
@@ -47,6 +55,12 @@ namespace Engine
             ImGui::Text("Global");
             ImGui::DragFloat3("Models rot", (float*)GlobalVariables::modelRotation, 0.01, -100.0, 100.0);
             //ImGui::InputFloat3("Light pos", (float*)GlobalVariables::lightPosition);
+
+            ImGui::Text("VBO");
+            int vertices = UVBO->GetLastVertex();
+            ImGui::InputInt("Vertices", &vertices);
+            int indices = UVBO->GetLastIndex();
+            ImGui::InputInt("Indices", &indices);
 
             ImGui::End();
         }

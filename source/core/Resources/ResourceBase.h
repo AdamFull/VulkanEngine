@@ -9,7 +9,7 @@ namespace Engine
     class ResourceBase
     {
     public:
-        virtual void Create(std::unique_ptr<VulkanBuffer>& pUniformBuffer);
+        virtual void Create();
         virtual void ReCreate();
         virtual void Update(uint32_t imageIndex);
         virtual void Bind(vk::CommandBuffer commandBuffer, uint32_t imageIndex);

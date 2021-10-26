@@ -14,11 +14,11 @@ namespace Engine
         dimensions.radius = glm::distance(min, max) / 2.0f;
     }
 
-    void MeshBase::Create(std::unique_ptr<VulkanBuffer>& pUniformBuffer)
+    void MeshBase::Create()
     {
         for(auto& primitive : m_vPrimitives)
         {
-            primitive.material->Create(pUniformBuffer);
+            primitive.material->Create();
         }
     }
 

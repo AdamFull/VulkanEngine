@@ -5,6 +5,7 @@
 #include "VulkanBuffer.h"
 #include "VulkanRenderer.h"
 #include "VulkanVBO.h"
+#include "Overlay/ImguiOverlay.h"
 #include "VulkanStaticHelper.h"
 
 namespace Engine
@@ -30,16 +31,18 @@ namespace Engine
         m_pWinHandle = std::make_unique<WindowHandle>();
         m_pDevice = std::make_unique<Device>();
         m_pSwapChain = std::make_unique<SwapChain>();
-        m_pUniform = std::make_unique<UniformBuffer<FUniformData>>();
+        m_pUniform = std::make_unique<UniformBuffer>();
         m_pRenderer = std::make_unique<Renderer>();
         m_pVertexBufferObject = std::make_unique<VulkanVBO>();
+        m_pOverlay = std::make_unique<ImguiOverlay>();
 
         m_pWinHandle->Create(createInfo.window);
 
         m_pDevice->Create(m_pWinHandle, createInfo.appName.c_str(), createInfo.appVersion, createInfo.engineName.c_str(), createInfo.engineVersion, createInfo.apiVersion);
         m_pSwapChain->Create(m_pDevice);
-        m_pUniform->Create(m_pDevice);
+        m_pUniform->Create(m_pDevice, m_pSwapChain->GetFramesInFlight(), sizeof(FUniformData));
         m_pRenderer->Create(m_pDevice, m_pSwapChain);
+        m_pOverlay->Create(m_pWinHandle, m_pDevice, m_pSwapChain);
     }
 
     vk::CommandBuffer VulkanHighLevel::BeginFrame(bool* bResult)
@@ -82,7 +85,6 @@ namespace Engine
     void VulkanHighLevel::EndRender(vk::CommandBuffer commandBuffer)
     {
         m_pRenderer->EndRender(commandBuffer, m_pSwapChain);
-
     }
 
     void VulkanHighLevel::RecreateSwapChain()
@@ -92,9 +94,10 @@ namespace Engine
 
         CleanupSwapChain();
         m_pSwapChain->ReCreate(m_pDevice);
-        m_pUniform->ReCreate(m_pDevice);
+        m_pUniform->ReCreate(m_pDevice, m_pSwapChain->GetFramesInFlight());
 
         m_pRenderer->ReCreate(m_pDevice, m_pSwapChain);
+        m_pOverlay->ReCreate(m_pDevice, m_pSwapChain);
     }
 
     void VulkanHighLevel::CleanupSwapChain()
@@ -110,6 +113,7 @@ namespace Engine
 
         CleanupSwapChain();
         m_pSwapChain->Destroy(m_pDevice);
+        m_pOverlay->Cleanup(m_pDevice);
         m_pDevice->Cleanup();
     }
 
@@ -122,6 +126,7 @@ namespace Engine
         m_pRenderer->Destroy(m_pDevice);
         m_pSwapChain->Destroy(m_pDevice);
         m_pVertexBufferObject->Destroy(m_pDevice);
+        m_pOverlay->Destroy(m_pDevice);
         m_pDevice->Cleanup();
     }
 }

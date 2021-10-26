@@ -18,7 +18,6 @@ namespace Engine
         virtual void SetIndex(uint32_t index) { m_iIndex = index; }
     protected:
         std::shared_ptr<MeshBase> m_pMesh;
-        std::shared_ptr<UniformBuffer<FUniformData>> m_pUniform;
         uint32_t m_iIndex{0};
     };
 }

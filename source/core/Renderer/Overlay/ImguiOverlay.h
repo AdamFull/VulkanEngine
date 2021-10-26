@@ -1,6 +1,5 @@
 #pragma once
 #include <imgui.h>
-#include "Renderer/VulkanUniform.h"
 #include "Overlays/OverlayBase.h"
 
 namespace Engine
@@ -10,6 +9,7 @@ namespace Engine
     class TextureBase;
     class MaterialUI;
     class VulkanBuffer;
+    class UniformBuffer;
     class WindowHandle;
 
     struct FGUIControls
@@ -33,6 +33,8 @@ namespace Engine
         void Update(std::unique_ptr<Device>& device, float deltaTime);
         void DrawFrame(std::unique_ptr<Device>& device, vk::CommandBuffer commandBuffer, uint32_t index);
 
+        std::unique_ptr<VulkanBuffer>& GetBuffer(uint32_t index);
+
     private:
         void BaseInitialize();
         void CreateFontResources(std::unique_ptr<Device>& device);
@@ -49,7 +51,7 @@ namespace Engine
         void OnInputChar(unsigned int c);
         void OnMonitorEvent(int monitor);
 
-        std::unique_ptr<UniformBuffer<FUniformDataUI>> m_pUniform;
+        std::unique_ptr<UniformBuffer> m_pUniform;
         std::shared_ptr<TextureBase> fontTexture;
         std::shared_ptr<MaterialUI> fontMaterial;
         std::unique_ptr<VulkanBuffer> vertexBuffer;

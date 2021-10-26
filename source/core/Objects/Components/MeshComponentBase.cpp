@@ -16,9 +16,7 @@ namespace Engine
 
         if (m_pMesh)
         {
-            m_pUniform = std::make_shared<UniformBuffer<FUniformData>>();
-            m_pUniform->Create(UDevice);
-            m_pMesh->Create(m_pUniform->GetUniformBuffer());
+            m_pMesh->Create();
         }
     }
 
@@ -28,7 +26,6 @@ namespace Engine
 
         if (m_pMesh)
         {
-            m_pUniform->ReCreate(UDevice);
             m_pMesh->ReCreate();
         }
     }
@@ -48,10 +45,10 @@ namespace Engine
             ubo.view = camera->GetView();
             ubo.projection = camera->GetProjection();
             ubo.normal = glm::transpose(glm::inverse(ubo.view * ubo.model));
+            UUniform->UpdateUniformBuffer(UDevice, imageIndex, &ubo);
 
             ubo.viewPosition = glm::vec4(camera->GetTransform().pos, 1.0);
             ubo.lightPosition = glm::vec4(GlobalVariables::lightPosition[0], GlobalVariables::lightPosition[1], GlobalVariables::lightPosition[2], 1.0);
-            m_pUniform->UpdateUniformBuffer(UDevice, ubo);
         }
     }
 
@@ -72,7 +69,6 @@ namespace Engine
 
         if (m_pMesh)
         {
-            m_pUniform->Cleanup(UDevice);
             m_pMesh->Cleanup();
         }
     }
@@ -80,9 +76,5 @@ namespace Engine
     void MeshComponentBase::Destroy()
     {
         ComponentBase::Destroy();
-        if (m_pMesh)
-        {
-            m_pUniform->Cleanup(UDevice);
-        }
     }
 }

@@ -7,19 +7,11 @@
 
 namespace Engine
 {
-    void VulkanDescriptorWriter::Create(std::unique_ptr<VulkanDescriptorSetLayout>&& setLayout, std::shared_ptr<VulkanDescriptorPool> pool, std::unique_ptr<VulkanDescriptorSet>&& set)
+    VulkanDescriptorWriter& VulkanDescriptorWriter::WriteBuffer(uint32_t binding, descriptor_set_layout_bindings_t& bindings, vk::DescriptorBufferInfo *bufferInfo)
     {
-        pSetLayout = std::move(setLayout);
-        pPool = pool;
-        pSet = std::move(set);
-    }
+        assert(bindings.count(binding) == 1 && "Layout does not contain specified binding");
 
-    void VulkanDescriptorWriter::WriteBuffer(uint32_t binding, vk::DescriptorBufferInfo *bufferInfo)
-    {
-        auto& layoutBindings = pSetLayout->GetBindings();
-        assert(layoutBindings.count(binding) == 1 && "Layout does not contain specified binding");
-
-        auto &bindingDescription = layoutBindings[binding];
+        auto &bindingDescription = bindings[binding];
 
         assert(
             bindingDescription.descriptorCount == 1 &&
@@ -32,14 +24,14 @@ namespace Engine
         write.descriptorCount = 1;
 
         vWrites.push_back(write);
+        return *this;
     }
 
-    void VulkanDescriptorWriter::WriteImage(uint32_t binding, vk::DescriptorImageInfo *imageInfo)
+    VulkanDescriptorWriter& VulkanDescriptorWriter::WriteImage(uint32_t binding, descriptor_set_layout_bindings_t& bindings, vk::DescriptorImageInfo *imageInfo)
     {
-        auto& layoutBindings = pSetLayout->GetBindings();
-        assert(layoutBindings.count(binding) == 1 && "Layout does not contain specified binding");
+        assert(bindings.count(binding) == 1 && "Layout does not contain specified binding");
 
-        auto &bindingDescription = layoutBindings[binding];
+        auto &bindingDescription = bindings[binding];
 
         assert(bindingDescription.descriptorCount == 1 && "Binding single descriptor info, but binding expects multiple");
 
@@ -50,36 +42,11 @@ namespace Engine
         write.descriptorCount = 1;
 
         vWrites.push_back(write);
+        return *this;
     }
 
-    void VulkanDescriptorWriter::Update(std::unique_ptr<Device>& device, uint32_t index)
+    std::vector<vk::WriteDescriptorSet> VulkanDescriptorWriter::Build()
     {
-        for (auto &write : vWrites)
-        {
-            write.dstSet = pSet->Get(index);
-        }
-
-        device->GetLogical()->updateDescriptorSets(static_cast<uint32_t>(vWrites.size()), vWrites.data(), 0, nullptr);
-    }
-
-    void VulkanDescriptorWriter::Destroy(std::unique_ptr<Device>& device)
-    {
-        pSet->Destroy(device, pPool);
-        pSetLayout->Destroy(device);
-    }
-
-    vk::DescriptorSetLayout& VulkanDescriptorWriter::GetSetLayout()
-    { 
-        return pSetLayout->Get(); 
-    }
-    
-    vk::DescriptorPool& VulkanDescriptorWriter::GetPool()
-    { 
-        return pPool->Get(); 
-    }
-
-    vk::DescriptorSet& VulkanDescriptorWriter::GetSet(uint32_t index)
-    { 
-        return pSet->Get(index); 
+        return vWrites;
     }
 }

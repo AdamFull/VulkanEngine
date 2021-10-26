@@ -3,6 +3,8 @@
 //Based on: https://github.com/blurrypiano/littleVulkanEngine/tree/master/littleVulkanEngine/tutorial20
 namespace Engine
 {
+    using descriptor_set_layout_bindings_t = std::unordered_map<uint32_t, vk::DescriptorSetLayoutBinding>;
+
     class Device;
     class VulkanDescriptorSetLayout
     {
@@ -17,10 +19,10 @@ namespace Engine
             std::unique_ptr<VulkanDescriptorSetLayout> build(std::unique_ptr<Device>& device) const;
 
         private:
-            std::unordered_map<uint32_t, vk::DescriptorSetLayoutBinding> bindings{};
+            descriptor_set_layout_bindings_t bindings{};
         };
 
-        void Create(std::unique_ptr<Device>& device, std::unordered_map<uint32_t, vk::DescriptorSetLayoutBinding> bindings);
+        void Create(std::unique_ptr<Device>& device, descriptor_set_layout_bindings_t bindings);
 
         VulkanDescriptorSetLayout(const VulkanDescriptorSetLayout &) = delete;
         VulkanDescriptorSetLayout &operator=(const VulkanDescriptorSetLayout &) = delete;
@@ -28,10 +30,10 @@ namespace Engine
         void Destroy(std::unique_ptr<Device>& device);
 
         vk::DescriptorSetLayout Get() const { return descriptorSetLayout; }
-        std::unordered_map<uint32_t, vk::DescriptorSetLayoutBinding>& GetBindings() { return m_mBindings; }
+        descriptor_set_layout_bindings_t& GetBindings() { return m_mBindings; }
 
     private:
         vk::DescriptorSetLayout descriptorSetLayout;
-        std::unordered_map<uint32_t, vk::DescriptorSetLayoutBinding> m_mBindings;
+        descriptor_set_layout_bindings_t m_mBindings;
     };
 }

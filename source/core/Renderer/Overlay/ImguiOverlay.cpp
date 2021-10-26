@@ -23,11 +23,11 @@ namespace Engine
         fontMaterial = std::make_shared<MaterialUI>();
         vertexBuffer = std::make_unique<VulkanBuffer>();
         indexBuffer = std::make_unique<VulkanBuffer>();
-        m_pUniform = std::make_unique<UniformBuffer<FUniformDataUI>>();
+        m_pUniform = std::make_unique<UniformBuffer>();
 
         ImGui::CreateContext();
         BaseInitialize();
-        m_pUniform->Create(device);
+        m_pUniform->Create(device, swapchain->GetFramesInFlight(), sizeof(FUniformDataUI));
         CreateResources(device, swapchain);
 
         m_vOverlays.emplace_back(std::make_shared<OverlayDebug>("Debug info"));
@@ -42,7 +42,7 @@ namespace Engine
     void ImguiOverlay::ReCreate(std::unique_ptr<Device> &device, std::unique_ptr<SwapChain> &swapchain)
     {
         fontMaterial->ReCreate();
-        m_pUniform->ReCreate(device);
+        m_pUniform->ReCreate(device, swapchain->GetFramesInFlight());
     }
 
     void ImguiOverlay::Cleanup(std::unique_ptr<Device> &device)
@@ -110,7 +110,7 @@ namespace Engine
 
         fontTexture->LoadFromMemory(texture, format);
         fontMaterial->AddTexture(ETextureAttachmentType::eColor, fontTexture);
-        fontMaterial->Create(m_pUniform->GetUniformBuffer());
+        fontMaterial->Create();
 
         ImageLoader::Close(&texture);
     }
@@ -208,7 +208,7 @@ namespace Engine
             FUniformDataUI ubo{};
             ubo.scale = glm::vec2(2.0f / io.DisplaySize.x, 2.0f / io.DisplaySize.y);
             ubo.translate = glm::vec2(-1.0f);
-            m_pUniform->UpdateUniformBuffer(device, ubo);
+            m_pUniform->UpdateUniformBuffer(device, index, &ubo);
 
             // Render commands
             ImDrawData *imDrawData = ImGui::GetDrawData();
@@ -241,6 +241,11 @@ namespace Engine
                 }
             }
         }
+    }
+
+    std::unique_ptr<VulkanBuffer>& ImguiOverlay::GetBuffer(uint32_t index)
+    {
+        return m_pUniform->GetUniformBuffer(index);
     }
 
     void ImguiOverlay::OnFocusChange(int focused)

@@ -413,7 +413,7 @@ namespace Engine
                         bufferSize = image.width * image.height * 4;
                         texture->pData = static_cast<unsigned char*>(calloc(bufferSize, sizeof(unsigned char)));
                         unsigned char *rgba = texture->pData;
-                        unsigned char *rgb;
+                        unsigned char *rgb{nullptr};
                         memcpy(rgb, image.image.data(), bufferSize);
 
                         #pragma omp parallel for

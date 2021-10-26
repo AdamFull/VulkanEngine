@@ -46,7 +46,7 @@ namespace Engine
         device->CopyOnDeviceBuffer(stagingBuffer.GetBuffer(), vertexBuffer->GetBuffer(), bufferSize);
 
         stagingBuffer.Destroy(device);
-        m_vVertices.clear();
+        //m_vVertices.clear();
     }
 
     void VulkanVBO::CreateIndexBuffer(std::unique_ptr<Device>& device)
@@ -64,6 +64,6 @@ namespace Engine
         device->CopyOnDeviceBuffer(stagingBuffer.GetBuffer(), indexBuffer->GetBuffer(), bufferSize);
 
         stagingBuffer.Destroy(device);
-        m_vIndices.clear();
+        //m_vIndices.clear();
     }
 }

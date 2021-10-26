@@ -2,7 +2,7 @@
 
 namespace Engine
 {
-    void ResourceBase::Create(std::unique_ptr<VulkanBuffer>& pUniformBuffer)
+    void ResourceBase::Create()
     {
 
     }

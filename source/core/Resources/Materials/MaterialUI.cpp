@@ -3,12 +3,17 @@
 #include "Renderer/VulkanUniform.h"
 #include "Renderer/VulkanBuffer.h"
 #include "Renderer/VulkanDevice.h"
+#include "Renderer/Overlay/ImguiOverlay.h"
+
+#include "Renderer/Descriptor/DescriptorSet.h"
+#include "Renderer/Descriptor/DescriptorSetLayout.h"
+#include "Renderer/Descriptor/DescriptorWriter.h"
 
 namespace Engine
 {
-    void MaterialUI::Create(std::unique_ptr<VulkanBuffer>& pUniformBuffer)
+    void MaterialUI::Create()
     {
-        MaterialBase::Create(pUniformBuffer);
+        MaterialBase::Create();
     }
 
     void MaterialUI::ReCreate()
@@ -19,6 +24,14 @@ namespace Engine
     void MaterialUI::Update(uint32_t imageIndex)
     {
         MaterialBase::Update(imageIndex);
+
+        auto bufferInfo = VulkanDescriptorWriter().
+        WriteBuffer(0, m_pMatDesc->GetSetLayout(0)->GetBindings(), &UOverlay->GetBuffer(imageIndex)->GetDscriptor()).Build();
+        m_pMatDesc->Update(0, imageIndex, bufferInfo);
+
+        auto imageInfo = VulkanDescriptorWriter().
+        WriteImage(0, m_pMatDesc->GetSetLayout(1)->GetBindings(), &m_mTextures[ETextureAttachmentType::eColor]->GetDescriptor()).Build();
+        m_pMatDesc->Update(1, imageIndex, imageInfo);
     }
 
     void MaterialUI::Bind(vk::CommandBuffer commandBuffer, uint32_t imageIndex)
@@ -36,25 +49,18 @@ namespace Engine
         MaterialBase::Destroy();
     }
 
-    void MaterialUI::CreateDescriptors(uint32_t images, std::unique_ptr<VulkanBuffer>& pUniformBuffer)
+    void MaterialUI::CreateDescriptors(uint32_t images)
     {
         // Matrices uniform
         auto matSetLayout = VulkanDescriptorSetLayout::Builder().
-        addBinding(0, vk::DescriptorType::eUniformBuffer, vk::ShaderStageFlagBits::eVertex).build(UDevice);
+        addBinding(0, vk::DescriptorType::eUniformBuffer, vk::ShaderStageFlagBits::eVertex).
+        build(UDevice);
 
         auto matSet = std::make_unique<VulkanDescriptorSet>();
         matSet->Create(UDevice, m_pDescriptorPool, matSetLayout, images);
 
-        m_pMatWriter = std::make_unique<VulkanDescriptorWriter>();
-        m_pMatWriter->Create(std::move(matSetLayout), m_pDescriptorPool, std::move(matSet));
+        m_pMatDesc->AttachDescriptorSet(std::move(matSet), std::move(matSetLayout));
 
-         vk::DescriptorBufferInfo bufferInfo{};
-        bufferInfo.buffer = pUniformBuffer->GetBuffer();
-        bufferInfo.offset = 0;
-        bufferInfo.range = sizeof(FUniformDataUI);
-        
-        m_pMatWriter->WriteBuffer(0, &bufferInfo);
-        
         // Texture uniform
         auto texSetLayout = VulkanDescriptorSetLayout::Builder().
         addBinding(0, vk::DescriptorType::eCombinedImageSampler, vk::ShaderStageFlagBits::eFragment).
@@ -63,9 +69,6 @@ namespace Engine
         auto texSet = std::make_unique<VulkanDescriptorSet>();
         texSet->Create(UDevice, m_pDescriptorPool, texSetLayout, images);
 
-        m_pTexWriter = std::make_unique<VulkanDescriptorWriter>();
-        m_pTexWriter->Create(std::move(texSetLayout), m_pDescriptorPool, std::move(texSet));
-
-        m_pTexWriter->WriteImage(0, &m_mTextures[ETextureAttachmentType::eColor]->GetDescriptor());
+        m_pMatDesc->AttachDescriptorSet(std::move(texSet), std::move(texSetLayout));
     }
 }

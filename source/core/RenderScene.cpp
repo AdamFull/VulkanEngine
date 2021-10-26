@@ -8,16 +8,14 @@
 #include "Renderer/VulkanHighLevel.h"
 #include "KeyMapping/InputMapper.h"
 #include "Resources/ResourceManager.h"
+#include "Renderer/Overlay/ImguiOverlay.h"
 
 namespace Engine
 {
     void RenderScene::Create()
     {
         m_pRoot = std::make_shared<SceneRootComponent>();
-        m_pOvelray = std::make_unique<ImguiOverlay>();
         m_pResourceManager = std::make_shared<ResourceManager>();
-
-        m_pOvelray->Create(UWinHandle, UDevice, USwapChain);
 
         //TODO: move to another place
         auto pEmptyTexture = std::make_shared<TextureBase>();
@@ -27,9 +25,7 @@ namespace Engine
 
     void RenderScene::ReCreate()
     {
-        m_pOvelray->Cleanup(UDevice);
         m_pRoot->Cleanup();
-        m_pOvelray->ReCreate(UDevice, USwapChain);
 
         if(m_pSkybox)
             m_pSkybox->ReCreate();
@@ -46,8 +42,6 @@ namespace Engine
             auto commandBuffer = URenderer->GetCurrentCommandBuffer();
             UHLInstance->EndFrame(commandBuffer, &bResult);
         }
-
-        m_pOvelray->Destroy(UDevice);
         
         if(m_pSkybox)
             m_pSkybox->Destroy();
@@ -90,8 +84,8 @@ namespace Engine
 
         uint32_t currentFrame = URenderer->GetImageIndex();
 
-        m_pOvelray->NewFrame();
-        m_pOvelray->Update(UDevice, fDeltaTime);
+        UOverlay->NewFrame();
+        UOverlay->Update(UDevice, fDeltaTime);
 
         UHLInstance->BeginRender(commandBuffer);
 
@@ -103,7 +97,7 @@ namespace Engine
         m_pRoot->Render(commandBuffer, currentFrame);
 
         //Imgui overlays (Demo)
-        m_pOvelray->DrawFrame(UDevice, commandBuffer, currentFrame);
+        UOverlay->DrawFrame(UDevice, commandBuffer, currentFrame);
 
         UHLInstance->EndRender(commandBuffer);
 

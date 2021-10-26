@@ -7,6 +7,7 @@
 #define UDevice UHLInstance->GetDevice()
 #define USwapChain UHLInstance->GetSwapChain()
 #define UUniform UHLInstance->GetUniformBuffer()
+#define UOverlay UHLInstance->GetOverlay()
 #define URenderer UHLInstance->GetRenderer()
 #define UVBO UHLInstance->GetVBO()
 
@@ -17,6 +18,7 @@ namespace Engine
     class VulkanBuffer;
     class Renderer;
     class VulkanVBO;
+    class ImguiOverlay;
 
     struct FEngineCreateInfo
     {
@@ -60,7 +62,8 @@ namespace Engine
         inline std::unique_ptr<WindowHandle>& GetWinHandle() { return m_pWinHandle; }
         inline std::unique_ptr<Device>& GetDevice() { return m_pDevice; }
         inline std::unique_ptr<SwapChain>& GetSwapChain() { return m_pSwapChain; }
-        inline std::unique_ptr<UniformBuffer<FUniformData>>&  GetUniformBuffer() { return m_pUniform; }
+        inline std::unique_ptr<UniformBuffer>&  GetUniformBuffer() { return m_pUniform; }
+        inline std::unique_ptr<ImguiOverlay>&  GetOverlay() { return m_pOverlay; }
         inline std::unique_ptr<Renderer>&  GetRenderer() { return m_pRenderer; }
         inline std::unique_ptr<VulkanVBO>&  GetVBO() { return m_pVertexBufferObject; }
     private:
@@ -74,8 +77,9 @@ namespace Engine
         //SwapChain
         std::unique_ptr<SwapChain> m_pSwapChain;
 
-        //Descriptors
-        std::unique_ptr<UniformBuffer<FUniformData>> m_pUniform;
+        std::unique_ptr<UniformBuffer> m_pUniform;
+
+        std::unique_ptr<ImguiOverlay> m_pOverlay;
 
         std::unique_ptr<Renderer> m_pRenderer;
 

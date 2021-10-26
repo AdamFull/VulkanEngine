@@ -25,15 +25,18 @@ namespace Engine
         {2, ETextureAttachmentType::eSpecular}
     };
 
-    void MaterialBase::Create(std::unique_ptr<VulkanBuffer>& pUniformBuffer)
+    void MaterialBase::Create()
     {
+        m_pMatDesc = std::make_unique<VulkanDescriptorSetContainer>();
+
         uint32_t images = USwapChain->GetImages().size();
         CreateDescriptorPool(images);
-        CreateDescriptors(images, pUniformBuffer);
+        CreateDescriptors(images);
         CreatePipelineLayout(images);
         CreatePipelineCache();
 
         pPipeline = PipelineFactory::CreatePipeline(CreateInfo(GetShaderSet()), UDevice, USwapChain);
+        m_pMatDesc->UpdatePipelineInfo(pPipeline->GetBindPoint(), pipelineLayout);
     }
 
     void MaterialBase::AddTexture(ETextureAttachmentType eAttachment, std::shared_ptr<TextureBase> pTexture)
@@ -55,17 +58,13 @@ namespace Engine
     void MaterialBase::Update(uint32_t imageIndex)
     {
         ResourceBase::Update(imageIndex);
-
-        m_pMatWriter->Update(UDevice, imageIndex);
-        m_pTexWriter->Update(UDevice, imageIndex);
     }
 
     void MaterialBase::Bind(vk::CommandBuffer commandBuffer, uint32_t imageIndex)
     {
         ResourceBase::Bind(commandBuffer, imageIndex);
-        commandBuffer.bindDescriptorSets(pPipeline->GetBindPoint(), pipelineLayout, 0, 1, &m_pMatWriter->GetSet(imageIndex), 0, nullptr);
-        //commandBuffer.bindDescriptorSets(pPipeline->GetBindPoint(), pipelineLayout, 1, 1, &skinsSet[imageIndex], 0, nullptr);
-        commandBuffer.bindDescriptorSets(pPipeline->GetBindPoint(), pipelineLayout, 1, 1, &m_pTexWriter->GetSet(imageIndex), 0, nullptr);
+
+        m_pMatDesc->Bind(commandBuffer, imageIndex);
         pPipeline->Bind(commandBuffer);
     }
 
@@ -78,8 +77,8 @@ namespace Engine
     void MaterialBase::Cleanup()
     {
         ResourceBase::Cleanup();
-        m_pMatWriter->Destroy(UDevice);
-        m_pTexWriter->Destroy(UDevice);
+        //m_pMatWriter->Destroy(UDevice);
+        //m_pTexWriter->Destroy(UDevice);
         m_pDescriptorPool->Destroy(UDevice);
         UDevice->Destroy(pipelineLayout);
         UDevice->Destroy(pipelineCache);
@@ -94,14 +93,14 @@ namespace Engine
         build(UDevice);
     }
 
-    void MaterialBase::CreateDescriptors(uint32_t images, std::unique_ptr<VulkanBuffer>& pUniformBuffer)
+    void MaterialBase::CreateDescriptors(uint32_t images)
     {
 
     }
 
     void MaterialBase::CreatePipelineLayout(uint32_t images)
     {
-        std::vector<vk::DescriptorSetLayout> vLayouts = {m_pMatWriter->GetSetLayout()/*, descriptors.skinsSetLayout*/, m_pTexWriter->GetSetLayout()};
+        std::vector<vk::DescriptorSetLayout> vLayouts = m_pMatDesc->GetLayouts();
         vk::PipelineLayoutCreateInfo pipelineLayoutInfo = {};
         pipelineLayoutInfo.setLayoutCount = vLayouts.size();
         pipelineLayoutInfo.pSetLayouts = vLayouts.data();

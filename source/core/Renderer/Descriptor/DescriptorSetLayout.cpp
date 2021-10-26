@@ -22,7 +22,7 @@ namespace Engine
         return descriptor_set_layout_object;
     }
 
-    void VulkanDescriptorSetLayout::Create(std::unique_ptr<Device>& device, std::unordered_map<uint32_t, vk::DescriptorSetLayoutBinding> bindings)
+    void VulkanDescriptorSetLayout::Create(std::unique_ptr<Device>& device, descriptor_set_layout_bindings_t bindings)
     {
         m_mBindings = bindings;
         std::vector<vk::DescriptorSetLayoutBinding> setLayoutBindings{};

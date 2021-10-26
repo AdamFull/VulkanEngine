@@ -4,7 +4,8 @@
 #include "Renderer/Pipeline/PipelineFactory.h"
 #include "Resources/Textures/VulkanTexture.h"
 
-#include "Renderer/Descriptor/DescriptorWriter.h"
+#include "Renderer/Descriptor/DescriptorPool.h"
+#include "Renderer/Descriptor/DescriptorSetContainer.h"
 
 namespace Engine
 {
@@ -29,7 +30,7 @@ namespace Engine
     class MaterialBase : public ResourceBase
     {
     public:
-        void Create(std::unique_ptr<VulkanBuffer>& pUniformBuffer) override;
+        void Create() override;
         virtual void AddTexture(ETextureAttachmentType eAttachment, std::shared_ptr<TextureBase> pTexture);
         virtual void AddTextures(std::map<ETextureAttachmentType, std::shared_ptr<TextureBase>> mTextures);
         void ReCreate() override;
@@ -45,13 +46,11 @@ namespace Engine
         void CreateDescriptorPool(uint32_t images);
         void CreatePipelineLayout(uint32_t images);
         void CreatePipelineCache();
-        virtual void CreateDescriptors(uint32_t images, std::unique_ptr<VulkanBuffer>& pUniformBuffer);
+        virtual void CreateDescriptors(uint32_t images);
 
         FMaterialParams m_fMatParams{};
 
-        std::unique_ptr<VulkanDescriptorWriter> m_pMatWriter;
-        std::unique_ptr<VulkanDescriptorWriter> m_pSkinWriter;
-        std::unique_ptr<VulkanDescriptorWriter> m_pTexWriter;
+        std::unique_ptr<VulkanDescriptorSetContainer> m_pMatDesc;
         std::shared_ptr<VulkanDescriptorPool> m_pDescriptorPool;
 
         vk::PipelineLayout pipelineLayout;

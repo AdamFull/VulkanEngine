@@ -1,6 +1,5 @@
 #pragma once
 #include "Objects/Components/SceneRootComponent.h"
-#include "Renderer/Overlay/ImguiOverlay.h"
 
 namespace Engine
 {
@@ -23,7 +22,6 @@ namespace Engine
     private:
         std::shared_ptr<RenderObject> m_pSkybox;
         std::shared_ptr<RenderObject> m_pRoot;
-        std::unique_ptr<ImguiOverlay> m_pOvelray;
         std::shared_ptr<ResourceManager> m_pResourceManager;
     };
 }

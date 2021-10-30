@@ -56,7 +56,9 @@ void MaterialDiffuse::Destroy()
 void MaterialDiffuse::CreateDescriptors(uint32_t images)
 {
     // Matrices uniform
-    auto matSetLayout = VulkanDescriptorSetLayout::Builder().addBinding(0, vk::DescriptorType::eUniformBuffer, vk::ShaderStageFlagBits::eVertex).build(UDevice);
+    auto matSetLayout = VulkanDescriptorSetLayout::Builder().
+    addBinding(0, vk::DescriptorType::eUniformBuffer, vk::ShaderStageFlagBits::eVertex).
+    build(UDevice);
 
     auto matSet = std::make_unique<VulkanDescriptorSet>();
     matSet->Create(UDevice, m_pDescriptorPool, matSetLayout, images);
@@ -64,7 +66,11 @@ void MaterialDiffuse::CreateDescriptors(uint32_t images)
     m_pMatDesc->AttachDescriptorSet(std::move(matSet), std::move(matSetLayout));
 
     // Texture uniform
-    auto texSetLayout = VulkanDescriptorSetLayout::Builder().addBinding(0, vk::DescriptorType::eCombinedImageSampler, vk::ShaderStageFlagBits::eFragment).addBinding(1, vk::DescriptorType::eCombinedImageSampler, vk::ShaderStageFlagBits::eFragment).addBinding(2, vk::DescriptorType::eCombinedImageSampler, vk::ShaderStageFlagBits::eFragment).build(UDevice);
+    auto texSetLayout = VulkanDescriptorSetLayout::Builder().
+    addBinding(0, vk::DescriptorType::eCombinedImageSampler, vk::ShaderStageFlagBits::eFragment).
+    addBinding(1, vk::DescriptorType::eCombinedImageSampler, vk::ShaderStageFlagBits::eFragment).
+    addBinding(2, vk::DescriptorType::eCombinedImageSampler, vk::ShaderStageFlagBits::eFragment).
+    build(UDevice);
 
     auto texSet = std::make_unique<VulkanDescriptorSet>();
     texSet->Create(UDevice, m_pDescriptorPool, texSetLayout, images);

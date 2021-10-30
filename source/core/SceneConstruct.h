@@ -16,8 +16,8 @@ namespace Engine
     {
         std::string srName;
         ESceneObjectType eObjectType;
-        FMeshCreateInfo mesh;
-        FTransform fTransform;
+        Resources::FMeshCreateInfo mesh;
+        Objects::FTransform fTransform;
         std::vector<FSceneObject> vSceneObjects;
     };
 

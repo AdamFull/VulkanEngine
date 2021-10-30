@@ -1,14 +1,12 @@
 #include "CameraController.h"
 
-namespace Engine
+using namespace Engine::Controllers;
+
+void CameraController::Create()
 {
-    void CameraController::Create()
-    {
+}
 
-    }
-
-    void CameraController::Update(float fDeltaTime)
-    {
-        m_fDeltaTime = fDeltaTime;
-    }
+void CameraController::Update(float fDeltaTime)
+{
+    m_fDeltaTime = fDeltaTime;
 }

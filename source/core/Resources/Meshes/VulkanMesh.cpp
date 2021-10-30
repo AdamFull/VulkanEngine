@@ -3,79 +3,78 @@
 #include "Renderer/VulkanDevice.h"
 #include "Renderer/VulkanHighLevel.h"
 
-namespace Engine
+using namespace Engine::Resources::Mesh;
+
+void Primitive::setDimensions(glm::vec3 min, glm::vec3 max)
 {
-    void Primitive::setDimensions(glm::vec3 min, glm::vec3 max) 
-    {
-        dimensions.min = min;
-        dimensions.max = max;
-        dimensions.size = max - min;
-        dimensions.center = (min + max) / 2.0f;
-        dimensions.radius = glm::distance(min, max) / 2.0f;
-    }
+    dimensions.min = min;
+    dimensions.max = max;
+    dimensions.size = max - min;
+    dimensions.center = (min + max) / 2.0f;
+    dimensions.radius = glm::distance(min, max) / 2.0f;
+}
 
-    void MeshBase::Create()
+void MeshBase::Create()
+{
+    for (auto &primitive : m_vPrimitives)
     {
-        for(auto& primitive : m_vPrimitives)
-        {
-            primitive.material->Create();
-        }
+        primitive.material->Create();
     }
+}
 
-    void MeshBase::AddPrimitive(Primitive&& primitive)
-    {
-        m_vPrimitives.emplace_back(primitive);
-    }
+void MeshBase::AddPrimitive(Primitive &&primitive)
+{
+    m_vPrimitives.emplace_back(primitive);
+}
 
-    void MeshBase::SetMaterial(std::shared_ptr<MaterialBase> material)
-    {
-        /*auto it = m_vPrimitives.find(srPrimitiveName);
-        std::find(m_vPrimitives.begin(), m_vPrimitives.end(), )
-        if(it != m_vPrimitives.end())
-            it->second.material = material;
-        else
-            assert(false && "Primitive for material was not found");*/
-    }
+void MeshBase::SetMaterial(std::shared_ptr<Material::MaterialBase> material)
+{
+    /*auto it = m_vPrimitives.find(srPrimitiveName);
+    std::find(m_vPrimitives.begin(), m_vPrimitives.end(), )
+    if(it != m_vPrimitives.end())
+        it->second.material = material;
+    else
+        assert(false && "Primitive for material was not found");*/
+}
 
-    void MeshBase::ReCreate()
+void MeshBase::ReCreate()
+{
+    ResourceBase::ReCreate();
+    for (auto &primitive : m_vPrimitives)
     {
-        ResourceBase::ReCreate();
-        for(auto& primitive : m_vPrimitives)
-        {
-            primitive.material->ReCreate();
-        }
+        primitive.material->ReCreate();
     }
+}
 
-    void MeshBase::Update(uint32_t imageIndex)
+void MeshBase::Update(uint32_t imageIndex)
+{
+    ResourceBase::Update(imageIndex);
+    for (auto &primitive : m_vPrimitives)
     {
-        ResourceBase::Update(imageIndex);
-        for(auto& primitive : m_vPrimitives)
-        {
-            primitive.material->Update(imageIndex);
-        }
+        primitive.material->Update(imageIndex);
     }
+}
 
-    void MeshBase::Bind(vk::CommandBuffer commandBuffer, uint32_t imageIndex)
+void MeshBase::Bind(vk::CommandBuffer commandBuffer, uint32_t imageIndex)
+{
+    ResourceBase::Bind(commandBuffer, imageIndex);
+    for (auto &primitive : m_vPrimitives)
     {
-        ResourceBase::Bind(commandBuffer, imageIndex);
-        for(auto& primitive : m_vPrimitives)
-        {
-            primitive.material->Bind(commandBuffer, imageIndex);
-            commandBuffer.drawIndexed(primitive.indexCount, 1, primitive.firstIndex, 0, 0);
-        }
+        primitive.material->Bind(commandBuffer, imageIndex);
+        commandBuffer.drawIndexed(primitive.indexCount, 1, primitive.firstIndex, 0, 0);
     }
+}
 
-    void MeshBase::Cleanup()
+void MeshBase::Cleanup()
+{
+    ResourceBase::Cleanup();
+    for (auto &primitive : m_vPrimitives)
     {
-        ResourceBase::Cleanup();
-        for(auto& primitive : m_vPrimitives)
-        {
-            primitive.material->Cleanup();
-        }
+        primitive.material->Cleanup();
     }
+}
 
-    void MeshBase::Destroy()
-    {
-        ResourceBase::Destroy();
-    }
+void MeshBase::Destroy()
+{
+    ResourceBase::Destroy();
 }

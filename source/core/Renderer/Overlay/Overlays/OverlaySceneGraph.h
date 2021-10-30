@@ -3,17 +3,24 @@
 
 namespace Engine
 {
-    class OverlaySceneGraph : public OverlayBase
+    namespace Core
     {
-    public:
-        OverlaySceneGraph() = default;
-        OverlaySceneGraph(std::string srName)
+        namespace Overlay
         {
-            srOverlayName = srName;
-            bOverlayState = false;
+            class OverlaySceneGraph : public OverlayBase
+            {
+            public:
+                OverlaySceneGraph() = default;
+                OverlaySceneGraph(std::string srName)
+                {
+                    srOverlayName = srName;
+                    bOverlayState = false;
+                }
+                void Draw() override;
+
+            private:
+                void CreateObject(std::string name, int id);
+            };
         }
-        void Draw() override;
-    private:
-        void CreateObject(std::string name, int id);
-    };
+    }
 }

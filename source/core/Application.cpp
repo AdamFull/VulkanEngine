@@ -12,7 +12,7 @@ namespace Engine
         InputMapper::GetInstance()->CreateAction("ServiceHandles", EActionKey::eEscape, EActionKey::eF1);
         InputMapper::GetInstance()->BindAction("ServiceHandles", EKeyState::eRelease, this, &Application::ServiceHandle);
 
-        FEngineCreateInfo createInfo;
+        Core::FEngineCreateInfo createInfo;
         createInfo.window.width = 1920;
         createInfo.window.height = 1080;
         createInfo.window.name = "Vulkan";
@@ -23,7 +23,7 @@ namespace Engine
         createInfo.apiVersion = VK_API_VERSION_1_0;
         UHLInstance->Create(createInfo);
 
-        m_pCameraController = std::make_unique<CameraEditorController>();
+        m_pCameraController = std::make_unique<Controllers::CameraEditorController>();
         m_pCameraController->Create();
 
         m_pRenderScene = SceneFactory::Create("../../assets/scene.json");

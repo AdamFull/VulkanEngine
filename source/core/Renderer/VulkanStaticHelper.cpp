@@ -1,117 +1,114 @@
 #include "VulkanStaticHelper.h"
 
-namespace Engine
-{
+using namespace Engine::Core;
+
 #ifdef NDEBUG
-    const bool VulkanStaticHelper::m_bEnableValidationLayers = false;
+const bool VulkanStaticHelper::m_bEnableValidationLayers = false;
 #else
-    const bool VulkanStaticHelper::m_bEnableValidationLayers = true;
+const bool VulkanStaticHelper::m_bEnableValidationLayers = true;
 #endif
 
-    const std::vector<const char *> VulkanStaticHelper::m_vValidationLayers =
-        {
-            "VK_LAYER_KHRONOS_validation"
-        };
-
-    const std::vector<const char *> VulkanStaticHelper::m_vDeviceExtensions =
+const std::vector<const char *> VulkanStaticHelper::m_vValidationLayers =
     {
-        VK_KHR_SWAPCHAIN_EXTENSION_NAME
-    };
+        "VK_LAYER_KHRONOS_validation"};
 
-    bool VulkanStaticHelper::CheckValidationLayerSupport()
+const std::vector<const char *> VulkanStaticHelper::m_vDeviceExtensions =
     {
-        auto availableLayers = vk::enumerateInstanceLayerProperties();
+        VK_KHR_SWAPCHAIN_EXTENSION_NAME};
 
-        for (const char *layerName : m_vValidationLayers)
+bool VulkanStaticHelper::CheckValidationLayerSupport()
+{
+    auto availableLayers = vk::enumerateInstanceLayerProperties();
+
+    for (const char *layerName : m_vValidationLayers)
+    {
+        bool layerFound = false;
+
+        for (const auto &layerProperties : availableLayers)
         {
-            bool layerFound = false;
-
-            for (const auto &layerProperties : availableLayers)
+            std::cout << layerProperties.layerName << std::endl;
+            if (strcmp(layerName, layerProperties.layerName) == 0)
             {
-                std::cout << layerProperties.layerName << std::endl;
-                if (strcmp(layerName, layerProperties.layerName) == 0)
-                {
-                    layerFound = true;
-                    break;
-                }
-            }
-
-            if (!layerFound)
-            {
-                return false;
+                layerFound = true;
+                break;
             }
         }
 
-        return true;
-    }
-
-    std::vector<const char *> VulkanStaticHelper::GetRequiredExtensions()
-    {
-        uint32_t glfwExtensionCount = 0;
-        const char **glfwExtensions;
-        glfwExtensions = glfwGetRequiredInstanceExtensions(&glfwExtensionCount);
-
-        std::vector<const char *> extensions(glfwExtensions, glfwExtensions + glfwExtensionCount);
-
-        if (m_bEnableValidationLayers)
+        if (!layerFound)
         {
-            extensions.push_back(VK_EXT_DEBUG_UTILS_EXTENSION_NAME);
+            return false;
         }
-
-        return extensions;
     }
 
-    bool VulkanStaticHelper::CheckDeviceExtensionSupport(const vk::PhysicalDevice &device)
+    return true;
+}
+
+std::vector<const char *> VulkanStaticHelper::GetRequiredExtensions()
+{
+    uint32_t glfwExtensionCount = 0;
+    const char **glfwExtensions;
+    glfwExtensions = glfwGetRequiredInstanceExtensions(&glfwExtensionCount);
+
+    std::vector<const char *> extensions(glfwExtensions, glfwExtensions + glfwExtensionCount);
+
+    if (m_bEnableValidationLayers)
     {
-        std::set<std::string> sRequiredExtensions(m_vDeviceExtensions.begin(), m_vDeviceExtensions.end());
-
-        for (const auto &extension : device.enumerateDeviceExtensionProperties())
-        {
-            sRequiredExtensions.erase(extension.extensionName);
-        }
-
-        return sRequiredExtensions.empty();
+        extensions.push_back(VK_EXT_DEBUG_UTILS_EXTENSION_NAME);
     }
 
-    vk::SurfaceFormatKHR VulkanStaticHelper::ChooseSwapSurfaceFormat(const std::vector<vk::SurfaceFormatKHR> &availableFormats)
+    return extensions;
+}
+
+bool VulkanStaticHelper::CheckDeviceExtensionSupport(const vk::PhysicalDevice &device)
+{
+    std::set<std::string> sRequiredExtensions(m_vDeviceExtensions.begin(), m_vDeviceExtensions.end());
+
+    for (const auto &extension : device.enumerateDeviceExtensionProperties())
     {
-        if (availableFormats.size() == 1 && availableFormats[0].format == vk::Format::eUndefined)
-        {
-            return {vk::Format::eB8G8R8A8Unorm, vk::ColorSpaceKHR::eSrgbNonlinear};
-        }
-
-        for (const auto &availableFormat : availableFormats)
-        {
-            if (availableFormat.format == vk::Format::eB8G8R8A8Unorm && availableFormat.colorSpace == vk::ColorSpaceKHR::eSrgbNonlinear)
-            {
-                return availableFormat;
-            }
-        }
-
-        return availableFormats[0];
+        sRequiredExtensions.erase(extension.extensionName);
     }
 
-    vk::PresentModeKHR VulkanStaticHelper::ChooseSwapPresentMode(const std::vector<vk::PresentModeKHR> availablePresentModes)
+    return sRequiredExtensions.empty();
+}
+
+vk::SurfaceFormatKHR VulkanStaticHelper::ChooseSwapSurfaceFormat(const std::vector<vk::SurfaceFormatKHR> &availableFormats)
+{
+    if (availableFormats.size() == 1 && availableFormats[0].format == vk::Format::eUndefined)
     {
-        vk::PresentModeKHR bestMode = vk::PresentModeKHR::eFifo;
-
-        for (const auto &availablePresentMode : availablePresentModes)
-        {
-            if (availablePresentMode == vk::PresentModeKHR::eMailbox)
-            {
-                return availablePresentMode;
-            }
-            else if (availablePresentMode == vk::PresentModeKHR::eImmediate)
-            {
-                bestMode = availablePresentMode;
-            }
-        }
-
-        return bestMode;
+        return {vk::Format::eB8G8R8A8Unorm, vk::ColorSpaceKHR::eSrgbNonlinear};
     }
 
-    bool VulkanStaticHelper::HasStencilComponent(vk::Format format)
+    for (const auto &availableFormat : availableFormats)
     {
-        return format == vk::Format::eD32SfloatS8Uint || format == vk::Format::eD24UnormS8Uint;
+        if (availableFormat.format == vk::Format::eB8G8R8A8Unorm && availableFormat.colorSpace == vk::ColorSpaceKHR::eSrgbNonlinear)
+        {
+            return availableFormat;
+        }
     }
+
+    return availableFormats[0];
+}
+
+vk::PresentModeKHR VulkanStaticHelper::ChooseSwapPresentMode(const std::vector<vk::PresentModeKHR> availablePresentModes)
+{
+    vk::PresentModeKHR bestMode = vk::PresentModeKHR::eFifo;
+
+    for (const auto &availablePresentMode : availablePresentModes)
+    {
+        if (availablePresentMode == vk::PresentModeKHR::eMailbox)
+        {
+            return availablePresentMode;
+        }
+        else if (availablePresentMode == vk::PresentModeKHR::eImmediate)
+        {
+            bestMode = availablePresentMode;
+        }
+    }
+
+    return bestMode;
+}
+
+bool VulkanStaticHelper::HasStencilComponent(vk::Format format)
+{
+    return format == vk::Format::eD32SfloatS8Uint || format == vk::Format::eD24UnormS8Uint;
 }

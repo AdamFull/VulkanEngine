@@ -1,8 +1,15 @@
 #pragma once
 #include "Window/WindowHandle.h"
+#include "VulkanDevice.h"
+#include "VulkanSwapChain.h"
+#include "VulkanStaticHelper.h"
+#include "VulkanBuffer.h"
 #include "VulkanUniform.h"
+#include "VulkanVBO.h"
+#include "VulkanRenderer.h"
+#include "Overlay/ImguiOverlay.h"
 
-#define UHLInstance Engine::VulkanHighLevel::GetInstance()
+#define UHLInstance Engine::Core::VulkanHighLevel::GetInstance()
 #define UWinHandle UHLInstance->GetWinHandle()
 #define UDevice UHLInstance->GetDevice()
 #define USwapChain UHLInstance->GetSwapChain()
@@ -13,76 +20,74 @@
 
 namespace Engine
 {
-    class Device;
-    class SwapChain;
-    class VulkanBuffer;
-    class Renderer;
-    class VulkanVBO;
-    class ImguiOverlay;
-
-    struct FEngineCreateInfo
+    namespace Core
     {
-        FWindowCreateInfo window;
-        std::string appName;
-        uint32_t appVersion;
-        std::string engineName;
-        uint32_t engineVersion;
-        uint32_t apiVersion;
-    };
+        struct FEngineCreateInfo
+        {
+            Window::FWindowCreateInfo window;
+            std::string appName;
+            uint32_t appVersion;
+            std::string engineName;
+            uint32_t engineVersion;
+            uint32_t apiVersion;
+        };
 
-    class VulkanHighLevel
-    {
-    protected:
-        VulkanHighLevel() = default;
-        static std::unique_ptr<VulkanHighLevel> m_pInstance;
-    public:
-        ~VulkanHighLevel();
+        class VulkanHighLevel
+        {
+        protected:
+            VulkanHighLevel() = default;
+            static std::unique_ptr<VulkanHighLevel> m_pInstance;
 
-        VulkanHighLevel(const VulkanHighLevel&) = delete;
-        void operator=(const VulkanHighLevel&) = delete;
-        VulkanHighLevel(VulkanHighLevel&&) = delete;
-        VulkanHighLevel& operator=(VulkanHighLevel&&) = delete;
+        public:
+            ~VulkanHighLevel();
 
-        static std::unique_ptr<VulkanHighLevel>& GetInstance();
+            VulkanHighLevel(const VulkanHighLevel &) = delete;
+            void operator=(const VulkanHighLevel &) = delete;
+            VulkanHighLevel(VulkanHighLevel &&) = delete;
+            VulkanHighLevel &operator=(VulkanHighLevel &&) = delete;
 
-        void Create(FEngineCreateInfo createInfo);
+            static std::unique_ptr<VulkanHighLevel> &GetInstance();
 
-        vk::CommandBuffer BeginFrame(bool* bResult);
-        void EndFrame(vk::CommandBuffer commandBuffer, bool* bResult);
+            void Create(FEngineCreateInfo createInfo);
 
-        void BeginRender(vk::CommandBuffer commandBuffer);
-        void EndRender(vk::CommandBuffer commandBuffer);
-        //TODO: Dont forget about clean textures
-        void Cleanup();
+            vk::CommandBuffer BeginFrame(bool *bResult);
+            void EndFrame(vk::CommandBuffer commandBuffer, bool *bResult);
 
-        void Destroy();
+            void BeginRender(vk::CommandBuffer commandBuffer);
+            void EndRender(vk::CommandBuffer commandBuffer);
+            // TODO: Dont forget about clean textures
+            void Cleanup();
 
-        //Getters
+            void Destroy();
 
-        inline std::unique_ptr<WindowHandle>& GetWinHandle() { return m_pWinHandle; }
-        inline std::unique_ptr<Device>& GetDevice() { return m_pDevice; }
-        inline std::unique_ptr<SwapChain>& GetSwapChain() { return m_pSwapChain; }
-        inline std::unique_ptr<UniformBuffer>&  GetUniformBuffer() { return m_pUniform; }
-        inline std::unique_ptr<ImguiOverlay>&  GetOverlay() { return m_pOverlay; }
-        inline std::unique_ptr<Renderer>&  GetRenderer() { return m_pRenderer; }
-        inline std::unique_ptr<VulkanVBO>&  GetVBO() { return m_pVertexBufferObject; }
-    private:
-        void RecreateSwapChain();
-        void CleanupSwapChain();
+            // Getters
 
-        //Window
-        std::unique_ptr<WindowHandle> m_pWinHandle;
-        //Device
-        std::unique_ptr<Device> m_pDevice;
-        //SwapChain
-        std::unique_ptr<SwapChain> m_pSwapChain;
+            inline std::unique_ptr<Window::WindowHandle> &GetWinHandle() { return m_pWinHandle; }
+            inline std::unique_ptr<Device> &GetDevice() { return m_pDevice; }
+            inline std::unique_ptr<SwapChain> &GetSwapChain() { return m_pSwapChain; }
+            inline std::unique_ptr<UniformBuffer> &GetUniformBuffer() { return m_pUniform; }
+            inline std::unique_ptr<ImguiOverlay> &GetOverlay() { return m_pOverlay; }
+            inline std::unique_ptr<Renderer> &GetRenderer() { return m_pRenderer; }
+            inline std::unique_ptr<VulkanVBO> &GetVBO() { return m_pVertexBufferObject; }
 
-        std::unique_ptr<UniformBuffer> m_pUniform;
+        private:
+            void RecreateSwapChain();
+            void CleanupSwapChain();
 
-        std::unique_ptr<ImguiOverlay> m_pOverlay;
+            // Window
+            std::unique_ptr<Window::WindowHandle> m_pWinHandle;
+            // Device
+            std::unique_ptr<Device> m_pDevice;
+            // SwapChain
+            std::unique_ptr<SwapChain> m_pSwapChain;
 
-        std::unique_ptr<Renderer> m_pRenderer;
+            std::unique_ptr<UniformBuffer> m_pUniform;
 
-        std::unique_ptr<VulkanVBO> m_pVertexBufferObject;
-    };
+            std::unique_ptr<ImguiOverlay> m_pOverlay;
+
+            std::unique_ptr<Renderer> m_pRenderer;
+
+            std::unique_ptr<VulkanVBO> m_pVertexBufferObject;
+        };
+    }
 }

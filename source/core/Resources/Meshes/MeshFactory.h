@@ -3,15 +3,22 @@
 
 namespace Engine
 {
-    class MeshBase;
-    class MaterialBase;
-    class ResourceManager;
-    struct MeshFactory
+    namespace Resources
     {
-        using mesh_t = std::shared_ptr<MeshBase>;
-    public:
-        static mesh_t Create(std::shared_ptr<ResourceManager> resourceMgr, FMeshCreateInfo info);
-    private:
-        static std::map<EMeshType, std::function<mesh_t(FMeshCreateInfo)>> m_mFactory;
-    };
+        class ResourceManager;
+        namespace Mesh
+        {
+            class MeshBase;
+
+            struct MeshFactory
+            {
+            public:
+                static std::shared_ptr<MeshBase> Create(std::shared_ptr<Resources::ResourceManager> resourceMgr, FMeshCreateInfo info);
+
+            private:
+                static std::map<EMeshType, std::function<std::shared_ptr<MeshBase>(FMeshCreateInfo)>> m_mFactory;
+            };
+        }
+    }
+
 }

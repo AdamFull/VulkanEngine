@@ -3,16 +3,16 @@
 #include "Renderer/Window/WinCallbacks.h"
 #include "EngineMath.hpp"
 
-namespace Engine
-{
+using namespace Engine;
+
     std::unique_ptr<InputMapper> InputMapper::m_pInstance{nullptr};
 
     InputMapper::InputMapper()
     {
-        WinCallbacks::SubscribeKeyInput(this, &InputMapper::KeyBoardInput);
-        WinCallbacks::SubscribeMousePosition(this, &InputMapper::MouseMovementInput);
-        WinCallbacks::SubscribeMouseScroll(this, &InputMapper::MouseWheelInput);
-        WinCallbacks::SubscribeMouseButton(this, &InputMapper::MouseButtonInput);
+        Core::Window::WinCallbacks::SubscribeKeyInput(this, &InputMapper::KeyBoardInput);
+        Core::Window::WinCallbacks::SubscribeMousePosition(this, &InputMapper::MouseMovementInput);
+        Core::Window::WinCallbacks::SubscribeMouseScroll(this, &InputMapper::MouseWheelInput);
+        Core::Window::WinCallbacks::SubscribeMouseButton(this, &InputMapper::MouseButtonInput);
     }
 
     InputMapper::~InputMapper()
@@ -53,8 +53,8 @@ namespace Engine
 
     void InputMapper::MouseMovementInput(float xpos, float ypos)
     {
-        float xmax = static_cast<float>(WindowHandle::m_iWidth);
-        float ymax = static_cast<float>(WindowHandle::m_iHeight);
+        float xmax = static_cast<float>(Core::Window::WindowHandle::m_iWidth);
+        float ymax = static_cast<float>(Core::Window::WindowHandle::m_iHeight);
 
         m_mAxisStates[EActionKey::eCursorOriginal] = {xpos, ypos};
         //Calculate on screen position
@@ -163,4 +163,3 @@ namespace Engine
         newAxis.vListeners.emplace_back(std::move(dCallback));
         return newAxis;
     }
-}

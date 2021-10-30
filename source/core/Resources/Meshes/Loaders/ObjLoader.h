@@ -2,16 +2,21 @@
 
 namespace Engine
 {
-    class RenderObject;
-    namespace Loaders
+    namespace Objects
     {
-        namespace Model
+        class RenderObject;
+    }
+
+    namespace Resources
+    {
+        namespace Loaders
         {
             struct ObjLoader
             {
-                public:
-                    static void Load(std::string srPath, std::shared_ptr<RenderObject> pRoot);
+            public:
+                static void Load(std::string srPath, std::shared_ptr<Objects::RenderObject> pRoot);
             };
         }
     }
+
 }

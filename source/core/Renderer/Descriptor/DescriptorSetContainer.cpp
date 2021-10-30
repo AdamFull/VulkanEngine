@@ -1,51 +1,49 @@
 #include "DescriptorSetContainer.h"
 #include "Renderer/VulkanHighLevel.h"
 
-namespace Engine
+using namespace Engine::Core::Descriptor;
+
+void VulkanDescriptorSetContainer::AttachDescriptorSet(std::unique_ptr<VulkanDescriptorSet> &&pSet, std::unique_ptr<VulkanDescriptorSetLayout> &&pLayout)
 {
-    void VulkanDescriptorSetContainer::AttachDescriptorSet(std::unique_ptr<VulkanDescriptorSet>&& pSet, std::unique_ptr<VulkanDescriptorSetLayout>&& pLayout)
-    {
-        uint32_t index = m_SetContainer.size();
-        m_SetContainer.emplace(std::move(std::make_pair(index, std::make_pair(std::move(pLayout), std::move(pSet)))));
-    }
+    uint32_t index = m_SetContainer.size();
+    m_SetContainer.emplace(std::move(std::make_pair(index, std::make_pair(std::move(pLayout), std::move(pSet)))));
+}
 
-    void VulkanDescriptorSetContainer::UpdatePipelineInfo(vk::PipelineBindPoint bindPoint, vk::PipelineLayout layout)
+void VulkanDescriptorSetContainer::UpdatePipelineInfo(vk::PipelineBindPoint bindPoint, vk::PipelineLayout layout)
+{
+    for (auto &[set, pair] : m_SetContainer)
     {
-        for(auto& [set, pair] : m_SetContainer)
-        {
-            pair.second->UpdatePipelineInfo(bindPoint, layout);
-        }
+        pair.second->UpdatePipelineInfo(bindPoint, layout);
     }
+}
 
-    void VulkanDescriptorSetContainer::Update(uint32_t set, uint32_t index, std::vector<vk::WriteDescriptorSet>& vWrites)
+void VulkanDescriptorSetContainer::Update(uint32_t set, uint32_t index, std::vector<vk::WriteDescriptorSet> &vWrites)
+{
+    m_SetContainer[set].second->Update(UDevice, vWrites, index);
+}
+
+void VulkanDescriptorSetContainer::Bind(const vk::CommandBuffer &commandBuffer, uint32_t index)
+{
+    for (auto &[set, pair] : m_SetContainer)
     {
-        m_SetContainer[set].second->Update(UDevice, vWrites, index);
+        pair.second->Bind(commandBuffer, index, set);
     }
+}
 
-    void VulkanDescriptorSetContainer::Bind(const vk::CommandBuffer& commandBuffer, uint32_t index)
-    {
-        for(auto& [set, pair] : m_SetContainer)
-        {
-            pair.second->Bind(commandBuffer, index, set);
-        }
-    }
+std::unique_ptr<VulkanDescriptorSet> &VulkanDescriptorSetContainer::GetDescriptorSet(uint32_t set)
+{
+    return m_SetContainer[set].second;
+}
 
-    std::unique_ptr<VulkanDescriptorSet>& VulkanDescriptorSetContainer::GetDescriptorSet(uint32_t set)
-    {
-        return m_SetContainer[set].second;
-    }
+std::unique_ptr<VulkanDescriptorSetLayout> &VulkanDescriptorSetContainer::GetSetLayout(uint32_t set)
+{
+    return m_SetContainer[set].first;
+}
 
-    std::unique_ptr<VulkanDescriptorSetLayout>& VulkanDescriptorSetContainer::GetSetLayout(uint32_t set)
-    {
-        return m_SetContainer[set].first;
-    }
-
-    std::vector<vk::DescriptorSetLayout> VulkanDescriptorSetContainer::GetLayouts()
-    {
-        std::vector<vk::DescriptorSetLayout> vLayouts{};
-        for(auto& [set, pair] : m_SetContainer)
-            vLayouts.push_back(pair.first->Get());
-        return vLayouts;
-    }
-
+std::vector<vk::DescriptorSetLayout> VulkanDescriptorSetContainer::GetLayouts()
+{
+    std::vector<vk::DescriptorSetLayout> vLayouts{};
+    for (auto &[set, pair] : m_SetContainer)
+        vLayouts.push_back(pair.first->Get());
+    return vLayouts;
 }

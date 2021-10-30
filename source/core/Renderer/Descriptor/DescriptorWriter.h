@@ -1,20 +1,27 @@
 #pragma once
 #include "DescriptorSetLayout.h"
 
-//Based on: https://github.com/blurrypiano/littleVulkanEngine/tree/master/littleVulkanEngine/tutorial20
+// Based on: https://github.com/blurrypiano/littleVulkanEngine/tree/master/littleVulkanEngine/tutorial20
 namespace Engine
 {
-    class Device;
-    class VulkanDescriptorWriter
+    namespace Core
     {
-    public:
-        VulkanDescriptorWriter() = default;
+        class Device;
+        namespace Descriptor
+        {
+            class VulkanDescriptorWriter
+            {
+            public:
+                VulkanDescriptorWriter() = default;
 
-        VulkanDescriptorWriter& WriteBuffer(uint32_t binding, descriptor_set_layout_bindings_t& bindings, vk::DescriptorBufferInfo *bufferInfo);
-        VulkanDescriptorWriter& WriteImage(uint32_t binding, descriptor_set_layout_bindings_t& bindings, vk::DescriptorImageInfo *imageInfo);
+                VulkanDescriptorWriter &WriteBuffer(uint32_t binding, descriptor_set_layout_bindings_t &bindings, vk::DescriptorBufferInfo *bufferInfo);
+                VulkanDescriptorWriter &WriteImage(uint32_t binding, descriptor_set_layout_bindings_t &bindings, vk::DescriptorImageInfo *imageInfo);
 
-        std::vector<vk::WriteDescriptorSet> Build();
-    private:
-        std::vector<vk::WriteDescriptorSet> vWrites;
-    };
+                std::vector<vk::WriteDescriptorSet> Build();
+
+            private:
+                std::vector<vk::WriteDescriptorSet> vWrites;
+            };
+        }
+    }
 }

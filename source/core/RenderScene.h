@@ -3,25 +3,29 @@
 
 namespace Engine
 {
-    class WindowHandle;
-    class ResourceManager;
-
+    namespace Core
+    {
+        namespace Window  { class WindowHandle; }
+    }
+    
+    namespace Resources { class ResourceManager; }
+    
     class RenderScene
     {
     public:
         void Create();
         void ReCreate();
         void Destroy();
-        void AttachObject(std::shared_ptr<RenderObject> object);
-        void SetSkybox(std::shared_ptr<RenderObject> pSkybox);
-        inline std::shared_ptr<RenderObject>& GetRoot() { return m_pRoot; }
+        void AttachObject(std::shared_ptr<Objects::RenderObject> object);
+        void SetSkybox(std::shared_ptr<Objects::RenderObject> pSkybox);
+        inline std::shared_ptr<Objects::RenderObject>& GetRoot() { return m_pRoot; }
         void CreateObjects();
         void Render(float fDeltaTime);
 
-        std::shared_ptr<ResourceManager> GetResourceManager() { return m_pResourceManager; }
+        std::shared_ptr<Resources::ResourceManager> GetResourceManager() { return m_pResourceManager; }
     private:
-        std::shared_ptr<RenderObject> m_pSkybox;
-        std::shared_ptr<RenderObject> m_pRoot;
-        std::shared_ptr<ResourceManager> m_pResourceManager;
+        std::shared_ptr<Objects::RenderObject> m_pSkybox;
+        std::shared_ptr<Objects::RenderObject> m_pRoot;
+        std::shared_ptr<Resources::ResourceManager> m_pResourceManager;
     };
 }

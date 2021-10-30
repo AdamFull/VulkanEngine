@@ -13,6 +13,6 @@ namespace Engine
         void run();
     private:
         std::unique_ptr<RenderScene> m_pRenderScene;
-        std::unique_ptr<CameraController> m_pCameraController;
+        std::unique_ptr<Controllers::CameraController> m_pCameraController;
     };
 }

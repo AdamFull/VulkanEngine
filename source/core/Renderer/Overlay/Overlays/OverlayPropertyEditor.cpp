@@ -1,19 +1,17 @@
 #include "OverlayPropertyEditor.h"
 
-namespace Engine
+using namespace Engine::Core::Overlay;
+
+void OverlayPropertyEditor::Draw()
 {
-    void OverlayPropertyEditor::Draw()
+    if (bOverlayState)
     {
-        if (bOverlayState)
+        if (!ImGui::Begin(srOverlayName.c_str(), &bOverlayState))
         {
-            if (!ImGui::Begin(srOverlayName.c_str(), &bOverlayState))
-            {
-                ImGui::End();
-                return;
-            }
-
             ImGui::End();
+            return;
         }
-    }
 
+        ImGui::End();
+    }
 }

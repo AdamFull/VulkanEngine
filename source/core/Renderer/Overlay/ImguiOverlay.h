@@ -4,64 +4,75 @@
 
 namespace Engine
 {
-    class Device;
-    class SwapChain;
-    class TextureBase;
-    class MaterialUI;
-    class VulkanBuffer;
-    class UniformBuffer;
-    class WindowHandle;
-
-    struct FGUIControls
+    namespace Resources
     {
-        bool bLMbtn = true;
-        bool bRMbtn = true;
-        float fMouseX{0.f};
-        float fMouseY{0.f};
-    };
+        namespace Texture { class TextureBase; }
+        namespace Material { class MaterialUI; }
+    }
 
-    class ImguiOverlay
+    namespace Core
     {
-    public:
-        void Create(std::unique_ptr<WindowHandle>& window, std::unique_ptr<Device>& device, std::unique_ptr<SwapChain>& swapchain);
-        void ReCreate(std::unique_ptr<Device>& device, std::unique_ptr<SwapChain>& swapchain);
-        void Cleanup(std::unique_ptr<Device>& device);
-        void Destroy(std::unique_ptr<Device>& device);
+        class Device;
+        class SwapChain;
+        class VulkanBuffer;
+        class UniformBuffer;
 
-        void NewFrame();
+        namespace Window
+        {
+            class WindowHandle;
+        }
 
-        void Update(std::unique_ptr<Device>& device, float deltaTime);
-        void DrawFrame(std::unique_ptr<Device>& device, vk::CommandBuffer commandBuffer, uint32_t index);
+        struct FGUIControls
+        {
+            bool bLMbtn = true;
+            bool bRMbtn = true;
+            float fMouseX{0.f};
+            float fMouseY{0.f};
+        };
 
-        std::unique_ptr<VulkanBuffer>& GetBuffer(uint32_t index);
+        class ImguiOverlay
+        {
+        public:
+            void Create(std::unique_ptr<Window::WindowHandle> &window, std::unique_ptr<Device> &device, std::unique_ptr<SwapChain> &swapchain);
+            void ReCreate(std::unique_ptr<Device> &device, std::unique_ptr<SwapChain> &swapchain);
+            void Cleanup(std::unique_ptr<Device> &device);
+            void Destroy(std::unique_ptr<Device> &device);
 
-    private:
-        void BaseInitialize();
-        void CreateFontResources(std::unique_ptr<Device>& device);
-        void CreateResources(std::unique_ptr<Device>& device, std::unique_ptr<SwapChain>& swapchain);
+            void NewFrame();
 
-        void InitializeWindowBackend();
+            void Update(std::unique_ptr<Device> &device, float deltaTime);
+            void DrawFrame(std::unique_ptr<Device> &device, vk::CommandBuffer commandBuffer, uint32_t index);
 
-        void OnFocusChange(int focused);
-        void OnCursorEnter(int enter);
-        void OnMouseButtonDown(int button, int action, int mods);
-        void OnMousePositionUpdate(float xpos, float ypos);
-        void OnMouseScroll(float xpos, float ypos);
-        void OnKeyboardInput(int key, int scancode, int action, int mods);
-        void OnInputChar(unsigned int c);
-        void OnMonitorEvent(int monitor);
+            std::unique_ptr<VulkanBuffer> &GetBuffer(uint32_t index);
 
-        std::unique_ptr<UniformBuffer> m_pUniform;
-        std::shared_ptr<TextureBase> fontTexture;
-        std::shared_ptr<MaterialUI> fontMaterial;
-        std::unique_ptr<VulkanBuffer> vertexBuffer;
-        std::unique_ptr<VulkanBuffer> indexBuffer;
-        int vertexCount{0};
-        int indexCount{0};
+        private:
+            void BaseInitialize();
+            void CreateFontResources(std::unique_ptr<Device> &device);
+            void CreateResources(std::unique_ptr<Device> &device, std::unique_ptr<SwapChain> &swapchain);
 
-        std::vector<std::shared_ptr<OverlayBase>> m_vOverlays;
-        bool bEnabled = true;
+            void InitializeWindowBackend();
 
-        FGUIControls controls;
-    };
+            void OnFocusChange(int focused);
+            void OnCursorEnter(int enter);
+            void OnMouseButtonDown(int button, int action, int mods);
+            void OnMousePositionUpdate(float xpos, float ypos);
+            void OnMouseScroll(float xpos, float ypos);
+            void OnKeyboardInput(int key, int scancode, int action, int mods);
+            void OnInputChar(unsigned int c);
+            void OnMonitorEvent(int monitor);
+
+            std::unique_ptr<UniformBuffer> m_pUniform;
+            std::shared_ptr<Resources::Texture::TextureBase> fontTexture;
+            std::shared_ptr<Resources::Material::MaterialUI> fontMaterial;
+            std::unique_ptr<VulkanBuffer> vertexBuffer;
+            std::unique_ptr<VulkanBuffer> indexBuffer;
+            int vertexCount{0};
+            int indexCount{0};
+
+            std::vector<std::shared_ptr<Overlay::OverlayBase>> m_vOverlays;
+            bool bEnabled = true;
+
+            FGUIControls controls;
+        };
+    }
 }

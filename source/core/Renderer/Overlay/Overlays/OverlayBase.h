@@ -3,18 +3,26 @@
 
 namespace Engine
 {
-    class OverlayBase
+    namespace Core
     {
-    public:
-        virtual ~OverlayBase() {}
-        OverlayBase() = default;
-        OverlayBase(std::string)
-        {}
+        namespace Overlay
+        {
+            class OverlayBase
+            {
+            public:
+                virtual ~OverlayBase() {}
+                OverlayBase() = default;
+                OverlayBase(std::string)
+                {
+                }
 
-        virtual void SetState(bool bState) { bOverlayState = bState; }
-        virtual void Draw();
-    protected:
-        std::string srOverlayName;
-        bool bOverlayState{true};
-    };
+                virtual void SetState(bool bState) { bOverlayState = bState; }
+                virtual void Draw();
+
+            protected:
+                std::string srOverlayName;
+                bool bOverlayState{true};
+            };
+        }
+    }
 }

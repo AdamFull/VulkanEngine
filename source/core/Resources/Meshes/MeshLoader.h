@@ -3,15 +3,25 @@
 
 namespace Engine
 {
-    class MeshBase;
-    class ResourceManager;
-
-    struct MeshLoader
+    namespace Resources
     {
-    public:
-        static bool Load(std::string srPath, std::shared_ptr<ResourceManager> pResourceManager, std::shared_ptr<MeshBase> pMesh, bool bLoadMaterial = false);
-    private:
-        static void CalculateTangents(std::vector<Vertex>& vertices, std::vector<uint32_t> indices);
-        static glm::vec4 GenerateNormals(std::vector<Vertex>& vertices, std::vector<uint32_t> indices);
-    };
+        class ResourceManager;
+        namespace Mesh
+        {
+            class MeshBase;
+        }
+        
+        namespace Loaders
+        {
+            struct MeshLoader
+            {
+            public:
+                static bool Load(std::string srPath, std::shared_ptr<Resources::ResourceManager> pResourceManager, std::shared_ptr<Mesh::MeshBase> pMesh, bool bLoadMaterial = false);
+
+            private:
+                static void CalculateTangents(std::vector<Core::Vertex> &vertices, std::vector<uint32_t> indices);
+                static glm::vec4 GenerateNormals(std::vector<Core::Vertex> &vertices, std::vector<uint32_t> indices);
+            };
+        }
+    }
 }

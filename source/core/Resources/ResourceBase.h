@@ -6,19 +6,23 @@
 
 namespace Engine
 {
-    class ResourceBase
+    namespace Resources
     {
-    public:
-        virtual void Create();
-        virtual void ReCreate();
-        virtual void Update(uint32_t imageIndex);
-        virtual void Bind(vk::CommandBuffer commandBuffer, uint32_t imageIndex);
-        virtual void Cleanup();
-        virtual void Destroy();
+        class ResourceBase
+        {
+        public:
+            virtual void Create();
+            virtual void ReCreate();
+            virtual void Update(uint32_t imageIndex);
+            virtual void Bind(vk::CommandBuffer commandBuffer, uint32_t imageIndex);
+            virtual void Cleanup();
+            virtual void Destroy();
 
-        inline void SetName(std::string srName) { m_srName = srName; }
-        inline std::string& GetName() { return m_srName; }
-    protected:
-        std::string m_srName;
-    };
+            inline void SetName(std::string srName) { m_srName = srName; }
+            inline std::string &GetName() { return m_srName; }
+
+        protected:
+            std::string m_srName;
+        };
+    }
 }

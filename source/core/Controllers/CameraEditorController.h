@@ -3,16 +3,20 @@
 
 namespace Engine
 {
-    class CameraEditorController : public CameraController
+    namespace Controllers
     {
-    public:
-        void Create() override;
-        void Update(float fDeltaTime) override;
-    private:
-        void CameraMovement(EActionKey eKey, EKeyState eState);
-        void MouseRotation(float fX, float fY);
-        void CameraToPoint(float fX, float fY);
+        class CameraEditorController : public CameraController
+        {
+        public:
+            void Create() override;
+            void Update(float fDeltaTime) override;
 
-        bool m_bRotatePass{false};
-    };
+        private:
+            void CameraMovement(EActionKey eKey, EKeyState eState);
+            void MouseRotation(float fX, float fY);
+            void CameraToPoint(float fX, float fY);
+
+            bool m_bRotatePass{false};
+        };
+    }
 }

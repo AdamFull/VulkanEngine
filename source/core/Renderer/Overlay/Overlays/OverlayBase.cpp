@@ -1,9 +1,6 @@
 #include "OverlayBase.h"
 
-namespace Engine
+using namespace Engine::Core::Overlay;
+void OverlayBase::Draw()
 {
-    void OverlayBase::Draw()
-    {
-
-    }
 }

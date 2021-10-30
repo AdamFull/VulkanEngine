@@ -3,23 +3,29 @@
 
 namespace Engine
 {
-    class OverlayLog : public OverlayBase
+    namespace Core
     {
-    public:
-        OverlayLog() = default;
-        OverlayLog(std::string srName)
+        namespace Overlay
         {
-            srOverlayName = srName;
-            bOverlayState = false;
-        }
-        void Draw() override;
-        
-    private:
-        void Clear();
+            class OverlayLog : public OverlayBase
+            {
+            public:
+                OverlayLog() = default;
+                OverlayLog(std::string srName)
+                {
+                    srOverlayName = srName;
+                    bOverlayState = false;
+                }
+                void Draw() override;
 
-        ImGuiTextBuffer     Buf;
-        ImGuiTextFilter     Filter;
-        ImVector<int>       LineOffsets;
-        bool                AutoScroll; 
-    };
+            private:
+                void Clear();
+
+                ImGuiTextBuffer Buf;
+                ImGuiTextFilter Filter;
+                ImVector<int> LineOffsets;
+                bool AutoScroll;
+            };
+        }
+    }
 }

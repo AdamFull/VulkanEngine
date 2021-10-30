@@ -2,21 +2,24 @@
 
 namespace Engine
 {
-    struct FTransform
+    namespace Objects
     {
-        glm::vec3 pos{};
-        glm::vec3 rot{};
-        glm::vec3 scale{1.f, 1.f, 1.f};
-
-        FTransform& operator+=(const FTransform& rhs)
+        struct FTransform
         {
-            this->pos += rhs.pos;
-            this->rot += rhs.rot;
-            this->scale *= rhs.scale;
-            return *this;
-        }
+            glm::vec3 pos{};
+            glm::vec3 rot{};
+            glm::vec3 scale{1.f, 1.f, 1.f};
 
-        glm::mat4 GetModel();
-        glm::mat3 GetNormal();
-    };
+            FTransform &operator+=(const FTransform &rhs)
+            {
+                this->pos += rhs.pos;
+                this->rot += rhs.rot;
+                this->scale *= rhs.scale;
+                return *this;
+            }
+
+            glm::mat4 GetModel();
+            glm::mat3 GetNormal();
+        };
+    }
 }

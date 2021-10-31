@@ -8,7 +8,7 @@ namespace Engine
 {
     namespace Resources
     {
-        class ResourceBase : public std::enable_shared_from_this<ResourceBase>
+        class ResourceBase
         {
         public:
             virtual void Create();
@@ -20,21 +20,8 @@ namespace Engine
 
             inline void SetName(std::string srName) { m_srName = srName; }
             inline std::string &GetName() { return m_srName; }
-
-            void SetParent(std::shared_ptr<ResourceBase> parent);
-            void Attach(std::shared_ptr<ResourceBase> child);
-            void Detach(std::shared_ptr<ResourceBase> child);
-
-            inline std::shared_ptr<ResourceBase> &GetParent() { return m_pParent; }
-            inline std::map<std::string, std::shared_ptr<ResourceBase>> &GetChilds() { return m_mChilds; }
-            void AddChild(std::shared_ptr<ResourceBase> child);
-
         protected:
             std::string m_srName;
-        private:
-            std::shared_ptr<ResourceBase> m_pParent;
-            std::shared_ptr<ResourceBase> m_pParentOld;
-            std::map<std::string, std::shared_ptr<ResourceBase>> m_mChilds;
         };
     }
 }

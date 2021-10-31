@@ -22,10 +22,10 @@ void main()
 	float invRadius = 1.0/lightRadius;
     vec3 normal = (texture(normal_tex, fragTexCoord).rgb * 2.0 - 1.0);
 
-	vec3 color = texture(color_tex, fragTexCoord).rgb;
+	vec3 color = texture(color_tex, fragTexCoord).rgb * fragColor;
     
 	vec3 lightDir = normalize(lightPos - fragPos);
-    float diffuse = max(dot(lightDir, normal), 0.0);
+    float diffuse = max(dot(lightDir, normal), 0.15);
 
     float dist = length(lightDir);
     float atten = max(clamp(1.0 - invRadius * sqrt(dist), 0.0, 1.0), ambient);

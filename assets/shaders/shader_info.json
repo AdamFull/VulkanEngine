@@ -1,0 +1,30 @@
+{
+    "ui":
+    {
+        "vertex_spv": "assets/shaders/compiled/ui/vert.spv",
+        "vertex_src": "assets/shaders/source/ui.vert",
+        "fragment_spv": "assets/shaders/compiled/ui/frag.spv",
+        "fragment_src": "assets/shaders/source/ui.frag"
+    },
+    "diffuse":
+    {
+        "vertex_spv": "assets/shaders/compiled/diffuse/vert.spv",
+        "vertex_src": "assets/shaders/source/diffuse.vert",
+        "fragment_spv": "assets/shaders/compiled/diffuse/frag.spv",
+        "fragment_src": "assets/shaders/source/diffuse.frag"
+    },
+    "skybox":
+    {
+        "vertex_spv": "assets/shaders/compiled/skybox/vert.spv",
+        "vertex_src": "assets/shaders/source/skybox.vert",
+        "fragment_spv": "assets/shaders/compiled/skybox/frag.spv",
+        "fragment_src": "assets/shaders/source/skybox.frag"
+    },
+    "pbr":
+    {
+        "vertex_spv": "assets/shaders/compiled/pbr/vert.spv",
+        "vertex_src": "assets/shaders/source/pbr.vert",
+        "fragment_spv": "assets/shaders/compiled/pbr/frag.spv",
+        "fragment_src": "assets/shaders/source/pbr.frag"
+    }
+}

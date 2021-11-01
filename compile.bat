@@ -1,10 +1,10 @@
 @echo off
-glslangValidator.exe -V assets/shaders/diffuse.vert -o assets/shaders/diffuse_vert.spv
-glslangValidator.exe -V assets/shaders/diffuse.frag -o assets/shaders/diffuse_frag.spv
-glslangValidator.exe -V assets/shaders/ui.vert -o assets/shaders/ui_vert.spv
-glslangValidator.exe -V assets/shaders/ui.frag -o assets/shaders/ui_frag.spv
-glslangValidator.exe -V assets/shaders/skybox/skybox.vert -o assets/shaders/skybox/skybox_vert.spv
-glslangValidator.exe -V assets/shaders/skybox/skybox.frag -o assets/shaders/skybox/skybox_frag.spv
-glslangValidator.exe -V assets/shaders/pbr/pbr_base.vert -o assets/shaders/pbr/pbr_base_vert.spv
-glslangValidator.exe -V assets/shaders/pbr/pbr_base.frag -o assets/shaders/pbr/pbr_base_frag.spv
+glslangValidator.exe -V assets/shaders/source/diffuse.vert -o assets/shaders/compiled/diffuse/vert.spv
+glslangValidator.exe -V assets/shaders/source/diffuse.frag -o assets/shaders/compiled/diffuse/frag.spv
+glslangValidator.exe -V assets/shaders/source/ui.vert -o assets/shaders/compiled/ui/vert.spv
+glslangValidator.exe -V assets/shaders/source/ui.frag -o assets/shaders/compiled/ui/frag.spv
+glslangValidator.exe -V assets/shaders/source/skybox.vert -o assets/shaders/compiled/skybox/vert.spv
+glslangValidator.exe -V assets/shaders/source/skybox.frag -o assets/shaders/compiled/skybox/frag.spv
+glslangValidator.exe -V assets/shaders/source/pbr.vert -o assets/shaders/compiled/pbr/vert.spv
+glslangValidator.exe -V assets/shaders/source/pbr.frag -o assets/shaders/compiled/pbr/frag.spv
 pause

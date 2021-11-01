@@ -17,20 +17,17 @@ EPipelineType FPipelineComp::GetType(std::string srType)
 
 std::map<EShaderSet, std::map<vk::ShaderStageFlagBits, std::string>> PipelineFactory::mShaderSets{
     {EShaderSet::eUI,
-     {{vk::ShaderStageFlagBits::eVertex, "../../assets/shaders/ui_vert.spv"},
-      {vk::ShaderStageFlagBits::eFragment, "../../assets/shaders/ui_frag.spv"}}},
+     {{vk::ShaderStageFlagBits::eVertex, "../../assets/shaders/compiled/ui/vert.spv"},
+      {vk::ShaderStageFlagBits::eFragment, "../../assets/shaders/compiled/ui/frag.spv"}}},
     {EShaderSet::eDiffuse,
-     {{vk::ShaderStageFlagBits::eVertex, "../../assets/shaders/diffuse_vert.spv"},
-      {vk::ShaderStageFlagBits::eFragment, "../../assets/shaders/diffuse_frag.spv"}}},
+     {{vk::ShaderStageFlagBits::eVertex, "../../assets/shaders/compiled/diffuse/vert.spv"},
+      {vk::ShaderStageFlagBits::eFragment, "../../assets/shaders/compiled/diffuse/frag.spv"}}},
     {EShaderSet::eSkybox,
-     {{vk::ShaderStageFlagBits::eVertex, "../../assets/shaders/skybox/skybox_vert.spv"},
-      {vk::ShaderStageFlagBits::eFragment, "../../assets/shaders/skybox/skybox_frag.spv"}}},
-    {EShaderSet::eSkybox,
-     {{vk::ShaderStageFlagBits::eVertex, "../../assets/shaders/skybox/reflect_vert.spv"},
-      {vk::ShaderStageFlagBits::eFragment, "../../assets/shaders/skybox/reflect_frag.spv"}}},
+     {{vk::ShaderStageFlagBits::eVertex, "../../assets/shaders/compiled/skybox/vert.spv"},
+      {vk::ShaderStageFlagBits::eFragment, "../../assets/shaders/compiled/skybox/frag.spv"}}},
     {EShaderSet::ePBR,
-     {{vk::ShaderStageFlagBits::eVertex, "../../assets/shaders/pbr/pbr_base_vert.spv"},
-      {vk::ShaderStageFlagBits::eFragment, "../../assets/shaders/pbr/pbr_base_frag.spv"}}}};
+     {{vk::ShaderStageFlagBits::eVertex, "../../assets/shaders/compiled/pbr/vert.spv"},
+      {vk::ShaderStageFlagBits::eFragment, "../../assets/shaders/compiled/pbr/frag.spv"}}}};
 
 std::map<EPipelineType, std::function<PipelineFactory::signature>> PipelineFactory::m_mFactory =
     {

@@ -1,0 +1,21 @@
+{
+    "descriptor_sets":
+    {
+        "0":
+        {
+            "bindings":
+            {
+                "0": { "type": "uniform_buffer", "name": "ubo" }
+            }
+        },
+        "1":
+        {
+            "bindings":
+            {
+                "0": { "type": "sampler2d", "name": "color_tex" },
+                "1": { "type": "sampler2d", "name": "normal_tex" },
+                "2": { "type": "sampler2d", "name": "specular_tex" }
+            }
+        }
+    }
+}

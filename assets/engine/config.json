@@ -1,0 +1,18 @@
+{
+    "Window":
+    {
+        "width": 1920,
+        "height": 1080,
+        "fullscreen_mode": false,
+        "window_name": "Vulkan",
+        "engine_name": "vk"
+    },
+    "Engine":
+    {
+        "Shaders":
+        {
+            "shader_info": "assets/shaders/shader_info.json",
+            "real_time_compilation": true
+        }
+    }
+}

@@ -5,7 +5,7 @@ layout(set = 1, binding = 1) uniform sampler2D normal_tex;
 layout(set = 1, binding = 2) uniform sampler2D specular_tex;
 
 layout(location = 0) in vec2 fragTexCoord;
-layout(location = 1) in vec3 fragColor;
+layout(location = 1) in vec4 fragColor;
 layout(location = 2) in vec3 lightColor;
 layout(location = 3) in vec3 fragPos;
 layout(location = 4) in vec3 viewPos;
@@ -22,7 +22,7 @@ void main()
 	float invRadius = 1.0/lightRadius;
     vec3 normal = (texture(normal_tex, fragTexCoord).rgb * 2.0 - 1.0);
 
-	vec3 color = texture(color_tex, fragTexCoord).rgb * fragColor;
+	vec4 color = texture(color_tex, fragTexCoord);
     
 	vec3 lightDir = normalize(lightPos - fragPos);
     float diffuse = max(dot(lightDir, normal), 0.15);
@@ -35,7 +35,7 @@ void main()
     vec3 halfwayDir = normalize(lightDir + viewDir);  
     float specular = pow(max(dot(normal, halfwayDir), 0.0), 4.0);
 
-	vec3 specularColor = texture(specular_tex, fragTexCoord).rgb;
+	vec4 specularColor = texture(specular_tex, fragTexCoord);
 
-	outColor = vec4((color * atten + (diffuse * color + 0.5 * specular * specularColor)) * atten, 1.0);
+	outColor = (color * atten + (diffuse * color + 0.5 * specular * specularColor)) * atten;
 }

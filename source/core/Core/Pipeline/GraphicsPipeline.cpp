@@ -1,6 +1,6 @@
 #include "GraphicsPipeline.h"
-#include "Renderer/VulkanDevice.h"
-#include "Renderer/VulkanSwapChain.h"
+#include "Core/VulkanDevice.h"
+#include "Core/VulkanSwapChain.h"
 
 using namespace Engine::Core::Pipeline;
 

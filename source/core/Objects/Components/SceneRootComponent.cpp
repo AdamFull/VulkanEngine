@@ -1,5 +1,5 @@
 #include "SceneRootComponent.h"
-#include "Renderer/VulkanDevice.h"
+#include "Core/VulkanDevice.h"
 #include "Resources/ResourceManager.h"
 
 using namespace Engine::Objects::Components;

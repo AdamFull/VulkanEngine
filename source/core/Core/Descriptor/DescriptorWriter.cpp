@@ -3,7 +3,7 @@
 #include "DescriptorSetLayout.h"
 #include "DescriptorSet.h"
 
-#include "Renderer/VulkanDevice.h"
+#include "Core/VulkanDevice.h"
 
 using namespace Engine::Core;
 using namespace Engine::Core::Descriptor;

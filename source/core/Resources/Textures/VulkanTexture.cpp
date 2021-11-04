@@ -1,7 +1,7 @@
 #include "VulkanTexture.h"
-#include "Renderer/VulkanDevice.h"
-#include "Renderer/VulkanBuffer.h"
-#include "Renderer/VulkanHighLevel.h"
+#include "Core/VulkanDevice.h"
+#include "Core/VulkanBuffer.h"
+#include "Core/VulkanHighLevel.h"
 
 using namespace Engine::Resources;
 using namespace Engine::Resources::Texture;

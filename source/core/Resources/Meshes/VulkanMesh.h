@@ -1,7 +1,7 @@
 #pragma once
 #include "Resources/ResourceBase.h"
-#include "Renderer/VulkanBuffer.h"
-#include "Renderer/DataTypes/VulkanVertex.hpp"
+#include "Core/VulkanBuffer.h"
+#include "Core/DataTypes/VulkanVertex.hpp"
 
 namespace Engine
 {

@@ -1,13 +1,13 @@
 #include "ImguiOverlay.h"
 #include "backends/imgui_impl_glfw.h"
 
-#include "Renderer/Window/WinCallbacks.h"
-#include "Renderer/Window/WindowHandle.h"
-#include "Renderer/VulkanDevice.h"
-#include "Renderer/VulkanBuffer.h"
+#include "Core/Window/WinCallbacks.h"
+#include "Core/Window/WindowHandle.h"
+#include "Core/VulkanDevice.h"
+#include "Core/VulkanBuffer.h"
 #include "Resources/Textures/VulkanTexture.h"
 #include "Resources/Materials/MaterialUI.h"
-#include "Renderer/VulkanSwapChain.h"
+#include "Core/VulkanSwapChain.h"
 
 #include "Overlays/OverlayDebug.h"
 #include "Overlays/OverlayConsole.h"

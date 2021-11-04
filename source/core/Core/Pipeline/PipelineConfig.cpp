@@ -1,6 +1,6 @@
 #include "PipelineConfig.h"
-#include "Renderer/Window/WindowHandle.h"
-#include "Renderer/DataTypes/VulkanVertex.hpp"
+#include "Core/Window/WindowHandle.h"
+#include "Core/DataTypes/VulkanVertex.hpp"
 
 using namespace Engine::Core::Pipeline;
 using namespace Engine::Core::Window;

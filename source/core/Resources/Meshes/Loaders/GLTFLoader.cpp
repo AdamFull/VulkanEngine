@@ -11,9 +11,9 @@
 #include "Resources/Textures/ImageLoader.h"
 #include "Resources/Materials/MaterialDiffuse.h"
 
-#include "Renderer/DataTypes/VulkanVertex.hpp"
-#include "Renderer/VulkanVBO.h"
-#include "Renderer/VulkanHighLevel.h"
+#include "Core/DataTypes/VulkanVertex.hpp"
+#include "Core/VulkanVBO.h"
+#include "Core/VulkanHighLevel.h"
 
 // Based on https://github.com/SaschaWillems/Vulkan/blob/master/base/VulkanglTFModel.cpp
 bool loadImageDataFuncEmpty(tinygltf::Image *image, const int imageIndex, std::string *error, std::string *warning, int req_width, int req_height, const unsigned char *bytes, int size, void *userData)

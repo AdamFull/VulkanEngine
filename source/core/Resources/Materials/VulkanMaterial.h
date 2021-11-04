@@ -1,11 +1,11 @@
 #pragma once
 #include "Resources/ResourceBase.h"
-#include "Renderer/Pipeline/VulkanPipeline.h"
-#include "Renderer/Pipeline/PipelineFactory.h"
+#include "Core/Pipeline/VulkanPipeline.h"
+#include "Core/Pipeline/PipelineFactory.h"
 #include "Resources/Textures/VulkanTexture.h"
 
-#include "Renderer/Descriptor/DescriptorPool.h"
-#include "Renderer/Descriptor/DescriptorSetContainer.h"
+#include "Core/Descriptor/DescriptorPool.h"
+#include "Core/Descriptor/DescriptorSetContainer.h"
 
 namespace Engine
 {

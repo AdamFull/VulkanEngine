@@ -1,6 +1,6 @@
 #pragma once
-#include "Renderer/VulkanSwapChain.h"
-#include "Renderer/VulkanUniform.h"
+#include "Core/VulkanSwapChain.h"
+#include "Core/VulkanUniform.h"
 #include "Transform.h"
 #include "SceneConstruct.h"
 

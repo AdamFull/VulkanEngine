@@ -1,6 +1,6 @@
 #include "InputMapper.h"
-#include "Renderer/Window/WindowHandle.h"
-#include "Renderer/Window/WinCallbacks.h"
+#include "Core/Window/WindowHandle.h"
+#include "Core/Window/WinCallbacks.h"
 #include "EngineMath.hpp"
 
 using namespace Engine;

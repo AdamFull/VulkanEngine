@@ -1,6 +1,6 @@
 #include "IrradianceGenerator.h"
-#include "Renderer/VulkanHighLevel.h"
-#include "Renderer/VulkanDevice.h"
+#include "Core/VulkanHighLevel.h"
+#include "Core/VulkanDevice.h"
 #include "Resources/Textures/VulkanTexture.h"
 
 using namespace Engine::Resources::Generators;

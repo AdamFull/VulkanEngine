@@ -1,13 +1,13 @@
 #include "MaterialUI.h"
-#include "Renderer/VulkanHighLevel.h"
-#include "Renderer/VulkanUniform.h"
-#include "Renderer/VulkanBuffer.h"
-#include "Renderer/VulkanDevice.h"
-#include "Renderer/Overlay/ImguiOverlay.h"
+#include "Core/VulkanHighLevel.h"
+#include "Core/VulkanUniform.h"
+#include "Core/VulkanBuffer.h"
+#include "Core/VulkanDevice.h"
+#include "Core/Overlay/ImguiOverlay.h"
 
-#include "Renderer/Descriptor/DescriptorSet.h"
-#include "Renderer/Descriptor/DescriptorSetLayout.h"
-#include "Renderer/Descriptor/DescriptorWriter.h"
+#include "Core/Descriptor/DescriptorSet.h"
+#include "Core/Descriptor/DescriptorSetLayout.h"
+#include "Core/Descriptor/DescriptorWriter.h"
 
 using namespace Engine::Resources::Material;
 using namespace Engine::Core::Descriptor;

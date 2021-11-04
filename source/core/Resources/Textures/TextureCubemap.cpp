@@ -1,7 +1,7 @@
 #include "TextureCubemap.h"
-#include "Renderer/VulkanDevice.h"
-#include "Renderer/VulkanBuffer.h"
-#include "Renderer/VulkanHighLevel.h"
+#include "Core/VulkanDevice.h"
+#include "Core/VulkanBuffer.h"
+#include "Core/VulkanHighLevel.h"
 
 using namespace Engine::Resources::Texture;
 void TextureCubemap::ReCreate()

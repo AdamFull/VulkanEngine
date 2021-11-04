@@ -1,10 +1,10 @@
 #include "RenderScene.h"
 #include "Objects/Components/Camera/CameraComponent.h"
 #include "Objects/Components/Camera/CameraManager.h"
-#include "Renderer/VulkanHighLevel.h"
+#include "Core/VulkanHighLevel.h"
 #include "KeyMapping/InputMapper.h"
 #include "Resources/ResourceManager.h"
-#include "Renderer/Overlay/ImguiOverlay.h"
+#include "Core/Overlay/ImguiOverlay.h"
 
 using namespace Engine;
 

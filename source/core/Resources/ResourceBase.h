@@ -1,8 +1,8 @@
 #pragma once
 #include "ResourceCunstruct.h"
-#include "Renderer/VulkanDevice.h"
-#include "Renderer/VulkanSwapChain.h"
-#include "Renderer/VulkanUniform.h"
+#include "Core/VulkanDevice.h"
+#include "Core/VulkanSwapChain.h"
+#include "Core/VulkanUniform.h"
 
 namespace Engine
 {

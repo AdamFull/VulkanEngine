@@ -1,7 +1,7 @@
 #include "VulkanMaterial.h"
-#include "Renderer/VulkanUniform.h"
-#include "Renderer/VulkanDevice.h"
-#include "Renderer/VulkanHighLevel.h"
+#include "Core/VulkanUniform.h"
+#include "Core/VulkanDevice.h"
+#include "Core/VulkanHighLevel.h"
 
 using namespace Engine::Resources::Material;
 using namespace Engine::Core::Descriptor;

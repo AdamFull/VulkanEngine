@@ -1,7 +1,7 @@
 #include "VulkanMesh.h"
 #include "Resources/Materials/VulkanMaterial.h"
-#include "Renderer/VulkanDevice.h"
-#include "Renderer/VulkanHighLevel.h"
+#include "Core/VulkanDevice.h"
+#include "Core/VulkanHighLevel.h"
 
 using namespace Engine::Resources::Mesh;
 

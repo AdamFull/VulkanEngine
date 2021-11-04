@@ -1,12 +1,12 @@
 #include "OverlayDebug.h"
-#include <Renderer/Window/WindowHandle.h>
+#include <Core/Window/WindowHandle.h>
 #include <imgui.h>
 #include <Objects/Components/Camera/CameraComponent.h>
 #include <Objects/Components/Camera/CameraManager.h>
 #include <GlobalVariables.h>
 
-#include "Renderer/VulkanVBO.h"
-#include "Renderer/VulkanHighLevel.h"
+#include "Core/VulkanVBO.h"
+#include "Core/VulkanHighLevel.h"
 
 using namespace Engine::Core::Overlay;
 

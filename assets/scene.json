@@ -52,7 +52,7 @@
             {
                 "name": "fight_helmet_gltf",
                 "type": "static",
-                "src": "../../assets/meshes/fight_helmet/FlightHelmet.gltf",
+                "src": "../../assets/meshes/fireman/scene.gltf",
                 "use_included_material": true
             },
             "transform":

@@ -293,6 +293,17 @@ void GLTFLoader::LoadNode(std::shared_ptr<LoaderTemporaryObject> tmp, std::share
 
 void GLTFLoader::LoadMaterials(std::shared_ptr<LoaderTemporaryObject> tmp, std::shared_ptr<Resources::ResourceManager> pResMgr, const tinygltf::Model &model)
 {
+    auto get_texture = [&tmp, &pResMgr](const tinygltf::ParameterMap& mat, const std::string& srTexture)
+    {
+        if (mat.find(srTexture) != mat.end())
+        {
+            auto index = mat.at(srTexture).TextureIndex();
+            return tmp->vTextures.at(index);
+        }
+        
+        return pResMgr->Get<Texture::TextureBase>("no_texture");
+    };
+
     uint32_t material_index{0};
     for (auto &mat : model.materials)
     {
@@ -307,48 +318,24 @@ void GLTFLoader::LoadMaterials(std::shared_ptr<LoaderTemporaryObject> tmp, std::
         FMaterialParams params;
         std::shared_ptr<MaterialBase> nativeMaterial = std::make_shared<MaterialDiffuse>();
         nativeMaterial->SetName(ss.str());
-        if (mat.values.find("baseColorTexture") != mat.values.end())
-        {
-            auto index = mat.values.at("baseColorTexture").TextureIndex();
-            nativeMaterial->AddTexture(ETextureAttachmentType::eColor, tmp->vTextures.at(index));
-        }
-        if (mat.values.find("metallicRoughnessTexture") != mat.values.end())
-        {
-            auto index = mat.values.at("metallicRoughnessTexture").TextureIndex();
-            nativeMaterial->AddTexture(ETextureAttachmentType::eSpecular, tmp->vTextures.at(index));
-        }
+
+        nativeMaterial->AddTexture(ETextureAttachmentType::eDiffuseAlbedo, get_texture(mat.values, "baseColorTexture"));
+        nativeMaterial->AddTexture(ETextureAttachmentType::eMetalicRoughness, get_texture(mat.values, "metallicRoughnessTexture"));
+        nativeMaterial->AddTexture(ETextureAttachmentType::eSpecularGlossiness, get_texture(mat.values, "specularGlossinessTexture"));
+
         if (mat.values.find("roughnessFactor") != mat.values.end())
-        {
             params.roughnessFactor = static_cast<float>(mat.values.at("roughnessFactor").Factor());
-        }
+
         if (mat.values.find("metallicFactor") != mat.values.end())
-        {
             params.metallicFactor = static_cast<float>(mat.values.at("metallicFactor").Factor());
-        }
+
         if (mat.values.find("baseColorFactor") != mat.values.end())
-        {
             params.baseColorFactor = glm::make_vec4(mat.values.at("baseColorFactor").ColorFactor().data());
-        }
-        if (mat.additionalValues.find("normalTexture") != mat.additionalValues.end())
-        {
-            auto index = mat.additionalValues.at("normalTexture").TextureIndex();
-            nativeMaterial->AddTexture(ETextureAttachmentType::eNormal, tmp->vTextures.at(index));
-            // material.normalTexture = getTexture(gltfModel.textures[mat.additionalValues["normalTexture"].TextureIndex()].source);
-        }
-        else
-        {
-            // material.normalTexture = &emptyTexture;
-        }
-        if (mat.additionalValues.find("emissiveTexture") != mat.additionalValues.end())
-        {
-            auto index = mat.additionalValues.at("emissiveTexture").TextureIndex();
-            nativeMaterial->AddTexture(ETextureAttachmentType::eEmissive, tmp->vTextures.at(index));
-        }
-        if (mat.additionalValues.find("occlusionTexture") != mat.additionalValues.end())
-        {
-            auto index = mat.additionalValues.at("occlusionTexture").TextureIndex();
-            nativeMaterial->AddTexture(ETextureAttachmentType::eOcclusion, tmp->vTextures.at(index));
-        }
+
+        nativeMaterial->AddTexture(ETextureAttachmentType::eNormal, get_texture(mat.additionalValues, "normalTexture"));
+        nativeMaterial->AddTexture(ETextureAttachmentType::eEmissive, get_texture(mat.additionalValues, "emissiveTexture"));
+        nativeMaterial->AddTexture(ETextureAttachmentType::eOcclusion, get_texture(mat.additionalValues, "occlusionTexture"));
+
         if (mat.additionalValues.find("alphaMode") != mat.additionalValues.end())
         {
             tinygltf::Parameter param = mat.additionalValues.at("alphaMode");

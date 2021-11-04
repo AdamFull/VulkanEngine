@@ -29,9 +29,9 @@ FPipelineCreateInfo MaterialBase::CreateInfo(EShaderSet eSet)
 }
 
 std::map<int, Engine::Resources::ETextureAttachmentType> MaterialBase::m_mTextureBindings{
-    {0, ETextureAttachmentType::eColor},
+    {0, ETextureAttachmentType::eDiffuseAlbedo},
     {1, ETextureAttachmentType::eNormal},
-    {2, ETextureAttachmentType::eSpecular}};
+    {2, ETextureAttachmentType::eMetalicRoughness}};
 
 void MaterialBase::Create()
 {

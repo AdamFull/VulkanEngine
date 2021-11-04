@@ -180,8 +180,10 @@ void TextureBase::CreateEmptyTexture(uint32_t width, uint32_t height, uint32_t d
     vk::Format format;
     ktxTexture *texture;
     ImageLoader::AllocateRawDataAsKTXTexture(&texture, &format, width, height, depth, dims, GetInternalFormat());
+    texture->pData = static_cast<uint8_t*>(calloc(texture->dataSize, sizeof(uint8_t)));
 
     InitializeTexture(texture, format);
+    WriteImageData(texture, format);
     UpdateDescriptor();
 
     ImageLoader::Close(&texture);

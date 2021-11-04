@@ -15,15 +15,14 @@ namespace Engine
         enum class ETextureAttachmentType
         {
             eEmpty,
-            eColor,
-            eAlbedo,
-            eMetalic,
-            eRoughness,
+            eDiffuseAlbedo,
+            eMetalicRoughness,
+            eSpecularGlossiness,
+            eEmissive,
             eNormal,
             eHeight,
             eOcclusion,
-            eEmissive,
-            eSpecular,
+            //Special
             eCubemap,
             eIrradiance,
             eBRDFLUT,

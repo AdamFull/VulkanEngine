@@ -113,7 +113,7 @@ void ImguiOverlay::CreateFontResources(std::unique_ptr<Device> &device)
     bool result = Loaders::ImageLoader::AllocateRawDataAsKTXTexture(fontData, &texture, &format, texWidth, texHeight, 1, 2);
 
     fontTexture->LoadFromMemory(texture, format);
-    fontMaterial->AddTexture(ETextureAttachmentType::eColor, fontTexture);
+    fontMaterial->AddTexture(ETextureAttachmentType::eDiffuseAlbedo, fontTexture);
     fontMaterial->Create();
 
     Loaders::ImageLoader::Close(&texture);

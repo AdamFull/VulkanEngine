@@ -29,7 +29,7 @@ void MaterialUI::Update(uint32_t imageIndex)
     auto bufferInfo = VulkanDescriptorWriter().WriteBuffer(0, m_pMatDesc->GetSetLayout(0)->GetBindings(), &UOverlay->GetBuffer(imageIndex)->GetDscriptor()).Build();
     m_pMatDesc->Update(0, imageIndex, bufferInfo);
 
-    auto imageInfo = VulkanDescriptorWriter().WriteImage(0, m_pMatDesc->GetSetLayout(1)->GetBindings(), &m_mTextures[ETextureAttachmentType::eColor]->GetDescriptor()).Build();
+    auto imageInfo = VulkanDescriptorWriter().WriteImage(0, m_pMatDesc->GetSetLayout(1)->GetBindings(), &m_mTextures[ETextureAttachmentType::eDiffuseAlbedo]->GetDescriptor()).Build();
     m_pMatDesc->Update(1, imageIndex, imageInfo);
 }
 

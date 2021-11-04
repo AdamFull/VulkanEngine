@@ -32,9 +32,13 @@ void MaterialDiffuse::Update(uint32_t imageIndex)
     m_pMatDesc->Update(0, imageIndex, bufferInfo);
 
     auto imageInfo = VulkanDescriptorWriter().
-    WriteImage(0, m_pMatDesc->GetSetLayout(1)->GetBindings(), &m_mTextures[ETextureAttachmentType::eColor]->GetDescriptor()).
-    WriteImage(1, m_pMatDesc->GetSetLayout(1)->GetBindings(), &m_mTextures[ETextureAttachmentType::eNormal]->GetDescriptor()).
-    WriteImage(2, m_pMatDesc->GetSetLayout(1)->GetBindings(), &m_mTextures[ETextureAttachmentType::eSpecular]->GetDescriptor()).Build();
+    WriteImage(0, m_pMatDesc->GetSetLayout(1)->GetBindings(), &m_mTextures[ETextureAttachmentType::eDiffuseAlbedo]->GetDescriptor()).
+    WriteImage(1, m_pMatDesc->GetSetLayout(1)->GetBindings(), &m_mTextures[ETextureAttachmentType::eMetalicRoughness]->GetDescriptor()).
+    WriteImage(2, m_pMatDesc->GetSetLayout(1)->GetBindings(), &m_mTextures[ETextureAttachmentType::eSpecularGlossiness]->GetDescriptor()).
+    WriteImage(3, m_pMatDesc->GetSetLayout(1)->GetBindings(), &m_mTextures[ETextureAttachmentType::eEmissive]->GetDescriptor()).
+    WriteImage(4, m_pMatDesc->GetSetLayout(1)->GetBindings(), &m_mTextures[ETextureAttachmentType::eNormal]->GetDescriptor()).
+    WriteImage(5, m_pMatDesc->GetSetLayout(1)->GetBindings(), &m_mTextures[ETextureAttachmentType::eOcclusion]->GetDescriptor()).
+    Build();
     m_pMatDesc->Update(1, imageIndex, imageInfo);
 }
 
@@ -70,6 +74,9 @@ void MaterialDiffuse::CreateDescriptors(uint32_t images)
     addBinding(0, vk::DescriptorType::eCombinedImageSampler, vk::ShaderStageFlagBits::eFragment).
     addBinding(1, vk::DescriptorType::eCombinedImageSampler, vk::ShaderStageFlagBits::eFragment).
     addBinding(2, vk::DescriptorType::eCombinedImageSampler, vk::ShaderStageFlagBits::eFragment).
+    addBinding(3, vk::DescriptorType::eCombinedImageSampler, vk::ShaderStageFlagBits::eFragment).
+    addBinding(4, vk::DescriptorType::eCombinedImageSampler, vk::ShaderStageFlagBits::eFragment).
+    addBinding(5, vk::DescriptorType::eCombinedImageSampler, vk::ShaderStageFlagBits::eFragment).
     build(UDevice);
 
     auto texSet = std::make_unique<VulkanDescriptorSet>();

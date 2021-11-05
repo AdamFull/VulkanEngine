@@ -6,7 +6,11 @@
 #include "Resources/ResourceManager.h"
 #include "Core/Overlay/ImguiOverlay.h"
 
+//FOR TEST
+#include "Resources/Materials/Generators/GeneratorBase.h"
+
 using namespace Engine;
+using namespace Engine::Resources::Material::Generator;
 
 void RenderScene::Create()
 {
@@ -15,8 +19,9 @@ void RenderScene::Create()
 
     // TODO: move to another place
     auto pEmptyTexture = std::make_shared<Resources::Texture::TextureBase>();
-    pEmptyTexture->CreateEmptyTexture(512, 512, 1, 2);
+    pEmptyTexture->CreateEmptyTexture(512, 512, 1, 2, 0x8C43);
     m_pResourceManager->AddExisting("no_texture", pEmptyTexture);
+    m_pResourceManager->AddExisting("brdf_test", GeneratorBase::Generate(EGeneratorType::eBRDF, 512));
 }
 
 void RenderScene::ReCreate()

@@ -25,9 +25,9 @@ std::map<EShaderSet, std::map<vk::ShaderStageFlagBits, std::string>> PipelineFac
     {EShaderSet::eSkybox,
      {{vk::ShaderStageFlagBits::eVertex, "../../assets/shaders/compiled/skybox/vert.spv"},
       {vk::ShaderStageFlagBits::eFragment, "../../assets/shaders/compiled/skybox/frag.spv"}}},
-    {EShaderSet::ePBR,
-     {{vk::ShaderStageFlagBits::eVertex, "../../assets/shaders/compiled/pbr/vert.spv"},
-      {vk::ShaderStageFlagBits::eFragment, "../../assets/shaders/compiled/pbr/frag.spv"}}}};
+    {EShaderSet::eBRDF,
+     {{vk::ShaderStageFlagBits::eVertex, "../../assets/shaders/compiled/brdflut_gen/vert.spv"},
+      {vk::ShaderStageFlagBits::eFragment, "../../assets/shaders/compiled/brdflut_gen/frag.spv"}}}};
 
 std::map<EPipelineType, std::function<PipelineFactory::signature>> PipelineFactory::m_mFactory =
     {

@@ -319,7 +319,8 @@ void GLTFLoader::LoadMaterials(std::shared_ptr<LoaderTemporaryObject> tmp, std::
         std::shared_ptr<MaterialBase> nativeMaterial = std::make_shared<MaterialDiffuse>();
         nativeMaterial->SetName(ss.str());
 
-        nativeMaterial->AddTexture(ETextureAttachmentType::eDiffuseAlbedo, get_texture(mat.values, "baseColorTexture"));
+        //nativeMaterial->AddTexture(ETextureAttachmentType::eDiffuseAlbedo, get_texture(mat.values, "baseColorTexture"));
+        nativeMaterial->AddTexture(ETextureAttachmentType::eDiffuseAlbedo, pResMgr->Get<Texture::TextureBase>("brdf_test"));
         nativeMaterial->AddTexture(ETextureAttachmentType::eMetalicRoughness, get_texture(mat.values, "metallicRoughnessTexture"));
         nativeMaterial->AddTexture(ETextureAttachmentType::eSpecularGlossiness, get_texture(mat.values, "specularGlossinessTexture"));
 

@@ -32,8 +32,8 @@ namespace Engine
                 virtual void SetAttachment(ETextureAttachmentType eAttachment);
                 virtual ETextureAttachmentType GetAttachment();
 
-                virtual void CreateEmptyTexture(uint32_t width, uint32_t height, uint32_t depth, uint32_t dims);
-                virtual void InitializeTexture(ktxTexture *info, vk::Format format);
+                virtual void CreateEmptyTexture(uint32_t width, uint32_t height, uint32_t depth, uint32_t dims, uint32_t internalFormat, bool allocate_mem = true);
+                virtual void InitializeTexture(ktxTexture *info, vk::Format format, vk::ImageUsageFlags flags = vk::ImageUsageFlagBits::eTransferSrc | vk::ImageUsageFlagBits::eTransferDst | vk::ImageUsageFlagBits::eSampled);
                 virtual void WriteImageData(ktxTexture *info, vk::Format format);
                 virtual void LoadFromFile(std::string srPath);
                 virtual void LoadFromMemory(ktxTexture *info, vk::Format format);
@@ -44,7 +44,6 @@ namespace Engine
             protected:
                 virtual void GenerateMipmaps(vk::Image &image, uint32_t mipLevels, vk::Format format, uint32_t width, uint32_t height, vk::ImageAspectFlags aspectFlags);
                 static vk::ImageType TypeFromKtx(uint32_t type);
-                virtual uint32_t GetInternalFormat() { return GL_SRGB8_ALPHA8; }
 
                 vk::Image image;
                 vk::ImageLayout imageLayout;

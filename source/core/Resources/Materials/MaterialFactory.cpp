@@ -7,7 +7,6 @@
 #include "Resources/Materials/MaterialUI.h"
 #include "Resources/Materials/MaterialDiffuse.h"
 #include "Resources/Materials/MaterialSkybox.h"
-#include "Resources/Materials/MaterialPBR.h"
 
 using namespace Engine::Resources;
 using namespace Engine::Resources::Material;
@@ -26,11 +25,6 @@ std::map<EMaterialType, std::function<MaterialFactory::material_t()>> MaterialFa
     {EMaterialType::eSkybox, []()
      {
          auto material = std::make_unique<MaterialSkybox>();
-         return material;
-     }},
-    {EMaterialType::ePBR, []()
-     {
-         auto material = std::make_unique<MaterialPBR>();
          return material;
      }}};
 

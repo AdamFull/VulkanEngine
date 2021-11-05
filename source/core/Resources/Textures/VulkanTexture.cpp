@@ -175,21 +175,26 @@ void TextureBase::LoadFromFile(std::string srPath)
     ImageLoader::Close(&texture);
 }
 
-void TextureBase::CreateEmptyTexture(uint32_t width, uint32_t height, uint32_t depth, uint32_t dims)
+void TextureBase::CreateEmptyTexture(uint32_t width, uint32_t height, uint32_t depth, uint32_t dims, uint32_t internalFormat, bool allocate_mem)
 {
     vk::Format format;
     ktxTexture *texture;
-    ImageLoader::AllocateRawDataAsKTXTexture(&texture, &format, width, height, depth, dims, GetInternalFormat());
-    texture->pData = static_cast<uint8_t*>(calloc(texture->dataSize, sizeof(uint8_t)));
+    ImageLoader::AllocateRawDataAsKTXTexture(&texture, &format, width, height, depth, dims, internalFormat);
 
     InitializeTexture(texture, format);
-    WriteImageData(texture, format);
+
+    if(allocate_mem)
+    {
+        texture->pData = static_cast<uint8_t*>(calloc(texture->dataSize, sizeof(uint8_t)));
+        WriteImageData(texture, format);
+    }
+    
     UpdateDescriptor();
 
     ImageLoader::Close(&texture);
 }
 
-void TextureBase::InitializeTexture(ktxTexture *info, vk::Format format)
+void TextureBase::InitializeTexture(ktxTexture *info, vk::Format format, vk::ImageUsageFlags flags)
 {
     vk::PhysicalDeviceProperties devprops;
     UDevice->GetPhysical().getProperties(&devprops);
@@ -231,7 +236,7 @@ void TextureBase::InitializeTexture(ktxTexture *info, vk::Format format)
     imageInfo.format = format;
     imageInfo.tiling = vk::ImageTiling::eOptimal;
     imageInfo.initialLayout = vk::ImageLayout::eUndefined;
-    imageInfo.usage = vk::ImageUsageFlagBits::eTransferSrc | vk::ImageUsageFlagBits::eTransferDst | vk::ImageUsageFlagBits::eSampled;
+    imageInfo.usage = flags;
     imageInfo.sharingMode = vk::SharingMode::eExclusive;
 
     if (info->isArray)

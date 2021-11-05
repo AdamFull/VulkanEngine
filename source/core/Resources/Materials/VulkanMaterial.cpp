@@ -12,26 +12,18 @@ FPipelineCreateInfo MaterialBase::CreateInfo(EShaderSet eSet)
     switch (eSet)
     {
     case EShaderSet::eUI:
-        return PipelineConfig::CreateUIPipeline(UDevice->GetSamples(), pipelineLayout, pipelineCache);
+        return PipelineConfig::CreateUIPipeline(USwapChain->GetRenderPass(), UDevice->GetSamples(), pipelineLayout, pipelineCache);
         break;
     case EShaderSet::eDiffuse:
-        return PipelineConfig::CreateDiffusePipeline(UDevice->GetSamples(), pipelineLayout, pipelineCache);
+        return PipelineConfig::CreateDiffusePipeline(USwapChain->GetRenderPass(),UDevice->GetSamples(), pipelineLayout, pipelineCache);
         break;
     case EShaderSet::eSkybox:
-        return PipelineConfig::CreateSkyboxPipeline(UDevice->GetSamples(), pipelineLayout, pipelineCache);
-        break;
-    case EShaderSet::ePBR:
-        return PipelineConfig::CreatePBRPipeline(UDevice->GetSamples(), pipelineLayout, pipelineCache);
+        return PipelineConfig::CreateSkyboxPipeline(USwapChain->GetRenderPass(),UDevice->GetSamples(), pipelineLayout, pipelineCache);
         break;
     }
 
     return FPipelineCreateInfo{};
 }
-
-std::map<int, Engine::Resources::ETextureAttachmentType> MaterialBase::m_mTextureBindings{
-    {0, ETextureAttachmentType::eDiffuseAlbedo},
-    {1, ETextureAttachmentType::eNormal},
-    {2, ETextureAttachmentType::eMetalicRoughness}};
 
 void MaterialBase::Create()
 {

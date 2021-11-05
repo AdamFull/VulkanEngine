@@ -5,6 +5,6 @@ glslangValidator.exe -V assets/shaders/source/ui.vert -o assets/shaders/compiled
 glslangValidator.exe -V assets/shaders/source/ui.frag -o assets/shaders/compiled/ui/frag.spv
 glslangValidator.exe -V assets/shaders/source/skybox.vert -o assets/shaders/compiled/skybox/vert.spv
 glslangValidator.exe -V assets/shaders/source/skybox.frag -o assets/shaders/compiled/skybox/frag.spv
-glslangValidator.exe -V assets/shaders/source/pbr.vert -o assets/shaders/compiled/pbr/vert.spv
-glslangValidator.exe -V assets/shaders/source/pbr.frag -o assets/shaders/compiled/pbr/frag.spv
+glslangValidator.exe -V assets/shaders/source/brdflut_gen.vert -o assets/shaders/compiled/brdflut_gen/vert.spv
+glslangValidator.exe -V assets/shaders/source/brdflut_gen.frag -o assets/shaders/compiled/brdflut_gen/frag.spv
 pause

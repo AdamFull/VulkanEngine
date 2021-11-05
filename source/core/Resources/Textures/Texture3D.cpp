@@ -33,7 +33,7 @@ void Texture3D::LoadNoise(ENoisePattern ePattern, uint32_t width, uint32_t heigh
 {
     vk::Format format;
     ktxTexture *texture;
-    Loaders::ImageLoader::AllocateRawDataAsKTXTexture(&texture, &format, width, height, depth, 3, GetInternalFormat());
+    Loaders::ImageLoader::AllocateRawDataAsKTXTexture(&texture, &format, width, height, depth, 3, 0x8229);
 
     InitializeTexture(texture, format);
 

@@ -22,7 +22,6 @@ namespace Engine
             protected:
                 void GeneratePerlinNoise(ktxTexture *texture);
                 void GenerateFractalNoise(ktxTexture *texture, uint32_t octaves, float perceptation);
-                uint32_t GetInternalFormat() override { return 0x8229; } // GL_R8, for texture generators
             };
         }
     }

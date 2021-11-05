@@ -14,14 +14,9 @@ void GraphicsPipeline::CreatePipeline(std::unique_ptr<Device> &device, std::uniq
 {
     assert(device && "Cannot create pipeline, cause logical device is not valid.");
     assert(swapchain && "Cannot create pipeline, cause render pass is not valid.");
-    vk::PipelineVertexInputStateCreateInfo vertexInputInfo = {};
-    vertexInputInfo.vertexBindingDescriptionCount = 0;
-    vertexInputInfo.vertexAttributeDescriptionCount = 0;
 
-    vertexInputInfo.vertexBindingDescriptionCount = 1;
-    vertexInputInfo.vertexAttributeDescriptionCount = static_cast<uint32_t>(savedInfo.vertexAtribDesc.size());
-    vertexInputInfo.pVertexBindingDescriptions = &savedInfo.vertexInputDesc;
-    vertexInputInfo.pVertexAttributeDescriptions = savedInfo.vertexAtribDesc.data();
+    savedInfo.vertexInputInfo.pVertexBindingDescriptions = &savedInfo.vertexInputDesc;
+    savedInfo.vertexInputInfo.pVertexAttributeDescriptions = savedInfo.vertexAtribDesc.data();
 
     vk::PipelineViewportStateCreateInfo viewportState{};
     viewportState.viewportCount = 1;
@@ -34,7 +29,7 @@ void GraphicsPipeline::CreatePipeline(std::unique_ptr<Device> &device, std::uniq
     vk::GraphicsPipelineCreateInfo pipelineInfo = {};
     pipelineInfo.stageCount = m_vShaderBuffer.size();
     pipelineInfo.pStages = m_vShaderBuffer.data();
-    pipelineInfo.pVertexInputState = &vertexInputInfo;
+    pipelineInfo.pVertexInputState = &savedInfo.vertexInputInfo;
     pipelineInfo.pInputAssemblyState = &savedInfo.inputAssembly;
     pipelineInfo.pViewportState = &viewportState;
     pipelineInfo.pRasterizationState = &savedInfo.rasterizer;
@@ -42,7 +37,7 @@ void GraphicsPipeline::CreatePipeline(std::unique_ptr<Device> &device, std::uniq
     pipelineInfo.pColorBlendState = &savedInfo.colorBlending;
     pipelineInfo.pDepthStencilState = &savedInfo.depthStencil;
     pipelineInfo.layout = savedInfo.pipelineLayout;
-    pipelineInfo.renderPass = swapchain->GetRenderPass();
+    pipelineInfo.renderPass = savedInfo.renderPass;
     pipelineInfo.subpass = 0;
     pipelineInfo.basePipelineHandle = nullptr;
     pipelineInfo.pDynamicState = &savedInfo.dynamicStateInfo;

@@ -49,7 +49,7 @@ namespace Engine
 
             protected:
                 virtual inline Core::Pipeline::EShaderSet GetShaderSet() { return Core::Pipeline::EShaderSet::eNone; }
-                Core::Pipeline::FPipelineCreateInfo CreateInfo(Core::Pipeline::EShaderSet eSet);
+                virtual Core::Pipeline::FPipelineCreateInfo CreateInfo(Core::Pipeline::EShaderSet eSet);
                 void CreateDescriptorPool(uint32_t images);
                 void CreatePipelineLayout(uint32_t images);
                 void CreatePipelineCache();
@@ -64,7 +64,6 @@ namespace Engine
                 vk::PipelineCache pipelineCache;
                 std::shared_ptr<Core::Pipeline::PipelineBase> pPipeline;
                 std::map<ETextureAttachmentType, std::shared_ptr<Texture::TextureBase>> m_mTextures;
-                static std::map<int, ETextureAttachmentType> m_mTextureBindings;
             };
         }
     }

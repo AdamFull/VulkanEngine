@@ -38,6 +38,7 @@ namespace Engine
             public:
                 void Create() override;
                 virtual void AddTexture(ETextureAttachmentType eAttachment, std::shared_ptr<Texture::TextureBase> pTexture);
+                std::shared_ptr<Texture::TextureBase> GetTexture(ETextureAttachmentType eAttachment);
                 virtual void AddTextures(std::map<ETextureAttachmentType, std::shared_ptr<Texture::TextureBase>> mTextures);
                 void ReCreate() override;
                 void Update(uint32_t imageIndex) override;
@@ -59,7 +60,9 @@ namespace Engine
 
                 std::unique_ptr<Core::Descriptor::VulkanDescriptorSetContainer> m_pMatDesc;
                 std::shared_ptr<Core::Descriptor::VulkanDescriptorPool> m_pDescriptorPool;
+                std::vector<vk::PushConstantRange> m_vConstantRanges;
 
+                vk::RenderPass renderPass;
                 vk::PipelineLayout pipelineLayout;
                 vk::PipelineCache pipelineCache;
                 std::shared_ptr<Core::Pipeline::PipelineBase> pPipeline;

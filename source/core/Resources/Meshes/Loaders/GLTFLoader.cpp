@@ -39,7 +39,7 @@ using namespace Engine::Resources::Loaders;
 
 uint32_t GLTFLoader::current_primitive{0};
 
-std::shared_ptr<Objects::RenderObject> GLTFLoader::Load(std::string srPath, std::string srName, std::shared_ptr<LoaderTemporaryObject> pTmp, std::shared_ptr<Resources::ResourceManager> pResMgr)
+void GLTFLoader::Load(std::string srPath, std::string srName, std::shared_ptr<LoaderTemporaryObject> pTmp, std::shared_ptr<Objects::RenderObject> pRootComponent, std::shared_ptr<Resources::ResourceManager> pResMgr)
 {
     tinygltf::Model gltfModel;
     tinygltf::TinyGLTF gltfContext;
@@ -49,8 +49,6 @@ std::shared_ptr<Objects::RenderObject> GLTFLoader::Load(std::string srPath, std:
     current_primitive = 0;
 
     pTmp->srModelName = srName;
-    auto pRootComponent = std::make_shared<Objects::RenderObject>();
-    pRootComponent->SetName(srName);
 
     if (fileLoaded)
     {
@@ -64,14 +62,12 @@ std::shared_ptr<Objects::RenderObject> GLTFLoader::Load(std::string srPath, std:
         for (size_t i = 0; i < scene.nodes.size(); i++)
         {
             const tinygltf::Node node = gltfModel.nodes[scene.nodes[i]];
-            LoadNode(pTmp, pRootComponent, node, scene.nodes[i], gltfModel, 1.0);
+            LoadNode(pTmp, pResMgr, pRootComponent, node, scene.nodes[i], gltfModel, 1.0);
         }
     }
-
-    return pRootComponent;
 }
 
-void GLTFLoader::LoadNode(std::shared_ptr<LoaderTemporaryObject> tmp, std::shared_ptr<Objects::RenderObject> pParent, const tinygltf::Node &node, uint32_t nodeIndex, const tinygltf::Model &model, float globalscale)
+void GLTFLoader::LoadNode(std::shared_ptr<LoaderTemporaryObject> tmp, std::shared_ptr<Resources::ResourceManager> pResMgr, std::shared_ptr<Objects::RenderObject> pParent, const tinygltf::Node &node, uint32_t nodeIndex, const tinygltf::Model &model, float globalscale)
 {
     auto component = std::make_shared<Objects::Components::MeshComponentBase>();
     component->SetIndex(nodeIndex);
@@ -97,7 +93,7 @@ void GLTFLoader::LoadNode(std::shared_ptr<LoaderTemporaryObject> tmp, std::share
     {
         for (auto i = 0; i < node.children.size(); i++)
         {
-            LoadNode(tmp, component, model.nodes[node.children[i]], node.children[i], model, globalscale);
+            LoadNode(tmp, pResMgr, component, model.nodes[node.children[i]], node.children[i], model, globalscale);
         }
     }
 
@@ -288,6 +284,7 @@ void GLTFLoader::LoadNode(std::shared_ptr<LoaderTemporaryObject> tmp, std::share
             UVBO->AddMeshData(std::move(vertexBuffer), std::move(indexBuffer));
         }
         component->SetMesh(nativeMesh);
+        pResMgr->AddExisting(nativeMesh->GetName(), nativeMesh);
     }
 }
 
@@ -302,6 +299,13 @@ void GLTFLoader::LoadMaterials(std::shared_ptr<LoaderTemporaryObject> tmp, std::
         }
         
         return pResMgr->Get<Texture::TextureBase>("no_texture");
+    };
+
+    auto get_pbr_texture = [&pResMgr](const std::string& srVolumeName, const std::string& srPostfix)
+    {
+        if(!srVolumeName.empty())
+            return pResMgr->Get<Texture::TextureBase>(srVolumeName + srPostfix);
+        return pResMgr->Get<Texture::TextureBase>("no_texture"); 
     };
 
     uint32_t material_index{0};
@@ -319,8 +323,11 @@ void GLTFLoader::LoadMaterials(std::shared_ptr<LoaderTemporaryObject> tmp, std::
         std::shared_ptr<MaterialBase> nativeMaterial = std::make_shared<MaterialDiffuse>();
         nativeMaterial->SetName(ss.str());
 
-        //nativeMaterial->AddTexture(ETextureAttachmentType::eDiffuseAlbedo, get_texture(mat.values, "baseColorTexture"));
-        nativeMaterial->AddTexture(ETextureAttachmentType::eDiffuseAlbedo, pResMgr->Get<Texture::TextureBase>("brdf_test"));
+        nativeMaterial->AddTexture(ETextureAttachmentType::eBRDFLUT, get_pbr_texture(tmp->srVolumeName, "_brdf"));
+        nativeMaterial->AddTexture(ETextureAttachmentType::eIrradiance, get_pbr_texture(tmp->srVolumeName, "_irradiate_cube"));
+        nativeMaterial->AddTexture(ETextureAttachmentType::ePrefiltred, get_pbr_texture(tmp->srVolumeName, "_prefiltred_cube"));
+
+        nativeMaterial->AddTexture(ETextureAttachmentType::eDiffuseAlbedo, get_texture(mat.values, "baseColorTexture"));
         nativeMaterial->AddTexture(ETextureAttachmentType::eMetalicRoughness, get_texture(mat.values, "metallicRoughnessTexture"));
         nativeMaterial->AddTexture(ETextureAttachmentType::eSpecularGlossiness, get_texture(mat.values, "specularGlossinessTexture"));
 

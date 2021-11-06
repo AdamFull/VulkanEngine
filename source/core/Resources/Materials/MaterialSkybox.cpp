@@ -13,6 +13,7 @@ using namespace Engine::Core::Descriptor;
 
 void MaterialSkybox::Create()
 {
+    renderPass = USwapChain->GetRenderPass();
     MaterialBase::Create();
 }
 

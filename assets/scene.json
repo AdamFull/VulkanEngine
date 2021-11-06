@@ -2,7 +2,7 @@
     "skybox":
     {
         "name": "skybox_component",
-        "type": "gltf_mesh",
+        "type": "skybox",
         "mesh": 
         {
             "name": "skybox_obj",
@@ -48,6 +48,7 @@
         {
             "name": "fight_helmet_mesh_component",
             "type": "gltf_mesh",
+            "use_volume": "skybox_obj",
             "mesh": 
             {
                 "name": "fight_helmet_gltf",

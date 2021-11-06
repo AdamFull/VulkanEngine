@@ -34,6 +34,9 @@ namespace Engine
 
                 virtual void CreateEmptyTexture(uint32_t width, uint32_t height, uint32_t depth, uint32_t dims, uint32_t internalFormat, bool allocate_mem = true);
                 virtual void InitializeTexture(ktxTexture *info, vk::Format format, vk::ImageUsageFlags flags = vk::ImageUsageFlagBits::eTransferSrc | vk::ImageUsageFlagBits::eTransferDst | vk::ImageUsageFlagBits::eSampled);
+                void TransitionImageLayout(vk::ImageLayout oldLayout, vk::ImageLayout newLayout);
+                void TransitionImageLayout(vk::CommandBuffer& commandBuffer, vk::ImageLayout oldLayout, vk::ImageLayout newLayout);
+                void CopyImageToDst(vk::CommandBuffer& commandBuffer, std::shared_ptr<TextureBase> m_pDst, vk::ImageCopy& region, vk::ImageLayout srcLayout, vk::ImageLayout dstLayout);
                 virtual void WriteImageData(ktxTexture *info, vk::Format format);
                 virtual void LoadFromFile(std::string srPath);
                 virtual void LoadFromMemory(ktxTexture *info, vk::Format format);

@@ -6,11 +6,7 @@
 #include "Resources/ResourceManager.h"
 #include "Core/Overlay/ImguiOverlay.h"
 
-//FOR TEST
-#include "Resources/Materials/Generators/GeneratorBase.h"
-
 using namespace Engine;
-using namespace Engine::Resources::Material::Generator;
 
 void RenderScene::Create()
 {
@@ -21,7 +17,6 @@ void RenderScene::Create()
     auto pEmptyTexture = std::make_shared<Resources::Texture::TextureBase>();
     pEmptyTexture->CreateEmptyTexture(512, 512, 1, 2, 0x8C43);
     m_pResourceManager->AddExisting("no_texture", pEmptyTexture);
-    m_pResourceManager->AddExisting("brdf_test", GeneratorBase::Generate(EGeneratorType::eBRDF, 512));
 }
 
 void RenderScene::ReCreate()
@@ -62,9 +57,6 @@ void RenderScene::SetSkybox(std::shared_ptr<Objects::RenderObject> pSkybox)
 
 void RenderScene::CreateObjects()
 {
-    if (m_pSkybox)
-        m_pSkybox->Create(m_pResourceManager);
-
     m_pRoot->Create(m_pResourceManager);
     UVBO->Create(UDevice);
 }

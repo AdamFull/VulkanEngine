@@ -51,8 +51,31 @@ bool ImageLoader::AllocateRawDataAsKTXTexture(ktxTexture **target, vk::Format *f
     info.numFaces = 1;
 
     auto result = ktxTexture_Create(&info, KTX_TEXTURE_CREATE_NO_STORAGE, target);
-    //(*target)->baseWidth = width;
-    //(*target)->baseHeight = height;
+    (*target)->baseDepth = depth;
+    (*target)->dataSize = width * height * (depth > 1 ? depth : 4);
+
+    VkFormat raw_format = vkGetFormatFromOpenGLInternalFormat((*target)->glInternalformat);
+    *format = static_cast<vk::Format>(raw_format);
+
+    return result == KTX_SUCCESS;
+}
+
+bool ImageLoader::AllocateRawDataAsKTXTextureCubemap(ktxTexture **target, vk::Format *format, uint32_t width, uint32_t height, uint32_t depth, uint32_t dims, uint32_t overrideFormat, bool calcMips)
+{
+    ktxTextureCreateInfo info;
+    info.glInternalformat = overrideFormat;
+    info.baseWidth = width;
+    info.baseHeight = height;
+    info.baseDepth = depth;
+    info.numLevels = calcMips ? static_cast<uint32_t>(std::floor(std::log2(std::max(width, height)))) + 1 : 1;
+    info.numDimensions = dims;
+    ;
+    info.generateMipmaps = calcMips;
+    info.isArray = false;
+    info.numLayers = 1;
+    info.numFaces = 6;
+
+    auto result = ktxTexture_Create(&info, KTX_TEXTURE_CREATE_NO_STORAGE, target);
     (*target)->baseDepth = depth;
     (*target)->dataSize = width * height * (depth > 1 ? depth : 4);
 

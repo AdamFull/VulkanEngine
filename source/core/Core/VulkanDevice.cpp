@@ -372,10 +372,17 @@ void Device::CreateImage(vk::Image &image, vk::DeviceMemory &memory, vk::ImageCr
     data.logical->bindImageMemory(image, memory, 0);
 }
 
-void Device::TransitionImageLayout(vk::Image &image, std::vector<vk::ImageMemoryBarrier> vBarriers, vk::ImageLayout oldLayout, vk::ImageLayout newLayout)
+void Device::TransitionImageLayout(vk::Image &image, std::vector<vk::ImageMemoryBarrier>& vBarriers, vk::ImageLayout oldLayout, vk::ImageLayout newLayout)
 {
     vk::CommandBuffer commandBuffer = BeginSingleTimeCommands();
 
+    TransitionImageLayout(commandBuffer, image, vBarriers, oldLayout, newLayout);
+
+    EndSingleTimeCommands(commandBuffer);
+}
+
+void Device::TransitionImageLayout(vk::CommandBuffer& internalBuffer, vk::Image &image, std::vector<vk::ImageMemoryBarrier>& vBarriers, vk::ImageLayout oldLayout, vk::ImageLayout newLayout)
+{
     vk::PipelineStageFlags sourceStage;
     vk::PipelineStageFlags destinationStage;
 
@@ -415,14 +422,12 @@ void Device::TransitionImageLayout(vk::Image &image, std::vector<vk::ImageMemory
         }
     }
 
-    commandBuffer.pipelineBarrier(
+    internalBuffer.pipelineBarrier(
         sourceStage,
         destinationStage,
         vk::DependencyFlags(),
         0, nullptr, 0, nullptr,
         static_cast<uint32_t>(vBarriers.size()), vBarriers.data());
-
-    EndSingleTimeCommands(commandBuffer);
 }
 
 void Device::CopyBufferToImage(vk::Buffer &buffer, vk::Image &image, std::vector<vk::BufferImageCopy> vRegions)

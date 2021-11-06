@@ -18,7 +18,9 @@ namespace Engine
                 eUI,
                 eDiffuse,
                 eSkybox,
-                eBRDF
+                eBRDF,
+                eIrradiateCube,
+                ePrefiltred
             };
 
             struct FPipelineCreateInfo

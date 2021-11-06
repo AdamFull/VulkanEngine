@@ -27,6 +27,11 @@ void MeshBase::AddPrimitive(Primitive &&primitive)
     m_vPrimitives.emplace_back(primitive);
 }
 
+Primitive& MeshBase::GetPrimitive(uint32_t index)
+{
+    return m_vPrimitives.at(index);
+}
+
 void MeshBase::SetMaterial(std::shared_ptr<Material::MaterialBase> material)
 {
     /*auto it = m_vPrimitives.find(srPrimitiveName);

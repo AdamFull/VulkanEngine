@@ -269,6 +269,10 @@ namespace Engine
         if (json.find("type") != json.end())
             json.at("type").get_to(type.eObjectType);
 
+        // Required
+        if (json.find("use_volume") != json.end())
+            json.at("use_volume").get_to(type.srUseVolume);
+
         // Optional
         if (json.find("mesh") != json.end())
             json.at("mesh").get_to(type.mesh);

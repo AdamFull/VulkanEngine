@@ -14,6 +14,7 @@ using namespace Engine::Core::Descriptor;
 
 void MaterialUI::Create()
 {
+    renderPass = USwapChain->GetRenderPass();
     MaterialBase::Create();
 }
 

@@ -370,7 +370,7 @@ FPipelineCreateInfo PipelineConfig::CreateIrradiatePipeline(vk::RenderPass rende
     createInfo.renderPass = renderPass;
 
     createInfo.eType = EPipelineType::eGraphics;
-    createInfo.eSet = EShaderSet::eDiffuse;
+    createInfo.eSet = EShaderSet::eIrradiateCube;
 
     createInfo.bindPoint = vk::PipelineBindPoint::eGraphics;
 
@@ -448,7 +448,7 @@ FPipelineCreateInfo PipelineConfig::CreatePrefiltredPipeline(vk::RenderPass rend
     createInfo.renderPass = renderPass;
 
     createInfo.eType = EPipelineType::eGraphics;
-    createInfo.eSet = EShaderSet::eDiffuse;
+    createInfo.eSet = EShaderSet::ePrefiltred;
 
     createInfo.bindPoint = vk::PipelineBindPoint::eGraphics;
 

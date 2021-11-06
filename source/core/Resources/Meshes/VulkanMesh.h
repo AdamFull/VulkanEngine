@@ -39,6 +39,7 @@ namespace Engine
             public:
                 void Create() override;
                 virtual void AddPrimitive(Primitive &&primitive);
+                Primitive& GetPrimitive(uint32_t index);
                 virtual void SetMaterial(std::shared_ptr<Material::MaterialBase> material);
                 void ReCreate() override;
                 void Update(uint32_t imageIndex) override;

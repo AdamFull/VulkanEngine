@@ -12,6 +12,7 @@
 #include "Objects/Components/Camera/CameraComponent.h"
 #include "Objects/Components/Camera/CameraManager.h"
 #include "Objects/Components/MeshComponentBase.h"
+#include "Objects/Components/MeshVolumeComponent.h"
 
 using namespace Engine;
 
@@ -91,17 +92,8 @@ std::shared_ptr<Objects::RenderObject> SceneFactory::CreateStaticMesh(std::share
     return mesh_component;
 }
 
+//Todo: do smth with code reusing
 std::shared_ptr<Objects::RenderObject> SceneFactory::CreateSkybox(std::shared_ptr<Resources::ResourceManager> pResMgr, FSceneObject info)
-{
-    auto skybox = std::make_shared<Objects::Components::MeshComponentBase>();
-    skybox->SetTransform(info.fTransform);
-    skybox->SetName(info.srName);
-    auto mesh = Resources::Mesh::MeshFactory::Create(pResMgr, info.mesh);
-    skybox->SetMesh(mesh);
-    return skybox;
-}
-
-std::shared_ptr<Objects::RenderObject> SceneFactory::CreateGLTFMesh(std::shared_ptr<Resources::ResourceManager> pResMgr, FSceneObject info)
 {
     auto tmp = std::make_shared<Resources::Loaders::GLTFLoader::LoaderTemporaryObject>();
     tmp->bLoadMaterials = info.mesh.bUseIncludedMaterial;
@@ -115,9 +107,34 @@ std::shared_ptr<Objects::RenderObject> SceneFactory::CreateGLTFMesh(std::shared_
         }
     }
 
-    auto mesh_node = Resources::Loaders::GLTFLoader::Load(info.mesh.srSrc, info.srName, tmp, pResMgr);
-    mesh_node->SetTransform(info.fTransform);
-    mesh_node->SetName(info.srName);
+    auto mesh = std::make_shared<Objects::Components::MeshVolumeComponent>();
+    Resources::Loaders::GLTFLoader::Load(info.mesh.srSrc, info.srName, tmp, mesh, pResMgr);
+    mesh->SetTransform(info.fTransform);
+    mesh->SetName(info.srName);
+    mesh->Create(pResMgr);
 
-    return mesh_node;
+    return mesh;
+}
+
+std::shared_ptr<Objects::RenderObject> SceneFactory::CreateGLTFMesh(std::shared_ptr<Resources::ResourceManager> pResMgr, FSceneObject info)
+{
+    auto tmp = std::make_shared<Resources::Loaders::GLTFLoader::LoaderTemporaryObject>();
+    tmp->bLoadMaterials = info.mesh.bUseIncludedMaterial;
+    tmp->srVolumeName = info.srUseVolume;
+    if (!info.mesh.bUseIncludedMaterial)
+    {
+        for (auto &matInfo : info.mesh.vMaterials)
+        {
+            auto material = Resources::Material::MaterialFactory::Create(pResMgr, matInfo);
+            tmp->vMaterials.emplace_back(material);
+            pResMgr->AddExisting(material->GetName(), material);
+        }
+    }
+
+    auto mesh = std::make_shared<Objects::Components::MeshComponentBase>();
+    Resources::Loaders::GLTFLoader::Load(info.mesh.srSrc, info.srName, tmp, mesh, pResMgr);
+    mesh->SetTransform(info.fTransform);
+    mesh->SetName(info.srName);
+
+    return mesh;
 }

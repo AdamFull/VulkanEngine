@@ -3,6 +3,7 @@
 #include "Core/VulkanDevice.h"
 #include "Core/VulkanHighLevel.h"
 
+using namespace Engine::Resources::Texture;
 using namespace Engine::Resources::Material;
 using namespace Engine::Core::Descriptor;
 using namespace Engine::Core::Pipeline;
@@ -12,13 +13,13 @@ FPipelineCreateInfo MaterialBase::CreateInfo(EShaderSet eSet)
     switch (eSet)
     {
     case EShaderSet::eUI:
-        return PipelineConfig::CreateUIPipeline(USwapChain->GetRenderPass(), UDevice->GetSamples(), pipelineLayout, pipelineCache);
+        return PipelineConfig::CreateUIPipeline(renderPass, UDevice->GetSamples(), pipelineLayout, pipelineCache);
         break;
     case EShaderSet::eDiffuse:
-        return PipelineConfig::CreateDiffusePipeline(USwapChain->GetRenderPass(),UDevice->GetSamples(), pipelineLayout, pipelineCache);
+        return PipelineConfig::CreateDiffusePipeline(renderPass, UDevice->GetSamples(), pipelineLayout, pipelineCache);
         break;
     case EShaderSet::eSkybox:
-        return PipelineConfig::CreateSkyboxPipeline(USwapChain->GetRenderPass(),UDevice->GetSamples(), pipelineLayout, pipelineCache);
+        return PipelineConfig::CreateSkyboxPipeline(renderPass, UDevice->GetSamples(), pipelineLayout, pipelineCache);
         break;
     }
 
@@ -39,12 +40,17 @@ void MaterialBase::Create()
     m_pMatDesc->UpdatePipelineInfo(pPipeline->GetBindPoint(), pipelineLayout);
 }
 
-void MaterialBase::AddTexture(ETextureAttachmentType eAttachment, std::shared_ptr<Texture::TextureBase> pTexture)
+void MaterialBase::AddTexture(ETextureAttachmentType eAttachment, std::shared_ptr<TextureBase> pTexture)
 {
     m_mTextures.emplace(eAttachment, pTexture);
 }
 
-void MaterialBase::AddTextures(std::map<ETextureAttachmentType, std::shared_ptr<Texture::TextureBase>> mTextures)
+std::shared_ptr<TextureBase> MaterialBase::GetTexture(ETextureAttachmentType eAttachment)
+{
+    return m_mTextures[eAttachment];
+}
+
+void MaterialBase::AddTextures(std::map<ETextureAttachmentType, std::shared_ptr<TextureBase>> mTextures)
 {
     m_mTextures = mTextures;
 }
@@ -99,8 +105,8 @@ void MaterialBase::CreatePipelineLayout(uint32_t images)
     vk::PipelineLayoutCreateInfo pipelineLayoutInfo = {};
     pipelineLayoutInfo.setLayoutCount = vLayouts.size();
     pipelineLayoutInfo.pSetLayouts = vLayouts.data();
-    pipelineLayoutInfo.pushConstantRangeCount = 0;
-    pipelineLayoutInfo.pPushConstantRanges = nullptr;
+    pipelineLayoutInfo.pushConstantRangeCount = m_vConstantRanges.size();
+    pipelineLayoutInfo.pPushConstantRanges = m_vConstantRanges.data();
 
     pipelineLayout = UDevice->Make<vk::PipelineLayout, vk::PipelineLayoutCreateInfo>(pipelineLayoutInfo);
     assert(pipelineLayout && "Pipeline layout was not created");

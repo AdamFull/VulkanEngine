@@ -275,15 +275,8 @@ void TextureBase::InitializeTexture(ktxTexture *info, vk::Format format, vk::Ima
     imageLayout = vk::ImageLayout::eShaderReadOnlyOptimal;
 }
 
-void TextureBase::WriteImageData(ktxTexture *info, vk::Format format)
+void TextureBase::TransitionImageLayout(vk::ImageLayout oldLayout, vk::ImageLayout newLayout)
 {
-    vk::DeviceSize imgSize = info->dataSize;
-
-    Core::VulkanBuffer stagingBuffer;
-    stagingBuffer.Create(UDevice, imgSize, 1, vk::BufferUsageFlagBits::eTransferSrc, vk::MemoryPropertyFlagBits::eHostVisible | vk::MemoryPropertyFlagBits::eHostCoherent);
-    auto result = stagingBuffer.MapMem(UDevice);
-    stagingBuffer.Write(UDevice, (void *)info->pData);
-
     std::vector<vk::ImageMemoryBarrier> vBarriers;
     vk::ImageMemoryBarrier barrier{};
     barrier.srcQueueFamilyIndex = VK_QUEUE_FAMILY_IGNORED;
@@ -295,7 +288,40 @@ void TextureBase::WriteImageData(ktxTexture *info, vk::Format format)
     barrier.subresourceRange.layerCount = fParams.instCount;
     vBarriers.push_back(barrier);
 
-    UDevice->TransitionImageLayout(image, vBarriers, vk::ImageLayout::eUndefined, vk::ImageLayout::eTransferDstOptimal);
+    UDevice->TransitionImageLayout(image, vBarriers, oldLayout, newLayout);
+}
+
+void TextureBase::TransitionImageLayout(vk::CommandBuffer& commandBuffer, vk::ImageLayout oldLayout, vk::ImageLayout newLayout)
+{
+    std::vector<vk::ImageMemoryBarrier> vBarriers;
+    vk::ImageMemoryBarrier barrier{};
+    barrier.srcQueueFamilyIndex = VK_QUEUE_FAMILY_IGNORED;
+    barrier.dstQueueFamilyIndex = VK_QUEUE_FAMILY_IGNORED;
+    barrier.subresourceRange.aspectMask = vk::ImageAspectFlagBits::eColor;
+    barrier.subresourceRange.baseMipLevel = 0;
+    barrier.subresourceRange.levelCount = fParams.mipLevels;
+    barrier.subresourceRange.baseArrayLayer = 0;
+    barrier.subresourceRange.layerCount = fParams.instCount;
+    vBarriers.push_back(barrier);
+    
+    UDevice->TransitionImageLayout(commandBuffer, image, vBarriers, oldLayout, newLayout);
+}
+
+void TextureBase::CopyImageToDst(vk::CommandBuffer& commandBuffer, std::shared_ptr<TextureBase> m_pDst, vk::ImageCopy& region, vk::ImageLayout srcLayout, vk::ImageLayout dstLayout)
+{
+    commandBuffer.copyImage(image, srcLayout, m_pDst->image, dstLayout, 1, &region);
+}
+
+void TextureBase::WriteImageData(ktxTexture *info, vk::Format format)
+{
+    vk::DeviceSize imgSize = info->dataSize;
+
+    Core::VulkanBuffer stagingBuffer;
+    stagingBuffer.Create(UDevice, imgSize, 1, vk::BufferUsageFlagBits::eTransferSrc, vk::MemoryPropertyFlagBits::eHostVisible | vk::MemoryPropertyFlagBits::eHostCoherent);
+    auto result = stagingBuffer.MapMem(UDevice);
+    stagingBuffer.Write(UDevice, (void *)info->pData);
+
+    TransitionImageLayout(vk::ImageLayout::eUndefined, vk::ImageLayout::eTransferDstOptimal);
 
     if (info->generateMipmaps)
     {
@@ -337,7 +363,7 @@ void TextureBase::WriteImageData(ktxTexture *info, vk::Format format)
         }
         UDevice->CopyBufferToImage(stagingBuffer.GetBuffer(), image, vRegions);
 
-        UDevice->TransitionImageLayout(image, vBarriers, vk::ImageLayout::eTransferDstOptimal, vk::ImageLayout::eShaderReadOnlyOptimal);
+        TransitionImageLayout(vk::ImageLayout::eTransferDstOptimal, vk::ImageLayout::eShaderReadOnlyOptimal);
     }
     stagingBuffer.Destroy(UDevice);
 }

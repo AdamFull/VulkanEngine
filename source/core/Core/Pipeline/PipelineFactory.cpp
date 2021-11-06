@@ -25,9 +25,16 @@ std::map<EShaderSet, std::map<vk::ShaderStageFlagBits, std::string>> PipelineFac
     {EShaderSet::eSkybox,
      {{vk::ShaderStageFlagBits::eVertex, "../../assets/shaders/compiled/skybox/vert.spv"},
       {vk::ShaderStageFlagBits::eFragment, "../../assets/shaders/compiled/skybox/frag.spv"}}},
+      
     {EShaderSet::eBRDF,
      {{vk::ShaderStageFlagBits::eVertex, "../../assets/shaders/compiled/brdflut_gen/vert.spv"},
-      {vk::ShaderStageFlagBits::eFragment, "../../assets/shaders/compiled/brdflut_gen/frag.spv"}}}};
+      {vk::ShaderStageFlagBits::eFragment, "../../assets/shaders/compiled/brdflut_gen/frag.spv"}}},
+    {EShaderSet::eIrradiateCube,
+     {{vk::ShaderStageFlagBits::eVertex, "../../assets/shaders/compiled/filtercube/vert.spv"},
+      {vk::ShaderStageFlagBits::eFragment, "../../assets/shaders/compiled/irradiancecube/frag.spv"}}},
+    {EShaderSet::ePrefiltred,
+     {{vk::ShaderStageFlagBits::eVertex, "../../assets/shaders/compiled/filtercube/vert.spv"},
+      {vk::ShaderStageFlagBits::eFragment, "../../assets/shaders/compiled/prefilterenvmap/frag.spv"}}}}; 
 
 std::map<EPipelineType, std::function<PipelineFactory::signature>> PipelineFactory::m_mFactory =
     {

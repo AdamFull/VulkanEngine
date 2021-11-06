@@ -272,10 +272,10 @@ void TextureBase::InitializeTexture(ktxTexture *info, vk::Format format, vk::Ima
 
     auto addressMode = info->isArray || info->isCubemap || info->baseDepth > 1 ? vk::SamplerAddressMode::eClampToEdge : vk::SamplerAddressMode::eRepeat;
     UDevice->CreateSampler(sampler, fParams.mipLevels, addressMode);
-    imageLayout = vk::ImageLayout::eShaderReadOnlyOptimal;
+    //imageLayout = vk::ImageLayout::eShaderReadOnlyOptimal;
 }
 
-void TextureBase::TransitionImageLayout(vk::ImageLayout oldLayout, vk::ImageLayout newLayout)
+void TextureBase::TransitionImageLayout(vk::ImageLayout newLayout)
 {
     std::vector<vk::ImageMemoryBarrier> vBarriers;
     vk::ImageMemoryBarrier barrier{};
@@ -288,10 +288,11 @@ void TextureBase::TransitionImageLayout(vk::ImageLayout oldLayout, vk::ImageLayo
     barrier.subresourceRange.layerCount = fParams.instCount;
     vBarriers.push_back(barrier);
 
-    UDevice->TransitionImageLayout(image, vBarriers, oldLayout, newLayout);
+    UDevice->TransitionImageLayout(image, vBarriers, imageLayout, newLayout);
+    imageLayout = newLayout;
 }
 
-void TextureBase::TransitionImageLayout(vk::CommandBuffer& commandBuffer, vk::ImageLayout oldLayout, vk::ImageLayout newLayout)
+void TextureBase::TransitionImageLayout(vk::CommandBuffer& commandBuffer, vk::ImageLayout newLayout)
 {
     std::vector<vk::ImageMemoryBarrier> vBarriers;
     vk::ImageMemoryBarrier barrier{};
@@ -304,12 +305,13 @@ void TextureBase::TransitionImageLayout(vk::CommandBuffer& commandBuffer, vk::Im
     barrier.subresourceRange.layerCount = fParams.instCount;
     vBarriers.push_back(barrier);
     
-    UDevice->TransitionImageLayout(commandBuffer, image, vBarriers, oldLayout, newLayout);
+    UDevice->TransitionImageLayout(commandBuffer, image, vBarriers, imageLayout, newLayout);
+    imageLayout = newLayout;
 }
 
-void TextureBase::CopyImageToDst(vk::CommandBuffer& commandBuffer, std::shared_ptr<TextureBase> m_pDst, vk::ImageCopy& region, vk::ImageLayout srcLayout, vk::ImageLayout dstLayout)
+void TextureBase::CopyImageToDst(vk::CommandBuffer& commandBuffer, std::shared_ptr<TextureBase> m_pDst, vk::ImageCopy& region, vk::ImageLayout dstLayout)
 {
-    commandBuffer.copyImage(image, srcLayout, m_pDst->image, dstLayout, 1, &region);
+    commandBuffer.copyImage(image, imageLayout, m_pDst->image, dstLayout, 1, &region);
 }
 
 void TextureBase::WriteImageData(ktxTexture *info, vk::Format format)
@@ -321,7 +323,7 @@ void TextureBase::WriteImageData(ktxTexture *info, vk::Format format)
     auto result = stagingBuffer.MapMem(UDevice);
     stagingBuffer.Write(UDevice, (void *)info->pData);
 
-    TransitionImageLayout(vk::ImageLayout::eUndefined, vk::ImageLayout::eTransferDstOptimal);
+    TransitionImageLayout(vk::ImageLayout::eTransferDstOptimal);
 
     if (info->generateMipmaps)
     {
@@ -363,7 +365,7 @@ void TextureBase::WriteImageData(ktxTexture *info, vk::Format format)
         }
         UDevice->CopyBufferToImage(stagingBuffer.GetBuffer(), image, vRegions);
 
-        TransitionImageLayout(vk::ImageLayout::eTransferDstOptimal, vk::ImageLayout::eShaderReadOnlyOptimal);
+        TransitionImageLayout(vk::ImageLayout::eShaderReadOnlyOptimal);
     }
     stagingBuffer.Destroy(UDevice);
 }

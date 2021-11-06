@@ -68,7 +68,7 @@ void GeneratorIrradiate::Generate(uint32_t indexCount, uint32_t firstIndex)
     tempBuffer.setViewport(0, 1, &viewport);
     tempBuffer.setScissor(0, 1, &scissor);
 
-    m_pCubemap->TransitionImageLayout(tempBuffer, vk::ImageLayout::eUndefined, vk::ImageLayout::eTransferDstOptimal);
+    m_pCubemap->TransitionImageLayout(tempBuffer, vk::ImageLayout::eTransferDstOptimal);
 
     FIrradiatePushBlock pushBlock;
 
@@ -89,7 +89,7 @@ void GeneratorIrradiate::Generate(uint32_t indexCount, uint32_t firstIndex)
             tempBuffer.drawIndexed(indexCount, 1, firstIndex, 0, 0);
             tempBuffer.endRenderPass();
 
-            m_pGeneratedImage->TransitionImageLayout(tempBuffer, vk::ImageLayout::eColorAttachmentOptimal, vk::ImageLayout::eTransferSrcOptimal);
+            m_pGeneratedImage->TransitionImageLayout(tempBuffer, vk::ImageLayout::eTransferSrcOptimal);
 
             vk::ImageCopy copyRegion = {};
 
@@ -109,12 +109,12 @@ void GeneratorIrradiate::Generate(uint32_t indexCount, uint32_t firstIndex)
             copyRegion.extent.height = static_cast<uint32_t>(viewport.height);
 	        copyRegion.extent.depth = 1;
 
-            m_pGeneratedImage->CopyImageToDst(tempBuffer, m_pCubemap, copyRegion, vk::ImageLayout::eTransferSrcOptimal, vk::ImageLayout::eTransferDstOptimal);
-            m_pGeneratedImage->TransitionImageLayout(tempBuffer, vk::ImageLayout::eTransferSrcOptimal, vk::ImageLayout::eColorAttachmentOptimal);
+            m_pGeneratedImage->CopyImageToDst(tempBuffer, m_pCubemap, copyRegion, vk::ImageLayout::eTransferDstOptimal);
+            m_pGeneratedImage->TransitionImageLayout(tempBuffer, vk::ImageLayout::eColorAttachmentOptimal);
         }
     }
 
-    m_pCubemap->TransitionImageLayout(tempBuffer, vk::ImageLayout::eTransferDstOptimal, vk::ImageLayout::eShaderReadOnlyOptimal);
+    m_pCubemap->TransitionImageLayout(tempBuffer, vk::ImageLayout::eShaderReadOnlyOptimal);
     
     UDevice->EndSingleTimeCommands(tempBuffer);
 }

@@ -7,16 +7,16 @@ namespace Engine
         namespace Mesh
         {
             class MeshBase;
-            class MeshNode;
+            class GLTFSceneNode;
             struct Skin
             {
                 std::string name;
-                std::shared_ptr<MeshNode> skeletonRoot = nullptr;
+                std::shared_ptr<GLTFSceneNode> skeletonRoot = nullptr;
                 std::vector<glm::mat4> inverseBindMatrices;
-                std::vector<std::shared_ptr<MeshNode>> joints;
+                std::vector<std::shared_ptr<GLTFSceneNode>> joints;
             };
 
-            class MeshNode : public std::enable_shared_from_this<MeshNode>
+            class GLTFSceneNode : public std::enable_shared_from_this<GLTFSceneNode>
             {
             public:
                 void Create();
@@ -35,13 +35,13 @@ namespace Engine
                 inline void SetName(std::string srName) { m_srName = srName; }
                 inline std::string &GetName() { return m_srName; }
 
-                void SetParent(std::shared_ptr<MeshNode> parent);
-                void Attach(std::shared_ptr<MeshNode> child);
-                void Detach(std::shared_ptr<MeshNode> child);
+                void SetParent(std::shared_ptr<GLTFSceneNode> parent);
+                void Attach(std::shared_ptr<GLTFSceneNode> child);
+                void Detach(std::shared_ptr<GLTFSceneNode> child);
 
-                inline std::shared_ptr<MeshNode> GetParent() { return m_pParent; }
-                inline std::map<std::string, std::shared_ptr<MeshNode>> &GetChilds() { return m_mChilds; }
-                void AddChild(std::shared_ptr<MeshNode> child);
+                inline std::shared_ptr<GLTFSceneNode> GetParent() { return m_pParent; }
+                inline std::map<std::string, std::shared_ptr<GLTFSceneNode>> &GetChilds() { return m_mChilds; }
+                void AddChild(std::shared_ptr<GLTFSceneNode> child);
             protected:
                 std::string m_srName;
                 glm::vec3 m_vTranslation{};
@@ -52,9 +52,9 @@ namespace Engine
                 std::shared_ptr<MeshBase> m_pMesh;
                 std::unique_ptr<Skin> m_pSkin;
             private:
-                std::shared_ptr<MeshNode> m_pParent;
-                std::shared_ptr<MeshNode> m_pParentOld;
-                std::map<std::string, std::shared_ptr<MeshNode>> m_mChilds;
+                std::shared_ptr<GLTFSceneNode> m_pParent;
+                std::shared_ptr<GLTFSceneNode> m_pParentOld;
+                std::map<std::string, std::shared_ptr<GLTFSceneNode>> m_mChilds;
             };
         }
     }

@@ -1,33 +1,33 @@
-#include "MeshNode.h"
+#include "GLTFSceneNode.h"
 
 using namespace Engine::Resources::Mesh;
 
-void MeshNode::Create()
+void GLTFSceneNode::Create()
 {
 
 }
 
-void MeshNode::ReCreate()
+void GLTFSceneNode::ReCreate()
 {
 
 }
 
-void MeshNode::Update(uint32_t imageIndex)
+void GLTFSceneNode::Update(uint32_t imageIndex)
 {
 
 }
 
-void MeshNode::Cleanup()
+void GLTFSceneNode::Cleanup()
 {
 
 }
 
-void MeshNode::Destroy()
+void GLTFSceneNode::Destroy()
 {
 
 }
 
-void MeshNode::SetParent(std::shared_ptr<MeshNode> parent)
+void GLTFSceneNode::SetParent(std::shared_ptr<GLTFSceneNode> parent)
 {
     m_pParentOld = m_pParent;
     m_pParent = parent;
@@ -36,53 +36,53 @@ void MeshNode::SetParent(std::shared_ptr<MeshNode> parent)
         m_pParentOld->Detach(shared_from_this());
 }
 
-void MeshNode::AddChild(std::shared_ptr<MeshNode> child)
+void GLTFSceneNode::AddChild(std::shared_ptr<GLTFSceneNode> child)
 {
     m_mChilds.emplace(child->GetName(), child);
     child->SetParent(shared_from_this());
 }
 
-void MeshNode::Attach(std::shared_ptr<MeshNode> child)
+void GLTFSceneNode::Attach(std::shared_ptr<GLTFSceneNode> child)
 {
     AddChild(child);
 }
 
-void MeshNode::Detach(std::shared_ptr<MeshNode> child)
+void GLTFSceneNode::Detach(std::shared_ptr<GLTFSceneNode> child)
 {
     auto it = m_mChilds.find(child->GetName());
     if (it != m_mChilds.end())
         m_mChilds.erase(it);
 }
 
-void MeshNode::SetTranslation(glm::vec3&& translation)
+void GLTFSceneNode::SetTranslation(glm::vec3&& translation)
 {
     m_vTranslation = translation;
 }
 
-void MeshNode::SetScale(glm::vec3&& scale)
+void GLTFSceneNode::SetScale(glm::vec3&& scale)
 {
     m_vScale = scale;
 }
 
-void MeshNode::SetRotation(glm::quat&& rotation)
+void GLTFSceneNode::SetRotation(glm::quat&& rotation)
 {
     m_qRotation = rotation;
 }
 
-void MeshNode::SetLocalMatrix(glm::mat4&& matrix)
+void GLTFSceneNode::SetLocalMatrix(glm::mat4&& matrix)
 {
     m_mMatrix = matrix;
 }
 
-glm::mat4 MeshNode::GetLocalMatrix()
+glm::mat4 GLTFSceneNode::GetLocalMatrix()
 {
     return glm::translate(glm::mat4(1.0f), m_vTranslation) * glm::mat4(m_qRotation) * glm::scale(glm::mat4(1.0f), m_vScale) * m_mMatrix;
 }
 
-glm::mat4 MeshNode::GetMatrix()
+glm::mat4 GLTFSceneNode::GetMatrix()
 {
     glm::mat4 matrix = GetLocalMatrix();
-	std::shared_ptr<MeshNode> parent = GetParent();
+	std::shared_ptr<GLTFSceneNode> parent = GetParent();
 	while (parent) 
     {
 		matrix = parent->GetLocalMatrix() * matrix;

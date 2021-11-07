@@ -1,5 +1,5 @@
 #include "GeneratorBRDF.h"
-#include "Core/VulkanHighLevel.h"
+#include "Core/VulkanAllocator.h"
 
 using namespace Engine::Resources::Material::Generator;
 using namespace Engine::Core::Descriptor;
@@ -17,10 +17,10 @@ void GeneratorBRDF::CreateDescriptors(uint32_t images)
 
     auto texSetLayout = VulkanDescriptorSetLayout::Builder().
     addBinding(0, vk::DescriptorType::eCombinedImageSampler, vk::ShaderStageFlagBits::eFragment).
-    build(UDevice);
+    build();
 
-    auto texSet = std::make_unique<VulkanDescriptorSet>();
-    texSet->Create(UDevice, m_pDescriptorPool, texSetLayout, images);
+    auto texSet = Core::FDefaultAllocator::Allocate<VulkanDescriptorSet>();
+    texSet->Create(m_pDescriptorPool, texSetLayout, images);
     m_pMatDesc->AttachDescriptorSet(std::move(texSet), std::move(texSetLayout));
 }
 
@@ -39,7 +39,7 @@ void GeneratorBRDF::Generate(uint32_t indexCount, uint32_t firstIndex)
 	renderPassBeginInfo.pClearValues = clearValues;
 	renderPassBeginInfo.framebuffer = framebuffer;
 
-    vk::CommandBuffer tempBuffer = UDevice->BeginSingleTimeCommands();
+    vk::CommandBuffer tempBuffer = m_device->BeginSingleTimeCommands();
     tempBuffer.beginRenderPass(renderPassBeginInfo, vk::SubpassContents::eInline);
     vk::Viewport viewport{};
     viewport.width = (float)m_iDimension;
@@ -56,7 +56,7 @@ void GeneratorBRDF::Generate(uint32_t indexCount, uint32_t firstIndex)
     tempBuffer.bindPipeline(vk::PipelineBindPoint::eGraphics, pPipeline->GetPipeline());
     tempBuffer.draw(3, 1, 0, 0);
     tempBuffer.endRenderPass();
-    UDevice->EndSingleTimeCommands(tempBuffer);
+    m_device->EndSingleTimeCommands(tempBuffer);
 }
 
 void GeneratorBRDF::CreateTextures()

@@ -36,6 +36,10 @@ namespace Engine
             class MaterialBase : public ResourceBase
             {
             public:
+                MaterialBase() = default;
+                MaterialBase(std::shared_ptr<Core::Device> device, std::shared_ptr<Core::SwapChain> swapchain);
+                virtual ~MaterialBase();
+
                 void Create() override;
                 virtual void AddTexture(ETextureAttachmentType eAttachment, std::shared_ptr<Texture::TextureBase> pTexture);
                 std::shared_ptr<Texture::TextureBase> GetTexture(ETextureAttachmentType eAttachment);
@@ -44,7 +48,6 @@ namespace Engine
                 void Update(uint32_t imageIndex) override;
                 void Bind(vk::CommandBuffer commandBuffer, uint32_t imageIndex) override;
                 void Cleanup() override;
-                void Destroy() override;
 
                 inline void SetParams(FMaterialParams &&params) { m_fMatParams = params; }
 
@@ -67,6 +70,9 @@ namespace Engine
                 vk::PipelineCache pipelineCache;
                 std::shared_ptr<Core::Pipeline::PipelineBase> pPipeline;
                 std::map<ETextureAttachmentType, std::shared_ptr<Texture::TextureBase>> m_mTextures;
+
+                std::shared_ptr<Core::Device> m_device;
+                std::shared_ptr<Core::SwapChain> m_swapchain;
             };
         }
     }

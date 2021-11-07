@@ -24,36 +24,39 @@ namespace Engine
         {
         public:
             VulkanBuffer() = default;
+            VulkanBuffer(std::shared_ptr<Device> device);
+            ~VulkanBuffer();
+
             VulkanBuffer(const VulkanBuffer &) = delete;
             void operator=(const VulkanBuffer &) = delete;
             VulkanBuffer(VulkanBuffer &&) = delete;
             VulkanBuffer &operator=(VulkanBuffer &&) = delete;
 
-            void Create(std::unique_ptr<Device> &device, vk::DeviceSize instanceSize, uint32_t instanceCount,
+            void Create(vk::DeviceSize instanceSize, uint32_t instanceCount,
                         vk::BufferUsageFlags usageFlags, vk::MemoryPropertyFlags memoryPropertyFlags,
                         vk::DeviceSize minOffsetAlignment = 1);
 
-            void ReCreate(std::unique_ptr<Device> &device, vk::DeviceSize instanceSize, uint32_t instanceCount,
+            void ReCreate(vk::DeviceSize instanceSize, uint32_t instanceCount,
                           vk::BufferUsageFlags usageFlags, vk::MemoryPropertyFlags memoryPropertyFlags,
                           vk::DeviceSize minOffsetAlignment = 1);
 
-            void Destroy(std::unique_ptr<Device> &device);
+            void Clean();
 
             vk::DescriptorBufferInfo GetDscriptor(vk::DeviceSize size, vk::DeviceSize offset);
             vk::DescriptorBufferInfo GetDscriptor();
 
-            vk::Result MapMem(std::unique_ptr<Device> &device, vk::DeviceSize size = VK_WHOLE_SIZE, vk::DeviceSize offset = 0);
-            void UnmapMem(std::unique_ptr<Device> &device);
+            vk::Result MapMem(vk::DeviceSize size = VK_WHOLE_SIZE, vk::DeviceSize offset = 0);
+            void UnmapMem();
 
-            void Write(std::unique_ptr<Device> &device, void *idata, vk::DeviceSize size = VK_WHOLE_SIZE, vk::DeviceSize offset = 0);
-            vk::Result Flush(std::unique_ptr<Device> &device, vk::DeviceSize size = VK_WHOLE_SIZE, vk::DeviceSize offset = 0);
+            void Write(void *idata, vk::DeviceSize size = VK_WHOLE_SIZE, vk::DeviceSize offset = 0);
+            vk::Result Flush(vk::DeviceSize size = VK_WHOLE_SIZE, vk::DeviceSize offset = 0);
             vk::DescriptorBufferInfo DescriptorInfo(vk::DeviceSize size = VK_WHOLE_SIZE, vk::DeviceSize offset = 0);
-            vk::Result Invalidate(std::unique_ptr<Device> &device, vk::DeviceSize size = VK_WHOLE_SIZE, vk::DeviceSize offset = 0);
+            vk::Result Invalidate(vk::DeviceSize size = VK_WHOLE_SIZE, vk::DeviceSize offset = 0);
 
-            void WriteToIndex(std::unique_ptr<Device> &device, void *idata, int index);
-            vk::Result FlushIndex(std::unique_ptr<Device> &device, int index);
+            void WriteToIndex(void *idata, int index);
+            vk::Result FlushIndex(int index);
             vk::DescriptorBufferInfo DescriptorInfoForIndex(int index);
-            vk::Result InvalidateIndex(std::unique_ptr<Device> &device, int index);
+            vk::Result InvalidateIndex(int index);
 
             // Getters
             vk::Buffer GetBuffer() const { return data.buffer; }
@@ -67,6 +70,7 @@ namespace Engine
 
         private:
             static vk::DeviceSize GetAlignment(vk::DeviceSize instanceSize, vk::DeviceSize minOffsetAlignment);
+            std::shared_ptr<Device> m_device;
 
             FBuffer data;
         };

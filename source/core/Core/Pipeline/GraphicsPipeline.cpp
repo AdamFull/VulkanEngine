@@ -4,16 +4,16 @@
 
 using namespace Engine::Core::Pipeline;
 
-void GraphicsPipeline::Create(FPipelineCreateInfo createInfo, std::unique_ptr<Device> &device, std::unique_ptr<SwapChain> &swapchain)
+void GraphicsPipeline::Create(FPipelineCreateInfo createInfo)
 {
     savedInfo = std::move(createInfo);
-    CreatePipeline(device, swapchain);
+    CreatePipeline();
 }
 
-void GraphicsPipeline::CreatePipeline(std::unique_ptr<Device> &device, std::unique_ptr<SwapChain> &swapchain)
+void GraphicsPipeline::CreatePipeline()
 {
-    assert(device && "Cannot create pipeline, cause logical device is not valid.");
-    assert(swapchain && "Cannot create pipeline, cause render pass is not valid.");
+    assert(m_device && "Cannot create pipeline, cause logical device is not valid.");
+    assert(m_swapchain && "Cannot create pipeline, cause render pass is not valid.");
 
     savedInfo.vertexInputInfo.pVertexBindingDescriptions = &savedInfo.vertexInputDesc;
     savedInfo.vertexInputInfo.pVertexAttributeDescriptions = savedInfo.vertexAtribDesc.data();
@@ -42,14 +42,14 @@ void GraphicsPipeline::CreatePipeline(std::unique_ptr<Device> &device, std::uniq
     pipelineInfo.basePipelineHandle = nullptr;
     pipelineInfo.pDynamicState = &savedInfo.dynamicStateInfo;
 
-    device->GetLogical()->createGraphicsPipelines(savedInfo.pipelineCache, 1, &pipelineInfo, nullptr, &data.pipeline);
+    m_device->GetLogical().createGraphicsPipelines(savedInfo.pipelineCache, 1, &pipelineInfo, nullptr, &data.pipeline);
     assert(data.pipeline && "Failed creating pipeline.");
 }
 
-void GraphicsPipeline::RecreatePipeline(FPipelineCreateInfo createInfo, std::unique_ptr<Device> &device, std::unique_ptr<SwapChain> &swapchain)
+void GraphicsPipeline::RecreatePipeline(FPipelineCreateInfo createInfo)
 {
     savedInfo = createInfo;
 
-    RecreateShaders(device);
-    CreatePipeline(device, swapchain);
+    RecreateShaders();
+    CreatePipeline();
 }

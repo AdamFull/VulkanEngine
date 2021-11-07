@@ -1,11 +1,16 @@
 #include "GeneratorBase.h"
 #include "Resources/Textures/VulkanTexture.h"
-#include "Core/Pipeline/VulkanPipeline.h"
-#include "Core/VulkanHighLevel.h"
+#include "Core/VulkanAllocator.h"
 
 using namespace Engine::Resources::Material::Generator;
 using namespace Engine::Core::Pipeline;
 using namespace Engine::Resources::Texture;
+
+GeneratorBase::~GeneratorBase()
+{
+	m_device->Destroy(framebuffer);
+    m_device->Destroy(renderPass);
+}
 
 FPipelineCreateInfo GeneratorBase::CreateInfo(EShaderSet eSet)
 {
@@ -37,13 +42,6 @@ void GeneratorBase::Create()
 void GeneratorBase::Cleanup()
 {
     MaterialBase::Cleanup();
-}
-
-void GeneratorBase::Destroy()
-{
-    UDevice->Destroy(framebuffer);
-    UDevice->Destroy(renderPass);
-    MaterialBase::Destroy();
 }
 
 void GeneratorBase::Generate(uint32_t indexCount, uint32_t firstIndex)
@@ -106,7 +104,7 @@ void GeneratorBase::CreateRenderPass(vk::Format format)
 	renderPassCI.dependencyCount = 2;
 	renderPassCI.pDependencies = dependencies.data();
 
-    renderPass = UDevice->GetLogical()->createRenderPass(renderPassCI);
+    renderPass = m_device->GetLogical().createRenderPass(renderPassCI);
 }
 
 void GeneratorBase::CreateFramebuffer()
@@ -119,7 +117,7 @@ void GeneratorBase::CreateFramebuffer()
 	framebufferCI.height = m_pGeneratedImage->GetParams().height;
 	framebufferCI.layers = 1;
 
-	framebuffer = UDevice->GetLogical()->createFramebuffer(framebufferCI);
+	framebuffer = m_device->GetLogical().createFramebuffer(framebufferCI);
 }
 
 void GeneratorBase::CreateTextures()

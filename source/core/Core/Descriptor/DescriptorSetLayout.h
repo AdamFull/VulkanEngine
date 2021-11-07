@@ -14,24 +14,26 @@ namespace Engine
             {
             public:
                 VulkanDescriptorSetLayout() = default;
+                VulkanDescriptorSetLayout(std::shared_ptr<Device> device);
+                ~VulkanDescriptorSetLayout();
                 class Builder
                 {
                 public:
                     Builder() {}
 
                     Builder &addBinding(uint32_t binding, vk::DescriptorType descriptorType, vk::ShaderStageFlags stageFlags, uint32_t count = 1);
-                    std::unique_ptr<VulkanDescriptorSetLayout> build(std::unique_ptr<Device> &device) const;
+                    std::unique_ptr<VulkanDescriptorSetLayout> build() const;
 
                 private:
                     descriptor_set_layout_bindings_t bindings{};
                 };
 
-                void Create(std::unique_ptr<Device> &device, descriptor_set_layout_bindings_t bindings);
+                void Create(descriptor_set_layout_bindings_t bindings);
 
                 VulkanDescriptorSetLayout(const VulkanDescriptorSetLayout &) = delete;
                 VulkanDescriptorSetLayout &operator=(const VulkanDescriptorSetLayout &) = delete;
 
-                void Destroy(std::unique_ptr<Device> &device);
+                void Destroy();
 
                 vk::DescriptorSetLayout Get() const { return descriptorSetLayout; }
                 descriptor_set_layout_bindings_t &GetBindings() { return m_mBindings; }
@@ -39,6 +41,8 @@ namespace Engine
             private:
                 vk::DescriptorSetLayout descriptorSetLayout;
                 descriptor_set_layout_bindings_t m_mBindings;
+
+                std::shared_ptr<Device> m_device;
             };
         }
     }

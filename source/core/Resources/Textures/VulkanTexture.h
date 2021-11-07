@@ -4,9 +4,12 @@
 
 namespace Engine
 {
-    class Device;
-    class VulkanBuffer;
-
+    namespace Core
+    {
+        class Device;
+        class VulkanBuffer;
+    }
+    
     namespace Resources
     {
         namespace Texture
@@ -22,6 +25,10 @@ namespace Engine
             class TextureBase : public ResourceBase
             {
             public:
+                TextureBase() = default;
+                TextureBase(std::shared_ptr<Core::Device> device);
+                virtual ~TextureBase();
+
                 void ReCreate() override;
                 void Update(uint32_t imageIndex) override;
                 void Bind(vk::CommandBuffer commandBuffer, uint32_t imageIndex) override;
@@ -56,6 +63,8 @@ namespace Engine
                 vk::Sampler sampler;
                 ETextureAttachmentType attachment;
                 FTextureParams fParams;
+
+                std::shared_ptr<Core::Device> m_device;
             };
         }
     }

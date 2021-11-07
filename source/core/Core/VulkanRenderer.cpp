@@ -7,31 +7,39 @@
 
 using namespace Engine::Core;
 
-void Renderer::Create(std::unique_ptr<Device> &device, std::unique_ptr<SwapChain> &swapchain)
+Renderer::Renderer(std::shared_ptr<Device> device, std::shared_ptr<SwapChain> swapchain) :
+m_device(device),
+m_swapchain(swapchain)
 {
-    CreateCommandBuffers(device, swapchain);
+
 }
 
-void Renderer::ReCreate(std::unique_ptr<Device> &device, std::unique_ptr<SwapChain> &swapchain)
+Renderer::~Renderer()
 {
-    CreateCommandBuffers(device, swapchain);
+    Cleanup();
+    m_device->Destroy(data.vCommandBuffers);
 }
 
-void Renderer::Cleanup(std::unique_ptr<Device> &device)
+void Renderer::Create()
 {
-    device->GetLogical()->freeCommandBuffers(device->GetCommandPool(), data.vCommandBuffers);
+    CreateCommandBuffers();
 }
 
-void Renderer::Destroy(std::unique_ptr<Device> &device)
+void Renderer::ReCreate()
 {
-    device->Destroy(data.vCommandBuffers);
+    CreateCommandBuffers();
 }
 
-vk::CommandBuffer Renderer::BeginFrame(std::unique_ptr<Device> &device, std::unique_ptr<SwapChain> &swapchain)
+void Renderer::Cleanup()
+{
+    m_device->GetLogical().freeCommandBuffers(m_device->GetCommandPool(), data.vCommandBuffers);
+}
+
+vk::CommandBuffer Renderer::BeginFrame()
 {
     assert(!data.bFrameStarted && "Can't call beginFrame while already in progress");
 
-    swapchain->AcquireNextImage(device, &data.imageIndex);
+    m_swapchain->AcquireNextImage(&data.imageIndex);
 
     data.bFrameStarted = true;
 
@@ -43,26 +51,26 @@ vk::CommandBuffer Renderer::BeginFrame(std::unique_ptr<Device> &device, std::uni
     return commandBuffer;
 }
 
-vk::Result Renderer::EndFrame(std::unique_ptr<Device> &device, std::unique_ptr<SwapChain> &swapchain)
+vk::Result Renderer::EndFrame()
 {
     assert(data.bFrameStarted && "Can't call endFrame while frame is not in progress");
     auto commandBuffer = GetCurrentCommandBuffer();
 
     commandBuffer.end();
     data.bFrameStarted = false;
-    return swapchain->SubmitCommandBuffers(device, &commandBuffer, &data.imageIndex);
+    return m_swapchain->SubmitCommandBuffers(&commandBuffer, &data.imageIndex);
 }
 
-void Renderer::BeginRender(vk::CommandBuffer commandBuffer, std::unique_ptr<SwapChain> &swapchain)
+void Renderer::BeginRender(vk::CommandBuffer commandBuffer)
 {
     assert(data.bFrameStarted && "Can't call beginSwapChainRenderPass if frame is not in progress");
     assert(commandBuffer == GetCurrentCommandBuffer() && "Can't begin render pass on command buffer from a different frame");
 
     vk::RenderPassBeginInfo renderPassInfo = {};
-    renderPassInfo.renderPass = swapchain->GetRenderPass();
-    renderPassInfo.framebuffer = swapchain->GetFramebuffers().at(data.imageIndex);
+    renderPassInfo.renderPass = m_swapchain->GetRenderPass();
+    renderPassInfo.framebuffer = m_swapchain->GetFramebuffers().at(data.imageIndex);
     renderPassInfo.renderArea.offset = vk::Offset2D{0, 0};
-    renderPassInfo.renderArea.extent = swapchain->GetExtent();
+    renderPassInfo.renderArea.extent = m_swapchain->GetExtent();
 
     std::array<vk::ClearValue, 2> clearValues{};
     clearValues[0].color = {std::array<float, 4>{0.0f, 0.0f, 0.0f, 1.0f}};
@@ -76,30 +84,30 @@ void Renderer::BeginRender(vk::CommandBuffer commandBuffer, std::unique_ptr<Swap
     vk::Viewport viewport{};
     viewport.x = 0.0f;
     viewport.y = 0.0f;
-    viewport.width = static_cast<float>(swapchain->GetExtent().width);
-    viewport.height = static_cast<float>(swapchain->GetExtent().height);
+    viewport.width = static_cast<float>(m_swapchain->GetExtent().width);
+    viewport.height = static_cast<float>(m_swapchain->GetExtent().height);
     viewport.minDepth = 0.0f;
     viewport.maxDepth = 1.0f;
-    vk::Rect2D scissor{{0, 0}, swapchain->GetExtent()};
+    vk::Rect2D scissor{{0, 0}, m_swapchain->GetExtent()};
 
     commandBuffer.setViewport(0, 1, &viewport);
     commandBuffer.setScissor(0, 1, &scissor);
 }
 
-void Renderer::EndRender(vk::CommandBuffer commandBuffer, std::unique_ptr<SwapChain> &swapchain)
+void Renderer::EndRender(vk::CommandBuffer commandBuffer)
 {
     assert(data.bFrameStarted && "Can't call endSwapChainRenderPass if frame is not in progress");
     assert(commandBuffer == GetCurrentCommandBuffer() && "Can't end render pass on command buffer from a different frame");
     commandBuffer.endRenderPass();
 }
 
-void Renderer::CreateCommandBuffers(std::unique_ptr<Device> &device, std::unique_ptr<SwapChain> &swapchain)
+void Renderer::CreateCommandBuffers()
 {
-    assert(device && "Cannot create command buffers, cause logical device is not valid.");
-    assert(swapchain && "Cannot create command buffers, cause swap chain is not valid.");
-    data.vCommandBuffers.resize(swapchain->GetFramebuffers().size());
+    assert(m_device && "Cannot create command buffers, cause logical device is not valid.");
+    assert(m_swapchain && "Cannot create command buffers, cause swap chain is not valid.");
+    data.vCommandBuffers.resize(m_swapchain->GetFramebuffers().size());
 
-    data.vCommandBuffers = device->CreateCommandBuffer(vk::CommandBufferLevel::ePrimary, (uint32_t)data.vCommandBuffers.size());
+    data.vCommandBuffers = m_device->CreateCommandBuffer(vk::CommandBufferLevel::ePrimary, (uint32_t)data.vCommandBuffers.size());
     assert(!data.vCommandBuffers.empty() && "Created command buffers is not valid.");
 }
 

@@ -4,6 +4,7 @@
 #include "Core/VulkanHighLevel.h"
 
 using namespace Engine::Resources::Texture;
+
 void TextureCubemap::ReCreate()
 {
     TextureBase::ReCreate();

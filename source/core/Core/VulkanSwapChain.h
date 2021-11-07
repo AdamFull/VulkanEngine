@@ -46,20 +46,21 @@ namespace Engine
         class SwapChain
         {
         public:
-            SwapChain() = default;
+            SwapChain(std::shared_ptr<Device> device);
+            ~SwapChain();
+
             SwapChain(const SwapChain &) = delete;
             void operator=(const SwapChain &) = delete;
             SwapChain(SwapChain &&) = delete;
             SwapChain &operator=(SwapChain &&) = delete;
 
-            void Create(std::unique_ptr<Device> &device);
+            void Create();
 
-            vk::Result AcquireNextImage(std::unique_ptr<Device> &device, uint32_t *imageIndex);
-            vk::Result SubmitCommandBuffers(std::unique_ptr<Device> &device, const vk::CommandBuffer *commandBuffer, uint32_t *imageIndex);
+            vk::Result AcquireNextImage(uint32_t *imageIndex);
+            vk::Result SubmitCommandBuffers(const vk::CommandBuffer *commandBuffer, uint32_t *imageIndex);
 
-            void Cleanup(std::unique_ptr<Device> &device);
-            void Destroy(std::unique_ptr<Device> &device);
-            void ReCreate(std::unique_ptr<Device> &device);
+            void Cleanup();
+            void ReCreate();
 
             inline void SetFramesInFlight(uint32_t iValue) { data.iFramesInFlight = iValue; }
 
@@ -98,13 +99,15 @@ namespace Engine
             inline uint32_t GetFramesInFlight() { return data.iFramesInFlight; }
 
         private:
-            void CreateSwapChain(std::unique_ptr<Device> &device);
-            void CreateSwapChainImageViews(std::unique_ptr<Device> &device);
-            void CreateMSAAResources(std::unique_ptr<Device> &device);
-            void CreateDepthResources(std::unique_ptr<Device> &device);
-            void CreateRenderPass(std::unique_ptr<Device> &device);
-            void CreateFrameBuffers(std::unique_ptr<Device> &device);
-            void CreateSyncObjects(std::unique_ptr<Device> &device);
+            void CreateSwapChain();
+            void CreateSwapChainImageViews();
+            void CreateMSAAResources();
+            void CreateDepthResources();
+            void CreateRenderPass();
+            void CreateFrameBuffers();
+            void CreateSyncObjects();
+
+            std::shared_ptr<Device> m_device;
 
             vk::Extent2D ChooseSwapExtent(const vk::SurfaceCapabilitiesKHR &);
 

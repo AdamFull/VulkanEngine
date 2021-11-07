@@ -34,6 +34,22 @@ void Device::DestroyDebugUtilsMessengerEXT(VkInstance instance, VkDebugUtilsMess
     }
 }
 
+Device::~Device()
+{
+    Destroy(data.commandPool);
+
+    // surface is created by glfw, therefore not using a Unique handle
+    Destroy(data.surface);
+
+    if (VulkanStaticHelper::m_bEnableValidationLayers)
+    {
+        DestroyDebugUtilsMessengerEXT(data.vkInstance, data.vkDebugUtils, nullptr);
+    }
+
+    vkDestroyDevice(data.logical, nullptr);
+    vkDestroyInstance(data.vkInstance, nullptr);
+}
+
 // TODO: add features picking while initialization
 void Device::Create(std::unique_ptr<WindowHandle> &pWindow, const char *pApplicationName, uint32_t applicationVersion,
                     const char *pEngineName, uint32_t engineVersion,
@@ -44,19 +60,6 @@ void Device::Create(std::unique_ptr<WindowHandle> &pWindow, const char *pApplica
     CreateSurface(pWindow);
     CreateDevice();
     CreateCommandPool();
-}
-
-void Device::Cleanup()
-{
-    Destroy(data.commandPool);
-
-    // surface is created by glfw, therefore not using a Unique handle
-    Destroy(data.surface);
-
-    if (VulkanStaticHelper::m_bEnableValidationLayers)
-    {
-        DestroyDebugUtilsMessengerEXT(data.vkInstance.get(), data.vkDebugUtils, nullptr);
-    }
 }
 
 void Device::CreateInstance(const char *pApplicationName, uint32_t applicationVersion,
@@ -91,7 +94,7 @@ void Device::CreateInstance(const char *pApplicationName, uint32_t applicationVe
         createInfo.ppEnabledLayerNames = VulkanStaticHelper::m_vValidationLayers.data();
     }
 
-    data.vkInstance = vk::createInstanceUnique(createInfo, nullptr);
+    data.vkInstance = vk::createInstance(createInfo, nullptr);
     assert(data.vkInstance && "Vulkan instance was not created.");
 }
 
@@ -108,7 +111,7 @@ void Device::CreateDebugCallback()
         nullptr);
 
     // NOTE: Vulkan-hpp has methods for this, but they trigger linking errors...
-    if (CreateDebugUtilsMessengerEXT(*data.vkInstance, reinterpret_cast<const VkDebugUtilsMessengerCreateInfoEXT *>(&createInfo), nullptr, &data.vkDebugUtils) != VK_SUCCESS)
+    if (CreateDebugUtilsMessengerEXT(data.vkInstance, reinterpret_cast<const VkDebugUtilsMessengerCreateInfoEXT *>(&createInfo), nullptr, &data.vkDebugUtils) != VK_SUCCESS)
     {
         throw std::runtime_error("failed to set up debug callback!");
     }
@@ -160,12 +163,12 @@ void Device::CreateDevice()
         createInfo.ppEnabledLayerNames = VulkanStaticHelper::m_vValidationLayers.data();
     }
 
-    data.logical = data.physical.createDeviceUnique(createInfo);
+    data.logical = data.physical.createDevice(createInfo);
     assert(data.logical && "Failed to create logical device.");
 
-    data.qGraphicsQueue = data.logical->getQueue(indices.graphicsFamily.value(), 0);
+    data.qGraphicsQueue = data.logical.getQueue(indices.graphicsFamily.value(), 0);
     assert(data.qGraphicsQueue && "Failed while getting graphics queue.");
-    data.qPresentQueue = data.logical->getQueue(indices.presentFamily.value(), 0);
+    data.qPresentQueue = data.logical.getQueue(indices.presentFamily.value(), 0);
     assert(data.qPresentQueue && "Failed while getting present queue.");
 }
 
@@ -179,7 +182,7 @@ void Device::CreateCommandPool()
     poolInfo.flags = vk::CommandPoolCreateFlagBits::eResetCommandBuffer;
     poolInfo.queueFamilyIndex = queueFamilyIndices.graphicsFamily.value();
 
-    data.commandPool = data.logical->createCommandPool(poolInfo);
+    data.commandPool = data.logical.createCommandPool(poolInfo);
     assert(data.commandPool && "Failed while creating command pool");
 }
 
@@ -314,7 +317,7 @@ Device::CreateCommandBuffer(vk::CommandBufferLevel level, vk::CommandPool &pool,
     allocInfo.commandBufferCount = count;
 
     // TODO: Handle error
-    return data.logical->allocateCommandBuffers(allocInfo);
+    return data.logical.allocateCommandBuffers(allocInfo);
 }
 
 std::vector<vk::CommandBuffer, std::allocator<vk::CommandBuffer>>
@@ -348,7 +351,7 @@ void Device::EndSingleTimeCommands(vk::CommandBuffer commandBuffer)
     data.qGraphicsQueue.submit(submitInfo, nullptr);
     data.qGraphicsQueue.waitIdle();
 
-    data.logical->freeCommandBuffers(data.commandPool, commandBuffer);
+    data.logical.freeCommandBuffers(data.commandPool, commandBuffer);
 }
 
 /*****************************************Image work helpers*****************************************/
@@ -356,20 +359,20 @@ void Device::CreateImage(vk::Image &image, vk::DeviceMemory &memory, vk::ImageCr
 {
     assert(data.logical && "Cannot create image, cause logical device is not valid.");
 
-    image = data.logical->createImage(createInfo, nullptr);
+    image = data.logical.createImage(createInfo, nullptr);
     assert(image && "Image was not created");
 
     vk::MemoryRequirements memReq{};
-    data.logical->getImageMemoryRequirements(image, &memReq);
+    data.logical.getImageMemoryRequirements(image, &memReq);
 
     vk::MemoryAllocateInfo allocInfo{};
     allocInfo.allocationSize = memReq.size;
     allocInfo.memoryTypeIndex = FindMemoryType(memReq.memoryTypeBits, properties);
 
-    memory = data.logical->allocateMemory(allocInfo);
+    memory = data.logical.allocateMemory(allocInfo);
     assert(memory && "Image memory was not allocated");
 
-    data.logical->bindImageMemory(image, memory, 0);
+    data.logical.bindImageMemory(image, memory, 0);
 }
 
 void Device::TransitionImageLayout(vk::Image &image, std::vector<vk::ImageMemoryBarrier>& vBarriers, vk::ImageLayout oldLayout, vk::ImageLayout newLayout)
@@ -444,7 +447,7 @@ vk::ImageView Device::CreateImageView(vk::Image &pImage, vk::ImageViewCreateInfo
 
     vk::ImageView imageView;
     // TODO: Handle result
-    auto result = data.logical->createImageView(&viewInfo, nullptr, &imageView);
+    auto result = data.logical.createImageView(&viewInfo, nullptr, &imageView);
     assert(imageView && "Was not created");
 
     return imageView;
@@ -477,7 +480,7 @@ void Device::CreateSampler(vk::Sampler &sampler, uint32_t mip_levels, vk::Sample
     samplerInfo.maxLod = static_cast<float>(mip_levels);
 
     // TODO: Result handle
-    auto result = data.logical->createSampler(&samplerInfo, nullptr, &sampler);
+    auto result = data.logical.createSampler(&samplerInfo, nullptr, &sampler);
     assert(sampler && "Texture sampler was not created");
 }
 
@@ -488,19 +491,19 @@ void Device::CreateOnDeviceBuffer(vk::DeviceSize size, vk::BufferUsageFlags usag
     bufferInfo.usage = usage;
     bufferInfo.sharingMode = vk::SharingMode::eExclusive;
 
-    buffer = data.logical->createBuffer(bufferInfo);
+    buffer = data.logical.createBuffer(bufferInfo);
     assert(buffer && "On device buffer was not created");
 
-    vk::MemoryRequirements memRequirements = data.logical->getBufferMemoryRequirements(buffer);
+    vk::MemoryRequirements memRequirements = data.logical.getBufferMemoryRequirements(buffer);
 
     vk::MemoryAllocateInfo allocInfo = {};
     allocInfo.allocationSize = memRequirements.size;
     allocInfo.memoryTypeIndex = FindMemoryType(memRequirements.memoryTypeBits, properties);
 
-    bufferMemory = data.logical->allocateMemory(allocInfo);
+    bufferMemory = data.logical.allocateMemory(allocInfo);
     assert(bufferMemory && "Buffer memory was not allocated");
 
-    data.logical->bindBufferMemory(buffer, bufferMemory, 0);
+    data.logical.bindBufferMemory(buffer, bufferMemory, 0);
 }
 
 void Device::CopyOnDeviceBuffer(vk::Buffer srcBuffer, vk::Buffer dstBuffer, vk::DeviceSize size)
@@ -518,7 +521,7 @@ void Device::CopyOnDeviceBuffer(vk::Buffer srcBuffer, vk::Buffer dstBuffer, vk::
 
 vk::PhysicalDevice Device::GetPhysicalDevice()
 {
-    auto device = data.vkInstance->enumeratePhysicalDevices().front();
+    auto device = data.vkInstance.enumeratePhysicalDevices().front();
     if (device && IsDeviceSuitable(device))
     {
         return device;
@@ -528,7 +531,7 @@ vk::PhysicalDevice Device::GetPhysicalDevice()
 
 std::vector<vk::PhysicalDevice> Device::GetAvaliablePhysicalDevices()
 {
-    auto devices = data.vkInstance->enumeratePhysicalDevices();
+    auto devices = data.vkInstance.enumeratePhysicalDevices();
     std::vector<vk::PhysicalDevice> output_devices;
     if (devices.size() == 0)
     {

@@ -10,16 +10,19 @@ namespace Engine
         class VulkanVBO
         {
         public:
-            void Create(std::unique_ptr<Device> &device);
+            VulkanVBO() = default;
+            VulkanVBO(std::shared_ptr<Device> device);
+            ~VulkanVBO();
+
+            void Create();
             void Bind(vk::CommandBuffer commandBuffer);
-            void Destroy(std::unique_ptr<Device> &device);
             void AddMeshData(std::vector<Vertex> &&vertices, std::vector<uint32_t> &&indices);
             inline uint64_t GetLastIndex() { return m_vIndices.size(); }
             inline uint64_t GetLastVertex() { return m_vVertices.size(); }
 
         private:
-            void CreateVertexBuffer(std::unique_ptr<Device> &device);
-            void CreateIndexBuffer(std::unique_ptr<Device> &device);
+            void CreateVertexBuffer();
+            void CreateIndexBuffer();
             bool m_bBuffersCreated{false};
 
             std::vector<Vertex> m_vVertices;
@@ -27,6 +30,8 @@ namespace Engine
 
             std::vector<uint32_t> m_vIndices;
             std::unique_ptr<VulkanBuffer> indexBuffer;
+
+            std::shared_ptr<Device> m_device;
         };
     }
 }

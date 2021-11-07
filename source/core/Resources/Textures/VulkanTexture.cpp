@@ -1,11 +1,25 @@
 #include "VulkanTexture.h"
 #include "Core/VulkanDevice.h"
 #include "Core/VulkanBuffer.h"
-#include "Core/VulkanHighLevel.h"
+#include "Core/VulkanDevice.h"
 
 using namespace Engine::Resources;
 using namespace Engine::Resources::Texture;
 using namespace Engine::Resources::Loaders;
+
+TextureBase::TextureBase(std::shared_ptr<Core::Device> device) :
+m_device(device)
+{
+    
+}
+
+TextureBase::~TextureBase()
+{
+    m_device->Destroy(image);
+    m_device->Destroy(view);
+    m_device->Destroy(deviceMemory);
+    m_device->Destroy(sampler);
+}
 
 void TextureBase::ReCreate()
 {
@@ -31,11 +45,6 @@ void TextureBase::Cleanup()
 void TextureBase::Destroy()
 {
     ResourceBase::Destroy();
-
-    UDevice->Destroy(image);
-    UDevice->Destroy(view);
-    UDevice->Destroy(deviceMemory);
-    UDevice->Destroy(sampler);
 }
 
 void TextureBase::UpdateDescriptor()
@@ -58,14 +67,14 @@ ETextureAttachmentType TextureBase::GetAttachment()
 void TextureBase::GenerateMipmaps(vk::Image &image, uint32_t mipLevels, vk::Format format, uint32_t width, uint32_t height, vk::ImageAspectFlags aspectFlags)
 {
     vk::FormatProperties formatProperties;
-    UDevice->GetPhysical().getFormatProperties(format, &formatProperties);
+    m_device->GetPhysical().getFormatProperties(format, &formatProperties);
 
     if (!(formatProperties.optimalTilingFeatures & vk::FormatFeatureFlagBits::eSampledImageFilterLinear))
     {
         throw std::runtime_error("Texture image format does not support linear blitting!");
     }
 
-    vk::CommandBuffer commandBuffer = UDevice->BeginSingleTimeCommands();
+    vk::CommandBuffer commandBuffer = m_device->BeginSingleTimeCommands();
 
     vk::ImageMemoryBarrier barrier{};
     barrier.image = image;
@@ -145,7 +154,7 @@ void TextureBase::GenerateMipmaps(vk::Image &image, uint32_t mipLevels, vk::Form
         0, nullptr,
         1, &barrier);
 
-    UDevice->EndSingleTimeCommands(commandBuffer);
+    m_device->EndSingleTimeCommands(commandBuffer);
 }
 
 vk::ImageType TextureBase::TypeFromKtx(uint32_t type)
@@ -197,7 +206,7 @@ void TextureBase::CreateEmptyTexture(uint32_t width, uint32_t height, uint32_t d
 void TextureBase::InitializeTexture(ktxTexture *info, vk::Format format, vk::ImageUsageFlags flags)
 {
     vk::PhysicalDeviceProperties devprops;
-    UDevice->GetPhysical().getProperties(&devprops);
+    m_device->GetPhysical().getProperties(&devprops);
 
     uint32_t maxImageDimension3D(devprops.limits.maxImageDimension3D);
     if (info->baseWidth > maxImageDimension3D || info->baseHeight > maxImageDimension3D || info->baseDepth > maxImageDimension3D)
@@ -248,7 +257,7 @@ void TextureBase::InitializeTexture(ktxTexture *info, vk::Format format, vk::Ima
 
     imageInfo.samples = vk::SampleCountFlagBits::e1;
 
-    UDevice->CreateImage(image, deviceMemory, imageInfo, vk::MemoryPropertyFlagBits::eDeviceLocal);
+    m_device->CreateImage(image, deviceMemory, imageInfo, vk::MemoryPropertyFlagBits::eDeviceLocal);
 
     vk::ImageViewCreateInfo viewInfo{};
     if (info->isArray)
@@ -268,10 +277,10 @@ void TextureBase::InitializeTexture(ktxTexture *info, vk::Format format, vk::Ima
     viewInfo.subresourceRange.baseArrayLayer = 0;
     viewInfo.subresourceRange.layerCount = fParams.instCount;
 
-    view = UDevice->CreateImageView(image, viewInfo);
+    view = m_device->CreateImageView(image, viewInfo);
 
     auto addressMode = info->isArray || info->isCubemap || info->baseDepth > 1 ? vk::SamplerAddressMode::eClampToEdge : vk::SamplerAddressMode::eRepeat;
-    UDevice->CreateSampler(sampler, fParams.mipLevels, addressMode);
+    m_device->CreateSampler(sampler, fParams.mipLevels, addressMode);
     //imageLayout = vk::ImageLayout::eShaderReadOnlyOptimal;
 }
 
@@ -288,7 +297,7 @@ void TextureBase::TransitionImageLayout(vk::ImageLayout newLayout)
     barrier.subresourceRange.layerCount = fParams.instCount;
     vBarriers.push_back(barrier);
 
-    UDevice->TransitionImageLayout(image, vBarriers, imageLayout, newLayout);
+    m_device->TransitionImageLayout(image, vBarriers, imageLayout, newLayout);
     imageLayout = newLayout;
 }
 
@@ -305,7 +314,7 @@ void TextureBase::TransitionImageLayout(vk::CommandBuffer& commandBuffer, vk::Im
     barrier.subresourceRange.layerCount = fParams.instCount;
     vBarriers.push_back(barrier);
     
-    UDevice->TransitionImageLayout(commandBuffer, image, vBarriers, imageLayout, newLayout);
+    m_device->TransitionImageLayout(commandBuffer, image, vBarriers, imageLayout, newLayout);
     imageLayout = newLayout;
 }
 
@@ -318,10 +327,10 @@ void TextureBase::WriteImageData(ktxTexture *info, vk::Format format)
 {
     vk::DeviceSize imgSize = info->dataSize;
 
-    Core::VulkanBuffer stagingBuffer;
-    stagingBuffer.Create(UDevice, imgSize, 1, vk::BufferUsageFlagBits::eTransferSrc, vk::MemoryPropertyFlagBits::eHostVisible | vk::MemoryPropertyFlagBits::eHostCoherent);
-    auto result = stagingBuffer.MapMem(UDevice);
-    stagingBuffer.Write(UDevice, (void *)info->pData);
+    Core::VulkanBuffer stagingBuffer(m_device);
+    stagingBuffer.Create(imgSize, 1, vk::BufferUsageFlagBits::eTransferSrc, vk::MemoryPropertyFlagBits::eHostVisible | vk::MemoryPropertyFlagBits::eHostCoherent);
+    auto result = stagingBuffer.MapMem();
+    stagingBuffer.Write((void *)info->pData);
 
     TransitionImageLayout(vk::ImageLayout::eTransferDstOptimal);
 
@@ -338,7 +347,7 @@ void TextureBase::WriteImageData(ktxTexture *info, vk::Format format)
         region.imageExtent.depth = info->baseDepth;
         region.bufferOffset = 0;
         vRegions.push_back(region);
-        UDevice->CopyBufferToImage(stagingBuffer.GetBuffer(), image, vRegions);
+        m_device->CopyBufferToImage(stagingBuffer.GetBuffer(), image, vRegions);
         GenerateMipmaps(image, fParams.mipLevels, format, fParams.width, fParams.height, vk::ImageAspectFlagBits::eColor);
     }
     else
@@ -363,11 +372,10 @@ void TextureBase::WriteImageData(ktxTexture *info, vk::Format format)
                 vRegions.push_back(region);
             }
         }
-        UDevice->CopyBufferToImage(stagingBuffer.GetBuffer(), image, vRegions);
+        m_device->CopyBufferToImage(stagingBuffer.GetBuffer(), image, vRegions);
 
         TransitionImageLayout(vk::ImageLayout::eShaderReadOnlyOptimal);
     }
-    stagingBuffer.Destroy(UDevice);
 }
 
 void TextureBase::LoadFromMemory(ktxTexture *info, vk::Format format)

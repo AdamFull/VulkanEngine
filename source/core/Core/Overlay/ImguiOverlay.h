@@ -33,22 +33,25 @@ namespace Engine
         class ImguiOverlay
         {
         public:
-            void Create(std::unique_ptr<Window::WindowHandle> &window, std::unique_ptr<Device> &device, std::unique_ptr<SwapChain> &swapchain);
-            void ReCreate(std::unique_ptr<Device> &device, std::unique_ptr<SwapChain> &swapchain);
-            void Cleanup(std::unique_ptr<Device> &device);
-            void Destroy(std::unique_ptr<Device> &device);
+            ImguiOverlay() = default;
+            ImguiOverlay(std::shared_ptr<Window::WindowHandle> window, std::shared_ptr<Device> device, std::shared_ptr<SwapChain> swapchain);
+            ~ImguiOverlay();
+
+            void Create();
+            void ReCreate();
+            void Cleanup();
 
             void NewFrame();
 
-            void Update(std::unique_ptr<Device> &device, float deltaTime);
-            void DrawFrame(std::unique_ptr<Device> &device, vk::CommandBuffer commandBuffer, uint32_t index);
+            void Update(float deltaTime);
+            void DrawFrame(vk::CommandBuffer commandBuffer, uint32_t index);
 
             std::unique_ptr<VulkanBuffer> &GetBuffer(uint32_t index);
 
         private:
             void BaseInitialize();
-            void CreateFontResources(std::unique_ptr<Device> &device);
-            void CreateResources(std::unique_ptr<Device> &device, std::unique_ptr<SwapChain> &swapchain);
+            void CreateFontResources();
+            void CreateResources();
 
             void InitializeWindowBackend();
 
@@ -61,16 +64,20 @@ namespace Engine
             void OnInputChar(unsigned int c);
             void OnMonitorEvent(int monitor);
 
-            std::unique_ptr<UniformBuffer> m_pUniform;
+            std::shared_ptr<UniformBuffer> m_pUniform;
             std::shared_ptr<Resources::Texture::TextureBase> fontTexture;
             std::shared_ptr<Resources::Material::MaterialUI> fontMaterial;
-            std::unique_ptr<VulkanBuffer> vertexBuffer;
-            std::unique_ptr<VulkanBuffer> indexBuffer;
+            std::shared_ptr<VulkanBuffer> vertexBuffer;
+            std::shared_ptr<VulkanBuffer> indexBuffer;
             int vertexCount{0};
             int indexCount{0};
 
             std::vector<std::shared_ptr<Overlay::OverlayBase>> m_vOverlays;
             bool bEnabled = true;
+
+            std::shared_ptr<Window::WindowHandle> m_window;
+            std::shared_ptr<Device> m_device;
+            std::shared_ptr<SwapChain> m_swapchain;
 
             FGUIControls controls;
         };

@@ -5,23 +5,30 @@
 
 using namespace Engine::Core::Pipeline;
 
-void PipelineBase::Create(FPipelineCreateInfo createInfo, std::unique_ptr<Device> &device, std::unique_ptr<SwapChain> &swapchain)
+PipelineBase::PipelineBase(std::shared_ptr<Device> device, std::shared_ptr<SwapChain> swapchain) :
+m_device(device),
+m_swapchain(swapchain)
+{
+
+}
+
+PipelineBase::~PipelineBase()
+{
+    Cleanup();
+    DestroyShaders();
+}
+
+void PipelineBase::Create(FPipelineCreateInfo createInfo)
 {
 }
 
-void PipelineBase::RecreatePipeline(FPipelineCreateInfo createInfo, std::unique_ptr<Device> &device, std::unique_ptr<SwapChain> &swapchain)
+void PipelineBase::RecreatePipeline(FPipelineCreateInfo createInfo)
 {
 }
 
-void PipelineBase::Cleanup(std::unique_ptr<Device> &device)
+void PipelineBase::Cleanup()
 {
-    device->Destroy(data.pipeline);
-}
-
-void PipelineBase::Destroy(std::unique_ptr<Device> &device)
-{
-    Cleanup(device);
-    DestroyShaders(device);
+    m_device->Destroy(data.pipeline);
 }
 
 void PipelineBase::Bind(vk::CommandBuffer &commandBuffer)
@@ -29,28 +36,28 @@ void PipelineBase::Bind(vk::CommandBuffer &commandBuffer)
     commandBuffer.bindPipeline(GetBindPoint(), GetPipeline());
 }
 
-void PipelineBase::LoadShader(std::unique_ptr<Device> &device, const std::string &srShaderPath, vk::ShaderStageFlagBits fShaderType)
+void PipelineBase::LoadShader(const std::string &srShaderPath, vk::ShaderStageFlagBits fShaderType)
 {
     auto shader_code = FilesystemHelper::ReadFile(srShaderPath);
     m_vShaderCache.emplace_back(FShaderCache{fShaderType, shader_code});
-    LoadShader(device, shader_code, fShaderType);
+    LoadShader(shader_code, fShaderType);
 }
 
-void PipelineBase::LoadShader(std::unique_ptr<Device> &device, const std::map<vk::ShaderStageFlagBits, std::string> &mShaders)
+void PipelineBase::LoadShader(const std::map<vk::ShaderStageFlagBits, std::string> &mShaders)
 {
     for (auto &[key, value] : mShaders)
     {
-        LoadShader(device, value, key);
+        LoadShader(value, key);
     }
 }
 
-void PipelineBase::LoadShader(std::unique_ptr<Device> &device, const std::vector<char> &vShaderCode, vk::ShaderStageFlagBits fShaderType)
+void PipelineBase::LoadShader(const std::vector<char> &vShaderCode, vk::ShaderStageFlagBits fShaderType)
 {
     vk::ShaderModule shaderModule;
 
     try
     {
-        shaderModule = device->Make<vk::ShaderModule, vk::ShaderModuleCreateInfo>(
+        shaderModule = m_device->Make<vk::ShaderModule, vk::ShaderModuleCreateInfo>(
             vk::ShaderModuleCreateInfo{
                 vk::ShaderModuleCreateFlags(),
                 vShaderCode.size(),
@@ -68,20 +75,20 @@ void PipelineBase::LoadShader(std::unique_ptr<Device> &device, const std::vector
         "main");
 }
 
-void PipelineBase::RecreateShaders(std::unique_ptr<Device> &device)
+void PipelineBase::RecreateShaders()
 {
-    DestroyShaders(device);
+    DestroyShaders();
     for (auto &cached : m_vShaderCache)
     {
-        LoadShader(device, cached.srShaderData, cached.sShaderType);
+        LoadShader(cached.srShaderData, cached.sShaderType);
     }
 }
 
-void PipelineBase::DestroyShaders(std::unique_ptr<Device> &device)
+void PipelineBase::DestroyShaders()
 {
     for (auto &stageInfo : m_vShaderBuffer)
     {
-        device->Destroy(stageInfo.module);
+        m_device->Destroy(stageInfo.module);
     }
 
     m_vShaderBuffer.clear();

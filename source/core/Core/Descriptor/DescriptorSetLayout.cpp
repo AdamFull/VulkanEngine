@@ -1,8 +1,20 @@
 #include "DescriptorSetLayout.h"
+#include "Core/VulkanAllocator.h"
 #include "Core/VulkanDevice.h"
 
 using namespace Engine::Core;
 using namespace Engine::Core::Descriptor;
+
+VulkanDescriptorSetLayout::VulkanDescriptorSetLayout(std::shared_ptr<Device> device) :
+m_device(device)
+{
+
+}
+
+VulkanDescriptorSetLayout::~VulkanDescriptorSetLayout()
+{
+    m_device->Destroy(descriptorSetLayout);
+}
 
 VulkanDescriptorSetLayout::Builder &VulkanDescriptorSetLayout::Builder::addBinding(uint32_t binding, vk::DescriptorType descriptorType, vk::ShaderStageFlags stageFlags, uint32_t count)
 {
@@ -16,14 +28,14 @@ VulkanDescriptorSetLayout::Builder &VulkanDescriptorSetLayout::Builder::addBindi
     return *this;
 }
 
-std::unique_ptr<VulkanDescriptorSetLayout> VulkanDescriptorSetLayout::Builder::build(std::unique_ptr<Device> &device) const
+std::unique_ptr<VulkanDescriptorSetLayout> VulkanDescriptorSetLayout::Builder::build() const
 {
-    auto descriptor_set_layout_object = std::make_unique<VulkanDescriptorSetLayout>();
-    descriptor_set_layout_object->Create(device, bindings);
+    auto descriptor_set_layout_object = FDefaultAllocator::Allocate<VulkanDescriptorSetLayout>();
+    descriptor_set_layout_object->Create(bindings);
     return descriptor_set_layout_object;
 }
 
-void VulkanDescriptorSetLayout::Create(std::unique_ptr<Device> &device, descriptor_set_layout_bindings_t bindings)
+void VulkanDescriptorSetLayout::Create(descriptor_set_layout_bindings_t bindings)
 {
     m_mBindings = bindings;
     std::vector<vk::DescriptorSetLayoutBinding> setLayoutBindings{};
@@ -36,13 +48,8 @@ void VulkanDescriptorSetLayout::Create(std::unique_ptr<Device> &device, descript
     descriptorSetLayoutInfo.bindingCount = static_cast<uint32_t>(setLayoutBindings.size());
     descriptorSetLayoutInfo.pBindings = setLayoutBindings.data();
 
-    if (device->GetLogical()->createDescriptorSetLayout(&descriptorSetLayoutInfo, nullptr, &descriptorSetLayout) != vk::Result::eSuccess)
+    if (m_device->GetLogical().createDescriptorSetLayout(&descriptorSetLayoutInfo, nullptr, &descriptorSetLayout) != vk::Result::eSuccess)
     {
         throw std::runtime_error("failed to create descriptor set layout!");
     }
-}
-
-void VulkanDescriptorSetLayout::Destroy(std::unique_ptr<Device> &device)
-{
-    device->Destroy(descriptorSetLayout);
 }

@@ -19,8 +19,8 @@ namespace Engine
 
             struct PipelineFactory
             {
-                using signature = std::unique_ptr<PipelineBase>(FPipelineCreateInfo, std::unique_ptr<Device> &, std::unique_ptr<SwapChain> &);
-                static std::unique_ptr<PipelineBase> CreatePipeline(FPipelineCreateInfo createInfo, std::unique_ptr<Device> &device, std::unique_ptr<SwapChain> &swapchain);
+                using signature = std::unique_ptr<PipelineBase>(FPipelineCreateInfo);
+                static std::unique_ptr<PipelineBase> CreatePipeline(FPipelineCreateInfo createInfo);
                 static std::map<EPipelineType, std::function<signature>> m_mFactory;
 
                 static std::map<EShaderSet, std::map<vk::ShaderStageFlagBits, std::string>> mShaderSets;

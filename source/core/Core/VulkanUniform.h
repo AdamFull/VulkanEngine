@@ -35,24 +35,28 @@ namespace Engine
         {
         public:
             UniformBuffer() = default;
+            UniformBuffer(std::shared_ptr<Device> device);
+            ~UniformBuffer();
+
             UniformBuffer(const UniformBuffer &) = delete;
             void operator=(const UniformBuffer &) = delete;
             UniformBuffer(UniformBuffer &&) = delete;
             UniformBuffer &operator=(UniformBuffer &&) = delete;
 
-            void Create(std::unique_ptr<Device> &device, uint32_t inFlightFrames, size_t uniform_size);
-            void ReCreate(std::unique_ptr<Device> &device, uint32_t inFlightFrames);
-            void Cleanup(std::unique_ptr<Device> &device);
-            void UpdateUniformBuffer(std::unique_ptr<Device> &device, uint32_t index, void *ubo);
+            void Create(uint32_t inFlightFrames, size_t uniform_size);
+            void ReCreate(uint32_t inFlightFrames);
+            void Cleanup();
+            void UpdateUniformBuffer(uint32_t index, void *ubo);
 
             // Getters
             std::vector<std::unique_ptr<VulkanBuffer>> &GetUniformBuffers();
             std::unique_ptr<VulkanBuffer> &GetUniformBuffer(uint32_t index);
 
         private:
-            void CreateUniformBuffers(std::unique_ptr<Device> &device, uint32_t inFlightFrames);
+            void CreateUniformBuffers(uint32_t inFlightFrames);
             size_t m_iUniformSize{0};
 
+            std::shared_ptr<Device> m_device;
             std::vector<std::unique_ptr<VulkanBuffer>> m_pBuffers;
         };
     }

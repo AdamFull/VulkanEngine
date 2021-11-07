@@ -15,6 +15,7 @@ WindowHandle::WindowHandle()
 
 WindowHandle::~WindowHandle()
 {
+    Close();
 }
 
 void WindowHandle::Create(FWindowCreateInfo createInfo)
@@ -37,10 +38,10 @@ void WindowHandle::Create(FWindowCreateInfo createInfo)
     glfwSetMonitorCallback(&WinCallbacks::WinInputMonitorCallback);
 }
 
-void WindowHandle::CreateWindowSurface(vk::UniqueInstance &instance, vk::SurfaceKHR &surface)
+void WindowHandle::CreateWindowSurface(vk::Instance &instance, vk::SurfaceKHR &surface)
 {
     VkSurfaceKHR rawSurface;
-    if (glfwCreateWindowSurface(instance.get(), m_pWindow, nullptr, &rawSurface) != VK_SUCCESS)
+    if (glfwCreateWindowSurface(instance, m_pWindow, nullptr, &rawSurface) != VK_SUCCESS)
     {
         throw std::runtime_error("Failed to create window surface!");
     }

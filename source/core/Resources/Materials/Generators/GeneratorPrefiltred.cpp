@@ -1,7 +1,5 @@
 #include "GeneratorPrefiltred.h"
-
-#include "Core/Descriptor/DescriptorWriter.h"
-#include "Core/VulkanHighLevel.h"
+#include "Core/VulkanAllocator.h"
 
 using namespace Engine::Resources::Material::Generator;
 using namespace Engine::Core::Descriptor;
@@ -27,10 +25,10 @@ void GeneratorPrefiltred::CreateDescriptors(uint32_t images)
 
     auto texSetLayout = VulkanDescriptorSetLayout::Builder().
     addBinding(0, vk::DescriptorType::eCombinedImageSampler, vk::ShaderStageFlagBits::eFragment).
-    build(UDevice);
+    build();
 
-    auto texSet = std::make_unique<VulkanDescriptorSet>();
-    texSet->Create(UDevice, m_pDescriptorPool, texSetLayout, images);
+    auto texSet = Core::FDefaultAllocator::Allocate<VulkanDescriptorSet>();
+    texSet->Create(m_pDescriptorPool, texSetLayout, images);
     m_pMatDesc->AttachDescriptorSet(std::move(texSet), std::move(texSetLayout));
 
     auto imageInfo = VulkanDescriptorWriter().
@@ -54,7 +52,7 @@ void GeneratorPrefiltred::Generate(uint32_t indexCount, uint32_t firstIndex)
 	renderPassBeginInfo.pClearValues = clearValues;
 	renderPassBeginInfo.framebuffer = framebuffer;
 
-    vk::CommandBuffer tempBuffer = UDevice->BeginSingleTimeCommands();
+    vk::CommandBuffer tempBuffer = m_device->BeginSingleTimeCommands();
 
     vk::Viewport viewport{};
     viewport.width = (float)m_iDimension;
@@ -117,7 +115,7 @@ void GeneratorPrefiltred::Generate(uint32_t indexCount, uint32_t firstIndex)
 
     m_pCubemap->TransitionImageLayout(tempBuffer, vk::ImageLayout::eShaderReadOnlyOptimal);
     
-    UDevice->EndSingleTimeCommands(tempBuffer);
+    m_device->EndSingleTimeCommands(tempBuffer);
 }
 
 std::shared_ptr<TextureBase> GeneratorPrefiltred::Get()

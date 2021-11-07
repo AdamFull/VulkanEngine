@@ -37,6 +37,7 @@ namespace Engine
             class MeshBase : public ResourceBase
             {
             public:
+                
                 void Create() override;
                 virtual void AddPrimitive(Primitive &&primitive);
                 Primitive& GetPrimitive(uint32_t index);

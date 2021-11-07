@@ -1,8 +1,20 @@
 #include "DescriptorPool.h"
+#include "Core/VulkanAllocator.h"
 #include "Core/VulkanDevice.h"
 
 using namespace Engine::Core;
 using namespace Engine::Core::Descriptor;
+
+VulkanDescriptorPool::VulkanDescriptorPool(std::shared_ptr<Device> device) :
+m_device(device)
+{
+
+}
+
+VulkanDescriptorPool::~VulkanDescriptorPool()
+{
+    m_device->Destroy(descriptorPool);
+}
 
 VulkanDescriptorPool::Builder &VulkanDescriptorPool::Builder::addPoolSize(vk::DescriptorType descriptorType, uint32_t count)
 {
@@ -21,24 +33,19 @@ VulkanDescriptorPool::Builder &VulkanDescriptorPool::Builder::setMaxSets(uint32_
     return *this;
 }
 
-std::unique_ptr<VulkanDescriptorPool> VulkanDescriptorPool::Builder::build(std::unique_ptr<Device> &device) const
+std::unique_ptr<VulkanDescriptorPool> VulkanDescriptorPool::Builder::build() const
 {
-    auto descriptor_object = std::make_unique<VulkanDescriptorPool>();
-    descriptor_object->Create(device, maxSets, poolFlags, poolSizes);
+    auto descriptor_object = FDefaultAllocator::Allocate<VulkanDescriptorPool>();
+    descriptor_object->Create(maxSets, poolFlags, poolSizes);
     return descriptor_object;
 }
 
-void VulkanDescriptorPool::Create(std::unique_ptr<Device> &device, uint32_t maxSets, vk::DescriptorPoolCreateFlags poolFlags, const std::vector<vk::DescriptorPoolSize> &poolSizes)
+void VulkanDescriptorPool::Create(uint32_t maxSets, vk::DescriptorPoolCreateFlags poolFlags, const std::vector<vk::DescriptorPoolSize> &poolSizes)
 {
     vk::DescriptorPoolCreateInfo descriptorPoolInfo{};
     descriptorPoolInfo.poolSizeCount = static_cast<uint32_t>(poolSizes.size());
     descriptorPoolInfo.pPoolSizes = poolSizes.data();
     descriptorPoolInfo.maxSets = maxSets;
     descriptorPoolInfo.flags = poolFlags;
-    descriptorPool = device->Make<vk::DescriptorPool, vk::DescriptorPoolCreateInfo>(descriptorPoolInfo);
-}
-
-void VulkanDescriptorPool::Destroy(std::unique_ptr<Device> &device)
-{
-    device->Destroy(descriptorPool);
+    descriptorPool = m_device->Make<vk::DescriptorPool, vk::DescriptorPoolCreateInfo>(descriptorPoolInfo);
 }

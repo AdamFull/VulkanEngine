@@ -1,12 +1,7 @@
 #include "MaterialFactory.h"
 #include "Resources/Textures/TextureFactory.h"
 #include "Resources/ResourceManager.h"
-
-#include "Resources/Textures/VulkanTexture.h"
-
-#include "Resources/Materials/MaterialUI.h"
-#include "Resources/Materials/MaterialDiffuse.h"
-#include "Resources/Materials/MaterialSkybox.h"
+#include "Core/VulkanAllocator.h"
 
 using namespace Engine::Resources;
 using namespace Engine::Resources::Material;
@@ -14,17 +9,17 @@ using namespace Engine::Resources::Material;
 std::map<EMaterialType, std::function<MaterialFactory::material_t()>> MaterialFactory::m_mFactory{
     {EMaterialType::eUI, []()
      {
-         auto material = std::make_unique<MaterialUI>();
+         auto material = Core::FDefaultAllocator::Allocate<MaterialUI>();
          return material;
      }},
     {EMaterialType::eDiffuse, []()
      {
-         auto material = std::make_unique<MaterialDiffuse>();
+         auto material = Core::FDefaultAllocator::Allocate<MaterialDiffuse>();
          return material;
      }},
     {EMaterialType::eSkybox, []()
      {
-         auto material = std::make_unique<MaterialSkybox>();
+         auto material = Core::FDefaultAllocator::Allocate<MaterialSkybox>();
          return material;
      }}};
 

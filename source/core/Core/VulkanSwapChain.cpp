@@ -6,29 +6,46 @@
 using namespace Engine::Core;
 using namespace Engine::Core::Window;
 
-void SwapChain::Create(std::unique_ptr<Device> &device)
+SwapChain::SwapChain(std::shared_ptr<Device> device) : m_device(device)
 {
-    CreateSwapChain(device);
-    CreateSwapChainImageViews(device);
-    CreateMSAAResources(device);
-    CreateDepthResources(device);
-    CreateRenderPass(device);
-    CreateFrameBuffers(device);
-    CreateSyncObjects(device);
+
 }
 
-vk::Result SwapChain::AcquireNextImage(std::unique_ptr<Device> &device, uint32_t *imageIndex)
+SwapChain::~SwapChain()
 {
-    device->GetLogical()->waitForFences(1, &data.vInFlightFences[data.currentFrame], VK_TRUE, std::numeric_limits<uint64_t>::max());
+    Cleanup();
 
-    auto result = device->GetLogical()->acquireNextImageKHR(
+    for (size_t i = 0; i < data.iFramesInFlight; i++)
+    {
+        m_device->Destroy(data.vRenderFinishedSemaphores[i]);
+        m_device->Destroy(data.vImageAvailableSemaphores[i]);
+        m_device->Destroy(data.vInFlightFences[i]);
+    }
+}
+
+void SwapChain::Create()
+{
+    CreateSwapChain();
+    CreateSwapChainImageViews();
+    CreateMSAAResources();
+    CreateDepthResources();
+    CreateRenderPass();
+    CreateFrameBuffers();
+    CreateSyncObjects();
+}
+
+vk::Result SwapChain::AcquireNextImage(uint32_t *imageIndex)
+{
+    m_device->GetLogical().waitForFences(1, &data.vInFlightFences[data.currentFrame], VK_TRUE, std::numeric_limits<uint64_t>::max());
+
+    auto result = m_device->GetLogical().acquireNextImageKHR(
         data.swapChain, std::numeric_limits<uint64_t>::max(),
         data.vImageAvailableSemaphores[data.currentFrame], nullptr, imageIndex);
 
     return result;
 }
 
-vk::Result SwapChain::SubmitCommandBuffers(std::unique_ptr<Device> &device, const vk::CommandBuffer *commandBuffer, uint32_t *imageIndex)
+vk::Result SwapChain::SubmitCommandBuffers(const vk::CommandBuffer *commandBuffer, uint32_t *imageIndex)
 {
     vk::SubmitInfo submitInfo = {};
 
@@ -46,11 +63,11 @@ vk::Result SwapChain::SubmitCommandBuffers(std::unique_ptr<Device> &device, cons
     submitInfo.pSignalSemaphores = signalSemaphores;
 
     // TODO: Handle this result
-    device->GetLogical()->resetFences(1, &data.vInFlightFences[data.currentFrame]);
+    m_device->GetLogical().resetFences(1, &data.vInFlightFences[data.currentFrame]);
 
     try
     {
-        device->GetGraphicsQueue().submit(submitInfo, data.vInFlightFences[data.currentFrame]);
+        m_device->GetGraphicsQueue().submit(submitInfo, data.vInFlightFences[data.currentFrame]);
     }
     catch (vk::SystemError err)
     {
@@ -67,64 +84,54 @@ vk::Result SwapChain::SubmitCommandBuffers(std::unique_ptr<Device> &device, cons
     presentInfo.pImageIndices = imageIndex;
 
     vk::Result resultPresent;
-    resultPresent = device->GetPresentQueue().presentKHR(presentInfo);
+    resultPresent = m_device->GetPresentQueue().presentKHR(presentInfo);
 
     data.currentFrame = (data.currentFrame + 1) % data.iFramesInFlight;
 
     return resultPresent;
 }
 
-void SwapChain::Cleanup(std::unique_ptr<Device> &device)
+void SwapChain::Cleanup()
 {
     // Destroying depth image
-    device->Destroy(data.depthImageView);
-    device->Destroy(data.depthImage);
-    device->Destroy(data.depthImageMemory);
+    m_device->Destroy(data.depthImageView);
+    m_device->Destroy(data.depthImage);
+    m_device->Destroy(data.depthImageMemory);
 
     // Destroying msaa image
-    device->Destroy(data.MSAAImageView);
-    device->Destroy(data.MSAAImage);
-    device->Destroy(data.MSAAImageMemory);
+    m_device->Destroy(data.MSAAImageView);
+    m_device->Destroy(data.MSAAImage);
+    m_device->Destroy(data.MSAAImageMemory);
 
     for (auto framebuffer : data.vFramebuffers)
     {
-        device->Destroy(framebuffer);
+        m_device->Destroy(framebuffer);
     }
 
-    device->Destroy(data.renderPass);
+    m_device->Destroy(data.renderPass);
 
     for (auto imageView : data.vImageViews)
     {
-        device->Destroy(imageView);
+        m_device->Destroy(imageView);
     }
 
-    device->Destroy(data.swapChain);
+    m_device->Destroy(data.swapChain);
 }
 
-void SwapChain::Destroy(std::unique_ptr<Device> &device)
+void SwapChain::ReCreate()
 {
-    for (size_t i = 0; i < data.iFramesInFlight; i++)
-    {
-        device->Destroy(data.vRenderFinishedSemaphores[i]);
-        device->Destroy(data.vImageAvailableSemaphores[i]);
-        device->Destroy(data.vInFlightFences[i]);
-    }
+    CreateSwapChain();
+    CreateSwapChainImageViews();
+    CreateRenderPass();
+    CreateMSAAResources();
+    CreateDepthResources();
+    CreateFrameBuffers();
 }
 
-void SwapChain::ReCreate(std::unique_ptr<Device> &device)
+void SwapChain::CreateSwapChain()
 {
-    CreateSwapChain(device);
-    CreateSwapChainImageViews(device);
-    CreateRenderPass(device);
-    CreateMSAAResources(device);
-    CreateDepthResources(device);
-    CreateFrameBuffers(device);
-}
-
-void SwapChain::CreateSwapChain(std::unique_ptr<Device> &device)
-{
-    assert(device && "Cannot create swap chain, cause logical device is not valid.");
-    SwapChainSupportDetails swapChainSupport = device->QuerySwapChainSupport();
+    assert(m_device && "Cannot create swap chain, cause logical device is not valid.");
+    SwapChainSupportDetails swapChainSupport = m_device->QuerySwapChainSupport();
 
     vk::SurfaceFormatKHR surfaceFormat = VulkanStaticHelper::ChooseSwapSurfaceFormat(swapChainSupport.formats);
     vk::PresentModeKHR presentMode = VulkanStaticHelper::ChooseSwapPresentMode(swapChainSupport.presentModes);
@@ -138,7 +145,7 @@ void SwapChain::CreateSwapChain(std::unique_ptr<Device> &device)
 
     vk::SwapchainCreateInfoKHR createInfo(
         vk::SwapchainCreateFlagsKHR(),
-        device->GetSurface(),
+        m_device->GetSurface(),
         imageCount,
         surfaceFormat.format,
         surfaceFormat.colorSpace,
@@ -146,7 +153,7 @@ void SwapChain::CreateSwapChain(std::unique_ptr<Device> &device)
         1, // imageArrayLayers
         vk::ImageUsageFlagBits::eColorAttachment);
 
-    QueueFamilyIndices indices = device->FindQueueFamilies();
+    QueueFamilyIndices indices = m_device->FindQueueFamilies();
     uint32_t queueFamilyIndices[] = {indices.graphicsFamily.value(), indices.presentFamily.value()};
 
     if (indices.graphicsFamily != indices.presentFamily)
@@ -167,16 +174,16 @@ void SwapChain::CreateSwapChain(std::unique_ptr<Device> &device)
 
     createInfo.oldSwapchain = vk::SwapchainKHR(nullptr);
 
-    data.swapChain = device->Make<vk::SwapchainKHR, vk::SwapchainCreateInfoKHR>(createInfo);
+    data.swapChain = m_device->Make<vk::SwapchainKHR, vk::SwapchainCreateInfoKHR>(createInfo);
     assert(data.swapChain && "Swap chain was not created");
 
-    data.vImages = device->Make<std::vector<vk::Image>, vk::SwapchainKHR>(data.swapChain);
+    data.vImages = m_device->Make<std::vector<vk::Image>, vk::SwapchainKHR>(data.swapChain);
     assert(!data.vImages.empty() && "Swap chain images was not created");
 
     data.imageFormat = surfaceFormat.format;
 }
 
-void SwapChain::CreateSwapChainImageViews(std::unique_ptr<Device> &device)
+void SwapChain::CreateSwapChainImageViews()
 {
     data.vImageViews.resize(data.vImages.size());
 
@@ -191,11 +198,11 @@ void SwapChain::CreateSwapChainImageViews(std::unique_ptr<Device> &device)
         viewInfo.subresourceRange.baseArrayLayer = 0;
         viewInfo.subresourceRange.layerCount = 1;
 
-        data.vImageViews[i] = device->CreateImageView(data.vImages[i], viewInfo);
+        data.vImageViews[i] = m_device->CreateImageView(data.vImages[i], viewInfo);
     }
 }
 
-void SwapChain::CreateMSAAResources(std::unique_ptr<Device> &device)
+void SwapChain::CreateMSAAResources()
 {
     vk::Format colorFormat = data.imageFormat;
 
@@ -211,9 +218,9 @@ void SwapChain::CreateMSAAResources(std::unique_ptr<Device> &device)
     imageInfo.initialLayout = vk::ImageLayout::eUndefined;
     imageInfo.usage = vk::ImageUsageFlagBits::eTransientAttachment | vk::ImageUsageFlagBits::eColorAttachment;
     imageInfo.sharingMode = vk::SharingMode::eExclusive;
-    imageInfo.samples = device->GetSamples();
+    imageInfo.samples = m_device->GetSamples();
 
-    device->CreateImage(data.MSAAImage, data.MSAAImageMemory, imageInfo, vk::MemoryPropertyFlagBits::eDeviceLocal);
+    m_device->CreateImage(data.MSAAImage, data.MSAAImageMemory, imageInfo, vk::MemoryPropertyFlagBits::eDeviceLocal);
 
     vk::ImageViewCreateInfo viewInfo{};
     viewInfo.viewType = vk::ImageViewType::e2D;
@@ -224,12 +231,12 @@ void SwapChain::CreateMSAAResources(std::unique_ptr<Device> &device)
     viewInfo.subresourceRange.baseArrayLayer = 0;
     viewInfo.subresourceRange.layerCount = 1;
 
-    data.MSAAImageView = device->CreateImageView(data.MSAAImage, viewInfo);
+    data.MSAAImageView = m_device->CreateImageView(data.MSAAImage, viewInfo);
 }
 
-void SwapChain::CreateDepthResources(std::unique_ptr<Device> &device)
+void SwapChain::CreateDepthResources()
 {
-    vk::Format depthFormat = device->FindSupportedFormat(
+    vk::Format depthFormat = m_device->FindSupportedFormat(
         {vk::Format::eD32Sfloat, vk::Format::eD32SfloatS8Uint, vk::Format::eD24UnormS8Uint},
         vk::ImageTiling::eOptimal,
         vk::FormatFeatureFlagBits::eDepthStencilAttachment);
@@ -246,9 +253,9 @@ void SwapChain::CreateDepthResources(std::unique_ptr<Device> &device)
     imageInfo.initialLayout = vk::ImageLayout::eUndefined;
     imageInfo.usage = vk::ImageUsageFlagBits::eDepthStencilAttachment;
     imageInfo.sharingMode = vk::SharingMode::eExclusive;
-    imageInfo.samples = device->GetSamples();
+    imageInfo.samples = m_device->GetSamples();
 
-    device->CreateImage(data.depthImage, data.depthImageMemory, imageInfo, vk::MemoryPropertyFlagBits::eDeviceLocal);
+    m_device->CreateImage(data.depthImage, data.depthImageMemory, imageInfo, vk::MemoryPropertyFlagBits::eDeviceLocal);
 
     vk::ImageViewCreateInfo viewInfo{};
     viewInfo.viewType = vk::ImageViewType::e2D;
@@ -259,7 +266,7 @@ void SwapChain::CreateDepthResources(std::unique_ptr<Device> &device)
     viewInfo.subresourceRange.baseArrayLayer = 0;
     viewInfo.subresourceRange.layerCount = 1;
 
-    data.depthImageView = device->CreateImageView(data.depthImage, viewInfo);
+    data.depthImageView = m_device->CreateImageView(data.depthImage, viewInfo);
 
     std::vector<vk::ImageMemoryBarrier> vBarriers;
     vk::ImageMemoryBarrier barrier{};
@@ -272,15 +279,15 @@ void SwapChain::CreateDepthResources(std::unique_ptr<Device> &device)
     barrier.subresourceRange.layerCount = 1;
     vBarriers.push_back(barrier);
 
-    device->TransitionImageLayout(data.depthImage, vBarriers, vk::ImageLayout::eUndefined, vk::ImageLayout::eDepthStencilAttachmentOptimal);
+    m_device->TransitionImageLayout(data.depthImage, vBarriers, vk::ImageLayout::eUndefined, vk::ImageLayout::eDepthStencilAttachmentOptimal);
 }
 
-void SwapChain::CreateRenderPass(std::unique_ptr<Device> &device)
+void SwapChain::CreateRenderPass()
 {
-    assert(device && "Cannot create render pass, cause logical device is not valid.");
+    assert(m_device && "Cannot create render pass, cause logical device is not valid.");
     vk::AttachmentDescription colorAttachment = {};
     colorAttachment.format = data.imageFormat;
-    colorAttachment.samples = device->GetSamples();
+    colorAttachment.samples = m_device->GetSamples();
     colorAttachment.loadOp = vk::AttachmentLoadOp::eClear;
     colorAttachment.storeOp = vk::AttachmentStoreOp::eStore;
     colorAttachment.stencilLoadOp = vk::AttachmentLoadOp::eDontCare;
@@ -289,10 +296,10 @@ void SwapChain::CreateRenderPass(std::unique_ptr<Device> &device)
     colorAttachment.finalLayout = vk::ImageLayout::eColorAttachmentOptimal;
 
     vk::AttachmentDescription depthAttachment{};
-    depthAttachment.format = device->FindSupportedFormat(
+    depthAttachment.format = m_device->FindSupportedFormat(
         {vk::Format::eD32Sfloat, vk::Format::eD32SfloatS8Uint, vk::Format::eD24UnormS8Uint},
         vk::ImageTiling::eOptimal, vk::FormatFeatureFlagBits::eDepthStencilAttachment);
-    depthAttachment.samples = device->GetSamples();
+    depthAttachment.samples = m_device->GetSamples();
     depthAttachment.loadOp = vk::AttachmentLoadOp::eClear;
     depthAttachment.storeOp = vk::AttachmentStoreOp::eDontCare;
     depthAttachment.stencilLoadOp = vk::AttachmentLoadOp::eDontCare;
@@ -347,14 +354,14 @@ void SwapChain::CreateRenderPass(std::unique_ptr<Device> &device)
     renderPassInfo.dependencyCount = 1;
     renderPassInfo.pDependencies = &dependency;
 
-    data.renderPass = device->Make<vk::RenderPass, vk::RenderPassCreateInfo>(renderPassInfo);
+    data.renderPass = m_device->Make<vk::RenderPass, vk::RenderPassCreateInfo>(renderPassInfo);
     assert(data.renderPass && "Render pass was not created");
 }
 
-void SwapChain::CreateFrameBuffers(std::unique_ptr<Device> &device)
+void SwapChain::CreateFrameBuffers()
 {
     assert(!data.vImageViews.empty() && "Cannot create framebuffers, cause swap chain image views are empty.");
-    assert(device && "Cannot create framebuffers, cause logical device is not valid.");
+    assert(m_device && "Cannot create framebuffers, cause logical device is not valid.");
     assert(data.renderPass && "Cannot create framebuffers, cause render pass is not valid.");
     assert(data.MSAAImageView && "Cannot create framebuffers, cause msaa image view is not valid.");
     assert(data.depthImageView && "Cannot create framebuffers, cause depth image view is not valid.");
@@ -378,12 +385,12 @@ void SwapChain::CreateFrameBuffers(std::unique_ptr<Device> &device)
         framebufferInfo.height = data.extent.height;
         framebufferInfo.layers = 1;
 
-        data.vFramebuffers[i] = device->Make<vk::Framebuffer, vk::FramebufferCreateInfo>(framebufferInfo);
+        data.vFramebuffers[i] = m_device->Make<vk::Framebuffer, vk::FramebufferCreateInfo>(framebufferInfo);
         assert(data.vFramebuffers[i] && "Failed while creating framebuffer");
     }
 }
 
-void SwapChain::CreateSyncObjects(std::unique_ptr<Device> &device)
+void SwapChain::CreateSyncObjects()
 {
     data.vImageAvailableSemaphores.resize(data.iFramesInFlight);
     data.vRenderFinishedSemaphores.resize(data.iFramesInFlight);
@@ -393,9 +400,9 @@ void SwapChain::CreateSyncObjects(std::unique_ptr<Device> &device)
     {
         for (size_t i = 0; i < data.iFramesInFlight; i++)
         {
-            data.vImageAvailableSemaphores[i] = device->Make<vk::Semaphore, vk::SemaphoreCreateInfo>(vk::SemaphoreCreateInfo{});
-            data.vRenderFinishedSemaphores[i] = device->Make<vk::Semaphore, vk::SemaphoreCreateInfo>(vk::SemaphoreCreateInfo{});
-            data.vInFlightFences[i] = device->Make<vk::Fence, vk::FenceCreateInfo>(vk::FenceCreateInfo{vk::FenceCreateFlagBits::eSignaled});
+            data.vImageAvailableSemaphores[i] = m_device->Make<vk::Semaphore, vk::SemaphoreCreateInfo>(vk::SemaphoreCreateInfo{});
+            data.vRenderFinishedSemaphores[i] = m_device->Make<vk::Semaphore, vk::SemaphoreCreateInfo>(vk::SemaphoreCreateInfo{});
+            data.vInFlightFences[i] = m_device->Make<vk::Fence, vk::FenceCreateInfo>(vk::FenceCreateInfo{vk::FenceCreateFlagBits::eSignaled});
         }
     }
     catch (vk::SystemError err)

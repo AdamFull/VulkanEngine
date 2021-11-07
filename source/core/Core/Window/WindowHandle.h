@@ -38,7 +38,7 @@ namespace Engine
 
                 inline void FrameBufferUpdated() { m_bWasResized = false; }
 
-                void CreateWindowSurface(vk::UniqueInstance &instance, vk::SurfaceKHR &surface);
+                void CreateWindowSurface(vk::Instance &instance, vk::SurfaceKHR &surface);
 
                 inline std::pair<int32_t, int32_t> GetSize() { return std::make_pair(m_iWidth, m_iHeight); }
 

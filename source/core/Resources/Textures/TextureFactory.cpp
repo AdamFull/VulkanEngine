@@ -1,4 +1,5 @@
 #include "TextureFactory.h"
+#include "Core/VulkanAllocator.h"
 #include "Resources/ResourceManager.h"
 
 #include "Texture2D.h"
@@ -14,28 +15,28 @@ std::map<ETextureType, std::function<TextureFactory::texture_t(FTextureCreateInf
     {
         ETextureType::e2D, [](FTextureCreateInfo info)
         {
-            auto texture = std::make_unique<Texture2D>();
+            auto texture = Core::FDefaultAllocator::Allocate<Texture2D>();
             texture->SetAttachment(info.eAttachment);
             texture->LoadFromFile(info.srSrc);
             return texture;
         }},
     {ETextureType::e3D, [](FTextureCreateInfo info)
      {
-         auto texture = std::make_unique<Texture3D>();
+         auto texture = Core::FDefaultAllocator::Allocate<Texture3D>();
          texture->SetAttachment(info.eAttachment);
          texture->LoadNoise(info.noise.pattern, info.noise.width, info.noise.height, info.noise.depth);
          return texture;
      }},
     {ETextureType::eCubemap, [](FTextureCreateInfo info)
      {
-         auto texture = std::make_unique<TextureCubemap>();
+         auto texture = Core::FDefaultAllocator::Allocate<TextureCubemap>();
          texture->SetAttachment(info.eAttachment);
          texture->LoadFromFile(info.srSrc);
          return texture;
      }},
     {ETextureType::eArray, [](FTextureCreateInfo info)
      {
-         auto texture = std::make_unique<Texture2DArray>();
+         auto texture = Core::FDefaultAllocator::Allocate<Texture2DArray>();
          texture->SetAttachment(info.eAttachment);
          texture->LoadFromFile(info.srSrc);
          return texture;

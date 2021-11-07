@@ -1,19 +1,9 @@
 #include "PipelineFactory.h"
 #include "GraphicsPipeline.h"
+#include "Core/VulkanAllocator.h"
 
+using namespace Engine::Core;
 using namespace Engine::Core::Pipeline;
-/*std::map<std::string, EPipelineType> FPipelineComp::m_mComp
-{
-
-};
-
-EPipelineType FPipelineComp::GetType(std::string srType)
-{
-    auto it = m_mComp.find(srType);
-    if(it != m_mComp.end())
-        return it->second;
-    return EPipelineType::eNone;
-}*/
 
 std::map<EShaderSet, std::map<vk::ShaderStageFlagBits, std::string>> PipelineFactory::mShaderSets{
     {EShaderSet::eUI,
@@ -39,15 +29,16 @@ std::map<EShaderSet, std::map<vk::ShaderStageFlagBits, std::string>> PipelineFac
 std::map<EPipelineType, std::function<PipelineFactory::signature>> PipelineFactory::m_mFactory =
     {
         {EPipelineType::eGraphics,
-         [](FPipelineCreateInfo createInfo, std::unique_ptr<Device> &device, std::unique_ptr<SwapChain> &swapchain)
-         {
-             auto pipeline = std::make_unique<GraphicsPipeline>();
-             pipeline->LoadShader(device, mShaderSets[createInfo.eSet]);
-             pipeline->Create(createInfo, device, swapchain);
-             return pipeline;
-         }}};
+            [](FPipelineCreateInfo createInfo)
+            {
+               auto pipeline = FDefaultAllocator::Allocate<GraphicsPipeline>();
+               pipeline->LoadShader(mShaderSets[createInfo.eSet]);
+               pipeline->Create(createInfo);
+               return pipeline;
+            }
+        }};
 
-std::unique_ptr<PipelineBase> PipelineFactory::CreatePipeline(FPipelineCreateInfo createInfo, std::unique_ptr<Device> &device, std::unique_ptr<SwapChain> &swapchain)
+std::unique_ptr<PipelineBase> PipelineFactory::CreatePipeline(FPipelineCreateInfo createInfo)
 {
-    return m_mFactory[createInfo.eType](createInfo, device, swapchain);
+    return m_mFactory[createInfo.eType](createInfo);
 }

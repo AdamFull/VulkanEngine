@@ -16,9 +16,10 @@ namespace Engine
                 class GeneratorBase : public MaterialBase
                 {
                 public:
+                    ~GeneratorBase() override;
+
                     void Create() override;
                     void Cleanup() override;
-                    void Destroy() override;
 
                     virtual void Generate(uint32_t indexCount, uint32_t firstIndex);
                     virtual std::shared_ptr<Texture::TextureBase> Get();

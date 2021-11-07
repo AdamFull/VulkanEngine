@@ -18,22 +18,24 @@ namespace Engine
         {
         public:
             Renderer() = default;
+            Renderer(std::shared_ptr<Device> device, std::shared_ptr<SwapChain> swapchain);
+            ~Renderer();
+
             Renderer(const Renderer &) = delete;
             void operator=(const Renderer &) = delete;
             Renderer(Renderer &&) = delete;
             Renderer &operator=(Renderer &&) = delete;
 
-            void Create(std::unique_ptr<Device> &device, std::unique_ptr<SwapChain> &swapchain);
+            void Create();
 
-            void ReCreate(std::unique_ptr<Device> &device, std::unique_ptr<SwapChain> &swapchain);
-            void Cleanup(std::unique_ptr<Device> &device);
-            void Destroy(std::unique_ptr<Device> &device);
+            void ReCreate();
+            void Cleanup();
 
-            vk::CommandBuffer BeginFrame(std::unique_ptr<Device> &device, std::unique_ptr<SwapChain> &swapchain);
-            vk::Result EndFrame(std::unique_ptr<Device> &device, std::unique_ptr<SwapChain> &swapchain);
+            vk::CommandBuffer BeginFrame();
+            vk::Result EndFrame();
 
-            void BeginRender(vk::CommandBuffer commandBuffer, std::unique_ptr<SwapChain> &swapchain);
-            void EndRender(vk::CommandBuffer commandBuffer, std::unique_ptr<SwapChain> &swapchain);
+            void BeginRender(vk::CommandBuffer commandBuffer);
+            void EndRender(vk::CommandBuffer commandBuffer);
 
             // Getters
             inline std::vector<vk::CommandBuffer, std::allocator<vk::CommandBuffer>> &GetCommandBuffers() { return data.vCommandBuffers; }
@@ -42,8 +44,10 @@ namespace Engine
             vk::CommandBuffer GetCurrentCommandBuffer() const;
 
         private:
-            void Renderer::CreateCommandBuffers(std::unique_ptr<Device> &device, std::unique_ptr<SwapChain> &swapchain);
+            void Renderer::CreateCommandBuffers();
             FRenderer data;
+            std::shared_ptr<Device> m_device;
+            std::shared_ptr<SwapChain> m_swapchain;
         };
     }
 }

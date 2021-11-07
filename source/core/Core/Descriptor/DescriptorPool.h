@@ -12,6 +12,9 @@ namespace Engine
             {
             public:
                 VulkanDescriptorPool() = default;
+                VulkanDescriptorPool(std::shared_ptr<Device> device);
+                ~VulkanDescriptorPool();
+
                 class Builder
                 {
                 public:
@@ -20,7 +23,7 @@ namespace Engine
                     Builder &addPoolSize(vk::DescriptorType descriptorType, uint32_t count);
                     Builder &setPoolFlags(vk::DescriptorPoolCreateFlags flags);
                     Builder &setMaxSets(uint32_t count);
-                    std::unique_ptr<VulkanDescriptorPool> build(std::unique_ptr<Device> &device) const;
+                    std::unique_ptr<VulkanDescriptorPool> build() const;
 
                 private:
                     std::vector<vk::DescriptorPoolSize> poolSizes{};
@@ -28,17 +31,16 @@ namespace Engine
                     vk::DescriptorPoolCreateFlags poolFlags{};
                 };
 
-                void Create(std::unique_ptr<Device> &device, uint32_t maxSets, vk::DescriptorPoolCreateFlags poolFlags, const std::vector<vk::DescriptorPoolSize> &poolSizes);
+                void Create(uint32_t maxSets, vk::DescriptorPoolCreateFlags poolFlags, const std::vector<vk::DescriptorPoolSize> &poolSizes);
 
                 VulkanDescriptorPool(const VulkanDescriptorPool &) = delete;
                 VulkanDescriptorPool &operator=(const VulkanDescriptorPool &) = delete;
-
-                void Destroy(std::unique_ptr<Device> &device);
 
                 vk::DescriptorPool &Get() { return descriptorPool; }
 
             private:
                 vk::DescriptorPool descriptorPool;
+                std::shared_ptr<Device> m_device;
             };
         }
     }

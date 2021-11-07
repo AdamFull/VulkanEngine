@@ -15,7 +15,6 @@ namespace Engine
                 void Update(uint32_t imageIndex) override;
                 void Bind(vk::CommandBuffer commandBuffer, uint32_t imageIndex) override;
                 void Cleanup() override;
-                void Destroy() override;
 
             protected:
                 Core::Pipeline::EShaderSet GetShaderSet() override { return Core::Pipeline::EShaderSet::eUI; }

@@ -9,6 +9,9 @@
 #include "VulkanRenderer.h"
 #include "Overlay/ImguiOverlay.h"
 
+#include "Pipeline/VulkanPipeline.h"
+#include "Pipeline/GraphicsPipeline.h"
+
 #define UHLInstance Engine::Core::VulkanHighLevel::GetInstance()
 #define UWinHandle UHLInstance->GetWinHandle()
 #define UDevice UHLInstance->GetDevice()
@@ -58,36 +61,34 @@ namespace Engine
             // TODO: Dont forget about clean textures
             void Cleanup();
 
-            void Destroy();
-
             // Getters
 
-            inline std::unique_ptr<Window::WindowHandle> &GetWinHandle() { return m_pWinHandle; }
-            inline std::unique_ptr<Device> &GetDevice() { return m_pDevice; }
-            inline std::unique_ptr<SwapChain> &GetSwapChain() { return m_pSwapChain; }
-            inline std::unique_ptr<UniformBuffer> &GetUniformBuffer() { return m_pUniform; }
-            inline std::unique_ptr<ImguiOverlay> &GetOverlay() { return m_pOverlay; }
-            inline std::unique_ptr<Renderer> &GetRenderer() { return m_pRenderer; }
-            inline std::unique_ptr<VulkanVBO> &GetVBO() { return m_pVertexBufferObject; }
+            inline std::shared_ptr<Window::WindowHandle> GetWinHandle() { return m_pWinHandle; }
+            inline std::shared_ptr<Device> GetDevice() { return m_pDevice; }
+            inline std::shared_ptr<SwapChain> GetSwapChain() { return m_pSwapChain; }
+            inline std::shared_ptr<UniformBuffer> GetUniformBuffer() { return m_pUniform; }
+            inline std::shared_ptr<ImguiOverlay> GetOverlay() { return m_pOverlay; }
+            inline std::shared_ptr<Renderer> GetRenderer() { return m_pRenderer; }
+            inline std::shared_ptr<VulkanVBO> GetVBO() { return m_pVertexBufferObject; }
 
         private:
             void RecreateSwapChain();
             void CleanupSwapChain();
 
             // Window
-            std::unique_ptr<Window::WindowHandle> m_pWinHandle;
+            std::shared_ptr<Window::WindowHandle> m_pWinHandle;
             // Device
-            std::unique_ptr<Device> m_pDevice;
+            std::shared_ptr<Device> m_pDevice;
             // SwapChain
-            std::unique_ptr<SwapChain> m_pSwapChain;
+            std::shared_ptr<SwapChain> m_pSwapChain;
 
-            std::unique_ptr<UniformBuffer> m_pUniform;
+            std::shared_ptr<UniformBuffer> m_pUniform;
 
-            std::unique_ptr<ImguiOverlay> m_pOverlay;
+            std::shared_ptr<ImguiOverlay> m_pOverlay;
 
-            std::unique_ptr<Renderer> m_pRenderer;
+            std::shared_ptr<Renderer> m_pRenderer;
 
-            std::unique_ptr<VulkanVBO> m_pVertexBufferObject;
+            std::shared_ptr<VulkanVBO> m_pVertexBufferObject;
         };
     }
 }

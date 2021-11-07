@@ -19,7 +19,7 @@ void VulkanDescriptorSetContainer::UpdatePipelineInfo(vk::PipelineBindPoint bind
 
 void VulkanDescriptorSetContainer::Update(uint32_t set, uint32_t index, std::vector<vk::WriteDescriptorSet> &vWrites)
 {
-    m_SetContainer[set].second->Update(UDevice, vWrites, index);
+    m_SetContainer[set].second->Update(vWrites, index);
 }
 
 void VulkanDescriptorSetContainer::Bind(const vk::CommandBuffer &commandBuffer, uint32_t index)

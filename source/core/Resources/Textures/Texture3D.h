@@ -11,6 +11,9 @@ namespace Engine
             class Texture3D : public TextureBase
             {
             public:
+                Texture3D() = default;
+                Texture3D(std::shared_ptr<Core::Device> device);
+
                 void ReCreate() override;
                 void Update(uint32_t imageIndex) override;
                 void Bind(vk::CommandBuffer commandBuffer, uint32_t imageIndex) override;

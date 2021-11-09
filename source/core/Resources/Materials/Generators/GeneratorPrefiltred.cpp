@@ -6,6 +6,12 @@ using namespace Engine::Core::Descriptor;
 using namespace Engine::Resources::Texture;
 using namespace Engine::Resources::Loaders;
 
+GeneratorPrefiltred::GeneratorPrefiltred(std::shared_ptr<Core::Device> device, std::shared_ptr<Core::SwapChain> swapchain)
+{
+    m_device = device;
+    m_swapchain = swapchain;
+}
+
 void GeneratorPrefiltred::Create()
 {
     m_iDimension = 512;

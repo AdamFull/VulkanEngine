@@ -27,10 +27,10 @@ VulkanHighLevel::~VulkanHighLevel()
     m_pDevice->GPUWait();
 
     m_pUniform->Cleanup();
-    m_pRenderer->Destroy();
+    /*m_pRenderer->Destroy();
     m_pVertexBufferObject->Destroy();
     m_pOverlay->Destroy();
-    m_pDevice->Cleanup();
+    m_pDevice->Cleanup();*/
 }
 
 void VulkanHighLevel::Create(FEngineCreateInfo createInfo)
@@ -40,7 +40,7 @@ void VulkanHighLevel::Create(FEngineCreateInfo createInfo)
     m_pSwapChain = std::make_shared<SwapChain>(m_pDevice);
     m_pUniform = std::make_shared<UniformBuffer>(m_pDevice);
     m_pRenderer = std::make_shared<Renderer>(m_pDevice, m_pSwapChain);
-    m_pVertexBufferObject = std::make_shared<VulkanVBO>();
+    m_pVertexBufferObject = std::make_shared<VulkanVBO>(m_pDevice);
     m_pOverlay = std::make_shared<ImguiOverlay>(m_pWinHandle, m_pDevice, m_pSwapChain);
 
     m_pWinHandle->Create(createInfo.window);
@@ -134,6 +134,6 @@ void VulkanHighLevel::Cleanup()
     m_pDevice->GPUWait();
 
     CleanupSwapChain();
-    m_pSwapChain->Destroy();
+    //m_pSwapChain->Destroy();
     m_pOverlay->Cleanup();
 }

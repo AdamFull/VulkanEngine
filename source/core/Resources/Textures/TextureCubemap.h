@@ -10,6 +10,9 @@ namespace Engine
             class TextureCubemap : public TextureBase
             {
             public:
+                TextureCubemap() = default;
+                TextureCubemap(std::shared_ptr<Core::Device> device);
+
                 void ReCreate() override;
                 void Update(uint32_t imageIndex) override;
                 void Bind(vk::CommandBuffer commandBuffer, uint32_t imageIndex) override;

@@ -16,6 +16,9 @@ namespace Engine
                 class GeneratorBRDF : public GeneratorBase
                 {
                 public:
+                    GeneratorBRDF() = default;
+                    GeneratorBRDF(std::shared_ptr<Core::Device> device, std::shared_ptr<Core::SwapChain> swapchain);
+
                     void Create() override;
                     void Generate(uint32_t indexCount, uint32_t firstIndex) override;
                 protected:

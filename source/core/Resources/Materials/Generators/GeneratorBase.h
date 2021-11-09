@@ -16,6 +16,8 @@ namespace Engine
                 class GeneratorBase : public MaterialBase
                 {
                 public:
+                    GeneratorBase() = default;
+                    GeneratorBase(std::shared_ptr<Core::Device> device, std::shared_ptr<Core::SwapChain> swapchain);
                     ~GeneratorBase() override;
 
                     void Create() override;

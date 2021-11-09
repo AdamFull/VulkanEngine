@@ -5,6 +5,11 @@
 using namespace Engine::Core;
 using namespace Engine::Core::Window;
 
+Device::Device(std::shared_ptr<Window::WindowHandle> pWindow)
+{
+    m_window = pWindow;
+}
+
 VkResult Device::CreateDebugUtilsMessengerEXT(VkInstance instance, const VkDebugUtilsMessengerCreateInfoEXT *pCreateInfo, const VkAllocationCallbacks *pAllocator, VkDebugUtilsMessengerEXT *pCallback)
 {
     auto func = (PFN_vkCreateDebugUtilsMessengerEXT)vkGetInstanceProcAddr(instance, "vkCreateDebugUtilsMessengerEXT");
@@ -51,13 +56,13 @@ Device::~Device()
 }
 
 // TODO: add features picking while initialization
-void Device::Create(std::unique_ptr<WindowHandle> &pWindow, const char *pApplicationName, uint32_t applicationVersion,
+void Device::Create(const char *pApplicationName, uint32_t applicationVersion,
                     const char *pEngineName, uint32_t engineVersion,
                     uint32_t apiVersion)
 {
     CreateInstance(pApplicationName, applicationVersion, pEngineName, engineVersion, apiVersion);
     CreateDebugCallback();
-    CreateSurface(pWindow);
+    CreateSurface();
     CreateDevice();
     CreateCommandPool();
 }
@@ -117,10 +122,10 @@ void Device::CreateDebugCallback()
     }
 }
 
-void Device::CreateSurface(std::unique_ptr<WindowHandle> &pWindow)
+void Device::CreateSurface()
 {
     assert(data.vkInstance && "Unable to create surface, cause vulkan instance is not valid");
-    pWindow->CreateWindowSurface(data.vkInstance, data.surface);
+    m_window->CreateWindowSurface(data.vkInstance, data.surface);
     assert(data.surface && "Surface creation failed");
 }
 

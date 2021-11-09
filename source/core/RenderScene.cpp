@@ -1,7 +1,7 @@
 #include "RenderScene.h"
 #include "Objects/Components/Camera/CameraComponent.h"
 #include "Objects/Components/Camera/CameraManager.h"
-#include "Core/VulkanHighLevel.h"
+#include "Core/VulkanAllocator.h"
 #include "KeyMapping/InputMapper.h"
 #include "Resources/ResourceManager.h"
 #include "Core/Overlay/ImguiOverlay.h"
@@ -14,7 +14,7 @@ void RenderScene::Create()
     m_pResourceManager = std::make_shared<Resources::ResourceManager>();
 
     // TODO: move to another place
-    auto pEmptyTexture = std::make_shared<Resources::Texture::TextureBase>();
+    std::shared_ptr<Resources::Texture::TextureBase> pEmptyTexture = Core::FDefaultAllocator::Allocate<Resources::Texture::TextureBase>();
     pEmptyTexture->CreateEmptyTexture(512, 512, 1, 2, 0x8C43);
     m_pResourceManager->AddExisting("no_texture", pEmptyTexture);
 }
@@ -58,7 +58,7 @@ void RenderScene::SetSkybox(std::shared_ptr<Objects::RenderObject> pSkybox)
 void RenderScene::CreateObjects()
 {
     m_pRoot->Create(m_pResourceManager);
-    UVBO->Create(UDevice);
+    UVBO->Create();
 }
 
 void RenderScene::Render(float fDeltaTime)
@@ -78,7 +78,7 @@ void RenderScene::Render(float fDeltaTime)
     uint32_t currentFrame = URenderer->GetImageIndex();
 
     UOverlay->NewFrame();
-    UOverlay->Update(UDevice, fDeltaTime);
+    UOverlay->Update(fDeltaTime);
 
     UHLInstance->BeginRender(commandBuffer);
 
@@ -90,7 +90,7 @@ void RenderScene::Render(float fDeltaTime)
     m_pRoot->Render(commandBuffer, currentFrame);
 
     // Imgui overlays (Demo)
-    UOverlay->DrawFrame(UDevice, commandBuffer, currentFrame);
+    UOverlay->DrawFrame(commandBuffer, currentFrame);
 
     UHLInstance->EndRender(commandBuffer);
 

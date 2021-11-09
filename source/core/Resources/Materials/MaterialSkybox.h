@@ -10,6 +10,9 @@ namespace Engine
             class MaterialSkybox : public MaterialBase
             {
             public:
+                MaterialSkybox() = default;
+                MaterialSkybox(std::shared_ptr<Core::Device> device, std::shared_ptr<Core::SwapChain> swapchain);
+
                 void Create() override;
                 void ReCreate() override;
                 void Update(uint32_t imageIndex) override;

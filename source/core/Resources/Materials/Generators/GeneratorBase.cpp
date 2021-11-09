@@ -6,6 +6,12 @@ using namespace Engine::Resources::Material::Generator;
 using namespace Engine::Core::Pipeline;
 using namespace Engine::Resources::Texture;
 
+GeneratorBase::GeneratorBase(std::shared_ptr<Core::Device> device, std::shared_ptr<Core::SwapChain> swapchain)
+{
+	m_device = device;
+	m_swapchain = swapchain;
+}
+
 GeneratorBase::~GeneratorBase()
 {
 	m_device->Destroy(framebuffer);

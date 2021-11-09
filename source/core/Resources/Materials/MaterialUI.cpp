@@ -5,6 +5,12 @@
 using namespace Engine::Resources::Material;
 using namespace Engine::Core::Descriptor;
 
+MaterialUI::MaterialUI(std::shared_ptr<Core::Device> device, std::shared_ptr<Core::SwapChain> swapchain)
+{
+    m_device = device;
+    m_swapchain = swapchain;
+}
+
 void MaterialUI::Create()
 {
     renderPass = m_swapchain->GetRenderPass();
@@ -39,11 +45,6 @@ void MaterialUI::Bind(vk::CommandBuffer commandBuffer, uint32_t imageIndex)
 void MaterialUI::Cleanup()
 {
     MaterialBase::Cleanup();
-}
-
-void MaterialUI::Destroy()
-{
-    MaterialBase::Destroy();
 }
 
 void MaterialUI::CreateDescriptors(uint32_t images)

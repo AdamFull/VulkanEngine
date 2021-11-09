@@ -59,7 +59,7 @@ void MeshComponentBase::Render(vk::CommandBuffer &commandBuffer, uint32_t imageI
         ubo.normal = glm::transpose(glm::inverse(ubo.view * ubo.model));
         ubo.viewPosition = glm::vec4(camera->GetTransform().pos, 1.0);
         ubo.lightPosition = glm::vec4(GlobalVariables::lightPosition[0], GlobalVariables::lightPosition[1], GlobalVariables::lightPosition[2], 1.0);
-        UUniform->UpdateUniformBuffer(UDevice, imageIndex, &ubo);
+        UUniform->UpdateUniformBuffer(imageIndex, &ubo);
 
         m_pMesh->Update(imageIndex);
         m_pMesh->Bind(commandBuffer, imageIndex);

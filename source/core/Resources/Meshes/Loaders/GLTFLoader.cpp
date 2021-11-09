@@ -5,15 +5,12 @@
 #include "GLTFLoader.h"
 #include "Objects/RenderObject.h"
 #include "Objects/Components/MeshComponentBase.h"
-
-#include "Resources/Meshes/VulkanMesh.h"
 #include "Resources/ResourceManager.h"
 #include "Resources/Textures/ImageLoader.h"
-#include "Resources/Materials/MaterialDiffuse.h"
 
 #include "Core/DataTypes/VulkanVertex.hpp"
 #include "Core/VulkanVBO.h"
-#include "Core/VulkanHighLevel.h"
+#include "Core/VulkanAllocator.h"
 
 // Based on https://github.com/SaschaWillems/Vulkan/blob/master/base/VulkanglTFModel.cpp
 bool loadImageDataFuncEmpty(tinygltf::Image *image, const int imageIndex, std::string *error, std::string *warning, int req_width, int req_height, const unsigned char *bytes, int size, void *userData)
@@ -303,8 +300,8 @@ void GLTFLoader::LoadMaterials(std::shared_ptr<LoaderTemporaryObject> tmp, std::
 
     auto get_pbr_texture = [&pResMgr](const std::string& srVolumeName, const std::string& srPostfix)
     {
-        if(!srVolumeName.empty())
-            return pResMgr->Get<Texture::TextureBase>(srVolumeName + srPostfix);
+        /*if(!srVolumeName.empty())
+            return pResMgr->Get<Texture::TextureBase>(srVolumeName + srPostfix);*/
         return pResMgr->Get<Texture::TextureBase>("no_texture"); 
     };
 
@@ -320,7 +317,7 @@ void GLTFLoader::LoadMaterials(std::shared_ptr<LoaderTemporaryObject> tmp, std::
         ss << material_index;
 
         FMaterialParams params;
-        std::shared_ptr<MaterialBase> nativeMaterial = std::make_shared<MaterialDiffuse>();
+        std::shared_ptr<MaterialBase> nativeMaterial = Core::FDefaultAllocator::Allocate<MaterialDiffuse>();
         nativeMaterial->SetName(ss.str());
 
         nativeMaterial->AddTexture(ETextureAttachmentType::eBRDFLUT, get_pbr_texture(tmp->srVolumeName, "_brdf"));
@@ -398,7 +395,7 @@ std::shared_ptr<TextureBase> GLTFLoader::LoadTexture(const tinygltf::Image &imag
 
     vk::Format format;
     ktxTexture *texture;
-    auto nativeTexture = std::make_shared<TextureBase>();
+    auto nativeTexture = Core::FDefaultAllocator::Allocate<TextureBase>();
     nativeTexture->SetName(image.name);
     // nativeTexture->LoadFromMemory();
 

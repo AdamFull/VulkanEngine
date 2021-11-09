@@ -4,6 +4,12 @@
 using namespace Engine::Resources::Material;
 using namespace Engine::Core::Descriptor;
 
+MaterialSkybox::MaterialSkybox(std::shared_ptr<Core::Device> device, std::shared_ptr<Core::SwapChain> swapchain)
+{
+    m_device = device;
+    m_swapchain = swapchain;
+}
+
 void MaterialSkybox::Create()
 {
     renderPass = m_swapchain->GetRenderPass();
@@ -38,11 +44,6 @@ void MaterialSkybox::Bind(vk::CommandBuffer commandBuffer, uint32_t imageIndex)
 void MaterialSkybox::Cleanup()
 {
     MaterialBase::Cleanup();
-}
-
-void MaterialSkybox::Destroy()
-{
-    MaterialBase::Destroy();
 }
 
 void MaterialSkybox::CreateDescriptors(uint32_t images)

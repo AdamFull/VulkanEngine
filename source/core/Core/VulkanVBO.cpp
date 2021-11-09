@@ -1,6 +1,5 @@
 #include "VulkanVBO.h"
-#include "VulkanBuffer.h"
-#include "VulkanDevice.h"
+#include "VulkanAllocator.h"
 
 using namespace Engine::Core;
 
@@ -45,7 +44,7 @@ void VulkanVBO::CreateVertexBuffer()
     stagingBuffer.MapMem();
     stagingBuffer.Write((void *)m_vVertices.data());
 
-    vertexBuffer = std::make_unique<VulkanBuffer>();
+    vertexBuffer = FDefaultAllocator::Allocate<VulkanBuffer>();
     vertexBuffer->Create(vertexSize, m_vVertices.size(), vk::BufferUsageFlagBits::eTransferDst | vk::BufferUsageFlagBits::eVertexBuffer, vk::MemoryPropertyFlagBits::eDeviceLocal);
     m_device->CopyOnDeviceBuffer(stagingBuffer.GetBuffer(), vertexBuffer->GetBuffer(), bufferSize);
     // m_vVertices.clear();
@@ -61,7 +60,7 @@ void VulkanVBO::CreateIndexBuffer()
     stagingBuffer.MapMem();
     stagingBuffer.Write((void *)m_vIndices.data());
 
-    indexBuffer = std::make_unique<VulkanBuffer>();
+    indexBuffer = FDefaultAllocator::Allocate<VulkanBuffer>();
     indexBuffer->Create(indexSize, m_vIndices.size(), vk::BufferUsageFlagBits::eTransferDst | vk::BufferUsageFlagBits::eIndexBuffer, vk::MemoryPropertyFlagBits::eDeviceLocal);
     m_device->CopyOnDeviceBuffer(stagingBuffer.GetBuffer(), indexBuffer->GetBuffer(), bufferSize);
     // m_vIndices.clear();

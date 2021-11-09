@@ -51,10 +51,10 @@ namespace Engine
             template<> static std::unique_ptr<Resources::Texture::Texture3D> Allocate() { return std::make_unique<Resources::Texture::Texture3D>(UDevice); }
             template<> static std::unique_ptr<Resources::Texture::TextureCubemap> Allocate() { return std::make_unique<Resources::Texture::TextureCubemap>(UDevice); }
 
-            template<> static std::unique_ptr<Resources::Material::MaterialBase> Allocate() { return std::make_unique<Resources::Material::MaterialBase>(UDevice); }
-            template<> static std::unique_ptr<Resources::Material::MaterialUI> Allocate() { return std::make_unique<Resources::Material::MaterialUI>(UDevice); }
-            template<> static std::unique_ptr<Resources::Material::MaterialSkybox> Allocate() { return std::make_unique<Resources::Material::MaterialSkybox>(UDevice); }
-            template<> static std::unique_ptr<Resources::Material::MaterialDiffuse> Allocate() { return std::make_unique<Resources::Material::MaterialDiffuse>(UDevice); }
+            template<> static std::unique_ptr<Resources::Material::MaterialBase> Allocate() { return std::make_unique<Resources::Material::MaterialBase>(UDevice, USwapChain); }
+            template<> static std::unique_ptr<Resources::Material::MaterialUI> Allocate() { return std::make_unique<Resources::Material::MaterialUI>(UDevice, USwapChain); }
+            template<> static std::unique_ptr<Resources::Material::MaterialSkybox> Allocate() { return std::make_unique<Resources::Material::MaterialSkybox>(UDevice, USwapChain); }
+            template<> static std::unique_ptr<Resources::Material::MaterialDiffuse> Allocate() { return std::make_unique<Resources::Material::MaterialDiffuse>(UDevice, USwapChain); }
 
             template<> static std::unique_ptr<Resources::Material::Generator::GeneratorBase> Allocate() { return std::make_unique<Resources::Material::Generator::GeneratorBase>(UDevice, USwapChain); }
             template<> static std::unique_ptr<Resources::Material::Generator::GeneratorBRDF> Allocate() { return std::make_unique<Resources::Material::Generator::GeneratorBRDF>(UDevice, USwapChain); }

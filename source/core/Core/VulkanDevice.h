@@ -27,6 +27,7 @@ namespace Engine
         {
         public:
             Device() = default;
+            Device(std::shared_ptr<Window::WindowHandle> pWindow);
             ~Device();
 
             Device(const Device &) = delete;
@@ -38,7 +39,7 @@ namespace Engine
             static VKAPI_ATTR VkBool32 VKAPI_CALL ValidationCallback(VkDebugUtilsMessageSeverityFlagBitsEXT, VkDebugUtilsMessageTypeFlagsEXT, const VkDebugUtilsMessengerCallbackDataEXT *, void *);
             static void DestroyDebugUtilsMessengerEXT(VkInstance, VkDebugUtilsMessengerEXT, const VkAllocationCallbacks *);
 
-            void Create(std::unique_ptr<Window::WindowHandle> &pWindow, const char *pApplicationName, uint32_t applicationVersion,
+            void Create(const char *pApplicationName, uint32_t applicationVersion,
                         const char *pEngineName, uint32_t engineVersion,
                         uint32_t apiVersion);
 
@@ -162,7 +163,7 @@ namespace Engine
                                 const char *pEngineName, uint32_t engineVersion,
                                 uint32_t apiVersion);
             void CreateDebugCallback();
-            void CreateSurface(std::unique_ptr<Window::WindowHandle> &pWindow);
+            void CreateSurface();
             void CreateDevice();
             void CreateCommandPool();
 
@@ -170,6 +171,8 @@ namespace Engine
             vk::PhysicalDevice GetPhysicalDevice();
             std::vector<vk::PhysicalDevice> GetAvaliablePhysicalDevices();
             bool IsDeviceSuitable(const vk::PhysicalDevice &device);
+
+            std::shared_ptr<Window::WindowHandle> m_window;
 
             FDevice data;
         };

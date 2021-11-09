@@ -24,6 +24,9 @@ namespace Engine
                 class GeneratorIrradiate : public GeneratorBase
                 {
                 public:
+                    GeneratorIrradiate() = default;
+                    GeneratorIrradiate(std::shared_ptr<Core::Device> device, std::shared_ptr<Core::SwapChain> swapchain);
+
                     void Create() override;
                     void Generate(uint32_t indexCount, uint32_t firstIndex) override;
                     std::shared_ptr<Texture::TextureBase> Get() override;

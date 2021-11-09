@@ -4,6 +4,12 @@
 
 using namespace Engine::Core::Pipeline;
 
+GraphicsPipeline::GraphicsPipeline(std::shared_ptr<Device> device, std::shared_ptr<SwapChain> swapchain)
+{
+    m_device = device;
+    m_swapchain = swapchain;
+}
+
 void GraphicsPipeline::Create(FPipelineCreateInfo createInfo)
 {
     savedInfo = std::move(createInfo);

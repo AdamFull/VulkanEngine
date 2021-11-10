@@ -8,6 +8,11 @@
 
 using namespace Engine;
 
+RenderScene::~RenderScene()
+{
+    Destroy();
+}
+
 void RenderScene::Create()
 {
     m_pRoot = std::make_shared<Objects::Components::SceneRootComponent>();
@@ -16,6 +21,7 @@ void RenderScene::Create()
     // TODO: move to another place
     std::shared_ptr<Resources::Texture::TextureBase> pEmptyTexture = Core::FDefaultAllocator::Allocate<Resources::Texture::TextureBase>();
     pEmptyTexture->CreateEmptyTexture(512, 512, 1, 2, 0x8C43);
+    //pEmptyTexture->TransitionImageLayout(vk::ImageLayout::eShaderReadOnlyOptimal);
     m_pResourceManager->AddExisting("no_texture", pEmptyTexture);
 }
 

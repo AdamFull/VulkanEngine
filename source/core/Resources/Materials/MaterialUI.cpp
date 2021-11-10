@@ -19,6 +19,7 @@ void MaterialUI::Create()
 
 void MaterialUI::ReCreate()
 {
+    renderPass = m_swapchain->GetRenderPass();
     MaterialBase::ReCreate();
 }
 

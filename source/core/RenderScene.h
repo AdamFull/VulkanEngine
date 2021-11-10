@@ -13,6 +13,9 @@ namespace Engine
     class RenderScene
     {
     public:
+        RenderScene() = default;
+        ~RenderScene();
+        
         void Create();
         void ReCreate();
         void Destroy();

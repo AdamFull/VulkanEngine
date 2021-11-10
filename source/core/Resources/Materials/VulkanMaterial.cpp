@@ -16,7 +16,8 @@ m_swapchain(swapchain)
 
 MaterialBase::~MaterialBase()
 {
-    Cleanup();
+    m_device->Destroy(pipelineLayout);
+    m_device->Destroy(pipelineCache);
 }
 
 FPipelineCreateInfo MaterialBase::CreateInfo(EShaderSet eSet)
@@ -88,10 +89,6 @@ void MaterialBase::Bind(vk::CommandBuffer commandBuffer, uint32_t imageIndex)
 void MaterialBase::Cleanup()
 {
     ResourceBase::Cleanup();
-    // m_pMatWriter->Destroy(UDevice);
-    // m_pTexWriter->Destroy(UDevice);
-    m_device->Destroy(pipelineLayout);
-    m_device->Destroy(pipelineCache);
 }
 
 void MaterialBase::CreateDescriptorPool(uint32_t images)
@@ -100,6 +97,7 @@ void MaterialBase::CreateDescriptorPool(uint32_t images)
     setMaxSets(1000).
     addPoolSize(vk::DescriptorType::eUniformBuffer, 1000).
     addPoolSize(vk::DescriptorType::eCombinedImageSampler, 1000).
+    setPoolFlags(vk::DescriptorPoolCreateFlagBits::eFreeDescriptorSet).
     build();
 }
 

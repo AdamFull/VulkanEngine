@@ -11,7 +11,7 @@ namespace Engine
         {
             std::vector<vk::CommandBuffer, std::allocator<vk::CommandBuffer>> vCommandBuffers;
             uint32_t imageIndex{0};
-            bool bFrameStarted;
+            bool bFrameStarted{false};
         };
 
         class Renderer

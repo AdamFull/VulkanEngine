@@ -76,64 +76,14 @@ void TextureBase::GenerateMipmaps(vk::Image &image, uint32_t mipLevels, vk::Form
 
     vk::CommandBuffer commandBuffer = m_device->BeginSingleTimeCommands();
 
-    vk::ImageMemoryBarrier barrier{};
-    barrier.image = image;
-    barrier.srcQueueFamilyIndex = VK_QUEUE_FAMILY_IGNORED;
-    barrier.dstQueueFamilyIndex = VK_QUEUE_FAMILY_IGNORED;
-    barrier.subresourceRange.aspectMask = aspectFlags;
-    barrier.subresourceRange.baseArrayLayer = 0;
-    barrier.subresourceRange.layerCount = 1;
-    barrier.subresourceRange.levelCount = 1;
-
     int32_t mipWidth = width;
     int32_t mipHeight = height;
 
     for (uint32_t i = 1; i < mipLevels; i++)
     {
-        barrier.subresourceRange.baseMipLevel = i - 1;
-        barrier.oldLayout = vk::ImageLayout::eTransferDstOptimal;
-        barrier.newLayout = vk::ImageLayout::eTransferSrcOptimal;
-        barrier.srcAccessMask = vk::AccessFlagBits::eTransferWrite;
-        barrier.dstAccessMask = vk::AccessFlagBits::eTransferRead;
-
-        commandBuffer.pipelineBarrier(
-            vk::PipelineStageFlagBits::eTransfer, vk::PipelineStageFlagBits::eTransfer,
-            vk::DependencyFlags(),
-            0, nullptr,
-            0, nullptr,
-            1, &barrier);
-
-        vk::ImageBlit blit{};
-        blit.srcOffsets[0] = vk::Offset3D{0, 0, 0};
-        blit.srcOffsets[1] = vk::Offset3D{mipWidth, mipHeight, 1};
-        blit.srcSubresource.aspectMask = aspectFlags;
-        blit.srcSubresource.mipLevel = i - 1;
-        blit.srcSubresource.baseArrayLayer = 0;
-        blit.srcSubresource.layerCount = 1;
-        blit.dstOffsets[0] = vk::Offset3D{0, 0, 0};
-        blit.dstOffsets[1] = vk::Offset3D{mipWidth > 1 ? mipWidth / 2 : 1, mipHeight > 1 ? mipHeight / 2 : 1, 1};
-        blit.dstSubresource.aspectMask = aspectFlags;
-        blit.dstSubresource.mipLevel = i;
-        blit.dstSubresource.baseArrayLayer = 0;
-        blit.dstSubresource.layerCount = 1;
-
-        commandBuffer.blitImage(
-            image, vk::ImageLayout::eTransferSrcOptimal,
-            image, vk::ImageLayout::eTransferDstOptimal,
-            1, &blit,
-            vk::Filter::eLinear);
-
-        barrier.oldLayout = vk::ImageLayout::eTransferSrcOptimal;
-        barrier.newLayout = vk::ImageLayout::eShaderReadOnlyOptimal;
-        barrier.srcAccessMask = vk::AccessFlagBits::eTransferRead;
-        barrier.dstAccessMask = vk::AccessFlagBits::eShaderRead;
-
-        commandBuffer.pipelineBarrier(
-            vk::PipelineStageFlagBits::eTransfer, vk::PipelineStageFlagBits::eFragmentShader,
-            vk::DependencyFlags(),
-            0, nullptr,
-            0, nullptr,
-            1, &barrier);
+        TransitionImageLayout(commandBuffer, vk::ImageLayout::eTransferDstOptimal, vk::ImageLayout::eTransferSrcOptimal, aspectFlags, false, i - 1);
+        BlitImage(commandBuffer, vk::ImageLayout::eTransferDstOptimal, aspectFlags, i, mipWidth, mipHeight);
+        TransitionImageLayout(commandBuffer, vk::ImageLayout::eTransferSrcOptimal, vk::ImageLayout::eShaderReadOnlyOptimal, aspectFlags, false, i - 1);
 
         if (mipWidth > 1)
             mipWidth /= 2;
@@ -141,18 +91,7 @@ void TextureBase::GenerateMipmaps(vk::Image &image, uint32_t mipLevels, vk::Form
             mipHeight /= 2;
     }
 
-    barrier.subresourceRange.baseMipLevel = mipLevels - 1;
-    barrier.oldLayout = vk::ImageLayout::eTransferDstOptimal;
-    barrier.newLayout = vk::ImageLayout::eShaderReadOnlyOptimal;
-    barrier.srcAccessMask = vk::AccessFlagBits::eTransferWrite;
-    barrier.dstAccessMask = vk::AccessFlagBits::eShaderRead;
-
-    commandBuffer.pipelineBarrier(
-        vk::PipelineStageFlagBits::eTransfer, vk::PipelineStageFlagBits::eFragmentShader,
-        vk::DependencyFlags(),
-        0, nullptr,
-        0, nullptr,
-        1, &barrier);
+    TransitionImageLayout(commandBuffer, vk::ImageLayout::eTransferDstOptimal, vk::ImageLayout::eShaderReadOnlyOptimal, aspectFlags, false, mipLevels - 1);
 
     m_device->EndSingleTimeCommands(commandBuffer);
 }
@@ -284,38 +223,52 @@ void TextureBase::InitializeTexture(ktxTexture *info, vk::Format format, vk::Ima
     //imageLayout = vk::ImageLayout::eShaderReadOnlyOptimal;
 }
 
-void TextureBase::TransitionImageLayout(vk::ImageLayout newLayout)
+void TextureBase::TransitionImageLayout(vk::ImageLayout newLayout, vk::ImageAspectFlags aspectFlags, bool use_mips)
 {
-    std::vector<vk::ImageMemoryBarrier> vBarriers;
-    vk::ImageMemoryBarrier barrier{};
-    barrier.srcQueueFamilyIndex = VK_QUEUE_FAMILY_IGNORED;
-    barrier.dstQueueFamilyIndex = VK_QUEUE_FAMILY_IGNORED;
-    barrier.subresourceRange.aspectMask = vk::ImageAspectFlagBits::eColor;
-    barrier.subresourceRange.baseMipLevel = 0;
-    barrier.subresourceRange.levelCount = fParams.mipLevels;
-    barrier.subresourceRange.baseArrayLayer = 0;
-    barrier.subresourceRange.layerCount = fParams.instCount;
-    vBarriers.push_back(barrier);
-
-    m_device->TransitionImageLayout(image, vBarriers, imageLayout, newLayout);
-    imageLayout = newLayout;
+    vk::CommandBuffer commandBuffer = m_device->BeginSingleTimeCommands();
+    TransitionImageLayout(commandBuffer, imageLayout, newLayout, aspectFlags, use_mips);
+    m_device->EndSingleTimeCommands(commandBuffer);
 }
 
-void TextureBase::TransitionImageLayout(vk::CommandBuffer& commandBuffer, vk::ImageLayout newLayout)
+void TextureBase::TransitionImageLayout(vk::CommandBuffer& commandBuffer, vk::ImageLayout newLayout, vk::ImageAspectFlags aspectFlags, bool use_mips, uint32_t base_mip)
+{
+    TransitionImageLayout(commandBuffer, imageLayout, newLayout, aspectFlags, use_mips, base_mip);
+}
+
+void TextureBase::TransitionImageLayout(vk::CommandBuffer& commandBuffer, vk::ImageLayout oldLayout, vk::ImageLayout newLayout, vk::ImageAspectFlags aspectFlags, bool use_mips, uint32_t base_mip)
 {
     std::vector<vk::ImageMemoryBarrier> vBarriers;
     vk::ImageMemoryBarrier barrier{};
     barrier.srcQueueFamilyIndex = VK_QUEUE_FAMILY_IGNORED;
     barrier.dstQueueFamilyIndex = VK_QUEUE_FAMILY_IGNORED;
-    barrier.subresourceRange.aspectMask = vk::ImageAspectFlagBits::eColor;
-    barrier.subresourceRange.baseMipLevel = 0;
-    barrier.subresourceRange.levelCount = fParams.mipLevels;
+    barrier.subresourceRange.aspectMask = aspectFlags;
+    barrier.subresourceRange.baseMipLevel = base_mip;
+    barrier.subresourceRange.levelCount = use_mips ? fParams.mipLevels : 1;
     barrier.subresourceRange.baseArrayLayer = 0;
     barrier.subresourceRange.layerCount = fParams.instCount;
     vBarriers.push_back(barrier);
     
-    m_device->TransitionImageLayout(commandBuffer, image, vBarriers, imageLayout, newLayout);
+    m_device->TransitionImageLayout(commandBuffer, image, vBarriers, oldLayout, newLayout);
     imageLayout = newLayout;
+}
+
+void TextureBase::BlitImage(vk::CommandBuffer& commandBuffer, vk::ImageLayout dstLayout, vk::ImageAspectFlags aspectFlags, uint32_t level, int32_t mipWidth, int32_t mipHeight)
+{
+    vk::ImageBlit blit{};
+    blit.srcOffsets[0] = vk::Offset3D{0, 0, 0};
+    blit.srcOffsets[1] = vk::Offset3D{mipWidth, mipHeight, 1};
+    blit.srcSubresource.aspectMask = aspectFlags;
+    blit.srcSubresource.mipLevel = level - 1;
+    blit.srcSubresource.baseArrayLayer = 0;
+    blit.srcSubresource.layerCount = 1;
+    blit.dstOffsets[0] = vk::Offset3D{0, 0, 0};
+    blit.dstOffsets[1] = vk::Offset3D{mipWidth > 1 ? mipWidth / 2 : 1, mipHeight > 1 ? mipHeight / 2 : 1, 1};
+    blit.dstSubresource.aspectMask = aspectFlags;
+    blit.dstSubresource.mipLevel = level;
+    blit.dstSubresource.baseArrayLayer = 0;
+    blit.dstSubresource.layerCount = 1;
+
+    commandBuffer.blitImage(image, imageLayout, image, dstLayout, 1, &blit, vk::Filter::eLinear);
 }
 
 void TextureBase::CopyImageToDst(vk::CommandBuffer& commandBuffer, std::shared_ptr<TextureBase> m_pDst, vk::ImageCopy& region, vk::ImageLayout dstLayout)
@@ -332,7 +285,7 @@ void TextureBase::WriteImageData(ktxTexture *info, vk::Format format)
     auto result = stagingBuffer.MapMem();
     stagingBuffer.Write((void *)info->pData);
 
-    TransitionImageLayout(vk::ImageLayout::eTransferDstOptimal);
+    TransitionImageLayout(vk::ImageLayout::eTransferDstOptimal, vk::ImageAspectFlagBits::eColor);
 
     if (info->generateMipmaps)
     {
@@ -374,7 +327,7 @@ void TextureBase::WriteImageData(ktxTexture *info, vk::Format format)
         }
         m_device->CopyBufferToImage(stagingBuffer.GetBuffer(), image, vRegions);
 
-        TransitionImageLayout(vk::ImageLayout::eShaderReadOnlyOptimal);
+        TransitionImageLayout(vk::ImageLayout::eShaderReadOnlyOptimal, vk::ImageAspectFlagBits::eColor);
     }
 }
 

@@ -19,6 +19,7 @@ void MaterialDiffuse::Create()
 
 void MaterialDiffuse::ReCreate()
 {
+    renderPass = m_swapchain->GetRenderPass();
     MaterialBase::ReCreate();
 }
 

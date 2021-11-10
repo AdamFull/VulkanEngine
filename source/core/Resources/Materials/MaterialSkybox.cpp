@@ -18,6 +18,7 @@ void MaterialSkybox::Create()
 
 void MaterialSkybox::ReCreate()
 {
+    renderPass = m_swapchain->GetRenderPass();
     MaterialBase::ReCreate();
 }
 

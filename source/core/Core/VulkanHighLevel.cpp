@@ -90,7 +90,7 @@ void VulkanHighLevel::EndFrame(vk::CommandBuffer commandBuffer, bool *bResult)
         throw std::runtime_error("failed to present swap chain image!");
     }
 
-    if (resultPresent == vk::Result::eSuboptimalKHR || resultPresent == vk::Result::eSuboptimalKHR || WindowHandle::m_bWasResized)
+    if (resultPresent == vk::Result::eSuboptimalKHR || resultPresent == vk::Result::eErrorOutOfDateKHR || WindowHandle::m_bWasResized)
     {
         WindowHandle::m_bWasResized = false;
         RecreateSwapChain();

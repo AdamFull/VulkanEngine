@@ -17,7 +17,6 @@ m_swapchain(swapchain)
 Renderer::~Renderer()
 {
     Cleanup();
-    m_device->Destroy(data.vCommandBuffers);
 }
 
 void Renderer::Create()
@@ -32,7 +31,7 @@ void Renderer::ReCreate()
 
 void Renderer::Cleanup()
 {
-    m_device->GetLogical().freeCommandBuffers(m_device->GetCommandPool(), data.vCommandBuffers);
+    m_device->Destroy(data.vCommandBuffers);
 }
 
 vk::CommandBuffer Renderer::BeginFrame()

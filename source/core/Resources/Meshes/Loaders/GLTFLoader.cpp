@@ -327,6 +327,7 @@ void GLTFLoader::LoadMaterials(std::shared_ptr<LoaderTemporaryObject> tmp, std::
         nativeMaterial->AddTexture(ETextureAttachmentType::eDiffuseAlbedo, get_texture(mat.values, "baseColorTexture"));
         nativeMaterial->AddTexture(ETextureAttachmentType::eMetalicRoughness, get_texture(mat.values, "metallicRoughnessTexture"));
         nativeMaterial->AddTexture(ETextureAttachmentType::eSpecularGlossiness, get_texture(mat.values, "specularGlossinessTexture"));
+        nativeMaterial->AddTexture(ETextureAttachmentType::eHeight, get_texture(mat.values, "displacementGeometryTexture"));
 
         if (mat.values.find("roughnessFactor") != mat.values.end())
             params.roughnessFactor = static_cast<float>(mat.values.at("roughnessFactor").Factor());
@@ -352,8 +353,10 @@ void GLTFLoader::LoadMaterials(std::shared_ptr<LoaderTemporaryObject> tmp, std::
         if (mat.additionalValues.find("alphaCutoff") != mat.additionalValues.end())
             params.alphaCutoff = static_cast<float>(mat.additionalValues.at("alphaCutoff").Factor());
 
+        if(mat.additionalValues.find("displacementGeometry") != mat.additionalValues.end())
+            params.alphaCutoff = static_cast<float>(mat.additionalValues.at("displacementGeometry").Factor());
+
         nativeMaterial->SetParams(std::move(params));
-        nativeMaterial->AddTexture(ETextureAttachmentType::eEmpty, pResMgr->Get<TextureBase>("no_texture"));
         tmp->vMaterials.emplace_back(nativeMaterial);
         pResMgr->AddExisting(nativeMaterial->GetName(), nativeMaterial);
         material_index++;

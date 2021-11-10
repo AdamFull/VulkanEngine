@@ -73,7 +73,7 @@ void GeneratorIrradiate::Generate(uint32_t indexCount, uint32_t firstIndex)
     tempBuffer.setViewport(0, 1, &viewport);
     tempBuffer.setScissor(0, 1, &scissor);
 
-    m_pCubemap->TransitionImageLayout(tempBuffer, vk::ImageLayout::eTransferDstOptimal);
+    m_pCubemap->TransitionImageLayout(tempBuffer, vk::ImageLayout::eTransferDstOptimal, vk::ImageAspectFlagBits::eColor);
 
     FIrradiatePushBlock pushBlock;
 
@@ -94,7 +94,7 @@ void GeneratorIrradiate::Generate(uint32_t indexCount, uint32_t firstIndex)
             tempBuffer.drawIndexed(indexCount, 1, firstIndex, 0, 0);
             tempBuffer.endRenderPass();
 
-            m_pGeneratedImage->TransitionImageLayout(tempBuffer, vk::ImageLayout::eTransferSrcOptimal);
+            m_pGeneratedImage->TransitionImageLayout(tempBuffer, vk::ImageLayout::eTransferSrcOptimal, vk::ImageAspectFlagBits::eColor);
 
             vk::ImageCopy copyRegion = {};
 
@@ -115,11 +115,11 @@ void GeneratorIrradiate::Generate(uint32_t indexCount, uint32_t firstIndex)
 	        copyRegion.extent.depth = 1;
 
             m_pGeneratedImage->CopyImageToDst(tempBuffer, m_pCubemap, copyRegion, vk::ImageLayout::eTransferDstOptimal);
-            m_pGeneratedImage->TransitionImageLayout(tempBuffer, vk::ImageLayout::eColorAttachmentOptimal);
+            m_pGeneratedImage->TransitionImageLayout(tempBuffer, vk::ImageLayout::eColorAttachmentOptimal, vk::ImageAspectFlagBits::eColor);
         }
     }
 
-    m_pCubemap->TransitionImageLayout(tempBuffer, vk::ImageLayout::eShaderReadOnlyOptimal);
+    m_pCubemap->TransitionImageLayout(tempBuffer, vk::ImageLayout::eShaderReadOnlyOptimal, vk::ImageAspectFlagBits::eColor);
     
     m_device->EndSingleTimeCommands(tempBuffer);
 }
@@ -131,14 +131,14 @@ std::shared_ptr<TextureBase> GeneratorIrradiate::Get()
 
 void GeneratorIrradiate::CreateTextures()
 {
-    m_pGeneratedImage = std::make_shared<TextureBase>();
+    m_pGeneratedImage = Core::FDefaultAllocator::Allocate<TextureBase>();
     ktxTexture *offscreen;
     ImageLoader::AllocateRawDataAsKTXTexture(&offscreen, &imageFormat, m_iDimension, m_iDimension, 1, 2, 0x8814);
     m_pGeneratedImage->InitializeTexture(offscreen, imageFormat, vk::ImageUsageFlagBits::eColorAttachment | vk::ImageUsageFlagBits::eSampled);
     m_pGeneratedImage->UpdateDescriptor();
     ImageLoader::Close(&offscreen);
 
-    m_pCubemap = std::make_shared<TextureBase>();
+    m_pCubemap = Core::FDefaultAllocator::Allocate<TextureBase>();
     ktxTexture *cubemap;
     ImageLoader::AllocateRawDataAsKTXTextureCubemap(&cubemap, &imageFormat, m_iDimension, m_iDimension, 1, 2, 0x8814, true);
     m_pCubemap->InitializeTexture(cubemap, imageFormat, vk::ImageUsageFlagBits::eSampled | vk::ImageUsageFlagBits::eTransferDst);

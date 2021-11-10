@@ -120,6 +120,7 @@ void ImguiOverlay::CreateFontResources()
     ktxTexture *texture;
     bool result = Loaders::ImageLoader::AllocateRawDataAsKTXTexture(fontData, &texture, &format, texWidth, texHeight, 1, 2);
 
+    fontTexture->InitializeTexture(texture, format);
     fontTexture->LoadFromMemory(texture, format);
     fontMaterial->AddTexture(ETextureAttachmentType::eDiffuseAlbedo, fontTexture);
     fontMaterial->Create();

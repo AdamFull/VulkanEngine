@@ -1,30 +1,41 @@
 #include "GLTFSceneNode.h"
 
+using namespace Engine::Objects;
 using namespace Engine::Resources::Mesh;
 
 void GLTFSceneNode::Create()
 {
-
+    for(auto& [name, node] : m_mChilds)
+        node->Create();
 }
 
 void GLTFSceneNode::ReCreate()
 {
-
+    for(auto& [name, node] : m_mChilds)
+        node->ReCreate();
 }
 
 void GLTFSceneNode::Update(uint32_t imageIndex)
 {
+    for(auto& [name, node] : m_mChilds)
+        node->Update(imageIndex);
+}
 
+void Bind(vk::CommandBuffer commandBuffer, uint32_t imageIndex)
+{
+    
 }
 
 void GLTFSceneNode::Cleanup()
 {
-
+    for(auto& [name, node] : m_mChilds)
+        node->Cleanup();
 }
 
 void GLTFSceneNode::Destroy()
 {
-
+    for(auto& [name, node] : m_mChilds)
+        node->Destroy();
 }
 
 void GLTFSceneNode::SetParent(std::shared_ptr<GLTFSceneNode> parent)
@@ -54,19 +65,36 @@ void GLTFSceneNode::Detach(std::shared_ptr<GLTFSceneNode> child)
         m_mChilds.erase(it);
 }
 
-void GLTFSceneNode::SetTranslation(glm::vec3&& translation)
+FTransform GLTFSceneNode::GetTransform()
 {
-    m_vTranslation = translation;
+    FTransform transform = m_transform;
+    if (m_pParent)
+        transform += m_pParent->GetTransform();
+    return transform;
 }
 
-void GLTFSceneNode::SetScale(glm::vec3&& scale)
+glm::vec3 GLTFSceneNode::GetPosition()
 {
-    m_vScale = scale;
+    glm::vec3 position = m_transform.pos;
+    if (m_pParent)
+        position += m_pParent->GetPosition();
+    return position;
 }
 
-void GLTFSceneNode::SetRotation(glm::quat&& rotation)
+glm::vec3 GLTFSceneNode::GetRotation()
 {
-    m_qRotation = rotation;
+    glm::vec3 rotation = m_transform.rot;
+    if (m_pParent)
+        rotation += m_pParent->GetRotation();
+    return rotation;
+}
+
+glm::vec3 GLTFSceneNode::GetScale()
+{
+    glm::vec3 scale = m_transform.scale;
+    if (m_pParent)
+        scale *= m_pParent->GetScale();
+    return scale;
 }
 
 void GLTFSceneNode::SetLocalMatrix(glm::mat4&& matrix)
@@ -76,7 +104,7 @@ void GLTFSceneNode::SetLocalMatrix(glm::mat4&& matrix)
 
 glm::mat4 GLTFSceneNode::GetLocalMatrix()
 {
-    return glm::translate(glm::mat4(1.0f), m_vTranslation) * glm::mat4(m_qRotation) * glm::scale(glm::mat4(1.0f), m_vScale) * m_mMatrix;
+    return m_transform.GetModel() * m_mMatrix;
 }
 
 glm::mat4 GLTFSceneNode::GetMatrix()

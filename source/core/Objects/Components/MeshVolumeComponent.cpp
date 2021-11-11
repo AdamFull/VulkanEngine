@@ -63,3 +63,8 @@ void MeshVolumeComponent::Destroy()
 {
     MeshComponentBase::Destroy();
 }
+
+void MeshVolumeComponent::SetMesh(std::shared_ptr<MeshComponentBase> mesh)
+{
+    m_pMeshComponent = mesh;
+}

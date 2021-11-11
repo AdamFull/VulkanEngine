@@ -1,4 +1,5 @@
 #pragma once
+#include "Objects/Transform.h"
 
 namespace Engine
 {
@@ -22,12 +23,19 @@ namespace Engine
                 void Create();
                 void ReCreate();
                 void Update(uint32_t imageIndex);
+                void Bind(vk::CommandBuffer commandBuffer, uint32_t imageIndex);
                 void Cleanup();
                 void Destroy();
 
-                void SetTranslation(glm::vec3&& translation);
-                void SetScale(glm::vec3&& scale);
-                void SetRotation(glm::quat&& rotation);
+                Objects::FTransform GetTransform();
+                glm::vec3 GetPosition();
+                glm::vec3 GetRotation();
+                glm::vec3 GetScale();
+
+                inline void SetTransform(FTransform transformNew) { m_transform = transformNew; }
+                inline void SetPosition(glm::vec3 position) { m_transform.pos = position; }
+                inline void SetRotation(glm::vec3 rotation) { m_transform.rot = rotation; }
+                inline void SetScale(glm::vec3 scale) { m_transform.scale = scale; }
                 void SetLocalMatrix(glm::mat4&& matrix);
                 glm::mat4 GetLocalMatrix();
                 glm::mat4 GetMatrix();
@@ -44,9 +52,7 @@ namespace Engine
                 void AddChild(std::shared_ptr<GLTFSceneNode> child);
             protected:
                 std::string m_srName;
-                glm::vec3 m_vTranslation{};
-		        glm::vec3 m_vScale{1.0f};
-		        glm::quat m_qRotation{};
+                Objects::FTransform m_transform;
                 glm::mat4 m_mMatrix;
 		
                 std::shared_ptr<MeshBase> m_pMesh;

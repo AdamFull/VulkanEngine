@@ -9,7 +9,8 @@ namespace Engine
         eCamera,
         eSkybox,
         eMeshComponent,
-        eGltfMesh
+        eGltfMesh,
+        eVolume
     };
 
     struct FSceneObject

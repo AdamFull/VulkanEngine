@@ -58,10 +58,13 @@ std::shared_ptr<Objects::RenderObject> SceneFactory::CreateComponent(std::shared
         object = CreateStaticMesh(pResMgr, info);
         break;
     case ESceneObjectType::eSkybox:
-        object = CreateSkybox(pResMgr, info);
+        object = CreateGLTFMesh(pResMgr, info);
         break;
     case ESceneObjectType::eGltfMesh:
         object = CreateGLTFMesh(pResMgr, info);
+        break;
+    case ESceneObjectType::eVolume:
+        object = CreateVolume(pResMgr, info);
         break;
     }
 
@@ -135,6 +138,33 @@ std::shared_ptr<Objects::RenderObject> SceneFactory::CreateGLTFMesh(std::shared_
     Resources::Loaders::GLTFLoader::Load(info.mesh.srSrc, info.srName, tmp, mesh, pResMgr);
     mesh->SetTransform(info.fTransform);
     mesh->SetName(info.srName);
+
+    return mesh;
+}
+
+std::shared_ptr<Objects::RenderObject> SceneFactory::CreateVolume(std::shared_ptr<Resources::ResourceManager> pResMgr, FSceneObject info)
+{
+    auto tmp = std::make_shared<Resources::Loaders::GLTFLoader::LoaderTemporaryObject>();
+    tmp->bLoadMaterials = info.mesh.bUseIncludedMaterial;
+    if (!info.mesh.bUseIncludedMaterial)
+    {
+        for (auto &matInfo : info.mesh.vMaterials)
+        {
+            auto material = Resources::Material::MaterialFactory::Create(pResMgr, matInfo);
+            tmp->vMaterials.emplace_back(material);
+            pResMgr->AddExisting(material->GetName(), material);
+        }
+    }
+
+    auto volume = std::make_shared<Objects::Components::MeshVolumeComponent>();
+
+    auto mesh = std::make_shared<Objects::Components::MeshComponentBase>();
+    Resources::Loaders::GLTFLoader::Load(info.mesh.srSrc, info.srName, tmp, mesh, pResMgr);
+    mesh->SetTransform(info.fTransform);
+    mesh->SetName(info.srName);
+
+    volume->SetMesh(mesh);
+    volume->Create(pResMgr);
 
     return mesh;
 }

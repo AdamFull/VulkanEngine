@@ -20,6 +20,7 @@ namespace Engine
 
             struct WinCallbacks
             {
+                static void WinSizeChangeCallback(GLFWwindow *window, int width, int height);
                 static void WinInputFocusChangeCallback(GLFWwindow *window, int focused);
                 static void WinInputCursorEnterCallback(GLFWwindow *window, int entered);
                 static void WinInputMouseButtonCallback(GLFWwindow *window, int button, int action, int mods);
@@ -28,6 +29,12 @@ namespace Engine
                 static void WinInputKeyCallback(GLFWwindow *window, int key, int scancode, int action, int mods);
                 static void WinInputCharCallback(GLFWwindow *window, unsigned int c);
                 static void WinInputMonitorCallback(GLFWmonitor *window, int monitor);
+
+                template <class... Args>
+                static void SubscribeSizeChange(Args... args)
+                {
+                    sizeChangeCallbacks.emplace_back(EasyDelegate::TDelegate<void(int, int)>(std::forward<Args>(args)...));
+                }
 
                 template <class... Args>
                 static void SubscribeFocusChange(Args... args)
@@ -78,6 +85,7 @@ namespace Engine
                 }
 
             private:
+                static std::vector<EasyDelegate::TDelegate<void(int, int)>> sizeChangeCallbacks;
                 static std::vector<EasyDelegate::TDelegate<void(int)>> focusChangeCallbacks;
                 static std::vector<EasyDelegate::TDelegate<void(int)>> cursorEnterCallbacks;
                 static std::vector<EasyDelegate::TDelegate<void(int, int, int)>> mouseButtonCallbacks;

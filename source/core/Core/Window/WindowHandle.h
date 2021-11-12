@@ -30,7 +30,7 @@ namespace Engine
                 void Wait();
                 void Close();
 
-                void ResizeWindow(uint32_t, uint32_t);
+                void ResizeWindow(int width, int height);
 
                 inline void PollEvents() { glfwPollEvents(); }
 

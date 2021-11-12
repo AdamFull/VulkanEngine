@@ -2,6 +2,7 @@
 
 using namespace Engine::Core::Window;
 
+std::vector<EasyDelegate::TDelegate<void(int, int)>> WinCallbacks::sizeChangeCallbacks;
 std::vector<EasyDelegate::TDelegate<void(int)>> WinCallbacks::focusChangeCallbacks;
 std::vector<EasyDelegate::TDelegate<void(int)>> WinCallbacks::cursorEnterCallbacks;
 std::vector<EasyDelegate::TDelegate<void(int, int, int)>> WinCallbacks::mouseButtonCallbacks;
@@ -10,6 +11,12 @@ std::vector<EasyDelegate::TDelegate<void(float, float)>> WinCallbacks::scrollCal
 std::vector<EasyDelegate::TDelegate<void(int, int, int, int)>> WinCallbacks::keyCallbacks;
 std::vector<EasyDelegate::TDelegate<void(unsigned int)>> WinCallbacks::charCallbacks;
 std::vector<EasyDelegate::TDelegate<void(int)>> WinCallbacks::monitorCallbacks;
+
+void WinCallbacks::WinSizeChangeCallback(GLFWwindow *window, int width, int height)
+{
+    for (auto &callback : sizeChangeCallbacks)
+        callback(width, height);
+}
 
 void WinCallbacks::WinInputFocusChangeCallback(GLFWwindow *window, int focused)
 {

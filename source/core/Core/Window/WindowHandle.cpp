@@ -28,6 +28,7 @@ void WindowHandle::Create(FWindowCreateInfo createInfo)
     glfwSetInputMode(m_pWindow, GLFW_STICKY_KEYS, GLFW_TRUE);
     // glfwSetInputMode(m_pWindow, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
 
+    glfwSetWindowSizeCallback(m_pWindow, &WinCallbacks::WinSizeChangeCallback);
     glfwSetWindowFocusCallback(m_pWindow, &WinCallbacks::WinInputFocusChangeCallback);
     glfwSetCursorEnterCallback(m_pWindow, &WinCallbacks::WinInputCursorEnterCallback);
     glfwSetCursorPosCallback(m_pWindow, &WinCallbacks::WinInputCursorPositionCallback);
@@ -36,6 +37,8 @@ void WindowHandle::Create(FWindowCreateInfo createInfo)
     glfwSetKeyCallback(m_pWindow, &WinCallbacks::WinInputKeyCallback);
     glfwSetCharCallback(m_pWindow, &WinCallbacks::WinInputCharCallback);
     glfwSetMonitorCallback(&WinCallbacks::WinInputMonitorCallback);
+
+    WinCallbacks::SubscribeSizeChange(this, &WindowHandle::ResizeWindow);
 }
 
 void WindowHandle::CreateWindowSurface(vk::Instance &instance, vk::SurfaceKHR &surface)
@@ -58,7 +61,7 @@ void WindowHandle::Wait()
     }
 }
 
-void WindowHandle::ResizeWindow(uint32_t iWidth, uint32_t iHeight)
+void WindowHandle::ResizeWindow(int iWidth, int iHeight)
 {
     m_iWidth = iWidth;
     m_iHeight = iHeight;

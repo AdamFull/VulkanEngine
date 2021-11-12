@@ -1,85 +1,48 @@
 #include "VulkanMesh.h"
-#include "Resources/Materials/VulkanMaterial.h"
-#include "Core/VulkanDevice.h"
+#include "MeshFragment.h"
 #include "Core/VulkanHighLevel.h"
 
 using namespace Engine::Resources::Mesh;
 
-void Primitive::setDimensions(glm::vec3 min, glm::vec3 max)
-{
-    dimensions.min = min;
-    dimensions.max = max;
-    dimensions.size = max - min;
-    dimensions.center = (min + max) / 2.0f;
-    dimensions.radius = glm::distance(min, max) / 2.0f;
-}
-
 void MeshBase::Create()
 {
-    for (auto &primitive : m_vPrimitives)
-    {
-        primitive.material->Create();
-    }
-}
-
-void MeshBase::AddPrimitive(Primitive &&primitive)
-{
-    m_vPrimitives.emplace_back(primitive);
-}
-
-Primitive& MeshBase::GetPrimitive(uint32_t index)
-{
-    return m_vPrimitives.at(index);
-}
-
-void MeshBase::SetMaterial(std::shared_ptr<Material::MaterialBase> material)
-{
-    /*auto it = m_vPrimitives.find(srPrimitiveName);
-    std::find(m_vPrimitives.begin(), m_vPrimitives.end(), )
-    if(it != m_vPrimitives.end())
-        it->second.material = material;
-    else
-        assert(false && "Primitive for material was not found");*/
+    for (auto& fragment : m_vFragments)
+        fragment->Create();
 }
 
 void MeshBase::ReCreate()
 {
     ResourceBase::ReCreate();
-    for (auto &primitive : m_vPrimitives)
-    {
-        primitive.material->ReCreate();
-    }
+    for (auto& fragment : m_vFragments)
+        fragment->ReCreate();
 }
 
-void MeshBase::Update(uint32_t imageIndex)
+void MeshBase::Render(vk::CommandBuffer commandBuffer, uint32_t imageIndex, Core::FUniformData& ubo)
 {
-    ResourceBase::Update(imageIndex);
-    for (auto &primitive : m_vPrimitives)
+    for (auto& fragment : m_vFragments)
     {
-        primitive.material->Update(imageIndex);
-    }
-}
-
-void MeshBase::Bind(vk::CommandBuffer commandBuffer, uint32_t imageIndex)
-{
-    ResourceBase::Bind(commandBuffer, imageIndex);
-    for (auto &primitive : m_vPrimitives)
-    {
-        primitive.material->Bind(commandBuffer, imageIndex);
-        commandBuffer.drawIndexed(primitive.indexCount, 1, primitive.firstIndex, 0, 0);
+        ubo.model = ubo.model * fragment->GetLocalMatrix();
+        UUniform->UpdateUniformBuffer(imageIndex, &ubo);
+        fragment->Update(imageIndex);
+        fragment->Bind(commandBuffer, imageIndex);
     }
 }
 
 void MeshBase::Cleanup()
 {
     ResourceBase::Cleanup();
-    for (auto &primitive : m_vPrimitives)
-    {
-        primitive.material->Cleanup();
-    }
+    for (auto& fragment : m_vFragments)
+        fragment->Cleanup();
 }
 
 void MeshBase::Destroy()
 {
     ResourceBase::Destroy();
+    for (auto& fragment : m_vFragments)
+        fragment->Destroy();
+}
+
+void MeshBase::AddFragment(std::shared_ptr<MeshFragment> fragment)
+{
+    m_vFragments.push_back(fragment);
 }

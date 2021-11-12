@@ -21,11 +21,6 @@ namespace Engine
                 void Render(vk::CommandBuffer &commandBuffer, uint32_t imageIndex) override;
                 void Cleanup() override;
                 void Destroy() override;
-
-                void SetMesh(std::shared_ptr<MeshComponentBase> mesh);
-            
-            private:
-                std::shared_ptr<MeshComponentBase> m_pMeshComponent;
             };
         }
     }

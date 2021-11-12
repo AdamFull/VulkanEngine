@@ -1,29 +1,12 @@
 {
-    "skybox":
     {
-        "name": "skybox_component",
-        "type": "skybox",
+        "name": "volume_component",
+        "type": "volume",
         "mesh": 
         {
-            "name": "skybox_obj",
+            "name": "volume_obj",
             "type": "static",
-            "src": "../../assets/meshes/skybox.obj",
-            "materials":
-            [
-                {
-                    "name": "skybox_cubemap_mat",
-                    "type": "skybox",
-                    "textures": 
-                    [
-                        {
-                            "name": "skybox_cubemap_tex",
-                            "type": "cubemap",
-                            "attachment": "cubemap",
-                            "src": "../../assets/textures/cubemaps/cubemap_vulkan.ktx"
-                        }
-                    ]
-                }
-            ]
+            "src": "../../assets/meshes/cube.gltf"
         },
         "transform":
         {
@@ -32,111 +15,4 @@
             "scale": {"x": 1.0, "y": 1.0, "z": 1.0}
         }
     },
-    "objects":
-    [
-        {
-            "name": "scene_camera_component",
-            "type": "camera",
-            "transform":
-            {
-                "pos": {"x": 0.0, "y": -2.4, "z": -1.8},
-                "rot": {"x": 0.0, "y": 0.0, "z": 0.0},
-                "scale": {"x": 1.0, "y": 1.0, "z": 1.0}
-            }
-        },
-        {
-            "name": "femalebody_mesh_component",
-            "type": "static_mesh",
-            "resource": 
-            {
-                "name": "femalebody_obj",
-                "type": "static",
-                "src": "../../assets/meshes/femalebody.obj",
-                "use_included_material": true,
-                "mesh": [
-                    {
-                        "name": "femalebody_material",
-                        "type": "diffuse",
-                        "textures": [
-                            {
-                                "name": "femalebody_diffuse",
-                                "type": "2d",
-                                "attachment": "color",
-                                "src": "../../assets/textures/femalebody/femalebody_1.png"
-                            },
-                            {
-                                "name": "femalebody_normal",
-                                "type": "2d",
-                                "attachment": "normal",
-                                "src": "../../assets/textures/femalebody/femalebody_1_msn.png"
-                            },
-                            {
-                                "name": "femalebody_specular",
-                                "type": "2d",
-                                "attachment": "specular",
-                                "src": "../../assets/textures/femalebody/femalebody_1_s.png"
-                            }
-                        ],
-                        "params": 
-                        {
-                            "cutoff": 1.0,
-                            "metalic": 1.0,
-                            "roughness": 1.0
-                        }
-                    }
-                ]
-            },
-            "transform":
-            {
-                "pos": {"x": 0.0, "y": 0.0, "z": 0.0},
-                "rot": {"x": 0.0, "y": 0.0, "z": 3.14159},
-                "scale": {"x": 1.0, "y": 1.0, "z": 1.0}
-            }
-        },
-        {
-            "name": "floor_mesh_component",
-            "type": "static_mesh",
-            "mesh": 
-            {
-                "name": "floor_obj",
-                "type": "static",
-                "src": "../../assets/meshes/plane.obj",
-                "materials":
-                [
-                    {
-                        "name": "floor_diffuse_mat",
-                        "primitive": "Cube",
-                        "type": "diffuse",
-                        "textures": 
-                        [
-                            {
-                                "name": "floor_diffuse_tex",
-                                "type": "2d",
-                                "attachment": "color",
-                                "src": "../../assets/textures/floor/floor_diffuse.jpg"
-                            },
-                            {
-                                "name": "floor_normal_tex",
-                                "type": "2d",
-                                "attachment": "normal",
-                                "src": "../../assets/textures/floor/floor_normal.jpg"
-                            },
-                            {
-                                "name": "floor_specular_tex",
-                                "type": "2d",
-                                "attachment": "specular",
-                                "src": "../../assets/textures/floor/floor_roughness.jpg"
-                            }
-                        ]
-                    }
-                ]
-            },
-            "transform":
-            {
-                "pos": {"x": 0.0, "y": 0.0, "z": 0.0},
-                "rot": {"x": 0.0, "y": 0.0, "z": 3.14159},
-                "scale": {"x": 1.0, "y": 1.0, "z": 1.0}
-            }
-        }
-    ]
 }

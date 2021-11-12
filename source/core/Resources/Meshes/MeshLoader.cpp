@@ -4,7 +4,7 @@ namespace fs = std::filesystem;
 
 using namespace Engine::Resources::Loaders;
 
-bool MeshLoader::Load(std::string srPath, std::shared_ptr<Resources::ResourceManager> pResourceManager, std::shared_ptr<Mesh::MeshBase> pMesh, bool bLoadMaterial)
+bool MeshLoader::Load(std::string srPath, std::shared_ptr<Resources::ResourceManager> pResourceManager, std::shared_ptr<Mesh::MeshFragment> pMesh, bool bLoadMaterial)
 {
     fs::path filepath{srPath};
 

@@ -3,7 +3,7 @@
 
 #include "Textures/VulkanTexture.h"
 #include "Materials/VulkanMaterial.h"
-#include "Meshes/VulkanMesh.h"
+#include "Meshes/MeshFragment.h"
 
 #include "Textures/TextureFactory.h"
 #include "Materials/MaterialFactory.h"
@@ -118,7 +118,7 @@ namespace Engine
 
             /*******************************For mesh****************************/
             template <>
-            void AddExisting<Mesh::MeshBase>(std::string srResourceName, std::shared_ptr<Mesh::MeshBase> pResource)
+            void AddExisting<Mesh::MeshFragment>(std::string srResourceName, std::shared_ptr<Mesh::MeshFragment> pResource)
             {
                 auto it = m_mMeshes.find(srResourceName);
                 if (it != m_mMeshes.end())
@@ -127,15 +127,15 @@ namespace Engine
             }
 
             template <>
-            std::shared_ptr<Mesh::MeshBase> ResourceManager::Add(FMeshCreateInfo info)
+            std::shared_ptr<Mesh::MeshFragment> ResourceManager::Add(FMeshCreateInfo info)
             {
-                std::shared_ptr<Mesh::MeshBase> mesh = Mesh::MeshFactory::Create(shared_from_this(), info);
+                std::shared_ptr<Mesh::MeshFragment> mesh = Mesh::MeshFactory::Create(shared_from_this(), info);
                 AddExisting(info.srName, mesh);
                 return nullptr;
             }
 
             template <>
-            std::shared_ptr<Mesh::MeshBase> Get(std::string srResourceName)
+            std::shared_ptr<Mesh::MeshFragment> Get(std::string srResourceName)
             {
                 auto it = m_mMeshes.find(srResourceName);
                 if (it != m_mMeshes.end())
@@ -144,7 +144,7 @@ namespace Engine
             }
 
             template <>
-            void Destroy<Mesh::MeshBase>(std::string srResourceName)
+            void Destroy<Mesh::MeshFragment>(std::string srResourceName)
             {
                 auto it = m_mMeshes.find(srResourceName);
                 if (it != m_mMeshes.end())
@@ -157,7 +157,7 @@ namespace Engine
         private:
             std::map<std::string, std::shared_ptr<Texture::TextureBase>> m_mTextures;
             std::map<std::string, std::shared_ptr<Material::MaterialBase>> m_mMaterials;
-            std::map<std::string, std::shared_ptr<Mesh::MeshBase>> m_mMeshes;
+            std::map<std::string, std::shared_ptr<Mesh::MeshFragment>> m_mMeshes;
         };
     }
 }

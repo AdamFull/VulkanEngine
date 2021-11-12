@@ -1,55 +1,31 @@
 #pragma once
 #include "Resources/ResourceBase.h"
-#include "Core/VulkanBuffer.h"
-#include "Core/DataTypes/VulkanVertex.hpp"
+#include "Core/VulkanUniform.h"
 
 namespace Engine
 {
     namespace Resources
     {
-        namespace Material
-        {
-            class MaterialBase;
-        }
 
         namespace Mesh
         {
-            struct Primitive
-            {
-                uint32_t firstIndex;
-                uint32_t indexCount;
-                uint32_t firstVertex;
-                uint32_t vertexCount;
-                std::shared_ptr<Material::MaterialBase> material;
 
-                struct Dimensions
-                {
-                    glm::vec3 min = glm::vec3(FLT_MAX);
-                    glm::vec3 max = glm::vec3(-FLT_MAX);
-                    glm::vec3 size;
-                    glm::vec3 center;
-                    float radius;
-                } dimensions;
-
-                void setDimensions(glm::vec3 min, glm::vec3 max);
-            };
+            class MeshFragment;
 
             class MeshBase : public ResourceBase
             {
             public:
                 
                 void Create() override;
-                virtual void AddPrimitive(Primitive &&primitive);
-                Primitive& GetPrimitive(uint32_t index);
-                virtual void SetMaterial(std::shared_ptr<Material::MaterialBase> material);
                 void ReCreate() override;
-                void Update(uint32_t imageIndex) override;
-                void Bind(vk::CommandBuffer commandBuffer, uint32_t imageIndex) override;
+                void Render(vk::CommandBuffer commandBuffer, uint32_t imageIndex, Core::FUniformData& ubo);
                 void Cleanup() override;
                 void Destroy() override;
 
+                void AddFragment(std::shared_ptr<MeshFragment> fragment);
+
             protected:
-                std::vector<Primitive> m_vPrimitives;
+                std::vector<std::shared_ptr<MeshFragment>> m_vFragments;
             };
         }
     }

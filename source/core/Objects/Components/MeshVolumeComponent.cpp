@@ -11,7 +11,7 @@ using namespace Engine::Resources::Material::Generator;
 
 void MeshVolumeComponent::Create(std::shared_ptr<Resources::ResourceManager> resourceMgr)
 {
-    if(m_pMesh)
+    /*if(m_pMesh)
     {
         auto primitive = m_pMesh->GetPrimitive(0);
 
@@ -35,7 +35,7 @@ void MeshVolumeComponent::Create(std::shared_ptr<Resources::ResourceManager> res
         resourceMgr->AddExisting("_prefiltred_cube", pGeneratorPrefiltred->Get());
         pGeneratorPrefiltred->Destroy();
     }
-
+*/
     MeshComponentBase::Create(resourceMgr);
 }
 
@@ -62,9 +62,4 @@ void MeshVolumeComponent::Cleanup()
 void MeshVolumeComponent::Destroy()
 {
     MeshComponentBase::Destroy();
-}
-
-void MeshVolumeComponent::SetMesh(std::shared_ptr<MeshComponentBase> mesh)
-{
-    m_pMeshComponent = mesh;
 }

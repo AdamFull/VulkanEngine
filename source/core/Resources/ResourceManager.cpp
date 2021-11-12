@@ -29,7 +29,7 @@ namespace Engine
                 Add<MaterialBase>(material);
 
             for (auto mesh : vMeshes)
-                Add<MeshBase>(mesh);
+                Add<MeshFragment>(mesh);
         }
 
         void ResourceManager::DestroyAll()

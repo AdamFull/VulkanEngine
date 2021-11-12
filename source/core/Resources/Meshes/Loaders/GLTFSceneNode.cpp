@@ -31,6 +31,17 @@ void GLTFSceneNode::Detach(std::shared_ptr<GLTFSceneNode> child)
         m_mChilds.erase(it);
 }
 
+std::shared_ptr<GLTFSceneNode> GLTFSceneNode::Find(uint32_t index)
+{
+    if(index == m_index)
+        return shared_from_this();
+    
+    for(auto& [name, child] : m_mChilds)
+        return Find(index);
+    
+    return nullptr;
+}
+
 FTransform GLTFSceneNode::GetTransform()
 {
     FTransform transform = m_transform;

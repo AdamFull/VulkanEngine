@@ -3,8 +3,6 @@
 #define TINYGLTF_NO_STB_IMAGE_WRITE
 
 #include "GLTFLoader.h"
-#include "Objects/RenderObject.h"
-#include "Objects/Components/MeshComponentBase.h"
 #include "Resources/ResourceManager.h"
 #include "Resources/Meshes/MeshFragment.h"
 #include "Resources/Textures/ImageLoader.h"
@@ -68,6 +66,10 @@ void GLTFLoader::Load(std::string srPath, std::string srName, std::shared_ptr<Re
             const tinygltf::Node node = gltfModel.nodes[scene.nodes[i]];
             LoadNode(pResMgr, nullptr, node, scene.nodes[i], gltfModel, 1.0);
         }
+
+        if (gltfModel.animations.size() > 0) 
+            LoadAnimations(gltfModel);
+        LoadSkins(gltfModel);
 
         for(auto& node : m_vLinearNodes)
         {
@@ -309,6 +311,113 @@ void GLTFLoader::LoadMeshFragment(std::shared_ptr<Resources::ResourceManager> pR
     pResMgr->AddExisting(nativeMesh->GetName(), nativeMesh);
 }
 
+void GLTFLoader::LoadAnimations(const tinygltf::Model &model)
+{
+    for (auto& anim : model.animations)
+    {
+        FAnimation animation{};
+		animation.name = anim.name;
+		if (anim.name.empty())
+			animation.name = std::to_string(m_pMesh->GetAnimations().size());
+
+        for (auto &samp : anim.samplers)
+        {
+            FAnimationSampler sampler{};
+
+            if (samp.interpolation == "LINEAR")
+				sampler.interpolation = FAnimationSampler::EInterpolationType::LINEAR;
+			if (samp.interpolation == "STEP")
+				sampler.interpolation = FAnimationSampler::EInterpolationType::STEP;
+			if (samp.interpolation == "CUBICSPLINE")
+				sampler.interpolation = FAnimationSampler::EInterpolationType::CUBICSPLINE;
+
+            // Read sampler input time values
+			{
+				const tinygltf::Accessor &accessor = model.accessors[samp.input];
+				const tinygltf::BufferView &bufferView = model.bufferViews[accessor.bufferView];
+				const tinygltf::Buffer &buffer = model.buffers[bufferView.buffer];
+
+				assert(accessor.componentType == TINYGLTF_COMPONENT_TYPE_FLOAT);
+
+				float *buf = new float[accessor.count];
+				memcpy(buf, &buffer.data[accessor.byteOffset + bufferView.byteOffset], accessor.count * sizeof(float));
+				for (size_t index = 0; index < accessor.count; index++)
+					sampler.inputs.push_back(buf[index]);
+
+				for (auto input : sampler.inputs) 
+                {
+					if (input < animation.start)
+						animation.start = input;
+					if (input > animation.end)
+						animation.end = input;
+				}
+			}
+
+            // Read sampler output T/R/S values 
+			{
+				const tinygltf::Accessor &accessor = model.accessors[samp.output];
+				const tinygltf::BufferView &bufferView = model.bufferViews[accessor.bufferView];
+				const tinygltf::Buffer &buffer = model.buffers[bufferView.buffer];
+
+				assert(accessor.componentType == TINYGLTF_COMPONENT_TYPE_FLOAT);
+
+				switch (accessor.type) 
+                {
+                    case TINYGLTF_TYPE_VEC3: 
+                    {
+                        glm::vec3 *buf = new glm::vec3[accessor.count];
+                        memcpy(buf, &buffer.data[accessor.byteOffset + bufferView.byteOffset], accessor.count * sizeof(glm::vec3));
+                        for (size_t index = 0; index < accessor.count; index++)
+                            sampler.outputsVec4.push_back(glm::vec4(buf[index], 0.0f));
+                        break;
+                    }
+                    case TINYGLTF_TYPE_VEC4: 
+                    {
+                        glm::vec4 *buf = new glm::vec4[accessor.count];
+                        memcpy(buf, &buffer.data[accessor.byteOffset + bufferView.byteOffset], accessor.count * sizeof(glm::vec4));
+                        for (size_t index = 0; index < accessor.count; index++)
+                            sampler.outputsVec4.push_back(buf[index]);
+                        break;
+                    }
+                    default: 
+                    {
+                        std::cout << "unknown type" << std::endl;
+                        break;
+                    }
+				}
+			}
+
+            animation.samplers.push_back(sampler);
+        }
+
+        // Channels
+		for (auto &source: anim.channels) 
+        {
+			FAnimationChannel channel{};
+
+			if (source.target_path == "rotation")
+				channel.path = FAnimationChannel::EPathType::ROTATION;
+			if (source.target_path == "translation")
+				channel.path = FAnimationChannel::EPathType::TRANSLATION;
+			if (source.target_path == "scale")
+				channel.path = FAnimationChannel::EPathType::SCALE;
+
+			if (source.target_path == "weights") {
+				std::cout << "weights not yet supported, skipping channel" << std::endl;
+				continue;
+			}
+			channel.samplerIndex = source.sampler;
+			//channel.node = nodeFromIndex(source.target_node);
+			/*if (!channel.node) {
+				continue;
+			}*/
+			animation.channels.push_back(channel);
+		}
+
+		m_pMesh->AddAnimation(std::move(animation));
+    }
+}
+
 void GLTFLoader::LoadMaterials(std::shared_ptr<Resources::ResourceManager> pResMgr, const tinygltf::Model &model)
 {
     auto get_texture = [&](const tinygltf::ParameterMap& mat, const std::string& srTexture)
@@ -473,8 +582,31 @@ std::shared_ptr<TextureBase> GLTFLoader::LoadTexture(const tinygltf::Image &imag
 
 void GLTFLoader::LoadSkins(const tinygltf::Model &model)
 {
-    /*for (tinygltf::Skin &source : gltfModel.skins)
+    for (auto& source : model.skins)
     {
+        auto pSkin = std::make_shared<Skin>();
+        pSkin->name = source.name;
 
-    }*/
+        // Find skeleton root node
+		if (source.skeleton > -1)
+			pSkin->skeletonRoot = m_vNodes.front()->Find(source.skeleton);
+
+        // Find joint nodes
+		for (int jointIndex : source.joints) 
+        {
+			auto node = m_vNodes.front()->Find(jointIndex);
+			if (node)
+				pSkin->joints.push_back(m_vNodes.front()->Find(jointIndex));
+		}
+
+        // Get inverse bind matrices from buffer
+		if (source.inverseBindMatrices > -1) 
+        {
+			const tinygltf::Accessor &accessor = model.accessors[source.inverseBindMatrices];
+			const tinygltf::BufferView &bufferView = model.bufferViews[accessor.bufferView];
+			const tinygltf::Buffer &buffer = model.buffers[bufferView.buffer];
+			pSkin->inverseBindMatrices.resize(accessor.count);
+			memcpy(pSkin->inverseBindMatrices.data(), &buffer.data[accessor.byteOffset + bufferView.byteOffset], accessor.count * sizeof(glm::mat4));
+		}
+    }
 }

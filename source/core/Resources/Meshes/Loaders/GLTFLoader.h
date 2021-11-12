@@ -1,5 +1,6 @@
 #pragma once
 #include "external/gltf/tiny_gltf.h"
+#include "Resources/Meshes/VulkanMesh.h"
 
 namespace Engine
 {
@@ -9,7 +10,6 @@ namespace Engine
 
         namespace Texture { class TextureBase; }
         namespace Material { class MaterialBase; }
-        namespace Mesh { class MeshBase; }
 
         namespace Loaders
         {
@@ -30,6 +30,7 @@ namespace Engine
                 void LoadNode(std::shared_ptr<Resources::ResourceManager> pResMgr, std::shared_ptr<GLTFSceneNode> pParent, const tinygltf::Node &node, uint32_t nodeIndex, const tinygltf::Model &model, float globalscale);
 
                 void LoadMeshFragment(std::shared_ptr<Resources::ResourceManager> pResMgr, std::shared_ptr<GLTFSceneNode> sceneNode, const tinygltf::Node &node, const tinygltf::Model &model);
+                void LoadAnimations(const tinygltf::Model &model);
 
                 void LoadMaterials(std::shared_ptr<Resources::ResourceManager> pResMgr, const tinygltf::Model &model);
                 void LoadTextures(std::shared_ptr<Resources::ResourceManager> pResMgr, const tinygltf::Model &model);

@@ -29,6 +29,8 @@ namespace Engine
                 void Attach(std::shared_ptr<GLTFSceneNode> child);
                 void Detach(std::shared_ptr<GLTFSceneNode> child);
 
+                std::shared_ptr<GLTFSceneNode> Find(uint32_t index);
+
                 inline std::shared_ptr<GLTFSceneNode> GetParent() { return m_pParent; }
                 inline std::map<std::string, std::shared_ptr<GLTFSceneNode>> &GetChilds() { return m_mChilds; }
                 void AddChild(std::shared_ptr<GLTFSceneNode> child);

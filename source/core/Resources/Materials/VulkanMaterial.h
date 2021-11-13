@@ -11,10 +11,7 @@ namespace Engine
 {
     namespace Resources
     {
-        namespace Texture
-        {
-            class TextureBase;
-        }
+        namespace Texture { class TextureBase; }
         namespace Material
         {
             struct FMaterialParams
@@ -40,7 +37,7 @@ namespace Engine
                 MaterialBase(std::shared_ptr<Core::Device> device, std::shared_ptr<Core::SwapChain> swapchain);
                 virtual ~MaterialBase();
 
-                void Create() override;
+                virtual void Create(std::shared_ptr<ResourceManager> pResMgr);
                 virtual void AddTexture(ETextureAttachmentType eAttachment, std::shared_ptr<Texture::TextureBase> pTexture);
                 std::shared_ptr<Texture::TextureBase> GetTexture(ETextureAttachmentType eAttachment);
                 virtual void AddTextures(std::map<ETextureAttachmentType, std::shared_ptr<Texture::TextureBase>> mTextures);

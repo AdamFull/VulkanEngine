@@ -41,7 +41,7 @@ namespace Engine
             {
             public:
                 
-                void Create() override;
+                void Create(std::shared_ptr<ResourceManager> pResMgr) override;
                 void ReCreate() override;
                 void Render(vk::CommandBuffer commandBuffer, uint32_t imageIndex, Core::FUniformData& ubo);
                 void Cleanup() override;

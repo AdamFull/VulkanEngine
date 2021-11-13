@@ -8,6 +8,10 @@
             "type": "static",
             "src": "../../assets/meshes/cube.gltf"
         },
+        "environment map":
+        {
+
+        },
         "transform":
         {
             "pos": {"x": 0.0, "y": 0.0, "z": 0.0},

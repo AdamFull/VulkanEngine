@@ -6,6 +6,7 @@ namespace Engine
 {
     namespace Resources
     {
+        class ResourceManager;
         namespace Texture { class TextureBase; }
         namespace Material { class MaterialUI; }
     }
@@ -37,7 +38,7 @@ namespace Engine
             ImguiOverlay(std::shared_ptr<Window::WindowHandle> window, std::shared_ptr<Device> device, std::shared_ptr<SwapChain> swapchain);
             ~ImguiOverlay();
 
-            void Create();
+            void Create(std::shared_ptr<Resources::ResourceManager> pResMgr);
             void ReCreate();
             void Cleanup();
 
@@ -50,8 +51,7 @@ namespace Engine
 
         private:
             void BaseInitialize();
-            void CreateFontResources();
-            void CreateResources();
+            void CreateFontResources(std::shared_ptr<Resources::ResourceManager> pResMgr);
 
             void InitializeWindowBackend();
 

@@ -34,8 +34,8 @@ using namespace Engine::Resources::Material;
 using namespace Engine::Resources::Mesh;
 using namespace Engine::Resources::Loaders;
 
-GLTFLoader::GLTFLoader(bool loadMaterials, const std::string& modelName) :
-bLoadMaterials(loadMaterials), srModelName(modelName)
+GLTFLoader::GLTFLoader(bool loadMaterials, bool useMaterials, const std::string& modelName, const std::string& volumeName) :
+bLoadMaterials(loadMaterials), bUseMaterials(useMaterials), srModelName(modelName), srVolumeName(volumeName)
 {
 
 }
@@ -125,7 +125,7 @@ void GLTFLoader::LoadMeshFragment(std::shared_ptr<Resources::ResourceManager> pR
 {
     const tinygltf::Mesh mesh = model.meshes[node.mesh];
     auto nativeMesh = std::make_shared<MeshFragment>();
-    nativeMesh->SetName(mesh.name);
+    nativeMesh->SetName(srModelName + "_" + mesh.name);
     for (size_t j = 0; j < mesh.primitives.size(); j++)
     {
         std::vector<uint32_t> indexBuffer;
@@ -293,10 +293,14 @@ void GLTFLoader::LoadMeshFragment(std::shared_ptr<Resources::ResourceManager> pR
         modelPrim.indexCount = indexCount;
         modelPrim.firstVertex = vertexStart;
         modelPrim.vertexCount = vertexCount;
+        modelPrim.bUseMaterial = bUseMaterials;
         modelPrim.setDimensions(posMin, posMax);
 
         if (bLoadMaterials)
-            modelPrim.material = primitive.material > -1 ? vMaterials.at(primitive.material) : vMaterials.back();
+        {
+            if(!vMaterials.empty())
+                modelPrim.material = primitive.material > -1 ? vMaterials.at(primitive.material) : vMaterials.back();
+        }
         else
         {
             modelPrim.material = vMaterials.at(current_primitive);
@@ -431,13 +435,6 @@ void GLTFLoader::LoadMaterials(std::shared_ptr<Resources::ResourceManager> pResM
         return pResMgr->Get<Texture::TextureBase>("no_texture");
     };
 
-    auto get_pbr_texture = [&pResMgr](const std::string& srVolumeName, const std::string& srPostfix)
-    {
-        /*if(!srVolumeName.empty())
-            return pResMgr->Get<Texture::TextureBase>(srVolumeName + srPostfix);*/
-        return pResMgr->Get<Texture::TextureBase>("no_texture"); 
-    };
-
     uint32_t material_index{0};
     for (auto &mat : model.materials)
     {
@@ -453,9 +450,9 @@ void GLTFLoader::LoadMaterials(std::shared_ptr<Resources::ResourceManager> pResM
         std::shared_ptr<MaterialBase> nativeMaterial = Core::FDefaultAllocator::Allocate<MaterialDiffuse>();
         nativeMaterial->SetName(ss.str());
 
-        nativeMaterial->AddTexture(ETextureAttachmentType::eBRDFLUT, get_pbr_texture(srVolumeName, "_brdf"));
-        nativeMaterial->AddTexture(ETextureAttachmentType::eIrradiance, get_pbr_texture(srVolumeName, "_irradiate_cube"));
-        nativeMaterial->AddTexture(ETextureAttachmentType::ePrefiltred, get_pbr_texture(srVolumeName, "_prefiltred_cube"));
+        nativeMaterial->AddTexture(ETextureAttachmentType::eBRDFLUT, pResMgr->Get<Texture::TextureBase>(srVolumeName + "_brdf"));
+        nativeMaterial->AddTexture(ETextureAttachmentType::eIrradiance, pResMgr->Get<Texture::TextureBase>(srVolumeName + "_irradiate_cube"));
+        nativeMaterial->AddTexture(ETextureAttachmentType::ePrefiltred, pResMgr->Get<Texture::TextureBase>(srVolumeName + "_prefiltred_cube"));
 
         nativeMaterial->AddTexture(ETextureAttachmentType::eDiffuseAlbedo, get_texture(mat.values, "baseColorTexture"));
         nativeMaterial->AddTexture(ETextureAttachmentType::eMetalicRoughness, get_texture(mat.values, "metallicRoughnessTexture"));

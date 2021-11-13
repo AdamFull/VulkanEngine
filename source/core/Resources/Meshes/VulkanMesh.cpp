@@ -4,10 +4,10 @@
 
 using namespace Engine::Resources::Mesh;
 
-void MeshBase::Create()
+void MeshBase::Create(std::shared_ptr<ResourceManager> pResMgr)
 {
     for (auto& fragment : m_vFragments)
-        fragment->Create();
+        fragment->Create(pResMgr);
 }
 
 void MeshBase::ReCreate()

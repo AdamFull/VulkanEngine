@@ -5,10 +5,6 @@ namespace Engine
 {
     namespace Resources
     {
-        namespace Texture
-        {
-            class TextureBase;
-        }
         namespace Material
         {
             namespace Generator
@@ -19,8 +15,8 @@ namespace Engine
                     GeneratorBRDF() = default;
                     GeneratorBRDF(std::shared_ptr<Core::Device> device, std::shared_ptr<Core::SwapChain> swapchain);
 
-                    void Create() override;
-                    void Generate(uint32_t indexCount, uint32_t firstIndex) override;
+                    void Create(std::shared_ptr<ResourceManager> pResMgr) override;
+                    void Generate(std::shared_ptr<Mesh::MeshBase> pMesh) override;
                 protected:
                     inline Core::Pipeline::EShaderSet GetShaderSet() override { return Core::Pipeline::EShaderSet::eBRDF; }
                     void CreateDescriptors(uint32_t images) override;

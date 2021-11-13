@@ -1,7 +1,8 @@
 #include "ResourceBase.h"
+#include "ResourceManager.h"
 
 using namespace Engine::Resources;
-void ResourceBase::Create()
+void ResourceBase::Create(std::shared_ptr<ResourceManager> pResMgr)
 {
 }
 

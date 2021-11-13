@@ -3,11 +3,6 @@
 
 namespace Engine
 {
-    namespace Resources
-    {
-        class ResourceManager;
-    }
-    
     namespace Objects
     {
         namespace Components

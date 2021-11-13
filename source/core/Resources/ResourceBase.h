@@ -8,10 +8,11 @@ namespace Engine
 {
     namespace Resources
     {
+        class ResourceManager;
         class ResourceBase
         {
         public:
-            virtual void Create();
+            virtual void Create(std::shared_ptr<ResourceManager> pResMgr);
             virtual void ReCreate();
             virtual void Update(uint32_t imageIndex);
             virtual void Bind(vk::CommandBuffer commandBuffer, uint32_t imageIndex);

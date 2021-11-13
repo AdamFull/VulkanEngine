@@ -5,10 +5,7 @@ namespace Engine
 {
     namespace Resources
     {
-        namespace Texture
-        {
-            class TextureBase;
-        }
+        namespace Mesh { class MeshBase; }
         namespace Material
         {
             namespace Generator
@@ -20,10 +17,10 @@ namespace Engine
                     GeneratorBase(std::shared_ptr<Core::Device> device, std::shared_ptr<Core::SwapChain> swapchain);
                     ~GeneratorBase() override;
 
-                    void Create() override;
+                    void Create(std::shared_ptr<ResourceManager> pResMgr) override;
                     void Cleanup() override;
 
-                    virtual void Generate(uint32_t indexCount, uint32_t firstIndex);
+                    virtual void Generate(std::shared_ptr<Mesh::MeshBase> pMesh);
                     virtual std::shared_ptr<Texture::TextureBase> Get();
                 protected:
                     virtual inline Core::Pipeline::EShaderSet GetShaderSet() override { return Core::Pipeline::EShaderSet::eNone; }

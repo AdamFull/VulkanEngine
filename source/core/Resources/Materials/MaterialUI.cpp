@@ -1,6 +1,7 @@
 #include "MaterialUI.h"
 #include "Core/Overlay/ImguiOverlay.h"
 #include "Core/VulkanAllocator.h"
+#include "Resources/ResourceManager.h"
 
 using namespace Engine::Resources::Material;
 using namespace Engine::Core::Descriptor;
@@ -11,10 +12,10 @@ MaterialUI::MaterialUI(std::shared_ptr<Core::Device> device, std::shared_ptr<Cor
     m_swapchain = swapchain;
 }
 
-void MaterialUI::Create()
+void MaterialUI::Create(std::shared_ptr<ResourceManager> pResMgr)
 {
     renderPass = m_swapchain->GetRenderPass();
-    MaterialBase::Create();
+    MaterialBase::Create(pResMgr);
 }
 
 void MaterialUI::ReCreate()

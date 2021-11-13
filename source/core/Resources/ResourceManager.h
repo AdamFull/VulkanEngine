@@ -16,6 +16,7 @@ namespace Engine
         class ResourceManager : public std::enable_shared_from_this<ResourceManager>
         {
         public:
+            void Create();
             void Load(std::string srResourcesPath);
 
             template <class ResType>
@@ -68,7 +69,7 @@ namespace Engine
                 auto it = m_mTextures.find(srResourceName);
                 if (it != m_mTextures.end())
                     return it->second;
-                return nullptr;
+                return m_mTextures.at("no_texture");
             }
 
             template <>

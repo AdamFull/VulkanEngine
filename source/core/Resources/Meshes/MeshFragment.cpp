@@ -14,11 +14,12 @@ void Primitive::setDimensions(glm::vec3 min, glm::vec3 max)
     dimensions.radius = glm::distance(min, max) / 2.0f;
 }
 
-void MeshFragment::Create()
+void MeshFragment::Create(std::shared_ptr<ResourceManager> pResMgr)
 {
     for (auto &primitive : m_vPrimitives)
     {
-        primitive.material->Create();
+        if(primitive.material)
+            primitive.material->Create(pResMgr);
     }
 }
 
@@ -47,7 +48,8 @@ void MeshFragment::ReCreate()
     ResourceBase::ReCreate();
     for (auto &primitive : m_vPrimitives)
     {
-        primitive.material->ReCreate();
+        if(primitive.material)
+            primitive.material->ReCreate();
     }
 }
 
@@ -56,7 +58,8 @@ void MeshFragment::Update(uint32_t imageIndex)
     ResourceBase::Update(imageIndex);
     for (auto &primitive : m_vPrimitives)
     {
-        primitive.material->Update(imageIndex);
+        if(primitive.material && primitive.bUseMaterial)
+            primitive.material->Update(imageIndex);
     }
 }
 
@@ -65,7 +68,7 @@ void MeshFragment::Bind(vk::CommandBuffer commandBuffer, uint32_t imageIndex)
     ResourceBase::Bind(commandBuffer, imageIndex);
     for (auto &primitive : m_vPrimitives)
     {
-        if(primitive.material)
+        if(primitive.material && primitive.bUseMaterial)
             primitive.material->Bind(commandBuffer, imageIndex);
             
         commandBuffer.drawIndexed(primitive.indexCount, 1, primitive.firstIndex, 0, 0);
@@ -77,7 +80,8 @@ void MeshFragment::Cleanup()
     ResourceBase::Cleanup();
     for (auto &primitive : m_vPrimitives)
     {
-        primitive.material->Cleanup();
+        if(primitive.material)
+            primitive.material->Cleanup();
     }
 }
 

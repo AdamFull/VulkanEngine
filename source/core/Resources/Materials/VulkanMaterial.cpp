@@ -1,6 +1,7 @@
 #include "VulkanMaterial.h"
 #include "Core/VulkanUniform.h"
 #include "Core/VulkanDevice.h"
+#include "Resources/ResourceManager.h"
 
 using namespace Engine::Resources::Texture;
 using namespace Engine::Resources::Material;
@@ -38,7 +39,7 @@ FPipelineCreateInfo MaterialBase::CreateInfo(EShaderSet eSet)
     return FPipelineCreateInfo{};
 }
 
-void MaterialBase::Create()
+void MaterialBase::Create(std::shared_ptr<ResourceManager> pResMgr)
 {
     m_pMatDesc = std::make_unique<VulkanDescriptorSetContainer>();
 

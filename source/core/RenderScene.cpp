@@ -17,12 +17,8 @@ void RenderScene::Create()
 {
     m_pRoot = std::make_shared<Objects::Components::SceneRootComponent>();
     m_pResourceManager = std::make_shared<Resources::ResourceManager>();
-
-    // TODO: move to another place
-    std::shared_ptr<Resources::Texture::TextureBase> pEmptyTexture = Core::FDefaultAllocator::Allocate<Resources::Texture::TextureBase>();
-    pEmptyTexture->CreateEmptyTexture(512, 512, 1, 2, 0x8C43);
-    //pEmptyTexture->TransitionImageLayout(vk::ImageLayout::eShaderReadOnlyOptimal);
-    m_pResourceManager->AddExisting("no_texture", pEmptyTexture);
+    m_pResourceManager->Create();
+    UOverlay->Create(m_pResourceManager);   //TODO: bad!
 }
 
 void RenderScene::ReCreate()
@@ -61,10 +57,16 @@ void RenderScene::SetSkybox(std::shared_ptr<Objects::RenderObject> pSkybox)
     m_pSkybox = pSkybox;
 }
 
+void RenderScene::SetEnvironment(std::shared_ptr<Objects::RenderObject> pEnvironment)
+{
+    m_pEnvironment = pEnvironment;
+}
+
 void RenderScene::CreateObjects()
 {
-    m_pRoot->Create(m_pResourceManager);
     UVBO->Create();
+    m_pEnvironment->Create(m_pResourceManager);
+    m_pRoot->Create(m_pResourceManager);
 }
 
 void RenderScene::Render(float fDeltaTime)

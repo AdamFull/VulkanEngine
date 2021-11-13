@@ -49,7 +49,6 @@ void VulkanHighLevel::Create(FEngineCreateInfo createInfo)
     m_pSwapChain->Create();
     m_pUniform->Create(m_pSwapChain->GetFramesInFlight(), sizeof(FUniformData));
     m_pRenderer->Create();
-    m_pOverlay->Create();
 }
 
 vk::CommandBuffer VulkanHighLevel::BeginFrame(bool *bResult)

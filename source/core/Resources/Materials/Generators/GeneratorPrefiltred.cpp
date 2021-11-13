@@ -1,7 +1,11 @@
 #include "GeneratorPrefiltred.h"
+#include "Core/VulkanUniform.h"
+#include "Resources/Meshes/VulkanMesh.h"
+#include "Resources/ResourceManager.h"
 #include "Core/VulkanAllocator.h"
 
 using namespace Engine::Resources::Material::Generator;
+using namespace Engine::Core;
 using namespace Engine::Core::Descriptor;
 using namespace Engine::Resources::Texture;
 using namespace Engine::Resources::Loaders;
@@ -12,7 +16,7 @@ GeneratorPrefiltred::GeneratorPrefiltred(std::shared_ptr<Core::Device> device, s
     m_swapchain = swapchain;
 }
 
-void GeneratorPrefiltred::Create()
+void GeneratorPrefiltred::Create(std::shared_ptr<ResourceManager> pResMgr)
 {
     m_iDimension = 512;
     CreateTextures();
@@ -22,7 +26,7 @@ void GeneratorPrefiltred::Create()
     constantRange.size = sizeof(FPrefiltredPushBlock);
     m_vConstantRanges.emplace_back(constantRange);
 
-    GeneratorBase::Create();
+    GeneratorBase::Create(pResMgr);
 }
 
 void GeneratorPrefiltred::CreateDescriptors(uint32_t images)
@@ -43,9 +47,9 @@ void GeneratorPrefiltred::CreateDescriptors(uint32_t images)
     m_pMatDesc->Update(0, 0, imageInfo);
 }
 
-void GeneratorPrefiltred::Generate(uint32_t indexCount, uint32_t firstIndex)
+void GeneratorPrefiltred::Generate(std::shared_ptr<Mesh::MeshBase> pMesh)
 {
-    GeneratorBase::Generate(indexCount, firstIndex);
+    GeneratorBase::Generate(pMesh);
 
     vk::ClearValue clearValues[1];
 	clearValues[0].color = {std::array<float, 4>{0.0f, 0.0f, 0.2f, 0.0f}};
@@ -91,7 +95,8 @@ void GeneratorPrefiltred::Generate(uint32_t indexCount, uint32_t firstIndex)
             tempBuffer.bindPipeline(vk::PipelineBindPoint::eGraphics, pPipeline->GetPipeline());
             m_pMatDesc->Bind(tempBuffer, 0);
             UVBO->Bind(tempBuffer);
-            tempBuffer.drawIndexed(indexCount, 1, firstIndex, 0, 0);
+            FUniformData ubo{};
+            pMesh->Render(tempBuffer, 0, ubo);
             tempBuffer.endRenderPass();
 
             m_pGeneratedImage->TransitionImageLayout(tempBuffer, vk::ImageLayout::eTransferSrcOptimal, vk::ImageAspectFlagBits::eColor);
@@ -120,6 +125,7 @@ void GeneratorPrefiltred::Generate(uint32_t indexCount, uint32_t firstIndex)
     }
 
     m_pCubemap->TransitionImageLayout(tempBuffer, vk::ImageLayout::eShaderReadOnlyOptimal, vk::ImageAspectFlagBits::eColor);
+    m_pCubemap->UpdateDescriptor();
     
     m_device->EndSingleTimeCommands(tempBuffer);
 }
@@ -131,12 +137,7 @@ std::shared_ptr<TextureBase> GeneratorPrefiltred::Get()
 
 void GeneratorPrefiltred::CreateTextures()
 {
-    m_pGeneratedImage = Core::FDefaultAllocator::Allocate<TextureBase>();
-    ktxTexture *offscreen;
-    ImageLoader::AllocateRawDataAsKTXTexture(&offscreen, &imageFormat, m_iDimension, m_iDimension, 1, 2, 0x881A);
-    m_pGeneratedImage->InitializeTexture(offscreen, imageFormat, vk::ImageUsageFlagBits::eColorAttachment | vk::ImageUsageFlagBits::eSampled);
-    m_pGeneratedImage->UpdateDescriptor();
-    ImageLoader::Close(&offscreen);
+    GeneratorBase::CreateTextures();
 
     m_pCubemap = Core::FDefaultAllocator::Allocate<TextureBase>();
     ktxTexture *cubemap;

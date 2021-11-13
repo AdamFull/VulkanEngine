@@ -20,6 +20,7 @@ namespace Engine
                 uint32_t indexCount;
                 uint32_t firstVertex;
                 uint32_t vertexCount;
+                bool bUseMaterial{false};
                 std::shared_ptr<Material::MaterialBase> material;
 
                 struct Dimensions
@@ -38,7 +39,7 @@ namespace Engine
             {
             public:
                 
-                void Create() override;
+                void Create(std::shared_ptr<ResourceManager> pResMgr) override;
                 virtual void AddPrimitive(Primitive &&primitive);
                 Primitive& GetPrimitive(uint32_t index);
                 virtual void SetMaterial(std::shared_ptr<Material::MaterialBase> material);

@@ -50,6 +50,8 @@ namespace Engine
                 virtual void LoadFromFile(std::string srPath);
                 virtual void LoadFromMemory(ktxTexture *info, vk::Format format);
 
+                void SetImageLayout(vk::ImageLayout layout);
+
                 virtual FTextureParams &GetParams() { return fParams; }
                 virtual vk::DescriptorImageInfo &GetDescriptor() { return descriptor; }
 

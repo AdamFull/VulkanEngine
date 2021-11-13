@@ -7,6 +7,7 @@
 #include "Resources/Meshes/MeshFactory.h"
 #include "Resources/Materials/MaterialFactory.h"
 #include "Resources/Meshes/Loaders/GLTFLoader.h"
+#include "Resources/Textures/TextureFactory.h"
 
 #include "Objects/RenderObject.h"
 #include "Objects/Components/Camera/CameraComponent.h"
@@ -31,6 +32,8 @@ std::unique_ptr<RenderScene> SceneFactory::Create(std::string srScenePath)
     auto pResMgr = pRenderScene->GetResourceManager();
     // TODO: check is skybox exists
     pRenderScene->SetSkybox(CreateComponent(pResMgr, info.skybox));
+    //TODO: Made it better
+    pRenderScene->SetEnvironment(CreateComponent(pResMgr, info.environment));
 
     CreateComponents(pRoot, pResMgr, info.vSceneObjects);
 
@@ -63,8 +66,8 @@ std::shared_ptr<Objects::RenderObject> SceneFactory::CreateComponent(std::shared
     case ESceneObjectType::eGltfMesh:
         object = CreateGLTFMesh(pResMgr, info);
         break;
-    case ESceneObjectType::eVolume:
-        object = CreateVolume(pResMgr, info);
+    case ESceneObjectType::eEnvironment:
+        object = CreateEnvironment(pResMgr, info);
         break;
     }
 
@@ -99,7 +102,7 @@ std::shared_ptr<Objects::RenderObject> SceneFactory::CreateStaticMesh(std::share
 //Todo: do smth with code reusing
 std::shared_ptr<Objects::RenderObject> SceneFactory::CreateSkybox(std::shared_ptr<Resources::ResourceManager> pResMgr, FSceneObject info)
 {
-    auto loader = std::make_shared<Resources::Loaders::GLTFLoader>(info.mesh.bUseIncludedMaterial, info.srUseVolume);
+    auto loader = std::make_shared<Resources::Loaders::GLTFLoader>(info.mesh.bUseIncludedMaterial, true, info.srName, info.srUseVolume);
 
     if (!info.mesh.bUseIncludedMaterial)
     {
@@ -123,8 +126,7 @@ std::shared_ptr<Objects::RenderObject> SceneFactory::CreateSkybox(std::shared_pt
 
 std::shared_ptr<Objects::RenderObject> SceneFactory::CreateGLTFMesh(std::shared_ptr<Resources::ResourceManager> pResMgr, FSceneObject info)
 {
-    auto loader = std::make_shared<Resources::Loaders::GLTFLoader>(info.mesh.bUseIncludedMaterial, info.srUseVolume);
-
+    auto loader = std::make_shared<Resources::Loaders::GLTFLoader>(info.mesh.bUseIncludedMaterial, true, info.srName, info.srUseVolume);
     if (!info.mesh.bUseIncludedMaterial)
     {
         for (auto &matInfo : info.mesh.vMaterials)
@@ -144,30 +146,15 @@ std::shared_ptr<Objects::RenderObject> SceneFactory::CreateGLTFMesh(std::shared_
     return mesh;
 }
 
-std::shared_ptr<Objects::RenderObject> SceneFactory::CreateVolume(std::shared_ptr<Resources::ResourceManager> pResMgr, FSceneObject info)
+std::shared_ptr<Objects::RenderObject> SceneFactory::CreateEnvironment(std::shared_ptr<Resources::ResourceManager> pResMgr, FSceneObject info)
 {
-    /*auto tmp = std::make_shared<Resources::Loaders::GLTFLoader::LoaderTemporaryObject>();
-    tmp->bLoadMaterials = info.mesh.bUseIncludedMaterial;
-    if (!info.mesh.bUseIncludedMaterial)
-    {
-        for (auto &matInfo : info.mesh.vMaterials)
-        {
-            auto material = Resources::Material::MaterialFactory::Create(pResMgr, matInfo);
-            tmp->vMaterials.emplace_back(material);
-            pResMgr->AddExisting(material->GetName(), material);
-        }
-    }
+    auto loader = std::make_shared<Resources::Loaders::GLTFLoader>(true, false, info.srName, info.srUseVolume);
 
-    auto volume = std::make_shared<Objects::Components::MeshVolumeComponent>();
+    auto environment = std::make_shared<Objects::Components::MeshVolumeComponent>();
+    loader->Load(info.mesh.srSrc, info.srName, pResMgr);
+    environment->SetName(info.srName);
+    environment->SetMesh(loader->GetMesh());
+    environment->SetTexture(Resources::Texture::TextureFactory::Create(pResMgr, info.texture));
 
-    auto mesh = std::make_shared<Objects::Components::MeshComponentBase>();
-    Resources::Loaders::GLTFLoader::Load(info.mesh.srSrc, info.srName, tmp, mesh, pResMgr);
-    mesh->SetTransform(info.fTransform);
-    mesh->SetName(info.srName);
-
-    volume->SetMesh(mesh);
-    volume->Create(pResMgr);
-
-    return mesh;*/
-    return nullptr;
+    return environment;
 }

@@ -5,7 +5,6 @@ namespace Engine
 {
     namespace Resources
     {
-        class ResourceManager;
         namespace Mesh
         {
             class MeshBase;

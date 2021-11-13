@@ -1,10 +1,11 @@
 #include "GeneratorBase.h"
-#include "Resources/Textures/VulkanTexture.h"
+#include "Resources/ResourceManager.h"
 #include "Core/VulkanAllocator.h"
 
 using namespace Engine::Resources::Material::Generator;
 using namespace Engine::Core::Pipeline;
 using namespace Engine::Resources::Texture;
+using namespace Engine::Resources::Loaders;
 
 GeneratorBase::GeneratorBase(std::shared_ptr<Core::Device> device, std::shared_ptr<Core::SwapChain> swapchain)
 {
@@ -36,13 +37,13 @@ FPipelineCreateInfo GeneratorBase::CreateInfo(EShaderSet eSet)
     return MaterialBase::CreateInfo(eSet);
 }
 
-void GeneratorBase::Create()
+void GeneratorBase::Create(std::shared_ptr<ResourceManager> pResMgr)
 {
     CreateTextures();
     CreateRenderPass(imageFormat);
     CreateFramebuffer();
 
-    MaterialBase::Create();
+    MaterialBase::Create(pResMgr);
 }
 
 void GeneratorBase::Cleanup()
@@ -50,7 +51,7 @@ void GeneratorBase::Cleanup()
     MaterialBase::Cleanup();
 }
 
-void GeneratorBase::Generate(uint32_t indexCount, uint32_t firstIndex)
+void GeneratorBase::Generate(std::shared_ptr<Mesh::MeshBase> pMesh)
 {
 
 }
@@ -67,7 +68,7 @@ void GeneratorBase::CreateDescriptors(uint32_t images)
 
 void GeneratorBase::CreateRenderPass(vk::Format format)
 {
-    vk::AttachmentDescription attDesc = {};
+	vk::AttachmentDescription attDesc = {};
 	// Color attachment
 	attDesc.format = format;
 	attDesc.samples = vk::SampleCountFlagBits::e1;
@@ -76,7 +77,14 @@ void GeneratorBase::CreateRenderPass(vk::Format format)
 	attDesc.stencilLoadOp = vk::AttachmentLoadOp::eDontCare;
 	attDesc.stencilStoreOp = vk::AttachmentStoreOp::eDontCare;
 	attDesc.initialLayout = vk::ImageLayout::eUndefined;
-	attDesc.finalLayout = vk::ImageLayout::eShaderReadOnlyOptimal;
+	
+	switch (GetShaderSet())
+	{
+		case EShaderSet::eBRDF: attDesc.finalLayout = vk::ImageLayout::eShaderReadOnlyOptimal; break;
+		case EShaderSet::eIrradiateCube: attDesc.finalLayout = vk::ImageLayout::eColorAttachmentOptimal; break;
+		case EShaderSet::ePrefiltred: attDesc.finalLayout = vk::ImageLayout::eColorAttachmentOptimal; break;
+	}
+
 	vk::AttachmentReference colorReference = { 0, vk::ImageLayout::eColorAttachmentOptimal };
 
 	vk::SubpassDescription subpassDescription = {};
@@ -128,5 +136,36 @@ void GeneratorBase::CreateFramebuffer()
 
 void GeneratorBase::CreateTextures()
 {
+	int iFormat{0};
+	bool bTransfer{false};
+	vk::ImageUsageFlags usageFlags{};
 
+	switch (GetShaderSet())
+	{
+		case EShaderSet::eBRDF: 
+		iFormat = 0x822F; 
+		usageFlags = vk::ImageUsageFlagBits::eColorAttachment | vk::ImageUsageFlagBits::eSampled;
+		break;
+		case EShaderSet::eIrradiateCube: 
+		iFormat = 0x8814;
+		usageFlags = vk::ImageUsageFlagBits::eColorAttachment | vk::ImageUsageFlagBits::eTransferSrc;
+		bTransfer = true;
+		break;
+		case EShaderSet::ePrefiltred:
+		iFormat = 0x881A;
+		usageFlags = vk::ImageUsageFlagBits::eColorAttachment | vk::ImageUsageFlagBits::eTransferSrc;
+		bTransfer = true;
+		break;
+	}
+
+	m_pGeneratedImage = Core::FDefaultAllocator::Allocate<TextureBase>();
+    ktxTexture *offscreen;
+    ImageLoader::AllocateRawDataAsKTXTexture(&offscreen, &imageFormat, m_iDimension, m_iDimension, 1, 2, iFormat);
+    m_pGeneratedImage->InitializeTexture(offscreen, imageFormat, usageFlags);
+    m_pGeneratedImage->UpdateDescriptor();
+
+	if(bTransfer)
+    	m_pGeneratedImage->TransitionImageLayout(vk::ImageLayout::eColorAttachmentOptimal, vk::ImageAspectFlagBits::eColor);
+
+    ImageLoader::Close(&offscreen);
 }

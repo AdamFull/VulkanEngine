@@ -1,5 +1,6 @@
 #include "MaterialDiffuse.h"
 #include "Core/VulkanAllocator.h"
+#include "Resources/ResourceManager.h"
 
 using namespace Engine::Resources;
 using namespace Engine::Resources::Material;
@@ -11,10 +12,15 @@ MaterialDiffuse::MaterialDiffuse(std::shared_ptr<Core::Device> device, std::shar
     m_swapchain = swapchain;
 }
 
-void MaterialDiffuse::Create()
+void MaterialDiffuse::Create(std::shared_ptr<ResourceManager> pResMgr)
 {
     renderPass = m_swapchain->GetRenderPass();
-    MaterialBase::Create();
+
+    m_mTextures[ETextureAttachmentType::eBRDFLUT] = pResMgr->Get<Texture::TextureBase>("environment_component_brdf");
+    m_mTextures[ETextureAttachmentType::eIrradiance] = pResMgr->Get<Texture::TextureBase>("environment_component_irradiate_cube");
+    m_mTextures[ETextureAttachmentType::ePrefiltred] = pResMgr->Get<Texture::TextureBase>("environment_component_prefiltred_cube");
+
+    MaterialBase::Create(pResMgr);
 }
 
 void MaterialDiffuse::ReCreate()

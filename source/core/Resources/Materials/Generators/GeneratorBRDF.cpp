@@ -1,10 +1,10 @@
 #include "GeneratorBRDF.h"
+#include "Resources/ResourceManager.h"
 #include "Core/VulkanAllocator.h"
 
 using namespace Engine::Resources::Material::Generator;
 using namespace Engine::Core::Descriptor;
 using namespace Engine::Resources::Texture;
-using namespace Engine::Resources::Loaders;
 
 GeneratorBRDF::GeneratorBRDF(std::shared_ptr<Core::Device> device, std::shared_ptr<Core::SwapChain> swapchain)
 {
@@ -12,9 +12,9 @@ GeneratorBRDF::GeneratorBRDF(std::shared_ptr<Core::Device> device, std::shared_p
     m_swapchain = swapchain;
 }
 
-void GeneratorBRDF::Create()
+void GeneratorBRDF::Create(std::shared_ptr<ResourceManager> pResMgr)
 {
-    GeneratorBase::Create();
+    GeneratorBase::Create(pResMgr);
 }
 
 void GeneratorBRDF::CreateDescriptors(uint32_t images)
@@ -30,9 +30,9 @@ void GeneratorBRDF::CreateDescriptors(uint32_t images)
     m_pMatDesc->AttachDescriptorSet(std::move(texSet), std::move(texSetLayout));
 }
 
-void GeneratorBRDF::Generate(uint32_t indexCount, uint32_t firstIndex)
+void GeneratorBRDF::Generate(std::shared_ptr<Mesh::MeshBase> pMesh)
 {
-    GeneratorBase::Generate(indexCount, firstIndex);
+    GeneratorBase::Generate(pMesh);
 
     vk::ClearValue clearValues[1];
 	clearValues[0].color = {std::array<float, 4>{0.0f, 0.0f, 0.0f, 1.0f}};
@@ -63,19 +63,11 @@ void GeneratorBRDF::Generate(uint32_t indexCount, uint32_t firstIndex)
     tempBuffer.draw(3, 1, 0, 0);
     tempBuffer.endRenderPass();
     m_device->EndSingleTimeCommands(tempBuffer);
+    m_pGeneratedImage->SetImageLayout(vk::ImageLayout::eShaderReadOnlyOptimal);
+    m_pGeneratedImage->UpdateDescriptor();
 }
 
 void GeneratorBRDF::CreateTextures()
 {
-    m_pGeneratedImage = std::make_shared<TextureBase>();
-
-    ktxTexture *texture;
-    ImageLoader::AllocateRawDataAsKTXTexture(&texture, &imageFormat, m_iDimension, m_iDimension, 1, 2, 0x822F);
-
-    m_pGeneratedImage->InitializeTexture(texture, imageFormat, vk::ImageUsageFlagBits::eColorAttachment | vk::ImageUsageFlagBits::eSampled);
-    m_pGeneratedImage->UpdateDescriptor();
-
-    ImageLoader::Close(&texture);
-    
     GeneratorBase::CreateTextures();
 }

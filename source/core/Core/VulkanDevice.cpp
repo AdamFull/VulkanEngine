@@ -420,13 +420,37 @@ void Device::TransitionImageLayout(vk::CommandBuffer& internalBuffer, vk::Image 
             sourceStage = vk::PipelineStageFlagBits::eTopOfPipe;
             destinationStage = vk::PipelineStageFlagBits::eTransfer;
         }
-        else if (oldLayout == vk::ImageLayout::eTransferDstOptimal && newLayout == vk::ImageLayout::eShaderReadOnlyOptimal)
+        else if(oldLayout == vk::ImageLayout::eUndefined && newLayout == vk::ImageLayout::eColorAttachmentOptimal)
+        {
+            barrier.srcAccessMask = (vk::AccessFlagBits)0;
+            barrier.dstAccessMask = vk::AccessFlagBits::eColorAttachmentWrite;
+
+            sourceStage = vk::PipelineStageFlagBits::eTopOfPipe;
+            destinationStage = vk::PipelineStageFlagBits::eColorAttachmentOutput;
+        }
+        else if (oldLayout == vk::ImageLayout::eUndefined && newLayout == vk::ImageLayout::eDepthStencilAttachmentOptimal)
+        {
+            barrier.srcAccessMask = (vk::AccessFlagBits)0;
+            barrier.dstAccessMask = vk::AccessFlagBits::eDepthStencilAttachmentRead | vk::AccessFlagBits::eDepthStencilAttachmentWrite;
+
+            sourceStage = vk::PipelineStageFlagBits::eTopOfPipe;
+            destinationStage = vk::PipelineStageFlagBits::eEarlyFragmentTests;
+        }
+        else if (oldLayout == vk::ImageLayout::eColorAttachmentOptimal && newLayout == vk::ImageLayout::eTransferSrcOptimal)
+        {
+            barrier.srcAccessMask = vk::AccessFlagBits::eColorAttachmentWrite;
+            barrier.dstAccessMask = vk::AccessFlagBits::eTransferWrite;
+
+            sourceStage = vk::PipelineStageFlagBits::eColorAttachmentOutput;
+            destinationStage = vk::PipelineStageFlagBits::eTransfer;
+        }
+        else if (oldLayout == vk::ImageLayout::eTransferSrcOptimal && newLayout == vk::ImageLayout::eColorAttachmentOptimal)
         {
             barrier.srcAccessMask = vk::AccessFlagBits::eTransferWrite;
-            barrier.dstAccessMask = vk::AccessFlagBits::eShaderRead;
+            barrier.dstAccessMask = vk::AccessFlagBits::eColorAttachmentWrite;
 
             sourceStage = vk::PipelineStageFlagBits::eTransfer;
-            destinationStage = vk::PipelineStageFlagBits::eFragmentShader;
+            destinationStage = vk::PipelineStageFlagBits::eColorAttachmentOutput;
         }
         else if (oldLayout == vk::ImageLayout::eTransferDstOptimal && newLayout == vk::ImageLayout::eTransferSrcOptimal)
         {
@@ -436,7 +460,7 @@ void Device::TransitionImageLayout(vk::CommandBuffer& internalBuffer, vk::Image 
             sourceStage = vk::PipelineStageFlagBits::eTransfer;
             destinationStage = vk::PipelineStageFlagBits::eTransfer;
         }
-        else if (oldLayout == vk::ImageLayout::eTransferSrcOptimal && newLayout == vk::ImageLayout::eShaderReadOnlyOptimal)
+        else if (oldLayout == vk::ImageLayout::eTransferDstOptimal && newLayout == vk::ImageLayout::eShaderReadOnlyOptimal)
         {
             barrier.srcAccessMask = vk::AccessFlagBits::eTransferWrite;
             barrier.dstAccessMask = vk::AccessFlagBits::eShaderRead;
@@ -444,13 +468,13 @@ void Device::TransitionImageLayout(vk::CommandBuffer& internalBuffer, vk::Image 
             sourceStage = vk::PipelineStageFlagBits::eTransfer;
             destinationStage = vk::PipelineStageFlagBits::eFragmentShader;
         }
-        else if (oldLayout == vk::ImageLayout::eUndefined && newLayout == vk::ImageLayout::eDepthStencilAttachmentOptimal)
+        else if (oldLayout == vk::ImageLayout::eTransferSrcOptimal && newLayout == vk::ImageLayout::eShaderReadOnlyOptimal)
         {
-            barrier.srcAccessMask = (vk::AccessFlagBits)0;
-            barrier.dstAccessMask = vk::AccessFlagBits::eDepthStencilAttachmentRead | vk::AccessFlagBits::eDepthStencilAttachmentWrite;
+            barrier.srcAccessMask = vk::AccessFlagBits::eTransferWrite;
+            barrier.dstAccessMask = vk::AccessFlagBits::eShaderRead;
 
-            sourceStage = vk::PipelineStageFlagBits::eTopOfPipe;
-            destinationStage = vk::PipelineStageFlagBits::eEarlyFragmentTests;
+            sourceStage = vk::PipelineStageFlagBits::eTransfer;
+            destinationStage = vk::PipelineStageFlagBits::eFragmentShader;
         }
         else
         {

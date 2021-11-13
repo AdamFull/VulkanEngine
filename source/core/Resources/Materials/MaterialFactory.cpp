@@ -45,7 +45,5 @@ std::shared_ptr<MaterialBase> MaterialFactory::Create(std::shared_ptr<Resources:
         }
     }
 
-    material->AddTexture(ETextureAttachmentType::eEmpty, resourceMgr->Get<Texture::TextureBase>("no_texture"));
-
     return material;
 }

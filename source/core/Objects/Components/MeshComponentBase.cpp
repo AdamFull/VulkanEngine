@@ -18,7 +18,7 @@ void MeshComponentBase::Create(std::shared_ptr<ResourceManager> resourceMgr)
 
     if (m_pMesh)
     {
-        m_pMesh->Create();
+        m_pMesh->Create(resourceMgr);
     }
 }
 

@@ -1,8 +1,5 @@
 #include "MeshVolumeComponent.h"
-#include "Resources/Materials/Generators/GeneratorBRDF.h"
-#include "Resources/Materials/Generators/GeneratorIrradiate.h"
-#include "Resources/Materials/Generators/GeneratorPrefiltred.h"
-#include "Resources/Textures/VulkanTexture.h"
+#include "Core/VulkanAllocator.h"
 #include "Resources/ResourceManager.h"
 
 using namespace Engine::Objects::Components;
@@ -11,32 +8,30 @@ using namespace Engine::Resources::Material::Generator;
 
 void MeshVolumeComponent::Create(std::shared_ptr<Resources::ResourceManager> resourceMgr)
 {
-    /*if(m_pMesh)
-    {
-        auto primitive = m_pMesh->GetPrimitive(0);
+    MeshComponentBase::Create(resourceMgr);
 
-        auto pGeneratorBRDF = std::make_shared<GeneratorBRDF>();
-        pGeneratorBRDF->Create();
-        pGeneratorBRDF->Generate(primitive.indexCount, primitive.firstIndex);
+    if(m_pMesh)
+    {
+        auto pGeneratorBRDF = Core::FDefaultAllocator::Allocate<GeneratorBRDF>();
+        pGeneratorBRDF->Create(resourceMgr);
+        pGeneratorBRDF->Generate(m_pMesh);
         resourceMgr->AddExisting(GetName() + "_brdf", pGeneratorBRDF->Get());
         pGeneratorBRDF->Destroy();
 
-        auto pGeneratorIrradiate = std::make_shared<GeneratorIrradiate>();
-        pGeneratorIrradiate->AddTexture(ETextureAttachmentType::eCubemap, primitive.material->GetTexture(ETextureAttachmentType::eCubemap));
-        pGeneratorIrradiate->Create();
-        pGeneratorIrradiate->Generate(primitive.indexCount, primitive.firstIndex);
+        auto pGeneratorIrradiate = Core::FDefaultAllocator::Allocate<GeneratorIrradiate>();
+        pGeneratorIrradiate->AddTexture(ETextureAttachmentType::eCubemap, m_pTexture);
+        pGeneratorIrradiate->Create(resourceMgr);
+        pGeneratorIrradiate->Generate(m_pMesh);
         resourceMgr->AddExisting(GetName() + "_irradiate_cube", pGeneratorIrradiate->Get());
         pGeneratorIrradiate->Destroy();
 
-        auto pGeneratorPrefiltred = std::make_shared<GeneratorIrradiate>();
-        pGeneratorPrefiltred->AddTexture(ETextureAttachmentType::eCubemap, primitive.material->GetTexture(ETextureAttachmentType::eCubemap));
-        pGeneratorPrefiltred->Create();
-        pGeneratorPrefiltred->Generate(primitive.indexCount, primitive.firstIndex);
-        resourceMgr->AddExisting("_prefiltred_cube", pGeneratorPrefiltred->Get());
+        auto pGeneratorPrefiltred = Core::FDefaultAllocator::Allocate<GeneratorPrefiltred>();
+        pGeneratorPrefiltred->AddTexture(ETextureAttachmentType::eCubemap, m_pTexture);
+        pGeneratorPrefiltred->Create(resourceMgr);
+        pGeneratorPrefiltred->Generate(m_pMesh);
+        resourceMgr->AddExisting(GetName() + "_prefiltred_cube", pGeneratorPrefiltred->Get());
         pGeneratorPrefiltred->Destroy();
     }
-*/
-    MeshComponentBase::Create(resourceMgr);
 }
 
 void MeshVolumeComponent::ReCreate()

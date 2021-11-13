@@ -13,7 +13,7 @@ namespace Engine
                 MaterialUI() = default;
                 MaterialUI(std::shared_ptr<Core::Device> device, std::shared_ptr<Core::SwapChain> swapchain);
 
-                void Create() override;
+                void Create(std::shared_ptr<ResourceManager> pResMgr) override;
                 void ReCreate() override;
                 void Update(uint32_t imageIndex) override;
                 void Bind(vk::CommandBuffer commandBuffer, uint32_t imageIndex) override;

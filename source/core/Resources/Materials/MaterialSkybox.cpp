@@ -1,5 +1,6 @@
 #include "MaterialSkybox.h"
 #include "Core/VulkanAllocator.h"
+#include "Resources/ResourceManager.h"
 
 using namespace Engine::Resources::Material;
 using namespace Engine::Core::Descriptor;
@@ -10,10 +11,10 @@ MaterialSkybox::MaterialSkybox(std::shared_ptr<Core::Device> device, std::shared
     m_swapchain = swapchain;
 }
 
-void MaterialSkybox::Create()
+void MaterialSkybox::Create(std::shared_ptr<ResourceManager> pResMgr)
 {
     renderPass = m_swapchain->GetRenderPass();
-    MaterialBase::Create();
+    MaterialBase::Create(pResMgr);
 }
 
 void MaterialSkybox::ReCreate()

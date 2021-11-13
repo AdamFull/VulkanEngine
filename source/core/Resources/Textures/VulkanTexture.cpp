@@ -337,3 +337,8 @@ void TextureBase::LoadFromMemory(ktxTexture *info, vk::Format format)
     WriteImageData(info, format);
     UpdateDescriptor();
 }
+
+void TextureBase::SetImageLayout(vk::ImageLayout layout)
+{
+    imageLayout = layout;
+}

@@ -18,7 +18,7 @@ namespace Engine
             struct GLTFLoader
             {
             public:
-                GLTFLoader(bool loadMaterials, const std::string& modelName);
+                GLTFLoader(bool loadMaterials, bool useMaterials, const std::string& modelName, const std::string& volumeName);
 
                 void Load(std::string srPath, std::string srName, std::shared_ptr<Resources::ResourceManager> pResMgr);
 
@@ -50,6 +50,7 @@ namespace Engine
                 //Parameters
                 bool bLoadTextures;
                 bool bLoadMaterials;
+                bool bUseMaterials;
                 std::string srModelName;
                 std::string srVolumeName;
             };

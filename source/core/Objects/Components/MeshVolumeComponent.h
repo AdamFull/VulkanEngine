@@ -4,8 +4,8 @@
 namespace Engine
 {
     namespace Resources
-    {
-        class ResourceManager;
+    { 
+        namespace Texture { class TextureBase; }
     }
     namespace Objects
     {
@@ -21,6 +21,11 @@ namespace Engine
                 void Render(vk::CommandBuffer &commandBuffer, uint32_t imageIndex) override;
                 void Cleanup() override;
                 void Destroy() override;
+
+                inline void SetTexture(std::shared_ptr<Resources::Texture::TextureBase> pTexture) { m_pTexture = pTexture; }
+            
+            private:
+                std::shared_ptr<Resources::Texture::TextureBase> m_pTexture;
             };
         }
     }

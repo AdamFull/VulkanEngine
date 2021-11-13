@@ -20,6 +20,6 @@ namespace Engine
         static std::shared_ptr<Objects::RenderObject> CreateStaticMesh(std::shared_ptr<Resources::ResourceManager> pResMgr, FSceneObject info);
         static std::shared_ptr<Objects::RenderObject> CreateSkybox(std::shared_ptr<Resources::ResourceManager> pResMgr, FSceneObject info);
         static std::shared_ptr<Objects::RenderObject> CreateGLTFMesh(std::shared_ptr<Resources::ResourceManager> pResMgr, FSceneObject info);
-        static std::shared_ptr<Objects::RenderObject> CreateVolume(std::shared_ptr<Resources::ResourceManager> pResMgr, FSceneObject info);
+        static std::shared_ptr<Objects::RenderObject> CreateEnvironment(std::shared_ptr<Resources::ResourceManager> pResMgr, FSceneObject info);
     };
 }

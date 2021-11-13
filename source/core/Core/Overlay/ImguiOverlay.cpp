@@ -5,6 +5,7 @@
 #include "Core/Window/WindowHandle.h"
 #include "Core/VulkanDevice.h"
 #include "Core/VulkanBuffer.h"
+#include "Resources/ResourceManager.h"
 #include "Resources/Textures/VulkanTexture.h"
 #include "Resources/Materials/MaterialUI.h"
 #include "Core/VulkanSwapChain.h"
@@ -39,7 +40,7 @@ ImguiOverlay::~ImguiOverlay()
     m_pUniform->Cleanup();
 }
 
-void ImguiOverlay::Create()
+void ImguiOverlay::Create(std::shared_ptr<ResourceManager> pResMgr)
 {
     fontTexture = FDefaultAllocator::Allocate<TextureBase>();
     fontMaterial = FDefaultAllocator::Allocate<MaterialUI>();
@@ -50,7 +51,7 @@ void ImguiOverlay::Create()
     ImGui::CreateContext();
     BaseInitialize();
     m_pUniform->Create(m_swapchain->GetFramesInFlight(), sizeof(FUniformDataUI));
-    CreateResources();
+    CreateFontResources(pResMgr);
 
     m_vOverlays.emplace_back(std::make_shared<Overlay::OverlayDebug>("Debug info"));
     m_vOverlays.emplace_back(std::make_shared<Overlay::OverlayConsole>("Console"));
@@ -102,12 +103,7 @@ void ImguiOverlay::BaseInitialize()
     io.DisplayFramebufferScale = ImVec2(1.0f, 1.0f);
 }
 
-void ImguiOverlay::CreateResources()
-{
-    CreateFontResources();
-}
-
-void ImguiOverlay::CreateFontResources()
+void ImguiOverlay::CreateFontResources(std::shared_ptr<ResourceManager> pResMgr)
 {
     ImGuiIO &io = ImGui::GetIO();
 
@@ -123,7 +119,7 @@ void ImguiOverlay::CreateFontResources()
     fontTexture->InitializeTexture(texture, format);
     fontTexture->LoadFromMemory(texture, format);
     fontMaterial->AddTexture(ETextureAttachmentType::eDiffuseAlbedo, fontTexture);
-    fontMaterial->Create();
+    fontMaterial->Create(pResMgr);
 
     Loaders::ImageLoader::Close(&texture);
 }

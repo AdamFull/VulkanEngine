@@ -114,7 +114,7 @@ namespace Engine
                 json.at("noise").get_to(type.noise);
         }
 
-        void to_json(nlohmann::json &json, const const FMaterialParamsInfo &type)
+        void to_json(nlohmann::json &json, const FMaterialParamsInfo &type)
         {
             json = nlohmann::json{
                 {"cutoff", type.alpha_cutoff},
@@ -173,8 +173,6 @@ namespace Engine
             // Required
             if (json.find("params") != json.end())
                 json.at("params").get_to(type.fParams);
-
-            assert((json.find("attachments") != json.end() || json.find("textures") != json.end()) && "Cannot create material without textures");
         }
 
         void to_json(nlohmann::json &json, const FMeshCreateInfo &type)
@@ -210,8 +208,6 @@ namespace Engine
                 // Optional
                 if (json.find("materials") != json.end())
                     json.at("materials").get_to(type.vMaterials);
-
-                assert(json.find("materials") != json.end() && "Cannot create mesh without materials");
             }
         }
     }
@@ -221,7 +217,8 @@ namespace Engine
                                  {{ESceneObjectType::eCamera, "camera"},
                                   {ESceneObjectType::eSkybox, "skybox"},
                                   {ESceneObjectType::eMeshComponent, "static_mesh"},
-                                  {ESceneObjectType::eGltfMesh, "gltf_mesh"}})
+                                  {ESceneObjectType::eGltfMesh, "gltf_mesh"},
+                                  {ESceneObjectType::eEnvironment, "environment"}})
 
     namespace Objects
     {
@@ -278,6 +275,10 @@ namespace Engine
             json.at("mesh").get_to(type.mesh);
 
         // Optional
+        if (json.find("texture") != json.end())
+            json.at("texture").get_to(type.texture);
+
+        // Optional
         if (json.find("transform") != json.end())
             json.at("transform").get_to(type.fTransform);
 
@@ -300,7 +301,12 @@ namespace Engine
             json.at("skybox").get_to(type.skybox);
 
         // Optional
+        if (json.find("environment") != json.end())
+            json.at("environment").get_to(type.environment);
+
+        // Optional
         if (json.find("objects") != json.end())
             json.at("objects").get_to(type.vSceneObjects);
+
     }
 }

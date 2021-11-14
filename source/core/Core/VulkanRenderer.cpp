@@ -84,7 +84,7 @@ void Renderer::BeginRender(vk::CommandBuffer& commandBuffer)
 
     vk::RenderPassBeginInfo renderPassInfo = {};
     renderPassInfo.renderPass = m_swapchain->GetOffscreenRenderPass();
-    renderPassInfo.framebuffer = m_swapchain->GetOffscreenFramebuffers().at(data.imageIndex);
+    renderPassInfo.framebuffer = m_swapchain->GetOffscreenFramebuffers().at(0);
     renderPassInfo.renderArea.offset = vk::Offset2D{0, 0};
     renderPassInfo.renderArea.extent = screenExtent;
     renderPassInfo.clearValueCount = static_cast<uint32_t>(clearValues.size());

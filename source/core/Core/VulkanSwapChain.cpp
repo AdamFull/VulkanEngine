@@ -120,7 +120,7 @@ vk::Result SwapChain::SubmitCommandBuffers(const vk::CommandBuffer *commandBuffe
     vk::PipelineStageFlags waitStages[] = {vk::PipelineStageFlagBits::eColorAttachmentOutput};
     submitInfo.waitSemaphoreCount = 1;
     submitInfo.pWaitSemaphores = waitSemaphores;
-    //submitInfo.pWaitDstStageMask = waitStages;
+    submitInfo.pWaitDstStageMask = waitStages;
 
     submitInfo.commandBufferCount = 1;
     submitInfo.pCommandBuffers = commandBuffer;
@@ -326,7 +326,7 @@ void SwapChain::CreateRenderPass()
     colorAttachment.stencilLoadOp = vk::AttachmentLoadOp::eDontCare;
     colorAttachment.stencilStoreOp = vk::AttachmentStoreOp::eDontCare;
     colorAttachment.initialLayout = vk::ImageLayout::eUndefined;
-    colorAttachment.finalLayout = vk::ImageLayout::eColorAttachmentOptimal;
+    colorAttachment.finalLayout = vk::ImageLayout::ePresentSrcKHR; //vk::ImageLayout::eColorAttachmentOptimal;
 
     vk::AttachmentDescription depthAttachment{};
     depthAttachment.format = m_device->GetDepthFormat();
@@ -488,7 +488,7 @@ void SwapChain::CreateOffscreenFrameBuffers()
     assert(data.offscreenRenderPass && "Cannot create framebuffers, cause render pass is not valid.");
     assert(!m_mGBuffer.empty() && "Cannot create framebuffers, cause g-buffer images is not created.");
 
-    size_t images = data.vImageViews.size();
+    /*size_t images = data.vImageViews.size();
     data.vOffscreenFramebuffers.resize(images);
     for(size_t image = 0; image < images; image++)
     {
@@ -506,7 +506,22 @@ void SwapChain::CreateOffscreenFrameBuffers()
         framebufferCI.layers = 1;
 
         data.vOffscreenFramebuffers[image] = m_device->Make<vk::Framebuffer, vk::FramebufferCreateInfo>(framebufferCI);
-    }
+    }*/
+
+    data.vOffscreenFramebuffers.resize(1);
+    std::vector<vk::ImageView> vImages{};
+    for(auto& [attachment, texture] : m_mGBuffer)
+        vImages.push_back(texture->GetDescriptor().imageView);
+    vk::FramebufferCreateInfo framebufferCI = {};
+    framebufferCI.pNext = nullptr;
+    framebufferCI.renderPass = data.offscreenRenderPass;
+    framebufferCI.pAttachments = vImages.data();
+    framebufferCI.attachmentCount = static_cast<uint32_t>(vImages.size());
+    framebufferCI.width = data.extent.width;
+    framebufferCI.height = data.extent.height;
+    framebufferCI.layers = 1;
+
+    data.vOffscreenFramebuffers[0] = m_device->Make<vk::Framebuffer, vk::FramebufferCreateInfo>(framebufferCI);
 }
 
 std::shared_ptr<TextureBase> SwapChain::CreateOffscreenImage(vk::Format format, vk::ImageUsageFlags usage)

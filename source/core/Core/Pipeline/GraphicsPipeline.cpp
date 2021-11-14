@@ -30,7 +30,7 @@ void GraphicsPipeline::CreatePipeline()
     viewportState.scissorCount = 1;
     viewportState.pScissors = &savedInfo.scissor;
 
-    savedInfo.colorBlending.pAttachments = &savedInfo.colorBlendAttachment;
+    savedInfo.colorBlending.pAttachments = savedInfo.colorBlendAttachments.data();
 
     vk::GraphicsPipelineCreateInfo pipelineInfo = {};
     pipelineInfo.stageCount = m_vShaderBuffer.size();

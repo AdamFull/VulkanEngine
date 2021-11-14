@@ -17,6 +17,7 @@
 #define UDevice UHLInstance->GetDevice()
 #define USwapChain UHLInstance->GetSwapChain()
 #define UUniform UHLInstance->GetUniformBuffer()
+#define ULightUniform UHLInstance->GetLightUniformBuffer()
 #define UOverlay UHLInstance->GetOverlay()
 #define URenderer UHLInstance->GetRenderer()
 #define UVBO UHLInstance->GetVBO()
@@ -67,6 +68,7 @@ namespace Engine
             inline std::shared_ptr<Device> GetDevice() { return m_pDevice; }
             inline std::shared_ptr<SwapChain> GetSwapChain() { return m_pSwapChain; }
             inline std::shared_ptr<UniformBuffer> GetUniformBuffer() { return m_pUniform; }
+            inline std::shared_ptr<UniformBuffer> GetLightUniformBuffer() { return m_pLightUniform; }
             inline std::shared_ptr<ImguiOverlay> GetOverlay() { return m_pOverlay; }
             inline std::shared_ptr<Renderer> GetRenderer() { return m_pRenderer; }
             inline std::shared_ptr<VulkanVBO> GetVBO() { return m_pVertexBufferObject; }
@@ -83,6 +85,7 @@ namespace Engine
             std::shared_ptr<SwapChain> m_pSwapChain;
 
             std::shared_ptr<UniformBuffer> m_pUniform;
+            std::shared_ptr<UniformBuffer> m_pLightUniform;
 
             std::shared_ptr<ImguiOverlay> m_pOverlay;
 

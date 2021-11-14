@@ -224,6 +224,20 @@ vk::Format Device::FindSupportedFormat(const std::vector<vk::Format> &candidates
     throw std::runtime_error("Failed to find supported format!");
 }
 
+vk::Format Device::GetDepthFormat()
+{
+    return FindSupportedFormat
+    (
+        {
+            vk::Format::eD32Sfloat, 
+            vk::Format::eD32SfloatS8Uint, 
+            vk::Format::eD24UnormS8Uint
+        },
+        vk::ImageTiling::eOptimal, 
+        vk::FormatFeatureFlagBits::eDepthStencilAttachment
+    );
+}
+
 uint32_t Device::FindMemoryType(uint32_t typeFilter, vk::MemoryPropertyFlags properties)
 {
     vk::PhysicalDeviceMemoryProperties memProperties = data.physical.getMemoryProperties();

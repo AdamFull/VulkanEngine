@@ -22,6 +22,9 @@ namespace Engine
             eNormal,
             eHeight,
             eOcclusion,
+            //Deferred
+            ePosition,
+            eDepth,
             //Special
             eCubemap,
             eIrradiance,

@@ -38,22 +38,22 @@ FPipelineCreateInfo PipelineConfig::CreateUIPipeline(vk::RenderPass renderPass, 
     createInfo.rasterizer.frontFace = vk::FrontFace::eCounterClockwise;
     createInfo.rasterizer.depthBiasEnable = VK_FALSE;
 
-    createInfo.multisampling.sampleShadingEnable = VK_TRUE;
-    createInfo.multisampling.minSampleShading = .2f;
     createInfo.multisampling.rasterizationSamples = samples;
 
-    createInfo.colorBlendAttachment.colorWriteMask = vk::ColorComponentFlagBits::eR | vk::ColorComponentFlagBits::eG | vk::ColorComponentFlagBits::eB | vk::ColorComponentFlagBits::eA;
-    createInfo.colorBlendAttachment.blendEnable = VK_TRUE;
-    createInfo.colorBlendAttachment.srcColorBlendFactor = vk::BlendFactor::eSrcAlpha;
-    createInfo.colorBlendAttachment.dstColorBlendFactor = vk::BlendFactor::eOneMinusSrcAlpha;
-    createInfo.colorBlendAttachment.colorBlendOp = vk::BlendOp::eAdd;
-    createInfo.colorBlendAttachment.srcAlphaBlendFactor = vk::BlendFactor::eOneMinusSrcAlpha;
-    createInfo.colorBlendAttachment.dstAlphaBlendFactor = vk::BlendFactor::eZero;
-    createInfo.colorBlendAttachment.alphaBlendOp = vk::BlendOp::eAdd;
-
+    vk::PipelineColorBlendAttachmentState colorBlendAttachment;
+    colorBlendAttachment.colorWriteMask = vk::ColorComponentFlagBits::eR | vk::ColorComponentFlagBits::eG | vk::ColorComponentFlagBits::eB | vk::ColorComponentFlagBits::eA;
+    colorBlendAttachment.blendEnable = VK_TRUE;
+    colorBlendAttachment.srcColorBlendFactor = vk::BlendFactor::eSrcAlpha;
+    colorBlendAttachment.dstColorBlendFactor = vk::BlendFactor::eOneMinusSrcAlpha;
+    colorBlendAttachment.colorBlendOp = vk::BlendOp::eAdd;
+    colorBlendAttachment.srcAlphaBlendFactor = vk::BlendFactor::eOneMinusSrcAlpha;
+    colorBlendAttachment.dstAlphaBlendFactor = vk::BlendFactor::eZero;
+    colorBlendAttachment.alphaBlendOp = vk::BlendOp::eAdd;
+    createInfo.colorBlendAttachments.push_back(colorBlendAttachment);
+    
     createInfo.colorBlending.logicOpEnable = VK_FALSE;
     createInfo.colorBlending.logicOp = vk::LogicOp::eCopy;
-    createInfo.colorBlending.attachmentCount = 1;
+    createInfo.colorBlending.attachmentCount = static_cast<uint32_t>(createInfo.colorBlendAttachments.size());
     createInfo.colorBlending.blendConstants[0] = 0.0f;
     createInfo.colorBlending.blendConstants[1] = 0.0f;
     createInfo.colorBlending.blendConstants[2] = 0.0f;
@@ -116,22 +116,25 @@ FPipelineCreateInfo PipelineConfig::CreateDiffusePipeline(vk::RenderPass renderP
     createInfo.rasterizer.frontFace = vk::FrontFace::eCounterClockwise;
     createInfo.rasterizer.depthBiasEnable = VK_FALSE;
 
-    createInfo.multisampling.sampleShadingEnable = VK_TRUE;
-    createInfo.multisampling.minSampleShading = .2f;
     createInfo.multisampling.rasterizationSamples = samples;
 
-    createInfo.colorBlendAttachment.colorWriteMask = vk::ColorComponentFlagBits::eR | vk::ColorComponentFlagBits::eG | vk::ColorComponentFlagBits::eB | vk::ColorComponentFlagBits::eA;
-    createInfo.colorBlendAttachment.blendEnable = VK_TRUE;
-    createInfo.colorBlendAttachment.srcColorBlendFactor = vk::BlendFactor::eSrcAlpha;
-    createInfo.colorBlendAttachment.dstColorBlendFactor = vk::BlendFactor::eOneMinusSrcAlpha;
-    createInfo.colorBlendAttachment.colorBlendOp = vk::BlendOp::eAdd;
-    createInfo.colorBlendAttachment.srcAlphaBlendFactor = vk::BlendFactor::eOneMinusSrcAlpha;
-    createInfo.colorBlendAttachment.dstAlphaBlendFactor = vk::BlendFactor::eZero;
-    createInfo.colorBlendAttachment.alphaBlendOp = vk::BlendOp::eAdd;
+    for(uint32_t i = 0; i < 3; i++)
+    {
+        vk::PipelineColorBlendAttachmentState colorBlendAttachment;
+        colorBlendAttachment.colorWriteMask = vk::ColorComponentFlagBits::eR | vk::ColorComponentFlagBits::eG | vk::ColorComponentFlagBits::eB | vk::ColorComponentFlagBits::eA;
+        colorBlendAttachment.blendEnable = VK_TRUE;
+        colorBlendAttachment.srcColorBlendFactor = vk::BlendFactor::eSrcAlpha;
+        colorBlendAttachment.dstColorBlendFactor = vk::BlendFactor::eOneMinusSrcAlpha;
+        colorBlendAttachment.colorBlendOp = vk::BlendOp::eAdd;
+        colorBlendAttachment.srcAlphaBlendFactor = vk::BlendFactor::eOneMinusSrcAlpha;
+        colorBlendAttachment.dstAlphaBlendFactor = vk::BlendFactor::eZero;
+        colorBlendAttachment.alphaBlendOp = vk::BlendOp::eAdd;
+        createInfo.colorBlendAttachments.emplace_back(colorBlendAttachment);
+    }
 
     createInfo.colorBlending.logicOpEnable = VK_FALSE;
     createInfo.colorBlending.logicOp = vk::LogicOp::eCopy;
-    createInfo.colorBlending.attachmentCount = 1;
+    createInfo.colorBlending.attachmentCount = static_cast<uint32_t>(createInfo.colorBlendAttachments.size());
     createInfo.colorBlending.blendConstants[0] = 0.0f;
     createInfo.colorBlending.blendConstants[1] = 0.0f;
     createInfo.colorBlending.blendConstants[2] = 0.0f;
@@ -183,14 +186,17 @@ FPipelineCreateInfo PipelineConfig::CreateSkyboxPipeline(vk::RenderPass renderPa
     createInfo.rasterizer.cullMode = vk::CullModeFlagBits::eFront;
     createInfo.rasterizer.frontFace = vk::FrontFace::eCounterClockwise;
 
-    createInfo.multisampling.sampleShadingEnable = VK_TRUE;
-    createInfo.multisampling.minSampleShading = .2f;
     createInfo.multisampling.rasterizationSamples = samples;
 
-    createInfo.colorBlendAttachment.colorWriteMask = vk::ColorComponentFlagBits::eR | vk::ColorComponentFlagBits::eG | vk::ColorComponentFlagBits::eB | vk::ColorComponentFlagBits::eA;
-    createInfo.colorBlendAttachment.blendEnable = VK_FALSE;
+    for(uint32_t i = 0; i < 3; i++)
+    {
+        vk::PipelineColorBlendAttachmentState colorBlendAttachment;
+        colorBlendAttachment.colorWriteMask = vk::ColorComponentFlagBits::eR | vk::ColorComponentFlagBits::eG | vk::ColorComponentFlagBits::eB | vk::ColorComponentFlagBits::eA;
+        colorBlendAttachment.blendEnable = VK_FALSE;
+        createInfo.colorBlendAttachments.emplace_back(colorBlendAttachment);
+    }
 
-    createInfo.colorBlending.attachmentCount = 1;
+    createInfo.colorBlending.attachmentCount = static_cast<uint32_t>(createInfo.colorBlendAttachments.size());
 
     createInfo.depthStencil.depthTestEnable = VK_FALSE;
     createInfo.depthStencil.depthWriteEnable = VK_FALSE;
@@ -254,22 +260,23 @@ FPipelineCreateInfo PipelineConfig::CreateBRDFPipeline(vk::RenderPass renderPass
     createInfo.rasterizer.frontFace = vk::FrontFace::eCounterClockwise;
     createInfo.rasterizer.depthBiasEnable = VK_FALSE;
 
-    createInfo.multisampling.sampleShadingEnable = VK_TRUE;
-    createInfo.multisampling.minSampleShading = .2f;
     createInfo.multisampling.rasterizationSamples = samples;
 
-    createInfo.colorBlendAttachment.colorWriteMask = vk::ColorComponentFlagBits::eR | vk::ColorComponentFlagBits::eG | vk::ColorComponentFlagBits::eB | vk::ColorComponentFlagBits::eA;
-    createInfo.colorBlendAttachment.blendEnable = VK_TRUE;
-    createInfo.colorBlendAttachment.srcColorBlendFactor = vk::BlendFactor::eSrcAlpha;
-    createInfo.colorBlendAttachment.dstColorBlendFactor = vk::BlendFactor::eOneMinusSrcAlpha;
-    createInfo.colorBlendAttachment.colorBlendOp = vk::BlendOp::eAdd;
-    createInfo.colorBlendAttachment.srcAlphaBlendFactor = vk::BlendFactor::eOneMinusSrcAlpha;
-    createInfo.colorBlendAttachment.dstAlphaBlendFactor = vk::BlendFactor::eZero;
-    createInfo.colorBlendAttachment.alphaBlendOp = vk::BlendOp::eAdd;
+    vk::PipelineColorBlendAttachmentState colorBlendAttachment;
+    colorBlendAttachment.colorWriteMask = vk::ColorComponentFlagBits::eR | vk::ColorComponentFlagBits::eG | vk::ColorComponentFlagBits::eB | vk::ColorComponentFlagBits::eA;
+    colorBlendAttachment.blendEnable = VK_TRUE;
+    colorBlendAttachment.srcColorBlendFactor = vk::BlendFactor::eSrcAlpha;
+    colorBlendAttachment.dstColorBlendFactor = vk::BlendFactor::eOneMinusSrcAlpha;
+    colorBlendAttachment.colorBlendOp = vk::BlendOp::eAdd;
+    colorBlendAttachment.srcAlphaBlendFactor = vk::BlendFactor::eOneMinusSrcAlpha;
+    colorBlendAttachment.dstAlphaBlendFactor = vk::BlendFactor::eZero;
+    colorBlendAttachment.alphaBlendOp = vk::BlendOp::eAdd;
+
+    createInfo.colorBlendAttachments.emplace_back(colorBlendAttachment);
 
     createInfo.colorBlending.logicOpEnable = VK_FALSE;
     createInfo.colorBlending.logicOp = vk::LogicOp::eCopy;
-    createInfo.colorBlending.attachmentCount = 1;
+    createInfo.colorBlending.attachmentCount = static_cast<uint32_t>(createInfo.colorBlendAttachments.size());
     createInfo.colorBlending.blendConstants[0] = 0.0f;
     createInfo.colorBlending.blendConstants[1] = 0.0f;
     createInfo.colorBlending.blendConstants[2] = 0.0f;
@@ -332,22 +339,23 @@ FPipelineCreateInfo PipelineConfig::CreateIrradiatePipeline(vk::RenderPass rende
     createInfo.rasterizer.frontFace = vk::FrontFace::eCounterClockwise;
     createInfo.rasterizer.depthBiasEnable = VK_FALSE;
 
-    createInfo.multisampling.sampleShadingEnable = VK_TRUE;
-    createInfo.multisampling.minSampleShading = .2f;
     createInfo.multisampling.rasterizationSamples = samples;
 
-    createInfo.colorBlendAttachment.colorWriteMask = vk::ColorComponentFlagBits::eR | vk::ColorComponentFlagBits::eG | vk::ColorComponentFlagBits::eB | vk::ColorComponentFlagBits::eA;
-    createInfo.colorBlendAttachment.blendEnable = VK_TRUE;
-    createInfo.colorBlendAttachment.srcColorBlendFactor = vk::BlendFactor::eSrcAlpha;
-    createInfo.colorBlendAttachment.dstColorBlendFactor = vk::BlendFactor::eOneMinusSrcAlpha;
-    createInfo.colorBlendAttachment.colorBlendOp = vk::BlendOp::eAdd;
-    createInfo.colorBlendAttachment.srcAlphaBlendFactor = vk::BlendFactor::eOneMinusSrcAlpha;
-    createInfo.colorBlendAttachment.dstAlphaBlendFactor = vk::BlendFactor::eZero;
-    createInfo.colorBlendAttachment.alphaBlendOp = vk::BlendOp::eAdd;
+    vk::PipelineColorBlendAttachmentState colorBlendAttachment;
+    colorBlendAttachment.colorWriteMask = vk::ColorComponentFlagBits::eR | vk::ColorComponentFlagBits::eG | vk::ColorComponentFlagBits::eB | vk::ColorComponentFlagBits::eA;
+    colorBlendAttachment.blendEnable = VK_TRUE;
+    colorBlendAttachment.srcColorBlendFactor = vk::BlendFactor::eSrcAlpha;
+    colorBlendAttachment.dstColorBlendFactor = vk::BlendFactor::eOneMinusSrcAlpha;
+    colorBlendAttachment.colorBlendOp = vk::BlendOp::eAdd;
+    colorBlendAttachment.srcAlphaBlendFactor = vk::BlendFactor::eOneMinusSrcAlpha;
+    colorBlendAttachment.dstAlphaBlendFactor = vk::BlendFactor::eZero;
+    colorBlendAttachment.alphaBlendOp = vk::BlendOp::eAdd;
+
+    createInfo.colorBlendAttachments.emplace_back(colorBlendAttachment);
 
     createInfo.colorBlending.logicOpEnable = VK_FALSE;
     createInfo.colorBlending.logicOp = vk::LogicOp::eCopy;
-    createInfo.colorBlending.attachmentCount = 1;
+    createInfo.colorBlending.attachmentCount = static_cast<uint32_t>(createInfo.colorBlendAttachments.size());
     createInfo.colorBlending.blendConstants[0] = 0.0f;
     createInfo.colorBlending.blendConstants[1] = 0.0f;
     createInfo.colorBlending.blendConstants[2] = 0.0f;
@@ -410,22 +418,23 @@ FPipelineCreateInfo PipelineConfig::CreatePrefiltredPipeline(vk::RenderPass rend
     createInfo.rasterizer.frontFace = vk::FrontFace::eCounterClockwise;
     createInfo.rasterizer.depthBiasEnable = VK_FALSE;
 
-    createInfo.multisampling.sampleShadingEnable = VK_TRUE;
-    createInfo.multisampling.minSampleShading = .2f;
     createInfo.multisampling.rasterizationSamples = samples;
 
-    createInfo.colorBlendAttachment.colorWriteMask = vk::ColorComponentFlagBits::eR | vk::ColorComponentFlagBits::eG | vk::ColorComponentFlagBits::eB | vk::ColorComponentFlagBits::eA;
-    createInfo.colorBlendAttachment.blendEnable = VK_TRUE;
-    createInfo.colorBlendAttachment.srcColorBlendFactor = vk::BlendFactor::eSrcAlpha;
-    createInfo.colorBlendAttachment.dstColorBlendFactor = vk::BlendFactor::eOneMinusSrcAlpha;
-    createInfo.colorBlendAttachment.colorBlendOp = vk::BlendOp::eAdd;
-    createInfo.colorBlendAttachment.srcAlphaBlendFactor = vk::BlendFactor::eOneMinusSrcAlpha;
-    createInfo.colorBlendAttachment.dstAlphaBlendFactor = vk::BlendFactor::eZero;
-    createInfo.colorBlendAttachment.alphaBlendOp = vk::BlendOp::eAdd;
+    vk::PipelineColorBlendAttachmentState colorBlendAttachment;
+    colorBlendAttachment.colorWriteMask = vk::ColorComponentFlagBits::eR | vk::ColorComponentFlagBits::eG | vk::ColorComponentFlagBits::eB | vk::ColorComponentFlagBits::eA;
+    colorBlendAttachment.blendEnable = VK_TRUE;
+    colorBlendAttachment.srcColorBlendFactor = vk::BlendFactor::eSrcAlpha;
+    colorBlendAttachment.dstColorBlendFactor = vk::BlendFactor::eOneMinusSrcAlpha;
+    colorBlendAttachment.colorBlendOp = vk::BlendOp::eAdd;
+    colorBlendAttachment.srcAlphaBlendFactor = vk::BlendFactor::eOneMinusSrcAlpha;
+    colorBlendAttachment.dstAlphaBlendFactor = vk::BlendFactor::eZero;
+    colorBlendAttachment.alphaBlendOp = vk::BlendOp::eAdd;
+
+    createInfo.colorBlendAttachments.emplace_back(colorBlendAttachment);
 
     createInfo.colorBlending.logicOpEnable = VK_FALSE;
     createInfo.colorBlending.logicOp = vk::LogicOp::eCopy;
-    createInfo.colorBlending.attachmentCount = 1;
+    createInfo.colorBlending.attachmentCount = static_cast<uint32_t>(createInfo.colorBlendAttachments.size());
     createInfo.colorBlending.blendConstants[0] = 0.0f;
     createInfo.colorBlending.blendConstants[1] = 0.0f;
     createInfo.colorBlending.blendConstants[2] = 0.0f;
@@ -449,6 +458,81 @@ FPipelineCreateInfo PipelineConfig::CreatePrefiltredPipeline(vk::RenderPass rend
 
     createInfo.eType = EPipelineType::eGraphics;
     createInfo.eSet = EShaderSet::ePrefiltred;
+
+    createInfo.bindPoint = vk::PipelineBindPoint::eGraphics;
+
+    return createInfo;
+}
+
+FPipelineCreateInfo PipelineConfig::CreateDeferredPipeline(vk::RenderPass renderPass, vk::SampleCountFlagBits samples, vk::PipelineLayout pipelineLayout, vk::PipelineCache pipelineCache)
+{
+    FPipelineCreateInfo createInfo{};
+    //createInfo.vertexInputDesc = Vertex::getBindingDescription();
+    //createInfo.vertexAtribDesc = Vertex::getAttributeDescriptions();
+
+    createInfo.vertexInputInfo.vertexBindingDescriptionCount = 0;
+    createInfo.vertexInputInfo.vertexAttributeDescriptionCount = 0;
+
+    createInfo.vertexInputInfo.vertexBindingDescriptionCount = 1;
+    createInfo.vertexInputInfo.vertexAttributeDescriptionCount = static_cast<uint32_t>(createInfo.vertexAtribDesc.size());
+
+    createInfo.inputAssembly.topology = vk::PrimitiveTopology::eTriangleList;
+    createInfo.inputAssembly.primitiveRestartEnable = VK_FALSE;
+
+    createInfo.viewport.x = 0.0f;
+    createInfo.viewport.y = 0.0f;
+    createInfo.viewport.width = (float)WindowHandle::m_iWidth;
+    createInfo.viewport.height = (float)WindowHandle::m_iHeight;
+    createInfo.viewport.minDepth = 0.0f;
+    createInfo.viewport.maxDepth = 1.0f;
+
+    createInfo.scissor.offset = vk::Offset2D{0, 0};
+    createInfo.scissor.extent = vk::Extent2D{static_cast<uint32_t>(WindowHandle::m_iWidth), static_cast<uint32_t>(WindowHandle::m_iHeight)};
+
+    createInfo.rasterizer.depthClampEnable = VK_FALSE;
+    createInfo.rasterizer.rasterizerDiscardEnable = VK_FALSE;
+    createInfo.rasterizer.polygonMode = vk::PolygonMode::eFill;
+    createInfo.rasterizer.lineWidth = 1.0f;
+    createInfo.rasterizer.cullMode = vk::CullModeFlagBits::eBack;
+    createInfo.rasterizer.frontFace = vk::FrontFace::eCounterClockwise;
+    createInfo.rasterizer.depthBiasEnable = VK_FALSE;
+
+    createInfo.multisampling.rasterizationSamples = vk::SampleCountFlagBits::e1;
+
+    vk::PipelineColorBlendAttachmentState colorBlendAttachment;
+    colorBlendAttachment.colorWriteMask = vk::ColorComponentFlagBits::eR | vk::ColorComponentFlagBits::eG | vk::ColorComponentFlagBits::eB | vk::ColorComponentFlagBits::eA;
+    colorBlendAttachment.blendEnable = VK_FALSE;
+    colorBlendAttachment.srcColorBlendFactor = vk::BlendFactor::eSrcAlpha;
+    colorBlendAttachment.dstColorBlendFactor = vk::BlendFactor::eOneMinusSrcAlpha;
+    colorBlendAttachment.colorBlendOp = vk::BlendOp::eAdd;
+    colorBlendAttachment.srcAlphaBlendFactor = vk::BlendFactor::eOneMinusSrcAlpha;
+    colorBlendAttachment.dstAlphaBlendFactor = vk::BlendFactor::eZero;
+    colorBlendAttachment.alphaBlendOp = vk::BlendOp::eAdd;
+
+    createInfo.colorBlendAttachments.emplace_back(colorBlendAttachment);
+
+    createInfo.colorBlending.logicOpEnable = VK_FALSE;
+    createInfo.colorBlending.logicOp = vk::LogicOp::eCopy;
+    createInfo.colorBlending.attachmentCount = static_cast<uint32_t>(createInfo.colorBlendAttachments.size());
+
+    createInfo.depthStencil.depthTestEnable = VK_TRUE;
+    createInfo.depthStencil.depthWriteEnable = VK_TRUE;
+    createInfo.depthStencil.depthCompareOp = vk::CompareOp::eLessOrEqual;
+    createInfo.depthStencil.back.compareOp = vk::CompareOp::eAlways;
+    createInfo.depthStencil.depthBoundsTestEnable = VK_FALSE;
+    createInfo.depthStencil.stencilTestEnable = VK_FALSE;
+
+    createInfo.dynamicStateEnables = {vk::DynamicState::eViewport, vk::DynamicState::eScissor};
+    createInfo.dynamicStateInfo.pDynamicStates = createInfo.dynamicStateEnables.data();
+    createInfo.dynamicStateInfo.dynamicStateCount = static_cast<uint32_t>(createInfo.dynamicStateEnables.size());
+    createInfo.dynamicStateInfo.flags = vk::PipelineDynamicStateCreateFlags{};
+
+    createInfo.pipelineLayout = pipelineLayout;
+    createInfo.pipelineCache = pipelineCache;
+    createInfo.renderPass = renderPass;
+
+    createInfo.eType = EPipelineType::eGraphics;
+    createInfo.eSet = EShaderSet::eDeferred;
 
     createInfo.bindPoint = vk::PipelineBindPoint::eGraphics;
 

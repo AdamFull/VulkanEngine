@@ -39,6 +39,7 @@ void VulkanHighLevel::Create(FEngineCreateInfo createInfo)
     m_pDevice = std::make_shared<Device>(m_pWinHandle);
     m_pSwapChain = std::make_shared<SwapChain>(m_pDevice);
     m_pUniform = std::make_shared<UniformBuffer>(m_pDevice);
+    m_pLightUniform = std::make_shared<UniformBuffer>(m_pDevice);
     m_pRenderer = std::make_shared<Renderer>(m_pDevice, m_pSwapChain);
     m_pVertexBufferObject = std::make_shared<VulkanVBO>(m_pDevice);
     m_pOverlay = std::make_shared<ImguiOverlay>(m_pWinHandle, m_pDevice, m_pSwapChain);
@@ -48,6 +49,7 @@ void VulkanHighLevel::Create(FEngineCreateInfo createInfo)
     m_pDevice->Create(createInfo.appName.c_str(), createInfo.appVersion, createInfo.engineName.c_str(), createInfo.engineVersion, createInfo.apiVersion);
     m_pSwapChain->Create();
     m_pUniform->Create(m_pSwapChain->GetFramesInFlight(), sizeof(FUniformData));
+    m_pLightUniform->Create(m_pSwapChain->GetFramesInFlight(), sizeof(FLightningData));
     m_pRenderer->Create();
 }
 

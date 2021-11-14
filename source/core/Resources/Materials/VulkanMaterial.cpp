@@ -26,13 +26,16 @@ FPipelineCreateInfo MaterialBase::CreateInfo(EShaderSet eSet)
     switch (eSet)
     {
     case EShaderSet::eUI:
-        return PipelineConfig::CreateUIPipeline(renderPass, m_device->GetSamples(), pipelineLayout, pipelineCache);
+        return PipelineConfig::CreateUIPipeline(renderPass, vk::SampleCountFlagBits::e1, pipelineLayout, pipelineCache);
         break;
     case EShaderSet::eDiffuse:
-        return PipelineConfig::CreateDiffusePipeline(renderPass, m_device->GetSamples(), pipelineLayout, pipelineCache);
+        return PipelineConfig::CreateDiffusePipeline(renderPass, vk::SampleCountFlagBits::e1, pipelineLayout, pipelineCache);
         break;
     case EShaderSet::eSkybox:
-        return PipelineConfig::CreateSkyboxPipeline(renderPass, m_device->GetSamples(), pipelineLayout, pipelineCache);
+        return PipelineConfig::CreateSkyboxPipeline(renderPass, vk::SampleCountFlagBits::e1, pipelineLayout, pipelineCache);
+        break;
+    case EShaderSet::eDeferred:
+        return PipelineConfig::CreateDeferredPipeline(renderPass, vk::SampleCountFlagBits::e1, pipelineLayout, pipelineCache);
         break;
     }
 
@@ -55,7 +58,7 @@ void MaterialBase::Create(std::shared_ptr<ResourceManager> pResMgr)
 
 void MaterialBase::AddTexture(ETextureAttachmentType eAttachment, std::shared_ptr<TextureBase> pTexture)
 {
-    m_mTextures.emplace(eAttachment, pTexture);
+    m_mTextures[eAttachment] = pTexture;
 }
 
 std::shared_ptr<TextureBase> MaterialBase::GetTexture(ETextureAttachmentType eAttachment)

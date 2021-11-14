@@ -13,7 +13,7 @@ layout(set = 0, binding = 0) uniform FUniformData
   mat4 model;
   mat4 view;
   mat4 projection;
-  vec4 viewPosition;
+  mat4 normal;
 } ubo;
 
 layout (location = 0) out vec3 outUVW;

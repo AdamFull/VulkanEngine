@@ -142,7 +142,7 @@ void TextureBase::CreateEmptyTexture(uint32_t width, uint32_t height, uint32_t d
     ImageLoader::Close(&texture);
 }
 
-void TextureBase::InitializeTexture(ktxTexture *info, vk::Format format, vk::ImageUsageFlags flags)
+void TextureBase::InitializeTexture(ktxTexture *info, vk::Format format, vk::ImageUsageFlags flags, vk::ImageAspectFlags aspect)
 {
     vk::PhysicalDeviceProperties devprops;
     m_device->GetPhysical().getProperties(&devprops);
@@ -210,7 +210,7 @@ void TextureBase::InitializeTexture(ktxTexture *info, vk::Format format, vk::Ima
 
     viewInfo.format = format;
     viewInfo.components = {vk::ComponentSwizzle::eR, vk::ComponentSwizzle::eG, vk::ComponentSwizzle::eB, vk::ComponentSwizzle::eA};
-    viewInfo.subresourceRange.aspectMask = vk::ImageAspectFlagBits::eColor;
+    viewInfo.subresourceRange.aspectMask = aspect;
     viewInfo.subresourceRange.baseMipLevel = 0;
     viewInfo.subresourceRange.levelCount = info->numLevels;
     viewInfo.subresourceRange.baseArrayLayer = 0;
@@ -276,7 +276,7 @@ void TextureBase::CopyImageToDst(vk::CommandBuffer& commandBuffer, std::shared_p
     commandBuffer.copyImage(image, imageLayout, m_pDst->image, dstLayout, 1, &region);
 }
 
-void TextureBase::WriteImageData(ktxTexture *info, vk::Format format)
+void TextureBase::WriteImageData(ktxTexture *info, vk::Format format, vk::ImageAspectFlags aspect)
 {
     vk::DeviceSize imgSize = info->dataSize;
 
@@ -285,13 +285,13 @@ void TextureBase::WriteImageData(ktxTexture *info, vk::Format format)
     auto result = stagingBuffer.MapMem();
     stagingBuffer.Write((void *)info->pData);
 
-    TransitionImageLayout(vk::ImageLayout::eTransferDstOptimal, vk::ImageAspectFlagBits::eColor);
+    TransitionImageLayout(vk::ImageLayout::eTransferDstOptimal, aspect);
 
     if (info->generateMipmaps)
     {
         std::vector<vk::BufferImageCopy> vRegions;
         vk::BufferImageCopy region = {};
-        region.imageSubresource.aspectMask = vk::ImageAspectFlagBits::eColor;
+        region.imageSubresource.aspectMask = aspect;
         region.imageSubresource.mipLevel = 0;
         region.imageSubresource.baseArrayLayer = 0;
         region.imageSubresource.layerCount = fParams.instCount;
@@ -301,7 +301,7 @@ void TextureBase::WriteImageData(ktxTexture *info, vk::Format format)
         region.bufferOffset = 0;
         vRegions.push_back(region);
         m_device->CopyBufferToImage(stagingBuffer.GetBuffer(), image, vRegions);
-        GenerateMipmaps(image, fParams.mipLevels, format, fParams.width, fParams.height, vk::ImageAspectFlagBits::eColor);
+        GenerateMipmaps(image, fParams.mipLevels, format, fParams.width, fParams.height, aspect);
     }
     else
     {
@@ -314,7 +314,7 @@ void TextureBase::WriteImageData(ktxTexture *info, vk::Format format)
                 KTX_error_code ret = ktxTexture_GetImageOffset(info, level, 0, layer, &offset);
                 assert(ret == KTX_SUCCESS);
                 vk::BufferImageCopy region = {};
-                region.imageSubresource.aspectMask = vk::ImageAspectFlagBits::eColor;
+                region.imageSubresource.aspectMask = aspect;
                 region.imageSubresource.mipLevel = level;
                 region.imageSubresource.baseArrayLayer = layer;
                 region.imageSubresource.layerCount = fParams.layerCount;
@@ -327,7 +327,7 @@ void TextureBase::WriteImageData(ktxTexture *info, vk::Format format)
         }
         m_device->CopyBufferToImage(stagingBuffer.GetBuffer(), image, vRegions);
 
-        TransitionImageLayout(vk::ImageLayout::eShaderReadOnlyOptimal, vk::ImageAspectFlagBits::eColor);
+        TransitionImageLayout(vk::ImageLayout::eShaderReadOnlyOptimal, aspect);
     }
 }
 

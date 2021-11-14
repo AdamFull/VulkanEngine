@@ -1,5 +1,6 @@
 #pragma once
 #include "Objects/Components/SceneRootComponent.h"
+#include "Resources/Lights/LightSourceBase.h"
 
 namespace Engine
 {
@@ -31,6 +32,7 @@ namespace Engine
         std::shared_ptr<Objects::RenderObject> m_pSkybox;
         std::shared_ptr<Objects::RenderObject> m_pEnvironment;
         std::shared_ptr<Objects::RenderObject> m_pRoot;
+        std::vector<Resources::Light::LightSourceBase> vLights;
         std::shared_ptr<Resources::ResourceManager> m_pResourceManager;
     };
 }

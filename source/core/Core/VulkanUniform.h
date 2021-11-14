@@ -4,22 +4,25 @@ namespace Engine
 {
     namespace Core
     {
+        struct Light 
+        {
+            glm::vec4 position;
+            glm::vec3 color;
+            float radius;
+        };
+
+        struct FLightningData
+        {
+            Light lights[6];
+            glm::vec4 viewPos;
+        };
+
         struct FUniformData
         {
             glm::mat4 model{};
             glm::mat4 view{};
             glm::mat4 projection{};
             glm::mat4 normal{};
-
-            glm::vec4 lightPosition{};
-            glm::vec4 viewPosition{};
-        };
-
-        struct FLightData
-        {
-            glm::vec4 viewPosition{};
-            glm::vec4 lightPosition{};
-            glm::vec4 lightColor{};
         };
 
         struct FUniformDataUI

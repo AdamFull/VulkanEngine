@@ -18,6 +18,9 @@ namespace Engine
             static vk::PresentModeKHR ChooseSwapPresentMode(const std::vector<vk::PresentModeKHR>);
             static vk::Extent2D СhooseSwapExtent(const vk::SurfaceCapabilitiesKHR &, GLFWwindow *);
 
+            static uint32_t VkFormatToGLFormat(vk::Format format);
+            static vk::Format GLFormatToVkFormat(uint32_t format);
+
             static bool HasStencilComponent(vk::Format format);
 
         public:

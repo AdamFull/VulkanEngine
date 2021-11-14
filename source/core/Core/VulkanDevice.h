@@ -47,6 +47,7 @@ namespace Engine
 
             /***************************************************Helpers***************************************************/
             vk::Format FindSupportedFormat(const std::vector<vk::Format> &candidates, vk::ImageTiling tiling, vk::FormatFeatureFlags features);
+            vk::Format GetDepthFormat();
             uint32_t FindMemoryType(uint32_t typeFilter, vk::MemoryPropertyFlags properties);
             QueueFamilyIndices FindQueueFamilies(vk::PhysicalDevice device);
             QueueFamilyIndices FindQueueFamilies();

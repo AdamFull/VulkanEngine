@@ -18,9 +18,12 @@ namespace Engine
                 eUI,
                 eDiffuse,
                 eSkybox,
+
                 eBRDF,
                 eIrradiateCube,
-                ePrefiltred
+                ePrefiltred,
+
+                eDeferred
             };
 
             struct FPipelineCreateInfo
@@ -33,7 +36,7 @@ namespace Engine
                 vk::Rect2D scissor;
                 vk::PipelineRasterizationStateCreateInfo rasterizer;
                 vk::PipelineMultisampleStateCreateInfo multisampling;
-                vk::PipelineColorBlendAttachmentState colorBlendAttachment;
+                std::vector<vk::PipelineColorBlendAttachmentState> colorBlendAttachments;
                 vk::PipelineColorBlendStateCreateInfo colorBlending;
                 vk::PipelineDepthStencilStateCreateInfo depthStencil;
                 std::vector<vk::DynamicState> dynamicStateEnables;
@@ -58,6 +61,9 @@ namespace Engine
                 static FPipelineCreateInfo CreateBRDFPipeline(vk::RenderPass renderPass, vk::SampleCountFlagBits samples, vk::PipelineLayout pipelineLayout, vk::PipelineCache pipelineCache = VK_NULL_HANDLE);
                 static FPipelineCreateInfo CreateIrradiatePipeline(vk::RenderPass renderPass, vk::SampleCountFlagBits samples, vk::PipelineLayout pipelineLayout, vk::PipelineCache pipelineCache = VK_NULL_HANDLE);
                 static FPipelineCreateInfo CreatePrefiltredPipeline(vk::RenderPass renderPass, vk::SampleCountFlagBits samples, vk::PipelineLayout pipelineLayout, vk::PipelineCache pipelineCache = VK_NULL_HANDLE);
+
+                //Deferred
+                static FPipelineCreateInfo CreateDeferredPipeline(vk::RenderPass renderPass, vk::SampleCountFlagBits samples, vk::PipelineLayout pipelineLayout, vk::PipelineCache pipelineCache = VK_NULL_HANDLE);
             };
         }
     }

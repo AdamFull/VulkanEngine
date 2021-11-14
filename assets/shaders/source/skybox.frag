@@ -4,7 +4,9 @@ layout (set = 1, binding = 0) uniform samplerCube samplerCubeMap;
 
 layout (location = 0) in vec3 inUVW;
 
-layout (location = 0) out vec4 outFragColor;
+layout (location = 0) out vec4 outPosition;
+layout (location = 1) out vec4 outNormal;
+layout (location = 2) out vec4 outAlbedo;
 
 // From http://filmicworlds.com/blog/filmic-tonemapping-operators/
 vec3 Uncharted2Tonemap(vec3 color)
@@ -29,5 +31,7 @@ void main()
 	// Gamma correction
 	color = pow(color, vec3(1.0f / 2.2));
 
-	outFragColor = vec4(color, 1.0);
+	outAlbedo = vec4(color, 1.0);
+	outNormal = vec4(vec3(0.0), 1.0);
+	outPosition = vec4(inUVW, 1.0);
 }

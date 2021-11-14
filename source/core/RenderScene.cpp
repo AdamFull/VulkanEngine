@@ -5,8 +5,20 @@
 #include "KeyMapping/InputMapper.h"
 #include "Resources/ResourceManager.h"
 #include "Core/Overlay/ImguiOverlay.h"
+#include "Objects/Components/Camera/CameraComponent.h"
+#include "Objects/Components/Camera/CameraManager.h"
 
 using namespace Engine;
+using namespace Engine::Core;
+using namespace Engine::Objects::Components;
+
+float frandom(float max) 
+{
+    float random = ((float) rand()) / (float) RAND_MAX;
+    float diff = max - 0.f;
+    float r = random * diff;
+    return 0.f + r;
+}
 
 RenderScene::~RenderScene()
 {
@@ -19,6 +31,16 @@ void RenderScene::Create()
     m_pResourceManager = std::make_shared<Resources::ResourceManager>();
     m_pResourceManager->Create();
     UOverlay->Create(m_pResourceManager);   //TODO: bad!
+
+    //TODO: for test
+    for(uint32_t i = 0; i < 6; i++)
+    {
+        Resources::Light::LightSourceBase light;
+        light.position = glm::vec4(frandom(2.f), frandom(2.f), frandom(2.f), 1.f);
+        light.color = glm::vec3(frandom(1.f), frandom(1.f), frandom(1.f));
+        light.attenuation = frandom(20.f);
+        vLights.emplace_back(light);
+    }
 }
 
 void RenderScene::ReCreate()
@@ -89,6 +111,17 @@ void RenderScene::Render(float fDeltaTime)
     UOverlay->NewFrame();
     UOverlay->Update(fDeltaTime);
 
+    FLightningData ubo;
+    auto camera = CameraManager::GetInstance()->GetCurrentCamera();
+    for(uint32_t i = 0; i < vLights.size(); i++)
+    {
+        ubo.lights[i].position = vLights.at(i).position;
+        ubo.lights[i].color = vLights.at(i).color;
+        ubo.lights[i].radius = vLights.at(i).attenuation;
+    }
+    ubo.viewPos = glm::vec4(camera->GetTransform().pos, 1.0);
+    ULightUniform->UpdateUniformBuffer(currentFrame, &ubo);
+
     UHLInstance->BeginRender(commandBuffer);
 
     UVBO->Bind(commandBuffer);
@@ -97,9 +130,6 @@ void RenderScene::Render(float fDeltaTime)
         m_pSkybox->Render(commandBuffer, currentFrame);
 
     m_pRoot->Render(commandBuffer, currentFrame);
-
-    // Imgui overlays (Demo)
-    UOverlay->DrawFrame(commandBuffer, currentFrame);
 
     UHLInstance->EndRender(commandBuffer);
 

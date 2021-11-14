@@ -11,11 +11,14 @@
 #include "Resources/Materials/MaterialUI.h"
 #include "Resources/Materials/MaterialSkybox.h"
 #include "Resources/Materials/MaterialDiffuse.h"
+#include "Resources/Materials/MaterialDeferred.h"
 
 #include "Resources/Materials/Generators/GeneratorBase.h"
 #include "Resources/Materials/Generators/GeneratorBRDF.h"
 #include "Resources/Materials/Generators/GeneratorIrradiate.h"
 #include "Resources/Materials/Generators/GeneratorPrefiltred.h"
+
+#include "Resources/Lights/LightSourceBase.h"
 
 #include "Resources/Meshes/VulkanMesh.h"
 
@@ -55,6 +58,7 @@ namespace Engine
             template<> static std::unique_ptr<Resources::Material::MaterialUI> Allocate() { return std::make_unique<Resources::Material::MaterialUI>(UDevice, USwapChain); }
             template<> static std::unique_ptr<Resources::Material::MaterialSkybox> Allocate() { return std::make_unique<Resources::Material::MaterialSkybox>(UDevice, USwapChain); }
             template<> static std::unique_ptr<Resources::Material::MaterialDiffuse> Allocate() { return std::make_unique<Resources::Material::MaterialDiffuse>(UDevice, USwapChain); }
+            template<> static std::unique_ptr<Resources::Material::MaterialDeferred> Allocate() { return std::make_unique<Resources::Material::MaterialDeferred>(UDevice, USwapChain); }
 
             template<> static std::unique_ptr<Resources::Material::Generator::GeneratorBase> Allocate() { return std::make_unique<Resources::Material::Generator::GeneratorBase>(UDevice, USwapChain); }
             template<> static std::unique_ptr<Resources::Material::Generator::GeneratorBRDF> Allocate() { return std::make_unique<Resources::Material::Generator::GeneratorBRDF>(UDevice, USwapChain); }

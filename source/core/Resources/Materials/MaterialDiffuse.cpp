@@ -14,7 +14,7 @@ MaterialDiffuse::MaterialDiffuse(std::shared_ptr<Core::Device> device, std::shar
 
 void MaterialDiffuse::Create(std::shared_ptr<ResourceManager> pResMgr)
 {
-    renderPass = m_swapchain->GetRenderPass();
+    renderPass = m_swapchain->GetOffscreenRenderPass();
 
     m_mTextures[ETextureAttachmentType::eBRDFLUT] = pResMgr->Get<Texture::TextureBase>("environment_component_brdf");
     m_mTextures[ETextureAttachmentType::eIrradiance] = pResMgr->Get<Texture::TextureBase>("environment_component_irradiate_cube");
@@ -25,7 +25,7 @@ void MaterialDiffuse::Create(std::shared_ptr<ResourceManager> pResMgr)
 
 void MaterialDiffuse::ReCreate()
 {
-    renderPass = m_swapchain->GetRenderPass();
+    renderPass = m_swapchain->GetOffscreenRenderPass();
     MaterialBase::ReCreate();
 }
 

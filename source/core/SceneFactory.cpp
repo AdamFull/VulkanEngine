@@ -119,7 +119,6 @@ std::shared_ptr<Objects::RenderObject> SceneFactory::CreateSkybox(std::shared_pt
     mesh->SetTransform(info.fTransform);
     mesh->SetName(info.srName);
     mesh->SetMesh(loader->GetMesh());
-    mesh->Create(pResMgr);
 
     return mesh;
 }

@@ -14,12 +14,12 @@ layout(set = 1, binding = 7) uniform sampler2D normal_tex;
 layout(set = 1, binding = 8) uniform sampler2D height_tex;
 layout(set = 1, binding = 9) uniform sampler2D ao_tex;
 
-layout(location = 0) in vec2 fragTexCoord;
-layout(location = 1) in vec4 fragColor;
-layout(location = 2) in vec3 lightColor;
-layout(location = 3) in vec3 fragPos;
-layout(location = 4) in vec3 viewPos;
-layout(location = 5) in vec3 lightPos;
+layout (location = 0) in vec3 inWorldPos;
+layout (location = 1) in vec3 inNormal;
+layout (location = 2) in vec2 inUV;
+layout (location = 3) in vec3 inTangent;
+layout (location = 4) in vec3 inViewPos;
+layout (location = 5) in vec3 inLightPos;
 
 layout(location = 0) out vec4 outColor;
 
@@ -29,7 +29,7 @@ const float gamma = 2.2;
 const float exposure = 1.2;
 
 #define PI 3.1415926535897932384626433832795
-#define ALBEDO pow(texture(color_tex, fragTexCoord).rgb, vec3(gamma))
+#define ALBEDO pow(texture(color_tex, inUV).rgb, vec3(gamma))
 
 // From http://filmicgames.com/archives/75
 vec3 Uncharted2Tonemap(vec3 x)
@@ -111,93 +111,59 @@ vec3 specularContribution(vec3 L, vec3 V, vec3 N, vec3 F0, float metallic, float
 	return color;
 }
 
-//From https://learnopengl.com/Advanced-Lighting/Parallax-Mapping
-vec2 ParallaxMapping(vec2 texCoords, vec3 viewDir, float height_scale, float minLayers, float maxLayers)
-{ 
-    vec2  currentTexCoords = texCoords;
-    float currentDepthMapValue = texture(height_tex, fragTexCoord).r;
+vec3 calculateNormal()
+{
+	vec3 tangentNormal = texture(normal_tex, inUV).xyz * 2.0 - 1.0;
 
-    float numLayers = mix(maxLayers, minLayers, max(dot(vec3(0.0, 0.0, 1.0), viewDir), 0.0));
-    float layerDepth = 1.0 / numLayers;
-    float currentLayerDepth = 0.0;
-
-    // the amount to shift the texture coordinates per layer (from vector P)
-    vec2 P = viewDir.xy * height_scale; 
-    vec2 deltaTexCoords = P / numLayers;
-
-    while(currentLayerDepth < currentDepthMapValue)
-    {
-        // shift texture coordinates along direction of P
-        currentTexCoords -= deltaTexCoords;
-        // get depthmap value at current texture coordinates
-        currentDepthMapValue = texture(height_tex, fragTexCoord).r;  
-        // get depth of next layer
-        currentLayerDepth += layerDepth;
-    }
-
-    // get texture coordinates before collision (reverse operations)
-    vec2 prevTexCoords = currentTexCoords + deltaTexCoords;
-
-    // get depth after and before collision for linear interpolation
-    float afterDepth  = currentDepthMapValue - currentLayerDepth;
-    float beforeDepth = texture(height_tex, fragTexCoord).r - currentLayerDepth + layerDepth;
-    
-    // interpolation of texture coordinates
-    float weight = afterDepth / (afterDepth - beforeDepth);
-    vec2 finalTexCoords = prevTexCoords * weight + currentTexCoords * (1.0 - weight);
-
-    return finalTexCoords;    
+	vec3 N = normalize(inNormal);
+	vec3 T = normalize(inTangent);
+	vec3 B = normalize(cross(N, T));
+	mat3 TBN = mat3(T, B, N);
+	return normalize(TBN * tangentNormal);
 }
 
 void main() 
 {
-	float invRadius = 1.0/lightRadius;
-    vec3 normal = (texture(normal_tex, fragTexCoord).rgb * 2.0 - 1.0);
+	vec3 N = calculateNormal();
 
-    vec3 emission = texture(emissive_tex, fragTexCoord).rgb;
+	vec3 emissive = texture(emissive_tex, inUV).rgb;
+    
+	vec3 V = normalize(inViewPos - inWorldPos);
+	vec3 R = reflect(-V, N);
 
-    float metallic = texture(metalRough_tex, fragTexCoord).r;
-	float roughness = texture(metalRough_tex, fragTexCoord).g;
+	float metallic = texture(metalRough_tex, inUV).r;
+	float roughness = texture(metalRough_tex, inUV).g;
 
-    vec3 F0 = vec3(0.04); 
+	vec3 F0 = vec3(0.04); 
 	F0 = mix(F0, ALBEDO, metallic);
 
-    vec3 lightDir = normalize(lightPos - fragPos);
-    vec3 viewDir = normalize(viewPos - fragPos);
-    vec3 reflectDir = reflect(-lightDir, normal);
-	vec3 Lo = specularContribution(lightDir, viewDir, normal, F0, metallic, roughness);
+	vec3 L = normalize(inLightPos - inWorldPos);
+	vec3 Lo = specularContribution(L, V, N, F0, metallic, roughness);
 
-    vec2 brdf = texture(brdflut_tex, vec2(max(dot(normal, viewDir), 0.0), roughness)).rg;
-	vec3 reflection = prefilteredReflection(reflectDir, roughness);	
-	vec3 irradiance = texture(irradiate_cube_tex, normal).rgb;
+	vec2 brdf = texture(brdflut_tex, vec2(max(dot(N, V), 0.0), roughness)).rg;
+	vec3 reflection = prefilteredReflection(R, roughness).rgb;	
+	vec3 irradiance = texture(irradiate_cube_tex, N).rgb;
 
-    vec3 diffuse = irradiance * ALBEDO;
+	// Diffuse based on irradiance
+	vec3 diffuse = irradiance * ALBEDO;	
 
-    vec3 F = F_SchlickR(max(dot(normal, viewDir), 0.0), F0, roughness);
+	vec3 F = F_SchlickR(max(dot(N, V), 0.0), F0, roughness);
 
-    // Specular reflectance
+	// Specular reflectance
 	vec3 specular = reflection * (F * brdf.x + brdf.y);
 
-    float dist = length(lightDir);
-    float atten = max(clamp(1.0 - invRadius * sqrt(dist), 0.0, 1.0), ambient);
-
-    // Ambient part
+	// Ambient part
 	vec3 kD = 1.0 - F;
 	kD *= 1.0 - metallic;	  
-	vec3 ambient = (kD * diffuse + specular) * texture(ao_tex, fragTexCoord).rrr;
-    
-    //vec3 halfwayDir = normalize(lightDir + viewDir);  
-    //float specular = pow(max(dot(normal, halfwayDir), 0.0), 4.0);
+	vec3 ambient = (kD * diffuse + specular + emissive);// * texture(ao_tex, inUV).rrr;
+	
+	vec3 color = ambient + Lo;
 
-    vec3 color = ambient + Lo;
-
-    // Tone mapping
+	// Tone mapping
 	color = Uncharted2Tonemap(color * exposure);
 	color = color * (1.0f / Uncharted2Tonemap(vec3(11.2f)));	
 	// Gamma correction
 	color = pow(color, vec3(1.0f / gamma));
-
-	//vec4 specularColor = texture(specGloss_tex, fragTexCoord);
 
 	outColor = vec4(color, 1.0);
 }

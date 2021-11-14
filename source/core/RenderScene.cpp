@@ -66,6 +66,7 @@ void RenderScene::CreateObjects()
 {
     UVBO->Create();
     m_pEnvironment->Create(m_pResourceManager);
+    m_pSkybox->Create(m_pResourceManager);
     m_pRoot->Create(m_pResourceManager);
 }
 

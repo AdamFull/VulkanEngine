@@ -1,5 +1,5 @@
 #pragma once
-#include "Resources/ResourceBase.h"
+#include "Resources/ResourceCunstruct.h"
 #include "ImageLoader.h"
 
 namespace Engine
@@ -20,24 +20,27 @@ namespace Engine
                 uint32_t mipLevels;
                 uint32_t instCount;
                 uint32_t layerCount;
+                vk::Format format;
             };
 
-            class TextureBase : public ResourceBase
+            class TextureBase
             {
             public:
                 TextureBase() = default;
                 TextureBase(std::shared_ptr<Core::Device> device);
                 virtual ~TextureBase();
 
-                void ReCreate() override;
-                void Update(uint32_t imageIndex) override;
-                void Bind(vk::CommandBuffer commandBuffer, uint32_t imageIndex) override;
-                void Cleanup() override;
-                void Destroy() override;
+                virtual void ReCreate();
+                virtual void Update(uint32_t imageIndex);
+                virtual void Bind(vk::CommandBuffer commandBuffer, uint32_t imageIndex);
+                virtual void Cleanup();
+                virtual void Destroy();
 
                 virtual void UpdateDescriptor();
                 virtual void SetAttachment(ETextureAttachmentType eAttachment);
                 virtual ETextureAttachmentType GetAttachment();
+
+                void SetSampler(vk::Sampler& internalSampler);
 
                 virtual void CreateEmptyTexture(uint32_t width, uint32_t height, uint32_t depth, uint32_t dims, uint32_t internalFormat, bool allocate_mem = true);
                 virtual void InitializeTexture(ktxTexture *info, vk::Format format, 
@@ -58,6 +61,9 @@ namespace Engine
                 virtual FTextureParams &GetParams() { return fParams; }
                 virtual vk::DescriptorImageInfo &GetDescriptor() { return descriptor; }
 
+                inline void SetName(const std::string& srName) { m_srName = srName; }
+                inline std::string GetName() { return m_srName; }
+
             protected:
                 virtual void GenerateMipmaps(vk::Image &image, uint32_t mipLevels, vk::Format format, uint32_t width, uint32_t height, vk::ImageAspectFlags aspectFlags);
                 static vk::ImageType TypeFromKtx(uint32_t type);
@@ -70,6 +76,9 @@ namespace Engine
                 vk::Sampler sampler;
                 ETextureAttachmentType attachment;
                 FTextureParams fParams;
+                bool bUsingInternalSampler{false};
+
+                std::string m_srName;
 
                 std::shared_ptr<Core::Device> m_device;
             };

@@ -1,5 +1,6 @@
 #include "MeshFragment.h"
 #include "Resources/Materials/VulkanMaterial.h"
+#include "Resources/ResourceManager.h"
 #include "Core/VulkanDevice.h"
 #include "Core/VulkanHighLevel.h"
 
@@ -45,7 +46,6 @@ void MeshFragment::SetMaterial(std::shared_ptr<Material::MaterialBase> material)
 
 void MeshFragment::ReCreate()
 {
-    ResourceBase::ReCreate();
     for (auto &primitive : m_vPrimitives)
     {
         if(primitive.material)
@@ -53,19 +53,17 @@ void MeshFragment::ReCreate()
     }
 }
 
-void MeshFragment::Update(uint32_t imageIndex)
+void MeshFragment::Update(vk::DescriptorBufferInfo& uboDesc, uint32_t imageIndex)
 {
-    ResourceBase::Update(imageIndex);
     for (auto &primitive : m_vPrimitives)
     {
         if(primitive.material && primitive.bUseMaterial)
-            primitive.material->Update(imageIndex);
+            primitive.material->Update(uboDesc, imageIndex);
     }
 }
 
 void MeshFragment::Bind(vk::CommandBuffer commandBuffer, uint32_t imageIndex)
 {
-    ResourceBase::Bind(commandBuffer, imageIndex);
     for (auto &primitive : m_vPrimitives)
     {
         if(primitive.material && primitive.bUseMaterial)
@@ -77,7 +75,6 @@ void MeshFragment::Bind(vk::CommandBuffer commandBuffer, uint32_t imageIndex)
 
 void MeshFragment::Cleanup()
 {
-    ResourceBase::Cleanup();
     for (auto &primitive : m_vPrimitives)
     {
         if(primitive.material)
@@ -87,5 +84,5 @@ void MeshFragment::Cleanup()
 
 void MeshFragment::Destroy()
 {
-    ResourceBase::Destroy();
+
 }

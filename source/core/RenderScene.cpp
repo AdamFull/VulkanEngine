@@ -33,12 +33,12 @@ void RenderScene::Create()
     UOverlay->Create(m_pResourceManager);   //TODO: bad!
 
     //TODO: for test
-    for(uint32_t i = 0; i < 6; i++)
+    for(uint32_t i = 0; i < 10; i++)
     {
         Resources::Light::LightSourceBase light;
-        light.position = glm::vec4(frandom(2.f), frandom(2.f), frandom(2.f), 1.f);
+        light.position = glm::vec4(frandom(4.f), frandom(4.f), frandom(4.f), 1.f);
         light.color = glm::vec3(frandom(1.f), frandom(1.f), frandom(1.f));
-        light.attenuation = frandom(20.f);
+        light.attenuation = frandom(40.f);
         vLights.emplace_back(light);
     }
 }
@@ -119,19 +119,24 @@ void RenderScene::Render(float fDeltaTime)
         ubo.lights[i].color = vLights.at(i).color;
         ubo.lights[i].radius = vLights.at(i).attenuation;
     }
+    ubo.lightCount = vLights.size();
     ubo.viewPos = glm::vec4(camera->GetTransform().pos, 1.0);
     ULightUniform->UpdateUniformBuffer(currentFrame, &ubo);
 
-    UHLInstance->BeginRender(commandBuffer);
-
     UVBO->Bind(commandBuffer);
-
-    if (m_pSkybox)
-        m_pSkybox->Render(commandBuffer, currentFrame);
+    URenderer->BeginRender(commandBuffer);
 
     m_pRoot->Render(commandBuffer, currentFrame);
 
-    UHLInstance->EndRender(commandBuffer);
+    URenderer->EndRender(commandBuffer);
+
+    URenderer->BeginPostProcess(commandBuffer);
+    
+    if(m_pSkybox)
+        if (m_pSkybox)
+        m_pSkybox->Render(commandBuffer, currentFrame);
+
+    URenderer->EndPostProcess(commandBuffer);
 
     UHLInstance->EndFrame(commandBuffer, &bResult);
     if (!bResult)

@@ -15,7 +15,7 @@ namespace Engine
 
                 void Create(std::shared_ptr<ResourceManager> pResMgr) override;
                 void ReCreate() override;
-                void Update(uint32_t imageIndex) override;
+                void Update(vk::DescriptorBufferInfo& uboDesc, uint32_t imageIndex) override;
                 void Bind(vk::CommandBuffer commandBuffer, uint32_t imageIndex) override;
                 void Cleanup() override;
 

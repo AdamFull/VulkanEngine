@@ -34,8 +34,7 @@ std::map<ETextureAttachmentType, FAttachmentInfo> SwapChain::vAttachments =
         (
             vk::Format::eR16G16B16A16Sfloat,
             vk::ImageUsageFlagBits::eColorAttachment | vk::ImageUsageFlagBits::eSampled,
-            {std::array<float, 4>{0.0f, 0.0f, 0.0f, 0.0f}},
-            vk::ClearDepthStencilValue{1.0f, 0}
+            {std::array<float, 4>{0.0f, 0.0f, 0.0f, 0.0f}}
         )
     },
     {
@@ -44,8 +43,7 @@ std::map<ETextureAttachmentType, FAttachmentInfo> SwapChain::vAttachments =
         (
             vk::Format::eR16G16B16A16Sfloat,
             vk::ImageUsageFlagBits::eColorAttachment | vk::ImageUsageFlagBits::eSampled,
-            {std::array<float, 4>{0.0f, 0.0f, 0.0f, 0.0f}},
-            vk::ClearDepthStencilValue{1.0f, 0}
+            {std::array<float, 4>{0.0f, 0.0f, 0.0f, 0.0f}}
         )
     },
     {
@@ -54,18 +52,7 @@ std::map<ETextureAttachmentType, FAttachmentInfo> SwapChain::vAttachments =
         (
             vk::Format::eR8G8B8A8Snorm,
             vk::ImageUsageFlagBits::eColorAttachment | vk::ImageUsageFlagBits::eSampled,
-            {std::array<float, 4>{0.0f, 0.0f, 0.0f, 0.0f}},
-            vk::ClearDepthStencilValue{1.0f, 0}
-        )
-    },
-    {
-        ETextureAttachmentType::eDepth,
-        FAttachmentInfo
-        (
-            vk::Format::eR8G8B8A8Snorm,
-            vk::ImageUsageFlagBits::eDepthStencilAttachment | vk::ImageUsageFlagBits::eSampled,
-            {std::array<float, 4>{0.0f, 0.0f, 0.0f, 0.0f}},
-            vk::ClearDepthStencilValue{1.0f, 0}
+            {std::array<float, 4>{0.0f, 0.0f, 0.0f, 0.0f}}
         )
     }
 };
@@ -92,6 +79,7 @@ void SwapChain::Create()
     CreateSwapChain();
     CreateSwapChainImageViews();
     CreateDepthResources();
+    CreateCompositionSampler();
     CreateOffscreenImages();
     CreateRenderPass();
     CreateOffscreenRenderPass();
@@ -178,7 +166,9 @@ void SwapChain::Cleanup()
         m_device->Destroy(imageView);
     
     //Cleaning g-buffer
-    m_mGBuffer.clear();
+    m_vGBuffer.clear();
+    m_pGBufferDepth->Cleanup();
+    m_device->Destroy(compositionSampler);
 
     m_device->Destroy(data.swapChain);
 }
@@ -187,13 +177,14 @@ void SwapChain::ReCreate()
 {
     CreateSwapChain();
     CreateSwapChainImageViews();
+    CreateCompositionSampler();
     CreateOffscreenImages();
     CreateRenderPass();
     CreateOffscreenRenderPass();
     CreateDepthResources();
     CreateFrameBuffers();
     CreateOffscreenFrameBuffers();
-    ReCreateCompositionMaterial();
+    m_pComposition->ReCreate();
 }
 
 void SwapChain::CreateSwapChain()
@@ -379,27 +370,26 @@ void SwapChain::CreateOffscreenRenderPass()
     // Set up separate renderpass with references to the color and depth attachments
 	std::map<ETextureAttachmentType, vk::AttachmentDescription> descTemporary{};
 
+    vk::AttachmentDescription desc{};
+    desc.samples = vk::SampleCountFlagBits::e1;
+	desc.loadOp = vk::AttachmentLoadOp::eClear;
+	desc.storeOp = vk::AttachmentStoreOp::eStore;
+	desc.stencilLoadOp = vk::AttachmentLoadOp::eDontCare;
+	desc.stencilStoreOp = vk::AttachmentStoreOp::eDontCare;
+
     for(auto& [attachment, param] : vAttachments)
 	{
-        vk::AttachmentDescription desc{};
-		desc.samples = vk::SampleCountFlagBits::e1;
-		desc.loadOp = vk::AttachmentLoadOp::eClear;
-		desc.storeOp = vk::AttachmentStoreOp::eStore;
-		desc.stencilLoadOp = vk::AttachmentLoadOp::eDontCare;
-		desc.stencilStoreOp = vk::AttachmentStoreOp::eDontCare;
         desc.format = param.format;
-		if (attachment == ETextureAttachmentType::eDepth)
-		{
-			desc.initialLayout = vk::ImageLayout::eUndefined;
-			desc.finalLayout = vk::ImageLayout::eDepthStencilAttachmentOptimal;
-		}
-		else
-		{
-			desc.initialLayout = vk::ImageLayout::eUndefined;
-			desc.finalLayout = vk::ImageLayout::eShaderReadOnlyOptimal;
-		}
+		desc.initialLayout = vk::ImageLayout::eUndefined;
+		desc.finalLayout = vk::ImageLayout::eShaderReadOnlyOptimal;
         descTemporary.emplace(attachment, desc);
 	}
+
+    //Depth source
+    desc.format = m_pGBufferDepth->GetParams().format;
+    desc.initialLayout = vk::ImageLayout::eUndefined;
+	desc.finalLayout = vk::ImageLayout::eDepthStencilAttachmentOptimal;
+    descTemporary.emplace(ETextureAttachmentType::eDepth, desc);
 
     std::vector<vk::AttachmentDescription> vAttachmentDesc{};
     std::transform(descTemporary.begin(), descTemporary.end(), std::back_inserter(vAttachmentDesc), get_map_values(descTemporary));
@@ -486,15 +476,18 @@ void SwapChain::CreateOffscreenFrameBuffers()
     assert(!data.vImageViews.empty() && "Cannot create framebuffers, cause swap chain image views are empty.");
     assert(m_device && "Cannot create framebuffers, cause logical device is not valid.");
     assert(data.offscreenRenderPass && "Cannot create framebuffers, cause render pass is not valid.");
-    assert(!m_mGBuffer.empty() && "Cannot create framebuffers, cause g-buffer images is not created.");
+    assert(!m_vGBuffer.empty() && "Cannot create framebuffers, cause g-buffer images is not created.");
 
-    /*size_t images = data.vImageViews.size();
-    data.vOffscreenFramebuffers.resize(images);
-    for(size_t image = 0; image < images; image++)
+    data.vOffscreenFramebuffers.resize(data.iFramesInFlight);
+    for(size_t frame = 0; frame < data.iFramesInFlight; frame++)
     {
         std::vector<vk::ImageView> vImages{};
-        for(auto& [attachment, texture] : m_mGBuffer)
+        auto& gbuffer = m_vGBuffer.at(frame);
+
+        for(auto& [attachment, texture] : gbuffer)
             vImages.push_back(texture->GetDescriptor().imageView);
+
+        vImages.push_back(m_pGBufferDepth->GetDescriptor().imageView);
 
         vk::FramebufferCreateInfo framebufferCI = {};
         framebufferCI.pNext = nullptr;
@@ -505,23 +498,13 @@ void SwapChain::CreateOffscreenFrameBuffers()
         framebufferCI.height = data.extent.height;
         framebufferCI.layers = 1;
 
-        data.vOffscreenFramebuffers[image] = m_device->Make<vk::Framebuffer, vk::FramebufferCreateInfo>(framebufferCI);
-    }*/
+        data.vOffscreenFramebuffers[frame] = m_device->Make<vk::Framebuffer, vk::FramebufferCreateInfo>(framebufferCI);
+    }
+}
 
-    data.vOffscreenFramebuffers.resize(1);
-    std::vector<vk::ImageView> vImages{};
-    for(auto& [attachment, texture] : m_mGBuffer)
-        vImages.push_back(texture->GetDescriptor().imageView);
-    vk::FramebufferCreateInfo framebufferCI = {};
-    framebufferCI.pNext = nullptr;
-    framebufferCI.renderPass = data.offscreenRenderPass;
-    framebufferCI.pAttachments = vImages.data();
-    framebufferCI.attachmentCount = static_cast<uint32_t>(vImages.size());
-    framebufferCI.width = data.extent.width;
-    framebufferCI.height = data.extent.height;
-    framebufferCI.layers = 1;
-
-    data.vOffscreenFramebuffers[0] = m_device->Make<vk::Framebuffer, vk::FramebufferCreateInfo>(framebufferCI);
+void SwapChain::CreateCompositionSampler()
+{
+    m_device->CreateSampler(compositionSampler, 1,  vk::SamplerAddressMode::eClampToEdge);
 }
 
 std::shared_ptr<TextureBase> SwapChain::CreateOffscreenImage(vk::Format format, vk::ImageUsageFlags usage)
@@ -545,51 +528,50 @@ std::shared_ptr<TextureBase> SwapChain::CreateOffscreenImage(vk::Format format, 
         imageLayout = vk::ImageLayout::eDepthStencilAttachmentOptimal;
     }
 
+    texture->SetSampler(compositionSampler);
     texture->InitializeTexture(offscreen, imageFormat, usage, aspectMask);
-    texture->SetImageLayout(imageLayout);
+    if(usage & vk::ImageUsageFlagBits::eDepthStencilAttachment)
+        texture->TransitionImageLayout(imageLayout, aspectMask, false);
+    else
+        texture->SetImageLayout(imageLayout);
+
     texture->UpdateDescriptor();
     return texture;
 }
 
 void SwapChain::CreateOffscreenImages()
 {
-    for(auto& [attachment, param] : vAttachments)
+    m_vGBuffer.resize(data.iFramesInFlight);
+    for(uint32_t frame = 0; frame < data.iFramesInFlight; frame++)
     {
-        if(attachment == ETextureAttachmentType::eDepth)
-            param.format = m_device->GetDepthFormat();
-
-        m_mGBuffer.emplace(attachment, CreateOffscreenImage(param.format, param.usage));
+        gbuffer_t mGBuffer;
+        for(auto& [attachment, param] : vAttachments)
+            mGBuffer.emplace(attachment, CreateOffscreenImage(param.format, param.usage));
+        m_vGBuffer[frame] = std::move(mGBuffer);
     }
+
+    auto depthFormat = m_device->GetDepthFormat();
+    m_pGBufferDepth = CreateOffscreenImage(depthFormat, vk::ImageUsageFlagBits::eDepthStencilAttachment | vk::ImageUsageFlagBits::eSampled);
 }
 
 void SwapChain::CreateCompositionMaterial()
 {
-    assert(!m_mGBuffer.empty() && "Composition material cannot be created, cause g-buffer images is not created.");
+    assert(!m_vGBuffer.empty() && "Composition material cannot be created, cause g-buffer images is not created.");
 
     m_pComposition = FDefaultAllocator::Allocate<MaterialDeferred>();
     m_pComposition->Create(nullptr);
-
-    for(auto& [attachment, texture] : m_mGBuffer)
-    {
-        if(attachment == ETextureAttachmentType::eDepth)
-            continue;
-        
-        m_pComposition->AddTexture(attachment, texture);
-    }
 }
 
-void SwapChain::ReCreateCompositionMaterial()
+void SwapChain::UpdateCompositionMaterial(vk::CommandBuffer& commandBuffer)
 {
-    m_pComposition->ReCreate();
-    for(auto& [attachment, texture] : m_mGBuffer)
-    {
-        if(attachment == ETextureAttachmentType::eDepth)
-            continue;
-        
+    for(auto& [attachment, texture] : m_vGBuffer.at(data.currentFrame))
         m_pComposition->AddTexture(attachment, texture);
-    }
+    
+    //TODO: move uniform buffer to another place
+    auto& buffer = ULightUniform->GetUniformBuffer(data.currentFrame);
+    m_pComposition->Update(buffer->GetDscriptor(), data.currentFrame);
+    m_pComposition->Bind(commandBuffer, data.currentFrame);
 }
-
 
 void SwapChain::CreateSyncObjects()
 {

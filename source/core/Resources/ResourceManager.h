@@ -111,9 +111,9 @@ namespace Engine
             template <>
             void Destroy<Material::MaterialBase>(std::string srResourceName)
             {
-                auto it = m_mMaterials.find(srResourceName);
+                /*auto it = m_mMaterials.find(srResourceName);
                 if (it != m_mMaterials.end())
-                    it->second->Destroy();
+                    it->second->Destroy();*/
                 assert(false && "Cannot find resource named: .");
             }
 

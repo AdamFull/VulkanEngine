@@ -16,7 +16,8 @@ struct Light {
 
 layout (set = 0, binding = 0) uniform UBO 
 {
-	Light lights[6];
+	Light lights[256];
+	int lightCount;
 	vec4 viewPos;
 } ubo;
 
@@ -27,15 +28,16 @@ void main()
 	vec3 normal = texture(normal_tex, inUV).rgb;
 	vec4 albedo = texture(albedo_tex, inUV);
 
-	// Render-target composition
+	//outFragcolor.rgb = albedo.aaa;
+	//return;
 
-	#define lightCount 6
+	// Render-target composition
 	#define ambient 0.0
 	
 	// Ambient part
 	vec3 fragcolor  = albedo.rgb * ambient;
 	
-	for(int i = 0; i < lightCount; ++i)
+	for(int i = 0; i < ubo.lightCount; ++i)
 	{
 		// Vector to light
 		vec3 L = ubo.lights[i].position.xyz - fragPos;

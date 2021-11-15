@@ -3,6 +3,7 @@
 #include "Resources/Meshes/VulkanMesh.h"
 #include "Resources/ResourceManager.h"
 #include "Core/VulkanAllocator.h"
+#include "Core/VulkanInitializers.h"
 
 using namespace Engine::Resources::Material::Generator;
 using namespace Engine::Core;
@@ -64,16 +65,9 @@ void GeneratorIrradiate::Generate(std::shared_ptr<Mesh::MeshBase> pMesh)
 
     vk::CommandBuffer tempBuffer = UDevice->BeginSingleTimeCommands();
 
-    vk::Viewport viewport{};
-    viewport.width = (float)m_iDimension;
-    viewport.height = (float)m_iDimension;
-    viewport.minDepth = 0.f;
-    viewport.maxDepth = 1.f;
-	vk::Rect2D scissor{};
-    scissor.extent.width = m_iDimension;
-    scissor.extent.height = m_iDimension;
-    scissor.offset.x = 0;
-    scissor.offset.y = 0;
+    vk::Viewport viewport = Core::Initializers::Viewport(m_iDimension, m_iDimension);
+	vk::Rect2D scissor = Core::Initializers::Scissor(m_iDimension, m_iDimension);
+
     tempBuffer.setViewport(0, 1, &viewport);
     tempBuffer.setScissor(0, 1, &scissor);
 

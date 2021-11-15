@@ -1,17 +1,17 @@
 #pragma once
-#include "Resources/ResourceBase.h"
 
 namespace Engine
 {
     namespace Resources
     {
+        class ResourceManager;
         namespace Light
         {
-            class LightSourceBase : public ResourceBase
+            class LightSourceBase
             {
             public:
-                void Create(std::shared_ptr<ResourceManager> pResMgr) override;
-                void Update(uint32_t imageIndex) override;
+                void Create(std::shared_ptr<ResourceManager> pResMgr);
+                void Update(uint32_t imageIndex);
 
                 glm::vec4 position{};
                 glm::vec3 color{};

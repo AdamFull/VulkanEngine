@@ -55,10 +55,7 @@ namespace Engine
             void Create(FEngineCreateInfo createInfo);
 
             vk::CommandBuffer BeginFrame(bool *bResult);
-            void EndFrame(vk::CommandBuffer commandBuffer, bool *bResult);
-
-            void BeginRender(vk::CommandBuffer commandBuffer);
-            void EndRender(vk::CommandBuffer commandBuffer);
+            void EndFrame(vk::CommandBuffer& commandBuffer, bool *bResult);
             // TODO: Dont forget about clean textures
             void Cleanup();
 

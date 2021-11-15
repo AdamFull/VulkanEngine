@@ -53,17 +53,17 @@ namespace Engine
             class PipelineConfig
             {
             public:
-                static FPipelineCreateInfo CreateUIPipeline(vk::RenderPass renderPass, vk::SampleCountFlagBits samples, vk::PipelineLayout pipelineLayout, vk::PipelineCache pipelineCache = VK_NULL_HANDLE);
-                static FPipelineCreateInfo CreateDiffusePipeline(vk::RenderPass renderPass, vk::SampleCountFlagBits samples, vk::PipelineLayout pipelineLayout, vk::PipelineCache pipelineCache = VK_NULL_HANDLE);
-                static FPipelineCreateInfo CreateSkyboxPipeline(vk::RenderPass renderPass, vk::SampleCountFlagBits samples, vk::PipelineLayout pipelineLayout, vk::PipelineCache pipelineCache = VK_NULL_HANDLE);
+                static FPipelineCreateInfo CreateUIPipeline(vk::RenderPass renderPass, vk::PipelineLayout pipelineLayout, vk::PipelineCache pipelineCache = VK_NULL_HANDLE);
+                static FPipelineCreateInfo CreateDiffusePipeline(vk::RenderPass renderPass, vk::PipelineLayout pipelineLayout, vk::PipelineCache pipelineCache = VK_NULL_HANDLE);
+                static FPipelineCreateInfo CreateSkyboxPipeline(vk::RenderPass renderPass, vk::PipelineLayout pipelineLayout, vk::PipelineCache pipelineCache = VK_NULL_HANDLE);
 
                 //PBR
-                static FPipelineCreateInfo CreateBRDFPipeline(vk::RenderPass renderPass, vk::SampleCountFlagBits samples, vk::PipelineLayout pipelineLayout, vk::PipelineCache pipelineCache = VK_NULL_HANDLE);
-                static FPipelineCreateInfo CreateIrradiatePipeline(vk::RenderPass renderPass, vk::SampleCountFlagBits samples, vk::PipelineLayout pipelineLayout, vk::PipelineCache pipelineCache = VK_NULL_HANDLE);
-                static FPipelineCreateInfo CreatePrefiltredPipeline(vk::RenderPass renderPass, vk::SampleCountFlagBits samples, vk::PipelineLayout pipelineLayout, vk::PipelineCache pipelineCache = VK_NULL_HANDLE);
+                static FPipelineCreateInfo CreateBRDFPipeline(vk::RenderPass renderPass, vk::PipelineLayout pipelineLayout, vk::PipelineCache pipelineCache = VK_NULL_HANDLE);
+                static FPipelineCreateInfo CreateIrradiatePipeline(vk::RenderPass renderPass, vk::PipelineLayout pipelineLayout, vk::PipelineCache pipelineCache = VK_NULL_HANDLE);
+                static FPipelineCreateInfo CreatePrefiltredPipeline(vk::RenderPass renderPass, vk::PipelineLayout pipelineLayout, vk::PipelineCache pipelineCache = VK_NULL_HANDLE);
 
                 //Deferred
-                static FPipelineCreateInfo CreateDeferredPipeline(vk::RenderPass renderPass, vk::SampleCountFlagBits samples, vk::PipelineLayout pipelineLayout, vk::PipelineCache pipelineCache = VK_NULL_HANDLE);
+                static FPipelineCreateInfo CreateDeferredPipeline(vk::RenderPass renderPass, vk::PipelineLayout pipelineLayout, vk::PipelineCache pipelineCache = VK_NULL_HANDLE);
             };
         }
     }

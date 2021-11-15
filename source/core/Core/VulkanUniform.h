@@ -13,7 +13,8 @@ namespace Engine
 
         struct FLightningData
         {
-            Light lights[6];
+            Light lights[256];
+            int lightCount;
             glm::vec4 viewPos;
         };
 

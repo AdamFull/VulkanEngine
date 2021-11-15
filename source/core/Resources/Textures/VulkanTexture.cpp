@@ -18,33 +18,31 @@ TextureBase::~TextureBase()
     m_device->Destroy(image);
     m_device->Destroy(view);
     m_device->Destroy(deviceMemory);
-    m_device->Destroy(sampler);
+
+    if(!bUsingInternalSampler)
+        m_device->Destroy(sampler);
 }
 
 void TextureBase::ReCreate()
 {
-    ResourceBase::ReCreate();
+
 }
 
 void TextureBase::Update(uint32_t imageIndex)
 {
-    ResourceBase::Update(imageIndex);
     UpdateDescriptor();
 }
 
 void TextureBase::Bind(vk::CommandBuffer commandBuffer, uint32_t imageIndex)
 {
-    ResourceBase::Bind(commandBuffer, imageIndex);
 }
 
 void TextureBase::Cleanup()
 {
-    ResourceBase::Cleanup();
 }
 
 void TextureBase::Destroy()
 {
-    ResourceBase::Destroy();
 }
 
 void TextureBase::UpdateDescriptor()
@@ -123,6 +121,12 @@ void TextureBase::LoadFromFile(std::string srPath)
     ImageLoader::Close(&texture);
 }
 
+void TextureBase::SetSampler(vk::Sampler& internalSampler)
+{
+    bUsingInternalSampler = true;
+    sampler = internalSampler;
+}
+
 void TextureBase::CreateEmptyTexture(uint32_t width, uint32_t height, uint32_t depth, uint32_t dims, uint32_t internalFormat, bool allocate_mem)
 {
     vk::Format format;
@@ -146,6 +150,7 @@ void TextureBase::InitializeTexture(ktxTexture *info, vk::Format format, vk::Ima
 {
     vk::PhysicalDeviceProperties devprops;
     m_device->GetPhysical().getProperties(&devprops);
+    fParams.format = format;
 
     uint32_t maxImageDimension3D(devprops.limits.maxImageDimension3D);
     if (info->baseWidth > maxImageDimension3D || info->baseHeight > maxImageDimension3D || info->baseDepth > maxImageDimension3D)
@@ -218,8 +223,11 @@ void TextureBase::InitializeTexture(ktxTexture *info, vk::Format format, vk::Ima
 
     view = m_device->CreateImageView(image, viewInfo);
 
-    auto addressMode = info->isArray || info->isCubemap || info->baseDepth > 1 ? vk::SamplerAddressMode::eClampToEdge : vk::SamplerAddressMode::eRepeat;
-    m_device->CreateSampler(sampler, fParams.mipLevels, addressMode);
+    if(!sampler)
+    {
+        auto addressMode = info->isArray || info->isCubemap || info->baseDepth > 1 ? vk::SamplerAddressMode::eClampToEdge : vk::SamplerAddressMode::eRepeat;
+        m_device->CreateSampler(sampler, fParams.mipLevels, addressMode);
+    }
     //imageLayout = vk::ImageLayout::eShaderReadOnlyOptimal;
 }
 

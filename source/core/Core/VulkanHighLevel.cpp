@@ -75,7 +75,7 @@ vk::CommandBuffer VulkanHighLevel::BeginFrame(bool *bResult)
     return commandBuffer;
 }
 
-void VulkanHighLevel::EndFrame(vk::CommandBuffer commandBuffer, bool *bResult)
+void VulkanHighLevel::EndFrame(vk::CommandBuffer& commandBuffer, bool *bResult)
 {
     vk::Result resultPresent;
     try
@@ -98,16 +98,6 @@ void VulkanHighLevel::EndFrame(vk::CommandBuffer commandBuffer, bool *bResult)
         *bResult = false;
         return;
     }
-}
-
-void VulkanHighLevel::BeginRender(vk::CommandBuffer commandBuffer)
-{
-    m_pRenderer->BeginRender(commandBuffer);
-}
-
-void VulkanHighLevel::EndRender(vk::CommandBuffer commandBuffer)
-{
-    m_pRenderer->EndRender(commandBuffer);
 }
 
 void VulkanHighLevel::RecreateSwapChain()

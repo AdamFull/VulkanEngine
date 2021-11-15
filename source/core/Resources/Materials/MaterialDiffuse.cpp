@@ -29,12 +29,12 @@ void MaterialDiffuse::ReCreate()
     MaterialBase::ReCreate();
 }
 
-void MaterialDiffuse::Update(uint32_t imageIndex)
+void MaterialDiffuse::Update(vk::DescriptorBufferInfo& uboDesc, uint32_t imageIndex)
 {
-    MaterialBase::Update(imageIndex);
+    MaterialBase::Update(uboDesc, imageIndex);
 
     auto bufferInfo = VulkanDescriptorWriter().
-    WriteBuffer(0, m_pMatDesc->GetSetLayout(0)->GetBindings(), &UUniform->GetUniformBuffer(imageIndex)->GetDscriptor()).
+    WriteBuffer(0, m_pMatDesc->GetSetLayout(0)->GetBindings(), &uboDesc).
     Build();
     m_pMatDesc->Update(0, imageIndex, bufferInfo);
 

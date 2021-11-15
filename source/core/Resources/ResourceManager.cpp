@@ -44,8 +44,8 @@ namespace Engine
         {
             for (auto &[key, value] : m_mTextures)
                 value->Destroy();
-            for (auto &[key, value] : m_mMaterials)
-                value->Destroy();
+            /*for (auto &[key, value] : m_mMaterials)
+                value->Destroy();*/
             for (auto &[key, value] : m_mMeshes)
                 value->Destroy();
         }

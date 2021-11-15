@@ -43,6 +43,9 @@ namespace Engine
             void BeginRender(vk::CommandBuffer& commandBuffer);
             void EndRender(vk::CommandBuffer& commandBuffer);
 
+            void BeginPostProcess(vk::CommandBuffer& commandBuffer);
+            void EndPostProcess(vk::CommandBuffer& commandBuffer);
+
             // Getters
             inline std::vector<vk::CommandBuffer, std::allocator<vk::CommandBuffer>> &GetCommandBuffers() { return data.vCommandBuffers; }
             inline uint32_t GetImageIndex() { return data.imageIndex; }

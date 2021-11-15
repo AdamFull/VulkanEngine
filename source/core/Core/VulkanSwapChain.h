@@ -50,13 +50,14 @@ namespace Engine
 
         struct FAttachmentInfo
         {
-            FAttachmentInfo(vk::Format f, vk::ImageUsageFlags u, vk::ClearColorValue c, vk::ClearDepthStencilValue d) :
-            format(f), usage(u), color(c), depth(d) {}
+            FAttachmentInfo(vk::Format f, vk::ImageUsageFlags u, vk::ClearColorValue c) :
+            format(f), usage(u), color(c) {}
             vk::Format format{vk::Format::eUndefined};
             vk::ImageUsageFlags usage{};
             vk::ClearColorValue color{};
-            vk::ClearDepthStencilValue depth{};
         };
+
+        using gbuffer_t = std::map<Resources::ETextureAttachmentType, std::shared_ptr<Resources::Texture::TextureBase>>;
 
         class SwapChain
         {
@@ -95,6 +96,8 @@ namespace Engine
             inline std::vector<vk::Framebuffer> &GetOffscreenFramebuffers() { return data.vOffscreenFramebuffers; }
             inline vk::RenderPass &GetOffscreenRenderPass() { return data.offscreenRenderPass; }
 
+            void UpdateCompositionMaterial(vk::CommandBuffer& commandBuffer);
+
             std::shared_ptr<Resources::Material::MaterialBase> GetComposition() { return m_pComposition; }
 
             inline std::vector<vk::Image> &GetImages() { return data.vImages; }
@@ -124,14 +127,16 @@ namespace Engine
             void CreateOffscreenRenderPass();
             void CreateFrameBuffers();
             void CreateOffscreenFrameBuffers();
+            void CreateCompositionSampler();
             std::shared_ptr<Resources::Texture::TextureBase> CreateOffscreenImage(vk::Format format, vk::ImageUsageFlags usage);
             void CreateOffscreenImages();
             void CreateCompositionMaterial();
-            void ReCreateCompositionMaterial();
             void CreateSyncObjects();
 
-            std::map<Resources::ETextureAttachmentType, std::shared_ptr<Resources::Texture::TextureBase>> m_mGBuffer;
+            std::vector<gbuffer_t> m_vGBuffer;
+            std::shared_ptr<Resources::Texture::TextureBase> m_pGBufferDepth;
             std::shared_ptr<Resources::Material::MaterialBase> m_pComposition;
+            vk::Sampler compositionSampler;
 
             std::shared_ptr<Device> m_device;
 

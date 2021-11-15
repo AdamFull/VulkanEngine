@@ -2,6 +2,7 @@
 #include "Resources/Textures/ImageLoader.h"
 #include "VulkanStaticHelper.h"
 #include "VulkanAllocator.h"
+#include "VulkanInitializers.h"
 
 using namespace Engine::Core;
 using namespace Engine::Resources;
@@ -75,16 +76,18 @@ void Renderer::BeginRender(vk::CommandBuffer& commandBuffer)
     for(auto& [attachment, param] : m_swapchain->vAttachments)
     {
         vk::ClearValue clearValue{};
-        if(attachment == ETextureAttachmentType::eDepth)
-            clearValue.depthStencil = param.depth;
-        else
-            clearValue.color = param.color;
+        clearValue.color = param.color;
         clearValues.emplace_back(clearValue);
     }
 
+    //Clear depth
+    vk::ClearValue clearValue{};
+    clearValue.depthStencil = vk::ClearDepthStencilValue{1.f, 0};
+    clearValues.emplace_back(clearValue);
+
     vk::RenderPassBeginInfo renderPassInfo = {};
     renderPassInfo.renderPass = m_swapchain->GetOffscreenRenderPass();
-    renderPassInfo.framebuffer = m_swapchain->GetOffscreenFramebuffers().at(0);
+    renderPassInfo.framebuffer = m_swapchain->GetOffscreenFramebuffers().at(data.imageIndex);
     renderPassInfo.renderArea.offset = vk::Offset2D{0, 0};
     renderPassInfo.renderArea.extent = screenExtent;
     renderPassInfo.clearValueCount = static_cast<uint32_t>(clearValues.size());
@@ -92,13 +95,7 @@ void Renderer::BeginRender(vk::CommandBuffer& commandBuffer)
 
     commandBuffer.beginRenderPass(renderPassInfo, vk::SubpassContents::eInline);
 
-    vk::Viewport viewport{};
-    viewport.x = 0.0f;
-    viewport.y = 0.0f;
-    viewport.width = static_cast<float>(screenExtent.width);
-    viewport.height = static_cast<float>(screenExtent.height);
-    viewport.minDepth = 0.0f;
-    viewport.maxDepth = 1.0f;
+    vk::Viewport viewport = Initializers::Viewport(screenExtent.width, screenExtent.height);
     vk::Rect2D scissor{{0, 0}, screenExtent};
 
     commandBuffer.setViewport(0, 1, &viewport);
@@ -110,11 +107,9 @@ void Renderer::EndRender(vk::CommandBuffer& commandBuffer)
     assert(data.bFrameStarted && "Can't call endSwapChainRenderPass if frame is not in progress");
     assert(commandBuffer == GetCurrentCommandBuffer() && "Can't end render pass on command buffer from a different frame");
     commandBuffer.endRenderPass();
-
-    Finalize(commandBuffer);
 }
 
-void Renderer::Finalize(vk::CommandBuffer& commandBuffer)
+void Renderer::BeginPostProcess(vk::CommandBuffer& commandBuffer)
 {
     assert(data.bFrameStarted && "Can't call beginSwapChainRenderPass if frame is not in progress");
     assert(commandBuffer == GetCurrentCommandBuffer() && "Can't begin render pass on command buffer from a different frame");
@@ -134,25 +129,22 @@ void Renderer::Finalize(vk::CommandBuffer& commandBuffer)
 
     commandBuffer.beginRenderPass(renderPassInfo, vk::SubpassContents::eInline);
 
-    vk::Viewport viewport{};
-    viewport.x = 0.0f;
-    viewport.y = 0.0f;
-    viewport.width = static_cast<float>(screenExtent.width);
-    viewport.height = static_cast<float>(screenExtent.height);
-    viewport.minDepth = 0.0f;
-    viewport.maxDepth = 1.0f;
+    vk::Viewport viewport = Initializers::Viewport(screenExtent.width, screenExtent.height);
     vk::Rect2D scissor{{0, 0}, screenExtent};
 
     commandBuffer.setViewport(0, 1, &viewport);
     commandBuffer.setScissor(0, 1, &scissor);
+}
 
-    m_swapchain->GetComposition()->Update(data.imageIndex);
-    m_swapchain->GetComposition()->Bind(commandBuffer, data.imageIndex);
-
+void Renderer::EndPostProcess(vk::CommandBuffer& commandBuffer)
+{
+    m_swapchain->UpdateCompositionMaterial(commandBuffer);
     commandBuffer.draw(3, 1, 0, 0);
 
     UOverlay->DrawFrame(commandBuffer, data.imageIndex);
 
+    assert(data.bFrameStarted && "Can't call endSwapChainRenderPass if frame is not in progress");
+    assert(commandBuffer == GetCurrentCommandBuffer() && "Can't end render pass on command buffer from a different frame");
     commandBuffer.endRenderPass();
 }
 

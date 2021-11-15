@@ -1,6 +1,7 @@
 #include "VulkanMaterial.h"
 #include "Core/VulkanUniform.h"
 #include "Core/VulkanDevice.h"
+#include "Core/VulkanSwapChain.h"
 #include "Resources/ResourceManager.h"
 
 using namespace Engine::Resources::Texture;
@@ -26,16 +27,16 @@ FPipelineCreateInfo MaterialBase::CreateInfo(EShaderSet eSet)
     switch (eSet)
     {
     case EShaderSet::eUI:
-        return PipelineConfig::CreateUIPipeline(renderPass, vk::SampleCountFlagBits::e1, pipelineLayout, pipelineCache);
+        return PipelineConfig::CreateUIPipeline(renderPass, pipelineLayout, pipelineCache);
         break;
     case EShaderSet::eDiffuse:
-        return PipelineConfig::CreateDiffusePipeline(renderPass, vk::SampleCountFlagBits::e1, pipelineLayout, pipelineCache);
+        return PipelineConfig::CreateDiffusePipeline(renderPass, pipelineLayout, pipelineCache);
         break;
     case EShaderSet::eSkybox:
-        return PipelineConfig::CreateSkyboxPipeline(renderPass, vk::SampleCountFlagBits::e1, pipelineLayout, pipelineCache);
+        return PipelineConfig::CreateSkyboxPipeline(renderPass, pipelineLayout, pipelineCache);
         break;
     case EShaderSet::eDeferred:
-        return PipelineConfig::CreateDeferredPipeline(renderPass, vk::SampleCountFlagBits::e1, pipelineLayout, pipelineCache);
+        return PipelineConfig::CreateDeferredPipeline(renderPass, pipelineLayout, pipelineCache);
         break;
     }
 
@@ -73,26 +74,23 @@ void MaterialBase::AddTextures(std::map<ETextureAttachmentType, std::shared_ptr<
 
 void MaterialBase::ReCreate()
 {
-    ResourceBase::ReCreate();
     pPipeline->RecreatePipeline(CreateInfo(GetShaderSet()));
 }
 
-void MaterialBase::Update(uint32_t imageIndex)
+void MaterialBase::Update(vk::DescriptorBufferInfo& uboDesc, uint32_t imageIndex)
 {
-    ResourceBase::Update(imageIndex);
+
 }
 
 void MaterialBase::Bind(vk::CommandBuffer commandBuffer, uint32_t imageIndex)
 {
-    ResourceBase::Bind(commandBuffer, imageIndex);
-
     m_pMatDesc->Bind(commandBuffer, imageIndex);
     pPipeline->Bind(commandBuffer);
 }
 
 void MaterialBase::Cleanup()
 {
-    ResourceBase::Cleanup();
+
 }
 
 void MaterialBase::CreateDescriptorPool(uint32_t images)

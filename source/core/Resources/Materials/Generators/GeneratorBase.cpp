@@ -24,13 +24,13 @@ FPipelineCreateInfo GeneratorBase::CreateInfo(EShaderSet eSet)
     switch (eSet)
     {
     case EShaderSet::eBRDF:
-        return PipelineConfig::CreateBRDFPipeline(renderPass, vk::SampleCountFlagBits::e1, pipelineLayout, pipelineCache);
+        return PipelineConfig::CreateBRDFPipeline(renderPass, pipelineLayout, pipelineCache);
         break;
     case EShaderSet::eIrradiateCube:
-        return PipelineConfig::CreateIrradiatePipeline(renderPass, vk::SampleCountFlagBits::e1, pipelineLayout, pipelineCache);
+        return PipelineConfig::CreateIrradiatePipeline(renderPass, pipelineLayout, pipelineCache);
         break;
     case EShaderSet::ePrefiltred:
-        return PipelineConfig::CreatePrefiltredPipeline(renderPass, vk::SampleCountFlagBits::e1, pipelineLayout, pipelineCache);
+        return PipelineConfig::CreatePrefiltredPipeline(renderPass, pipelineLayout, pipelineCache);
         break;
     }
 

@@ -9,6 +9,7 @@
 #include "Resources/Textures/VulkanTexture.h"
 #include "Resources/Materials/MaterialUI.h"
 #include "Core/VulkanSwapChain.h"
+#include "Core/VulkanInitializers.h"
 
 #include "Overlays/OverlayDebug.h"
 #include "Overlays/OverlayConsole.h"
@@ -36,7 +37,7 @@ ImguiOverlay::~ImguiOverlay()
 {
     ImGui_ImplGlfw_Shutdown();
     ImGui::DestroyContext();
-    fontMaterial->Destroy();
+    //fontMaterial->Destroy();
     m_pUniform->Cleanup();
 }
 
@@ -204,14 +205,11 @@ void ImguiOverlay::DrawFrame(vk::CommandBuffer commandBuffer, uint32_t index)
     {
         ImGuiIO &io = ImGui::GetIO();
 
-        fontMaterial->Update(index);
+        auto& buffer = m_pUniform->GetUniformBuffer(index);
+        fontMaterial->Update(buffer->GetDscriptor(), index);
         fontMaterial->Bind(commandBuffer, index);
 
-        vk::Viewport viewport{};
-        viewport.width = ImGui::GetIO().DisplaySize.x;
-        viewport.height = ImGui::GetIO().DisplaySize.y;
-        viewport.minDepth = 0.0f;
-        viewport.maxDepth = 1.0f;
+        vk::Viewport viewport = Initializers::Viewport(ImGui::GetIO().DisplaySize.x, ImGui::GetIO().DisplaySize.y);
         commandBuffer.setViewport(0, 1, &viewport);
 
         FUniformDataUI ubo{};

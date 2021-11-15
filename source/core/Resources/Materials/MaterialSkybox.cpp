@@ -13,7 +13,7 @@ MaterialSkybox::MaterialSkybox(std::shared_ptr<Core::Device> device, std::shared
 
 void MaterialSkybox::Create(std::shared_ptr<ResourceManager> pResMgr)
 {
-    renderPass = m_swapchain->GetOffscreenRenderPass();
+    renderPass = m_swapchain->GetRenderPass();
 
     //m_mTextures[ETextureAttachmentType::eCubemap] = pResMgr->Get<Texture::TextureBase>("environment_component_prefiltred_cube");
 
@@ -22,16 +22,16 @@ void MaterialSkybox::Create(std::shared_ptr<ResourceManager> pResMgr)
 
 void MaterialSkybox::ReCreate()
 {
-    renderPass = m_swapchain->GetOffscreenRenderPass();
+    renderPass = m_swapchain->GetRenderPass();
     MaterialBase::ReCreate();
 }
 
-void MaterialSkybox::Update(uint32_t imageIndex)
+void MaterialSkybox::Update(vk::DescriptorBufferInfo& uboDesc, uint32_t imageIndex)
 {
-    MaterialBase::Update(imageIndex);
+    MaterialBase::Update(uboDesc, imageIndex);
 
     auto bufferInfo = VulkanDescriptorWriter().
-    WriteBuffer(0, m_pMatDesc->GetSetLayout(0)->GetBindings(), &UUniform->GetUniformBuffer(imageIndex)->GetDscriptor()).
+    WriteBuffer(0, m_pMatDesc->GetSetLayout(0)->GetBindings(), &uboDesc).
     Build();
     m_pMatDesc->Update(0, imageIndex, bufferInfo);
 

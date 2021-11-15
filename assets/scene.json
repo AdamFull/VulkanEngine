@@ -30,7 +30,7 @@
         {
             "pos": {"x": 0.0, "y": 0.0, "z": 0.0},
             "rot": {"x": 0.0, "y": 0.0, "z": 0.0},
-            "scale": {"x": 1.0, "y": 1.0, "z": 1.0}
+            "scale": {"x": 2.0, "y": 2.0, "z": 2.0}
         }
     },
     "environment":
@@ -77,7 +77,24 @@
             "transform":
             {
                 "pos": {"x": 0.0, "y": 0.0, "z": 0.0},
-                "rot": {"x": 1.57, "y": 0.0, "z": 0},
+                "rot": {"x": 1.57, "y": 0.0, "z": 0.0},
+                "scale": {"x": 1.0, "y": 1.0, "z": 1.0}
+            }
+        },
+        {
+            "name": "floor_mesh_component",
+            "type": "gltf_mesh",
+            "mesh": 
+            {
+                "name": "floor_model_gltf",
+                "type": "static",
+                "src": "../../assets/meshes/floor/floor.gltf",
+                "use_included_material": true
+            },
+            "transform":
+            {
+                "pos": {"x": 0.0, "y": 0.0, "z": 0.0},
+                "rot": {"x": 0.0, "y": 0.0, "z": 0.0},
                 "scale": {"x": 1.0, "y": 1.0, "z": 1.0}
             }
         }

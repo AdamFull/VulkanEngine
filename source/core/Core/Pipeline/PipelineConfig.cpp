@@ -123,9 +123,12 @@ FPipelineCreateInfo PipelineConfig::CreateSkyboxPipeline(vk::RenderPass renderPa
 
     createInfo.multisampling.rasterizationSamples = vk::SampleCountFlagBits::e1;
 
-    vk::PipelineColorBlendAttachmentState colorBlendAttachment = 
-    Initializers::PipelineColorBlendAttachmentState(vk::ColorComponentFlagBits::eR | vk::ColorComponentFlagBits::eG | vk::ColorComponentFlagBits::eB | vk::ColorComponentFlagBits::eA, VK_FALSE);
-    createInfo.colorBlendAttachments.emplace_back(colorBlendAttachment);
+    for(uint32_t i = 0; i < 3; i++)
+    {
+        vk::PipelineColorBlendAttachmentState colorBlendAttachment = 
+        Initializers::PipelineColorBlendAttachmentState(vk::ColorComponentFlagBits::eR | vk::ColorComponentFlagBits::eG | vk::ColorComponentFlagBits::eB | vk::ColorComponentFlagBits::eA, VK_FALSE);
+        createInfo.colorBlendAttachments.emplace_back(colorBlendAttachment);
+    }
 
     createInfo.colorBlending.attachmentCount = static_cast<uint32_t>(createInfo.colorBlendAttachments.size());
 

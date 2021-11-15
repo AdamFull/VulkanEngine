@@ -13,7 +13,7 @@ MaterialSkybox::MaterialSkybox(std::shared_ptr<Core::Device> device, std::shared
 
 void MaterialSkybox::Create(std::shared_ptr<ResourceManager> pResMgr)
 {
-    renderPass = m_swapchain->GetRenderPass();
+    renderPass = m_swapchain->GetOffscreenRenderPass();
 
     //m_mTextures[ETextureAttachmentType::eCubemap] = pResMgr->Get<Texture::TextureBase>("environment_component_prefiltred_cube");
 
@@ -22,7 +22,7 @@ void MaterialSkybox::Create(std::shared_ptr<ResourceManager> pResMgr)
 
 void MaterialSkybox::ReCreate()
 {
-    renderPass = m_swapchain->GetRenderPass();
+    renderPass = m_swapchain->GetOffscreenRenderPass();
     MaterialBase::ReCreate();
 }
 

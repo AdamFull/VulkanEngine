@@ -126,15 +126,15 @@ void RenderScene::Render(float fDeltaTime)
     UVBO->Bind(commandBuffer);
     URenderer->BeginRender(commandBuffer);
 
+    if(m_pSkybox)
+        m_pSkybox->Render(commandBuffer, currentFrame);
+
     m_pRoot->Render(commandBuffer, currentFrame);
 
     URenderer->EndRender(commandBuffer);
 
+    //Post processing
     URenderer->BeginPostProcess(commandBuffer);
-    
-    if(m_pSkybox)
-        if (m_pSkybox)
-        m_pSkybox->Render(commandBuffer, currentFrame);
 
     URenderer->EndPostProcess(commandBuffer);
 

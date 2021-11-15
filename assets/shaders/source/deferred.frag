@@ -28,11 +28,14 @@ void main()
 	vec3 normal = texture(normal_tex, inUV).rgb;
 	vec4 albedo = texture(albedo_tex, inUV);
 
+	/*outFragcolor = vec4(normal, 1.0);
+	return;*/
+
 	//outFragcolor.rgb = albedo.aaa;
 	//return;
 
 	// Render-target composition
-	#define ambient 0.0
+	#define ambient 0.15
 	
 	// Ambient part
 	vec3 fragcolor  = albedo.rgb * ambient;
@@ -71,5 +74,5 @@ void main()
 		}	
 	}    	
    
-  outFragcolor = vec4(fragcolor, 1.0);	
+  	outFragcolor = vec4(fragcolor, 1.0);	
 }

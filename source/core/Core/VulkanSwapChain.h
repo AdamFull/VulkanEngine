@@ -1,6 +1,5 @@
 #pragma once
 #include "DataTypes/VulkanSwapChainSipportDetails.h"
-#include "Resources/ResourceCunstruct.h"
 
 namespace Engine
 {
@@ -21,10 +20,6 @@ namespace Engine
 
             std::vector<vk::Framebuffer> vFramebuffers;
             vk::RenderPass renderPass;
-
-            //For deferred rendering
-            std::vector<vk::Framebuffer> vOffscreenFramebuffers;
-            vk::RenderPass offscreenRenderPass;
 
             // Swap chain buffer
             std::vector<vk::Image> vImages;
@@ -47,17 +42,6 @@ namespace Engine
             size_t currentFrame = 0;
             uint32_t iFramesInFlight = 2;
         };
-
-        struct FAttachmentInfo
-        {
-            FAttachmentInfo(vk::Format f, vk::ImageUsageFlags u, vk::ClearColorValue c) :
-            format(f), usage(u), color(c) {}
-            vk::Format format{vk::Format::eUndefined};
-            vk::ImageUsageFlags usage{};
-            vk::ClearColorValue color{};
-        };
-
-        using gbuffer_t = std::map<Resources::ETextureAttachmentType, std::shared_ptr<Resources::Texture::TextureBase>>;
 
         class SwapChain
         {
@@ -93,12 +77,7 @@ namespace Engine
             inline std::vector<vk::Framebuffer> &GetFramebuffers() { return data.vFramebuffers; }
             inline vk::RenderPass &GetRenderPass() { return data.renderPass; }
 
-            inline std::vector<vk::Framebuffer> &GetOffscreenFramebuffers() { return data.vOffscreenFramebuffers; }
-            inline vk::RenderPass &GetOffscreenRenderPass() { return data.offscreenRenderPass; }
-
             void UpdateCompositionMaterial(vk::CommandBuffer& commandBuffer);
-
-            std::shared_ptr<Resources::Material::MaterialBase> GetComposition() { return m_pComposition; }
 
             inline std::vector<vk::Image> &GetImages() { return data.vImages; }
             inline std::vector<vk::ImageView> &GetImageViews() { return data.vImageViews; }
@@ -117,26 +96,16 @@ namespace Engine
             inline size_t GetCurrentFrame() { return data.currentFrame; }
             inline uint32_t GetFramesInFlight() { return data.iFramesInFlight; }
 
-            static std::map<Resources::ETextureAttachmentType, FAttachmentInfo> vAttachments;
-
         private:
-            void CreateSwapChain();
+            void CreateSwapChain();            
+            
+            void CreateSyncObjects();
+
+            //Forward final processing  (move it to another object)
             void CreateSwapChainImageViews();
             void CreateDepthResources();
             void CreateRenderPass();
-            void CreateOffscreenRenderPass();
             void CreateFrameBuffers();
-            void CreateOffscreenFrameBuffers();
-            void CreateCompositionSampler();
-            std::shared_ptr<Resources::Texture::TextureBase> CreateOffscreenImage(vk::Format format, vk::ImageUsageFlags usage);
-            void CreateOffscreenImages();
-            void CreateCompositionMaterial();
-            void CreateSyncObjects();
-
-            std::vector<gbuffer_t> m_vGBuffer;
-            std::shared_ptr<Resources::Texture::TextureBase> m_pGBufferDepth;
-            std::shared_ptr<Resources::Material::MaterialBase> m_pComposition;
-            vk::Sampler compositionSampler;
 
             std::shared_ptr<Device> m_device;
 

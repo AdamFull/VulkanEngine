@@ -2,7 +2,7 @@
 
 namespace Engine
 {
-    float GlobalVariables::lightPosition[3]{0.0, -1.7, -0.5};
-    float GlobalVariables::lightColor[3]{1.f, 1.f, 1.f};
-    float GlobalVariables::modelRotation[3]{0.f, 0.f, 0.f};
+    float GlobalVariables::ambientLight{0.15f};
+    float GlobalVariables::postprocessTone{2.0f};
+    float GlobalVariables::postprocessGamma{1.7f};
 }

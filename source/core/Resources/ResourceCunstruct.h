@@ -16,6 +16,7 @@ namespace Engine
         {
             eEmpty,
             ePosition,
+            eLightningMask,
             eNormal,
             eDiffuseAlbedo,
             eDepth,

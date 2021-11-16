@@ -36,8 +36,9 @@ void MaterialDeferred::Update(vk::DescriptorBufferInfo& uboDesc, uint32_t imageI
 
     auto imageInfo = VulkanDescriptorWriter().
     WriteImage(0, m_pMatDesc->GetSetLayout(1)->GetBindings(), &m_mTextures[ETextureAttachmentType::ePosition]->GetDescriptor()).
-    WriteImage(1, m_pMatDesc->GetSetLayout(1)->GetBindings(), &m_mTextures[ETextureAttachmentType::eNormal]->GetDescriptor()).
-    WriteImage(2, m_pMatDesc->GetSetLayout(1)->GetBindings(), &m_mTextures[ETextureAttachmentType::eDiffuseAlbedo]->GetDescriptor()).
+    WriteImage(1, m_pMatDesc->GetSetLayout(1)->GetBindings(), &m_mTextures[ETextureAttachmentType::eLightningMask]->GetDescriptor()).
+    WriteImage(2, m_pMatDesc->GetSetLayout(1)->GetBindings(), &m_mTextures[ETextureAttachmentType::eNormal]->GetDescriptor()).
+    WriteImage(3, m_pMatDesc->GetSetLayout(1)->GetBindings(), &m_mTextures[ETextureAttachmentType::eDiffuseAlbedo]->GetDescriptor()).
     Build();
     m_pMatDesc->Update(1, imageIndex, imageInfo);
 }
@@ -69,6 +70,7 @@ void MaterialDeferred::CreateDescriptors(uint32_t images)
     addBinding(0, vk::DescriptorType::eCombinedImageSampler, vk::ShaderStageFlagBits::eFragment).
     addBinding(1, vk::DescriptorType::eCombinedImageSampler, vk::ShaderStageFlagBits::eFragment).
     addBinding(2, vk::DescriptorType::eCombinedImageSampler, vk::ShaderStageFlagBits::eFragment).
+    addBinding(3, vk::DescriptorType::eCombinedImageSampler, vk::ShaderStageFlagBits::eFragment).
     build();
 
     auto texSet = Core::FDefaultAllocator::Allocate<VulkanDescriptorSet>();

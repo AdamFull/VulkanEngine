@@ -13,23 +13,26 @@ namespace Engine
 
         struct FLightningData
         {
+            glm::vec4 viewPos;
             Light lights[256];
             int lightCount;
-            glm::vec4 viewPos;
+            float ambient;
+            float tone;
+            float gamma;
         };
 
         struct FUniformData
         {
-            glm::mat4 model{};
-            glm::mat4 view{};
-            glm::mat4 projection{};
-            glm::mat4 normal{};
+            alignas(16) glm::mat4 model{};
+            alignas(16) glm::mat4 view{};
+            alignas(16) glm::mat4 projection{};
+            alignas(16) glm::mat4 normal{};
         };
 
         struct FUniformDataUI
         {
-            glm::vec2 scale;
-            glm::vec2 translate;
+            alignas(8) glm::vec2 scale;
+            alignas(8) glm::vec2 translate;
         };
 
         class Device;

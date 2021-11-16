@@ -7,17 +7,18 @@
 #include "Core/Overlay/ImguiOverlay.h"
 #include "Objects/Components/Camera/CameraComponent.h"
 #include "Objects/Components/Camera/CameraManager.h"
+#include "GlobalVariables.h"
 
 using namespace Engine;
 using namespace Engine::Core;
 using namespace Engine::Objects::Components;
 
-float frandom(float max) 
+float frandom(float min, float max) 
 {
     float random = ((float) rand()) / (float) RAND_MAX;
-    float diff = max - 0.f;
+    float diff = max - min;
     float r = random * diff;
-    return 0.f + r;
+    return min + r;
 }
 
 RenderScene::~RenderScene()
@@ -33,12 +34,12 @@ void RenderScene::Create()
     UOverlay->Create(m_pResourceManager);   //TODO: bad!
 
     //TODO: for test
-    for(uint32_t i = 0; i < 10; i++)
+    for(uint32_t i = 0; i < 40; i++)
     {
         Resources::Light::LightSourceBase light;
-        light.position = glm::vec4(frandom(4.f), frandom(4.f), frandom(4.f), 1.f);
-        light.color = glm::vec3(frandom(1.f), frandom(1.f), frandom(1.f));
-        light.attenuation = frandom(40.f);
+        light.position = glm::vec4(frandom(-8.f, 8.f), frandom(-3.f, -1.f), frandom(-8.f, 8.f), 1.f);
+        light.color = glm::vec3(frandom(0.f, 1.f), frandom(0.f, 1.f), frandom(0.f, 1.f));
+        light.attenuation = frandom(0.f, 10.f);
         vLights.emplace_back(light);
     }
 }
@@ -121,9 +122,13 @@ void RenderScene::Render(float fDeltaTime)
     }
     ubo.lightCount = vLights.size();
     ubo.viewPos = glm::vec4(camera->GetTransform().pos, 1.0);
+    ubo.ambient = GlobalVariables::ambientLight;
+    ubo.tone = GlobalVariables::postprocessTone;
+    ubo.gamma = GlobalVariables::postprocessGamma;
     ULightUniform->UpdateUniformBuffer(currentFrame, &ubo);
 
     UVBO->Bind(commandBuffer);
+    //Main render
     URenderer->BeginRender(commandBuffer);
 
     if(m_pSkybox)

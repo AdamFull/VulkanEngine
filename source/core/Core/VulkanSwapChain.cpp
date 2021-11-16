@@ -38,6 +38,15 @@ std::map<ETextureAttachmentType, FAttachmentInfo> SwapChain::vAttachments =
         )
     },
     {
+        ETextureAttachmentType::eLightningMask,
+        FAttachmentInfo
+        (
+            vk::Format::eR16G16B16A16Sfloat,
+            vk::ImageUsageFlagBits::eColorAttachment | vk::ImageUsageFlagBits::eSampled,
+            {std::array<float, 4>{0.0f, 0.0f, 0.0f, 0.0f}}
+        )
+    },
+    {
         ETextureAttachmentType::eNormal,
         FAttachmentInfo
         (
@@ -394,15 +403,13 @@ void SwapChain::CreateOffscreenRenderPass()
     std::vector<vk::AttachmentDescription> vAttachmentDesc{};
     std::transform(descTemporary.begin(), descTemporary.end(), std::back_inserter(vAttachmentDesc), get_map_values(descTemporary));
 
-    std::vector<vk::AttachmentReference> colorReferences
-    {
-        {0, vk::ImageLayout::eColorAttachmentOptimal},
-        {1, vk::ImageLayout::eColorAttachmentOptimal},
-        {2, vk::ImageLayout::eColorAttachmentOptimal}
-    };
+    std::vector<vk::AttachmentReference> colorReferences{};
+
+    for(uint32_t i = 0; i < vAttachments.size(); i++)
+        colorReferences.emplace_back(vk::AttachmentReference{i, vk::ImageLayout::eColorAttachmentOptimal});
 
     vk::AttachmentReference depthReference = {};
-	depthReference.attachment = 3;
+	depthReference.attachment = vAttachments.size();
 	depthReference.layout = vk::ImageLayout::eDepthStencilAttachmentOptimal;
 
     vk::SubpassDescription subpass = {};

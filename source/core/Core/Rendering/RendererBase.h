@@ -34,14 +34,28 @@ namespace Engine
 
             struct FAttachmentInfo
             {
-                FAttachmentInfo(vk::Format f, vk::ImageUsageFlags u, vk::ClearColorValue c) :
-                format(f), usage(u), color(c) {}
+                FAttachmentInfo(vk::Format f, vk::ImageUsageFlags u, vk::ImageLayout l, vk::ImageAspectFlags a, vk::ClearColorValue c) :
+                format(f), usage(u), layout(l), aspect(a), color(c) {}
                 vk::Format format{vk::Format::eUndefined};
                 vk::ImageUsageFlags usage{};
+                vk::ImageLayout layout{};
+                vk::ImageAspectFlags aspect{};
                 vk::ClearColorValue color{};
             };
 
-            using gbuffer_t = std::map<Resources::ETextureAttachmentType, std::shared_ptr<Resources::Texture::TextureBase>>;
+            struct FImage
+            {
+                vk::Image image;
+                vk::ImageView view;
+                vk::ImageLayout layout;
+                vk::DeviceMemory memory;
+                vk::Sampler sampler;
+                vk::Format format;
+
+                vk::DescriptorImageInfo GetDescriptor();
+            };
+
+            using gbuffer_t = std::map<Resources::ETextureAttachmentType, FImage>;
 
             class RendererBase
             {
@@ -52,7 +66,7 @@ namespace Engine
                 virtual void Cleanup();
             
             protected:
-                std::shared_ptr<Resources::Texture::TextureBase> CreateImage(vk::Format format, vk::ImageUsageFlags usage);
+                FImage CreateImage(vk::Format format, FAttachmentInfo attachment);
                 void CreateSampler();
                 void CreateImages();
                 virtual void CreateRenderPass();
@@ -61,7 +75,7 @@ namespace Engine
                 virtual void CreateMaterial();
 
                 std::vector<gbuffer_t> m_vImages;
-                std::shared_ptr<Resources::Texture::TextureBase> m_pDepthImage;
+                FImage m_DepthImage;
                 std::shared_ptr<Resources::Material::MaterialBase> m_pMaterial;
                 std::shared_ptr<UniformBuffer> m_pUniform;
                 vk::Sampler sampler;
@@ -70,6 +84,7 @@ namespace Engine
                 std::vector<vk::Framebuffer> m_vFramebuffers;
 
                 std::map<Resources::ETextureAttachmentType, FAttachmentInfo> vAttachments;
+                FAttachmentInfo depthAttachment;
 
                 std::shared_ptr<Device> m_device;
                 std::shared_ptr<SwapChain> m_swapchain;

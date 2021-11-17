@@ -34,7 +34,7 @@ void MaterialUI::Update(vk::DescriptorBufferInfo& uboDesc, uint32_t imageIndex)
     m_pMatDesc->Update(0, imageIndex, bufferInfo);
 
     auto imageInfo = VulkanDescriptorWriter().
-    WriteImage(0, m_pMatDesc->GetSetLayout(1)->GetBindings(), &m_mTextures[ETextureAttachmentType::eDiffuseAlbedo]->GetDescriptor()).
+    WriteImage(0, m_pMatDesc->GetSetLayout(1)->GetBindings(), &m_mTextures[ETextureAttachmentType::eDiffuseAlbedo]).
     Build();
     m_pMatDesc->Update(1, imageIndex, imageInfo);
 }

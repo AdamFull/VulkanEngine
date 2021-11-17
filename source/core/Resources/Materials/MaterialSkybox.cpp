@@ -36,7 +36,7 @@ void MaterialSkybox::Update(vk::DescriptorBufferInfo& uboDesc, uint32_t imageInd
     m_pMatDesc->Update(0, imageIndex, bufferInfo);
 
     auto imageInfo = VulkanDescriptorWriter().
-    WriteImage(0, m_pMatDesc->GetSetLayout(1)->GetBindings(), &m_mTextures[ETextureAttachmentType::eCubemap]->GetDescriptor()).
+    WriteImage(0, m_pMatDesc->GetSetLayout(1)->GetBindings(), &m_mTextures[ETextureAttachmentType::eCubemap]).
     Build();
     m_pMatDesc->Update(1, imageIndex, imageInfo);
 }

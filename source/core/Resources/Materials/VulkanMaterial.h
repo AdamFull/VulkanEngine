@@ -13,7 +13,6 @@ namespace Engine
     namespace Resources
     {
         class ResourceManager;
-        namespace Texture { class TextureBase; }
         namespace Material
         {
             struct FMaterialParams
@@ -40,9 +39,8 @@ namespace Engine
                 virtual ~MaterialBase();
 
                 virtual void Create(std::shared_ptr<ResourceManager> pResMgr);
-                virtual void AddTexture(ETextureAttachmentType eAttachment, std::shared_ptr<Texture::TextureBase> pTexture);
-                std::shared_ptr<Texture::TextureBase> GetTexture(ETextureAttachmentType eAttachment);
-                virtual void AddTextures(std::map<ETextureAttachmentType, std::shared_ptr<Texture::TextureBase>> mTextures);
+                virtual void AddTexture(ETextureAttachmentType eAttachment, vk::DescriptorImageInfo texture);
+                vk::DescriptorImageInfo GetTexture(ETextureAttachmentType eAttachment);
                 virtual void ReCreate();
                 virtual void Update(vk::DescriptorBufferInfo& uboDesc, uint32_t imageIndex);
                 virtual void Bind(vk::CommandBuffer commandBuffer, uint32_t imageIndex);
@@ -72,7 +70,7 @@ namespace Engine
                 vk::PipelineLayout pipelineLayout;
                 vk::PipelineCache pipelineCache;
                 std::shared_ptr<Core::Pipeline::PipelineBase> pPipeline;
-                std::map<ETextureAttachmentType, std::shared_ptr<Texture::TextureBase>> m_mTextures;
+                std::map<ETextureAttachmentType, vk::DescriptorImageInfo> m_mTextures;
 
                 std::shared_ptr<Core::Device> m_device;
                 std::shared_ptr<Core::SwapChain> m_swapchain;

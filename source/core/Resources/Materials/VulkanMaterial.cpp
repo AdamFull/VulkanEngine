@@ -57,19 +57,14 @@ void MaterialBase::Create(std::shared_ptr<ResourceManager> pResMgr)
     m_pMatDesc->UpdatePipelineInfo(pPipeline->GetBindPoint(), pipelineLayout);
 }
 
-void MaterialBase::AddTexture(ETextureAttachmentType eAttachment, std::shared_ptr<TextureBase> pTexture)
+void MaterialBase::AddTexture(ETextureAttachmentType eAttachment, vk::DescriptorImageInfo texture)
 {
-    m_mTextures[eAttachment] = pTexture;
+    m_mTextures[eAttachment] = texture;
 }
 
-std::shared_ptr<TextureBase> MaterialBase::GetTexture(ETextureAttachmentType eAttachment)
+vk::DescriptorImageInfo MaterialBase::GetTexture(ETextureAttachmentType eAttachment)
 {
     return m_mTextures[eAttachment];
-}
-
-void MaterialBase::AddTextures(std::map<ETextureAttachmentType, std::shared_ptr<TextureBase>> mTextures)
-{
-    m_mTextures = mTextures;
 }
 
 void MaterialBase::ReCreate()

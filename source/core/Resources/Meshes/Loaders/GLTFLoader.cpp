@@ -429,10 +429,10 @@ void GLTFLoader::LoadMaterials(std::shared_ptr<Resources::ResourceManager> pResM
         if (mat.find(srTexture) != mat.end())
         {
             auto index = mat.at(srTexture).TextureIndex();
-            return vTextures.at(index);
+            return vTextures.at(index)->GetDescriptor();
         }
         
-        return pResMgr->Get<Texture::TextureBase>("no_texture");
+        return pResMgr->Get<Texture::TextureBase>("no_texture")->GetDescriptor();
     };
 
     uint32_t material_index{0};
@@ -450,9 +450,9 @@ void GLTFLoader::LoadMaterials(std::shared_ptr<Resources::ResourceManager> pResM
         std::shared_ptr<MaterialBase> nativeMaterial = Core::FDefaultAllocator::Allocate<MaterialDiffuse>();
         nativeMaterial->SetName(ss.str());
 
-        nativeMaterial->AddTexture(ETextureAttachmentType::eBRDFLUT, pResMgr->Get<Texture::TextureBase>(srVolumeName + "_brdf"));
-        nativeMaterial->AddTexture(ETextureAttachmentType::eIrradiance, pResMgr->Get<Texture::TextureBase>(srVolumeName + "_irradiate_cube"));
-        nativeMaterial->AddTexture(ETextureAttachmentType::ePrefiltred, pResMgr->Get<Texture::TextureBase>(srVolumeName + "_prefiltred_cube"));
+        nativeMaterial->AddTexture(ETextureAttachmentType::eBRDFLUT, pResMgr->Get<Texture::TextureBase>(srVolumeName + "_brdf")->GetDescriptor());
+        nativeMaterial->AddTexture(ETextureAttachmentType::eIrradiance, pResMgr->Get<Texture::TextureBase>(srVolumeName + "_irradiate_cube")->GetDescriptor());
+        nativeMaterial->AddTexture(ETextureAttachmentType::ePrefiltred, pResMgr->Get<Texture::TextureBase>(srVolumeName + "_prefiltred_cube")->GetDescriptor());
 
         nativeMaterial->AddTexture(ETextureAttachmentType::eDiffuseAlbedo, get_texture(mat.values, "baseColorTexture"));
         nativeMaterial->AddTexture(ETextureAttachmentType::eMetalicRoughness, get_texture(mat.values, "metallicRoughnessTexture"));

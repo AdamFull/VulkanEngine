@@ -1,11 +1,4 @@
 #include "VulkanHighLevel.h"
-#include "VulkanDevice.h"
-#include "VulkanSwapChain.h"
-#include "VulkanUniform.h"
-#include "VulkanBuffer.h"
-#include "VulkanRenderer.h"
-#include "VulkanVBO.h"
-#include "Overlay/ImguiOverlay.h"
 #include "VulkanStaticHelper.h"
 
 using namespace Engine::Core;
@@ -40,7 +33,7 @@ void VulkanHighLevel::Create(FEngineCreateInfo createInfo)
     m_pSwapChain = std::make_shared<SwapChain>(m_pDevice);
     m_pUniform = std::make_shared<UniformBuffer>(m_pDevice);
     m_pLightUniform = std::make_shared<UniformBuffer>(m_pDevice);
-    m_pRenderer = std::make_shared<Renderer>(m_pDevice, m_pSwapChain);
+    m_pRenderer = std::make_shared<RenderSystem>(m_pDevice, m_pSwapChain);
     m_pVertexBufferObject = std::make_shared<VulkanVBO>(m_pDevice);
     m_pOverlay = std::make_shared<ImguiOverlay>(m_pWinHandle, m_pDevice, m_pSwapChain);
 

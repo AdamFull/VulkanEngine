@@ -13,24 +13,24 @@ namespace Engine
         class Device;
         class SwapChain;
 
-        struct FRenderer
+        struct FRenderSystem
         {
             std::vector<vk::CommandBuffer, std::allocator<vk::CommandBuffer>> vCommandBuffers;
             uint32_t imageIndex{0};
             bool bFrameStarted{false};
         };
 
-        class Renderer
+        class RenderSystem
         {
         public:
-            Renderer() = default;
-            Renderer(std::shared_ptr<Device> device, std::shared_ptr<SwapChain> swapchain);
-            ~Renderer();
+            RenderSystem() = default;
+            RenderSystem(std::shared_ptr<Device> device, std::shared_ptr<SwapChain> swapchain);
+            ~RenderSystem();
 
-            Renderer(const Renderer &) = delete;
-            void operator=(const Renderer &) = delete;
-            Renderer(Renderer &&) = delete;
-            Renderer &operator=(Renderer &&) = delete;
+            RenderSystem(const RenderSystem &) = delete;
+            void operator=(const RenderSystem &) = delete;
+            RenderSystem(RenderSystem &&) = delete;
+            RenderSystem &operator=(RenderSystem &&) = delete;
 
             void Create();
 
@@ -55,8 +55,8 @@ namespace Engine
         private:
             void Finalize(vk::CommandBuffer& commandBuffer);
 
-            void Renderer::CreateCommandBuffers();
-            FRenderer data;
+            void RenderSystem::CreateCommandBuffers();
+            FRenderSystem data;
             
             vk::Extent2D screenExtent;
 

@@ -6,7 +6,7 @@
 #include "VulkanBuffer.h"
 #include "VulkanUniform.h"
 #include "VulkanVBO.h"
-#include "VulkanRenderer.h"
+#include "VulkanRenderSystem.h"
 #include "Overlay/ImguiOverlay.h"
 
 #include "Pipeline/VulkanPipeline.h"
@@ -16,7 +16,6 @@
 #define UWinHandle UHLInstance->GetWinHandle()
 #define UDevice UHLInstance->GetDevice()
 #define USwapChain UHLInstance->GetSwapChain()
-#define UUniform UHLInstance->GetUniformBuffer()
 #define ULightUniform UHLInstance->GetLightUniformBuffer()
 #define UOverlay UHLInstance->GetOverlay()
 #define URenderer UHLInstance->GetRenderer()
@@ -67,7 +66,7 @@ namespace Engine
             inline std::shared_ptr<UniformBuffer> GetUniformBuffer() { return m_pUniform; }
             inline std::shared_ptr<UniformBuffer> GetLightUniformBuffer() { return m_pLightUniform; }
             inline std::shared_ptr<ImguiOverlay> GetOverlay() { return m_pOverlay; }
-            inline std::shared_ptr<Renderer> GetRenderer() { return m_pRenderer; }
+            inline std::shared_ptr<RenderSystem> GetRenderer() { return m_pRenderer; }
             inline std::shared_ptr<VulkanVBO> GetVBO() { return m_pVertexBufferObject; }
 
         private:
@@ -86,7 +85,7 @@ namespace Engine
 
             std::shared_ptr<ImguiOverlay> m_pOverlay;
 
-            std::shared_ptr<Renderer> m_pRenderer;
+            std::shared_ptr<RenderSystem> m_pRenderer;
 
             std::shared_ptr<VulkanVBO> m_pVertexBufferObject;
         };

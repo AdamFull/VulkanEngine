@@ -1,4 +1,4 @@
-#include "VulkanRenderer.h"
+#include "VulkanRenderSystem.h"
 #include "Resources/Textures/ImageLoader.h"
 #include "VulkanStaticHelper.h"
 #include "VulkanAllocator.h"
@@ -10,38 +10,38 @@ using namespace Engine::Resources::Texture;
 using namespace Engine::Resources::Material;
 using namespace Engine::Resources::Loaders;
 
-Renderer::Renderer(std::shared_ptr<Device> device, std::shared_ptr<SwapChain> swapchain) :
+RenderSystem::RenderSystem(std::shared_ptr<Device> device, std::shared_ptr<SwapChain> swapchain) :
 m_device(device),
 m_swapchain(swapchain)
 {
 
 }
 
-Renderer::~Renderer()
+RenderSystem::~RenderSystem()
 {
     Cleanup();
 }
 
-void Renderer::Create()
+void RenderSystem::Create()
 {
     screenExtent = m_swapchain->GetExtent();
 
     CreateCommandBuffers();
 }
 
-void Renderer::ReCreate()
+void RenderSystem::ReCreate()
 {
     screenExtent = m_swapchain->GetExtent();
     //???
     CreateCommandBuffers();
 }
 
-void Renderer::Cleanup()
+void RenderSystem::Cleanup()
 {
     m_device->Destroy(data.vCommandBuffers);
 }
 
-vk::CommandBuffer Renderer::BeginFrame()
+vk::CommandBuffer RenderSystem::BeginFrame()
 {
     assert(!data.bFrameStarted && "Can't call beginFrame while already in progress");
 
@@ -57,7 +57,7 @@ vk::CommandBuffer Renderer::BeginFrame()
     return commandBuffer;
 }
 
-vk::Result Renderer::EndFrame()
+vk::Result RenderSystem::EndFrame()
 {
     assert(data.bFrameStarted && "Can't call endFrame while frame is not in progress");
     auto commandBuffer = GetCurrentCommandBuffer();
@@ -67,7 +67,7 @@ vk::Result Renderer::EndFrame()
     return m_swapchain->SubmitCommandBuffers(&commandBuffer, &data.imageIndex);
 }
 
-void Renderer::BeginRender(vk::CommandBuffer& commandBuffer)
+void RenderSystem::BeginRender(vk::CommandBuffer& commandBuffer)
 {
     assert(data.bFrameStarted && "Can't call beginSwapChainRenderPass if frame is not in progress");
     assert(commandBuffer == GetCurrentCommandBuffer() && "Can't begin render pass on command buffer from a different frame");
@@ -102,14 +102,14 @@ void Renderer::BeginRender(vk::CommandBuffer& commandBuffer)
     commandBuffer.setScissor(0, 1, &scissor);
 }
 
-void Renderer::EndRender(vk::CommandBuffer& commandBuffer)
+void RenderSystem::EndRender(vk::CommandBuffer& commandBuffer)
 {
     assert(data.bFrameStarted && "Can't call endSwapChainRenderPass if frame is not in progress");
     assert(commandBuffer == GetCurrentCommandBuffer() && "Can't end render pass on command buffer from a different frame");
     commandBuffer.endRenderPass();
 }
 
-void Renderer::BeginPostProcess(vk::CommandBuffer& commandBuffer)
+void RenderSystem::BeginPostProcess(vk::CommandBuffer& commandBuffer)
 {
     assert(data.bFrameStarted && "Can't call beginSwapChainRenderPass if frame is not in progress");
     assert(commandBuffer == GetCurrentCommandBuffer() && "Can't begin render pass on command buffer from a different frame");
@@ -136,7 +136,7 @@ void Renderer::BeginPostProcess(vk::CommandBuffer& commandBuffer)
     commandBuffer.setScissor(0, 1, &scissor);
 }
 
-void Renderer::EndPostProcess(vk::CommandBuffer& commandBuffer)
+void RenderSystem::EndPostProcess(vk::CommandBuffer& commandBuffer)
 {
     m_swapchain->UpdateCompositionMaterial(commandBuffer);
     commandBuffer.draw(3, 1, 0, 0);
@@ -148,7 +148,7 @@ void Renderer::EndPostProcess(vk::CommandBuffer& commandBuffer)
     commandBuffer.endRenderPass();
 }
 
-void Renderer::CreateCommandBuffers()
+void RenderSystem::CreateCommandBuffers()
 {
     assert(m_device && "Cannot create command buffers, cause logical device is not valid.");
     assert(m_swapchain && "Cannot create command buffers, cause swap chain is not valid.");
@@ -158,7 +158,7 @@ void Renderer::CreateCommandBuffers()
     assert(!data.vCommandBuffers.empty() && "Created command buffers is not valid.");
 }
 
-vk::CommandBuffer Renderer::GetCurrentCommandBuffer() const
+vk::CommandBuffer RenderSystem::GetCurrentCommandBuffer() const
 {
     assert(data.bFrameStarted && "Cannot get command buffer when frame not in progress");
     return data.vCommandBuffers[data.imageIndex];

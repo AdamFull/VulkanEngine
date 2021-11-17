@@ -16,9 +16,9 @@ void MaterialDiffuse::Create(std::shared_ptr<ResourceManager> pResMgr)
 {
     renderPass = m_swapchain->GetOffscreenRenderPass();
 
-    m_mTextures[ETextureAttachmentType::eBRDFLUT] = pResMgr->Get<Texture::TextureBase>("environment_component_brdf");
-    m_mTextures[ETextureAttachmentType::eIrradiance] = pResMgr->Get<Texture::TextureBase>("environment_component_irradiate_cube");
-    m_mTextures[ETextureAttachmentType::ePrefiltred] = pResMgr->Get<Texture::TextureBase>("environment_component_prefiltred_cube");
+    AddTexture(ETextureAttachmentType::eBRDFLUT, pResMgr->Get<Texture::TextureBase>("environment_component_brdf"));
+    AddTexture(ETextureAttachmentType::eIrradiance, pResMgr->Get<Texture::TextureBase>("environment_component_irradiate_cube"));
+    AddTexture(ETextureAttachmentType::ePrefiltred, pResMgr->Get<Texture::TextureBase>("environment_component_prefiltred_cube"));
 
     MaterialBase::Create(pResMgr);
 }
@@ -39,16 +39,16 @@ void MaterialDiffuse::Update(vk::DescriptorBufferInfo& uboDesc, uint32_t imageIn
     m_pMatDesc->Update(0, imageIndex, bufferInfo);
 
     auto imageInfo = VulkanDescriptorWriter().
-    WriteImage(0, m_pMatDesc->GetSetLayout(1)->GetBindings(), &m_mTextures[ETextureAttachmentType::eBRDFLUT]->GetDescriptor()).
-    WriteImage(1, m_pMatDesc->GetSetLayout(1)->GetBindings(), &m_mTextures[ETextureAttachmentType::eIrradiance]->GetDescriptor()).
-    WriteImage(2, m_pMatDesc->GetSetLayout(1)->GetBindings(), &m_mTextures[ETextureAttachmentType::ePrefiltred]->GetDescriptor()).
-    WriteImage(3, m_pMatDesc->GetSetLayout(1)->GetBindings(), &m_mTextures[ETextureAttachmentType::eDiffuseAlbedo]->GetDescriptor()).
-    WriteImage(4, m_pMatDesc->GetSetLayout(1)->GetBindings(), &m_mTextures[ETextureAttachmentType::eMetalicRoughness]->GetDescriptor()).
-    WriteImage(5, m_pMatDesc->GetSetLayout(1)->GetBindings(), &m_mTextures[ETextureAttachmentType::eSpecularGlossiness]->GetDescriptor()).
-    WriteImage(6, m_pMatDesc->GetSetLayout(1)->GetBindings(), &m_mTextures[ETextureAttachmentType::eEmissive]->GetDescriptor()).
-    WriteImage(7, m_pMatDesc->GetSetLayout(1)->GetBindings(), &m_mTextures[ETextureAttachmentType::eNormal]->GetDescriptor()).
-    WriteImage(8, m_pMatDesc->GetSetLayout(1)->GetBindings(), &m_mTextures[ETextureAttachmentType::eHeight]->GetDescriptor()).
-    WriteImage(9, m_pMatDesc->GetSetLayout(1)->GetBindings(), &m_mTextures[ETextureAttachmentType::eOcclusion]->GetDescriptor()).
+    WriteImage(0, m_pMatDesc->GetSetLayout(1)->GetBindings(), &m_mTextures[ETextureAttachmentType::eBRDFLUT]).
+    WriteImage(1, m_pMatDesc->GetSetLayout(1)->GetBindings(), &m_mTextures[ETextureAttachmentType::eIrradiance]).
+    WriteImage(2, m_pMatDesc->GetSetLayout(1)->GetBindings(), &m_mTextures[ETextureAttachmentType::ePrefiltred]).
+    WriteImage(3, m_pMatDesc->GetSetLayout(1)->GetBindings(), &m_mTextures[ETextureAttachmentType::eDiffuseAlbedo]).
+    WriteImage(4, m_pMatDesc->GetSetLayout(1)->GetBindings(), &m_mTextures[ETextureAttachmentType::eMetalicRoughness]).
+    WriteImage(5, m_pMatDesc->GetSetLayout(1)->GetBindings(), &m_mTextures[ETextureAttachmentType::eSpecularGlossiness]).
+    WriteImage(6, m_pMatDesc->GetSetLayout(1)->GetBindings(), &m_mTextures[ETextureAttachmentType::eEmissive]).
+    WriteImage(7, m_pMatDesc->GetSetLayout(1)->GetBindings(), &m_mTextures[ETextureAttachmentType::eNormal]).
+    WriteImage(8, m_pMatDesc->GetSetLayout(1)->GetBindings(), &m_mTextures[ETextureAttachmentType::eHeight]).
+    WriteImage(9, m_pMatDesc->GetSetLayout(1)->GetBindings(), &m_mTextures[ETextureAttachmentType::eOcclusion]).
     Build();
     m_pMatDesc->Update(1, imageIndex, imageInfo);
 }

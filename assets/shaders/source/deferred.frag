@@ -1,4 +1,5 @@
 #version 450
+#extension GL_EXT_scalar_block_layout : enable
 
 layout (set = 1, binding = 0) uniform sampler2D position_tex;
 layout (set = 1, binding = 1) uniform sampler2D lightning_mask_tex;
@@ -15,7 +16,7 @@ struct Light {
 	float radius;
 };
 
-layout (set = 0, binding = 0) uniform UBO 
+layout(std430, set = 0, binding = 0) uniform UBO 
 {
 	vec4 viewPos;
 	Light lights[256];

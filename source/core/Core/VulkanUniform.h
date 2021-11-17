@@ -6,9 +6,9 @@ namespace Engine
     {
         struct Light 
         {
-            glm::vec4 position;
-            glm::vec3 color;
-            float radius;
+            alignas(16) glm::vec4 position;
+            alignas(16) glm::vec3 color;
+            alignas(4) float radius;
         };
 
         struct FLightningData

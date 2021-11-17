@@ -43,7 +43,7 @@ void GeneratorPrefiltred::CreateDescriptors(uint32_t images)
     m_pMatDesc->AttachDescriptorSet(std::move(texSet), std::move(texSetLayout));
 
     auto imageInfo = VulkanDescriptorWriter().
-    WriteImage(0, m_pMatDesc->GetSetLayout(0)->GetBindings(), &m_mTextures[ETextureAttachmentType::eCubemap]->GetDescriptor()).
+    WriteImage(0, m_pMatDesc->GetSetLayout(0)->GetBindings(), &m_mTextures[ETextureAttachmentType::eCubemap]).
     Build();
     m_pMatDesc->Update(0, 0, imageInfo);
 }

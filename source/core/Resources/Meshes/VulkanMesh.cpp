@@ -1,13 +1,12 @@
 #include "VulkanMesh.h"
 #include "MeshFragment.h"
-#include "Core/VulkanAllocator.h"
 
 using namespace Engine::Core;
 using namespace Engine::Resources::Mesh;
 
 void MeshBase::Create(std::shared_ptr<ResourceManager> pResMgr)
 {
-    m_pUniformBuffer = FDefaultAllocator::Allocate<UniformBuffer>();
+    m_pUniformBuffer = std::make_shared<UniformBuffer>();
     m_pUniformBuffer->Create(2, sizeof(FUniformData));
     for (auto& fragment : m_vFragments)
         fragment->Create(pResMgr);

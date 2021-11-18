@@ -4,11 +4,6 @@
 
 using namespace Engine::Resources::Texture;
 
-Texture3D::Texture3D(std::shared_ptr<Core::Device> device)
-{
-    m_device = device;
-}
-
 void Texture3D::ReCreate()
 {
     TextureBase::ReCreate();

@@ -4,11 +4,6 @@
 
 using namespace Engine::Resources::Texture;
 
-Texture2DArray::Texture2DArray(std::shared_ptr<Core::Device> device)
-{
-    m_device = device;
-}
-
 void Texture2DArray::ReCreate()
 {
     TextureBase::ReCreate();

@@ -1,7 +1,7 @@
 #include "RenderScene.h"
 #include "Objects/Components/Camera/CameraComponent.h"
 #include "Objects/Components/Camera/CameraManager.h"
-#include "Core/VulkanAllocator.h"
+#include "Core/VulkanHighLevel.h"
 #include "KeyMapping/InputMapper.h"
 #include "Resources/ResourceManager.h"
 #include "Core/Overlay/ImguiOverlay.h"
@@ -9,9 +9,13 @@
 #include "Objects/Components/Camera/CameraManager.h"
 #include "GlobalVariables.h"
 
+#include "Core/Rendering/RendererBase.h"
+#include "Resources/ResourceCunstruct.h"
+
 using namespace Engine;
 using namespace Engine::Core;
 using namespace Engine::Objects::Components;
+using namespace Engine::Resources;
 
 float frandom(float min, float max) 
 {
@@ -34,12 +38,12 @@ void RenderScene::Create()
     UOverlay->Create(m_pResourceManager);   //TODO: bad!
 
     //TODO: for test
-    for(uint32_t i = 0; i < 40; i++)
+    for(uint32_t i = 0; i < 5; i++)
     {
         Resources::Light::LightSourceBase light;
         light.position = glm::vec4(frandom(-8.f, 8.f), frandom(-3.f, -1.f), frandom(-8.f, 8.f), 1.f);
         light.color = glm::vec3(frandom(0.f, 1.f), frandom(0.f, 1.f), frandom(0.f, 1.f));
-        light.attenuation = frandom(0.f, 10.f);
+        light.attenuation = frandom(0.f, 5.f);
         vLights.emplace_back(light);
     }
 }
@@ -89,6 +93,67 @@ void RenderScene::CreateObjects()
 {
     UVBO->Create();
     m_pEnvironment->Create(m_pResourceManager);
+
+    FRendererCreateInfo rendererCI;
+    rendererCI.vColorAttachments = 
+    {
+        {
+            ETextureAttachmentType::ePosition,
+            FRendererCreateInfo::FAttachmentInfo
+            (
+                vk::Format::eR16G16B16A16Sfloat,
+                vk::ImageUsageFlagBits::eColorAttachment | vk::ImageUsageFlagBits::eSampled,
+                {std::array<float, 4>{0.0f, 0.0f, 0.0f, 0.0f}}
+            )
+        },
+        {
+            ETextureAttachmentType::eLightningMask,
+            FRendererCreateInfo::FAttachmentInfo
+            (
+                vk::Format::eR16G16B16A16Sfloat,
+                vk::ImageUsageFlagBits::eColorAttachment | vk::ImageUsageFlagBits::eSampled,
+                {std::array<float, 4>{0.0f, 0.0f, 0.0f, 0.0f}}
+            )
+        },
+        {
+            ETextureAttachmentType::eNormal,
+            FRendererCreateInfo::FAttachmentInfo
+            (
+                vk::Format::eR16G16B16A16Sfloat,
+                vk::ImageUsageFlagBits::eColorAttachment | vk::ImageUsageFlagBits::eSampled,
+                {std::array<float, 4>{0.0f, 0.0f, 0.0f, 0.0f}}
+            )
+        },
+        {
+            ETextureAttachmentType::eDiffuseAlbedo,
+            FRendererCreateInfo::FAttachmentInfo
+            (
+                vk::Format::eR8G8B8A8Snorm,
+                vk::ImageUsageFlagBits::eColorAttachment | vk::ImageUsageFlagBits::eSampled,
+                {std::array<float, 4>{0.0f, 0.0f, 0.0f, 0.0f}}
+            )
+        },
+        {
+            ETextureAttachmentType::eMRAH,
+            FRendererCreateInfo::FAttachmentInfo
+            (
+                vk::Format::eR8G8B8A8Snorm,
+                vk::ImageUsageFlagBits::eColorAttachment | vk::ImageUsageFlagBits::eSampled,
+                {std::array<float, 4>{0.0f, 0.0f, 0.0f, 0.0f}}
+            )
+        }
+    };
+
+    rendererCI.depthAttachment = 
+    FRendererCreateInfo::FAttachmentInfo
+    (
+        vk::Format::eR32Sfloat,
+        vk::ImageUsageFlagBits::eDepthStencilAttachment | vk::ImageUsageFlagBits::eSampled,
+        {std::array<float, 4>{0.0f, 0.0f, 0.0f, 0.0f}}
+    );
+
+    URenderer->GetRenderer()->Create(rendererCI, m_pResourceManager);
+
     m_pSkybox->Create(m_pResourceManager);
     m_pRoot->Create(m_pResourceManager);
 }
@@ -125,7 +190,7 @@ void RenderScene::Render(float fDeltaTime)
     ubo.ambient = GlobalVariables::ambientLight;
     ubo.tone = GlobalVariables::postprocessTone;
     ubo.gamma = GlobalVariables::postprocessGamma;
-    ULightUniform->UpdateUniformBuffer(currentFrame, &ubo);
+    //ULightUniform->UpdateUniformBuffer(currentFrame, &ubo);
 
     UVBO->Bind(commandBuffer);
     //Main render
@@ -140,7 +205,7 @@ void RenderScene::Render(float fDeltaTime)
 
     //Post processing
     URenderer->BeginPostProcess(commandBuffer);
-
+    URenderer->GetRenderer()->Update(commandBuffer, &ubo);  //Push lights
     URenderer->EndPostProcess(commandBuffer);
 
     UHLInstance->EndFrame(commandBuffer, &bResult);

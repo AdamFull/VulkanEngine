@@ -13,15 +13,8 @@ namespace Engine
 
     namespace Core
     {
-        class Device;
-        class SwapChain;
         class VulkanBuffer;
         class UniformBuffer;
-
-        namespace Window
-        {
-            class WindowHandle;
-        }
 
         struct FGUIControls
         {
@@ -35,7 +28,6 @@ namespace Engine
         {
         public:
             ImguiOverlay() = default;
-            ImguiOverlay(std::shared_ptr<Window::WindowHandle> window, std::shared_ptr<Device> device, std::shared_ptr<SwapChain> swapchain);
             ~ImguiOverlay();
 
             void Create(std::shared_ptr<Resources::ResourceManager> pResMgr);
@@ -74,11 +66,6 @@ namespace Engine
 
             std::vector<std::shared_ptr<Overlay::OverlayBase>> m_vOverlays;
             bool bEnabled = true;
-
-            std::shared_ptr<Window::WindowHandle> m_window;
-            std::shared_ptr<Device> m_device;
-            std::shared_ptr<SwapChain> m_swapchain;
-
             FGUIControls controls;
         };
     }

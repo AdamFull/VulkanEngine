@@ -5,6 +5,7 @@
 
 #include "Core/Descriptor/DescriptorPool.h"
 #include "Core/Descriptor/DescriptorSetContainer.h"
+#include "Core/Descriptor/DescriptorWriter.h"
 
 #include "Resources/ResourceCunstruct.h"
 
@@ -36,7 +37,6 @@ namespace Engine
             {
             public:
                 MaterialBase() = default;
-                MaterialBase(std::shared_ptr<Core::Device> device, std::shared_ptr<Core::SwapChain> swapchain);
                 virtual ~MaterialBase();
 
                 virtual void Create(std::shared_ptr<ResourceManager> pResMgr);
@@ -73,9 +73,6 @@ namespace Engine
                 vk::PipelineCache pipelineCache;
                 std::shared_ptr<Core::Pipeline::PipelineBase> pPipeline;
                 std::map<ETextureAttachmentType, vk::DescriptorImageInfo> m_mTextures;
-
-                std::shared_ptr<Core::Device> m_device;
-                std::shared_ptr<Core::SwapChain> m_swapchain;
             };
         }
     }

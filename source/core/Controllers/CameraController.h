@@ -5,8 +5,8 @@ namespace Engine
 {
     namespace Core
     {
-        class Device;
-        class SwapChain;
+        
+        
     }
 
     namespace Controllers

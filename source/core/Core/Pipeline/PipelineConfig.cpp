@@ -6,6 +6,8 @@
 using namespace Engine::Core::Pipeline;
 using namespace Engine::Core::Window;
 
+#define output_channels 5
+
 FPipelineCreateInfo PipelineConfig::CreateUIPipeline(vk::RenderPass renderPass, vk::PipelineLayout pipelineLayout, vk::PipelineCache pipelineCache)
 {
     FPipelineCreateInfo createInfo{};
@@ -75,7 +77,7 @@ FPipelineCreateInfo PipelineConfig::CreateDiffusePipeline(vk::RenderPass renderP
 
     createInfo.multisampling.rasterizationSamples = vk::SampleCountFlagBits::e1;
 
-    for(uint32_t i = 0; i < 4; i++)
+    for(uint32_t i = 0; i < output_channels; i++)
     {
         vk::PipelineColorBlendAttachmentState colorBlendAttachment =
         Initializers::PipelineColorBlendAttachmentState(vk::ColorComponentFlagBits::eR | vk::ColorComponentFlagBits::eG | vk::ColorComponentFlagBits::eB | vk::ColorComponentFlagBits::eA, VK_TRUE);
@@ -123,7 +125,7 @@ FPipelineCreateInfo PipelineConfig::CreateSkyboxPipeline(vk::RenderPass renderPa
 
     createInfo.multisampling.rasterizationSamples = vk::SampleCountFlagBits::e1;
 
-    for(uint32_t i = 0; i < 4; i++)
+    for(uint32_t i = 0; i < output_channels; i++)
     {
         vk::PipelineColorBlendAttachmentState colorBlendAttachment = 
         Initializers::PipelineColorBlendAttachmentState(vk::ColorComponentFlagBits::eR | vk::ColorComponentFlagBits::eG | vk::ColorComponentFlagBits::eB | vk::ColorComponentFlagBits::eA, VK_FALSE);
@@ -316,7 +318,7 @@ FPipelineCreateInfo PipelineConfig::CreateDeferredPipeline(vk::RenderPass render
 
     createInfo.multisampling.rasterizationSamples = vk::SampleCountFlagBits::e1;
 
-    vk::PipelineColorBlendAttachmentState colorBlendAttachment = Initializers::PipelineColorBlendAttachmentState(vk::ColorComponentFlagBits::eR | vk::ColorComponentFlagBits::eG | vk::ColorComponentFlagBits::eB | vk::ColorComponentFlagBits::eA, VK_TRUE);
+    vk::PipelineColorBlendAttachmentState colorBlendAttachment = Initializers::PipelineColorBlendAttachmentState(vk::ColorComponentFlagBits::eR | vk::ColorComponentFlagBits::eG | vk::ColorComponentFlagBits::eB | vk::ColorComponentFlagBits::eA, VK_FALSE);
     createInfo.colorBlendAttachments.emplace_back(colorBlendAttachment);
 
     createInfo.colorBlending.logicOpEnable = VK_FALSE;

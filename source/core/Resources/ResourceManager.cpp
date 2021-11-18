@@ -1,7 +1,7 @@
 #include "ResourceManager.h"
 #include "filesystem/FilesystemHelper.h"
 #include "serializer/JsonSerializer.h"
-#include "Core/VulkanAllocator.h"
+#include "Core/VulkanHighLevel.h"
 
 using namespace Engine::Resources::Texture;
 using namespace Engine::Resources::Material;
@@ -12,7 +12,7 @@ namespace Engine
     {
         void ResourceManager::Create()
         {
-            std::shared_ptr<Resources::Texture::TextureBase> pEmptyTexture = Core::FDefaultAllocator::Allocate<Resources::Texture::TextureBase>();
+            std::shared_ptr<Resources::Texture::TextureBase> pEmptyTexture = std::make_shared<Resources::Texture::TextureBase>();
             pEmptyTexture->CreateEmptyTexture(512, 512, 1, 2, 0x8C43);
             AddExisting("no_texture", pEmptyTexture);
         }

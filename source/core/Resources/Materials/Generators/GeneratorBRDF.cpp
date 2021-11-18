@@ -1,17 +1,11 @@
 #include "GeneratorBRDF.h"
 #include "Resources/ResourceManager.h"
-#include "Core/VulkanAllocator.h"
+#include "Core/VulkanHighLevel.h"
 #include "Core/VulkanInitializers.h"
 
 using namespace Engine::Resources::Material::Generator;
 using namespace Engine::Core::Descriptor;
 using namespace Engine::Resources::Texture;
-
-GeneratorBRDF::GeneratorBRDF(std::shared_ptr<Core::Device> device, std::shared_ptr<Core::SwapChain> swapchain)
-{
-    m_device = device;
-    m_swapchain = swapchain;
-}
 
 void GeneratorBRDF::Create(std::shared_ptr<ResourceManager> pResMgr)
 {
@@ -26,7 +20,7 @@ void GeneratorBRDF::CreateDescriptors(uint32_t images)
     addBinding(0, vk::DescriptorType::eCombinedImageSampler, vk::ShaderStageFlagBits::eFragment).
     build();
 
-    auto texSet = Core::FDefaultAllocator::Allocate<VulkanDescriptorSet>();
+    auto texSet = std::make_unique<VulkanDescriptorSet>();
     texSet->Create(m_pDescriptorPool, texSetLayout, images);
     m_pMatDesc->AttachDescriptorSet(std::move(texSet), std::move(texSetLayout));
 }
@@ -46,7 +40,7 @@ void GeneratorBRDF::Generate(std::shared_ptr<Mesh::MeshBase> pMesh)
 	renderPassBeginInfo.pClearValues = clearValues;
 	renderPassBeginInfo.framebuffer = framebuffer;
 
-    vk::CommandBuffer tempBuffer = m_device->BeginSingleTimeCommands();
+    vk::CommandBuffer tempBuffer = UDevice->BeginSingleTimeCommands();
     tempBuffer.beginRenderPass(renderPassBeginInfo, vk::SubpassContents::eInline);
     vk::Viewport viewport = Core::Initializers::Viewport(m_iDimension, m_iDimension);
 	vk::Rect2D scissor = Core::Initializers::Scissor(m_iDimension, m_iDimension);
@@ -56,7 +50,7 @@ void GeneratorBRDF::Generate(std::shared_ptr<Mesh::MeshBase> pMesh)
     tempBuffer.bindPipeline(vk::PipelineBindPoint::eGraphics, pPipeline->GetPipeline());
     tempBuffer.draw(3, 1, 0, 0);
     tempBuffer.endRenderPass();
-    m_device->EndSingleTimeCommands(tempBuffer);
+    UDevice->EndSingleTimeCommands(tempBuffer);
     m_pGeneratedImage->SetImageLayout(vk::ImageLayout::eShaderReadOnlyOptimal);
     m_pGeneratedImage->UpdateDescriptor();
 }

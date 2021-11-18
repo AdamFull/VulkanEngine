@@ -1,12 +1,7 @@
 #include "VulkanBuffer.h"
-#include "VulkanDevice.h"
+#include "VulkanHighLevel.h"
 
 using namespace Engine::Core;
-
-VulkanBuffer::VulkanBuffer(std::shared_ptr<Device> device) : m_device(device)
-{
-
-}
 
 VulkanBuffer::~VulkanBuffer()
 {
@@ -19,7 +14,7 @@ void VulkanBuffer::Create(vk::DeviceSize instanceSize, uint32_t instanceCount,
 {
     data.alignmentSize = GetAlignment(instanceSize, minOffsetAlignment);
     data.bufferSize = data.alignmentSize * instanceCount;
-    m_device->CreateOnDeviceBuffer(data.bufferSize, usageFlags, memoryPropertyFlags, data.buffer, data.memory);
+    UDevice->CreateOnDeviceBuffer(data.bufferSize, usageFlags, memoryPropertyFlags, data.buffer, data.memory);
 }
 
 void VulkanBuffer::ReCreate(vk::DeviceSize instanceSize, uint32_t instanceCount,
@@ -32,8 +27,8 @@ void VulkanBuffer::ReCreate(vk::DeviceSize instanceSize, uint32_t instanceCount,
 void VulkanBuffer::Clean()
 {
     UnmapMem();
-    m_device->Destroy(data.buffer);
-    m_device->Destroy(data.memory);
+    UDevice->Destroy(data.buffer);
+    UDevice->Destroy(data.memory);
 }
 
 vk::DescriptorBufferInfo VulkanBuffer::GetDscriptor(vk::DeviceSize size, vk::DeviceSize offset)
@@ -48,26 +43,26 @@ vk::DescriptorBufferInfo VulkanBuffer::GetDscriptor()
 
 vk::Result VulkanBuffer::MapMem(vk::DeviceSize size, vk::DeviceSize offset)
 {
-    assert(m_device && data.buffer && data.memory && "Called map on buffer before create");
+    assert(UDevice && data.buffer && data.memory && "Called map on buffer before create");
     if (size == VK_WHOLE_SIZE)
     {
-        return m_device->GetLogical().mapMemory(data.memory, 0, data.bufferSize, vk::MemoryMapFlags{}, &data.mapped);
+        return UDevice->GetLogical().mapMemory(data.memory, 0, data.bufferSize, vk::MemoryMapFlags{}, &data.mapped);
     }
-    return m_device->GetLogical().mapMemory(data.memory, offset, size, vk::MemoryMapFlags{}, &data.mapped);
+    return UDevice->GetLogical().mapMemory(data.memory, offset, size, vk::MemoryMapFlags{}, &data.mapped);
 }
 
 void VulkanBuffer::UnmapMem()
 {
     if (data.mapped)
     {
-        m_device->GetLogical().unmapMemory(data.memory);
+        UDevice->GetLogical().unmapMemory(data.memory);
         data.mapped = nullptr;
     }
 }
 
 void VulkanBuffer::Write(void *idata, vk::DeviceSize size, vk::DeviceSize offset)
 {
-    assert(m_device && data.mapped && "Cannot copy to unmapped buffer");
+    assert(UDevice && data.mapped && "Cannot copy to unmapped buffer");
 
     if (size == VK_WHOLE_SIZE)
     {
@@ -87,7 +82,7 @@ vk::Result VulkanBuffer::Flush(vk::DeviceSize size, vk::DeviceSize offset)
     mappedRange.memory = data.memory;
     mappedRange.offset = offset;
     mappedRange.size = size;
-    return m_device->GetLogical().flushMappedMemoryRanges(1, &mappedRange);
+    return UDevice->GetLogical().flushMappedMemoryRanges(1, &mappedRange);
 }
 
 vk::DescriptorBufferInfo VulkanBuffer::DescriptorInfo(vk::DeviceSize size, vk::DeviceSize offset)
@@ -102,7 +97,7 @@ vk::Result VulkanBuffer::Invalidate(vk::DeviceSize size, vk::DeviceSize offset)
     mappedRange.offset = offset;
     mappedRange.size = size;
 
-    return m_device->GetLogical().invalidateMappedMemoryRanges(1, &mappedRange);
+    return UDevice->GetLogical().invalidateMappedMemoryRanges(1, &mappedRange);
 }
 
 void VulkanBuffer::WriteToIndex(void *idata, int index)

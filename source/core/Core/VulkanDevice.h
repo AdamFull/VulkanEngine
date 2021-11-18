@@ -6,8 +6,6 @@ namespace Engine
 {
     namespace Core
     {
-        namespace Window{ class WindowHandle; }
-        
         struct FDevice
         {
             vk::Instance vkInstance; // Main vulkan instance
@@ -27,7 +25,6 @@ namespace Engine
         {
         public:
             Device() = default;
-            Device(std::shared_ptr<Window::WindowHandle> pWindow);
             ~Device();
 
             Device(const Device &) = delete;
@@ -172,8 +169,6 @@ namespace Engine
             vk::PhysicalDevice GetPhysicalDevice();
             std::vector<vk::PhysicalDevice> GetAvaliablePhysicalDevices();
             bool IsDeviceSuitable(const vk::PhysicalDevice &device);
-
-            std::shared_ptr<Window::WindowHandle> m_window;
 
             FDevice data;
         };

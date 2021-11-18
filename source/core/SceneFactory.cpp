@@ -147,7 +147,7 @@ std::shared_ptr<Objects::RenderObject> SceneFactory::CreateGLTFMesh(std::shared_
 
 std::shared_ptr<Objects::RenderObject> SceneFactory::CreateEnvironment(std::shared_ptr<Resources::ResourceManager> pResMgr, FSceneObject info)
 {
-    auto loader = std::make_shared<Resources::Loaders::GLTFLoader>(true, false, info.srName, info.srUseVolume);
+    auto loader = std::make_shared<Resources::Loaders::GLTFLoader>(false, false, info.srName, info.srUseVolume);
 
     auto environment = std::make_shared<Objects::Components::MeshVolumeComponent>();
     loader->Load(info.mesh.srSrc, info.srName, pResMgr);

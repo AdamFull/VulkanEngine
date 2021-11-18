@@ -17,21 +17,13 @@
 #include "Overlays/OverlayPropertyEditor.h"
 #include "Overlays/OverlaySceneGraph.h"
 
-#include "Core/VulkanAllocator.h"
+#include "Core/VulkanHighLevel.h"
 
 using namespace Engine::Core;
 using namespace Engine::Core::Window;
 using namespace Engine::Resources;
 using namespace Engine::Resources::Texture;
 using namespace Engine::Resources::Material;
-
-ImguiOverlay::ImguiOverlay(std::shared_ptr<Window::WindowHandle> window, std::shared_ptr<Device> device, std::shared_ptr<SwapChain> swapchain) :
-m_window(window),
-m_device(device),
-m_swapchain(swapchain)
-{
-
-}
 
 ImguiOverlay::~ImguiOverlay()
 {
@@ -43,15 +35,15 @@ ImguiOverlay::~ImguiOverlay()
 
 void ImguiOverlay::Create(std::shared_ptr<ResourceManager> pResMgr)
 {
-    fontTexture = FDefaultAllocator::Allocate<TextureBase>();
-    fontMaterial = FDefaultAllocator::Allocate<MaterialUI>();
-    vertexBuffer = FDefaultAllocator::Allocate<VulkanBuffer>();
-    indexBuffer = FDefaultAllocator::Allocate<VulkanBuffer>();
-    m_pUniform = FDefaultAllocator::Allocate<UniformBuffer>();
+    fontTexture = std::make_shared<TextureBase>();
+    fontMaterial = std::make_shared<MaterialUI>();
+    vertexBuffer = std::make_shared<VulkanBuffer>();
+    indexBuffer = std::make_shared<VulkanBuffer>();
+    m_pUniform = std::make_shared<UniformBuffer>();
 
     ImGui::CreateContext();
     BaseInitialize();
-    m_pUniform->Create(m_swapchain->GetFramesInFlight(), sizeof(FUniformDataUI));
+    m_pUniform->Create(USwapChain->GetFramesInFlight(), sizeof(FUniformDataUI));
     CreateFontResources(pResMgr);
 
     m_vOverlays.emplace_back(std::make_shared<Overlay::OverlayDebug>("Debug info"));
@@ -60,13 +52,13 @@ void ImguiOverlay::Create(std::shared_ptr<ResourceManager> pResMgr)
     m_vOverlays.emplace_back(std::make_shared<Overlay::OverlaySceneGraph>("Scene"));
     m_vOverlays.emplace_back(std::make_shared<Overlay::OverlayPropertyEditor>("Property editor"));
 
-    ImGui_ImplGlfw_InitForVulkan(m_window->GetWindowInstance(), true);
+    ImGui_ImplGlfw_InitForVulkan(UWinHandle->GetWindowInstance(), true);
 }
 
 void ImguiOverlay::ReCreate()
 {
     fontMaterial->ReCreate();
-    m_pUniform->ReCreate(m_swapchain->GetFramesInFlight());
+    m_pUniform->ReCreate(USwapChain->GetFramesInFlight());
 }
 
 void ImguiOverlay::Cleanup()
@@ -158,7 +150,7 @@ void ImguiOverlay::Update(float deltaTime)
         }
 
         // Update buffers only if vertex or index count has been changed compared to current buffer size
-        auto physProps = m_device->GetPhysical().getProperties();
+        auto physProps = UDevice->GetPhysical().getProperties();
         auto minOffsetAllignment = std::lcm(physProps.limits.minUniformBufferOffsetAlignment, physProps.limits.nonCoherentAtomSize);
         // Vertex buffer
         if (!vertexBuffer->GetBuffer() /*|| vertexCount != drawdata->TotalVtxCount*/)

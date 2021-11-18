@@ -5,8 +5,6 @@ namespace Engine
 {
     namespace Core
     {
-        class Device;
-        class SwapChain;
         namespace Pipeline
         {
             struct FShaderCache
@@ -24,7 +22,6 @@ namespace Engine
             {
             public:
                 PipelineBase() = default;
-                PipelineBase(std::shared_ptr<Device> device, std::shared_ptr<SwapChain> swapchain);
                 virtual ~PipelineBase();
 
                 virtual void Create(FPipelineCreateInfo createInfo);
@@ -51,10 +48,6 @@ namespace Engine
                 std::vector<FShaderCache> m_vShaderCache;
                 std::vector<vk::PipelineShaderStageCreateInfo> m_vShaderBuffer;
                 FPipelineCreateInfo savedInfo;
-
-                std::shared_ptr<Device> m_device;
-                std::shared_ptr<SwapChain> m_swapchain;
-
                 FPipeline data;
             };
         }

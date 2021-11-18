@@ -1,12 +1,6 @@
-#include "VulkanVBO.h"
-#include "VulkanAllocator.h"
+#include "VulkanHighLevel.h"
 
 using namespace Engine::Core;
-
-VulkanVBO::VulkanVBO(std::shared_ptr<Device> device) : m_device(device)
-{
-
-}
 
 VulkanVBO::~VulkanVBO()
 {
@@ -39,14 +33,14 @@ void VulkanVBO::CreateVertexBuffer()
     vk::DeviceSize bufferSize = sizeof(m_vVertices[0]) * m_vVertices.size();
     uint32_t vertexSize = sizeof(m_vVertices[0]);
 
-    VulkanBuffer stagingBuffer(m_device);
+    VulkanBuffer stagingBuffer;
     stagingBuffer.Create(vertexSize, m_vVertices.size(), vk::BufferUsageFlagBits::eTransferSrc, vk::MemoryPropertyFlagBits::eHostVisible | vk::MemoryPropertyFlagBits::eHostCoherent);
     stagingBuffer.MapMem();
     stagingBuffer.Write((void *)m_vVertices.data());
 
-    vertexBuffer = FDefaultAllocator::Allocate<VulkanBuffer>();
+    vertexBuffer = std::make_unique<VulkanBuffer>();
     vertexBuffer->Create(vertexSize, m_vVertices.size(), vk::BufferUsageFlagBits::eTransferDst | vk::BufferUsageFlagBits::eVertexBuffer, vk::MemoryPropertyFlagBits::eDeviceLocal);
-    m_device->CopyOnDeviceBuffer(stagingBuffer.GetBuffer(), vertexBuffer->GetBuffer(), bufferSize);
+    UDevice->CopyOnDeviceBuffer(stagingBuffer.GetBuffer(), vertexBuffer->GetBuffer(), bufferSize);
     // m_vVertices.clear();
 }
 
@@ -55,13 +49,13 @@ void VulkanVBO::CreateIndexBuffer()
     vk::DeviceSize bufferSize = sizeof(m_vIndices[0]) * m_vIndices.size();
     uint32_t indexSize = sizeof(m_vIndices[0]);
 
-    VulkanBuffer stagingBuffer(m_device);
+    VulkanBuffer stagingBuffer;
     stagingBuffer.Create(indexSize, m_vIndices.size(), vk::BufferUsageFlagBits::eTransferSrc, vk::MemoryPropertyFlagBits::eHostVisible | vk::MemoryPropertyFlagBits::eHostCoherent);
     stagingBuffer.MapMem();
     stagingBuffer.Write((void *)m_vIndices.data());
 
-    indexBuffer = FDefaultAllocator::Allocate<VulkanBuffer>();
+    indexBuffer = std::make_unique<VulkanBuffer>();
     indexBuffer->Create(indexSize, m_vIndices.size(), vk::BufferUsageFlagBits::eTransferDst | vk::BufferUsageFlagBits::eIndexBuffer, vk::MemoryPropertyFlagBits::eDeviceLocal);
-    m_device->CopyOnDeviceBuffer(stagingBuffer.GetBuffer(), indexBuffer->GetBuffer(), bufferSize);
+    UDevice->CopyOnDeviceBuffer(stagingBuffer.GetBuffer(), indexBuffer->GetBuffer(), bufferSize);
     // m_vIndices.clear();
 }

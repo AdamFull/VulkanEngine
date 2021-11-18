@@ -7,14 +7,13 @@ namespace Engine
 
     namespace Core
     {
-        class Device;
+        
         namespace Descriptor
         {
             class VulkanDescriptorSetLayout
             {
             public:
                 VulkanDescriptorSetLayout() = default;
-                VulkanDescriptorSetLayout(std::shared_ptr<Device> device);
                 ~VulkanDescriptorSetLayout();
                 class Builder
                 {
@@ -41,8 +40,6 @@ namespace Engine
             private:
                 vk::DescriptorSetLayout descriptorSetLayout;
                 descriptor_set_layout_bindings_t m_mBindings;
-
-                std::shared_ptr<Device> m_device;
             };
         }
     }

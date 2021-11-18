@@ -1,19 +1,14 @@
 #include "MaterialSkybox.h"
-#include "Core/VulkanAllocator.h"
+#include "Core/VulkanHighLevel.h"
+#include "Core/Rendering/RendererBase.h"
 #include "Resources/ResourceManager.h"
 
 using namespace Engine::Resources::Material;
 using namespace Engine::Core::Descriptor;
 
-MaterialSkybox::MaterialSkybox(std::shared_ptr<Core::Device> device, std::shared_ptr<Core::SwapChain> swapchain)
-{
-    m_device = device;
-    m_swapchain = swapchain;
-}
-
 void MaterialSkybox::Create(std::shared_ptr<ResourceManager> pResMgr)
 {
-    renderPass = m_swapchain->GetOffscreenRenderPass();
+    renderPass = URenderer->GetRenderer()->GetRenderPass();
 
     //m_mTextures[ETextureAttachmentType::eCubemap] = pResMgr->Get<Texture::TextureBase>("environment_component_prefiltred_cube");
 
@@ -22,7 +17,7 @@ void MaterialSkybox::Create(std::shared_ptr<ResourceManager> pResMgr)
 
 void MaterialSkybox::ReCreate()
 {
-    renderPass = m_swapchain->GetOffscreenRenderPass();
+    renderPass = URenderer->GetRenderer()->GetRenderPass();
     MaterialBase::ReCreate();
 }
 
@@ -58,7 +53,7 @@ void MaterialSkybox::CreateDescriptors(uint32_t images)
     addBinding(0, vk::DescriptorType::eUniformBuffer, vk::ShaderStageFlagBits::eVertex).
     build();
 
-    auto matSet = Core::FDefaultAllocator::Allocate<VulkanDescriptorSet>();
+    auto matSet = std::make_unique<VulkanDescriptorSet>();
     matSet->Create(m_pDescriptorPool, matSetLayout, images);
 
     m_pMatDesc->AttachDescriptorSet(std::move(matSet), std::move(matSetLayout));
@@ -68,7 +63,7 @@ void MaterialSkybox::CreateDescriptors(uint32_t images)
     addBinding(0, vk::DescriptorType::eCombinedImageSampler, vk::ShaderStageFlagBits::eFragment).
     build();
 
-    auto texSet = Core::FDefaultAllocator::Allocate<VulkanDescriptorSet>();
+    auto texSet = std::make_unique<VulkanDescriptorSet>();
     texSet->Create(m_pDescriptorPool, texSetLayout, images);
 
     m_pMatDesc->AttachDescriptorSet(std::move(texSet), std::move(texSetLayout));

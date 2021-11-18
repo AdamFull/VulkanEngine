@@ -6,7 +6,7 @@ namespace Engine
 {
     namespace Core
     {
-        class Device;
+        
         namespace Descriptor
         {
             class VulkanDescriptorWriter

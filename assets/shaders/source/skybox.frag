@@ -8,6 +8,7 @@ layout (location = 0) out vec4 outPosition;
 layout (location = 1) out vec4 outMask;
 layout (location = 2) out vec4 outNormal;
 layout (location = 3) out vec4 outAlbedo;
+layout (location = 4) out vec4 outMRAH;
 
 void main() 
 {
@@ -17,4 +18,5 @@ void main()
 	outMask = vec4(0.0);
 	outNormal = vec4(vec3(0.0), 1.0);
 	outAlbedo = vec4(color, 1.0);
+	//outMRAH = vec4(1.0);
 }

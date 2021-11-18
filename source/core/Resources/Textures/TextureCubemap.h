@@ -11,7 +11,6 @@ namespace Engine
             {
             public:
                 TextureCubemap() = default;
-                TextureCubemap(std::shared_ptr<Core::Device> device);
 
                 void ReCreate() override;
                 void Update(uint32_t imageIndex) override;

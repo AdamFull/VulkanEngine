@@ -1,19 +1,12 @@
 #include "DescriptorPool.h"
-#include "Core/VulkanAllocator.h"
-#include "Core/VulkanDevice.h"
+#include "Core/VulkanHighLevel.h"
 
 using namespace Engine::Core;
 using namespace Engine::Core::Descriptor;
 
-VulkanDescriptorPool::VulkanDescriptorPool(std::shared_ptr<Device> device) :
-m_device(device)
-{
-
-}
-
 VulkanDescriptorPool::~VulkanDescriptorPool()
 {
-    m_device->Destroy(descriptorPool);
+    UDevice->Destroy(descriptorPool);
 }
 
 VulkanDescriptorPool::Builder &VulkanDescriptorPool::Builder::addPoolSize(vk::DescriptorType descriptorType, uint32_t count)
@@ -35,7 +28,7 @@ VulkanDescriptorPool::Builder &VulkanDescriptorPool::Builder::setMaxSets(uint32_
 
 std::unique_ptr<VulkanDescriptorPool> VulkanDescriptorPool::Builder::build() const
 {
-    auto descriptor_object = FDefaultAllocator::Allocate<VulkanDescriptorPool>();
+    auto descriptor_object = std::make_unique<VulkanDescriptorPool>();
     descriptor_object->Create(maxSets, poolFlags, poolSizes);
     return descriptor_object;
 }
@@ -47,5 +40,5 @@ void VulkanDescriptorPool::Create(uint32_t maxSets, vk::DescriptorPoolCreateFlag
     descriptorPoolInfo.pPoolSizes = poolSizes.data();
     descriptorPoolInfo.maxSets = maxSets;
     descriptorPoolInfo.flags = poolFlags;
-    descriptorPool = m_device->Make<vk::DescriptorPool, vk::DescriptorPoolCreateInfo>(descriptorPoolInfo);
+    descriptorPool = UDevice->Make<vk::DescriptorPool, vk::DescriptorPoolCreateInfo>(descriptorPoolInfo);
 }

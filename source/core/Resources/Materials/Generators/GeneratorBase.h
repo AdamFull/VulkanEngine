@@ -14,7 +14,6 @@ namespace Engine
                 {
                 public:
                     GeneratorBase() = default;
-                    GeneratorBase(std::shared_ptr<Core::Device> device, std::shared_ptr<Core::SwapChain> swapchain);
                     ~GeneratorBase() override;
 
                     void Create(std::shared_ptr<ResourceManager> pResMgr) override;

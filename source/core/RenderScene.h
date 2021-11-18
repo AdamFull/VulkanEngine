@@ -4,11 +4,6 @@
 
 namespace Engine
 {
-    namespace Core
-    {
-        namespace Window  { class WindowHandle; }
-    }
-    
     namespace Resources { class ResourceManager; }
     
     class RenderScene

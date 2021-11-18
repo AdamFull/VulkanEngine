@@ -6,15 +6,15 @@ namespace Engine
     {
         struct Light 
         {
-            alignas(16) glm::vec4 position;
+            alignas(16) glm::vec3 position;
             alignas(16) glm::vec3 color;
             alignas(4) float radius;
         };
 
         struct FLightningData
         {
-            glm::vec4 viewPos;
-            Light lights[256];
+            glm::vec3 viewPos;
+            Light lights[1024];
             int lightCount;
             float ambient;
             float tone;
@@ -35,14 +35,13 @@ namespace Engine
             alignas(8) glm::vec2 translate;
         };
 
-        class Device;
+        
         class VulkanBuffer;
 
         class UniformBuffer
         {
         public:
             UniformBuffer() = default;
-            UniformBuffer(std::shared_ptr<Device> device);
             ~UniformBuffer();
 
             UniformBuffer(const UniformBuffer &) = delete;
@@ -63,7 +62,6 @@ namespace Engine
             void CreateUniformBuffers(uint32_t inFlightFrames);
             size_t m_iUniformSize{0};
 
-            std::shared_ptr<Device> m_device;
             std::vector<std::unique_ptr<VulkanBuffer>> m_pBuffers;
         };
     }

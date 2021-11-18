@@ -1,19 +1,12 @@
 #include "DescriptorSetLayout.h"
-#include "Core/VulkanAllocator.h"
-#include "Core/VulkanDevice.h"
+#include "Core/VulkanHighLevel.h"
 
 using namespace Engine::Core;
 using namespace Engine::Core::Descriptor;
 
-VulkanDescriptorSetLayout::VulkanDescriptorSetLayout(std::shared_ptr<Device> device) :
-m_device(device)
-{
-
-}
-
 VulkanDescriptorSetLayout::~VulkanDescriptorSetLayout()
 {
-    m_device->Destroy(descriptorSetLayout);
+    UDevice->Destroy(descriptorSetLayout);
 }
 
 VulkanDescriptorSetLayout::Builder &VulkanDescriptorSetLayout::Builder::addBinding(uint32_t binding, vk::DescriptorType descriptorType, vk::ShaderStageFlags stageFlags, uint32_t count)
@@ -30,7 +23,7 @@ VulkanDescriptorSetLayout::Builder &VulkanDescriptorSetLayout::Builder::addBindi
 
 std::unique_ptr<VulkanDescriptorSetLayout> VulkanDescriptorSetLayout::Builder::build() const
 {
-    auto descriptor_set_layout_object = FDefaultAllocator::Allocate<VulkanDescriptorSetLayout>();
+    auto descriptor_set_layout_object = std::make_unique<VulkanDescriptorSetLayout>();
     descriptor_set_layout_object->Create(bindings);
     return descriptor_set_layout_object;
 }
@@ -48,7 +41,7 @@ void VulkanDescriptorSetLayout::Create(descriptor_set_layout_bindings_t bindings
     descriptorSetLayoutInfo.bindingCount = static_cast<uint32_t>(setLayoutBindings.size());
     descriptorSetLayoutInfo.pBindings = setLayoutBindings.data();
 
-    if (m_device->GetLogical().createDescriptorSetLayout(&descriptorSetLayoutInfo, nullptr, &descriptorSetLayout) != vk::Result::eSuccess)
+    if (UDevice->GetLogical().createDescriptorSetLayout(&descriptorSetLayoutInfo, nullptr, &descriptorSetLayout) != vk::Result::eSuccess)
     {
         throw std::runtime_error("failed to create descriptor set layout!");
     }

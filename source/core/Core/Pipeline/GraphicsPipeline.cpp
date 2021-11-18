@@ -1,14 +1,7 @@
 #include "GraphicsPipeline.h"
-#include "Core/VulkanDevice.h"
-#include "Core/VulkanSwapChain.h"
+#include "Core/VulkanHighLevel.h"
 
 using namespace Engine::Core::Pipeline;
-
-GraphicsPipeline::GraphicsPipeline(std::shared_ptr<Device> device, std::shared_ptr<SwapChain> swapchain)
-{
-    m_device = device;
-    m_swapchain = swapchain;
-}
 
 void GraphicsPipeline::Create(FPipelineCreateInfo createInfo)
 {
@@ -18,8 +11,8 @@ void GraphicsPipeline::Create(FPipelineCreateInfo createInfo)
 
 void GraphicsPipeline::CreatePipeline()
 {
-    assert(m_device && "Cannot create pipeline, cause logical device is not valid.");
-    assert(m_swapchain && "Cannot create pipeline, cause render pass is not valid.");
+    assert(UDevice && "Cannot create pipeline, cause logical device is not valid.");
+    assert(USwapChain && "Cannot create pipeline, cause render pass is not valid.");
 
     savedInfo.vertexInputInfo.pVertexBindingDescriptions = &savedInfo.vertexInputDesc;
     savedInfo.vertexInputInfo.pVertexAttributeDescriptions = savedInfo.vertexAtribDesc.data();
@@ -48,7 +41,7 @@ void GraphicsPipeline::CreatePipeline()
     pipelineInfo.basePipelineHandle = nullptr;
     pipelineInfo.pDynamicState = &savedInfo.dynamicStateInfo;
 
-    m_device->GetLogical().createGraphicsPipelines(savedInfo.pipelineCache, 1, &pipelineInfo, nullptr, &data.pipeline);
+    UDevice->GetLogical().createGraphicsPipelines(savedInfo.pipelineCache, 1, &pipelineInfo, nullptr, &data.pipeline);
     assert(data.pipeline && "Failed creating pipeline.");
 }
 

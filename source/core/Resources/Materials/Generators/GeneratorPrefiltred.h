@@ -20,7 +20,6 @@ namespace Engine
                 {
                 public:
                     GeneratorPrefiltred() = default;
-                    GeneratorPrefiltred(std::shared_ptr<Core::Device> device, std::shared_ptr<Core::SwapChain> swapchain);
 
                     void Create(std::shared_ptr<ResourceManager> pResMgr) override;
                     void Generate(std::shared_ptr<Mesh::MeshBase> pMesh) override;

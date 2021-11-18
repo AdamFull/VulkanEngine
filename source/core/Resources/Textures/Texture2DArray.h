@@ -11,7 +11,6 @@ namespace Engine
             {
             public:
                 Texture2DArray() = default;
-                Texture2DArray(std::shared_ptr<Core::Device> device);
 
                 void ReCreate() override;
                 void Update(uint32_t imageIndex) override;

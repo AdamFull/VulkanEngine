@@ -1,16 +1,8 @@
 #include "VulkanPipeline.h"
-#include "Core/VulkanDevice.h"
-#include "Core/VulkanSwapChain.h"
+#include "Core/VulkanHighLevel.h"
 #include "filesystem/FilesystemHelper.h"
 
 using namespace Engine::Core::Pipeline;
-
-PipelineBase::PipelineBase(std::shared_ptr<Device> device, std::shared_ptr<SwapChain> swapchain) :
-m_device(device),
-m_swapchain(swapchain)
-{
-
-}
 
 PipelineBase::~PipelineBase()
 {
@@ -28,7 +20,7 @@ void PipelineBase::RecreatePipeline(FPipelineCreateInfo createInfo)
 
 void PipelineBase::Cleanup()
 {
-    m_device->Destroy(data.pipeline);
+    UDevice->Destroy(data.pipeline);
 }
 
 void PipelineBase::Bind(vk::CommandBuffer &commandBuffer)
@@ -57,7 +49,7 @@ void PipelineBase::LoadShader(const std::vector<char> &vShaderCode, vk::ShaderSt
 
     try
     {
-        shaderModule = m_device->Make<vk::ShaderModule, vk::ShaderModuleCreateInfo>(
+        shaderModule = UDevice->Make<vk::ShaderModule, vk::ShaderModuleCreateInfo>(
             vk::ShaderModuleCreateInfo{
                 vk::ShaderModuleCreateFlags(),
                 vShaderCode.size(),
@@ -88,7 +80,7 @@ void PipelineBase::DestroyShaders()
 {
     for (auto &stageInfo : m_vShaderBuffer)
     {
-        m_device->Destroy(stageInfo.module);
+        UDevice->Destroy(stageInfo.module);
     }
 
     m_vShaderBuffer.clear();

@@ -6,16 +6,9 @@ namespace Engine
 {
     namespace Core
     {
-        class Device;
-        class SwapChain;
         namespace Pipeline
         {
             class PipelineBase;
-            /*struct FPipelineComp
-    {
-        static EPipelineType GetType(std::string srType);
-        static std::map<std::string, EPipelineType> m_mComp;
-    };*/
 
             struct PipelineFactory
             {

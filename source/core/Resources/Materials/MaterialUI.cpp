@@ -1,26 +1,20 @@
 #include "MaterialUI.h"
 #include "Core/Overlay/ImguiOverlay.h"
-#include "Core/VulkanAllocator.h"
+#include "Core/VulkanHighLevel.h"
 #include "Resources/ResourceManager.h"
 
 using namespace Engine::Resources::Material;
 using namespace Engine::Core::Descriptor;
 
-MaterialUI::MaterialUI(std::shared_ptr<Core::Device> device, std::shared_ptr<Core::SwapChain> swapchain)
-{
-    m_device = device;
-    m_swapchain = swapchain;
-}
-
 void MaterialUI::Create(std::shared_ptr<ResourceManager> pResMgr)
 {
-    renderPass = m_swapchain->GetRenderPass();
+    renderPass = USwapChain->GetRenderPass();
     MaterialBase::Create(pResMgr);
 }
 
 void MaterialUI::ReCreate()
 {
-    renderPass = m_swapchain->GetRenderPass();
+    renderPass = USwapChain->GetRenderPass();
     MaterialBase::ReCreate();
 }
 
@@ -56,7 +50,7 @@ void MaterialUI::CreateDescriptors(uint32_t images)
     addBinding(0, vk::DescriptorType::eUniformBuffer, vk::ShaderStageFlagBits::eVertex).
     build();
 
-    auto matSet = Core::FDefaultAllocator::Allocate<VulkanDescriptorSet>();
+    auto matSet = std::make_unique<VulkanDescriptorSet>();
     matSet->Create(m_pDescriptorPool, matSetLayout, images);
 
     m_pMatDesc->AttachDescriptorSet(std::move(matSet), std::move(matSetLayout));
@@ -64,7 +58,7 @@ void MaterialUI::CreateDescriptors(uint32_t images)
     // Texture uniform
     auto texSetLayout = VulkanDescriptorSetLayout::Builder().addBinding(0, vk::DescriptorType::eCombinedImageSampler, vk::ShaderStageFlagBits::eFragment).build();
 
-    auto texSet = Core::FDefaultAllocator::Allocate<VulkanDescriptorSet>();
+    auto texSet = std::make_unique<VulkanDescriptorSet>();
     texSet->Create(m_pDescriptorPool, texSetLayout, images);
 
     m_pMatDesc->AttachDescriptorSet(std::move(texSet), std::move(texSetLayout));

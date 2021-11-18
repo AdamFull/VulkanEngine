@@ -12,7 +12,6 @@ namespace Engine
             {
             public:
                 Texture3D() = default;
-                Texture3D(std::shared_ptr<Core::Device> device);
 
                 void ReCreate() override;
                 void Update(uint32_t imageIndex) override;

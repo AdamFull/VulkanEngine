@@ -1,22 +1,16 @@
 #include "GeneratorBase.h"
 #include "Resources/ResourceManager.h"
-#include "Core/VulkanAllocator.h"
+#include "Core/VulkanHighLevel.h"
 
 using namespace Engine::Resources::Material::Generator;
 using namespace Engine::Core::Pipeline;
 using namespace Engine::Resources::Texture;
 using namespace Engine::Resources::Loaders;
 
-GeneratorBase::GeneratorBase(std::shared_ptr<Core::Device> device, std::shared_ptr<Core::SwapChain> swapchain)
-{
-	m_device = device;
-	m_swapchain = swapchain;
-}
-
 GeneratorBase::~GeneratorBase()
 {
-	m_device->Destroy(framebuffer);
-    m_device->Destroy(renderPass);
+	UDevice->Destroy(framebuffer);
+    UDevice->Destroy(renderPass);
 }
 
 FPipelineCreateInfo GeneratorBase::CreateInfo(EShaderSet eSet)
@@ -118,7 +112,7 @@ void GeneratorBase::CreateRenderPass(vk::Format format)
 	renderPassCI.dependencyCount = 2;
 	renderPassCI.pDependencies = dependencies.data();
 
-    renderPass = m_device->GetLogical().createRenderPass(renderPassCI);
+    renderPass = UDevice->GetLogical().createRenderPass(renderPassCI);
 }
 
 void GeneratorBase::CreateFramebuffer()
@@ -131,7 +125,7 @@ void GeneratorBase::CreateFramebuffer()
 	framebufferCI.height = m_pGeneratedImage->GetParams().height;
 	framebufferCI.layers = 1;
 
-	framebuffer = m_device->GetLogical().createFramebuffer(framebufferCI);
+	framebuffer = UDevice->GetLogical().createFramebuffer(framebufferCI);
 }
 
 void GeneratorBase::CreateTextures()
@@ -158,7 +152,7 @@ void GeneratorBase::CreateTextures()
 		break;
 	}
 
-	m_pGeneratedImage = Core::FDefaultAllocator::Allocate<TextureBase>();
+	m_pGeneratedImage = std::make_shared<TextureBase>();
     ktxTexture *offscreen;
     ImageLoader::AllocateRawDataAsKTXTexture(&offscreen, &imageFormat, m_iDimension, m_iDimension, 1, 2, iFormat);
     m_pGeneratedImage->InitializeTexture(offscreen, imageFormat, usageFlags);

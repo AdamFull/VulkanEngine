@@ -1,6 +1,6 @@
 #include "MeshComponentBase.h"
 #include "Core/VulkanDevice.h"
-#include "Core/VulkanRenderer.h"
+#include "Core/VulkanRenderSystem.h"
 #include "Core/VulkanHighLevel.h"
 #include "Resources/Meshes/VulkanMesh.h"
 #include "Objects/Components/Camera/CameraComponent.h"

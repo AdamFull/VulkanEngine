@@ -5,14 +5,13 @@ namespace Engine
 {
     namespace Core
     {
-        class Device;
+        
         namespace Descriptor
         {
             class VulkanDescriptorPool
             {
             public:
                 VulkanDescriptorPool() = default;
-                VulkanDescriptorPool(std::shared_ptr<Device> device);
                 ~VulkanDescriptorPool();
 
                 class Builder
@@ -40,7 +39,6 @@ namespace Engine
 
             private:
                 vk::DescriptorPool descriptorPool;
-                std::shared_ptr<Device> m_device;
             };
         }
     }

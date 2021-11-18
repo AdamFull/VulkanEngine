@@ -11,7 +11,6 @@ namespace Engine
             {
             public:
                 GraphicsPipeline() = default;
-                GraphicsPipeline(std::shared_ptr<Device> device, std::shared_ptr<SwapChain> swapchain);
 
                 void Create(FPipelineCreateInfo createInfo) override;
                 void RecreatePipeline(FPipelineCreateInfo createInfo) override;

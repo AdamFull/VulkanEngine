@@ -2,11 +2,6 @@
 
 using namespace Engine::Resources::Texture;
 
-Texture2D::Texture2D(std::shared_ptr<Core::Device> device)
-{
-    m_device = device;
-}
-
 void Texture2D::ReCreate()
 {
     TextureBase::ReCreate();

@@ -1,7 +1,5 @@
 #include "VulkanMaterial.h"
-#include "Core/VulkanUniform.h"
-#include "Core/VulkanDevice.h"
-#include "Core/VulkanSwapChain.h"
+#include "Core/VulkanHighLevel.h"
 #include "Resources/ResourceManager.h"
 
 using namespace Engine::Resources::Texture;
@@ -9,17 +7,10 @@ using namespace Engine::Resources::Material;
 using namespace Engine::Core::Descriptor;
 using namespace Engine::Core::Pipeline;
 
-MaterialBase::MaterialBase(std::shared_ptr<Core::Device> device, std::shared_ptr<Core::SwapChain> swapchain) :
-m_device(device),
-m_swapchain(swapchain)
-{
-
-}
-
 MaterialBase::~MaterialBase()
 {
-    m_device->Destroy(pipelineLayout);
-    m_device->Destroy(pipelineCache);
+    UDevice->Destroy(pipelineLayout);
+    UDevice->Destroy(pipelineCache);
 }
 
 FPipelineCreateInfo MaterialBase::CreateInfo(EShaderSet eSet)
@@ -47,7 +38,7 @@ void MaterialBase::Create(std::shared_ptr<ResourceManager> pResMgr)
 {
     m_pMatDesc = std::make_unique<VulkanDescriptorSetContainer>();
 
-    uint32_t images = m_swapchain->GetImages().size();
+    uint32_t images = USwapChain->GetImages().size();
     CreateDescriptorPool(images);
     CreateDescriptors(images);
     CreatePipelineLayout(images);
@@ -116,12 +107,12 @@ void MaterialBase::CreatePipelineLayout(uint32_t images)
     pipelineLayoutInfo.pushConstantRangeCount = m_vConstantRanges.size();
     pipelineLayoutInfo.pPushConstantRanges = m_vConstantRanges.data();
 
-    pipelineLayout = m_device->Make<vk::PipelineLayout, vk::PipelineLayoutCreateInfo>(pipelineLayoutInfo);
+    pipelineLayout = UDevice->Make<vk::PipelineLayout, vk::PipelineLayoutCreateInfo>(pipelineLayoutInfo);
     assert(pipelineLayout && "Pipeline layout was not created");
 }
 
 void MaterialBase::CreatePipelineCache()
 {
     vk::PipelineCacheCreateInfo pipelineCacheCreateInfo = {};
-    pipelineCache = m_device->GetLogical().createPipelineCache(pipelineCacheCreateInfo);
+    pipelineCache = UDevice->GetLogical().createPipelineCache(pipelineCacheCreateInfo);
 }

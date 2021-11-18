@@ -4,8 +4,6 @@ namespace Engine
 {
     namespace Core
     {
-        class Device;
-
         struct FBuffer
         {
             void *mapped = nullptr;
@@ -24,7 +22,6 @@ namespace Engine
         {
         public:
             VulkanBuffer() = default;
-            VulkanBuffer(std::shared_ptr<Device> device);
             ~VulkanBuffer();
 
             VulkanBuffer(const VulkanBuffer &) = delete;
@@ -70,8 +67,6 @@ namespace Engine
 
         private:
             static vk::DeviceSize GetAlignment(vk::DeviceSize instanceSize, vk::DeviceSize minOffsetAlignment);
-            std::shared_ptr<Device> m_device;
-
             FBuffer data;
         };
     }

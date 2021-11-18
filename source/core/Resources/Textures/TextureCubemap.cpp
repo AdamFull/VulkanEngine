@@ -5,11 +5,6 @@
 
 using namespace Engine::Resources::Texture;
 
-TextureCubemap::TextureCubemap(std::shared_ptr<Core::Device> device)
-{
-    m_device = device;
-}
-
 void TextureCubemap::ReCreate()
 {
     TextureBase::ReCreate();

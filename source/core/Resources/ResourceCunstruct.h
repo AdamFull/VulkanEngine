@@ -15,10 +15,15 @@ namespace Engine
         enum class ETextureAttachmentType
         {
             eEmpty,
+            eBRDFLUT,
+            eIrradiance,
+            ePrefiltred,
+            
             ePosition,
             eLightningMask,
             eNormal,
             eDiffuseAlbedo,
+            eMRAH,
             eDepth,
             
             eMetalicRoughness,
@@ -26,11 +31,8 @@ namespace Engine
             eEmissive,
             eHeight,
             eOcclusion,
-            //Special
-            eCubemap,
-            eIrradiance,
-            eBRDFLUT,
-            ePrefiltred
+            
+            eCubemap
         };
 
         enum class ENoisePattern

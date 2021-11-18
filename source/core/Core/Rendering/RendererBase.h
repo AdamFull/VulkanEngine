@@ -1,20 +1,38 @@
 #pragma once
 #include "Resources/ResourceCunstruct.h"
 
+//Helpers from https://stackoverflow.com/questions/771453/copy-map-values-to-vector-in-stl
+template<typename tPair>
+struct second_t 
+{
+    typename tPair::second_type operator()(const tPair& p) const 
+    { 
+        return p.second; 
+    }
+};
+
+template<typename tMap> 
+second_t<typename tMap::value_type> get_map_values(const tMap& m ) 
+{ 
+    return second_t<typename tMap::value_type>(); 
+}
+
 namespace Engine
 {
     namespace Resources
     {
+        class ResourceManager;
+        namespace Texture { class TextureBase; }
         namespace Material { class MaterialBase; }
     }
     namespace Core
     {
-        class Device;
-        class SwapChain;
         class UniformBuffer;
 
         struct FRendererCreateInfo
         {
+            FRendererCreateInfo() = default;
+
             enum class ERendererType
             {
                 eDeferred,
@@ -23,6 +41,7 @@ namespace Engine
 
             struct FAttachmentInfo
             {
+                FAttachmentInfo() = default;
                 FAttachmentInfo(vk::Format f, vk::ImageUsageFlags u, vk::ClearColorValue c) :
                 format(f), usage(u), color(c) {}
                 vk::Format format{vk::Format::eUndefined};
@@ -30,25 +49,16 @@ namespace Engine
                 vk::ClearColorValue color{};
             };
 
-            std::vector<FAttachmentInfo> vColorAttachments;
+            std::map<Resources::ETextureAttachmentType, FAttachmentInfo> vColorAttachments;
             FAttachmentInfo depthAttachment;
             ERendererType eRendererType;
-            uint32_t framesInFlight;
-        };
 
-        struct FImageData
-        {
-            vk::Image image;
-            vk::ImageView view;
-            vk::ImageLayout layout;
-            vk::DeviceMemory memory;
-            
-            void Destroy(std::shared_ptr<Device> device);
-            vk::DescriptorImageInfo GetDescriptor(vk::Sampler& sampler);
+            std::string srTexture;
+            std::string srMesh;
         };
 
         using texture_type_t = Resources::ETextureAttachmentType;
-        using image_map_t = std::map<texture_type_t, FImageData>;
+        using image_map_t = std::map<texture_type_t, std::shared_ptr<Resources::Texture::TextureBase>>;
         using attachment_t = FRendererCreateInfo::FAttachmentInfo;
         using attachments_map_t = std::map<texture_type_t, attachment_t>;
         using renderer_type_t = FRendererCreateInfo::ERendererType;
@@ -59,24 +69,29 @@ namespace Engine
             {
             public:
                 RendererBase() = default;
-                RendererBase(std::shared_ptr<Device> device);
                 ~RendererBase();
 
-                void Create(FRendererCreateInfo createInfo);
+                void Create(FRendererCreateInfo createInfo, std::shared_ptr<Resources::ResourceManager> pResMgr);
+                std::shared_ptr<vk::RenderPassBeginInfo> CreateRenderPassCI(uint32_t imageIndex);
                 void ReCreate(uint32_t framesInFlight);
                 void Update(vk::CommandBuffer& commandBuffer, void* data);
                 void Cleanup();
 
+                inline vk::RenderPass& GetRenderPass() { return m_RenderPass; }
+                inline vk::Framebuffer& GetFramebuffer(uint32_t imageIndex) { return m_vFramebuffers.at(imageIndex); }
+                inline std::vector<vk::Framebuffer>& GetFramebuffers() { return m_vFramebuffers; }
+                inline attachments_map_t& GetColorAttachments() { return m_vColorAttachments; }
+                inline attachment_t& GetBepthAttachment() { return m_DepthAttachment; }
             protected:
                 void CreateSampler();
-                FImageData CreateImage(attachment_t attachment);
+                std::shared_ptr<Resources::Texture::TextureBase> CreateImage(attachment_t attachment);
                 void CreateImages();
                 void CreateRenderPass();
                 void CreateFramebuffers();
-                void CreateMaterial();
+                void CreateMaterial(std::shared_ptr<Resources::ResourceManager> pResMgr);
 
                 std::vector<image_map_t> m_vImages;
-                FImageData m_DepthImage;
+                std::shared_ptr<Resources::Texture::TextureBase> m_DepthImage;
                 vk::Sampler m_Sampler;
 
                 vk::RenderPass m_RenderPass;
@@ -89,9 +104,6 @@ namespace Engine
                 attachments_map_t m_vColorAttachments;
                 attachment_t m_DepthAttachment;
                 renderer_type_t m_eRendererType;
-                uint32_t m_iFramesInFlight{0};
-
-                std::shared_ptr<Device> m_device;
             };
         }
     }

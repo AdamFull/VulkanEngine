@@ -4,7 +4,7 @@ namespace Engine
 {
     namespace Core
     {
-        class Device;
+        
         namespace Descriptor
         {
             class VulkanDescriptorPool;
@@ -13,7 +13,6 @@ namespace Engine
             {
             public:
                 VulkanDescriptorSet() = default;
-                VulkanDescriptorSet(std::shared_ptr<Device> device);
                 ~VulkanDescriptorSet();
 
                 void Create(std::shared_ptr<VulkanDescriptorPool> pool, std::unique_ptr<VulkanDescriptorSetLayout> &setLayout, uint32_t images);
@@ -33,7 +32,7 @@ namespace Engine
                 vk::PipelineBindPoint pipelineBindPoint;
                 vk::PipelineLayout pipelineLayout;
 
-                std::shared_ptr<Device> m_device;
+                
                 std::shared_ptr<VulkanDescriptorPool> m_pool;
             };
         }

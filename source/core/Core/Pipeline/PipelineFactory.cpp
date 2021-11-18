@@ -1,6 +1,6 @@
 #include "PipelineFactory.h"
 #include "GraphicsPipeline.h"
-#include "Core/VulkanAllocator.h"
+#include "Core/VulkanHighLevel.h"
 
 using namespace Engine::Core;
 using namespace Engine::Core::Pipeline;
@@ -34,7 +34,7 @@ std::map<EPipelineType, std::function<PipelineFactory::signature>> PipelineFacto
         {EPipelineType::eGraphics,
             [](FPipelineCreateInfo createInfo)
             {
-               auto pipeline = FDefaultAllocator::Allocate<GraphicsPipeline>();
+               auto pipeline = std::make_unique<GraphicsPipeline>();
                pipeline->LoadShader(mShaderSets[createInfo.eSet]);
                pipeline->Create(createInfo);
                return pipeline;

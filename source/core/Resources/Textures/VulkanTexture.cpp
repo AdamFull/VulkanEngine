@@ -1,26 +1,18 @@
 #include "VulkanTexture.h"
-#include "Core/VulkanDevice.h"
-#include "Core/VulkanBuffer.h"
-#include "Core/VulkanDevice.h"
+#include "Core/VulkanHighLevel.h"
 
 using namespace Engine::Resources;
 using namespace Engine::Resources::Texture;
 using namespace Engine::Resources::Loaders;
 
-TextureBase::TextureBase(std::shared_ptr<Core::Device> device) :
-m_device(device)
-{
-    
-}
-
 TextureBase::~TextureBase()
 {
-    m_device->Destroy(image);
-    m_device->Destroy(view);
-    m_device->Destroy(deviceMemory);
+    UDevice->Destroy(image);
+    UDevice->Destroy(view);
+    UDevice->Destroy(deviceMemory);
 
     if(!bUsingInternalSampler)
-        m_device->Destroy(sampler);
+        UDevice->Destroy(sampler);
 }
 
 void TextureBase::ReCreate()
@@ -65,14 +57,14 @@ ETextureAttachmentType TextureBase::GetAttachment()
 void TextureBase::GenerateMipmaps(vk::Image &image, uint32_t mipLevels, vk::Format format, uint32_t width, uint32_t height, vk::ImageAspectFlags aspectFlags)
 {
     vk::FormatProperties formatProperties;
-    m_device->GetPhysical().getFormatProperties(format, &formatProperties);
+    UDevice->GetPhysical().getFormatProperties(format, &formatProperties);
 
     if (!(formatProperties.optimalTilingFeatures & vk::FormatFeatureFlagBits::eSampledImageFilterLinear))
     {
         throw std::runtime_error("Texture image format does not support linear blitting!");
     }
 
-    vk::CommandBuffer commandBuffer = m_device->BeginSingleTimeCommands();
+    vk::CommandBuffer commandBuffer = UDevice->BeginSingleTimeCommands();
 
     int32_t mipWidth = width;
     int32_t mipHeight = height;
@@ -91,7 +83,7 @@ void TextureBase::GenerateMipmaps(vk::Image &image, uint32_t mipLevels, vk::Form
 
     TransitionImageLayout(commandBuffer, vk::ImageLayout::eTransferDstOptimal, vk::ImageLayout::eShaderReadOnlyOptimal, aspectFlags, false, mipLevels - 1);
 
-    m_device->EndSingleTimeCommands(commandBuffer);
+    UDevice->EndSingleTimeCommands(commandBuffer);
 }
 
 vk::ImageType TextureBase::TypeFromKtx(uint32_t type)
@@ -149,7 +141,7 @@ void TextureBase::CreateEmptyTexture(uint32_t width, uint32_t height, uint32_t d
 void TextureBase::InitializeTexture(ktxTexture *info, vk::Format format, vk::ImageUsageFlags flags, vk::ImageAspectFlags aspect)
 {
     vk::PhysicalDeviceProperties devprops;
-    m_device->GetPhysical().getProperties(&devprops);
+    UDevice->GetPhysical().getProperties(&devprops);
     fParams.format = format;
 
     uint32_t maxImageDimension3D(devprops.limits.maxImageDimension3D);
@@ -201,7 +193,7 @@ void TextureBase::InitializeTexture(ktxTexture *info, vk::Format format, vk::Ima
 
     imageInfo.samples = vk::SampleCountFlagBits::e1;
 
-    m_device->CreateImage(image, deviceMemory, imageInfo, vk::MemoryPropertyFlagBits::eDeviceLocal);
+    UDevice->CreateImage(image, deviceMemory, imageInfo, vk::MemoryPropertyFlagBits::eDeviceLocal);
 
     vk::ImageViewCreateInfo viewInfo{};
     if (info->isArray)
@@ -221,21 +213,21 @@ void TextureBase::InitializeTexture(ktxTexture *info, vk::Format format, vk::Ima
     viewInfo.subresourceRange.baseArrayLayer = 0;
     viewInfo.subresourceRange.layerCount = fParams.instCount;
 
-    view = m_device->CreateImageView(image, viewInfo);
+    view = UDevice->CreateImageView(image, viewInfo);
 
     if(!sampler)
     {
         auto addressMode = info->isArray || info->isCubemap || info->baseDepth > 1 ? vk::SamplerAddressMode::eClampToEdge : vk::SamplerAddressMode::eRepeat;
-        m_device->CreateSampler(sampler, fParams.mipLevels, addressMode);
+        UDevice->CreateSampler(sampler, fParams.mipLevels, vk::SamplerAddressMode::eRepeat);
     }
     //imageLayout = vk::ImageLayout::eShaderReadOnlyOptimal;
 }
 
 void TextureBase::TransitionImageLayout(vk::ImageLayout newLayout, vk::ImageAspectFlags aspectFlags, bool use_mips)
 {
-    vk::CommandBuffer commandBuffer = m_device->BeginSingleTimeCommands();
+    vk::CommandBuffer commandBuffer = UDevice->BeginSingleTimeCommands();
     TransitionImageLayout(commandBuffer, imageLayout, newLayout, aspectFlags, use_mips);
-    m_device->EndSingleTimeCommands(commandBuffer);
+    UDevice->EndSingleTimeCommands(commandBuffer);
 }
 
 void TextureBase::TransitionImageLayout(vk::CommandBuffer& commandBuffer, vk::ImageLayout newLayout, vk::ImageAspectFlags aspectFlags, bool use_mips, uint32_t base_mip)
@@ -256,7 +248,7 @@ void TextureBase::TransitionImageLayout(vk::CommandBuffer& commandBuffer, vk::Im
     barrier.subresourceRange.layerCount = fParams.instCount;
     vBarriers.push_back(barrier);
     
-    m_device->TransitionImageLayout(commandBuffer, image, vBarriers, oldLayout, newLayout);
+    UDevice->TransitionImageLayout(commandBuffer, image, vBarriers, oldLayout, newLayout);
     imageLayout = newLayout;
 }
 
@@ -288,7 +280,7 @@ void TextureBase::WriteImageData(ktxTexture *info, vk::Format format, vk::ImageA
 {
     vk::DeviceSize imgSize = info->dataSize;
 
-    Core::VulkanBuffer stagingBuffer(m_device);
+    Core::VulkanBuffer stagingBuffer;
     stagingBuffer.Create(imgSize, 1, vk::BufferUsageFlagBits::eTransferSrc, vk::MemoryPropertyFlagBits::eHostVisible | vk::MemoryPropertyFlagBits::eHostCoherent);
     auto result = stagingBuffer.MapMem();
     stagingBuffer.Write((void *)info->pData);
@@ -308,7 +300,7 @@ void TextureBase::WriteImageData(ktxTexture *info, vk::Format format, vk::ImageA
         region.imageExtent.depth = info->baseDepth;
         region.bufferOffset = 0;
         vRegions.push_back(region);
-        m_device->CopyBufferToImage(stagingBuffer.GetBuffer(), image, vRegions);
+        UDevice->CopyBufferToImage(stagingBuffer.GetBuffer(), image, vRegions);
         GenerateMipmaps(image, fParams.mipLevels, format, fParams.width, fParams.height, aspect);
     }
     else
@@ -333,7 +325,7 @@ void TextureBase::WriteImageData(ktxTexture *info, vk::Format format, vk::ImageA
                 vRegions.push_back(region);
             }
         }
-        m_device->CopyBufferToImage(stagingBuffer.GetBuffer(), image, vRegions);
+        UDevice->CopyBufferToImage(stagingBuffer.GetBuffer(), image, vRegions);
 
         TransitionImageLayout(vk::ImageLayout::eShaderReadOnlyOptimal, aspect);
     }

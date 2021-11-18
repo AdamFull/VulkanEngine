@@ -1,27 +1,21 @@
 #include "MaterialDeferred.h"
-#include "Core/VulkanAllocator.h"
+#include "Core/VulkanHighLevel.h"
 #include "Resources/ResourceManager.h"
 
 using namespace Engine::Resources;
 using namespace Engine::Resources::Material;
 using namespace Engine::Core::Descriptor;
 
-MaterialDeferred::MaterialDeferred(std::shared_ptr<Core::Device> device, std::shared_ptr<Core::SwapChain> swapchain)
-{
-    m_device = device;
-    m_swapchain = swapchain;
-}
-
 void MaterialDeferred::Create(std::shared_ptr<ResourceManager> pResMgr)
 {
-    renderPass = m_swapchain->GetRenderPass();
+    renderPass = USwapChain->GetRenderPass();
 
     MaterialBase::Create(pResMgr);
 }
 
 void MaterialDeferred::ReCreate()
 {
-    renderPass = m_swapchain->GetRenderPass();
+    renderPass = USwapChain->GetRenderPass();
     MaterialBase::ReCreate();
 }
 
@@ -35,10 +29,14 @@ void MaterialDeferred::Update(vk::DescriptorBufferInfo& uboDesc, uint32_t imageI
     m_pMatDesc->Update(0, imageIndex, bufferInfo);
 
     auto imageInfo = VulkanDescriptorWriter().
-    WriteImage(0, m_pMatDesc->GetSetLayout(1)->GetBindings(), &m_mTextures[ETextureAttachmentType::ePosition]).
-    WriteImage(1, m_pMatDesc->GetSetLayout(1)->GetBindings(), &m_mTextures[ETextureAttachmentType::eLightningMask]).
-    WriteImage(2, m_pMatDesc->GetSetLayout(1)->GetBindings(), &m_mTextures[ETextureAttachmentType::eNormal]).
-    WriteImage(3, m_pMatDesc->GetSetLayout(1)->GetBindings(), &m_mTextures[ETextureAttachmentType::eDiffuseAlbedo]).
+    WriteImage(0, m_pMatDesc->GetSetLayout(1)->GetBindings(), &m_mTextures[ETextureAttachmentType::eBRDFLUT]).
+    WriteImage(1, m_pMatDesc->GetSetLayout(1)->GetBindings(), &m_mTextures[ETextureAttachmentType::eIrradiance]).
+    WriteImage(2, m_pMatDesc->GetSetLayout(1)->GetBindings(), &m_mTextures[ETextureAttachmentType::ePrefiltred]).
+    WriteImage(3, m_pMatDesc->GetSetLayout(1)->GetBindings(), &m_mTextures[ETextureAttachmentType::ePosition]).
+    WriteImage(4, m_pMatDesc->GetSetLayout(1)->GetBindings(), &m_mTextures[ETextureAttachmentType::eLightningMask]).
+    WriteImage(5, m_pMatDesc->GetSetLayout(1)->GetBindings(), &m_mTextures[ETextureAttachmentType::eNormal]).
+    WriteImage(6, m_pMatDesc->GetSetLayout(1)->GetBindings(), &m_mTextures[ETextureAttachmentType::eDiffuseAlbedo]).
+    WriteImage(7, m_pMatDesc->GetSetLayout(1)->GetBindings(), &m_mTextures[ETextureAttachmentType::eMRAH]).
     Build();
     m_pMatDesc->Update(1, imageIndex, imageInfo);
 }
@@ -60,7 +58,7 @@ void MaterialDeferred::CreateDescriptors(uint32_t images)
     addBinding(0, vk::DescriptorType::eUniformBuffer, vk::ShaderStageFlagBits::eFragment).
     build();
 
-    auto matSet = Core::FDefaultAllocator::Allocate<VulkanDescriptorSet>();
+    auto matSet = std::make_unique<VulkanDescriptorSet>();
     matSet->Create(m_pDescriptorPool, matSetLayout, images);
 
     m_pMatDesc->AttachDescriptorSet(std::move(matSet), std::move(matSetLayout));
@@ -71,9 +69,13 @@ void MaterialDeferred::CreateDescriptors(uint32_t images)
     addBinding(1, vk::DescriptorType::eCombinedImageSampler, vk::ShaderStageFlagBits::eFragment).
     addBinding(2, vk::DescriptorType::eCombinedImageSampler, vk::ShaderStageFlagBits::eFragment).
     addBinding(3, vk::DescriptorType::eCombinedImageSampler, vk::ShaderStageFlagBits::eFragment).
+    addBinding(4, vk::DescriptorType::eCombinedImageSampler, vk::ShaderStageFlagBits::eFragment).
+    addBinding(5, vk::DescriptorType::eCombinedImageSampler, vk::ShaderStageFlagBits::eFragment).
+    addBinding(6, vk::DescriptorType::eCombinedImageSampler, vk::ShaderStageFlagBits::eFragment).
+    addBinding(7, vk::DescriptorType::eCombinedImageSampler, vk::ShaderStageFlagBits::eFragment).
     build();
 
-    auto texSet = Core::FDefaultAllocator::Allocate<VulkanDescriptorSet>();
+    auto texSet = std::make_unique<VulkanDescriptorSet>();
     texSet->Create(m_pDescriptorPool, texSetLayout, images);
 
     m_pMatDesc->AttachDescriptorSet(std::move(texSet), std::move(texSetLayout));

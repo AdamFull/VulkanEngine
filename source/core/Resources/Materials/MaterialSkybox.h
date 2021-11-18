@@ -11,7 +11,6 @@ namespace Engine
             {
             public:
                 MaterialSkybox() = default;
-                MaterialSkybox(std::shared_ptr<Core::Device> device, std::shared_ptr<Core::SwapChain> swapchain);
 
                 void Create(std::shared_ptr<ResourceManager> pResMgr) override;
                 void ReCreate() override;

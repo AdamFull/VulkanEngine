@@ -6,12 +6,11 @@ namespace Engine
     namespace Core
     {
         class VulkanBuffer;
-        class Device;
+        
         class VulkanVBO
         {
         public:
             VulkanVBO() = default;
-            VulkanVBO(std::shared_ptr<Device> device);
             ~VulkanVBO();
 
             void Create();
@@ -30,8 +29,6 @@ namespace Engine
 
             std::vector<uint32_t> m_vIndices;
             std::unique_ptr<VulkanBuffer> indexBuffer;
-
-            std::shared_ptr<Device> m_device;
         };
     }
 }

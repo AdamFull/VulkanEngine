@@ -1,13 +1,6 @@
-#include "VulkanUniform.h"
-#include "VulkanDevice.h"
-#include "VulkanAllocator.h"
+#include "VulkanHighLevel.h"
 
 using namespace Engine::Core;
-
-UniformBuffer::UniformBuffer(std::shared_ptr<Device> device) : m_device(device)
-{
-
-}
 
 UniformBuffer::~UniformBuffer()
 {
@@ -39,11 +32,11 @@ void UniformBuffer::CreateUniformBuffers(uint32_t inFlightFrames)
 {
     m_pBuffers.resize(inFlightFrames);
 
-    auto physProps = m_device->GetPhysical().getProperties();
+    auto physProps = UDevice->GetPhysical().getProperties();
     auto minOffsetAllignment = std::lcm(physProps.limits.minUniformBufferOffsetAlignment, physProps.limits.nonCoherentAtomSize);
     for (size_t i = 0; i < inFlightFrames; i++)
     {
-        auto uniform = FDefaultAllocator::Allocate<VulkanBuffer>();
+        auto uniform = std::make_unique<VulkanBuffer>();
         uniform->Create(m_iUniformSize, 1, vk::BufferUsageFlagBits::eUniformBuffer,
                         vk::MemoryPropertyFlagBits::eHostVisible | vk::MemoryPropertyFlagBits::eHostCoherent, minOffsetAllignment);
         uniform->MapMem();

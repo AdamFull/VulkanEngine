@@ -6,7 +6,6 @@ namespace Engine
 {
     namespace Core
     {
-        class Device;
         class VulkanBuffer;
     }
     
@@ -27,7 +26,6 @@ namespace Engine
             {
             public:
                 TextureBase() = default;
-                TextureBase(std::shared_ptr<Core::Device> device);
                 virtual ~TextureBase();
 
                 virtual void ReCreate();
@@ -80,7 +78,7 @@ namespace Engine
 
                 std::string m_srName;
 
-                std::shared_ptr<Core::Device> m_device;
+                
             };
         }
     }

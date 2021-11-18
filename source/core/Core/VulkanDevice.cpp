@@ -1,14 +1,8 @@
-#include "VulkanDevice.h"
-#include "Window/WindowHandle.h"
+#include "VulkanHighLevel.h"
 #include "VulkanStaticHelper.h"
 
 using namespace Engine::Core;
 using namespace Engine::Core::Window;
-
-Device::Device(std::shared_ptr<Window::WindowHandle> pWindow)
-{
-    m_window = pWindow;
-}
 
 VkResult Device::CreateDebugUtilsMessengerEXT(VkInstance instance, const VkDebugUtilsMessengerCreateInfoEXT *pCreateInfo, const VkAllocationCallbacks *pAllocator, VkDebugUtilsMessengerEXT *pCallback)
 {
@@ -137,7 +131,7 @@ void Device::CreateDebugCallback()
 void Device::CreateSurface()
 {
     assert(data.vkInstance && "Unable to create surface, cause vulkan instance is not valid");
-    m_window->CreateWindowSurface(data.vkInstance, data.surface);
+    UWinHandle->CreateWindowSurface(data.vkInstance, data.surface);
     assert(data.surface && "Surface creation failed");
 }
 
@@ -542,7 +536,7 @@ void Device::CreateSampler(vk::Sampler &sampler, uint32_t mip_levels, vk::Sample
     samplerInfo.maxAnisotropy = properties.limits.maxSamplerAnisotropy;
     samplerInfo.borderColor = vk::BorderColor::eIntOpaqueBlack;
     samplerInfo.unnormalizedCoordinates = VK_FALSE;
-    samplerInfo.compareEnable = VK_FALSE;
+    samplerInfo.compareEnable = VK_TRUE;
     samplerInfo.compareOp = vk::CompareOp::eAlways;
 
     samplerInfo.mipmapMode = vk::SamplerMipmapMode::eLinear;

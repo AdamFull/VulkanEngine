@@ -10,8 +10,13 @@ namespace Engine
     }
     namespace Core
     {
-        class Device;
-        class SwapChain;
+        
+        
+
+        namespace Rendering
+        {
+            class RendererBase;
+        }
 
         struct FRenderSystem
         {
@@ -24,7 +29,6 @@ namespace Engine
         {
         public:
             RenderSystem() = default;
-            RenderSystem(std::shared_ptr<Device> device, std::shared_ptr<SwapChain> swapchain);
             ~RenderSystem();
 
             RenderSystem(const RenderSystem &) = delete;
@@ -50,7 +54,8 @@ namespace Engine
             inline std::vector<vk::CommandBuffer, std::allocator<vk::CommandBuffer>> &GetCommandBuffers() { return data.vCommandBuffers; }
             inline uint32_t GetImageIndex() { return data.imageIndex; }
             inline bool GetFrameStartFlag() { return data.bFrameStarted; }
-            vk::CommandBuffer GetCurrentCommandBuffer() const;
+            inline vk::CommandBuffer GetCurrentCommandBuffer() const;
+            inline std::shared_ptr<Rendering::RendererBase> GetRenderer() { return m_pDeferredRenderer; }
 
         private:
             void Finalize(vk::CommandBuffer& commandBuffer);
@@ -60,8 +65,7 @@ namespace Engine
             
             vk::Extent2D screenExtent;
 
-            std::shared_ptr<Device> m_device;
-            std::shared_ptr<SwapChain> m_swapchain;
+            std::shared_ptr<Rendering::RendererBase> m_pDeferredRenderer;
         };
     }
 }

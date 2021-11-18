@@ -5,12 +5,13 @@
 #include "GLTFLoader.h"
 #include "Resources/ResourceManager.h"
 #include "Resources/Meshes/MeshFragment.h"
+#include "Resources/Materials/MaterialDiffuse.h"
 #include "Resources/Textures/ImageLoader.h"
 
 #include "Core/DataTypes/VulkanVertex.hpp"
-#include "Core/VulkanVBO.h"
-#include "Core/VulkanAllocator.h"
+#include "Core/VulkanHighLevel.h"
 #include "GLTFSceneNode.h"
+
 
 // Based on https://github.com/SaschaWillems/Vulkan/blob/master/base/VulkanglTFModel.cpp
 bool loadImageDataFuncEmpty(tinygltf::Image *image, const int imageIndex, std::string *error, std::string *warning, int req_width, int req_height, const unsigned char *bytes, int size, void *userData)
@@ -303,7 +304,8 @@ void GLTFLoader::LoadMeshFragment(std::shared_ptr<Resources::ResourceManager> pR
         }
         else
         {
-            modelPrim.material = vMaterials.at(current_primitive);
+            if(!vMaterials.empty())
+                modelPrim.material = vMaterials.at(current_primitive);
             current_primitive++;
         }
 
@@ -447,7 +449,7 @@ void GLTFLoader::LoadMaterials(std::shared_ptr<Resources::ResourceManager> pResM
         ss << material_index;
 
         FMaterialParams params;
-        std::shared_ptr<MaterialBase> nativeMaterial = Core::FDefaultAllocator::Allocate<MaterialDiffuse>();
+        std::shared_ptr<MaterialBase> nativeMaterial = std::make_shared<MaterialDiffuse>();
         nativeMaterial->SetName(ss.str());
 
         nativeMaterial->AddTexture(ETextureAttachmentType::eBRDFLUT, pResMgr->Get<Texture::TextureBase>(srVolumeName + "_brdf"));
@@ -528,7 +530,7 @@ std::shared_ptr<TextureBase> GLTFLoader::LoadTexture(const tinygltf::Image &imag
 
     vk::Format format;
     ktxTexture *texture;
-    auto nativeTexture = Core::FDefaultAllocator::Allocate<TextureBase>();
+    auto nativeTexture = std::make_shared<TextureBase>();
     nativeTexture->SetName(image.name);
     // nativeTexture->LoadFromMemory();
 

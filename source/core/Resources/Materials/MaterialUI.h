@@ -11,7 +11,6 @@ namespace Engine
             {
             public:
                 MaterialUI() = default;
-                MaterialUI(std::shared_ptr<Core::Device> device, std::shared_ptr<Core::SwapChain> swapchain);
 
                 void Create(std::shared_ptr<ResourceManager> pResMgr) override;
                 void ReCreate() override;

@@ -30,21 +30,6 @@ namespace Engine
                     void CreateTextures() override;
                 private:
                     std::shared_ptr<Texture::TextureBase> m_pCubemap;
-                    const std::vector<glm::mat4> matrices
-                    {
-                        // POSITIVE_X
-                        glm::rotate(glm::rotate(glm::mat4(1.0f), glm::radians(90.0f), glm::vec3(0.0f, 1.0f, 0.0f)), glm::radians(180.0f), glm::vec3(1.0f, 0.0f, 0.0f)),
-                        // NEGATIVE_X
-                        glm::rotate(glm::rotate(glm::mat4(1.0f), glm::radians(-90.0f), glm::vec3(0.0f, 1.0f, 0.0f)), glm::radians(180.0f), glm::vec3(1.0f, 0.0f, 0.0f)),
-                        // POSITIVE_Y
-                        glm::rotate(glm::mat4(1.0f), glm::radians(-90.0f), glm::vec3(1.0f, 0.0f, 0.0f)),
-                        // NEGATIVE_Y
-                        glm::rotate(glm::mat4(1.0f), glm::radians(90.0f), glm::vec3(1.0f, 0.0f, 0.0f)),
-                        // POSITIVE_Z
-                        glm::rotate(glm::mat4(1.0f), glm::radians(180.0f), glm::vec3(1.0f, 0.0f, 0.0f)),
-                        // NEGATIVE_Z
-                        glm::rotate(glm::mat4(1.0f), glm::radians(180.0f), glm::vec3(0.0f, 0.0f, 1.0f)),
-                    };
                 };
             }
         }

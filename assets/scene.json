@@ -71,7 +71,7 @@
             {
                 "name": "fight_helmet_gltf",
                 "type": "static",
-                "src": "../../assets/meshes/fireman/scene.gltf",
+                "src": "../../assets/meshes/scifigirl/scene.gltf",
                 "use_included_material": true
             },
             "transform":

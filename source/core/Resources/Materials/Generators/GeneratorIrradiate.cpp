@@ -13,7 +13,7 @@ using namespace Engine::Resources::Loaders;
 
 void GeneratorIrradiate::Create(std::shared_ptr<ResourceManager> pResMgr)
 {
-    m_iDimension = 64;
+    m_iDimension = 128;
     CreateTextures();
 
     vk::PushConstantRange constantRange{};

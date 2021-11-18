@@ -38,12 +38,12 @@ void RenderScene::Create()
     UOverlay->Create(m_pResourceManager);   //TODO: bad!
 
     //TODO: for test
-    for(uint32_t i = 0; i < 5; i++)
+    for(uint32_t i = 0; i < 10; i++)
     {
         Resources::Light::LightSourceBase light;
         light.position = glm::vec4(frandom(-8.f, 8.f), frandom(-3.f, -1.f), frandom(-8.f, 8.f), 1.f);
         light.color = glm::vec3(frandom(0.f, 1.f), frandom(0.f, 1.f), frandom(0.f, 1.f));
-        light.attenuation = frandom(0.f, 5.f);
+        light.attenuation = frandom(0.f, 10.f);
         vLights.emplace_back(light);
     }
 }

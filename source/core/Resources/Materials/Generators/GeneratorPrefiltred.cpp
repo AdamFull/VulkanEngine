@@ -13,7 +13,7 @@ using namespace Engine::Resources::Loaders;
 
 void GeneratorPrefiltred::Create(std::shared_ptr<ResourceManager> pResMgr)
 {
-    m_iDimension = 512;
+    m_iDimension = 1024;
     CreateTextures();
 
     vk::PushConstantRange constantRange{};

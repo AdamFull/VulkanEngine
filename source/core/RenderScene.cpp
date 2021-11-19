@@ -134,6 +134,15 @@ void RenderScene::CreateObjects()
             )
         },
         {
+            ETextureAttachmentType::eEmissive,
+            FRendererCreateInfo::FAttachmentInfo
+            (
+                vk::Format::eR8G8B8A8Snorm,
+                vk::ImageUsageFlagBits::eColorAttachment | vk::ImageUsageFlagBits::eSampled,
+                {std::array<float, 4>{0.0f, 0.0f, 0.0f, 0.0f}}
+            )
+        },
+        {
             ETextureAttachmentType::eMRAH,
             FRendererCreateInfo::FAttachmentInfo
             (

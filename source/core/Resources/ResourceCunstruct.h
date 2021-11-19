@@ -23,15 +23,14 @@ namespace Engine
             eLightningMask,
             eNormal,
             eDiffuseAlbedo,
-            eMRAH,
-            eDepth,
-            
             eMetalicRoughness,
             eSpecularGlossiness,
             eEmissive,
             eHeight,
             eOcclusion,
-            
+            eMRAH,
+            eDepth,
+
             eCubemap
         };
 

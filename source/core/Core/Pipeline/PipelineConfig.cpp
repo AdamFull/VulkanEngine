@@ -6,7 +6,7 @@
 using namespace Engine::Core::Pipeline;
 using namespace Engine::Core::Window;
 
-#define output_channels 5
+#define output_channels 6
 
 FPipelineCreateInfo PipelineConfig::CreateUIPipeline(vk::RenderPass renderPass, vk::PipelineLayout pipelineLayout, vk::PipelineCache pipelineCache)
 {

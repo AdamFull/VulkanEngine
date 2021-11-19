@@ -10,7 +10,8 @@ layout (set = 1, binding = 3) uniform sampler2D position_tex;
 layout (set = 1, binding = 4) uniform sampler2D lightning_mask_tex;
 layout (set = 1, binding = 5) uniform sampler2D normal_tex;
 layout (set = 1, binding = 6) uniform sampler2D albedo_tex;
-layout (set = 1, binding = 7) uniform sampler2D mrah_tex;
+layout (set = 1, binding = 7) uniform sampler2D emission_tex;
+layout (set = 1, binding = 8) uniform sampler2D mrah_tex;
 
 layout (location = 0) in vec2 inUV;
 
@@ -102,6 +103,7 @@ void main()
 	float mask = texture(lightning_mask_tex, inUV).r;
 	vec3 normal = texture(normal_tex, inUV).rgb;
 	vec4 albedo = texture(albedo_tex, inUV);
+	vec4 emission = texture(emission_tex, inUV);
 	vec4 mrah = texture(mrah_tex, inUV);
 
 	float metalic = mrah.r;
@@ -170,7 +172,7 @@ void main()
 	// Ambient part
 	//vec3 fragcolor = albedo.rgb * pow(ambient, mask);
 	float inv_mask = pow(mask, 0);
-	vec3 fragcolor = (ambient + Lo)*mask + albedo.rgb*inv_mask;
+	vec3 fragcolor = ((ambient + Lo)*mask + albedo.rgb*inv_mask) + emission.rgb;
 	//vec3 fragcolor = ambient + Lo;
 
 	// Tone mapping

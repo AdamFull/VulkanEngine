@@ -16,7 +16,8 @@ layout (location = 0) out vec4 outPosition;
 layout (location = 1) out vec4 outMask;
 layout (location = 2) out vec4 outNormal;
 layout (location = 3) out vec4 outAlbedo;
-layout (location = 4) out vec4 outMRAH;
+layout (location = 4) out vec4 outEmission;
+layout (location = 5) out vec4 outMRAH;
 
 void main() 
 {
@@ -40,5 +41,6 @@ void main()
 	float occlusion = texture(ao_tex, uv).r;
 	float height = texture(height_tex, uv).r;
 
+	outEmission = texture(emissive_tex, uv);
 	outMRAH = vec4(metalRough.gb, occlusion, 1.0);
 }

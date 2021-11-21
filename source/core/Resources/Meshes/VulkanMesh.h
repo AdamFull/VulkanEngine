@@ -50,7 +50,7 @@ namespace Engine
                 inline std::vector<FAnimation>& GetAnimations() { return m_vAnimations; }
                 inline void AddAnimation(FAnimation&& animation) { m_vAnimations.emplace_back(animation); }
 
-                inline void SetName(const std::string& srName) { m_srName = srName; }
+                void SetName(const std::string& srName);
                 inline std::string GetName() { return m_srName; }
 
             protected:

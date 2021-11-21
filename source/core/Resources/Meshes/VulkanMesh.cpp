@@ -50,3 +50,8 @@ void MeshBase::AddFragment(std::shared_ptr<MeshFragment> fragment)
 {
     m_vFragments.push_back(fragment);
 }
+
+void MeshBase::SetName(const std::string& srName)
+{
+    m_srName = srName + uuid::generate();
+}

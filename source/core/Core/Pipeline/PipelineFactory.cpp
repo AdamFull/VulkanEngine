@@ -27,7 +27,11 @@ std::map<EShaderSet, std::map<vk::ShaderStageFlagBits, std::string>> PipelineFac
       {vk::ShaderStageFlagBits::eFragment, "../../assets/shaders/compiled/prefilterenvmap/frag.spv"}}},
     {EShaderSet::eDeferred,
      {{vk::ShaderStageFlagBits::eVertex, "../../assets/shaders/compiled/deferred/vert.spv"},
-      {vk::ShaderStageFlagBits::eFragment, "../../assets/shaders/compiled/deferred/frag.spv"}}}}; 
+      {vk::ShaderStageFlagBits::eFragment, "../../assets/shaders/compiled/deferred/frag.spv"}}},
+      
+    {EShaderSet::eShadow,
+     {{vk::ShaderStageFlagBits::eVertex, "../../assets/shaders/compiled/deferred/vert.spv"},
+      {vk::ShaderStageFlagBits::eGeometry, "../../assets/shaders/compiled/deferred/frag.spv"}}}}; 
 
 std::map<EPipelineType, std::function<PipelineFactory::signature>> PipelineFactory::m_mFactory =
     {

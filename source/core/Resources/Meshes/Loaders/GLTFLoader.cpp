@@ -434,7 +434,7 @@ void GLTFLoader::LoadMaterials(std::shared_ptr<Resources::ResourceManager> pResM
             return vTextures.at(index);
         }
         
-        return pResMgr->Get<Texture::TextureBase>("no_texture");
+        return pResMgr->Get<Texture::Image>("no_texture");
     };
 
     uint32_t material_index{0};
@@ -452,9 +452,9 @@ void GLTFLoader::LoadMaterials(std::shared_ptr<Resources::ResourceManager> pResM
         std::shared_ptr<MaterialBase> nativeMaterial = std::make_shared<MaterialDiffuse>();
         nativeMaterial->SetName(ss.str());
 
-        nativeMaterial->AddTexture(ETextureAttachmentType::eBRDFLUT, pResMgr->Get<Texture::TextureBase>(srVolumeName + "_brdf"));
-        nativeMaterial->AddTexture(ETextureAttachmentType::eIrradiance, pResMgr->Get<Texture::TextureBase>(srVolumeName + "_irradiate_cube"));
-        nativeMaterial->AddTexture(ETextureAttachmentType::ePrefiltred, pResMgr->Get<Texture::TextureBase>(srVolumeName + "_prefiltred_cube"));
+        nativeMaterial->AddTexture(ETextureAttachmentType::eBRDFLUT, pResMgr->Get<Texture::Image>(srVolumeName + "_brdf"));
+        nativeMaterial->AddTexture(ETextureAttachmentType::eIrradiance, pResMgr->Get<Texture::Image>(srVolumeName + "_irradiate_cube"));
+        nativeMaterial->AddTexture(ETextureAttachmentType::ePrefiltred, pResMgr->Get<Texture::Image>(srVolumeName + "_prefiltred_cube"));
 
         nativeMaterial->AddTexture(ETextureAttachmentType::eDiffuseAlbedo, get_texture(mat.values, "baseColorTexture"));
         nativeMaterial->AddTexture(ETextureAttachmentType::eMetalicRoughness, get_texture(mat.values, "metallicRoughnessTexture"));
@@ -518,7 +518,7 @@ void GLTFLoader::LoadTextures(std::shared_ptr<ResourceManager> pResMgr, const ti
     }
 }
 
-std::shared_ptr<TextureBase> GLTFLoader::LoadTexture(const tinygltf::Image &image, std::string path)
+std::shared_ptr<Image> GLTFLoader::LoadTexture(const tinygltf::Image &image, std::string path)
 {
     bool isKtx = false;
     // Image points to an external ktx file
@@ -530,7 +530,7 @@ std::shared_ptr<TextureBase> GLTFLoader::LoadTexture(const tinygltf::Image &imag
 
     vk::Format format;
     ktxTexture *texture;
-    auto nativeTexture = std::make_shared<TextureBase>();
+    auto nativeTexture = std::make_shared<Image>();
     nativeTexture->SetName(image.name);
     // nativeTexture->LoadFromMemory();
 

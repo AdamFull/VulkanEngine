@@ -22,11 +22,11 @@ namespace Engine
                 vk::Format format;
             };
 
-            class TextureBase
+            class Image
             {
             public:
-                TextureBase() = default;
-                virtual ~TextureBase();
+                Image() = default;
+                virtual ~Image();
 
                 virtual void ReCreate();
                 virtual void Update(uint32_t imageIndex);
@@ -49,7 +49,7 @@ namespace Engine
                 void TransitionImageLayout(vk::CommandBuffer& commandBuffer, vk::ImageLayout newLayout, vk::ImageAspectFlags aspectFlags, bool use_mips = true, uint32_t base_mip = 0);
                 void TransitionImageLayout(vk::CommandBuffer& commandBuffer, vk::ImageLayout oldLayout, vk::ImageLayout newLayout, vk::ImageAspectFlags aspectFlags, bool use_mips = true, uint32_t base_mip = 0);
                 void BlitImage(vk::CommandBuffer& commandBuffer, vk::ImageLayout dstLayout, vk::ImageAspectFlags aspectFlags, uint32_t level, int32_t mipWidth, int32_t mipHeight);
-                void CopyImageToDst(vk::CommandBuffer& commandBuffer, std::shared_ptr<TextureBase> m_pDst, vk::ImageCopy& region, vk::ImageLayout dstLayout);
+                void CopyImageToDst(vk::CommandBuffer& commandBuffer, std::shared_ptr<Image> m_pDst, vk::ImageCopy& region, vk::ImageLayout dstLayout);
                 virtual void WriteImageData(ktxTexture *info, vk::Format format, vk::ImageAspectFlags aspect = vk::ImageAspectFlagBits::eColor);
                 virtual void LoadFromFile(std::string srPath);
                 virtual void LoadFromMemory(ktxTexture *info, vk::Format format);
@@ -59,7 +59,7 @@ namespace Engine
                 virtual FTextureParams &GetParams() { return fParams; }
                 virtual vk::DescriptorImageInfo &GetDescriptor() { return descriptor; }
 
-                inline void SetName(const std::string& srName) { m_srName = srName; }
+                void SetName(const std::string& srName);
                 inline std::string GetName() { return m_srName; }
 
             protected:

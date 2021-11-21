@@ -50,7 +50,7 @@ void GeneratorBase::Generate(std::shared_ptr<Mesh::MeshBase> pMesh)
 
 }
 
-std::shared_ptr<TextureBase> GeneratorBase::Get()
+std::shared_ptr<Image> GeneratorBase::Get()
 {
     return m_pGeneratedImage;
 }
@@ -152,7 +152,7 @@ void GeneratorBase::CreateTextures()
 		break;
 	}
 
-	m_pGeneratedImage = std::make_shared<TextureBase>();
+	m_pGeneratedImage = std::make_shared<Image>();
     ktxTexture *offscreen;
     ImageLoader::AllocateRawDataAsKTXTexture(&offscreen, &imageFormat, m_iDimension, m_iDimension, 1, 2, iFormat);
     m_pGeneratedImage->InitializeTexture(offscreen, imageFormat, usageFlags);

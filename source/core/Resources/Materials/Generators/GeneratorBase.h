@@ -20,7 +20,7 @@ namespace Engine
                     void Cleanup() override;
 
                     virtual void Generate(std::shared_ptr<Mesh::MeshBase> pMesh);
-                    virtual std::shared_ptr<Texture::TextureBase> Get();
+                    virtual std::shared_ptr<Texture::Image> Get();
                 protected:
                     virtual inline Core::Pipeline::EShaderSet GetShaderSet() override { return Core::Pipeline::EShaderSet::eNone; }
                     Core::Pipeline::FPipelineCreateInfo CreateInfo(Core::Pipeline::EShaderSet eSet) override;
@@ -30,7 +30,7 @@ namespace Engine
                     virtual void CreateTextures();
 
                 protected:
-                    std::shared_ptr<Texture::TextureBase> m_pGeneratedImage;
+                    std::shared_ptr<Texture::Image> m_pGeneratedImage;
                     vk::Framebuffer framebuffer;
                     vk::Format imageFormat;
                     uint32_t m_iDimension{1024};

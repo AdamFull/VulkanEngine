@@ -8,7 +8,7 @@ namespace Engine
     {
         class ResourceManager;
 
-        namespace Texture { class TextureBase; }
+        namespace Texture { class Image; }
         namespace Material { class MaterialBase; }
 
         namespace Loaders
@@ -34,14 +34,14 @@ namespace Engine
 
                 void LoadMaterials(std::shared_ptr<Resources::ResourceManager> pResMgr, const tinygltf::Model &model);
                 void LoadTextures(std::shared_ptr<Resources::ResourceManager> pResMgr, const tinygltf::Model &model);
-                std::shared_ptr<Texture::TextureBase> LoadTexture(const tinygltf::Image &model, std::string path);
+                std::shared_ptr<Texture::Image> LoadTexture(const tinygltf::Image &model, std::string path);
                 void LoadSkins(const tinygltf::Model &model);
 
                 uint32_t current_primitive;
                 std::shared_ptr<Mesh::MeshBase> m_pMesh;
                 //std::shared_ptr<Light::Point> m_pPointLights;
                 //std::shared_ptr<Camera::Base> m_pCameras;
-                std::vector<std::shared_ptr<Texture::TextureBase>> vTextures;
+                std::vector<std::shared_ptr<Texture::Image>> vTextures;
                 std::vector<std::shared_ptr<Material::MaterialBase>> vMaterials;
 
                 std::vector<std::shared_ptr<GLTFSceneNode>> m_vNodes;

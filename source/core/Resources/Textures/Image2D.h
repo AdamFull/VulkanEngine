@@ -1,5 +1,5 @@
 #pragma once
-#include "VulkanTexture.h"
+#include "Image.h"
 
 namespace Engine
 {
@@ -7,10 +7,10 @@ namespace Engine
     {
         namespace Texture
         {
-            class Texture2D : public TextureBase
+            class Image2D : public Image
             {
             public:
-                Texture2D() = default;
+                Image2D() = default;
 
                 void ReCreate() override;
                 void Update(uint32_t imageIndex) override;

@@ -5,7 +5,7 @@ namespace Engine
 {
     namespace Resources
     {
-        namespace Texture { class TextureBase; }
+        namespace Texture { class Image; }
         namespace Material { class MaterialBase; }
     }
     namespace Core

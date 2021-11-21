@@ -34,7 +34,7 @@ std::shared_ptr<MaterialBase> MaterialFactory::Create(std::shared_ptr<Resources:
     {
         for (auto &texName : info.srAttachments)
         {
-            std::shared_ptr<Texture::TextureBase> texture = resourceMgr->Get<Texture::TextureBase>(texName);
+            std::shared_ptr<Texture::Image> texture = resourceMgr->Get<Texture::Image>(texName);
             material->AddTexture(texture->GetAttachment(), texture);
         }
     }
@@ -42,8 +42,8 @@ std::shared_ptr<MaterialBase> MaterialFactory::Create(std::shared_ptr<Resources:
     {
         for (auto &texInfo : info.vTextures)
         {
-            std::shared_ptr<Texture::TextureBase> texture = Texture::TextureFactory::Create(resourceMgr, texInfo);
-            resourceMgr->AddExisting<Texture::TextureBase>(texInfo.srName, texture);
+            std::shared_ptr<Texture::Image> texture = Texture::TextureFactory::Create(resourceMgr, texInfo);
+            resourceMgr->AddExisting<Texture::Image>(texInfo.srName, texture);
             material->AddTexture(texInfo.eAttachment, texture);
         }
     }

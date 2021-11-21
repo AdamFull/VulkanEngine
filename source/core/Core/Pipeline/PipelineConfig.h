@@ -23,7 +23,8 @@ namespace Engine
                 eIrradiateCube,
                 ePrefiltred,
 
-                eDeferred
+                eDeferred,
+                eShadow
             };
 
             struct FPipelineCreateInfo

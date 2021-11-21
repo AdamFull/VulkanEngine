@@ -1,13 +1,7 @@
 #pragma once
 #include "Resources/ResourceCunstruct.h"
 #include "SceneConstruct.h"
-#include "external/gltf/json.hpp"
-
-namespace glm
-{
-    void to_json(nlohmann::json &json, const vec3 &type);
-    void from_json(const nlohmann::json &json, vec3 &type);
-}
+#include "GLMSerialization.h"
 
 namespace Engine
 {

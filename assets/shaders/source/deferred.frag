@@ -1,6 +1,6 @@
 #version 450
 #extension GL_EXT_scalar_block_layout : enable
-#define PI 3.1415926538
+#define PI 3.1415926535897932384626433832795
 
 layout (set = 1, binding = 0) uniform sampler2D brdflut_tex;
 layout (set = 1, binding = 1) uniform samplerCube irradiance_tex;
@@ -33,55 +33,7 @@ layout(std430, set = 0, binding = 0) uniform UBO
 	float gamma;
 } ubo;
 
-const vec3 Fdielectric = vec3(0.04);
-
-// Normal distribution function
-float distributionGGX(vec3 N, vec3 H, float roughness)
-{
-    float a = roughness*roughness;
-    float a2 = a*a;
-    float NdotH = max(dot(N, H), 0.0);
-    float NdotH2 = NdotH*NdotH;
-
-    float denom = (NdotH2 * (a2 - 1.0) + 1.0);
-    denom = PI * denom * denom;
-
-    return a2 / denom;
-}
-
-// Used by method below
-float geometrySchlickGGX(float NdotV, float roughness)
-{
-    float r = (roughness + 1.0);
-    float k = (r*r) / 8.0;
-
-    float denom = NdotV * (1.0 - k) + k;
-
-    return NdotV / denom;
-}
-
-// Normal distribution function. Describes self-shadowing of microfacets. When a surface is very rough,
-// microfacets can overshadow other microfacets which reduces reflected light.
-float geometrySmith(vec3 N, vec3 V, vec3 L, float roughness)
-{
-    float NdotV = max(dot(N, V), 0.0);
-    float NdotL = max(dot(N, L), 0.0);
-    float ggxL = geometrySchlickGGX(NdotL, roughness);
-    float ggxV = geometrySchlickGGX(NdotV, roughness);
-
-    return ggxL * ggxV;
-}
-
-// Describes the ratio of surface reflection at different surface angles.
-vec3 fresnelSchlick(float cosTheta, vec3 F0)
-{
-    return F0 + (1.0 - F0) * pow(1.0 - cosTheta, 5.0);
-}
-
-vec3 fresnelSchlickRoughness(float cosTheta, vec3 F0, float roughness)
-{
-    return F0 + (max(vec3(1.0 - roughness), F0) - F0) * pow(1.0 - cosTheta, 5.0);
-}
+#define ALBEDO_COLOR pow(texture(albedo_tex, inUV).rgb, vec3(1.2))
 
 // From http://filmicworlds.com/blog/filmic-tonemapping-operators/
 vec3 Uncharted2Tonemap(vec3 color)
@@ -94,6 +46,71 @@ vec3 Uncharted2Tonemap(vec3 color)
 	float F = 0.30;
 	float W = 11.2;
 	return ((color*(A*color+C*B)+D*E)/(color*(A*color+B)+D*F))-E/F;
+}
+
+// Normal Distribution function --------------------------------------
+float D_GGX(float dotNH, float roughness)
+{
+	float alpha = roughness * roughness;
+	float alpha2 = alpha * alpha;
+	float denom = dotNH * dotNH * (alpha2 - 1.0) + 1.0;
+	return (alpha2)/(PI * denom*denom); 
+}
+
+// Geometric Shadowing function --------------------------------------
+float G_SchlicksmithGGX(float dotNL, float dotNV, float roughness)
+{
+	float r = (roughness + 1.0);
+	float k = (r*r) / 8.0;
+	float GL = dotNL / (dotNL * (1.0 - k) + k);
+	float GV = dotNV / (dotNV * (1.0 - k) + k);
+	return GL * GV;
+}
+
+// Fresnel function ----------------------------------------------------
+vec3 F_Schlick(float cosTheta, vec3 F0)
+{
+	return F0 + (1.0 - F0) * pow(1.0 - cosTheta, 5.0);
+}
+vec3 F_SchlickR(float cosTheta, vec3 F0, float roughness)
+{
+	return F0 + (max(vec3(1.0 - roughness), F0) - F0) * pow(1.0 - cosTheta, 5.0);
+}
+
+vec3 prefilteredReflection(vec3 R, float roughness)
+{
+	const float MAX_REFLECTION_LOD = 9.0; // todo: param/const
+	float lod = roughness * MAX_REFLECTION_LOD;
+	float lodf = floor(lod);
+	float lodc = ceil(lod);
+	vec3 a = textureLod(prefiltred_tex, R, lodf).rgb;
+	vec3 b = textureLod(prefiltred_tex, R, lodc).rgb;
+	return mix(a, b, lod - lodf);
+}
+
+vec3 specularContribution(vec3 L, vec3 V, vec3 N, vec3 F0, vec3 lightColor, float atten, float metallic, float roughness)
+{
+	// Precalculate vectors and dot products	
+	vec3 H = normalize (V + L);
+	float dotNH = clamp(dot(N, H), 0.0, 1.0);
+	float dotNV = clamp(dot(N, V), 0.0, 1.0);
+	float dotNL = clamp(dot(N, L), 0.0, 1.0);
+
+	vec3 color = vec3(0.0);
+
+	if (dotNL > 0.0) {
+		// D = Normal distribution (Distribution of the microfacets)
+		float D = D_GGX(dotNH, roughness); 
+		// G = Geometric shadowing term (Microfacets shadowing)
+		float G = G_SchlicksmithGGX(dotNL, dotNV, roughness);
+		// F = Fresnel factor (Reflectance depending on angle of incidence)
+		vec3 F = F_Schlick(dotNV, F0);		
+		vec3 spec = D * F * G / (4.0 * dotNL * dotNV + 0.001);		
+		vec3 kD = (vec3(1.0) - F) * (1.0 - metallic);			
+		color += (kD * ALBEDO_COLOR / PI + spec) * dotNL * atten * lightColor;
+	}
+
+	return color;
 }
 
 void main() 
@@ -113,67 +130,46 @@ void main()
 
 	// Calculate direction from fragment to viewPosition
     vec3 V = normalize(ubo.viewPos - fragPos);
-
-	// Reflectance at normal incidence angle
-    vec3 F0 = mix(Fdielectric, albedo.rgb, metalic);
-
 	// Reflection vector
     vec3 R = reflect(-V, normal);
+
+	vec3 F0 = vec3(0.04); 
+	// Reflectance at normal incidence angle
+    F0 = mix(F0, ALBEDO_COLOR.rgb, metalic);
 
     // Light contribution
     vec3 Lo = vec3(0.0, 0.0, 0.0);
 
-	//outFragcolor = vec4(mrah.rgb, 1.0);
-	//return;
-	
-	for(int i = 0; i < ubo.lightCount * mask; ++i)
+	for(int i = 0; i < ubo.lightCount * mask; i++) 
 	{
 		vec3 L = normalize(ubo.lights[i].position - fragPos);
-        vec3 H = normalize(V + L);
-        float dist = length(ubo.lights[i].position - fragPos);
-
-		float attenuation = 1.0 / (dist * dist);
-        vec3 radiance = ubo.lights[i].color * attenuation;
-
-		// BRDF
-        float NDF = distributionGGX(normal, H, roughness);
-        float G = geometrySmith(normal, V, L, roughness);
-        vec3 F = fresnelSchlick(clamp(dot(H, V), 0.0, 1.0), F0);
-
-		vec3 nominator = NDF * G * F;
-        float denominator = 4 * max(dot(normal, V), 0.0) * max(dot(normal, L), 0.0);
-        vec3 specular = nominator / max(denominator, 0.001);
-
-		vec3 kS = F;
-        vec3 kD = vec3(1.0) - kS;
-        kD *= 1.0 - metalic;
-
-        float NdotL = max(dot(normal, L), 0.0);
-
-        Lo += (kD * albedo.rgb / PI + specular) * radiance * NdotL;
+		float atten = ubo.lights[i].radius / (pow(length(L), 2.0) + 1.0);
+		Lo += specularContribution(L, V, normal, F0, ubo.lights[i].color, atten, metalic, roughness);
 	}
 
-	// Calculate ambient lighting from IBL
-    vec3 F = fresnelSchlickRoughness(max(dot(normal, V), 0.0), F0, roughness);
-    vec3 kS = F;
-    vec3 kD = 1.0 - kS;
-    kD *= 1.0 - metalic;
-
+	vec2 brdf = texture(brdflut_tex, vec2(max(dot(normal, V), 0.0), roughness)).rg;
+	vec3 reflection = prefilteredReflection(R, roughness).rgb;	
 	vec3 irradiance = texture(irradiance_tex, normal).rgb;
-    vec3 diffuse = albedo.rgb * irradiance;
 
-	const float MAX_REFLECTION_LOD = 4.0;
-    vec3 prefilteredColor = textureLod(prefiltred_tex, R, roughness * MAX_REFLECTION_LOD).rgb;
-    vec2 brdf = texture(brdflut_tex, vec2(max(dot(normal, V), 0.0), roughness)).rg;
-    vec3 reflection = prefilteredColor * (kS * brdf.x + brdf.y);
+	// Diffuse based on irradiance
+	vec3 diffuse = irradiance * ALBEDO_COLOR;	
 
-    vec3 ambient = (kD * diffuse + reflection * vec3(1.5));
+	vec3 F = F_SchlickR(max(dot(normal, V), 0.0), F0, roughness);
+
+	// Specular reflectance
+	vec3 specular = reflection * (F * brdf.x + brdf.y);
+
+	// Ambient part
+	vec3 kD = 1.0 - F;
+	kD *= 1.0 - metalic;	  
+	vec3 ambient = (kD * diffuse + specular);
 
 	// Ambient part
 	//vec3 fragcolor = albedo.rgb * pow(ambient, mask);
 	float inv_mask = pow(mask, 0);
-	vec3 fragcolor = ((ambient + Lo)*mask + albedo.rgb*inv_mask) + emission.rgb;
+	vec3 fragcolor = ((ambient + Lo)*mask + ALBEDO_COLOR.rgb*inv_mask) /*+ emission.rgb*/;
 	//vec3 fragcolor = ambient + Lo;
+	//vec3 fragcolor = specular;
 
 	// Tone mapping
 	fragcolor = Uncharted2Tonemap(fragcolor * ubo.tone);

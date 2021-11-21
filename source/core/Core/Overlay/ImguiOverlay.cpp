@@ -6,7 +6,7 @@
 #include "Core/VulkanDevice.h"
 #include "Core/VulkanBuffer.h"
 #include "Resources/ResourceManager.h"
-#include "Resources/Textures/VulkanTexture.h"
+#include "Resources/Textures/Image.h"
 #include "Resources/Materials/MaterialUI.h"
 #include "Core/VulkanSwapChain.h"
 #include "Core/VulkanInitializers.h"
@@ -35,7 +35,7 @@ ImguiOverlay::~ImguiOverlay()
 
 void ImguiOverlay::Create(std::shared_ptr<ResourceManager> pResMgr)
 {
-    fontTexture = std::make_shared<TextureBase>();
+    fontTexture = std::make_shared<Image>();
     fontMaterial = std::make_shared<MaterialUI>();
     vertexBuffer = std::make_shared<VulkanBuffer>();
     indexBuffer = std::make_shared<VulkanBuffer>();

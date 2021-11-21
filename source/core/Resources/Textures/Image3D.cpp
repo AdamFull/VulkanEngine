@@ -1,35 +1,35 @@
-#include "Texture3D.h"
+#include "Image3D.h"
 #include "Noise/PerlinNoise.hpp"
 #include "Noise/FractalNoise.hpp"
 
 using namespace Engine::Resources::Texture;
 
-void Texture3D::ReCreate()
+void Image3D::ReCreate()
 {
-    TextureBase::ReCreate();
+    Image::ReCreate();
 }
 
-void Texture3D::Update(uint32_t imageIndex)
+void Image3D::Update(uint32_t imageIndex)
 {
-    TextureBase::Update(imageIndex);
+    Image::Update(imageIndex);
 }
 
-void Texture3D::Bind(vk::CommandBuffer commandBuffer, uint32_t imageIndex)
+void Image3D::Bind(vk::CommandBuffer commandBuffer, uint32_t imageIndex)
 {
-    TextureBase::Bind(commandBuffer, imageIndex);
+    Image::Bind(commandBuffer, imageIndex);
 }
 
-void Texture3D::Cleanup()
+void Image3D::Cleanup()
 {
-    TextureBase::Cleanup();
+    Image::Cleanup();
 }
 
-void Texture3D::Destroy()
+void Image3D::Destroy()
 {
-    TextureBase::Destroy();
+    Image::Destroy();
 }
 
-void Texture3D::LoadNoise(ENoisePattern ePattern, uint32_t width, uint32_t height, uint32_t depth)
+void Image3D::LoadNoise(ENoisePattern ePattern, uint32_t width, uint32_t height, uint32_t depth)
 {
     vk::Format format;
     ktxTexture *texture;
@@ -53,7 +53,7 @@ void Texture3D::LoadNoise(ENoisePattern ePattern, uint32_t width, uint32_t heigh
     UpdateDescriptor();
 }
 
-void Texture3D::GeneratePerlinNoise(ktxTexture *texture)
+void Image3D::GeneratePerlinNoise(ktxTexture *texture)
 {
     vk::DeviceSize imgSize = fParams.width * fParams.height * fParams.depth;
     texture->pData = static_cast<unsigned char *>(calloc(imgSize, sizeof(unsigned char)));
@@ -81,7 +81,7 @@ void Texture3D::GeneratePerlinNoise(ktxTexture *texture)
     }
 }
 
-void Texture3D::GenerateFractalNoise(ktxTexture *texture, uint32_t octaves, float perceptation)
+void Image3D::GenerateFractalNoise(ktxTexture *texture, uint32_t octaves, float perceptation)
 {
     vk::DeviceSize imgSize = fParams.width * fParams.height * fParams.depth;
     texture->pData = static_cast<unsigned char *>(calloc(imgSize, sizeof(unsigned char)));

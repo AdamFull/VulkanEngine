@@ -1,7 +1,7 @@
 #include "RendererBase.h"
 #include "Resources/ResourceManager.h"
 #include "Resources/Textures/ImageLoader.h"
-#include "Resources/Textures/VulkanTexture.h"
+#include "Resources/Textures/Image.h"
 #include "Resources/Materials/MaterialDeferred.h"
 #include "Core/VulkanHighLevel.h"
 
@@ -125,9 +125,9 @@ void RendererBase::CreateSampler()
     UDevice->CreateSampler(m_Sampler, 1,  vk::SamplerAddressMode::eClampToEdge);
 }
 
-std::shared_ptr<TextureBase> RendererBase::CreateImage(attachment_t attachment)
+std::shared_ptr<Image> RendererBase::CreateImage(attachment_t attachment)
 {
-    auto texture = std::make_shared<TextureBase>();
+    auto texture = std::make_shared<Image>();
     auto extent = USwapChain->GetExtent();
     ktxTexture *offscreen;
     vk::Format imageFormat;
@@ -285,7 +285,7 @@ void RendererBase::CreateMaterial(std::shared_ptr<Resources::ResourceManager> pR
 
     m_pMaterial = std::make_shared<MaterialDeferred>();
     m_pMaterial->Create(nullptr);
-    m_pMaterial->AddTexture(ETextureAttachmentType::eBRDFLUT, pResMgr->Get<TextureBase>("environment_component_brdf"));
-    m_pMaterial->AddTexture(ETextureAttachmentType::eIrradiance, pResMgr->Get<TextureBase>("environment_component_irradiate_cube"));
-    m_pMaterial->AddTexture(ETextureAttachmentType::ePrefiltred, pResMgr->Get<TextureBase>("environment_component_prefiltred_cube"));
+    m_pMaterial->AddTexture(ETextureAttachmentType::eBRDFLUT, pResMgr->Get<Image>("environment_component_brdf"));
+    m_pMaterial->AddTexture(ETextureAttachmentType::eIrradiance, pResMgr->Get<Image>("environment_component_irradiate_cube"));
+    m_pMaterial->AddTexture(ETextureAttachmentType::ePrefiltred, pResMgr->Get<Image>("environment_component_prefiltred_cube"));
 }

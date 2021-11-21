@@ -7,7 +7,7 @@ namespace Engine
     namespace Resources
     {
         class ResourceManager;
-        namespace Texture { class TextureBase; }
+        namespace Texture { class Image; }
         namespace Material { class MaterialUI; }
     }
 
@@ -57,7 +57,7 @@ namespace Engine
             void OnMonitorEvent(int monitor);
 
             std::shared_ptr<UniformBuffer> m_pUniform;
-            std::shared_ptr<Resources::Texture::TextureBase> fontTexture;
+            std::shared_ptr<Resources::Texture::Image> fontTexture;
             std::shared_ptr<Resources::Material::MaterialUI> fontMaterial;
             std::shared_ptr<VulkanBuffer> vertexBuffer;
             std::shared_ptr<VulkanBuffer> indexBuffer;

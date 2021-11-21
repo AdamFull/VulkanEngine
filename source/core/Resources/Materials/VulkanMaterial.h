@@ -1,7 +1,7 @@
 #pragma once
 #include "Core/Pipeline/VulkanPipeline.h"
 #include "Core/Pipeline/PipelineFactory.h"
-#include "Resources/Textures/VulkanTexture.h"
+#include "Resources/Textures/Image.h"
 
 #include "Core/Descriptor/DescriptorPool.h"
 #include "Core/Descriptor/DescriptorSetContainer.h"
@@ -14,7 +14,7 @@ namespace Engine
     namespace Resources
     {
         class ResourceManager;
-        namespace Texture { class TextureBase; }
+        namespace Texture { class Image; }
         namespace Material
         {
             struct FMaterialParams
@@ -41,7 +41,7 @@ namespace Engine
 
                 virtual void Create(std::shared_ptr<ResourceManager> pResMgr);
                 void AddTexture(ETextureAttachmentType eAttachment, vk::DescriptorImageInfo& descriptor);
-                void AddTexture(ETextureAttachmentType eAttachment, std::shared_ptr<Texture::TextureBase> pTexture);
+                void AddTexture(ETextureAttachmentType eAttachment, std::shared_ptr<Texture::Image> pTexture);
                 vk::DescriptorImageInfo& GetTexture(ETextureAttachmentType eAttachment);
                 virtual void ReCreate();
                 virtual void Update(vk::DescriptorBufferInfo& uboDesc, uint32_t imageIndex);
@@ -50,7 +50,7 @@ namespace Engine
 
                 inline void SetParams(FMaterialParams &&params) { m_fMatParams = params; }
 
-                inline void SetName(const std::string& srName) { m_srName = srName; }
+                void SetName(const std::string& srName);
                 inline std::string GetName() { return m_srName; }
 
             protected:

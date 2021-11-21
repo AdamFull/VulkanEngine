@@ -8,10 +8,10 @@ namespace Engine
         class ResourceManager;
         namespace Texture
         {
-            class TextureBase;
+            class Image;
             struct TextureFactory
             {
-                using texture_t = std::unique_ptr<TextureBase>;
+                using texture_t = std::unique_ptr<Image>;
 
             public:
                 static texture_t Create(std::shared_ptr<ResourceManager> resourceMgr, FTextureCreateInfo info);

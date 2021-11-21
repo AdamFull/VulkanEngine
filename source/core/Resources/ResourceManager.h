@@ -1,7 +1,7 @@
 #pragma once
 #include "ResourceCunstruct.h"
 
-#include "Textures/VulkanTexture.h"
+#include "Textures/Image.h"
 #include "Materials/VulkanMaterial.h"
 #include "Meshes/MeshFragment.h"
 
@@ -47,7 +47,7 @@ namespace Engine
 
             /*******************************For texture****************************/
             template <>
-            void AddExisting<Texture::TextureBase>(std::string srResourceName, std::shared_ptr<Texture::TextureBase> pResource)
+            void AddExisting<Texture::Image>(std::string srResourceName, std::shared_ptr<Texture::Image> pResource)
             {
                 auto it = m_mTextures.find(srResourceName);
                 if (it != m_mTextures.end())
@@ -56,15 +56,15 @@ namespace Engine
             }
 
             template <>
-            std::shared_ptr<Texture::TextureBase> ResourceManager::Add(FTextureCreateInfo info)
+            std::shared_ptr<Texture::Image> ResourceManager::Add(FTextureCreateInfo info)
             {
-                std::shared_ptr<Texture::TextureBase> texture = Texture::TextureFactory::Create(shared_from_this(), info);
+                std::shared_ptr<Texture::Image> texture = Texture::TextureFactory::Create(shared_from_this(), info);
                 AddExisting(info.srName, texture);
                 return nullptr;
             }
 
             template <>
-            std::shared_ptr<Texture::TextureBase> Get(std::string srResourceName)
+            std::shared_ptr<Texture::Image> Get(std::string srResourceName)
             {
                 auto it = m_mTextures.find(srResourceName);
                 if (it != m_mTextures.end())
@@ -73,7 +73,7 @@ namespace Engine
             }
 
             template <>
-            void Destroy<Texture::TextureBase>(std::string srResourceName)
+            void Destroy<Texture::Image>(std::string srResourceName)
             {
                 auto it = m_mTextures.find(srResourceName);
                 if (it != m_mTextures.end())
@@ -156,7 +156,7 @@ namespace Engine
             void DestroyAll();
 
         private:
-            std::map<std::string, std::shared_ptr<Texture::TextureBase>> m_mTextures;
+            std::map<std::string, std::shared_ptr<Texture::Image>> m_mTextures;
             std::map<std::string, std::shared_ptr<Material::MaterialBase>> m_mMaterials;
             std::map<std::string, std::shared_ptr<Mesh::MeshFragment>> m_mMeshes;
         };

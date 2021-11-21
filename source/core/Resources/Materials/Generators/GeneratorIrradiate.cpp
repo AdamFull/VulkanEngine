@@ -118,7 +118,7 @@ void GeneratorIrradiate::Generate(std::shared_ptr<Mesh::MeshBase> pMesh)
     UDevice->EndSingleTimeCommands(tempBuffer);
 }
 
-std::shared_ptr<TextureBase> GeneratorIrradiate::Get()
+std::shared_ptr<Image> GeneratorIrradiate::Get()
 {
     return m_pCubemap;
 }
@@ -127,7 +127,7 @@ void GeneratorIrradiate::CreateTextures()
 {
     GeneratorBase::CreateTextures();
 
-    m_pCubemap = std::make_shared<TextureBase>();
+    m_pCubemap = std::make_shared<Image>();
     ktxTexture *cubemap;
     ImageLoader::AllocateRawDataAsKTXTextureCubemap(&cubemap, &imageFormat, m_iDimension, m_iDimension, 1, 2, 0x8814, true);
     m_pCubemap->InitializeTexture(cubemap, imageFormat, vk::ImageUsageFlagBits::eSampled | vk::ImageUsageFlagBits::eTransferDst);

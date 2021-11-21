@@ -1,28 +1,5 @@
 #include "JsonSerializer.h"
 
-// Add errors for some types
-
-namespace glm
-{
-    void to_json(nlohmann::json &json, const vec3 &type)
-    {
-        json = nlohmann::json{
-            {"x", type.x},
-            {"y", type.y},
-            {"x", type.z}};
-    }
-
-    void from_json(const nlohmann::json &json, vec3 &type)
-    {
-        if (json.find("x") != json.end())
-            json.at("x").get_to(type.x);
-        if (json.find("y") != json.end())
-            json.at("y").get_to(type.y);
-        if (json.find("z") != json.end())
-            json.at("z").get_to(type.z);
-    }
-}
-
 namespace Engine
 {
     namespace Resources

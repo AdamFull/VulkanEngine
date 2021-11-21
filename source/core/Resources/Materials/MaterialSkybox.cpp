@@ -10,7 +10,7 @@ void MaterialSkybox::Create(std::shared_ptr<ResourceManager> pResMgr)
 {
     renderPass = URenderer->GetRenderer()->GetRenderPass();
 
-    //m_mTextures[ETextureAttachmentType::eCubemap] = pResMgr->Get<Texture::TextureBase>("environment_component_prefiltred_cube");
+    //m_mTextures[ETextureAttachmentType::eCubemap] = pResMgr->Get<Texture::Image>("environment_component_prefiltred_cube");
 
     MaterialBase::Create(pResMgr);
 }

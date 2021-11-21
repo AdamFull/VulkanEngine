@@ -53,7 +53,7 @@ void MaterialBase::AddTexture(ETextureAttachmentType eAttachment, vk::Descriptor
     m_mTextures[eAttachment] = descriptor;
 }
 
-void MaterialBase::AddTexture(ETextureAttachmentType eAttachment, std::shared_ptr<Texture::TextureBase> pTexture)
+void MaterialBase::AddTexture(ETextureAttachmentType eAttachment, std::shared_ptr<Texture::Image> pTexture)
 {
     m_mTextures[eAttachment] = pTexture->GetDescriptor();
 }
@@ -115,4 +115,9 @@ void MaterialBase::CreatePipelineCache()
 {
     vk::PipelineCacheCreateInfo pipelineCacheCreateInfo = {};
     pipelineCache = UDevice->GetLogical().createPipelineCache(pipelineCacheCreateInfo);
+}
+
+void MaterialBase::SetName(const std::string& srName)
+{
+    m_srName = srName + uuid::generate();
 }

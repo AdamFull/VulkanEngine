@@ -24,14 +24,14 @@ namespace Engine
 
                     void Create(std::shared_ptr<ResourceManager> pResMgr) override;
                     void Generate(std::shared_ptr<Mesh::MeshBase> pMesh) override;
-                    std::shared_ptr<Texture::TextureBase> Get() override;
+                    std::shared_ptr<Texture::Image> Get() override;
                 protected:
                     inline Core::Pipeline::EShaderSet GetShaderSet() override { return Core::Pipeline::EShaderSet::eIrradiateCube; }
                     void CreateDescriptors(uint32_t images) override;
                     void CreateTextures() override;
 
                 private:
-                    std::shared_ptr<Texture::TextureBase> m_pCubemap;
+                    std::shared_ptr<Texture::Image> m_pCubemap;
                 };
             }
         }

@@ -86,3 +86,8 @@ void MeshFragment::Destroy()
 {
 
 }
+
+void MeshFragment::SetName(const std::string& srName)
+{
+    m_srName = srName + uuid::generate();
+}

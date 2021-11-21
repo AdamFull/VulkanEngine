@@ -52,7 +52,7 @@ namespace Engine
                 inline void SetLocalMatrix(glm::mat4 matrix) { m_mMatrix = matrix; }
                 inline glm::mat4& GetLocalMatrix() { return m_mMatrix; }
 
-                inline void SetName(const std::string& srName) { m_srName = srName; }
+                void SetName(const std::string& srName);
                 inline std::string GetName() { return m_srName; }
 
             protected:

@@ -22,6 +22,8 @@
 
 #include "external/EasyDelegate/EasyDelegateImpl.hpp"
 
+#include "util/uuid.hpp"
+
 #include <cassert>
 #include <iostream>
 #include <fstream>

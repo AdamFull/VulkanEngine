@@ -1,11 +1,11 @@
-#include "VulkanTexture.h"
+#include "Image.h"
 #include "Core/VulkanHighLevel.h"
 
 using namespace Engine::Resources;
 using namespace Engine::Resources::Texture;
 using namespace Engine::Resources::Loaders;
 
-TextureBase::~TextureBase()
+Image::~Image()
 {
     UDevice->Destroy(image);
     UDevice->Destroy(view);
@@ -15,46 +15,46 @@ TextureBase::~TextureBase()
         UDevice->Destroy(sampler);
 }
 
-void TextureBase::ReCreate()
+void Image::ReCreate()
 {
 
 }
 
-void TextureBase::Update(uint32_t imageIndex)
+void Image::Update(uint32_t imageIndex)
 {
     UpdateDescriptor();
 }
 
-void TextureBase::Bind(vk::CommandBuffer commandBuffer, uint32_t imageIndex)
+void Image::Bind(vk::CommandBuffer commandBuffer, uint32_t imageIndex)
 {
 }
 
-void TextureBase::Cleanup()
+void Image::Cleanup()
 {
 }
 
-void TextureBase::Destroy()
+void Image::Destroy()
 {
 }
 
-void TextureBase::UpdateDescriptor()
+void Image::UpdateDescriptor()
 {
     descriptor.sampler = sampler;
     descriptor.imageView = view;
     descriptor.imageLayout = imageLayout;
 }
 
-void TextureBase::SetAttachment(ETextureAttachmentType eAttachment)
+void Image::SetAttachment(ETextureAttachmentType eAttachment)
 {
     attachment = eAttachment;
 }
 
-ETextureAttachmentType TextureBase::GetAttachment()
+ETextureAttachmentType Image::GetAttachment()
 {
     return attachment;
 }
 
-void TextureBase::GenerateMipmaps(vk::Image &image, uint32_t mipLevels, vk::Format format, uint32_t width, uint32_t height, vk::ImageAspectFlags aspectFlags)
+void Image::GenerateMipmaps(vk::Image &image, uint32_t mipLevels, vk::Format format, uint32_t width, uint32_t height, vk::ImageAspectFlags aspectFlags)
 {
     vk::FormatProperties formatProperties;
     UDevice->GetPhysical().getFormatProperties(format, &formatProperties);
@@ -86,7 +86,7 @@ void TextureBase::GenerateMipmaps(vk::Image &image, uint32_t mipLevels, vk::Form
     UDevice->EndSingleTimeCommands(commandBuffer);
 }
 
-vk::ImageType TextureBase::TypeFromKtx(uint32_t type)
+vk::ImageType Image::TypeFromKtx(uint32_t type)
 {
     switch (type)
     {
@@ -102,7 +102,7 @@ vk::ImageType TextureBase::TypeFromKtx(uint32_t type)
     }
 }
 
-void TextureBase::LoadFromFile(std::string srPath)
+void Image::LoadFromFile(std::string srPath)
 {
     ktxTexture *texture;
     vk::Format format;
@@ -113,13 +113,13 @@ void TextureBase::LoadFromFile(std::string srPath)
     ImageLoader::Close(&texture);
 }
 
-void TextureBase::SetSampler(vk::Sampler& internalSampler)
+void Image::SetSampler(vk::Sampler& internalSampler)
 {
     bUsingInternalSampler = true;
     sampler = internalSampler;
 }
 
-void TextureBase::CreateEmptyTexture(uint32_t width, uint32_t height, uint32_t depth, uint32_t dims, uint32_t internalFormat, bool allocate_mem)
+void Image::CreateEmptyTexture(uint32_t width, uint32_t height, uint32_t depth, uint32_t dims, uint32_t internalFormat, bool allocate_mem)
 {
     vk::Format format;
     ktxTexture *texture;
@@ -138,7 +138,7 @@ void TextureBase::CreateEmptyTexture(uint32_t width, uint32_t height, uint32_t d
     ImageLoader::Close(&texture);
 }
 
-void TextureBase::InitializeTexture(ktxTexture *info, vk::Format format, vk::ImageUsageFlags flags, vk::ImageAspectFlags aspect)
+void Image::InitializeTexture(ktxTexture *info, vk::Format format, vk::ImageUsageFlags flags, vk::ImageAspectFlags aspect)
 {
     vk::PhysicalDeviceProperties devprops;
     UDevice->GetPhysical().getProperties(&devprops);
@@ -223,19 +223,19 @@ void TextureBase::InitializeTexture(ktxTexture *info, vk::Format format, vk::Ima
     //imageLayout = vk::ImageLayout::eShaderReadOnlyOptimal;
 }
 
-void TextureBase::TransitionImageLayout(vk::ImageLayout newLayout, vk::ImageAspectFlags aspectFlags, bool use_mips)
+void Image::TransitionImageLayout(vk::ImageLayout newLayout, vk::ImageAspectFlags aspectFlags, bool use_mips)
 {
     vk::CommandBuffer commandBuffer = UDevice->BeginSingleTimeCommands();
     TransitionImageLayout(commandBuffer, imageLayout, newLayout, aspectFlags, use_mips);
     UDevice->EndSingleTimeCommands(commandBuffer);
 }
 
-void TextureBase::TransitionImageLayout(vk::CommandBuffer& commandBuffer, vk::ImageLayout newLayout, vk::ImageAspectFlags aspectFlags, bool use_mips, uint32_t base_mip)
+void Image::TransitionImageLayout(vk::CommandBuffer& commandBuffer, vk::ImageLayout newLayout, vk::ImageAspectFlags aspectFlags, bool use_mips, uint32_t base_mip)
 {
     TransitionImageLayout(commandBuffer, imageLayout, newLayout, aspectFlags, use_mips, base_mip);
 }
 
-void TextureBase::TransitionImageLayout(vk::CommandBuffer& commandBuffer, vk::ImageLayout oldLayout, vk::ImageLayout newLayout, vk::ImageAspectFlags aspectFlags, bool use_mips, uint32_t base_mip)
+void Image::TransitionImageLayout(vk::CommandBuffer& commandBuffer, vk::ImageLayout oldLayout, vk::ImageLayout newLayout, vk::ImageAspectFlags aspectFlags, bool use_mips, uint32_t base_mip)
 {
     std::vector<vk::ImageMemoryBarrier> vBarriers;
     vk::ImageMemoryBarrier barrier{};
@@ -252,7 +252,7 @@ void TextureBase::TransitionImageLayout(vk::CommandBuffer& commandBuffer, vk::Im
     imageLayout = newLayout;
 }
 
-void TextureBase::BlitImage(vk::CommandBuffer& commandBuffer, vk::ImageLayout dstLayout, vk::ImageAspectFlags aspectFlags, uint32_t level, int32_t mipWidth, int32_t mipHeight)
+void Image::BlitImage(vk::CommandBuffer& commandBuffer, vk::ImageLayout dstLayout, vk::ImageAspectFlags aspectFlags, uint32_t level, int32_t mipWidth, int32_t mipHeight)
 {
     vk::ImageBlit blit{};
     blit.srcOffsets[0] = vk::Offset3D{0, 0, 0};
@@ -271,12 +271,12 @@ void TextureBase::BlitImage(vk::CommandBuffer& commandBuffer, vk::ImageLayout ds
     commandBuffer.blitImage(image, imageLayout, image, dstLayout, 1, &blit, vk::Filter::eLinear);
 }
 
-void TextureBase::CopyImageToDst(vk::CommandBuffer& commandBuffer, std::shared_ptr<TextureBase> m_pDst, vk::ImageCopy& region, vk::ImageLayout dstLayout)
+void Image::CopyImageToDst(vk::CommandBuffer& commandBuffer, std::shared_ptr<Image> m_pDst, vk::ImageCopy& region, vk::ImageLayout dstLayout)
 {
     commandBuffer.copyImage(image, imageLayout, m_pDst->image, dstLayout, 1, &region);
 }
 
-void TextureBase::WriteImageData(ktxTexture *info, vk::Format format, vk::ImageAspectFlags aspect)
+void Image::WriteImageData(ktxTexture *info, vk::Format format, vk::ImageAspectFlags aspect)
 {
     vk::DeviceSize imgSize = info->dataSize;
 
@@ -331,14 +331,19 @@ void TextureBase::WriteImageData(ktxTexture *info, vk::Format format, vk::ImageA
     }
 }
 
-void TextureBase::LoadFromMemory(ktxTexture *info, vk::Format format)
+void Image::LoadFromMemory(ktxTexture *info, vk::Format format)
 {
     InitializeTexture(info, format);
     WriteImageData(info, format);
     UpdateDescriptor();
 }
 
-void TextureBase::SetImageLayout(vk::ImageLayout layout)
+void Image::SetImageLayout(vk::ImageLayout layout)
 {
     imageLayout = layout;
+}
+
+void Image::SetName(const std::string& srName)
+{
+    m_srName = srName + uuid::generate();
 }

@@ -5,7 +5,7 @@ namespace Engine
 {
     namespace Resources
     { 
-        namespace Texture { class TextureBase; }
+        namespace Texture { class Image; }
     }
     namespace Objects
     {
@@ -22,10 +22,10 @@ namespace Engine
                 void Cleanup() override;
                 void Destroy() override;
 
-                inline void SetTexture(std::shared_ptr<Resources::Texture::TextureBase> pTexture) { m_pTexture = pTexture; }
+                inline void SetTexture(std::shared_ptr<Resources::Texture::Image> pTexture) { m_pTexture = pTexture; }
             
             private:
-                std::shared_ptr<Resources::Texture::TextureBase> m_pTexture;
+                std::shared_ptr<Resources::Texture::Image> m_pTexture;
             };
         }
     }

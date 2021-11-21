@@ -22,7 +22,7 @@ namespace Engine
     namespace Resources
     {
         class ResourceManager;
-        namespace Texture { class TextureBase; }
+        namespace Texture { class Image; }
         namespace Material { class MaterialBase; }
     }
     namespace Core
@@ -58,7 +58,7 @@ namespace Engine
         };
 
         using texture_type_t = Resources::ETextureAttachmentType;
-        using image_map_t = std::map<texture_type_t, std::shared_ptr<Resources::Texture::TextureBase>>;
+        using image_map_t = std::map<texture_type_t, std::shared_ptr<Resources::Texture::Image>>;
         using attachment_t = FRendererCreateInfo::FAttachmentInfo;
         using attachments_map_t = std::map<texture_type_t, attachment_t>;
         using renderer_type_t = FRendererCreateInfo::ERendererType;
@@ -84,14 +84,14 @@ namespace Engine
                 inline attachment_t& GetBepthAttachment() { return m_DepthAttachment; }
             protected:
                 void CreateSampler();
-                std::shared_ptr<Resources::Texture::TextureBase> CreateImage(attachment_t attachment);
+                std::shared_ptr<Resources::Texture::Image> CreateImage(attachment_t attachment);
                 void CreateImages();
                 void CreateRenderPass();
                 void CreateFramebuffers();
                 void CreateMaterial(std::shared_ptr<Resources::ResourceManager> pResMgr);
 
                 std::vector<image_map_t> m_vImages;
-                std::shared_ptr<Resources::Texture::TextureBase> m_DepthImage;
+                std::shared_ptr<Resources::Texture::Image> m_DepthImage;
                 vk::Sampler m_Sampler;
 
                 vk::RenderPass m_RenderPass;

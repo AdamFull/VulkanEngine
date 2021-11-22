@@ -69,13 +69,15 @@ namespace Engine
             {
             public:
                 RendererBase() = default;
-                ~RendererBase();
+                virtual ~RendererBase();
 
-                void Create(FRendererCreateInfo createInfo, std::shared_ptr<Resources::ResourceManager> pResMgr);
-                std::shared_ptr<vk::RenderPassBeginInfo> CreateRenderPassCI(uint32_t imageIndex);
+                virtual void Create(std::shared_ptr<Resources::ResourceManager> pResMgr);
                 void ReCreate(uint32_t framesInFlight);
                 void Update(vk::CommandBuffer& commandBuffer, void* data);
                 void Cleanup();
+
+                void BeginRender(vk::CommandBuffer& commandBuffer);
+                void EndRender(vk::CommandBuffer& commandBuffer);
 
                 inline vk::RenderPass& GetRenderPass() { return m_RenderPass; }
                 inline vk::Framebuffer& GetFramebuffer(uint32_t imageIndex) { return m_vFramebuffers.at(imageIndex); }
@@ -88,7 +90,7 @@ namespace Engine
                 void CreateImages();
                 void CreateRenderPass();
                 void CreateFramebuffers();
-                void CreateMaterial(std::shared_ptr<Resources::ResourceManager> pResMgr);
+                virtual void CreateMaterial(std::shared_ptr<Resources::ResourceManager> pResMgr);
 
                 std::vector<image_map_t> m_vImages;
                 std::shared_ptr<Resources::Texture::Image> m_DepthImage;

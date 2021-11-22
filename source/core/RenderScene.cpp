@@ -93,75 +93,7 @@ void RenderScene::CreateObjects()
 {
     UVBO->Create();
     m_pEnvironment->Create(m_pResourceManager);
-
-    FRendererCreateInfo rendererCI;
-    rendererCI.vColorAttachments = 
-    {
-        {
-            ETextureAttachmentType::ePosition,
-            FRendererCreateInfo::FAttachmentInfo
-            (
-                vk::Format::eR16G16B16A16Sfloat,
-                vk::ImageUsageFlagBits::eColorAttachment | vk::ImageUsageFlagBits::eSampled,
-                {std::array<float, 4>{0.0f, 0.0f, 0.0f, 0.0f}}
-            )
-        },
-        {
-            ETextureAttachmentType::eLightningMask,
-            FRendererCreateInfo::FAttachmentInfo
-            (
-                vk::Format::eR16G16B16A16Sfloat,
-                vk::ImageUsageFlagBits::eColorAttachment | vk::ImageUsageFlagBits::eSampled,
-                {std::array<float, 4>{0.0f, 0.0f, 0.0f, 0.0f}}
-            )
-        },
-        {
-            ETextureAttachmentType::eNormal,
-            FRendererCreateInfo::FAttachmentInfo
-            (
-                vk::Format::eR16G16B16A16Sfloat,
-                vk::ImageUsageFlagBits::eColorAttachment | vk::ImageUsageFlagBits::eSampled,
-                {std::array<float, 4>{0.0f, 0.0f, 0.0f, 0.0f}}
-            )
-        },
-        {
-            ETextureAttachmentType::eDiffuseAlbedo,
-            FRendererCreateInfo::FAttachmentInfo
-            (
-                vk::Format::eR8G8B8A8Snorm,
-                vk::ImageUsageFlagBits::eColorAttachment | vk::ImageUsageFlagBits::eSampled,
-                {std::array<float, 4>{0.0f, 0.0f, 0.0f, 0.0f}}
-            )
-        },
-        {
-            ETextureAttachmentType::eEmissive,
-            FRendererCreateInfo::FAttachmentInfo
-            (
-                vk::Format::eR8G8B8A8Snorm,
-                vk::ImageUsageFlagBits::eColorAttachment | vk::ImageUsageFlagBits::eSampled,
-                {std::array<float, 4>{0.0f, 0.0f, 0.0f, 0.0f}}
-            )
-        },
-        {
-            ETextureAttachmentType::eMRAH,
-            FRendererCreateInfo::FAttachmentInfo
-            (
-                vk::Format::eR8G8B8A8Snorm,
-                vk::ImageUsageFlagBits::eColorAttachment | vk::ImageUsageFlagBits::eSampled,
-                {std::array<float, 4>{0.0f, 0.0f, 0.0f, 0.0f}}
-            )
-        }
-    };
-
-    rendererCI.depthAttachment = 
-    FRendererCreateInfo::FAttachmentInfo
-    (
-        vk::Format::eR32Sfloat,
-        vk::ImageUsageFlagBits::eDepthStencilAttachment | vk::ImageUsageFlagBits::eSampled,
-        {std::array<float, 4>{0.0f, 0.0f, 0.0f, 0.0f}}
-    );
-
-    URenderer->GetRenderer()->Create(rendererCI, m_pResourceManager);
+    URenderer->GetRenderer()->Create(m_pResourceManager);
 
     m_pSkybox->Create(m_pResourceManager);
     m_pRoot->Create(m_pResourceManager);

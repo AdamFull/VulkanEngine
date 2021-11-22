@@ -1,7 +1,7 @@
 #include "VulkanHighLevel.h"
 #include "Resources/Textures/ImageLoader.h"
 #include "VulkanStaticHelper.h"
-#include "Rendering/RendererBase.h"
+#include "Rendering/DeferredRenderer.h"
 #include "VulkanInitializers.h"
 
 using namespace Engine::Core;
@@ -19,7 +19,7 @@ void RenderSystem::Create()
 {
     screenExtent = USwapChain->GetExtent();
 
-    m_pDeferredRenderer = std::make_shared<Rendering::RendererBase>();
+    m_pDeferredRenderer = std::make_shared<Rendering::DeferredRenderer>();
     CreateCommandBuffers();
 }
 
@@ -66,45 +66,14 @@ void RenderSystem::BeginRender(vk::CommandBuffer& commandBuffer)
 {
     assert(data.bFrameStarted && "Can't call beginSwapChainRenderPass if frame is not in progress");
     assert(commandBuffer == GetCurrentCommandBuffer() && "Can't begin render pass on command buffer from a different frame");
-
-    auto extent = USwapChain->GetExtent();
-    auto attachments = m_pDeferredRenderer->GetColorAttachments();
-
-    std::vector<vk::ClearValue> clearValues{};
-    for(auto& [attachment, param] : attachments)
-    {
-        vk::ClearValue clearValue{};
-        clearValue.color = param.color;
-        clearValues.emplace_back(clearValue);
-    }
-
-    //Clear depth
-    vk::ClearValue clearValue{};
-    clearValue.depthStencil = vk::ClearDepthStencilValue{1.f, 0};
-    clearValues.emplace_back(clearValue);
-
-    vk::RenderPassBeginInfo renderPassInfo{};
-    renderPassInfo.renderPass = m_pDeferredRenderer->GetRenderPass();
-    renderPassInfo.framebuffer = m_pDeferredRenderer->GetFramebuffer(data.imageIndex);
-    renderPassInfo.renderArea.offset = vk::Offset2D{0, 0};
-    renderPassInfo.renderArea.extent = extent;
-    renderPassInfo.clearValueCount = static_cast<uint32_t>(clearValues.size());
-    renderPassInfo.pClearValues = clearValues.data();
-
-    commandBuffer.beginRenderPass(renderPassInfo, vk::SubpassContents::eInline);
-
-    vk::Viewport viewport = Initializers::Viewport(screenExtent.width, screenExtent.height);
-    vk::Rect2D scissor{{0, 0}, screenExtent};
-
-    commandBuffer.setViewport(0, 1, &viewport);
-    commandBuffer.setScissor(0, 1, &scissor);
+    m_pDeferredRenderer->BeginRender(commandBuffer);
 }
 
 void RenderSystem::EndRender(vk::CommandBuffer& commandBuffer)
 {
     assert(data.bFrameStarted && "Can't call endSwapChainRenderPass if frame is not in progress");
     assert(commandBuffer == GetCurrentCommandBuffer() && "Can't end render pass on command buffer from a different frame");
-    commandBuffer.endRenderPass();
+    m_pDeferredRenderer->EndRender(commandBuffer);
 }
 
 void RenderSystem::BeginPostProcess(vk::CommandBuffer& commandBuffer)

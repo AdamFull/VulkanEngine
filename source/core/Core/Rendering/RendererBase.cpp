@@ -2,31 +2,14 @@
 #include "Resources/ResourceManager.h"
 #include "Resources/Textures/ImageLoader.h"
 #include "Resources/Textures/Image.h"
-#include "Resources/Materials/MaterialDeferred.h"
 #include "Core/VulkanHighLevel.h"
+#include "Core/VulkanInitializers.h"
 
 using namespace Engine::Core;
 using namespace Engine::Core::Rendering;
 using namespace Engine::Resources;
 using namespace Engine::Resources::Loaders;
 using namespace Engine::Resources::Texture;
-using namespace Engine::Resources::Material;
-
-// void FImageData::Destroy(std::shared_ptr<Device> device)
-// {
-//     device->Destroy(view);
-//     device->Destroy(image);
-//     device->Destroy(memory);
-// }
-
-// vk::DescriptorImageInfo FImageData::GetDescriptor(vk::Sampler& sampler)
-// {
-//     vk::DescriptorImageInfo descriptor{};
-//     descriptor.imageView = view;
-//     descriptor.imageLayout = layout;
-//     descriptor.sampler = sampler;
-//     return descriptor;
-// }
 
 RendererBase::~RendererBase()
 {
@@ -34,49 +17,19 @@ RendererBase::~RendererBase()
 }
 
 
-void RendererBase::Create(FRendererCreateInfo createInfo, std::shared_ptr<Resources::ResourceManager> pResMgr)
+void RendererBase::Create(std::shared_ptr<Resources::ResourceManager> pResMgr)
 {
     auto framesInFlight = USwapChain->GetFramesInFlight();
     m_pUniform = std::make_shared<UniformBuffer>();
     m_pUniform->Create(framesInFlight, sizeof(FLightningData));
 
-    m_vColorAttachments = std::move(createInfo.vColorAttachments);
-    m_DepthAttachment = createInfo.depthAttachment;
     m_DepthAttachment.format = UDevice->GetDepthFormat();
-    m_eRendererType = createInfo.eRendererType;
 
     CreateSampler();
     CreateImages();
     CreateRenderPass();
     CreateFramebuffers();
     CreateMaterial(pResMgr);
-}
-
-std::shared_ptr<vk::RenderPassBeginInfo> RendererBase::CreateRenderPassCI(uint32_t imageIndex)
-{
-    auto extent = USwapChain->GetExtent();
-    std::vector<vk::ClearValue> clearValues{};
-    for(auto& [attachment, param] : m_vColorAttachments)
-    {
-        vk::ClearValue clearValue{};
-        clearValue.color = param.color;
-        clearValues.emplace_back(clearValue);
-    }
-
-    //Clear depth
-    vk::ClearValue clearValue{};
-    clearValue.depthStencil = vk::ClearDepthStencilValue{1.f, 0};
-    clearValues.emplace_back(clearValue);
-
-    auto renderPassInfo = std::make_shared<vk::RenderPassBeginInfo>();
-    renderPassInfo->renderPass = m_RenderPass;
-    renderPassInfo->framebuffer = m_vFramebuffers.at(imageIndex);
-    renderPassInfo->renderArea.offset = vk::Offset2D{0, 0};
-    renderPassInfo->renderArea.extent = extent;
-    renderPassInfo->clearValueCount = static_cast<uint32_t>(clearValues.size());
-    renderPassInfo->pClearValues = clearValues.data();
-
-    return renderPassInfo;
 }
 
 void RendererBase::ReCreate(uint32_t framesInFlight)
@@ -118,6 +71,46 @@ void RendererBase::Cleanup()
     UDevice->Destroy(m_Sampler);
 
     m_vImages.clear();
+}
+
+void RendererBase::BeginRender(vk::CommandBuffer& commandBuffer)
+{
+    auto extent = USwapChain->GetExtent();
+    auto imageIndex = USwapChain->GetCurrentFrame();
+
+    std::vector<vk::ClearValue> clearValues{};
+    for(auto& [attachment, param] : m_vColorAttachments)
+    {
+        vk::ClearValue clearValue{};
+        clearValue.color = param.color;
+        clearValues.emplace_back(clearValue);
+    }
+
+    //Clear depth
+    vk::ClearValue clearValue{};
+    clearValue.depthStencil = vk::ClearDepthStencilValue{1.f, 0};
+    clearValues.emplace_back(clearValue);
+
+    vk::RenderPassBeginInfo renderPassInfo{};
+    renderPassInfo.renderPass = GetRenderPass();
+    renderPassInfo.framebuffer = GetFramebuffer(imageIndex);
+    renderPassInfo.renderArea.offset = vk::Offset2D{0, 0};
+    renderPassInfo.renderArea.extent = extent;
+    renderPassInfo.clearValueCount = static_cast<uint32_t>(clearValues.size());
+    renderPassInfo.pClearValues = clearValues.data();
+
+    commandBuffer.beginRenderPass(renderPassInfo, vk::SubpassContents::eInline);
+
+    vk::Viewport viewport = Initializers::Viewport(extent.width, extent.height);
+    vk::Rect2D scissor{{0, 0}, extent};
+
+    commandBuffer.setViewport(0, 1, &viewport);
+    commandBuffer.setScissor(0, 1, &scissor);
+}
+
+void RendererBase::EndRender(vk::CommandBuffer& commandBuffer)
+{
+    commandBuffer.endRenderPass();
 }
 
 void RendererBase::CreateSampler()
@@ -282,10 +275,4 @@ void RendererBase::CreateFramebuffers()
 void RendererBase::CreateMaterial(std::shared_ptr<Resources::ResourceManager> pResMgr)
 {
     assert(!m_vImages.empty() && "Composition material cannot be created, cause g-buffer images is not created.");
-
-    m_pMaterial = std::make_shared<MaterialDeferred>();
-    m_pMaterial->Create(nullptr);
-    m_pMaterial->AddTexture(ETextureAttachmentType::eBRDFLUT, pResMgr->Get<Image>("environment_component_brdf"));
-    m_pMaterial->AddTexture(ETextureAttachmentType::eIrradiance, pResMgr->Get<Image>("environment_component_irradiate_cube"));
-    m_pMaterial->AddTexture(ETextureAttachmentType::ePrefiltred, pResMgr->Get<Image>("environment_component_prefiltred_cube"));
 }

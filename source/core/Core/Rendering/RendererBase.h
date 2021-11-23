@@ -79,6 +79,16 @@ namespace Engine
                 void BeginRender(vk::CommandBuffer& commandBuffer);
                 void EndRender(vk::CommandBuffer& commandBuffer);
 
+                std::shared_ptr<Resources::Texture::Image> GetProduct(texture_type_t eType);
+                void SetRenderNode(std::shared_ptr<Objects::Render> pRenderObject);
+
+                /*
+                Теперь идеология такая. В RenderSystem будет находиться первый стэйдж рендера.
+                Мы его устанавливаем, и дальше добавляем стадии. У каждой стадии есть указатель
+                на предыдущую стадию, у которой мы можем забрать Product(по сути созданные изображения).
+                В следующей стадии мы как раз берём продукт, и настраиваем работу с ним, и так до финальной стадии.
+                */
+
                 inline vk::RenderPass& GetRenderPass() { return m_RenderPass; }
                 inline vk::Framebuffer& GetFramebuffer(uint32_t imageIndex) { return m_vFramebuffers.at(imageIndex); }
                 inline std::vector<vk::Framebuffer>& GetFramebuffers() { return m_vFramebuffers; }

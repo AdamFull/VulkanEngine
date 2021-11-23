@@ -113,6 +113,13 @@ void RendererBase::EndRender(vk::CommandBuffer& commandBuffer)
     commandBuffer.endRenderPass();
 }
 
+std::shared_ptr<Image> RendererBase::GetProduct(texture_type_t eType)
+{
+    auto imageIndex = USwapChain->GetCurrentFrame();
+    auto mProductMap = m_vImages.at(imageIndex);
+    return mProductMap[eType];
+}
+
 void RendererBase::CreateSampler()
 {
     UDevice->CreateSampler(m_Sampler, 1,  vk::SamplerAddressMode::eClampToEdge);

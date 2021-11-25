@@ -2,13 +2,15 @@
 #include "Core/VulkanHighLevel.h"
 #include "Core/Rendering/RendererBase.h"
 #include "Resources/ResourceManager.h"
+#include "Core/Rendering/RendererBase.h"
 
+using namespace Engine::Core;
 using namespace Engine::Resources::Material;
 using namespace Engine::Core::Descriptor;
 
 void MaterialSkybox::Create(std::shared_ptr<ResourceManager> pResMgr)
 {
-    renderPass = URenderer->GetRenderer()->GetRenderPass();
+    renderPass = URenderer->GetRenderer(FRendererCreateInfo::ERendererType::eDeferredPBR)->GetRenderPass();
 
     //m_mTextures[ETextureAttachmentType::eCubemap] = pResMgr->Get<Texture::Image>("environment_component_prefiltred_cube");
 
@@ -17,7 +19,7 @@ void MaterialSkybox::Create(std::shared_ptr<ResourceManager> pResMgr)
 
 void MaterialSkybox::ReCreate()
 {
-    renderPass = URenderer->GetRenderer()->GetRenderPass();
+    renderPass = URenderer->GetRenderer(FRendererCreateInfo::ERendererType::eDeferredPBR)->GetRenderPass();
     MaterialBase::ReCreate();
 }
 

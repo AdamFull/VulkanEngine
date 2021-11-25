@@ -2,7 +2,7 @@
 #include "Core/VulkanSwapChain.h"
 #include "Core/VulkanHighLevel.h"
 
-using namespace Engine::Objects::Components;
+using namespace Engine::Core::Scene::Objects::Components;
 
 void CameraComponent::SetOrthographicProjection(float fLeft, float fRight, float fTop, float fBottom, float fNear, float fFar)
 {

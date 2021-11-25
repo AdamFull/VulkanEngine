@@ -1,10 +1,10 @@
 #include "CameraEditorController.h"
 #include "KeyMapping/InputMapper.h"
-#include "Objects/Components/Camera/CameraComponent.h"
-#include "Objects/Components/Camera/CameraManager.h"
+#include "Core/Scene/Objects/Components/Camera/CameraComponent.h"
+#include "Core/Scene/Objects/Components/Camera/CameraManager.h"
 
 using namespace Engine::Controllers;
-using namespace Engine::Objects;
+using namespace Engine::Core::Scene::Objects;
 
 void CameraEditorController::Create()
 {

@@ -23,6 +23,8 @@
 #include "external/EasyDelegate/EasyDelegateImpl.hpp"
 
 #include "util/uuid.hpp"
+#include "util/NonCopyable.hpp"
+#include "util/NonCopyMovable.hpp"
 
 #include <cassert>
 #include <iostream>

@@ -9,11 +9,11 @@
 #include "Resources/Meshes/Loaders/GLTFLoader.h"
 #include "Resources/Textures/TextureFactory.h"
 
-#include "Objects/RenderObject.h"
-#include "Objects/Components/Camera/CameraComponent.h"
-#include "Objects/Components/Camera/CameraManager.h"
-#include "Objects/Components/MeshComponentBase.h"
-#include "Objects/Components/MeshVolumeComponent.h"
+#include "Core/Scene/Objects/RenderObject.h"
+#include "Core/Scene/Objects/Components/Camera/CameraComponent.h"
+#include "Core/Scene/Objects/Components/Camera/CameraManager.h"
+#include "Core/Scene/Objects/Components/MeshComponentBase.h"
+#include "Core/Scene/Objects/Components/MeshVolumeComponent.h"
 
 using namespace Engine;
 
@@ -40,7 +40,7 @@ std::unique_ptr<RenderScene> SceneFactory::Create(std::string srScenePath)
     return pRenderScene;
 }
 
-void SceneFactory::CreateComponents(std::shared_ptr<Objects::RenderObject> pRoot, std::shared_ptr<Resources::ResourceManager> pResMgr, std::vector<FSceneObject> sceneObjects)
+void SceneFactory::CreateComponents(std::shared_ptr<Core::Scene::Objects::RenderObject> pRoot, std::shared_ptr<Resources::ResourceManager> pResMgr, std::vector<FSceneObject> sceneObjects)
 {
     for (auto &object : sceneObjects)
     {
@@ -48,9 +48,9 @@ void SceneFactory::CreateComponents(std::shared_ptr<Objects::RenderObject> pRoot
     }
 }
 
-std::shared_ptr<Objects::RenderObject> SceneFactory::CreateComponent(std::shared_ptr<Resources::ResourceManager> pResMgr, FSceneObject info)
+std::shared_ptr<Core::Scene::Objects::RenderObject> SceneFactory::CreateComponent(std::shared_ptr<Resources::ResourceManager> pResMgr, FSceneObject info)
 {
-    std::shared_ptr<Objects::RenderObject> object;
+    std::shared_ptr<Core::Scene::Objects::RenderObject> object;
 
     switch (info.eObjectType)
     {
@@ -79,18 +79,18 @@ std::shared_ptr<Objects::RenderObject> SceneFactory::CreateComponent(std::shared
 
 // Create mesh component factory!!!!!!!!!!!!!
 
-std::shared_ptr<Objects::RenderObject> SceneFactory::CreateCamera(std::shared_ptr<Resources::ResourceManager> pResMgr, FSceneObject info)
+std::shared_ptr<Core::Scene::Objects::RenderObject> SceneFactory::CreateCamera(std::shared_ptr<Resources::ResourceManager> pResMgr, FSceneObject info)
 {
-    auto camera = std::make_shared<Objects::Components::CameraComponent>();
+    auto camera = std::make_shared<Core::Scene::Objects::Components::CameraComponent>();
     camera->SetTransform(info.fTransform);
     camera->SetName(info.srName);
-    Objects::Components::CameraManager::GetInstance()->Attach(camera);
+    Core::Scene::Objects::Components::CameraManager::GetInstance()->Attach(camera);
     return camera;
 }
 
-std::shared_ptr<Objects::RenderObject> SceneFactory::CreateStaticMesh(std::shared_ptr<Resources::ResourceManager> pResMgr, FSceneObject info)
+std::shared_ptr<Core::Scene::Objects::RenderObject> SceneFactory::CreateStaticMesh(std::shared_ptr<Resources::ResourceManager> pResMgr, FSceneObject info)
 {
-    /*auto mesh_component = std::make_shared<Objects::Components::MeshComponentBase>();
+    /*auto mesh_component = std::make_shared<Core::Scene::Objects::Components::MeshComponentBase>();
     mesh_component->SetTransform(info.fTransform);
     mesh_component->SetName(info.srName);
     auto mesh = Resources::Mesh::MeshFactory::Create(pResMgr, info.mesh);
@@ -100,7 +100,7 @@ std::shared_ptr<Objects::RenderObject> SceneFactory::CreateStaticMesh(std::share
 }
 
 //Todo: do smth with code reusing
-std::shared_ptr<Objects::RenderObject> SceneFactory::CreateSkybox(std::shared_ptr<Resources::ResourceManager> pResMgr, FSceneObject info)
+std::shared_ptr<Core::Scene::Objects::RenderObject> SceneFactory::CreateSkybox(std::shared_ptr<Resources::ResourceManager> pResMgr, FSceneObject info)
 {
     auto loader = std::make_shared<Resources::Loaders::GLTFLoader>(info.mesh.bUseIncludedMaterial, true, info.srName, info.srUseVolume);
 
@@ -114,7 +114,7 @@ std::shared_ptr<Objects::RenderObject> SceneFactory::CreateSkybox(std::shared_pt
         }
     }
 
-    auto mesh = std::make_shared<Objects::Components::MeshComponentBase>();
+    auto mesh = std::make_shared<Core::Scene::Objects::Components::MeshComponentBase>();
     loader->Load(info.mesh.srSrc, info.srName, pResMgr);
     mesh->SetTransform(info.fTransform);
     mesh->SetName(info.srName);
@@ -123,7 +123,7 @@ std::shared_ptr<Objects::RenderObject> SceneFactory::CreateSkybox(std::shared_pt
     return mesh;
 }
 
-std::shared_ptr<Objects::RenderObject> SceneFactory::CreateGLTFMesh(std::shared_ptr<Resources::ResourceManager> pResMgr, FSceneObject info)
+std::shared_ptr<Core::Scene::Objects::RenderObject> SceneFactory::CreateGLTFMesh(std::shared_ptr<Resources::ResourceManager> pResMgr, FSceneObject info)
 {
     auto loader = std::make_shared<Resources::Loaders::GLTFLoader>(info.mesh.bUseIncludedMaterial, true, info.srName, info.srUseVolume);
     if (!info.mesh.bUseIncludedMaterial)
@@ -136,7 +136,7 @@ std::shared_ptr<Objects::RenderObject> SceneFactory::CreateGLTFMesh(std::shared_
         }
     }
 
-    auto mesh = std::make_shared<Objects::Components::MeshComponentBase>();
+    auto mesh = std::make_shared<Core::Scene::Objects::Components::MeshComponentBase>();
     loader->Load(info.mesh.srSrc, info.srName, pResMgr);
     mesh->SetTransform(info.fTransform);
     mesh->SetName(info.srName);
@@ -145,11 +145,11 @@ std::shared_ptr<Objects::RenderObject> SceneFactory::CreateGLTFMesh(std::shared_
     return mesh;
 }
 
-std::shared_ptr<Objects::RenderObject> SceneFactory::CreateEnvironment(std::shared_ptr<Resources::ResourceManager> pResMgr, FSceneObject info)
+std::shared_ptr<Core::Scene::Objects::RenderObject> SceneFactory::CreateEnvironment(std::shared_ptr<Resources::ResourceManager> pResMgr, FSceneObject info)
 {
     auto loader = std::make_shared<Resources::Loaders::GLTFLoader>(false, false, info.srName, info.srUseVolume);
 
-    auto environment = std::make_shared<Objects::Components::MeshVolumeComponent>();
+    auto environment = std::make_shared<Core::Scene::Objects::Components::MeshVolumeComponent>();
     loader->Load(info.mesh.srSrc, info.srName, pResMgr);
     environment->SetName(info.srName);
     environment->SetMesh(loader->GetMesh());

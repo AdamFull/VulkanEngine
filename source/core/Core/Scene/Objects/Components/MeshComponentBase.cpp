@@ -3,12 +3,12 @@
 #include "Core/VulkanRenderSystem.h"
 #include "Core/VulkanHighLevel.h"
 #include "Resources/Meshes/VulkanMesh.h"
-#include "Objects/Components/Camera/CameraComponent.h"
-#include "Objects/Components/Camera/CameraManager.h"
+#include "Core/Scene/Objects/Components/Camera/CameraComponent.h"
+#include "Core/Scene/Objects/Components/Camera/CameraManager.h"
 #include "Resources/ResourceManager.h"
 #include "GlobalVariables.h"
 
-using namespace Engine::Objects::Components;
+using namespace Engine::Core::Scene::Objects::Components;
 using namespace Engine::Resources;
 using namespace Engine::Core;
 

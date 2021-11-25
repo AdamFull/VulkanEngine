@@ -2,7 +2,7 @@
 #include "Core/VulkanDevice.h"
 #include "Resources/ResourceManager.h"
 
-using namespace Engine::Objects::Components;
+using namespace Engine::Core::Scene::Objects::Components;
 using namespace Engine::Resources;
 
 void SceneRootComponent::Create(std::shared_ptr<ResourceManager> resourceMgr)

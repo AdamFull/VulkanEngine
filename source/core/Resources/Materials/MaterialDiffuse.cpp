@@ -2,20 +2,22 @@
 #include "Core/VulkanHighLevel.h"
 #include "Core/Rendering/RendererBase.h"
 #include "Resources/ResourceManager.h"
+#include "Core/Rendering/RendererBase.h"
 
+using namespace Engine::Core;
 using namespace Engine::Resources;
 using namespace Engine::Resources::Material;
 using namespace Engine::Core::Descriptor;
 
 void MaterialDiffuse::Create(std::shared_ptr<ResourceManager> pResMgr)
 {
-    renderPass = URenderer->GetRenderer()->GetRenderPass();
+    renderPass = URenderer->GetRenderer(FRendererCreateInfo::ERendererType::eDeferredPBR)->GetRenderPass();
     MaterialBase::Create(pResMgr);
 }
 
 void MaterialDiffuse::ReCreate()
 {
-    renderPass = URenderer->GetRenderer()->GetRenderPass();
+    renderPass = URenderer->GetRenderer(FRendererCreateInfo::ERendererType::eDeferredPBR)->GetRenderPass();
     MaterialBase::ReCreate();
 }
 

@@ -1,7 +1,7 @@
 #include "CameraManager.h"
 #include "CameraComponent.h"
 
-using namespace Engine::Objects::Components;
+using namespace Engine::Core::Scene::Objects::Components;
 
 std::unique_ptr<CameraManager> CameraManager::m_pInstance{nullptr};
 

@@ -1,6 +1,6 @@
 #include "Transform.h"
 
-using namespace Engine::Objects;
+using namespace Engine::Core::Scene::Objects;
 
 glm::mat4 FTransform::GetModel()
 {

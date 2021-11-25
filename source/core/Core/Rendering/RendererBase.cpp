@@ -16,20 +16,27 @@ RendererBase::~RendererBase()
     //Cleanup();
 }
 
-
 void RendererBase::Create(std::shared_ptr<Resources::ResourceManager> pResMgr)
 {
-    auto framesInFlight = USwapChain->GetFramesInFlight();
-    m_pUniform = std::make_shared<UniformBuffer>();
-    m_pUniform->Create(framesInFlight, sizeof(FLightningData));
-
-    m_DepthAttachment.format = UDevice->GetDepthFormat();
+    m_DepthAttachment = 
+    FRendererCreateInfo::FAttachmentInfo
+    (
+        UDevice->GetDepthFormat(),
+        vk::ImageUsageFlagBits::eDepthStencilAttachment | vk::ImageUsageFlagBits::eSampled,
+        {std::array<float, 4>{0.0f, 0.0f, 0.0f, 0.0f}}
+    );
 
     CreateSampler();
     CreateImages();
     CreateRenderPass();
     CreateFramebuffers();
-    CreateMaterial(pResMgr);
+
+    if(m_pNext) m_pNext->Create(pResMgr);
+}
+
+void RendererBase::Render(vk::CommandBuffer& commandBuffer)
+{
+    if(m_pNext) m_pNext->Render(commandBuffer);
 }
 
 void RendererBase::ReCreate(uint32_t framesInFlight)
@@ -38,39 +45,38 @@ void RendererBase::ReCreate(uint32_t framesInFlight)
     CreateImages();
     CreateRenderPass();
     CreateFramebuffers();
-    m_pMaterial->ReCreate();
-}
-
-void RendererBase::Update(vk::CommandBuffer& commandBuffer, void* data)
-{
-    auto currentFrame = USwapChain->GetCurrentFrame();
-    for(auto& [attachment, texture] : m_vImages.at(currentFrame))
-        m_pMaterial->AddTexture(attachment, texture);
-    
-    m_pUniform->UpdateUniformBuffer(currentFrame, data);
-    auto& buffer = m_pUniform->GetUniformBuffer(currentFrame);
-    m_pMaterial->Update(buffer->GetDscriptor(), currentFrame);
-    m_pMaterial->Bind(commandBuffer, currentFrame);
+    if(m_pNext) m_pNext->ReCreate(framesInFlight);
 }
 
 void RendererBase::Cleanup()
 {
-    /*for(uint32_t frame = 0; frame < m_iFramesInFlight; frame++)
-    {
-        auto currentFrame = m_vImages.at(frame);
-        for(auto& [attachment, image] : currentFrame)
-            image.Destroy(UDevice);
-    }
-    
-    m_DepthImage.Destroy(UDevice);*/
-
-    for (auto framebuffer : m_vFramebuffers)
-        UDevice->Destroy(framebuffer);
-    
-    UDevice->Destroy(m_RenderPass);
-    UDevice->Destroy(m_Sampler);
-
     m_vImages.clear();
+    if(m_pNext) m_pNext->Cleanup();
+}
+
+std::shared_ptr<RendererBase> RendererBase::Find(FRendererCreateInfo::ERendererType eType)
+{
+    if(eType == m_eRendererType)
+        return shared_from_this();
+    
+    if(m_pNext) return m_pNext->Find(eType);
+    return nullptr;
+}
+
+void RendererBase::SetNextStage(std::shared_ptr<RendererBase> pNext)
+{
+    if(!m_pNext)
+    {
+        m_pNext = pNext;
+        m_pNext->SetPrevStage(shared_from_this());
+        return;
+    }
+    m_pNext->SetNextStage(pNext);
+}
+
+void RendererBase::SetPrevStage(std::shared_ptr<RendererBase> pPrev)
+{
+    m_pPrev = pPrev;
 }
 
 void RendererBase::BeginRender(vk::CommandBuffer& commandBuffer)
@@ -115,9 +121,15 @@ void RendererBase::EndRender(vk::CommandBuffer& commandBuffer)
 
 std::shared_ptr<Image> RendererBase::GetProduct(texture_type_t eType)
 {
+    auto mProductMap = GetProducts();
+    return mProductMap[eType];
+}
+
+image_map_t RendererBase::GetProducts()
+{
     auto imageIndex = USwapChain->GetCurrentFrame();
     auto mProductMap = m_vImages.at(imageIndex);
-    return mProductMap[eType];
+    return mProductMap;
 }
 
 void RendererBase::CreateSampler()
@@ -277,9 +289,4 @@ void RendererBase::CreateFramebuffers()
 
         m_vFramebuffers[frame] = UDevice->Make<vk::Framebuffer, vk::FramebufferCreateInfo>(framebufferCI);
     }
-}
-
-void RendererBase::CreateMaterial(std::shared_ptr<Resources::ResourceManager> pResMgr)
-{
-    assert(!m_vImages.empty() && "Composition material cannot be created, cause g-buffer images is not created.");
 }

@@ -1,5 +1,5 @@
 #pragma once
-#include "Objects/Transform.h"
+#include "Core/Scene/Objects/Transform.h"
 
 namespace Engine
 {
@@ -20,7 +20,7 @@ namespace Engine
             class GLTFSceneNode : public std::enable_shared_from_this<GLTFSceneNode>
             {
             public:
-                Objects::FTransform GetTransform();
+                Core::Scene::Objects::FTransform GetTransform();
                 glm::vec3 GetPosition();
                 glm::vec3 GetRotation();
                 glm::vec3 GetScale();
@@ -36,7 +36,7 @@ namespace Engine
                 void AddChild(std::shared_ptr<GLTFSceneNode> child);
 
                 std::string m_srName;
-                Objects::FTransform m_transform;
+                Core::Scene::Objects::FTransform m_transform;
                 uint32_t m_index;
 		
                 std::shared_ptr<Mesh::MeshFragment> m_pMesh;

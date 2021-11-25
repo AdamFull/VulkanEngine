@@ -5,7 +5,7 @@
 #include "Resources/Materials/Generators/GeneratorIrradiate.h"
 #include "Resources/Materials/Generators/GeneratorPrefiltred.h"
 
-using namespace Engine::Objects::Components;
+using namespace Engine::Core::Scene::Objects::Components;
 using namespace Engine::Resources;
 using namespace Engine::Resources::Material::Generator;
 

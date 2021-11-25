@@ -1,8 +1,8 @@
 #include "OverlayDebug.h"
 #include <Core/Window/WindowHandle.h>
 #include <imgui.h>
-#include <Objects/Components/Camera/CameraComponent.h>
-#include <Objects/Components/Camera/CameraManager.h>
+#include <Core/Scene/Objects/Components/Camera/CameraComponent.h>
+#include <Core/Scene/Objects/Components/Camera/CameraManager.h>
 #include <GlobalVariables.h>
 
 #include "Core/VulkanVBO.h"
@@ -21,7 +21,7 @@ void OverlayDebug::Draw()
         }
 
         float fFrameTime = 1000.0f / ImGui::GetIO().Framerate;
-        auto camera = Objects::Components::CameraManager::GetInstance()->GetCurrentCamera();
+        auto camera = Core::Scene::Objects::Components::CameraManager::GetInstance()->GetCurrentCamera();
         auto pos = camera->GetPosition();
         float position[3] = {pos.x, pos.y, pos.z};
         auto rot = camera->GetRotation();

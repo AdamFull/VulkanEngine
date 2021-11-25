@@ -1,7 +1,7 @@
 #include "RenderObject.h"
 #include "Core/VulkanDevice.h"
 
-using namespace Engine::Objects;
+using namespace Engine::Core::Scene::Objects;
 using namespace Engine::Resources;
 
 void RenderObject::Create(std::shared_ptr<ResourceManager> resourceMgr)

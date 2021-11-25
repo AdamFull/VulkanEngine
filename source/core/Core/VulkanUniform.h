@@ -4,7 +4,7 @@ namespace Engine
 {
     namespace Core
     {
-        struct Light 
+        struct FLight 
         {
             alignas(16) glm::vec3 position;
             alignas(16) glm::vec3 color;
@@ -14,7 +14,7 @@ namespace Engine
         struct FLightningData
         {
             glm::vec3 viewPos;
-            Light lights[1024];
+            FLight lights[1024];
             int lightCount;
             float ambient;
             float tone;

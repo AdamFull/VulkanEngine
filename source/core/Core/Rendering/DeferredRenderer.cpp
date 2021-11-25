@@ -2,6 +2,7 @@
 #include "Resources/Textures/Image.h"
 #include "Resources/Materials/MaterialDeferred.h"
 #include "Resources/ResourceManager.h"
+#include "Core/Scene/Objects/RenderObject.h"
 #include "Core/VulkanHighLevel.h"
 
 using namespace Engine::Core;
@@ -12,6 +13,8 @@ using namespace Engine::Resources::Material;
 
 void DeferredRenderer::Create(std::shared_ptr<Resources::ResourceManager> pResMgr)
 {
+    m_eRendererType = renderer_type_t::eDeferredPBR;
+
     m_vColorAttachments = 
     {
         {
@@ -70,24 +73,24 @@ void DeferredRenderer::Create(std::shared_ptr<Resources::ResourceManager> pResMg
         }
     };
 
-    m_DepthAttachment = 
-    FRendererCreateInfo::FAttachmentInfo
-    (
-        vk::Format::eR32Sfloat,
-        vk::ImageUsageFlagBits::eDepthStencilAttachment | vk::ImageUsageFlagBits::eSampled,
-        {std::array<float, 4>{0.0f, 0.0f, 0.0f, 0.0f}}
-    );
-
     RendererBase::Create(pResMgr);
 }
 
-void DeferredRenderer::CreateMaterial(std::shared_ptr<ResourceManager> pResMgr)
+void DeferredRenderer::Render(vk::CommandBuffer& commandBuffer)
 {
-    RendererBase::CreateMaterial(pResMgr);
+    auto imageIndex = USwapChain->GetCurrentFrame();
+    BeginRender(commandBuffer);
+    m_pRenderNode->Render(commandBuffer, imageIndex);
+    EndRender(commandBuffer);
 
-    m_pMaterial = std::make_shared<MaterialDeferred>();
-    m_pMaterial->Create(nullptr);
-    m_pMaterial->AddTexture(ETextureAttachmentType::eBRDFLUT, pResMgr->Get<Image>("environment_component_brdf"));
-    m_pMaterial->AddTexture(ETextureAttachmentType::eIrradiance, pResMgr->Get<Image>("environment_component_irradiate_cube"));
-    m_pMaterial->AddTexture(ETextureAttachmentType::ePrefiltred, pResMgr->Get<Image>("environment_component_prefiltred_cube"));
+    RendererBase::Render(commandBuffer);
+}
+
+void DeferredRenderer::Cleanup()
+{
+    for (auto framebuffer : m_vFramebuffers)
+        UDevice->Destroy(framebuffer);
+    
+    UDevice->Destroy(m_RenderPass);
+    UDevice->Destroy(m_Sampler);
 }

@@ -1,6 +1,6 @@
 #include "ComponentBase.h"
 
-using namespace Engine::Objects::Components;
+using namespace Engine::Core::Scene::Objects::Components;
 using namespace Engine::Resources;
 
 void ComponentBase::Create(std::shared_ptr<ResourceManager> resourceMgr)

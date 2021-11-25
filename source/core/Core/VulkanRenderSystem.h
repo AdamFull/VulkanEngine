@@ -1,5 +1,6 @@
 #pragma once
 #include "Resources/ResourceCunstruct.h"
+#include "Core/Rendering/RendererBase.h"
 
 namespace Engine
 {
@@ -10,14 +11,6 @@ namespace Engine
     }
     namespace Core
     {
-        
-        
-
-        namespace Rendering
-        {
-            class RendererBase;
-        }
-
         struct FRenderSystem
         {
             std::vector<vk::CommandBuffer, std::allocator<vk::CommandBuffer>> vCommandBuffers;
@@ -44,28 +37,32 @@ namespace Engine
             vk::CommandBuffer BeginFrame();
             vk::Result EndFrame();
 
-            void BeginRender(vk::CommandBuffer& commandBuffer);
-            void EndRender(vk::CommandBuffer& commandBuffer);
+            void PushStage(FRendererCreateInfo::ERendererType eType, vk::Extent2D extent);
+            void Render(vk::CommandBuffer& commandBuffer);
 
-            void BeginPostProcess(vk::CommandBuffer& commandBuffer);
-            void EndPostProcess(vk::CommandBuffer& commandBuffer);
+            /*void BeginRender(vk::CommandBuffer& commandBuffer);
+            void EndRender(vk::CommandBuffer& commandBuffer);*/
+
+            /*void BeginPostProcess(vk::CommandBuffer& commandBuffer);
+            void EndPostProcess(vk::CommandBuffer& commandBuffer);*/
 
             // Getters
             inline std::vector<vk::CommandBuffer, std::allocator<vk::CommandBuffer>> &GetCommandBuffers() { return data.vCommandBuffers; }
             inline uint32_t GetImageIndex() { return data.imageIndex; }
             inline bool GetFrameStartFlag() { return data.bFrameStarted; }
             inline vk::CommandBuffer GetCurrentCommandBuffer() const;
-            inline std::shared_ptr<Rendering::RendererBase> GetRenderer() { return m_pDeferredRenderer; }
+            inline std::shared_ptr<Rendering::RendererBase> GetRenderer(FRendererCreateInfo::ERendererType eType) { return m_pStages->Find(eType); }
+            inline std::shared_ptr<Rendering::RendererBase> GetCurrentStage() { return m_pCurrentStage; }
 
         private:
-            void Finalize(vk::CommandBuffer& commandBuffer);
-
-            void RenderSystem::CreateCommandBuffers();
+            void CreateCommandBuffers();
+            inline void SetCurrentStage(std::shared_ptr<Rendering::RendererBase> pStage) { m_pCurrentStage = pStage; }
             FRenderSystem data;
             
             vk::Extent2D screenExtent;
 
-            std::shared_ptr<Rendering::RendererBase> m_pDeferredRenderer;
+            std::shared_ptr<Rendering::RendererBase> m_pStages{nullptr};
+            std::shared_ptr<Rendering::RendererBase> m_pCurrentStage{nullptr};
         };
     }
 }

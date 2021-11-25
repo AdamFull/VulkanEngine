@@ -1,12 +1,12 @@
 #include "ObjLoader.h"
-#include "Objects/RenderObject.h"
+#include "Core/Scene/Objects/RenderObject.h"
 
 #define TINYOBJLOADER_IMPLEMENTATION
 #include "external/tiny_obj_loader.h"
 
 using namespace Engine::Resources::Loaders;
 
-void ObjLoader::Load(std::string srPath, std::shared_ptr<Objects::RenderObject> pRoot)
+void ObjLoader::Load(std::string srPath, std::shared_ptr<Core::Scene::Objects::RenderObject> pRoot)
 {
     /*tinyobj::attrib_t attrib;
     std::vector<tinyobj::shape_t> shapes;

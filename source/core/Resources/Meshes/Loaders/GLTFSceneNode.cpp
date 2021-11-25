@@ -1,6 +1,6 @@
 #include "GLTFSceneNode.h"
 
-using namespace Engine::Objects;
+using namespace Engine::Core::Scene::Objects;
 using namespace Engine::Resources::Mesh;
 using namespace Engine::Resources::Loaders;
 

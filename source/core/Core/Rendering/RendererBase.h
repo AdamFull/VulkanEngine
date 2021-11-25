@@ -27,6 +27,10 @@ namespace Engine
     }
     namespace Core
     {
+        namespace Scene
+        {
+            namespace Objects { class RenderObject; }
+        }
         class UniformBuffer;
 
         struct FRendererCreateInfo
@@ -35,8 +39,8 @@ namespace Engine
 
             enum class ERendererType
             {
-                eDeferred,
-                ePostProcess
+                eDeferredPBR,
+                eFinalize
             };
 
             struct FAttachmentInfo
@@ -65,42 +69,50 @@ namespace Engine
         
         namespace Rendering
         {
-            class RendererBase
+            class RendererBase : public std::enable_shared_from_this<RendererBase>
             {
             public:
                 RendererBase() = default;
                 virtual ~RendererBase();
 
                 virtual void Create(std::shared_ptr<Resources::ResourceManager> pResMgr);
-                void ReCreate(uint32_t framesInFlight);
-                void Update(vk::CommandBuffer& commandBuffer, void* data);
-                void Cleanup();
+                virtual void Render(vk::CommandBuffer& commandBuffer);
+                virtual void ReCreate(uint32_t framesInFlight);
+                //void Update(vk::CommandBuffer& commandBuffer, void* data);
+                virtual void Cleanup();
 
-                void BeginRender(vk::CommandBuffer& commandBuffer);
-                void EndRender(vk::CommandBuffer& commandBuffer);
+                inline void SetExtent(vk::Extent2D extent) { out_extent = extent; }
+
+                std::shared_ptr<RendererBase> Find(FRendererCreateInfo::ERendererType eType);
 
                 std::shared_ptr<Resources::Texture::Image> GetProduct(texture_type_t eType);
-                void SetRenderNode(std::shared_ptr<Objects::Render> pRenderObject);
+                image_map_t GetProducts();
 
-                /*
-                Теперь идеология такая. В RenderSystem будет находиться первый стэйдж рендера.
-                Мы его устанавливаем, и дальше добавляем стадии. У каждой стадии есть указатель
-                на предыдущую стадию, у которой мы можем забрать Product(по сути созданные изображения).
-                В следующей стадии мы как раз берём продукт, и настраиваем работу с ним, и так до финальной стадии.
-                */
+                inline void SetRenderNode(std::shared_ptr<Scene::Objects::RenderObject> pRenderObject) { m_pRenderNode = pRenderObject; }
+                void SetNextStage(std::shared_ptr<RendererBase> pNext);
+                void SetPrevStage(std::shared_ptr<RendererBase> pPrev);
+                inline std::shared_ptr<RendererBase> GetNext() { return m_pNext; }
 
                 inline vk::RenderPass& GetRenderPass() { return m_RenderPass; }
                 inline vk::Framebuffer& GetFramebuffer(uint32_t imageIndex) { return m_vFramebuffers.at(imageIndex); }
                 inline std::vector<vk::Framebuffer>& GetFramebuffers() { return m_vFramebuffers; }
                 inline attachments_map_t& GetColorAttachments() { return m_vColorAttachments; }
                 inline attachment_t& GetBepthAttachment() { return m_DepthAttachment; }
+                inline renderer_type_t GetType() { return m_eRendererType; }
             protected:
                 void CreateSampler();
-                std::shared_ptr<Resources::Texture::Image> CreateImage(attachment_t attachment);
-                void CreateImages();
-                void CreateRenderPass();
-                void CreateFramebuffers();
-                virtual void CreateMaterial(std::shared_ptr<Resources::ResourceManager> pResMgr);
+                virtual std::shared_ptr<Resources::Texture::Image> CreateImage(attachment_t attachment);
+                virtual void CreateImages();
+                virtual void CreateRenderPass();
+                virtual void CreateFramebuffers();
+
+                void BeginRender(vk::CommandBuffer& commandBuffer);
+                void EndRender(vk::CommandBuffer& commandBuffer);
+
+                vk::Extent2D out_extent{};
+
+                std::shared_ptr<RendererBase> m_pPrev{nullptr};
+                std::shared_ptr<RendererBase> m_pNext{nullptr};
 
                 std::vector<image_map_t> m_vImages;
                 std::shared_ptr<Resources::Texture::Image> m_DepthImage;
@@ -109,8 +121,7 @@ namespace Engine
                 vk::RenderPass m_RenderPass;
                 std::vector<vk::Framebuffer> m_vFramebuffers;
 
-                std::shared_ptr<UniformBuffer> m_pUniform;
-                std::shared_ptr<Resources::Material::MaterialBase> m_pMaterial;
+                std::shared_ptr<Scene::Objects::RenderObject> m_pRenderNode;
 
                 //Saved attachments for recreate
                 attachments_map_t m_vColorAttachments;

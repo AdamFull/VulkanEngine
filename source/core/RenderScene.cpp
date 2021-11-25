@@ -52,9 +52,6 @@ void RenderScene::ReCreate()
 {
     m_pRoot->Cleanup();
 
-    if (m_pSkybox)
-        m_pSkybox->ReCreate();
-
     m_pRoot->ReCreate();
 }
 
@@ -68,20 +65,12 @@ void RenderScene::Destroy()
         UHLInstance->EndFrame(commandBuffer, &bResult);
     }
 
-    if (m_pSkybox)
-        m_pSkybox->Destroy();
-
     m_pRoot->Destroy();
 }
 
 void RenderScene::AttachObject(std::shared_ptr<Core::Scene::Objects::RenderObject> object)
 {
     object->SetParent(m_pRoot);
-}
-
-void RenderScene::SetSkybox(std::shared_ptr<Core::Scene::Objects::RenderObject> pSkybox)
-{
-    m_pSkybox = pSkybox;
 }
 
 void RenderScene::SetEnvironment(std::shared_ptr<Core::Scene::Objects::RenderObject> pEnvironment)
@@ -100,15 +89,11 @@ void RenderScene::CreateObjects()
     URenderer->GetRenderer(FRendererCreateInfo::ERendererType::eDeferredPBR)->Create(m_pResourceManager);
     URenderer->GetRenderer(FRendererCreateInfo::ERendererType::eDeferredPBR)->SetRenderNode(m_pRoot);
 
-    m_pSkybox->Create(m_pResourceManager);
     m_pRoot->Create(m_pResourceManager);
 }
 
 void RenderScene::Render(float fDeltaTime)
 {
-    if (m_pSkybox)
-        m_pSkybox->Update(fDeltaTime);
-
     m_pRoot->Update(fDeltaTime);
 
     bool bResult;
@@ -123,37 +108,9 @@ void RenderScene::Render(float fDeltaTime)
     UOverlay->NewFrame();
     UOverlay->Update(fDeltaTime);
 
-    /*FLightningData ubo;
-    auto camera = CameraManager::GetInstance()->GetCurrentCamera();
-    for(uint32_t i = 0; i < vLights.size(); i++)
-    {
-        ubo.lights[i].position = vLights.at(i).position;
-        ubo.lights[i].color = vLights.at(i).color;
-        ubo.lights[i].radius = vLights.at(i).attenuation;
-    }
-    ubo.lightCount = vLights.size();
-    ubo.viewPos = glm::vec4(camera->GetTransform().pos, 1.0);
-    ubo.ambient = GlobalVariables::ambientLight;
-    ubo.tone = GlobalVariables::postprocessTone;
-    ubo.gamma = GlobalVariables::postprocessGamma;*/
-    //ULightUniform->UpdateUniformBuffer(currentFrame, &ubo);
-
     UVBO->Bind(commandBuffer);
-    //Main render
-    //URenderer->BeginRender(commandBuffer);
     URenderer->Render(commandBuffer);
-    /*if(m_pSkybox)
-        m_pSkybox->Render(commandBuffer, currentFrame);
-
-    m_pRoot->Render(commandBuffer, currentFrame);*/
-
-    //URenderer->EndRender(commandBuffer);
-
-    //Post processing
-    //URenderer->BeginPostProcess(commandBuffer);
-    //URenderer->GetRenderer()->Update(commandBuffer);  //Push lights
-    //URenderer->EndPostProcess(commandBuffer);
-
+    
     UHLInstance->EndFrame(commandBuffer, &bResult);
     if (!bResult)
     {

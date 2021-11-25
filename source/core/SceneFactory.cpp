@@ -31,7 +31,7 @@ std::unique_ptr<RenderScene> SceneFactory::Create(std::string srScenePath)
     auto pRoot = pRenderScene->GetRoot();
     auto pResMgr = pRenderScene->GetResourceManager();
     // TODO: check is skybox exists
-    pRenderScene->SetSkybox(CreateComponent(pResMgr, info.skybox));
+    pRoot->Attach(CreateComponent(pResMgr, info.skybox));
     //TODO: Made it better
     pRenderScene->SetEnvironment(CreateComponent(pResMgr, info.environment));
 

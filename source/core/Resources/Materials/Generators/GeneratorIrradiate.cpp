@@ -4,6 +4,7 @@
 #include "Resources/ResourceManager.h"
 #include "Core/VulkanHighLevel.h"
 #include "Core/VulkanInitializers.h"
+#include "Resources/Meshes/Primitives.hpp"
 
 using namespace Engine::Resources::Material::Generator;
 using namespace Engine::Core;
@@ -69,6 +70,13 @@ void GeneratorIrradiate::Generate(std::shared_ptr<Mesh::MeshBase> pMesh)
 
     FIrradiatePushBlock pushBlock;
 
+    auto pLocalVBO = std::make_unique<VulkanVBO>();
+    auto vertices = FCube::m_vVertices;
+    auto indices = FCube::m_vIndices;
+    pLocalVBO->AddMeshData(std::move(vertices), std::move(indices));
+    pLocalVBO->Create();
+    pLocalVBO->Bind(tempBuffer);
+
     for (uint32_t m = 0; m < m_pCubemap->GetParams().mipLevels; m++) 
     {
 		for (uint32_t f = 0; f < 6; f++) 
@@ -82,9 +90,8 @@ void GeneratorIrradiate::Generate(std::shared_ptr<Mesh::MeshBase> pMesh)
             tempBuffer.pushConstants(pipelineLayout, vk::ShaderStageFlagBits::eVertex | vk::ShaderStageFlagBits::eFragment, 0, sizeof(FIrradiatePushBlock), &pushBlock);
             tempBuffer.bindPipeline(vk::PipelineBindPoint::eGraphics, pPipeline->GetPipeline());
             m_pMatDesc->Bind(tempBuffer, 0);
-            UVBO->Bind(tempBuffer);
-            FUniformData ubo{};
-            pMesh->Render(tempBuffer, 0, ubo);
+            
+            tempBuffer.drawIndexed(pLocalVBO->GetLastIndex(), 1, 0, 0, 0);
             tempBuffer.endRenderPass();
 
             m_pGeneratedImage->TransitionImageLayout(tempBuffer, vk::ImageLayout::eTransferSrcOptimal, vk::ImageAspectFlagBits::eColor);

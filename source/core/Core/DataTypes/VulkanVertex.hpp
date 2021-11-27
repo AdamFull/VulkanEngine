@@ -7,6 +7,9 @@ namespace Engine
     {
         struct Vertex
         {
+            Vertex() = default;
+            Vertex(glm::vec3 p, glm::vec3 n, glm::vec2 t) : pos(p), normal(n), texcoord(t) {}
+
             glm::vec3 pos{};
             glm::vec3 color{};
             glm::vec3 normal{};

@@ -1,4 +1,5 @@
 #include "OverlaySceneGraph.h"
+#include "Core/Scene/Objects/RenderObject.h"
 
 using namespace Engine::Core::Overlay;
 
@@ -13,13 +14,19 @@ void OverlaySceneGraph::Draw()
         }
 
         ImGui::PushStyleVar(ImGuiStyleVar_FramePadding, ImVec2(2, 2));
-        if (ImGui::BeginTable("split", 2, ImGuiTableFlags_BordersOuter | ImGuiTableFlags_Resizable))
+        if (ImGui::BeginTable("split", 1, ImGuiTableFlags_BordersOuter | ImGuiTableFlags_Resizable))
         {
-            // Iterate placeholder objects (all the same data)
-            for (int obj_i = 0; obj_i < 4; obj_i++)
+            auto& sceneObjects = m_pRoot->GetChilds();
+            uint32_t objCounter{0};
+            for (auto& object : sceneObjects)
             {
-                CreateObject("Object", obj_i);
+                if(object.second)
+                {
+                    CreateObject(object.first, object.second, objCounter);
+                    objCounter++;
+                }
             }
+
             ImGui::EndTable();
         }
         ImGui::PopStyleVar();
@@ -28,7 +35,7 @@ void OverlaySceneGraph::Draw()
     }
 }
 
-void OverlaySceneGraph::CreateObject(std::string name, int id)
+void OverlaySceneGraph::CreateObject(std::string name, std::shared_ptr<Scene::Objects::RenderObject> pObject, int id)
 {
     ImGui::PushID(id);
 
@@ -40,17 +47,14 @@ void OverlaySceneGraph::CreateObject(std::string name, int id)
     // Including nodes
     if (node_open)
     {
-        static float placeholder_members[8] = {0.0f, 0.0f, 1.0f, 3.1416f, 100.0f, 999.0f};
-        for (int i = 0; i < 8; i++)
+        auto& nodeChilds = pObject->GetChilds();
+        uint32_t objCounter{0};
+        for (auto& child : nodeChilds)
         {
-            ImGui::PushID(i); // Use field index as identifier.
-            if (i < 2)
-            {
-                CreateObject("Child", 424242);
-            }
-            else
-            {
-            }
+            ImGui::PushID(objCounter); // Use field index as identifier.
+            if(child.second)
+                CreateObject(child.first, child.second, objCounter);
+            objCounter++;
             ImGui::PopID();
         }
         ImGui::TreePop();

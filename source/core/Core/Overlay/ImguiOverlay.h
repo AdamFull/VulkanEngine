@@ -30,7 +30,7 @@ namespace Engine
             ImguiOverlay() = default;
             ~ImguiOverlay();
 
-            void Create(std::shared_ptr<Resources::ResourceManager> pResMgr);
+            void Create(std::shared_ptr<Resources::ResourceManager> pResMgr, std::shared_ptr<Scene::Objects::RenderObject> pRoot);
             void ReCreate();
             void Cleanup();
 

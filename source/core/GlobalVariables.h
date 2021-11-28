@@ -5,7 +5,7 @@ namespace Engine
     struct GlobalVariables
     {
         static float ambientLight;
-        static float postprocessTone;
         static float postprocessGamma;
+        static float postprocessExposure;
     };
 };

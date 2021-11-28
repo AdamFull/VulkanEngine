@@ -10,7 +10,7 @@ layout (location = 0) in vec3 inNormal;
 layout (location = 1) in vec2 inUV;
 layout (location = 2) in vec3 inColor;
 layout (location = 3) in vec3 inWorldPos;
-layout (location = 4) in vec3 inTangent;
+layout (location = 4) in vec4 inTangent;
 
 layout (location = 0) out vec4 outPosition;
 layout (location = 1) out vec4 outMask;
@@ -26,21 +26,21 @@ void main()
 
 	// Calculate normal in tangent space
 	vec3 N = normalize(inNormal);
-	vec3 T = normalize(inTangent);
-	vec3 B = cross(N, T);
+	vec3 T = normalize(inTangent.xyz);
+	vec3 B = normalize(cross(N, T));
 	mat3 TBN = mat3(T, B, N);
-	vec3 tnorm = TBN * normalize(texture(normal_tex, uv).xyz * 2.0 - vec3(1.0));
+	vec3 tnorm = normalize(TBN * texture(normal_tex, uv).xyz * 2.0 - 1.0);
 	outNormal = vec4(tnorm, 1.0);
 
 	outMask = vec4(1.0);
 	outAlbedo = texture(color_tex, uv);
 
 	vec4 metalRough = texture(metalRough_tex, uv);
-	//float metal = metalRough.r;
-	//float rough = metalRough.g;
+	float metal = metalRough.b;
+	float rough = metalRough.g;
 	float occlusion = texture(ao_tex, uv).r;
 	float height = texture(height_tex, uv).r;
 
 	outEmission = texture(emissive_tex, uv);
-	outMRAH = vec4(metalRough.gb, occlusion, 1.0);
+	outMRAH = vec4(metal, rough, occlusion, 1.0);
 }

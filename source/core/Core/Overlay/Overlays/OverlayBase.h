@@ -5,6 +5,11 @@ namespace Engine
 {
     namespace Core
     {
+        namespace Scene
+        {
+            namespace Objects { class RenderObject; }
+        }
+        
         namespace Overlay
         {
             class OverlayBase

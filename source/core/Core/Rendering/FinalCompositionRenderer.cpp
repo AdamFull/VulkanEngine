@@ -69,9 +69,8 @@ void FinalCompositionRenderer::Render(vk::CommandBuffer& commandBuffer)
 
     ubo.lightCount = vLights.size();
     ubo.viewPos = glm::vec4(camera->GetTransform().pos, 1.0);
-    ubo.ambient = GlobalVariables::ambientLight;
-    ubo.tone = GlobalVariables::postprocessTone;
     ubo.gamma = GlobalVariables::postprocessGamma;
+    ubo.exposure = GlobalVariables::postprocessExposure;
     
     m_pUniform->UpdateUniformBuffer(imageIndex, &ubo);
     auto& buffer = m_pUniform->GetUniformBuffer(imageIndex);

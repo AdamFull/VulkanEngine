@@ -20,7 +20,7 @@
                             "name": "skybox_cubemap_tex",
                             "type": "cubemap",
                             "attachment": "cubemap",
-                            "src": "../../assets/textures/cubemaps/cubemap_vulkan.ktx"
+                            "src": "../../assets/textures/cubemaps/sky_skybox.ktx"
                         }
                     ]
                 }
@@ -48,7 +48,7 @@
             "name": "environment_cubemap_tex",
             "type": "cubemap",
             "attachment": "cubemap",
-            "src": "../../assets/textures/cubemaps/cubemap_vulkan.ktx"
+            "src": "../../assets/textures/cubemaps/sky_skybox.ktx"
         }
     },
     "objects":
@@ -64,20 +64,87 @@
             }
         },
         {
-            "name": "fight_helmet_mesh_component",
+            "name": "LightGold",
             "type": "gltf_mesh",
-            "use_volume": "environment_component",
             "mesh": 
             {
-                "name": "fight_helmet_gltf",
+                "name": "LightGold",
                 "type": "static",
-                "src": "../../assets/meshes/fireman/scene.gltf",
+                "src": "../../assets/meshes/LightGold/LightGold.gltf",
                 "use_included_material": true
             },
             "transform":
             {
-                "pos": {"x": 0.0, "y": 0.0, "z": 0.0},
-                "rot": {"x": 1.57, "y": 0.0, "z": 0.0},
+                "pos": {"x": -6.0, "y": -2.5, "z": 4.0},
+                "rot": {"x": 0.0, "y": 0.0, "z": 0.0},
+                "scale": {"x": 1, "y": 1, "z": 1}
+            }
+        },
+        {
+            "name": "OxidizedCopper",
+            "type": "gltf_mesh",
+            "mesh": 
+            {
+                "name": "OxidizedCopper",
+                "type": "static",
+                "src": "../../assets/meshes/OxidizedCopper/OxidizedCopper.gltf",
+                "use_included_material": true
+            },
+            "transform":
+            {
+                "pos": {"x": -3.0, "y": -2.5, "z": 4.0},
+                "rot": {"x": 0.0, "y": 0.0, "z": 0.0},
+                "scale": {"x": 1, "y": 1, "z": 1}
+            }
+        },
+        {
+            "name": "ScuffedCopper",
+            "type": "gltf_mesh",
+            "mesh": 
+            {
+                "name": "ScuffedCopper",
+                "type": "static",
+                "src": "../../assets/meshes/ScuffedCopper/ScuffedCopper.gltf",
+                "use_included_material": true
+            },
+            "transform":
+            {
+                "pos": {"x": 0.0, "y": -2.5, "z": 4.0},
+                "rot": {"x": 0.0, "y": 0.0, "z": 0.0},
+                "scale": {"x": 1, "y": 1, "z": 1}
+            }
+        },
+        {
+            "name": "ScuffedMetal",
+            "type": "gltf_mesh",
+            "mesh": 
+            {
+                "name": "ScuffedMetal",
+                "type": "static",
+                "src": "../../assets/meshes/ScuffedMetal/ScuffedMetal.gltf",
+                "use_included_material": true
+            },
+            "transform":
+            {
+                "pos": {"x": 3.0, "y": -2.5, "z": 4.0},
+                "rot": {"x": 0.0, "y": 0.0, "z": 0.0},
+                "scale": {"x": 1, "y": 1, "z": 1}
+            }
+        },
+        {
+            "name": "WornShiny",
+            "type": "gltf_mesh",
+            "mesh": 
+            {
+                "name": "WornShiny",
+                "type": "static",
+                "src": "../../assets/meshes/WornShiny/WornShiny.gltf",
+                "use_included_material": true
+            },
+            "transform":
+            {
+                "pos": {"x": 6.0, "y": -2.5, "z": 4.0},
+                "rot": {"x": 0.0, "y": 0.0, "z": 0.0},
                 "scale": {"x": 1, "y": 1, "z": 1}
             }
         },
@@ -89,13 +156,14 @@
                 "name": "floor_model_gltf",
                 "type": "static",
                 "src": "../../assets/meshes/floor/floor.gltf",
+                "repeat": 3.0,
                 "use_included_material": true
             },
             "transform":
             {
                 "pos": {"x": 0.0, "y": 0.0, "z": 0.0},
                 "rot": {"x": 0.0, "y": 0.0, "z": 0.0},
-                "scale": {"x": 5.0, "y": 5.0, "z": 5.0}
+                "scale": {"x": 1.0, "y": 1.0, "z": 1.0}
             }
         }
     ]

@@ -79,6 +79,7 @@ void DeferredRenderer::Create(std::shared_ptr<Resources::ResourceManager> pResMg
 void DeferredRenderer::Render(vk::CommandBuffer& commandBuffer)
 {
     auto imageIndex = USwapChain->GetCurrentFrame();
+    UVBO->Bind(commandBuffer);
     BeginRender(commandBuffer);
     m_pRenderNode->Render(commandBuffer, imageIndex);
     EndRender(commandBuffer);

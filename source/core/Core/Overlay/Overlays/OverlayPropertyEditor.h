@@ -14,7 +14,7 @@ namespace Engine
                 OverlayPropertyEditor(std::string srName)
                 {
                     srOverlayName = srName;
-                    bOverlayState = false;
+                    bOverlayState = true;
                 }
                 void Draw() override;
             };

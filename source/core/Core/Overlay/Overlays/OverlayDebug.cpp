@@ -49,9 +49,8 @@ void OverlayDebug::Draw()
         ImGui::InputFloat3("Rotation", (float *)rotation);
 
         ImGui::Text("Scene");
-        ImGui::DragFloat("ambient", &GlobalVariables::ambientLight, 0.005, 0.0, 1.0);
-        ImGui::DragFloat("tone", &GlobalVariables::postprocessTone, 0.005, 0.0, 5.0);
-        ImGui::DragFloat("gamma", &GlobalVariables::postprocessGamma, 0.005, 0.0, 5.0);
+        ImGui::DragFloat("gamma", &GlobalVariables::postprocessGamma, 0.001, 0.0, 5.0);
+        ImGui::DragFloat("exposure", &GlobalVariables::postprocessExposure, 0.001, 0.1, 20.0);
 
         ImGui::Text("VBO");
         int vertices = UVBO->GetLastVertex();

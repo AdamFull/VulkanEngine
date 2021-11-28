@@ -17,6 +17,8 @@
 #include "Overlays/OverlayPropertyEditor.h"
 #include "Overlays/OverlaySceneGraph.h"
 
+#include "Core/Scene/Objects/RenderObject.h"
+
 #include "Core/VulkanHighLevel.h"
 
 using namespace Engine::Core;
@@ -33,7 +35,7 @@ ImguiOverlay::~ImguiOverlay()
     m_pUniform->Cleanup();
 }
 
-void ImguiOverlay::Create(std::shared_ptr<ResourceManager> pResMgr)
+void ImguiOverlay::Create(std::shared_ptr<ResourceManager> pResMgr, std::shared_ptr<Scene::Objects::RenderObject> pRoot)
 {
     fontTexture = std::make_shared<Image>();
     fontMaterial = std::make_shared<MaterialUI>();
@@ -47,9 +49,9 @@ void ImguiOverlay::Create(std::shared_ptr<ResourceManager> pResMgr)
     CreateFontResources(pResMgr);
 
     m_vOverlays.emplace_back(std::make_shared<Overlay::OverlayDebug>("Debug info"));
-    m_vOverlays.emplace_back(std::make_shared<Overlay::OverlayConsole>("Console"));
-    m_vOverlays.emplace_back(std::make_shared<Overlay::OverlayLog>("Log"));
-    m_vOverlays.emplace_back(std::make_shared<Overlay::OverlaySceneGraph>("Scene"));
+    //m_vOverlays.emplace_back(std::make_shared<Overlay::OverlayConsole>("Console"));
+    //m_vOverlays.emplace_back(std::make_shared<Overlay::OverlayLog>("Log"));
+    m_vOverlays.emplace_back(std::make_shared<Overlay::OverlaySceneGraph>("Scene", pRoot));
     m_vOverlays.emplace_back(std::make_shared<Overlay::OverlayPropertyEditor>("Property editor"));
 
     ImGui_ImplGlfw_InitForVulkan(UWinHandle->GetWindowInstance(), true);

@@ -8,6 +8,7 @@
 #include "Core/Scene/Objects/Components/Camera/CameraComponent.h"
 #include "Core/Scene/Objects/Components/Camera/CameraManager.h"
 #include "Core/Scene/Lightning/LightSourceManager.h"
+#include "Core/Scene/Objects/Components/Light/LightComponent.h"
 
 #include "Core/Rendering/RendererBase.h"
 #include "Resources/ResourceCunstruct.h"
@@ -36,15 +37,15 @@ void RenderScene::Create()
     m_pRoot = std::make_shared<Core::Scene::Objects::Components::SceneRootComponent>();
     m_pResourceManager = std::make_shared<Resources::ResourceManager>();
     m_pResourceManager->Create();
-    UOverlay->Create(m_pResourceManager);   //TODO: bad!
+    UOverlay->Create(m_pResourceManager, m_pRoot);   //TODO: bad!
 
     //TODO: for test
-    for(uint32_t i = 0; i < 5; i++)
+    for(uint32_t i = 0; i < 10; i++)
     {
         LightSourceManager::GetInstance()->CreateSource(ELightSourceType::ePoint,
         glm::vec3(frandom(-8.f, 8.f), frandom(-3.f, -1.f), frandom(-8.f, 8.f)),
         glm::vec3(frandom(0.f, 1.f), frandom(0.f, 1.f), frandom(0.f, 1.f)),
-        frandom(0.f, 30.f));
+        frandom(10.f, 15.f));
     }
 }
 
@@ -99,21 +100,16 @@ void RenderScene::Render(float fDeltaTime)
     bool bResult;
     auto commandBuffer = UHLInstance->BeginFrame(&bResult);
     if (!bResult)
-    {
         ReCreate();
-    }
 
     uint32_t currentFrame = URenderer->GetImageIndex();
 
     UOverlay->NewFrame();
     UOverlay->Update(fDeltaTime);
 
-    UVBO->Bind(commandBuffer);
     URenderer->Render(commandBuffer);
     
     UHLInstance->EndFrame(commandBuffer, &bResult);
     if (!bResult)
-    {
         ReCreate();
-    }
 }

@@ -16,9 +16,8 @@ namespace Engine
             glm::vec3 viewPos;
             FLight lights[1024];
             int lightCount;
-            float ambient;
-            float tone;
             float gamma;
+            float exposure;
         };
 
         struct FUniformData

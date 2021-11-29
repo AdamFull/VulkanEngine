@@ -1,6 +1,7 @@
 #version 450
 #extension GL_EXT_scalar_block_layout : enable
 #define PI 3.1415926535897932384626433832795
+const float MAX_REFLECTION_LOD = 10.0; // todo: param/const
 
 layout (set = 1, binding = 0) uniform sampler2D brdflut_tex;
 layout (set = 1, binding = 1) uniform samplerCube irradiance_tex;
@@ -78,7 +79,6 @@ vec3 F_SchlickR(float cosTheta, vec3 F0, float roughness)
 
 vec3 prefilteredReflection(vec3 R, float roughness)
 {
-	const float MAX_REFLECTION_LOD = 4.0; // todo: param/const
 	float lod = roughness * MAX_REFLECTION_LOD;
 	float lodf = floor(lod);
 	float lodc = ceil(lod);
@@ -126,7 +126,7 @@ void main()
 	float occlusion = mrah.b;
 	float height = mrah.a;
 	
-	//outFragcolor = texture(albedo_tex, normal);
+	//outFragcolor = vec4(inWorldPos, 1.0);
 	//return;
 
 	// Calculate direction from fragment to viewPosition
@@ -167,11 +167,8 @@ void main()
 	vec3 ambient = (kD * diffuse + specular)/* * vec3(occlusion)*/;
 
 	// Ambient part
-	//float inv_mask = pow(mask, -1);
-	//vec3 fragcolor = ((ambient + Lo)*mask + ALBEDO_COLOR.rgb*inv_mask) /*+ emission.rgb*/;
 	vec3 fragcolor = mask > 0 ? (ambient + Lo) : ALBEDO_COLOR.rgb;
 	fragcolor += emission.rgb;
-	//vec3 fragcolor = ambient + Lo;
 
 	// Tone mapping
 	fragcolor = Uncharted2Tonemap(fragcolor * ubo.exposure);

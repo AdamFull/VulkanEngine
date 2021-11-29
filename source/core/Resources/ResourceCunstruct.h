@@ -95,6 +95,7 @@ namespace Engine
             std::string srName{};
             EMeshType eType{};
             std::string srSrc{};
+            float fRepeat{1.f};
             bool bUseIncludedMaterial{false};
             std::vector<FMaterialCreateInfo> vMaterials{};
         };

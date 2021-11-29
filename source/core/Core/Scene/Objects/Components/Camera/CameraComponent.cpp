@@ -77,6 +77,8 @@ void CameraComponent::SetViewYXZ(glm::vec3 position, glm::vec3 rotation)
     viewMatrix[3][0] = -glm::dot(u, position);
     viewMatrix[3][1] = -glm::dot(v, position);
     viewMatrix[3][2] = -glm::dot(w, position);
+
+    viewPos = glm::vec4(position, 0.0f) * glm::vec4(-1.0f, 1.0f, -1.0f, 1.0f);
 }
 
 void CameraComponent::Update(float fDeltaTime)
@@ -84,6 +86,6 @@ void CameraComponent::Update(float fDeltaTime)
     RenderObject::Update(fDeltaTime);
 
     auto aspect = USwapChain->GetAspectRatio();
-    SetPerspectiveProjection(glm::radians(60.f), aspect, 0.001f, 512.f);
+    SetPerspectiveProjection(glm::radians(60.f), aspect, 0.1f, 512.f);
     SetViewYXZ(m_transform.pos, m_transform.rot);
 }

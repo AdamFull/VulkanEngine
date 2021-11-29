@@ -21,12 +21,13 @@ layout(set = 0, binding = 0) uniform FUniformData
   mat4 view;
   mat4 projection;
   mat4 normal;
+  float repeat;
 } ubo;
 
 void main() 
 {
   outWorldPos = vec3(ubo.model * vec4(inPosition, 1.0));
-	outUV = inTexCoord;
+	outUV = inTexCoord * ubo.repeat;
   outNormal = mat3(ubo.normal) * inNormal;
 	outTangent = vec4(mat3(ubo.normal) * inTangent.xyz, inTangent.w);
 

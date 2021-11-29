@@ -56,7 +56,7 @@ void MeshComponentBase::Render(vk::CommandBuffer &commandBuffer, uint32_t imageI
         ubo.model = transform.GetModel();
         ubo.view = camera->GetView();
         ubo.projection = camera->GetProjection();
-        ubo.normal = glm::transpose(glm::inverse(ubo.model));
+        ubo.normal = transform.GetModel();
 
         m_pMesh->Render(commandBuffer, imageIndex, ubo);
     }

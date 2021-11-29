@@ -24,6 +24,7 @@ void MeshBase::Render(vk::CommandBuffer commandBuffer, uint32_t imageIndex, Core
 {
     for (auto& fragment : m_vFragments)
     {
+        ubo.repeat = fRepeat;
         ubo.model = ubo.model * fragment->GetLocalMatrix();
         m_pUniformBuffer->UpdateUniformBuffer(imageIndex, &ubo);
         auto& buffer = m_pUniformBuffer->GetUniformBuffer(imageIndex);

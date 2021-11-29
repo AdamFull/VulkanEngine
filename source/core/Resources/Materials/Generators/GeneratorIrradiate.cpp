@@ -14,8 +14,8 @@ using namespace Engine::Resources::Loaders;
 
 void GeneratorIrradiate::Create(std::shared_ptr<ResourceManager> pResMgr)
 {
-    m_iDimension = 128;
-    CreateTextures();
+    m_iDimension = 64;
+    //CreateTextures();
 
     vk::PushConstantRange constantRange{};
     constantRange.stageFlags = vk::ShaderStageFlagBits::eVertex | vk::ShaderStageFlagBits::eFragment;
@@ -86,7 +86,7 @@ void GeneratorIrradiate::Generate(std::shared_ptr<Mesh::MeshBase> pMesh)
             tempBuffer.setViewport(0, 1, &viewport);
 
             tempBuffer.beginRenderPass(renderPassBeginInfo, vk::SubpassContents::eInline);
-            pushBlock.mvp = glm::perspective((float)(3.14 / 2.0), 1.0f, 0.1f, 512.0f) * matrices[f];
+            pushBlock.mvp = glm::perspective((float)(LONGPI / 2.0), 1.0f, 0.1f, 512.0f) * matrices[f];
             tempBuffer.pushConstants(pipelineLayout, vk::ShaderStageFlagBits::eVertex | vk::ShaderStageFlagBits::eFragment, 0, sizeof(FIrradiatePushBlock), &pushBlock);
             tempBuffer.bindPipeline(vk::PipelineBindPoint::eGraphics, pPipeline->GetPipeline());
             m_pMatDesc->Bind(tempBuffer, 0);
@@ -137,9 +137,8 @@ void GeneratorIrradiate::CreateTextures()
     m_pCubemap = std::make_shared<Image>();
     ktxTexture *cubemap;
     ImageLoader::AllocateRawDataAsKTXTextureCubemap(&cubemap, &imageFormat, m_iDimension, m_iDimension, 1, 2, 0x8814, true);
+    cubemap->isCubemap = true;
     m_pCubemap->InitializeTexture(cubemap, imageFormat, vk::ImageUsageFlagBits::eSampled | vk::ImageUsageFlagBits::eTransferDst);
     m_pCubemap->UpdateDescriptor();
     ImageLoader::Close(&cubemap);
-
-    GeneratorBase::CreateTextures();
 }

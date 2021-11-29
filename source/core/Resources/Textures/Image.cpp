@@ -218,7 +218,7 @@ void Image::InitializeTexture(ktxTexture *info, vk::Format format, vk::ImageUsag
     if(!sampler)
     {
         auto addressMode = info->isArray || info->isCubemap || info->baseDepth > 1 ? vk::SamplerAddressMode::eClampToEdge : vk::SamplerAddressMode::eRepeat;
-        UDevice->CreateSampler(sampler, fParams.mipLevels, vk::SamplerAddressMode::eRepeat);
+        UDevice->CreateSampler(sampler, fParams.mipLevels, addressMode);
     }
     //imageLayout = vk::ImageLayout::eShaderReadOnlyOptimal;
 }

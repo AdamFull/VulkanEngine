@@ -81,7 +81,6 @@ void RendererBase::SetPrevStage(std::shared_ptr<RendererBase> pPrev)
 
 void RendererBase::BeginRender(vk::CommandBuffer& commandBuffer)
 {
-    auto extent = USwapChain->GetExtent();
     auto imageIndex = USwapChain->GetCurrentFrame();
 
     std::vector<vk::ClearValue> clearValues{};
@@ -101,14 +100,14 @@ void RendererBase::BeginRender(vk::CommandBuffer& commandBuffer)
     renderPassInfo.renderPass = GetRenderPass();
     renderPassInfo.framebuffer = GetFramebuffer(imageIndex);
     renderPassInfo.renderArea.offset = vk::Offset2D{0, 0};
-    renderPassInfo.renderArea.extent = extent;
+    renderPassInfo.renderArea.extent = out_extent;
     renderPassInfo.clearValueCount = static_cast<uint32_t>(clearValues.size());
     renderPassInfo.pClearValues = clearValues.data();
 
     commandBuffer.beginRenderPass(renderPassInfo, vk::SubpassContents::eInline);
 
-    vk::Viewport viewport = Initializers::Viewport(extent.width, extent.height);
-    vk::Rect2D scissor{{0, 0}, extent};
+    vk::Viewport viewport = Initializers::Viewport(out_extent.width, out_extent.height);
+    vk::Rect2D scissor{{0, 0}, out_extent};
 
     commandBuffer.setViewport(0, 1, &viewport);
     commandBuffer.setScissor(0, 1, &scissor);
@@ -140,10 +139,9 @@ void RendererBase::CreateSampler()
 std::shared_ptr<Image> RendererBase::CreateImage(attachment_t attachment)
 {
     auto texture = std::make_shared<Image>();
-    auto extent = USwapChain->GetExtent();
     ktxTexture *offscreen;
     vk::Format imageFormat;
-    ImageLoader::AllocateRawDataAsKTXTexture(&offscreen, &imageFormat, extent.width, extent.height, 1, 2, VulkanStaticHelper::VkFormatToGLFormat(attachment.format));
+    ImageLoader::AllocateRawDataAsKTXTexture(&offscreen, &imageFormat, out_extent.width, out_extent.height, 1, 2, VulkanStaticHelper::VkFormatToGLFormat(attachment.format));
 
     vk::ImageAspectFlags aspectMask{};
     vk::ImageLayout imageLayout{};
@@ -266,7 +264,6 @@ void RendererBase::CreateFramebuffers()
     assert(!m_vImages.empty() && "Cannot create framebuffers, cause g-buffer images is not created.");
 
     auto framesInFlight = USwapChain->GetFramesInFlight();
-    auto extent = USwapChain->GetExtent();
     m_vFramebuffers.resize(framesInFlight);
     for(size_t frame = 0; frame < framesInFlight; frame++)
     {
@@ -283,8 +280,8 @@ void RendererBase::CreateFramebuffers()
         framebufferCI.renderPass = m_RenderPass;
         framebufferCI.pAttachments = vImages.data();
         framebufferCI.attachmentCount = static_cast<uint32_t>(vImages.size());
-        framebufferCI.width = extent.width;
-        framebufferCI.height = extent.height;
+        framebufferCI.width = out_extent.width;
+        framebufferCI.height = out_extent.height;
         framebufferCI.layers = 1;
 
         m_vFramebuffers[frame] = UDevice->Make<vk::Framebuffer, vk::FramebufferCreateInfo>(framebufferCI);

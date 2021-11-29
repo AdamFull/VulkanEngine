@@ -46,6 +46,8 @@ namespace Engine
                 virtual void Cleanup();
                 virtual void Destroy();
 
+                inline void TextureRepeat(float repeatTimes) { fRepeat = repeatTimes; }
+
                 void AddFragment(std::shared_ptr<MeshFragment> fragment);
                 inline std::vector<FAnimation>& GetAnimations() { return m_vAnimations; }
                 inline void AddAnimation(FAnimation&& animation) { m_vAnimations.emplace_back(animation); }
@@ -58,6 +60,7 @@ namespace Engine
                 std::vector<FAnimation> m_vAnimations;
                 std::shared_ptr<Core::UniformBuffer> m_pUniformBuffer;
                 std::string m_srName;
+                float fRepeat;
             };
         }
     }

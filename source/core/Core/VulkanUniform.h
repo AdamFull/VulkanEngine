@@ -26,6 +26,7 @@ namespace Engine
             alignas(16) glm::mat4 view{};
             alignas(16) glm::mat4 projection{};
             alignas(16) glm::mat4 normal{};
+            alignas(4)  float repeat;
         };
 
         struct FUniformDataUI

@@ -1,5 +1,6 @@
 #pragma once
 #include "Resources/Materials/VulkanMaterial.h"
+#define LONGPI 3.1415926535897932384626433832795
 
 namespace Engine
 {

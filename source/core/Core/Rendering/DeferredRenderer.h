@@ -13,6 +13,7 @@ namespace Engine
                 DeferredRenderer() = default;
 
                 void Create(std::shared_ptr<Resources::ResourceManager> pResMgr) override;
+                void ReCreate(uint32_t framesInFlight) override;
                 void Render(vk::CommandBuffer& commandBuffer) override;
                 void Cleanup() override;
             };

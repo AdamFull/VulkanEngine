@@ -73,7 +73,15 @@ void DeferredRenderer::Create(std::shared_ptr<Resources::ResourceManager> pResMg
         }
     };
 
+    out_extent = USwapChain->GetExtent();
+    out_extent = vk::Extent2D(out_extent.width * 2.0, out_extent.height * 2.0);
     RendererBase::Create(pResMgr);
+}
+
+void DeferredRenderer::ReCreate(uint32_t framesInFlight)
+{
+    out_extent = USwapChain->GetExtent();
+    out_extent = vk::Extent2D(out_extent.width * 2.0, out_extent.height * 2.0);
 }
 
 void DeferredRenderer::Render(vk::CommandBuffer& commandBuffer)

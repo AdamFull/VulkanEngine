@@ -23,7 +23,7 @@ namespace Engine
                     }
 
                     glm::mat4 GetModel();
-                    glm::mat3 GetNormal();
+                    glm::mat4 GetNormal();
                 };
             }
         }

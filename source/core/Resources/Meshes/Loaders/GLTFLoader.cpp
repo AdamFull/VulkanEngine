@@ -288,6 +288,24 @@ void GLTFLoader::LoadMeshFragment(std::shared_ptr<Resources::ResourceManager> pR
             }
         }
 
+        /*for(auto index = 0; index < indexBuffer.size(); index+=3)
+        {
+            auto& vertex1 = vertexBuffer.at(indexBuffer.at(index) - vertexStart);
+            auto& vertex2 = vertexBuffer.at(indexBuffer.at(index + 1) - vertexStart);
+            auto& vertex3 = vertexBuffer.at(indexBuffer.at(index + 2) - vertexStart);
+
+            glm::vec3 normal = glm::normalize(glm::cross((vertex2.pos - vertex1.pos),(vertex3.pos - vertex1.pos)));
+            auto area1 = glm::angle(vertex2.pos - vertex1.pos, vertex3.pos - vertex1.pos);
+            auto area2 = glm::angle(vertex3.pos - vertex2.pos, vertex1.pos - vertex2.pos);
+            auto area3 = glm::angle(vertex1.pos - vertex3.pos, vertex2.pos - vertex3.pos);
+            vertex1.normal += normal;
+            vertex2.normal += normal;
+            vertex3.normal += normal;
+        }
+
+        for(auto& vert : vertexBuffer)
+            vert.normal = glm::normalize(vert.normal);*/
+
         // Creating primitive for mesh
         Primitive modelPrim{};
         modelPrim.firstIndex = indexStart;

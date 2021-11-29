@@ -518,12 +518,12 @@ vk::ImageView Device::CreateImageView(vk::Image &pImage, vk::ImageViewCreateInfo
     return imageView;
 }
 
-void Device::CreateSampler(vk::Sampler &sampler, uint32_t mip_levels, vk::SamplerAddressMode eAddressMode)
+void Device::CreateSampler(vk::Sampler &sampler, uint32_t mip_levels, vk::SamplerAddressMode eAddressMode, vk::Filter magFilter)
 {
     assert(data.physical && "Cannot create sampler, cause physical device is not valid.");
     assert(data.logical && "Cannot create sampler, cause logical device is not valid.");
     vk::SamplerCreateInfo samplerInfo{};
-    samplerInfo.magFilter = vk::Filter::eLinear;
+    samplerInfo.magFilter = magFilter;
     samplerInfo.minFilter = vk::Filter::eLinear;
     samplerInfo.addressModeU = eAddressMode;
     samplerInfo.addressModeV = eAddressMode;

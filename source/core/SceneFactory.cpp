@@ -140,7 +140,9 @@ std::shared_ptr<Core::Scene::Objects::RenderObject> SceneFactory::CreateGLTFMesh
     loader->Load(info.mesh.srSrc, info.srName, pResMgr);
     mesh->SetTransform(info.fTransform);
     mesh->SetName(info.srName);
-    mesh->SetMesh(loader->GetMesh());
+    auto& loaded = loader->GetMesh();
+    loaded->TextureRepeat(info.mesh.fRepeat);
+    mesh->SetMesh(loaded);
 
     return mesh;
 }

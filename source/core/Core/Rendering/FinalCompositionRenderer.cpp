@@ -42,12 +42,14 @@ void FinalCompositionRenderer::Create(std::shared_ptr<Resources::ResourceManager
         }
     };
 
+    out_extent = USwapChain->GetExtent();
     RendererBase::Create(pResMgr);
     CreateMaterial(pResMgr);
 }
 
 void FinalCompositionRenderer::ReCreate(uint32_t framesInFlight)
 {
+    out_extent = USwapChain->GetExtent();
     RendererBase::ReCreate(framesInFlight);
     m_pMaterial->ReCreate();
 }

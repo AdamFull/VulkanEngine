@@ -176,6 +176,11 @@ namespace Engine
             if (json.find("src") != json.end())
                 json.at("src").get_to(type.srSrc);
 
+            if (json.find("repeat") != json.end())
+                json.at("repeat").get_to(type.fRepeat);
+            else
+                type.fRepeat = 1.f;
+
             // Optional
             if (json.find("use_included_material") != json.end())
                 json.at("use_included_material").get_to(type.bUseIncludedMaterial);

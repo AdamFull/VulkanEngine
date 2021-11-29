@@ -22,25 +22,25 @@ layout (location = 5) out vec4 outMRAH;
 void main() 
 {
 	outPosition = vec4(inWorldPos, 1.0);
-	vec2 uv = inUV;
 
 	// Calculate normal in tangent space
 	vec3 N = normalize(inNormal);
 	vec3 T = normalize(inTangent.xyz);
+	T = normalize(T - dot(T, N) * N);
 	vec3 B = normalize(cross(N, T));
 	mat3 TBN = mat3(T, B, N);
-	vec3 tnorm = normalize(TBN * texture(normal_tex, uv).xyz * 2.0 - 1.0);
+	vec3 tnorm = normalize(TBN * (texture(normal_tex, inUV).xyz * 2.0 - 1.0));
 	outNormal = vec4(tnorm, 1.0);
 
 	outMask = vec4(1.0);
-	outAlbedo = texture(color_tex, uv);
+	outAlbedo = texture(color_tex, inUV);
 
-	vec4 metalRough = texture(metalRough_tex, uv);
+	vec4 metalRough = texture(metalRough_tex, inUV);
 	float metal = metalRough.b;
 	float rough = metalRough.g;
-	float occlusion = texture(ao_tex, uv).r;
-	float height = texture(height_tex, uv).r;
+	float occlusion = texture(ao_tex, inUV).r;
+	float height = texture(height_tex, inUV).r;
 
-	outEmission = texture(emissive_tex, uv);
+	outEmission = texture(emissive_tex, inUV);
 	outMRAH = vec4(metal, rough, occlusion, 1.0);
 }

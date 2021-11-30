@@ -5,7 +5,7 @@ layout(location = 0) in vec3 inPosition;
 layout(location = 1) in vec3 inColor;
 layout(location = 2) in vec3 inNormal;
 layout(location = 3) in vec2 inTexCoord;
-layout(location = 4) in vec4 inTangent;
+layout(location = 4) in vec3 inTangent;
 layout(location = 5) in vec4 inJoint;
 layout(location = 6) in vec4 inWeights;
 
@@ -13,23 +13,25 @@ layout (location = 0) out vec3 outNormal;
 layout (location = 1) out vec2 outUV;
 layout (location = 2) out vec3 outColor;
 layout (location = 3) out vec3 outWorldPos;
-layout (location = 4) out vec4 outTangent;
+layout (location = 4) out vec3 outTangent;
 
-layout(set = 0, binding = 0) uniform FUniformData 
+layout(std140, set = 0, binding = 0) uniform FUniformData 
 {
   mat4 model;
   mat4 view;
   mat4 projection;
-  mat4 normal;
-  float repeat;
+  //mat4 normal;
+  //float repeat;
 } ubo;
 
 void main() 
 {
+  //mat3 normal = mat3(ubo.normal);
+  mat3 normal = transpose(inverse(mat3(ubo.model)));
   outWorldPos = vec3(ubo.model * vec4(inPosition, 1.0));
-	outUV = inTexCoord * ubo.repeat;
-  outNormal = mat3(ubo.normal) * inNormal;
-	outTangent = vec4(mat3(ubo.normal) * inTangent.xyz, inTangent.w);
+	outUV = inTexCoord * 1.0;
+  outNormal = normal * inNormal;
+	outTangent = normal * inTangent;
 
   outColor = inColor;
   

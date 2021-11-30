@@ -10,7 +10,7 @@ layout (location = 0) in vec3 inNormal;
 layout (location = 1) in vec2 inUV;
 layout (location = 2) in vec3 inColor;
 layout (location = 3) in vec3 inWorldPos;
-layout (location = 4) in vec4 inTangent;
+layout (location = 4) in vec3 inTangent;
 
 layout (location = 0) out vec4 outPosition;
 layout (location = 1) out vec4 outMask;
@@ -25,8 +25,7 @@ void main()
 
 	// Calculate normal in tangent space
 	vec3 N = normalize(inNormal);
-	vec3 T = normalize(inTangent.xyz);
-	T = normalize(T - dot(T, N) * N);
+	vec3 T = normalize(inTangent);
 	vec3 B = normalize(cross(N, T));
 	mat3 TBN = mat3(T, B, N);
 	vec3 tnorm = normalize(TBN * (texture(normal_tex, inUV).xyz * 2.0 - 1.0));

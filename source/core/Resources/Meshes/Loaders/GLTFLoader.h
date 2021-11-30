@@ -1,6 +1,7 @@
 #pragma once
 #include "external/gltf/tiny_gltf.h"
 #include "Resources/Meshes/VulkanMesh.h"
+#include "Core/DataTypes/VulkanVertex.hpp"
 
 namespace Engine
 {
@@ -30,6 +31,8 @@ namespace Engine
                 void LoadNode(std::shared_ptr<Resources::ResourceManager> pResMgr, std::shared_ptr<GLTFSceneNode> pParent, const tinygltf::Node &node, uint32_t nodeIndex, const tinygltf::Model &model, float globalscale);
 
                 void LoadMeshFragment(std::shared_ptr<Resources::ResourceManager> pResMgr, std::shared_ptr<GLTFSceneNode> sceneNode, const tinygltf::Node &node, const tinygltf::Model &model);
+                void RecalculateTangents(std::vector<Core::Vertex>& vertices, std::vector<uint32_t>& indices, uint64_t startIndex);
+
                 void LoadAnimations(const tinygltf::Model &model);
 
                 void LoadMaterials(std::shared_ptr<Resources::ResourceManager> pResMgr, const tinygltf::Model &model);

@@ -126,7 +126,7 @@ void main()
 	float occlusion = mrah.b;
 	float height = mrah.a;
 	
-	//outFragcolor = vec4(inWorldPos, 1.0);
+	//outFragcolor = vec4(N, 1.0);
 	//return;
 
 	// Calculate direction from fragment to viewPosition

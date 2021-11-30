@@ -14,7 +14,7 @@ namespace Engine
             glm::vec3 color{};
             glm::vec3 normal{};
             glm::vec2 texcoord{};
-            glm::vec4 tangent{};
+            glm::vec3 tangent{};
             glm::vec4 joint0{};
             glm::vec4 weight0{};
 
@@ -60,7 +60,7 @@ namespace Engine
 
                 attributeDescriptions[4].binding = 0;
                 attributeDescriptions[4].location = 4;
-                attributeDescriptions[4].format = vk::Format::eR32G32B32A32Sfloat;
+                attributeDescriptions[4].format = vk::Format::eR32G32B32Sfloat;
                 attributeDescriptions[4].offset = offsetof(Vertex, tangent);
 
                 attributeDescriptions[5].binding = 0;

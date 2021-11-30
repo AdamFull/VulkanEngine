@@ -8,7 +8,6 @@
 #include "Resources/Materials/MaterialDiffuse.h"
 #include "Resources/Textures/ImageLoader.h"
 
-#include "Core/DataTypes/VulkanVertex.hpp"
 #include "Core/VulkanHighLevel.h"
 #include "GLTFSceneNode.h"
 
@@ -287,24 +286,8 @@ void GLTFLoader::LoadMeshFragment(std::shared_ptr<Resources::ResourceManager> pR
                 return;
             }
         }
-
-        /*for(auto index = 0; index < indexBuffer.size(); index+=3)
-        {
-            auto& vertex1 = vertexBuffer.at(indexBuffer.at(index) - vertexStart);
-            auto& vertex2 = vertexBuffer.at(indexBuffer.at(index + 1) - vertexStart);
-            auto& vertex3 = vertexBuffer.at(indexBuffer.at(index + 2) - vertexStart);
-
-            glm::vec3 normal = glm::normalize(glm::cross((vertex2.pos - vertex1.pos),(vertex3.pos - vertex1.pos)));
-            auto area1 = glm::angle(vertex2.pos - vertex1.pos, vertex3.pos - vertex1.pos);
-            auto area2 = glm::angle(vertex3.pos - vertex2.pos, vertex1.pos - vertex2.pos);
-            auto area3 = glm::angle(vertex1.pos - vertex3.pos, vertex2.pos - vertex3.pos);
-            vertex1.normal += normal;
-            vertex2.normal += normal;
-            vertex3.normal += normal;
-        }
-
-        for(auto& vert : vertexBuffer)
-            vert.normal = glm::normalize(vert.normal);*/
+        
+        RecalculateTangents(vertexBuffer, indexBuffer, vertexStart);
 
         // Creating primitive for mesh
         Primitive modelPrim{};
@@ -333,6 +316,50 @@ void GLTFLoader::LoadMeshFragment(std::shared_ptr<Resources::ResourceManager> pR
     }
     sceneNode->m_pMesh = nativeMesh;
     pResMgr->AddExisting(nativeMesh->GetName(), nativeMesh);
+}
+
+void GLTFLoader::RecalculateTangents(std::vector<Core::Vertex>& vertices, std::vector<uint32_t>& indices, uint64_t startIndex)
+{
+    for(auto index = 0; index < indices.size(); index+=3)
+    {
+        auto& vertex1 = vertices.at(indices.at(index) - startIndex);
+        auto& vertex2 = vertices.at(indices.at(index + 1) - startIndex);
+        auto& vertex3 = vertices.at(indices.at(index + 2) - startIndex);
+
+        vertex1.normal = glm::vec3(0.0);
+        vertex2.normal = glm::vec3(0.0);
+        vertex3.normal = glm::vec3(0.0);
+        vertex1.tangent = glm::vec3(0.0);
+        vertex2.tangent = glm::vec3(0.0);
+        vertex3.tangent = glm::vec3(0.0);
+
+        glm::vec3 normal = glm::normalize(glm::cross((vertex2.pos - vertex1.pos),(vertex3.pos - vertex1.pos)));
+
+        glm::vec2 duv1 = vertex2.texcoord - vertex1.texcoord;
+        glm::vec2 duv2 = vertex3.texcoord - vertex1.texcoord;
+
+        float k = 1 / (duv1.x * duv2.y - duv2.x * duv1.y);
+        glm::mat2x2 UV(duv2.y, -duv1.y, -duv2.x, duv1.x);
+        glm::mat2x3 E(vertex2.pos - vertex1.pos, vertex3.pos - vertex1.pos);
+        glm::mat2x3 TB = k * E * UV;
+
+        vertex1.tangent += TB[0];
+        vertex2.tangent += TB[0];
+        vertex3.tangent += TB[0];
+        vertex1.normal += normal;
+        vertex2.normal += normal;
+        vertex3.normal += normal;
+    }
+
+    //Finalization
+    for(auto& vertex : vertices)
+    {
+        auto& normal = vertex.normal;
+        normal = glm::normalize(normal);
+        auto& tangent = vertex.tangent;
+        tangent = glm::normalize(tangent);
+        tangent = glm::normalize(tangent - glm::dot(tangent, normal) * normal);
+    }
 }
 
 void GLTFLoader::LoadAnimations(const tinygltf::Model &model)

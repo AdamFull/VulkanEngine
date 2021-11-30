@@ -153,6 +153,9 @@ void main()
 	vec3 reflection = prefilteredReflection(R, roughness).rgb;	
 	vec3 irradiance = texture(irradiance_tex, N).rgb;
 
+	outFragcolor = vec4(reflection, 1.0);
+	return;
+
 	// Diffuse based on irradiance
 	vec3 diffuse = irradiance * ALBEDO_COLOR;	
 

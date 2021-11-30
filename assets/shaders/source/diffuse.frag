@@ -28,7 +28,9 @@ void main()
 	vec3 T = normalize(inTangent);
 	vec3 B = normalize(cross(N, T));
 	mat3 TBN = mat3(T, B, N);
-	vec3 tnorm = normalize(TBN * (texture(normal_tex, inUV).xyz * 2.0 - 1.0));
+	//vec3 tnorm = normalize(TBN * (texture(normal_tex, inUV).xyz * 2.0 - vec3(1.0)));
+	vec3 sampledNormal = 2.0 * texture(normal_tex, inUV).xyz - vec3(1.0);
+	vec3 tnorm = TBN * sampledNormal;
 	outNormal = vec4(tnorm, 1.0);
 
 	outMask = vec4(1.0);

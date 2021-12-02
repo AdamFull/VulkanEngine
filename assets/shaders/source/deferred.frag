@@ -129,8 +129,10 @@ void main()
 	//outFragcolor = vec4(N, 1.0);
 	//return;
 
+	vec3 cameraPos = ubo.viewPos;
+
 	// Calculate direction from fragment to viewPosition
-    vec3 V = normalize(ubo.viewPos - inWorldPos);
+    vec3 V = normalize(cameraPos - inWorldPos);
 	// Reflection vector
     vec3 R = reflect(-V, N);
 
@@ -153,8 +155,8 @@ void main()
 	vec3 reflection = prefilteredReflection(R, roughness).rgb;	
 	vec3 irradiance = texture(irradiance_tex, N).rgb;
 
-	outFragcolor = vec4(reflection, 1.0);
-	return;
+	//outFragcolor = vec4(mask > 0 ? N : ALBEDO_COLOR.rgb, 1.0);
+	//return;
 
 	// Diffuse based on irradiance
 	vec3 diffuse = irradiance * ALBEDO_COLOR;	

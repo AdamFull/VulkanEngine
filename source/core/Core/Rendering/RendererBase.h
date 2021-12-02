@@ -39,6 +39,7 @@ namespace Engine
 
             enum class ERendererType
             {
+                //eShadow,
                 eDeferredPBR,
                 eFinalize
             };

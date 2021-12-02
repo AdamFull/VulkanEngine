@@ -25,6 +25,7 @@ void CameraComponent::SetPerspectiveProjection(float fovy, float aspect, float f
     projectionMatrix[2][2] = fFar / (fFar - fNear);
     projectionMatrix[2][3] = 1.f;
     projectionMatrix[3][2] = -(fFar * fNear) / (fFar - fNear);
+    viewMatrix[1][1] *= -1.f;
 }
 
 void CameraComponent::SetViewDirection(glm::vec3 position, glm::vec3 direction, glm::vec3 up)

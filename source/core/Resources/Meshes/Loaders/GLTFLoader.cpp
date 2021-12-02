@@ -287,7 +287,7 @@ void GLTFLoader::LoadMeshFragment(std::shared_ptr<Resources::ResourceManager> pR
             }
         }
         
-        RecalculateTangents(vertexBuffer, indexBuffer, vertexStart);
+        //RecalculateTangents(vertexBuffer, indexBuffer, vertexStart);
 
         // Creating primitive for mesh
         Primitive modelPrim{};
@@ -329,23 +329,25 @@ void GLTFLoader::RecalculateTangents(std::vector<Core::Vertex>& vertices, std::v
         vertex1.normal = glm::vec3(0.0);
         vertex2.normal = glm::vec3(0.0);
         vertex3.normal = glm::vec3(0.0);
-        vertex1.tangent = glm::vec3(0.0);
-        vertex2.tangent = glm::vec3(0.0);
-        vertex3.tangent = glm::vec3(0.0);
+        //vertex1.tangent = glm::vec3(0.0);
+        //vertex2.tangent = glm::vec3(0.0);
+        //vertex3.tangent = glm::vec3(0.0);
 
-        glm::vec3 normal = glm::normalize(glm::cross((vertex2.pos - vertex1.pos),(vertex3.pos - vertex1.pos)));
+        auto vec1 = vertex2.pos - vertex1.pos;
+        auto vec2 = vertex3.pos - vertex1.pos;
+        glm::vec3 normal = glm::normalize(glm::cross(vec1,vec2));
 
         glm::vec2 duv1 = vertex2.texcoord - vertex1.texcoord;
         glm::vec2 duv2 = vertex3.texcoord - vertex1.texcoord;
 
         float k = 1 / (duv1.x * duv2.y - duv2.x * duv1.y);
         glm::mat2x2 UV(duv2.y, -duv1.y, -duv2.x, duv1.x);
-        glm::mat2x3 E(vertex2.pos - vertex1.pos, vertex3.pos - vertex1.pos);
+        glm::mat2x3 E(vec1, vec2);
         glm::mat2x3 TB = k * E * UV;
 
-        vertex1.tangent += TB[0];
-        vertex2.tangent += TB[0];
-        vertex3.tangent += TB[0];
+        //vertex1.tangent += TB[0];
+        //vertex2.tangent += TB[0];
+        //vertex3.tangent += TB[0];
         vertex1.normal += normal;
         vertex2.normal += normal;
         vertex3.normal += normal;
@@ -357,8 +359,8 @@ void GLTFLoader::RecalculateTangents(std::vector<Core::Vertex>& vertices, std::v
         auto& normal = vertex.normal;
         normal = glm::normalize(normal);
         auto& tangent = vertex.tangent;
-        tangent = glm::normalize(tangent);
-        tangent = glm::normalize(tangent - glm::dot(tangent, normal) * normal);
+        //tangent = glm::normalize(tangent - glm::dot(tangent, normal) * normal);
+        //auto w = (glm::dot(glm::cross(normal, tangent), tan2[a]) < 0.0f) ? -1.0f : 1.0f;
     }
 }
 

@@ -11,7 +11,7 @@ vk::PipelineInputAssemblyStateCreateInfo Initializers::PipelineInputAssemblyStat
     return createInfo;
 }
 
-vk::PipelineRasterizationStateCreateInfo Initializers::PipelineRasterizerStateCI(vk::PolygonMode polygonMode, vk::CullModeFlags cullMode, vk::FrontFace frontFace)
+vk::PipelineRasterizationStateCreateInfo Initializers::PipelineRasterizerStateCI(vk::PolygonMode polygonMode, vk::CullModeFlags cullMode, vk::FrontFace frontFace, vk::Bool32 bDepthBias)
 {
     vk::PipelineRasterizationStateCreateInfo createInfo{};
     createInfo.depthClampEnable = VK_FALSE;
@@ -20,7 +20,7 @@ vk::PipelineRasterizationStateCreateInfo Initializers::PipelineRasterizerStateCI
     createInfo.lineWidth = 1.0f;
     createInfo.cullMode = cullMode;
     createInfo.frontFace = frontFace;
-    createInfo.depthBiasEnable = VK_FALSE;
+    createInfo.depthBiasEnable = bDepthBias;
     return createInfo;
 }
 

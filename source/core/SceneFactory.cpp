@@ -1,15 +1,11 @@
 #include "SceneFactory.h"
 #include "filesystem/FilesystemHelper.h"
-#include "RenderScene.h"
-
-#include "Resources/ResourceManager.h"
 
 #include "Resources/Meshes/MeshFactory.h"
 #include "Resources/Materials/MaterialFactory.h"
 #include "Resources/Meshes/Loaders/GLTFLoader.h"
 #include "Resources/Textures/TextureFactory.h"
 
-#include "Core/Scene/Objects/RenderObject.h"
 #include "Core/Scene/Objects/Components/Camera/CameraComponent.h"
 #include "Core/Scene/Objects/Components/Camera/CameraManager.h"
 #include "Core/Scene/Objects/Components/MeshComponentBase.h"

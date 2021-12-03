@@ -1,25 +1,11 @@
 #pragma once
 #include "SceneConstruct.h"
+#include "RenderScene.h"
+#include "Core/Scene/Objects/RenderObject.h"
 #include "serializer/JsonSerializer.h"
 
 namespace Engine
 {
-    class RenderScene;
-    namespace Resources
-    {
-        class ResourceManager;
-    }
-    namespace Core
-    {
-        namespace Scene
-        {
-            namespace Objects
-            {
-                class RenderObject;
-            }
-        }
-    }
-
     struct SceneFactory
     {
         using object_creator_t = std::shared_ptr<Core::Scene::Objects::RenderObject>(FSceneObject);

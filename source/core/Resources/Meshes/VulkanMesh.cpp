@@ -1,5 +1,4 @@
 #include "VulkanMesh.h"
-#include "MeshFragment.h"
 
 using namespace Engine::Core;
 using namespace Engine::Resources::Mesh;

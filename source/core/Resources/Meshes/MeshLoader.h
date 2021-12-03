@@ -1,13 +1,12 @@
 #pragma once
+#include "Resources/ResourceManager.h"
+#include "Resources/Meshes/MeshFragment.h"
 #include "Core/DataTypes/VulkanVertex.hpp"
 
 namespace Engine
 {
     namespace Resources
     {
-        class ResourceManager;
-        namespace Mesh { class MeshFragment; }
-        
         namespace Loaders
         {
             struct MeshLoader

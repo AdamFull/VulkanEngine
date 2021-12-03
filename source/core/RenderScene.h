@@ -1,4 +1,5 @@
 #pragma once
+#include "Resources/ResourceManager.h"
 #include "Core/Scene/Objects/Components/SceneRootComponent.h"
 
 namespace Engine

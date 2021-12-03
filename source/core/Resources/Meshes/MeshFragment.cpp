@@ -1,6 +1,5 @@
 #include "MeshFragment.h"
 #include "Resources/Materials/VulkanMaterial.h"
-#include "Resources/ResourceManager.h"
 #include "Core/VulkanDevice.h"
 #include "Core/VulkanHighLevel.h"
 

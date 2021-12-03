@@ -3,7 +3,6 @@
 #include "Core/Scene/Objects/Components/Camera/CameraManager.h"
 #include "Core/VulkanHighLevel.h"
 #include "KeyMapping/InputMapper.h"
-#include "Resources/ResourceManager.h"
 #include "Core/Overlay/ImguiOverlay.h"
 #include "Core/Scene/Objects/Components/Camera/CameraComponent.h"
 #include "Core/Scene/Objects/Components/Camera/CameraManager.h"

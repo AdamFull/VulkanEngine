@@ -1,14 +1,10 @@
 #pragma once
 #include "Resources/ResourceCunstruct.h"
+#include "Core/VulkanBuffer.h"
 #include "ImageLoader.h"
 
 namespace Engine
 {
-    namespace Core
-    {
-        class VulkanBuffer;
-    }
-    
     namespace Resources
     {
         namespace Texture

@@ -1,16 +1,13 @@
 #pragma once
 #include "Core/VulkanUniform.h"
+#include "MeshFragment.h"
 
 namespace Engine
 {
-    namespace Core { class UniformBuffer; }
     namespace Resources
     {
-        class ResourceManager;
         namespace Mesh
         {
-            class MeshFragment;
-
             struct FAnimationChannel 
             {
                 enum class EPathType { TRANSLATION, ROTATION, SCALE };

@@ -1,4 +1,5 @@
 #pragma once
+#include "Resources/Materials/VulkanMaterial.h"
 #include "Core/VulkanBuffer.h"
 #include "Core/DataTypes/VulkanVertex.hpp"
 
@@ -7,10 +8,6 @@ namespace Engine
     namespace Resources
     {
         class ResourceManager;
-        namespace Material
-        {
-            class MaterialBase;
-        }
 
         namespace Mesh
         {

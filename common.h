@@ -24,8 +24,8 @@
 #include "external/EasyDelegate/EasyDelegateImpl.hpp"
 
 #include "util/uuid.hpp"
-#include "util/NonCopyable.hpp"
-#include "util/NonCopyMovable.hpp"
+#include "util/Singleton.hpp"
+#include "util/DynamicNode.hpp"
 
 #include <cassert>
 #include <iostream>

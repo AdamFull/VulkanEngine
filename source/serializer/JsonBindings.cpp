@@ -1,5 +1,26 @@
 #include "JsonSerializer.h"
 
+void to_json(nlohmann::json &json, const FTransform &type)
+{
+    json = nlohmann::json{
+        {"pos", type.pos},
+        {"rot", type.rot},
+        {"scale", type.scale}};
+}
+
+void from_json(const nlohmann::json &json, FTransform &type)
+{
+    // Optional
+    if (json.find("pos") != json.end())
+        json.at("pos").get_to(type.pos);
+    // Optional
+    if (json.find("rot") != json.end())
+        json.at("rot").get_to(type.rot);
+    // Optional
+    if (json.find("scale") != json.end())
+        json.at("scale").get_to(type.scale);
+}
+
 namespace Engine
 {
     namespace Resources
@@ -202,37 +223,6 @@ namespace Engine
                                   {ESceneObjectType::eGltfMesh, "gltf_mesh"},
                                   {ESceneObjectType::eEnvironment, "environment"}})
 
-    namespace Core
-    {
-        namespace Scene
-        {
-            namespace Objects
-            {
-                void to_json(nlohmann::json &json, const FTransform &type)
-                {
-                    json = nlohmann::json{
-                        {"pos", type.pos},
-                        {"rot", type.rot},
-                        {"scale", type.scale}};
-                }
-
-                void from_json(const nlohmann::json &json, FTransform &type)
-                {
-                    // Optional
-                    if (json.find("pos") != json.end())
-                        json.at("pos").get_to(type.pos);
-
-                    // Optional
-                    if (json.find("rot") != json.end())
-                        json.at("rot").get_to(type.rot);
-
-                    // Optional
-                    if (json.find("scale") != json.end())
-                        json.at("scale").get_to(type.scale);
-                }
-            }
-        }
-    }
 
     void to_json(nlohmann::json &json, const FSceneObject &type)
     {

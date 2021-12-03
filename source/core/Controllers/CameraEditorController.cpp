@@ -9,14 +9,14 @@ using namespace Engine::Core::Scene::Objects;
 void CameraEditorController::Create()
 {
 
-    InputMapper::GetInstance()->CreateAction("CameraMovement", EActionKey::eW, EActionKey::eS, EActionKey::eA,
+    InputMapper::getInstance()->CreateAction("CameraMovement", EActionKey::eW, EActionKey::eS, EActionKey::eA,
                                              EActionKey::eD, EActionKey::eSpace, EActionKey::eLeftControl, EActionKey::eMouseMiddle);
-    InputMapper::GetInstance()->CreateAction("CameraRotation", EActionKey::eCursorDelta);
-    InputMapper::GetInstance()->CreateAction("CameraMovementToPoint", EActionKey::eScrol);
+    InputMapper::getInstance()->CreateAction("CameraRotation", EActionKey::eCursorDelta);
+    InputMapper::getInstance()->CreateAction("CameraMovementToPoint", EActionKey::eScrol);
 
-    InputMapper::GetInstance()->BindAction("CameraMovement", EKeyState::ePressed, this, &CameraEditorController::CameraMovement);
-    InputMapper::GetInstance()->BindAxis("CameraRotation", this, &CameraEditorController::MouseRotation);
-    InputMapper::GetInstance()->BindAxis("CameraMovementToPoint", this, &CameraEditorController::CameraToPoint);
+    InputMapper::getInstance()->BindAction("CameraMovement", EKeyState::ePressed, this, &CameraEditorController::CameraMovement);
+    InputMapper::getInstance()->BindAxis("CameraRotation", this, &CameraEditorController::MouseRotation);
+    InputMapper::getInstance()->BindAxis("CameraMovementToPoint", this, &CameraEditorController::CameraToPoint);
 }
 
 void CameraEditorController::Update(float fDeltaTime)
@@ -26,29 +26,29 @@ void CameraEditorController::Update(float fDeltaTime)
 
 void CameraEditorController::CameraMovement(EActionKey eKey, EKeyState eState)
 {
-    auto camera = Components::CameraManager::GetInstance()->GetCurrentCamera();
+    auto camera = Components::CameraManager::getInstance()->GetCurrentCamera();
     FTransform transform = camera->GetTransform();
 
     glm::vec3 direction{0.f};
     switch (eKey)
     {
     case EActionKey::eW:
-        direction += camera->GetForwardVector();
+        direction += transform.GetForwardVector();
         break;
     case EActionKey::eS:
-        direction -= camera->GetForwardVector();
+        direction -= transform.GetForwardVector();
         break;
     case EActionKey::eA:
-        direction -= camera->GetRightVector();
+        direction -= transform.GetRightVector();
         break;
     case EActionKey::eD:
-        direction += camera->GetRightVector();
+        direction += transform.GetRightVector();
         break;
     case EActionKey::eSpace:
-        direction += camera->GetUpVector();
+        direction += transform.GetUpVector();
         break;
     case EActionKey::eLeftControl:
-        direction -= camera->GetUpVector();
+        direction -= transform.GetUpVector();
         break;
     case EActionKey::eMouseMiddle:
         m_bRotatePass = true;
@@ -70,7 +70,7 @@ void CameraEditorController::MouseRotation(float fX, float fY)
     if (!m_bRotatePass)
         return;
 
-    auto camera = Components::CameraManager::GetInstance()->GetCurrentCamera();
+    auto camera = Components::CameraManager::getInstance()->GetCurrentCamera();
     FTransform transform = camera->GetTransform();
     glm::vec3 rotate = glm::vec3{fY * m_fLookSpeed * -1.f, fX * m_fLookSpeed, 0.f};
 
@@ -88,9 +88,9 @@ void CameraEditorController::MouseRotation(float fX, float fY)
 
 void CameraEditorController::CameraToPoint(float fX, float fY)
 {
-    auto camera = Components::CameraManager::GetInstance()->GetCurrentCamera();
+    auto camera = Components::CameraManager::getInstance()->GetCurrentCamera();
     FTransform transform = camera->GetTransform();
-    glm::vec3 direction = camera->GetForwardVector() * fY;
+    glm::vec3 direction = transform.GetForwardVector() * fY;
 
     if (glm::dot(direction, direction) > std::numeric_limits<float>::epsilon())
     {

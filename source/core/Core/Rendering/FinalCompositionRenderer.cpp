@@ -64,8 +64,8 @@ void FinalCompositionRenderer::Render(vk::CommandBuffer& commandBuffer)
 
     //May be move to CompositionObject
     FLightningData ubo;
-    auto camera = CameraManager::GetInstance()->GetCurrentCamera();
-    auto vLights = LightSourceManager::GetInstance()->GetSources();
+    auto camera = CameraManager::getInstance()->GetCurrentCamera();
+    auto vLights = LightSourceManager::getInstance()->GetSources();
     for(std::size_t i = 0; i < vLights.size(); i++)
         ubo.lights[i] = vLights.at(i);
 

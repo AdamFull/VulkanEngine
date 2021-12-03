@@ -50,7 +50,7 @@ void MeshComponentBase::Render(vk::CommandBuffer &commandBuffer, uint32_t imageI
 
     if (m_pMesh)
     {
-        auto camera = CameraManager::GetInstance()->GetCurrentCamera();
+        auto camera = CameraManager::getInstance()->GetCurrentCamera();
         auto transform = GetTransform();
         FUniformData ubo{};
         ubo.model = transform.GetModel();

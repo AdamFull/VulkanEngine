@@ -47,8 +47,8 @@ void RenderScene::Create()
     //    glm::vec3(frandom(0.f, 1.f), frandom(0.f, 1.f), frandom(0.f, 1.f)),
     //    frandom(10.f, 30.f));
     //}
-    LightSourceManager::GetInstance()->CreateSource(ELightSourceType::ePoint, glm::vec3(7.5, -2.7, 3.8f), glm::vec3(1.0f, 0.0, 0.0), 5.f);
-    LightSourceManager::GetInstance()->CreateSource(ELightSourceType::ePoint, glm::vec3(-7.7, -2.7, 3.8f), glm::vec3(0.0f, 1.0, 0.0), 5.f);
+    LightSourceManager::getInstance()->CreateSource(ELightSourceType::ePoint, glm::vec3(7.5, -2.7, 3.8f), glm::vec3(1.0f, 0.0, 0.0), 5.f);
+    LightSourceManager::getInstance()->CreateSource(ELightSourceType::ePoint, glm::vec3(-7.7, -2.7, 3.8f), glm::vec3(0.0f, 1.0, 0.0), 5.f);
 }
 
 void RenderScene::ReCreate()

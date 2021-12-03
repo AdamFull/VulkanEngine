@@ -19,13 +19,9 @@ namespace Engine
                 ePoint
             };
 
-            class LightSourceManager : public NonCopyMovable
+            class LightSourceManager : public Singleton<LightSourceManager>
             {
-            protected:
-                static std::unique_ptr<LightSourceManager> m_pInstance;
             public:
-                static std::unique_ptr<LightSourceManager>& GetInstance();
-
                 std::shared_ptr<Scene::Objects::Components::Light::LightComponent> CreateSource(ELightSourceType eType, glm::vec3 position);
                 std::shared_ptr<Scene::Objects::Components::Light::LightComponent> CreateSource(ELightSourceType eType, glm::vec3 position, glm::vec3 color);
                 std::shared_ptr<Scene::Objects::Components::Light::LightComponent> CreateSource(ELightSourceType eType, glm::vec3 position, glm::vec3 color, float attenuation_radius);

@@ -1,5 +1,4 @@
 #pragma once
-#include "Core/Scene/Objects/Transform.h"
 #include "Resources/ResourceCunstruct.h"
 
 namespace Engine
@@ -20,7 +19,7 @@ namespace Engine
         std::string srUseVolume;
         Resources::FMeshCreateInfo mesh;
         Resources::FTextureCreateInfo texture;
-        Core::Scene::Objects::FTransform fTransform;
+        FTransform fTransform;
         std::vector<FSceneObject> vSceneObjects;
     };
 

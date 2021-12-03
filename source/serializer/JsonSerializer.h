@@ -3,6 +3,9 @@
 #include "SceneConstruct.h"
 #include "GLMSerialization.h"
 
+void to_json(nlohmann::json &json, const FTransform &type);
+void from_json(const nlohmann::json &json, FTransform &type);
+
 namespace Engine
 {
     namespace Resources
@@ -25,9 +28,6 @@ namespace Engine
     }
 
     /*SCENE*/
-    void to_json(nlohmann::json &json, const Core::Scene::Objects::FTransform &type);
-    void from_json(const nlohmann::json &json, Core::Scene::Objects::FTransform &type);
-
     void to_json(nlohmann::json &json, const FSceneObject &type);
     void from_json(const nlohmann::json &json, FSceneObject &type);
 

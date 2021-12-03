@@ -8,15 +8,6 @@ using namespace Engine::Core::Scene::Objects::Components::Light;
 
 std::unique_ptr<LightSourceManager> LightSourceManager::m_pInstance{nullptr};
 
-std::unique_ptr<LightSourceManager>& LightSourceManager::GetInstance()
-{
-    if(!m_pInstance)
-    {
-        m_pInstance.reset(new LightSourceManager());
-    }
-    return m_pInstance;
-}
-
 std::shared_ptr<LightComponent> LightSourceManager::CreateSource(ELightSourceType eType, glm::vec3 position)
 {
     auto pNewSource = std::make_shared<LightComponent>();

@@ -9,8 +9,8 @@ namespace Engine
 {
     void Application::Create()
     {
-        InputMapper::GetInstance()->CreateAction("ServiceHandles", EActionKey::eEscape, EActionKey::eF1);
-        InputMapper::GetInstance()->BindAction("ServiceHandles", EKeyState::eRelease, this, &Application::ServiceHandle);
+        InputMapper::getInstance()->CreateAction("ServiceHandles", EActionKey::eEscape, EActionKey::eF1);
+        InputMapper::getInstance()->BindAction("ServiceHandles", EKeyState::eRelease, this, &Application::ServiceHandle);
 
         Core::FEngineCreateInfo createInfo;
         createInfo.window.width = 1920;
@@ -56,7 +56,7 @@ namespace Engine
             m_pRenderScene->Render(delta_time);
 
             //TODO: remove update from input mapper. Don't need anymore
-            InputMapper::GetInstance()->Update(delta_time);
+            InputMapper::getInstance()->Update(delta_time);
 
             auto currentTime = std::chrono::high_resolution_clock::now();
             delta_time = std::chrono::duration<float, std::chrono::seconds::period>(currentTime - startTime).count();

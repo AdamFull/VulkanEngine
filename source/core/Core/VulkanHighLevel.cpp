@@ -4,16 +4,8 @@
 using namespace Engine::Core;
 using namespace Engine::Core::Window;
 
-std::unique_ptr<VulkanHighLevel> VulkanHighLevel::m_pInstance{nullptr};
-
-std::unique_ptr<VulkanHighLevel> &VulkanHighLevel::GetInstance()
-{
-    if (!m_pInstance)
-    {
-        m_pInstance.reset(new VulkanHighLevel());
-    }
-    return m_pInstance;
-}
+template<>
+std::unique_ptr<VulkanHighLevel> Singleton<VulkanHighLevel>::m_pInstance{nullptr};
 
 VulkanHighLevel::~VulkanHighLevel()
 {

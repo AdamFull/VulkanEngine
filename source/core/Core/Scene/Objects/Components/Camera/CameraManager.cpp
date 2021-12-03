@@ -3,16 +3,8 @@
 
 using namespace Engine::Core::Scene::Objects::Components;
 
-std::unique_ptr<CameraManager> CameraManager::m_pInstance{nullptr};
-
-std::unique_ptr<CameraManager> &CameraManager::GetInstance()
-{
-    if (!m_pInstance)
-    {
-        m_pInstance.reset(new CameraManager());
-    }
-    return m_pInstance;
-}
+template<>
+std::unique_ptr<CameraManager> Singleton<CameraManager>::m_pInstance{nullptr};
 
 std::shared_ptr<CameraComponent> CameraManager::GetCurrentCamera()
 {

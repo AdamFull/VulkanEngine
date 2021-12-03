@@ -21,7 +21,7 @@ void OverlayDebug::Draw()
         }
 
         float fFrameTime = 1000.0f / ImGui::GetIO().Framerate;
-        auto camera = Core::Scene::Objects::Components::CameraManager::GetInstance()->GetCurrentCamera();
+        auto camera = Core::Scene::Objects::Components::CameraManager::getInstance()->GetCurrentCamera();
         auto pos = camera->GetPosition();
         float position[3] = {pos.x, pos.y, pos.z};
         auto rot = camera->GetRotation();

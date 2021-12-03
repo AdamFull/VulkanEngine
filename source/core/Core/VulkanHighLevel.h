@@ -12,7 +12,7 @@
 #include "Pipeline/VulkanPipeline.h"
 #include "Pipeline/GraphicsPipeline.h"
 
-#define UHLInstance Engine::Core::VulkanHighLevel::GetInstance()
+#define UHLInstance Engine::Core::VulkanHighLevel::getInstance()
 #define UWinHandle UHLInstance->GetWinHandle()
 #define UDevice UHLInstance->GetDevice()
 #define USwapChain UHLInstance->GetSwapChain()
@@ -34,21 +34,10 @@ namespace Engine
             uint32_t apiVersion;
         };
 
-        class VulkanHighLevel
+        class VulkanHighLevel : public Singleton<VulkanHighLevel>
         {
-        protected:
-            VulkanHighLevel() = default;
-            static std::unique_ptr<VulkanHighLevel> m_pInstance;
-
         public:
             ~VulkanHighLevel();
-
-            VulkanHighLevel(const VulkanHighLevel &) = delete;
-            void operator=(const VulkanHighLevel &) = delete;
-            VulkanHighLevel(VulkanHighLevel &&) = delete;
-            VulkanHighLevel &operator=(VulkanHighLevel &&) = delete;
-
-            static std::unique_ptr<VulkanHighLevel> &GetInstance();
 
             void Create(FEngineCreateInfo createInfo);
 

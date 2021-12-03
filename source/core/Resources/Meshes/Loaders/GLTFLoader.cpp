@@ -9,7 +9,7 @@
 #include "Resources/Textures/ImageLoader.h"
 
 #include "Core/VulkanHighLevel.h"
-#include "GLTFSceneNode.h"
+#include "GLTFSceneNode.hpp"
 
 
 // Based on https://github.com/SaschaWillems/Vulkan/blob/master/base/VulkanglTFModel.cpp
@@ -86,23 +86,23 @@ void GLTFLoader::LoadNode(std::shared_ptr<Resources::ResourceManager> pResMgr, s
 {
     auto component = std::make_shared<GLTFSceneNode>();
     component->m_index = nodeIndex;
-    component->m_srName = node.name;
+    component->SetName(node.name);
     if(pParent)
         pParent->AddChild(component);
 
     // Loading position data
     if (node.translation.size() == 3)
-        component->m_transform.pos = glm::make_vec3(node.translation.data());
+        component->GetTransform().pos = glm::make_vec3(node.translation.data());
     // Loading rotation data
     if (node.rotation.size() == 4)
     {
         glm::quat quat = glm::make_vec4(node.rotation.data());
         glm::vec3 rot = glm::eulerAngles(quat) * 3.14159f / 180.f;
-        component->m_transform.rot = rot;
+        component->GetTransform().rot = rot;
     }
     // Loading scale data
     if (node.scale.size() == 3)
-        component->m_transform.scale = glm::make_vec3(node.scale.data());
+        component->GetTransform().scale = glm::make_vec3(node.scale.data());
 
     // Node with children
     if (node.children.size() > 0)
@@ -634,7 +634,7 @@ void GLTFLoader::LoadSkins(const tinygltf::Model &model)
         pSkin->name = source.name;
 
         // Find skeleton root node
-		if (source.skeleton > -1)
+		/*if (source.skeleton > -1)
 			pSkin->skeletonRoot = m_vNodes.front()->Find(source.skeleton);
 
         // Find joint nodes
@@ -643,7 +643,7 @@ void GLTFLoader::LoadSkins(const tinygltf::Model &model)
 			auto node = m_vNodes.front()->Find(jointIndex);
 			if (node)
 				pSkin->joints.push_back(m_vNodes.front()->Find(jointIndex));
-		}
+		}*/
 
         // Get inverse bind matrices from buffer
 		if (source.inverseBindMatrices > -1) 

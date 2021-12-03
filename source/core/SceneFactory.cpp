@@ -84,7 +84,7 @@ std::shared_ptr<Core::Scene::Objects::RenderObject> SceneFactory::CreateCamera(s
     auto camera = std::make_shared<Core::Scene::Objects::Components::CameraComponent>();
     camera->SetTransform(info.fTransform);
     camera->SetName(info.srName);
-    Core::Scene::Objects::Components::CameraManager::GetInstance()->Attach(camera);
+    Core::Scene::Objects::Components::CameraManager::getInstance()->Attach(camera);
     return camera;
 }
 

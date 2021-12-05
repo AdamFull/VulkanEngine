@@ -26,34 +26,64 @@ namespace Engine
     namespace Resources
     {
         /*RESOURCES*/
-        NLOHMANN_JSON_SERIALIZE_ENUM(ETextureType, {{ETextureType::e2D, "2d"},
-                                                    {ETextureType::e3D, "3d"},
-                                                    {ETextureType::eCubemap, "cubemap"},
-                                                    {ETextureType::eArray, "array"}})
+        NLOHMANN_JSON_SERIALIZE_ENUM
+        (
+            ETextureType, 
+            {
+                {ETextureType::e2D, "2d"},
+                {ETextureType::e3D, "3d"},
+                {ETextureType::eCubemap, "cubemap"},
+                {ETextureType::eArray, "array"}
+            }
+        )
 
-        NLOHMANN_JSON_SERIALIZE_ENUM(ETextureAttachmentType, {{ETextureAttachmentType::eDiffuseAlbedo, "color"},
-                                                              {ETextureAttachmentType::eMetalicRoughness, "metalicRoughness"},
-                                                              {ETextureAttachmentType::eSpecularGlossiness, "specularGloss"},
-                                                              {ETextureAttachmentType::eEmissive, "emissive"},
-                                                              {ETextureAttachmentType::eNormal, "normal"},
-                                                              {ETextureAttachmentType::eHeight, "height"},
-                                                              {ETextureAttachmentType::eOcclusion, "occlusion"},
-                                                              {ETextureAttachmentType::eCubemap, "cubemap"},
-                                                              {ETextureAttachmentType::eIrradiance, "irradiate"},
-                                                              {ETextureAttachmentType::eBRDFLUT, "brdflut"},
-                                                              {ETextureAttachmentType::ePrefiltred, "prefiltred"}})
+        NLOHMANN_JSON_SERIALIZE_ENUM
+        (
+            ETextureAttachmentType, 
+            {
+                {ETextureAttachmentType::eDiffuseAlbedo, "color"},
+                    {ETextureAttachmentType::eMetalicRoughness, "metalicRoughness"},
+                    {ETextureAttachmentType::eSpecularGlossiness, "specularGloss"},
+                    {ETextureAttachmentType::eEmissive, "emissive"},
+                    {ETextureAttachmentType::eNormal, "normal"},
+                    {ETextureAttachmentType::eHeight, "height"},
+                    {ETextureAttachmentType::eOcclusion, "occlusion"},
+                    {ETextureAttachmentType::eCubemap, "cubemap"},
+                    {ETextureAttachmentType::eIrradiance, "irradiate"},
+                    {ETextureAttachmentType::eBRDFLUT, "brdflut"},
+                    {ETextureAttachmentType::ePrefiltred, "prefiltred"}
+            }
+        )
 
-        NLOHMANN_JSON_SERIALIZE_ENUM(EMaterialType, {{EMaterialType::eUI, "ui"},
-                                                     {EMaterialType::eDiffuse, "diffuse"},
-                                                     {EMaterialType::eSkybox, "skybox"},
-                                                     {EMaterialType::ePBR, "pbr"}})
+        NLOHMANN_JSON_SERIALIZE_ENUM
+        (
+            EMaterialType, 
+            {
+                {EMaterialType::eUI, "ui"},
+                {EMaterialType::eDiffuse, "diffuse"},
+                {EMaterialType::eSkybox, "skybox"},
+                {EMaterialType::ePBR, "pbr"}
+            }
+        )
 
-        NLOHMANN_JSON_SERIALIZE_ENUM(EMeshType, {{EMeshType::eStatic, "static"},
-                                                 {EMeshType::eSkeletal, "skeletal"},
-                                                 {EMeshType::eGLTF, "gltf"}})
+        NLOHMANN_JSON_SERIALIZE_ENUM
+        (
+            EMeshType, 
+            {
+                {EMeshType::eStatic, "static"},
+                {EMeshType::eSkeletal, "skeletal"},
+                {EMeshType::eGLTF, "gltf"}
+            }
+        )
 
-        NLOHMANN_JSON_SERIALIZE_ENUM(ENoisePattern, {{ENoisePattern::ePerlin, "perlin"},
-                                                     {ENoisePattern::eFractal, "fractal"}})
+        NLOHMANN_JSON_SERIALIZE_ENUM
+        (
+            ENoisePattern, 
+            {
+                {ENoisePattern::ePerlin, "perlin"},
+                {ENoisePattern::eFractal, "fractal"}
+            }
+        )
 
         void to_json(nlohmann::json &json, const FNoiseParam &type)
         {
@@ -213,25 +243,71 @@ namespace Engine
                     json.at("materials").get_to(type.vMaterials);
             }
         }
+
+        NLOHMANN_JSON_SERIALIZE_ENUM
+        (
+            ELightSourceType, 
+            {
+                {ELightSourceType::ePoint, "point"}
+            }
+        )
+
+        void to_json(nlohmann::json &json, const FLightCreateinfo &type)
+        {
+            json = nlohmann::json
+            {
+                {"name", type.srName},
+                {"type", type.eType},
+                {"color", type.vColor},
+                {"attenuation", type.fAttenuation}
+            };
+        }
+
+        void from_json(const nlohmann::json &json, FLightCreateinfo &type)
+        {
+            // Required
+            if (json.find("name") != json.end())
+                json.at("name").get_to(type.srName);
+
+            // Required
+            if (json.find("type") != json.end())
+                json.at("type").get_to(type.eType);
+
+            // Required
+            if (json.find("color") != json.end())
+                json.at("color").get_to(type.vColor);
+
+            // Required
+            if (json.find("attenuation") != json.end())
+                json.at("attenuation").get_to(type.fAttenuation);
+        }
     }
 
     /*SCENE*/
-    NLOHMANN_JSON_SERIALIZE_ENUM(ESceneObjectType,
-                                 {{ESceneObjectType::eCamera, "camera"},
-                                  {ESceneObjectType::eSkybox, "skybox"},
-                                  {ESceneObjectType::eMeshComponent, "static_mesh"},
-                                  {ESceneObjectType::eGltfMesh, "gltf_mesh"},
-                                  {ESceneObjectType::eEnvironment, "environment"}})
+    NLOHMANN_JSON_SERIALIZE_ENUM
+    (
+        ESceneObjectType,
+        {
+            {ESceneObjectType::eCamera, "camera"},
+            {ESceneObjectType::eSkybox, "skybox"},
+            {ESceneObjectType::eMeshComponent, "static_mesh"},
+            {ESceneObjectType::eGltfMesh, "gltf_mesh"},
+            {ESceneObjectType::eEnvironment, "environment"},
+            {ESceneObjectType::eLightSource, "light_source"}
+        }
+    )
 
 
     void to_json(nlohmann::json &json, const FSceneObject &type)
     {
-        json = nlohmann::json{
+        json = nlohmann::json
+        {
             {"name", type.srName},
             {"type", type.eObjectType},
             {"mesh", type.mesh},
             {"transform", type.fTransform},
-            {"childs", {type.vSceneObjects}}};
+            {"childs", {type.vSceneObjects}}
+        };
     }
 
     void from_json(const nlohmann::json &json, FSceneObject &type)
@@ -251,6 +327,10 @@ namespace Engine
         // Optional
         if (json.find("mesh") != json.end())
             json.at("mesh").get_to(type.mesh);
+
+        // Optional
+        if (json.find("light") != json.end())
+            json.at("light").get_to(type.light);
 
         // Optional
         if (json.find("texture") != json.end())

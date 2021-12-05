@@ -3,7 +3,6 @@
 #include "Core/VulkanRenderSystem.h"
 #include "Core/VulkanHighLevel.h"
 #include "Resources/Meshes/VulkanMesh.h"
-#include "Core/Scene/Objects/Components/Camera/CameraComponent.h"
 #include "Core/Scene/Objects/Components/Camera/CameraManager.h"
 #include "Resources/ResourceManager.h"
 #include "GlobalVariables.h"

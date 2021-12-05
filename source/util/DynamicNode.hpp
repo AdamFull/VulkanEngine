@@ -5,6 +5,11 @@ template<class T>
 class DynamicNode : public std::enable_shared_from_this<DynamicNode<T>>
 {
 public:
+    DynamicNode()
+    {
+        m_srUUID = uuid::generate();
+    }
+
     virtual ~DynamicNode()
     {
 
@@ -12,12 +17,28 @@ public:
 
     inline void SetName(std::string srName) 
     { 
+        if(m_pParent)
+        {
+            auto pParent = std::dynamic_pointer_cast<DynamicNode<T>>(m_pParent);
+            auto namePair = pParent->m_mUUID.find(m_srName);
+            if(namePair != pParent->m_mUUID.end())
+            {
+                auto newPair = std::make_pair(srName, namePair->second);
+                pParent->m_mUUID.erase(namePair);
+                pParent->m_mUUID.emplace(newPair);
+            }
+        }
         m_srName = srName; 
     }
 
     inline std::string& GetName() 
     { 
         return m_srName;
+    }
+
+    inline std::string& GetUUID()
+    {
+        return m_srUUID;
     }
 
     inline std::shared_ptr<T> &GetParent() 
@@ -30,11 +51,16 @@ public:
         return m_mChilds;
     }
 
+    //Deep search
     inline std::shared_ptr<T> Find(std::string srName)
     {
-        auto it = m_mChilds.find(srName);
-        if (it != m_mChilds.end())
-            return it->second;
+        auto it_id = m_srUUID.find(srName);
+        if(it_id != m_srUUID.end())
+        {
+            auto it = m_mChilds.find(it_id->second);
+            if (it != m_mChilds.end())
+                return it->second;
+        }
 
         for (auto &[name, child] : m_mChilds)
             child->Find(srName);
@@ -44,7 +70,8 @@ public:
 
     inline void AddChild(std::shared_ptr<T> child)
     {
-        m_mChilds.emplace(child->m_srName, child);
+        m_mChilds.emplace(child->m_srUUID, child);
+        m_mUUID.emplace(child->m_srName, child->m_srUUID);
         child->SetParent(std::dynamic_pointer_cast<T>(shared_from_this()));
     }
 
@@ -64,9 +91,14 @@ public:
 
     inline void Detach(std::shared_ptr<T> child)
     {
-        auto it = m_mChilds.find(child->m_srName);
+        auto it = m_mChilds.find(child->m_srUUID);
         if (it != m_mChilds.end())
+        {
+            auto it_id = m_mUUID.find(child->m_srName);
+            if(it_id != m_mUUID.end())
+                m_mUUID.erase(it_id);
             m_mChilds.erase(it);
+        }
     }
 
     inline FTransform GetTransform()
@@ -122,9 +154,11 @@ public:
     }
 protected:
     std::string m_srName;
+    std::string m_srUUID;
     FTransform m_transform;
 
     std::shared_ptr<T> m_pParent;
     std::shared_ptr<T> m_pParentOld;
     std::unordered_map<std::string, std::shared_ptr<T>> m_mChilds;
+    std::unordered_map<std::string, std::string> m_mUUID;
 };

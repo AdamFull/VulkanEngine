@@ -1,5 +1,4 @@
 #include "CameraComponent.h"
-#include "Core/VulkanSwapChain.h"
 #include "Core/VulkanHighLevel.h"
 
 using namespace Engine::Core::Scene::Objects::Components;

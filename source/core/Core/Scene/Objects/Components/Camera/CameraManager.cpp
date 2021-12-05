@@ -1,5 +1,4 @@
 #include "CameraManager.h"
-#include "CameraComponent.h"
 
 using namespace Engine::Core::Scene::Objects::Components;
 

@@ -1,4 +1,6 @@
 #pragma once
+#include "Resources/ResourceCunstruct.h"
+#include "Core/Scene/Objects/Components/Light/LightComponent.h"
 #include "Core/VulkanUniform.h"
 
 namespace Engine
@@ -7,24 +9,13 @@ namespace Engine
     {
         namespace Scene
         {
-            namespace Objects
-            {
-                namespace Components
-                {
-                    namespace Light { class LightComponent; }
-                }
-            }
-            enum class ELightSourceType
-            {
-                ePoint
-            };
-
             class LightSourceManager : public Singleton<LightSourceManager>
             {
             public:
-                std::shared_ptr<Scene::Objects::Components::Light::LightComponent> CreateSource(ELightSourceType eType, glm::vec3 position);
-                std::shared_ptr<Scene::Objects::Components::Light::LightComponent> CreateSource(ELightSourceType eType, glm::vec3 position, glm::vec3 color);
-                std::shared_ptr<Scene::Objects::Components::Light::LightComponent> CreateSource(ELightSourceType eType, glm::vec3 position, glm::vec3 color, float attenuation_radius);
+                std::shared_ptr<Scene::Objects::Components::Light::LightComponent> CreateSource(Resources::ELightSourceType eType, glm::vec3 position);
+                std::shared_ptr<Scene::Objects::Components::Light::LightComponent> CreateSource(Resources::ELightSourceType eType, glm::vec3 position, glm::vec3 color);
+                std::shared_ptr<Scene::Objects::Components::Light::LightComponent> CreateSource(Resources::ELightSourceType eType, glm::vec3 position, glm::vec3 color, float attenuation_radius);
+                std::shared_ptr<Scene::Objects::Components::Light::LightComponent> CreateSource(Resources::ELightSourceType eType, FTransform transform, glm::vec3 color, float attenuation_radius);
 
                 std::vector<Core::FLight> GetSources();
             private:

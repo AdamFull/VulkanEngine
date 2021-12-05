@@ -6,12 +6,14 @@
 #include "Resources/Meshes/Loaders/GLTFLoader.h"
 #include "Resources/Textures/TextureFactory.h"
 
-#include "Core/Scene/Objects/Components/Camera/CameraComponent.h"
 #include "Core/Scene/Objects/Components/Camera/CameraManager.h"
 #include "Core/Scene/Objects/Components/MeshComponentBase.h"
 #include "Core/Scene/Objects/Components/MeshVolumeComponent.h"
 
+#include "Core/Scene/Lightning/LightSourceManager.h"
+
 using namespace Engine;
+using namespace Engine::Core::Scene;
 
 std::unique_ptr<RenderScene> SceneFactory::Create(std::string srScenePath)
 {
@@ -64,6 +66,9 @@ std::shared_ptr<Core::Scene::Objects::RenderObject> SceneFactory::CreateComponen
         break;
     case ESceneObjectType::eEnvironment:
         object = CreateEnvironment(pResMgr, info);
+        break;
+    case ESceneObjectType::eLightSource:
+        object = CreateLightSource(pResMgr, info);
         break;
     }
 
@@ -154,4 +159,10 @@ std::shared_ptr<Core::Scene::Objects::RenderObject> SceneFactory::CreateEnvironm
     environment->SetTexture(Resources::Texture::TextureFactory::Create(pResMgr, info.texture));
 
     return environment;
+}
+
+std::shared_ptr<Core::Scene::Objects::RenderObject> SceneFactory::CreateLightSource(std::shared_ptr<Resources::ResourceManager> pResMgr, FSceneObject info)
+{
+    auto lightSource = LightSourceManager::getInstance()->CreateSource(info.light.eType, info.fTransform, info.light.vColor, info.light.fAttenuation);
+    return lightSource;
 }

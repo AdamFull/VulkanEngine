@@ -1,6 +1,5 @@
 #include "CameraEditorController.h"
 #include "KeyMapping/InputMapper.h"
-#include "Core/Scene/Objects/Components/Camera/CameraComponent.h"
 #include "Core/Scene/Objects/Components/Camera/CameraManager.h"
 
 using namespace Engine::Controllers;
@@ -39,16 +38,16 @@ void CameraEditorController::CameraMovement(EActionKey eKey, EKeyState eState)
         direction -= transform.GetForwardVector();
         break;
     case EActionKey::eA:
-        direction -= transform.GetRightVector();
+        direction -= transform.GetUpVector();
         break;
     case EActionKey::eD:
-        direction += transform.GetRightVector();
-        break;
-    case EActionKey::eSpace:
         direction += transform.GetUpVector();
         break;
+    case EActionKey::eSpace:
+        direction += transform.GetRightVector();
+        break;
     case EActionKey::eLeftControl:
-        direction -= transform.GetUpVector();
+        direction -= transform.GetRightVector();
         break;
     case EActionKey::eMouseMiddle:
         m_bRotatePass = true;

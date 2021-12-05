@@ -22,7 +22,7 @@ void OverlaySceneGraph::Draw()
             {
                 if(object.second)
                 {
-                    CreateObject(object.first, object.second, objCounter);
+                    CreateObject(object.second->GetName(), object.second, objCounter);
                     objCounter++;
                 }
             }
@@ -53,7 +53,7 @@ void OverlaySceneGraph::CreateObject(std::string name, std::shared_ptr<Scene::Ob
         {
             ImGui::PushID(objCounter); // Use field index as identifier.
             if(child.second)
-                CreateObject(child.first, child.second, objCounter);
+                CreateObject(child.second->GetName(), child.second, objCounter);
             objCounter++;
             ImGui::PopID();
         }

@@ -25,6 +25,9 @@ namespace Engine
 
         void to_json(nlohmann::json &json, const FMeshCreateInfo &type);
         void from_json(const nlohmann::json &json, FMeshCreateInfo &type);
+
+        void to_json(nlohmann::json &json, const FLightCreateinfo &type);
+        void from_json(const nlohmann::json &json, FLightCreateinfo &type);
     }
 
     /*SCENE*/

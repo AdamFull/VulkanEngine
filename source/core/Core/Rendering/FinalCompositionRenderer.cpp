@@ -4,7 +4,6 @@
 #include "Resources/ResourceManager.h"
 #include "Core/Scene/Objects/RenderObject.h"
 #include "Core/Scene/Objects/Components/Camera/CameraManager.h"
-#include "Core/Scene/Objects/Components/Camera/CameraComponent.h"
 #include "Core/Scene/Lightning/LightSourceManager.h"
 #include "Core/Scene/Objects/Components/Light/LightComponent.h"
 #include "Core/VulkanHighLevel.h"

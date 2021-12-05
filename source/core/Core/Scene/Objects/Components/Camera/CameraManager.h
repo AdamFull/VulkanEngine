@@ -1,4 +1,5 @@
 #pragma once
+#include "Core/Scene/Objects/Components/Camera/CameraComponent.h"
 
 namespace Engine
 {
@@ -10,8 +11,6 @@ namespace Engine
             {
                 namespace Components
                 {
-                    class CameraComponent;
-
                     class CameraManager : public Singleton<CameraManager>
                     {
                     public:

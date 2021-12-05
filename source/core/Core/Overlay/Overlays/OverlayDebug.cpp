@@ -1,7 +1,6 @@
 #include "OverlayDebug.h"
 #include <Core/Window/WindowHandle.h>
 #include <imgui.h>
-#include <Core/Scene/Objects/Components/Camera/CameraComponent.h>
 #include <Core/Scene/Objects/Components/Camera/CameraManager.h>
 #include <GlobalVariables.h>
 

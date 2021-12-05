@@ -99,5 +99,18 @@ namespace Engine
             bool bUseIncludedMaterial{false};
             std::vector<FMaterialCreateInfo> vMaterials{};
         };
+
+        enum class ELightSourceType
+        {
+            ePoint
+        };
+
+        struct FLightCreateinfo
+        {
+            std::string srName{};
+            ELightSourceType eType{};
+            glm::vec3 vColor{};
+            float fAttenuation{};
+        };
     }
 }

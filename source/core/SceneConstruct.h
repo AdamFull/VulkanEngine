@@ -9,7 +9,8 @@ namespace Engine
         eSkybox,
         eMeshComponent,
         eGltfMesh,
-        eEnvironment
+        eEnvironment,
+        eLightSource
     };
 
     struct FSceneObject
@@ -18,6 +19,7 @@ namespace Engine
         ESceneObjectType eObjectType;
         std::string srUseVolume;
         Resources::FMeshCreateInfo mesh;
+        Resources::FLightCreateinfo light; 
         Resources::FTextureCreateInfo texture;
         FTransform fTransform;
         std::vector<FSceneObject> vSceneObjects;

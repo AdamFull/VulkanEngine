@@ -36,6 +36,7 @@ void main()
 
 	outMask = vec4(1.0);
 	outAlbedo = texture(color_tex, inUV);
+	//outAlbedo = vec4(mix(outAlbedo.rgb, inColor, 0.5), outAlbedo.a);
 
 	vec4 metalRough = texture(metalRough_tex, inUV);
 	float metal = metalRough.b;

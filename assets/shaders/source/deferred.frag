@@ -126,8 +126,8 @@ void main()
 	float occlusion = mrah.b;
 	float height = mrah.a;
 	
-	//outFragcolor = vec4(N, 1.0);
-	//return;
+	outFragcolor = texture(albedo_tex, inUV);
+	return;
 
 	vec3 cameraPos = ubo.viewPos;
 

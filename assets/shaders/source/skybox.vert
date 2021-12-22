@@ -22,7 +22,7 @@ void main()
 {
 	outWorldPos = vec3(ubo.model * vec4(inPosition, 1.0));
 	// Convert cubemap coordinates into Vulkan coordinate space
-	outWorldPos.xy *= -1.0;
+	//outWorldPos.xy *= -1.0;
   mat4 viewModel = ubo.view * ubo.model;
   viewModel[3] = vec4(0.0, 0.0, 0.0, 1.0);
 	gl_Position = ubo.projection * viewModel * vec4(inPosition, 1.0);

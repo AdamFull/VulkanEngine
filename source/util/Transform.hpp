@@ -16,20 +16,23 @@ struct FTransform
 
     const glm::vec3 GetForwardVector() const
     {
-        float yaw = rot.y;
-        float pitch = rot.x;
-        return glm::vec3{sin(yaw), -pitch, cos(yaw)};
+        glm::vec3 camFront;
+		camFront.x = -cos(glm::radians(rot.x)) * sin(glm::radians(rot.y));
+		camFront.y = sin(glm::radians(rot.x));
+		camFront.z = cos(glm::radians(rot.x)) * cos(glm::radians(rot.y));
+		camFront = glm::normalize(camFront);
+        return camFront;
     }
 
     const glm::vec3 GetRightVector() const
     {
-        return glm::vec3{0.f, -1.f, 0.f};
+        auto camFront = GetForwardVector();
+        return glm::normalize(glm::cross(camFront, glm::vec3(0.0f, 1.0f, 0.0f)));
     }
 
     const glm::vec3 GetUpVector() const
     {
-        auto forward = GetForwardVector();
-        return glm::vec3{forward.z, 0.f, -forward.x};
+        return glm::vec3{0.f, 1.f, 0.f};
     }
 
     inline glm::mat4 GetModel()

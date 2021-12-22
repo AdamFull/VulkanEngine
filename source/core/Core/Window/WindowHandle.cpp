@@ -23,6 +23,11 @@ void WindowHandle::Create(FWindowCreateInfo createInfo)
     ResizeWindow(createInfo.width, createInfo.height);
     FrameBufferUpdated();
 
+    glfwWindowHint(GLFW_RESIZABLE, GLFW_TRUE);
+    glfwWindowHint(GLFW_MAXIMIZED, GLFW_TRUE);
+    glfwWindowHint(GLFW_DECORATED, GLFW_TRUE);
+    glfwWindowHint(GLFW_VISIBLE, GLFW_TRUE);
+
     m_pWindow = glfwCreateWindow(createInfo.width, createInfo.height, createInfo.name.c_str(), nullptr, nullptr);
     glfwSetWindowUserPointer(m_pWindow, this);
     glfwSetInputMode(m_pWindow, GLFW_STICKY_KEYS, GLFW_TRUE);

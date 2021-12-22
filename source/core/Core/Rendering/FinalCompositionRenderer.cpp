@@ -69,7 +69,7 @@ void FinalCompositionRenderer::Render(vk::CommandBuffer& commandBuffer)
         ubo.lights[i] = vLights.at(i);
 
     ubo.lightCount = vLights.size();
-    ubo.viewPos = glm::vec4(camera->GetTransform().pos, 1.0);
+    ubo.viewPos = camera->viewPos; //camera->viewPos
     ubo.gamma = GlobalVariables::postprocessGamma;
     ubo.exposure = GlobalVariables::postprocessExposure;
     

@@ -221,6 +221,7 @@ void GLTFLoader::LoadMeshFragment(std::shared_ptr<Resources::ResourceManager> pR
                 Core::Vertex vert{};
                 vert.pos = glm::vec4(glm::make_vec3(&bufferPos[v * 3]), 1.0f);
                 vert.normal = glm::normalize(glm::vec3(bufferNormals ? glm::make_vec3(&bufferNormals[v * 3]) : glm::vec3(0.0f)));
+                //vert.normal = glm::vec3(0.f);
                 vert.texcoord = bufferTexCoords ? glm::make_vec2(&bufferTexCoords[v * 2]) : glm::vec3(0.0f);
                 if (bufferColors)
                 {
@@ -237,6 +238,7 @@ void GLTFLoader::LoadMeshFragment(std::shared_ptr<Resources::ResourceManager> pR
                     vert.color = glm::vec4(1.0f);
                 }
                 vert.tangent = bufferTangents ? glm::vec4(glm::make_vec4(&bufferTangents[v * 4])) : glm::vec4(0.0f);
+                //vert.tangent = glm::vec4(0.f);
                 // TODO: Add skinning
                 vert.joint0 = hasSkin ? glm::vec4(glm::make_vec4(&bufferJoints[v * 4])) : glm::vec4(0.0f);
                 vert.weight0 = hasSkin ? glm::make_vec4(&bufferWeights[v * 4]) : glm::vec4(0.0f);
@@ -326,13 +328,6 @@ void GLTFLoader::RecalculateTangents(std::vector<Core::Vertex>& vertices, std::v
         auto& vertex2 = vertices.at(indices.at(index + 1) - startIndex);
         auto& vertex3 = vertices.at(indices.at(index + 2) - startIndex);
 
-        vertex1.normal = glm::vec3(0.0);
-        vertex2.normal = glm::vec3(0.0);
-        vertex3.normal = glm::vec3(0.0);
-        //vertex1.tangent = glm::vec3(0.0);
-        //vertex2.tangent = glm::vec3(0.0);
-        //vertex3.tangent = glm::vec3(0.0);
-
         auto vec1 = vertex2.pos - vertex1.pos;
         auto vec2 = vertex3.pos - vertex1.pos;
         glm::vec3 normal = glm::normalize(glm::cross(vec1,vec2));
@@ -345,21 +340,21 @@ void GLTFLoader::RecalculateTangents(std::vector<Core::Vertex>& vertices, std::v
         glm::mat2x3 E(vec1, vec2);
         glm::mat2x3 TB = k * E * UV;
 
-        //vertex1.tangent += TB[0];
-        //vertex2.tangent += TB[0];
-        //vertex3.tangent += TB[0];
+        vertex1.tangent += glm::vec4(TB[0], 0.f);
+        vertex2.tangent += glm::vec4(TB[0], 0.f);
+        vertex3.tangent += glm::vec4(TB[0], 0.f);
         vertex1.normal += normal;
         vertex2.normal += normal;
         vertex3.normal += normal;
     }
 
-    //Finalization
     for(auto& vertex : vertices)
     {
         auto& normal = vertex.normal;
         normal = glm::normalize(normal);
         auto& tangent = vertex.tangent;
-        //tangent = glm::normalize(tangent - glm::dot(tangent, normal) * normal);
+        tangent = glm::normalize(tangent);
+        tangent = glm::vec4(glm::normalize(glm::vec3(tangent) - glm::dot(glm::vec3(tangent), normal) * normal), 0.f);
         //auto w = (glm::dot(glm::cross(normal, tangent), tan2[a]) < 0.0f) ? -1.0f : 1.0f;
     }
 }

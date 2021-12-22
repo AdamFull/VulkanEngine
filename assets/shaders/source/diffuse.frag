@@ -32,6 +32,7 @@ void main()
 	//vec3 tnorm = normalize(TBN * (texture(normal_tex, inUV).xyz * 2.0 - vec3(1.0)));
 	vec3 sampledNormal = 2.0 * texture(normal_tex, inUV).xyz - vec3(1.0);
 	vec3 tnorm = normalize(TBN * sampledNormal);
+	//outNormal = vec4(tnorm, 1.0);
 	outNormal = vec4(tnorm, 1.0);
 
 	outMask = vec4(1.0);

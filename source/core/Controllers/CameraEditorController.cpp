@@ -38,16 +38,16 @@ void CameraEditorController::CameraMovement(EActionKey eKey, EKeyState eState)
         direction -= transform.GetForwardVector();
         break;
     case EActionKey::eA:
-        direction -= transform.GetUpVector();
+        direction -= transform.GetRightVector();
         break;
     case EActionKey::eD:
-        direction += transform.GetUpVector();
-        break;
-    case EActionKey::eSpace:
         direction += transform.GetRightVector();
         break;
+    case EActionKey::eSpace:
+        direction += transform.GetUpVector();
+        break;
     case EActionKey::eLeftControl:
-        direction -= transform.GetRightVector();
+        direction -= transform.GetUpVector();
         break;
     case EActionKey::eMouseMiddle:
         m_bRotatePass = true;
@@ -75,10 +75,10 @@ void CameraEditorController::MouseRotation(float fX, float fY)
 
     if (glm::dot(rotate, rotate) > std::numeric_limits<float>::epsilon())
     {
-        transform.rot += rotate;
+        transform.rot += rotate * 50.0f;
 
-        transform.rot.x = glm::clamp(transform.rot.x, -1.5f, 1.5f);
-        transform.rot.y = glm::mod(transform.rot.y, glm::two_pi<float>());
+        /*transform.rot.x = glm::clamp(transform.rot.x, -1.5f, 1.5f);
+        transform.rot.y = glm::mod(transform.rot.y, glm::two_pi<float>());*/
 
         camera->SetTransform(transform);
     }

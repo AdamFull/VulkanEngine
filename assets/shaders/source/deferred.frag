@@ -126,15 +126,18 @@ void main()
 	float occlusion = mrah.b;
 	float height = mrah.a;
 	
-	outFragcolor = texture(albedo_tex, inUV);
-	return;
+	//outFragcolor = vec4(N, 1.0);
+	//return;
 
 	vec3 cameraPos = ubo.viewPos;
 
 	// Calculate direction from fragment to viewPosition
     vec3 V = normalize(cameraPos - inWorldPos);
 	// Reflection vector
-    vec3 R = reflect(-V, N);
+    vec3 R = reflect(V, N);
+
+	//outFragcolor = vec4(R, 1.0);
+	//return;
 
 	vec3 F0 = vec3(0.04); 
 	// Reflectance at normal incidence angle

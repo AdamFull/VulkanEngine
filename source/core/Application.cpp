@@ -12,7 +12,7 @@ namespace Engine
         InputMapper::getInstance()->BindAction("ServiceHandles", EKeyState::eRelease, this, &Application::ServiceHandle);
 
         Core::FEngineCreateInfo createInfo;
-        createInfo.window.width = 1920;
+        createInfo.window.width = 2560;
         createInfo.window.height = 1080;
         createInfo.window.name = "Vulkan";
         createInfo.appName = "Vulkan";

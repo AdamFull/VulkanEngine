@@ -1,6 +1,8 @@
 // Generates an irradiance cube from an environment map using convolution
 
 #version 450
+#extension GL_ARB_separate_shader_objects : enable
+#extension GL_GOOGLE_include_directive : require
 
 layout (location = 0) in vec3 inPos;
 layout (location = 0) out vec4 outColor;
@@ -12,7 +14,8 @@ layout(push_constant) uniform PushConsts
 	layout (offset = 68) float deltaTheta;
 } consts;
 
-#define PI 3.1415926535897932384626433832795
+
+#include "shared_lightning.glsl"
 
 void main()
 {

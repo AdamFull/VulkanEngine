@@ -1,8 +1,9 @@
 bin/
 build/
+out/
+*.spv
+.vs/
 .vscode/
 assets/meshes/
 assets/textures/
-assets/shaders/*.spv
-assets/shaders/skybox/*.spv
-assets/shaders/pbr/*.spv
+assets/shaders/cimpiled/*.spv

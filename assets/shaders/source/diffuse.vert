@@ -1,5 +1,6 @@
 #version 450
 #extension GL_ARB_separate_shader_objects : enable
+#extension GL_ARB_shading_language_420pack : enable
 
 layout(location = 0) in vec3 inPosition;
 layout(location = 1) in vec3 inColor;
@@ -29,8 +30,8 @@ void main()
   mat3 normal = mat3(ubo.normal);
   outWorldPos = vec3(ubo.model * vec4(inPosition, 1.0));
 	outUV = inTexCoord * 1.0;
-  outNormal = normal * inNormal;
-	outTangent = vec4(normal * inTangent.xyz, inTangent.w);
+  outNormal = normal * normalize(inNormal);
+	outTangent = vec4(normal * normalize(inTangent.xyz), inTangent.w);
 
   outColor = inColor;
   

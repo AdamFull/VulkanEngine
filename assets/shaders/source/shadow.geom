@@ -1,5 +1,4 @@
 #version 450
-
 #define LIGHT_COUNT 3
 
 layout (triangles, invocations = LIGHT_COUNT) in;

@@ -21,10 +21,6 @@ void OverlayDebug::Draw()
 
         float fFrameTime = 1000.0f / ImGui::GetIO().Framerate;
         auto camera = Core::Scene::Objects::Components::CameraManager::getInstance()->GetCurrentCamera();
-        auto pos = camera->GetPosition();
-        float position[3] = {pos.x, pos.y, pos.z};
-        auto rot = camera->GetRotation();
-        float rotation[3] = {rot.x, rot.y, rot.z};
 
         int viewport_size[2] = {Window::WindowHandle::m_iWidth, Window::WindowHandle::m_iHeight};
 
@@ -43,9 +39,10 @@ void OverlayDebug::Draw()
 
         ImGui::InputInt2("Viewport size", viewport_size);
 
+        glm::vec3 rotation = camera->GetRotation();
         ImGui::Text("Camera");
-        ImGui::InputFloat3("Position", (float *)position);
-        ImGui::InputFloat3("Rotation", (float *)rotation);
+        ImGui::InputFloat3("Position", glm::value_ptr(camera->viewPos));
+        ImGui::InputFloat3("Rotation", glm::value_ptr(rotation));
 
         ImGui::Text("Scene");
         ImGui::DragFloat("gamma", &GlobalVariables::postprocessGamma, 0.001, 0.0, 5.0);

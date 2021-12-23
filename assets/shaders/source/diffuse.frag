@@ -1,4 +1,8 @@
 #version 450
+#extension GL_ARB_separate_shader_objects : enable
+#extension GL_ARB_shading_language_420pack : enable
+#extension GL_GOOGLE_include_directive : require
+
 layout(set = 1, binding = 0) uniform sampler2D color_tex;
 layout(set = 1, binding = 1) uniform sampler2D metalRough_tex;
 layout(set = 1, binding = 2) uniform sampler2D emissive_tex;
@@ -19,21 +23,14 @@ layout (location = 3) out vec4 outAlbedo;
 layout (location = 4) out vec4 outEmission;
 layout (location = 5) out vec4 outMRAH;
 
+#include "shared_shaders.glsl"
+
 void main() 
 {
 	outPosition = vec4(inWorldPos, 1.0);
 
-	// Calculate normal in tangent space
-	vec3 N = normalize(inNormal);
-	vec3 T = normalize(inTangent.xyz);
-	T = normalize(T - dot(T, N) * N);
-	vec3 B = normalize(cross(N, T));
-	mat3 TBN = mat3(T, B, N);
-	//vec3 tnorm = normalize(TBN * (texture(normal_tex, inUV).xyz * 2.0 - vec3(1.0)));
-	vec3 sampledNormal = 2.0 * texture(normal_tex, inUV).xyz - vec3(1.0);
-	vec3 tnorm = normalize(TBN * sampledNormal);
-	//outNormal = vec4(tnorm, 1.0);
-	outNormal = vec4(tnorm, 1.0);
+	outNormal = vec4(getNormalsOld(normal_tex, inNormal, inTangent.xyz, inUV), 1.0);
+	//outNormal = vec4(getNormals(normal_tex, inWorldPos, inNormal, inUV), 1.0);
 
 	outMask = vec4(1.0);
 	outAlbedo = texture(color_tex, inUV);

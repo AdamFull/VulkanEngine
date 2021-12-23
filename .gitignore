@@ -1,8 +1,6 @@
-bin/
-build/
+out/
+.vs/
 .vscode/
-assets/meshes/
-assets/textures/
-assets/shaders/*.spv
-assets/shaders/skybox/*.spv
-assets/shaders/pbr/*.spv
+IncenerateEngine/assets/meshes/
+IncenerateEngine/assets/textures/
+IncenerateEngine/assets/shaders/compiled/*.spv

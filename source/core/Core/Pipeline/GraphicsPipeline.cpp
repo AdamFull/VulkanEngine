@@ -19,9 +19,9 @@ void GraphicsPipeline::CreatePipeline()
 
     vk::PipelineViewportStateCreateInfo viewportState{};
     viewportState.viewportCount = 1;
-    viewportState.pViewports = &savedInfo.viewport;
+    //viewportState.pViewports = &savedInfo.viewport;
     viewportState.scissorCount = 1;
-    viewportState.pScissors = &savedInfo.scissor;
+    //viewportState.pScissors = &savedInfo.scissor;
 
     savedInfo.colorBlending.pAttachments = savedInfo.colorBlendAttachments.data();
 

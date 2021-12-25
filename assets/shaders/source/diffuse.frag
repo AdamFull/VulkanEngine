@@ -29,7 +29,7 @@ void main()
 {
 	outPosition = vec4(inWorldPos, 1.0);
 
-	outNormal = vec4(getNormalsOld(normal_tex, inNormal, inTangent.xyz, inUV), 1.0);
+	outNormal = vec4(getNormalsOld(normal_tex, inNormal, inTangent, inUV), 1.0);
 	//outNormal = vec4(getNormals(normal_tex, inWorldPos, inNormal, inUV), 1.0);
 
 	outMask = vec4(1.0);

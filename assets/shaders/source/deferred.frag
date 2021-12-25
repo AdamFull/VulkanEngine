@@ -40,9 +40,9 @@ void main()
 	// Get G-Buffer values
 	vec3 inWorldPos = texture(position_tex, inUV).rgb;
 	float mask = texture(lightning_mask_tex, inUV).r;
-	vec3 albedo = pow(texture(albedo_tex, inUV).rgb, vec3(2.2));
+	vec3 albedo = pow(texture(albedo_tex, inUV).rgb, vec3(2.2f));
 	vec3 N = texture(normal_tex, inUV).rgb;
-	vec3 emission = pow(texture(emission_tex, inUV).rgb, vec3(2.2));
+	vec3 emission = pow(texture(emission_tex, inUV).rgb, vec3(2.2f));
 	vec4 mrah = texture(mrah_tex, inUV);
 
 	float metalic = mrah.r;
@@ -50,51 +50,58 @@ void main()
 	float occlusion = mrah.b;
 	float height = mrah.a;
 
-	bool ignoreLightning = mask == 0.0;
+	bool ignoreLightning = mask == 0.0f;
 
-	vec3 fragcolor = vec3(0.0);
+	vec3 fragcolor = vec3(0.0f);
 	if(!ignoreLightning && N != vec3(0.0f))
 	{
 		vec3 cameraPos = ubo.viewPos;
-		N = normalize(N);
 		// Calculate direction from fragment to viewPosition
 		vec3 V = normalize(cameraPos - inWorldPos);
 		// Reflection vector
-		vec3 R = reflect(-V, N);
+		vec3 R = normalize(reflect(-V, N));
 
-		//outFragcolor = vec4(R, 1.0);
-		//return;
+		outFragcolor = vec4(N, 1.0);
+		return;
 
-		vec3 F0 = vec3(0.04); 
+		vec3 F0 = vec3(0.04f); 
 		// Reflectance at normal incidence angle
 		F0 = mix(F0, albedo, metalic);
 
 		// Light contribution
-		vec3 Lo = vec3(0.0);
+		vec3 Lo = vec3(0.0f);
 
 		for(int i = 0; i < ubo.lightCount; i++) 
 		{
 			vec3 L = ubo.lights[i].position - inWorldPos;
+			float dist = length(L);
+			L = normalize(L);
 			//float atten = ubo.lights[i].radius / (pow(length(L), 2.0) + 1.0);
-			float atten = clamp(1.0 - pow(length(L), 2.0)/pow(ubo.lights[i].radius, 2.0), 0.0, 1.0);;
+			float atten = clamp(1.0 - pow(dist, 2.0f)/pow(ubo.lights[i].radius, 2.0f), 0.0f, 1.0f);;
 			Lo += atten * ubo.lights[i].color * specularContribution(albedo, L, V, N, F0, metalic, roughness);
 		}
 
-		vec2 brdf = texture(brdflut_tex, vec2(max(dot(N, V), 0.0), roughness)).rg;
+		//outFragcolor = vec4(Lo, 1.0f );
+		//return;
+
+		vec2 brdf = texture(brdflut_tex, vec2(max(dot(N, V), 0.0f), roughness)).rg;
 		vec3 reflection = prefilteredReflection(R, roughness, prefiltred_tex);	
-		vec3 irradiance = pow(texture(irradiance_tex, N).rgb, vec3(2.2));
+		vec3 irradiance = pow(texture(irradiance_tex, N).rgb, vec3(2.2f));
 
 		// Diffuse based on irradiance
 		vec3 diffuse = irradiance * albedo;	
 
-		vec3 F = F_SchlickR(max(dot(N, V), 0.0), F0, roughness);
+		vec3 F = F_SchlickR(max(dot(N, V), 0.0f), F0, roughness);
 
 		// Specular reflectance
 		vec3 specular = reflection * (F * brdf.r + brdf.g);
 
+		//outFragcolor = vec4(V, 1.0f );
+		//return;
+
 		// Ambient part
-		vec3 kD = 1.0 - F;
-		kD *= 1.0 - metalic;	  
+		vec3 kD = 1.0f - F;
+		kD *= 1.0f - metalic;	  
 		vec3 ambient = (kD * diffuse + specular)/* * vec3(occlusion)*/;
 		// Ambient part
 		fragcolor = (ambient + Lo);
@@ -107,9 +114,9 @@ void main()
 
 	// Tone mapping
 	fragcolor = Uncharted2Tonemap(fragcolor * ubo.exposure);
-	fragcolor = fragcolor * (1.0 / Uncharted2Tonemap(vec3(11.2)));	
+	fragcolor = fragcolor * (1.0f / Uncharted2Tonemap(vec3(11.2f)));	
 	// Gamma correction
-	fragcolor = pow(fragcolor, vec3(1.0 / ubo.gamma));
+	fragcolor = pow(fragcolor, vec3(1.0f / ubo.gamma));
    
-  	outFragcolor = vec4(fragcolor, 1.0 );	
+  	outFragcolor = vec4(fragcolor, 1.0f );	
 }

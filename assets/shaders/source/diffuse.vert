@@ -27,11 +27,11 @@ layout(set = 0, binding = 0) uniform FUniformData
 
 void main() 
 {
-  mat3 normal = mat3(ubo.normal);
+  mat3 normal = transpose(inverse(mat3(ubo.model)));
   outWorldPos = vec3(ubo.model * vec4(inPosition, 1.0));
 	outUV = inTexCoord * 1.0;
-  outNormal = normal * normalize(inNormal);
-	outTangent = vec4(normal * normalize(inTangent.xyz), inTangent.w);
+  outNormal = normal * inNormal;
+	outTangent = vec4(normal * inTangent.xyz, inTangent.w);
 
   outColor = inColor;
   

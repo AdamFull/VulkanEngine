@@ -167,9 +167,6 @@ FPipelineCreateInfo PipelineConfig::CreateBRDFPipeline(vk::RenderPass renderPass
 
     createInfo.inputAssembly = Initializers::PipelineInputAssemblyStateCI(vk::PrimitiveTopology::eTriangleList, VK_FALSE);
 
-    createInfo.viewport = Initializers::Viewport(WindowHandle::m_iWidth, WindowHandle::m_iHeight);
-    createInfo.scissor = Initializers::Scissor(WindowHandle::m_iWidth, WindowHandle::m_iHeight, 0, 0);
-
     createInfo.rasterizer = Initializers::PipelineRasterizerStateCI(vk::PolygonMode::eFill, vk::CullModeFlagBits::eNone, vk::FrontFace::eCounterClockwise);
 
     createInfo.multisampling.rasterizationSamples = vk::SampleCountFlagBits::e1;
@@ -216,9 +213,6 @@ FPipelineCreateInfo PipelineConfig::CreateIrradiatePipeline(vk::RenderPass rende
 
     createInfo.inputAssembly = Initializers::PipelineInputAssemblyStateCI(vk::PrimitiveTopology::eTriangleList, VK_FALSE);
 
-    createInfo.viewport = Initializers::Viewport(WindowHandle::m_iWidth, WindowHandle::m_iHeight);
-    createInfo.scissor = Initializers::Scissor(WindowHandle::m_iWidth, WindowHandle::m_iHeight, 0, 0);
-
     createInfo.rasterizer = Initializers::PipelineRasterizerStateCI(vk::PolygonMode::eFill, vk::CullModeFlagBits::eNone, vk::FrontFace::eCounterClockwise);
 
     createInfo.multisampling.rasterizationSamples = vk::SampleCountFlagBits::e1;
@@ -264,9 +258,6 @@ FPipelineCreateInfo PipelineConfig::CreatePrefiltredPipeline(vk::RenderPass rend
     createInfo.vertexInputInfo.vertexAttributeDescriptionCount = static_cast<uint32_t>(createInfo.vertexAtribDesc.size());
 
     createInfo.inputAssembly = Initializers::PipelineInputAssemblyStateCI(vk::PrimitiveTopology::eTriangleList, VK_FALSE);
-
-    createInfo.viewport = Initializers::Viewport(WindowHandle::m_iWidth, WindowHandle::m_iHeight);
-    createInfo.scissor = Initializers::Scissor(WindowHandle::m_iWidth, WindowHandle::m_iHeight, 0, 0);
 
     createInfo.rasterizer = Initializers::PipelineRasterizerStateCI(vk::PolygonMode::eFill, vk::CullModeFlagBits::eNone, vk::FrontFace::eCounterClockwise);
 

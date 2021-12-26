@@ -59,10 +59,7 @@ void main()
 		// Calculate direction from fragment to viewPosition
 		vec3 V = normalize(cameraPos - inWorldPos);
 		// Reflection vector
-		vec3 R = normalize(reflect(-V, N));
-
-		outFragcolor = vec4(N, 1.0);
-		return;
+		vec3 R = reflect(-V, N);
 
 		vec3 F0 = vec3(0.04f); 
 		// Reflectance at normal incidence angle

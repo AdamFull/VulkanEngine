@@ -578,7 +578,8 @@ std::shared_ptr<Image> GLTFLoader::LoadTexture(const tinygltf::Image &image, std
 
     if (!isKtx)
     {
-        ImageLoader::AllocateRawDataAsKTXTexture(&texture, &format, image.width, image.height, 1, 2, GL_SRGB8_ALPHA8, true);
+        auto isAlbedo = image.name.find("albedo") != std::string::npos;
+        ImageLoader::AllocateRawDataAsKTXTexture(&texture, &format, image.width, image.height, 1, 2, isAlbedo ? GL_SRGB8_ALPHA8 : GL_RGBA8, true);
         vk::DeviceSize bufferSize = 0;
         bool deleteBuffer = false;
         if (image.component == 3)

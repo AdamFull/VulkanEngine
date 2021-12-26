@@ -25,10 +25,20 @@ layout (location = 5) out vec4 outMRAH;
 
 #include "shared_shaders.glsl"
 
+const float NEAR_PLANE = 0.01f;
+const float FAR_PLANE = 1024.0f;
+
+float linearDepth(float depth) 
+{
+    float z = depth * 2.0f - 1.0f;
+    return (2.0f * NEAR_PLANE * FAR_PLANE) / (FAR_PLANE + NEAR_PLANE - z * (FAR_PLANE - NEAR_PLANE));
+}
+
 void main() 
 {
 	outPosition = vec4(inWorldPos, 1.0);
 
+	//outNormal = vec4(normalize(inNormal), 1.0);
 	outNormal = vec4(getNormalsOld(normal_tex, inNormal, inTangent, inUV), 1.0);
 	//outNormal = vec4(getNormals(normal_tex, inWorldPos, inNormal, inUV), 1.0);
 

@@ -4,8 +4,23 @@
 using namespace Engine::Core::Scene::Objects;
 using namespace Engine::Resources;
 
+RenderObject::RenderObject()
+{
+}
+
+RenderObject::RenderObject(std::string srName)
+{
+    m_srName = srName;
+}
+
+void RenderObject::Create()
+{
+    m_pThis = shared_from_this();
+}
+
 void RenderObject::Create(std::shared_ptr<ResourceManager> resourceMgr)
 {
+    Create();
     for (auto &[name, child] : m_mChilds)
         child->Create(resourceMgr);
 }

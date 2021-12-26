@@ -2,7 +2,7 @@
 #include "Transform.hpp"
 
 template<class T>
-class DynamicNode : public std::enable_shared_from_this<DynamicNode<T>>
+class DynamicNode
 {
 public:
     DynamicNode()
@@ -15,11 +15,13 @@ public:
 
     }
 
+    inline virtual void Create() {}
+
     inline void SetName(std::string srName) 
     { 
         if(m_pParent)
         {
-            auto pParent = std::dynamic_pointer_cast<DynamicNode<T>>(m_pParent);
+            auto pParent = m_pParent->m_pThis;
             auto namePair = pParent->m_mUUID.find(m_srName);
             if(namePair != pParent->m_mUUID.end())
             {
@@ -72,7 +74,7 @@ public:
     {
         m_mChilds.emplace(child->m_srUUID, child);
         m_mUUID.emplace(child->m_srName, child->m_srUUID);
-        child->SetParent(std::dynamic_pointer_cast<T>(shared_from_this()));
+        child->SetParent(m_pThis);
     }
 
     inline void SetParent(std::shared_ptr<T> parent)
@@ -81,7 +83,7 @@ public:
         m_pParent = parent;
         // If you set parent for this, you should attach self to parent's child's
         if (m_pParentOld)
-            m_pParentOld->Detach(std::dynamic_pointer_cast<T>(shared_from_this()));
+            m_pParentOld->Detach(m_pThis);
     }
 
     inline void Attach(std::shared_ptr<T> child)
@@ -159,6 +161,7 @@ protected:
 
     std::shared_ptr<T> m_pParent;
     std::shared_ptr<T> m_pParentOld;
+    std::shared_ptr<T> m_pThis;
     std::unordered_map<std::string, std::shared_ptr<T>> m_mChilds;
     std::unordered_map<std::string, std::string> m_mUUID;
 };

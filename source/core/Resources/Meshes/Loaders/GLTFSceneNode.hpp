@@ -16,9 +16,14 @@ namespace Engine
                 std::vector<std::shared_ptr<GLTFSceneNode>> joints;
             };
 
-            class GLTFSceneNode : public DynamicNode<GLTFSceneNode>
+            class GLTFSceneNode :public std::enable_shared_from_this<GLTFSceneNode>, public DynamicNode<GLTFSceneNode>
             {
             public:
+                void Create() override
+                {
+                    m_pThis = shared_from_this();
+                }
+                
                 uint32_t m_index;
 		
                 std::shared_ptr<Mesh::MeshFragment> m_pMesh;

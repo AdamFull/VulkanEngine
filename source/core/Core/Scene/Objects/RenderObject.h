@@ -15,19 +15,17 @@ namespace Engine
         {
             namespace Objects
             {
-                class RenderObject : public DynamicNode<RenderObject>
+                class RenderObject : public std::enable_shared_from_this<RenderObject>, public DynamicNode<RenderObject>
                 {
                 public:
-                    RenderObject() = default;
-                    explicit RenderObject(std::string srName)
-                    {
-                        m_srName = srName;
-                    }
+                    RenderObject();
+                    RenderObject(std::string srName);
 
                     virtual ~RenderObject()
                     {
                     }
 
+                    void Create() override;
                     // Create render object
                     virtual void Create(std::shared_ptr<Resources::ResourceManager> resourceMgr);
                     // Recreate render object

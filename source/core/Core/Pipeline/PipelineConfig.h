@@ -24,6 +24,7 @@ namespace Engine
                 ePrefiltred,
 
                 eDeferred,
+                ePostProcess,
                 eShadow,
 
                 eNormalDebugging
@@ -68,6 +69,7 @@ namespace Engine
                 //Deferred
                 static FPipelineCreateInfo CreateDeferredPipeline(vk::RenderPass renderPass, vk::PipelineLayout pipelineLayout, vk::PipelineCache pipelineCache = VK_NULL_HANDLE);
                 static FPipelineCreateInfo CreateDeferredShadowPipeline(vk::RenderPass renderPass, vk::PipelineLayout pipelineLayout, vk::PipelineCache pipelineCache = VK_NULL_HANDLE);
+                static FPipelineCreateInfo CreatePostProcessPipeline(vk::RenderPass renderPass, vk::PipelineLayout pipelineLayout, vk::PipelineCache pipelineCache = VK_NULL_HANDLE);
 
                 //Debug
                 static FPipelineCreateInfo CreateDebugNormalsPipeline(vk::RenderPass renderPass, vk::PipelineLayout pipelineLayout, vk::PipelineCache pipelineCache = VK_NULL_HANDLE);

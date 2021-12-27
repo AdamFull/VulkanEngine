@@ -4,6 +4,15 @@ namespace Engine
 {
     namespace Core
     {
+        struct FPostProcess
+        {
+            alignas(4) float gamma;
+            alignas(4) float exposure;
+            alignas(4) float blurScale{0.003};
+            alignas(4) float blurStrength{1.0};
+            alignas(4) int direction{1};
+        };
+
         struct FLight 
         {
             alignas(16) glm::vec3 position;
@@ -16,8 +25,7 @@ namespace Engine
             glm::vec3 viewPos;
             FLight lights[1024];
             int lightCount;
-            float gamma;
-            float exposure;
+            float bloomThreshold;
         };
 
         struct FUniformData

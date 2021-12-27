@@ -37,7 +37,7 @@ FPipelineCreateInfo PipelineConfig::CreateUIPipeline(vk::RenderPass renderPass, 
     createInfo.colorBlending.logicOp = vk::LogicOp::eCopy;
     createInfo.colorBlending.attachmentCount = static_cast<uint32_t>(createInfo.colorBlendAttachments.size());
 
-    createInfo.depthStencil = Initializers::PipelineDepthStencilStateCI(VK_TRUE, VK_TRUE, vk::CompareOp::eLessOrEqual);
+    createInfo.depthStencil = Initializers::PipelineDepthStencilStateCI(VK_FALSE, VK_FALSE, vk::CompareOp::eLessOrEqual);
 
     createInfo.dynamicStateEnables = {vk::DynamicState::eViewport, vk::DynamicState::eScissor};
     createInfo.dynamicStateInfo.pDynamicStates = createInfo.dynamicStateEnables.data();
@@ -309,14 +309,18 @@ FPipelineCreateInfo PipelineConfig::CreateDeferredPipeline(vk::RenderPass render
 
     createInfo.multisampling.rasterizationSamples = vk::SampleCountFlagBits::e1;
 
-    vk::PipelineColorBlendAttachmentState colorBlendAttachment = Initializers::PipelineColorBlendAttachmentState(vk::ColorComponentFlagBits::eR | vk::ColorComponentFlagBits::eG | vk::ColorComponentFlagBits::eB | vk::ColorComponentFlagBits::eA, VK_FALSE);
-    createInfo.colorBlendAttachments.emplace_back(colorBlendAttachment);
+    for(uint32_t i = 0; i < 2; i++)
+    {
+        vk::PipelineColorBlendAttachmentState colorBlendAttachment = 
+        Initializers::PipelineColorBlendAttachmentState(vk::ColorComponentFlagBits::eR | vk::ColorComponentFlagBits::eG | vk::ColorComponentFlagBits::eB | vk::ColorComponentFlagBits::eA, VK_FALSE);
+        createInfo.colorBlendAttachments.emplace_back(colorBlendAttachment);
+    }
 
     createInfo.colorBlending.logicOpEnable = VK_FALSE;
     createInfo.colorBlending.logicOp = vk::LogicOp::eCopy;
     createInfo.colorBlending.attachmentCount = static_cast<uint32_t>(createInfo.colorBlendAttachments.size());
 
-    createInfo.depthStencil = Initializers::PipelineDepthStencilStateCI(VK_TRUE, VK_TRUE, vk::CompareOp::eLessOrEqual);
+    createInfo.depthStencil = Initializers::PipelineDepthStencilStateCI(VK_FALSE, VK_FALSE, vk::CompareOp::eLessOrEqual);
 
     createInfo.dynamicStateEnables = {vk::DynamicState::eViewport, vk::DynamicState::eScissor};
     createInfo.dynamicStateInfo.pDynamicStates = createInfo.dynamicStateEnables.data();
@@ -370,6 +374,52 @@ FPipelineCreateInfo PipelineConfig::CreateDeferredShadowPipeline(vk::RenderPass 
 
     createInfo.eType = EPipelineType::eGraphics;
     createInfo.eSet = EShaderSet::eShadow;
+
+    createInfo.bindPoint = vk::PipelineBindPoint::eGraphics;
+
+    return createInfo;
+}
+
+FPipelineCreateInfo PipelineConfig::CreatePostProcessPipeline(vk::RenderPass renderPass, vk::PipelineLayout pipelineLayout, vk::PipelineCache pipelineCache)
+{
+    FPipelineCreateInfo createInfo{};
+
+    createInfo.vertexInputInfo.vertexBindingDescriptionCount = 0;
+    createInfo.vertexInputInfo.vertexAttributeDescriptionCount = 0;
+
+    createInfo.vertexInputInfo.vertexBindingDescriptionCount = 1;
+    createInfo.vertexInputInfo.vertexAttributeDescriptionCount = static_cast<uint32_t>(createInfo.vertexAtribDesc.size());
+
+    createInfo.inputAssembly = Initializers::PipelineInputAssemblyStateCI(vk::PrimitiveTopology::eTriangleList, VK_FALSE);
+    createInfo.viewport = Initializers::Viewport(WindowHandle::m_iWidth, WindowHandle::m_iHeight);
+    createInfo.scissor = Initializers::Scissor(WindowHandle::m_iWidth, WindowHandle::m_iHeight, 0, 0);
+
+    createInfo.rasterizer = Initializers::PipelineRasterizerStateCI(vk::PolygonMode::eFill, vk::CullModeFlagBits::eFront, vk::FrontFace::eCounterClockwise);
+
+    createInfo.multisampling.rasterizationSamples = vk::SampleCountFlagBits::e1;
+
+    vk::PipelineColorBlendAttachmentState colorBlendAttachment =
+    Initializers::PipelineColorBlendAttachmentState(vk::ColorComponentFlagBits::eR | vk::ColorComponentFlagBits::eG | vk::ColorComponentFlagBits::eB | vk::ColorComponentFlagBits::eA, VK_TRUE);
+
+    createInfo.colorBlendAttachments.emplace_back(colorBlendAttachment);
+
+    createInfo.colorBlending.logicOpEnable = VK_FALSE;
+    createInfo.colorBlending.logicOp = vk::LogicOp::eCopy;
+    createInfo.colorBlending.attachmentCount = static_cast<uint32_t>(createInfo.colorBlendAttachments.size());
+
+    createInfo.depthStencil = Initializers::PipelineDepthStencilStateCI(VK_FALSE, VK_FALSE, vk::CompareOp::eLessOrEqual);
+
+    createInfo.dynamicStateEnables = {vk::DynamicState::eViewport, vk::DynamicState::eScissor};
+    createInfo.dynamicStateInfo.pDynamicStates = createInfo.dynamicStateEnables.data();
+    createInfo.dynamicStateInfo.dynamicStateCount = static_cast<uint32_t>(createInfo.dynamicStateEnables.size());
+    createInfo.dynamicStateInfo.flags = vk::PipelineDynamicStateCreateFlags{};
+
+    createInfo.pipelineLayout = pipelineLayout;
+    createInfo.pipelineCache = pipelineCache;
+    createInfo.renderPass = renderPass;
+
+    createInfo.eType = EPipelineType::eGraphics;
+    createInfo.eSet = EShaderSet::ePostProcess;
 
     createInfo.bindPoint = vk::PipelineBindPoint::eGraphics;
 

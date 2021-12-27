@@ -2,7 +2,6 @@
 #include "Core/VulkanHighLevel.h"
 #include "Core/Rendering/RendererBase.h"
 #include "Resources/ResourceManager.h"
-#include "Core/Rendering/RendererBase.h"
 
 using namespace Engine::Core;
 using namespace Engine::Resources;

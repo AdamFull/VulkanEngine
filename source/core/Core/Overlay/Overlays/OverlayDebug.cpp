@@ -44,9 +44,15 @@ void OverlayDebug::Draw()
         ImGui::InputFloat3("Position", glm::value_ptr(camera->viewPos));
         ImGui::InputFloat3("Rotation", glm::value_ptr(rotation));
 
-        ImGui::Text("Scene");
+        ImGui::Text("HDR");
         ImGui::DragFloat("gamma", &GlobalVariables::postprocessGamma, 0.001, 0.0, 5.0);
         ImGui::DragFloat("exposure", &GlobalVariables::postprocessExposure, 0.001, 0.1, 20.0);
+
+        ImGui::Text("PostProcess");
+        ImGui::DragFloat("bloom_threshold", &GlobalVariables::bloomThreshold, 0.001, 0.65, 1.0);
+        ImGui::DragFloat("blur_scale", &GlobalVariables::blurScale, 0.001, 0.001, 1.0);
+        ImGui::DragFloat("blur_strength", &GlobalVariables::blurStrength, 0.001, 0.001, 1.0);
+        ImGui::DragInt("blur_direction", &GlobalVariables::direction, 1, 0, 1);
 
         ImGui::Text("VBO");
         int vertices = UVBO->GetLastVertex();

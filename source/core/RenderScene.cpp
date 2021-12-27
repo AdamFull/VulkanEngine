@@ -80,15 +80,18 @@ void RenderScene::CreateObjects()
     UVBO->Create();
     m_pEnvironment->Create(m_pResourceManager);
     
-    auto pShadowRenderer = URenderer->PushStage(FRendererCreateInfo::ERendererType::eShadow, vk::Extent2D{});
+    /*auto pShadowRenderer = URenderer->PushStage(FRendererCreateInfo::ERendererType::eShadow, vk::Extent2D{});
     pShadowRenderer->Create(m_pResourceManager);
-    pShadowRenderer->SetRenderNode(m_pRoot);
+    pShadowRenderer->SetRenderNode(m_pRoot);*/
 
     auto pDeferredRenderer = URenderer->PushStage(FRendererCreateInfo::ERendererType::eDeferredPBR, vk::Extent2D{});
     pDeferredRenderer->Create(m_pResourceManager);
     pDeferredRenderer->SetRenderNode(m_pRoot);
 
-    auto pScreenRender = URenderer->PushStage(FRendererCreateInfo::ERendererType::eFinalize, vk::Extent2D{});
+    auto pComposition = URenderer->PushStage(FRendererCreateInfo::ERendererType::ePBRComposition, vk::Extent2D{});
+    pComposition->Create(m_pResourceManager);
+
+    auto pScreenRender = URenderer->PushStage(FRendererCreateInfo::ERendererType::ePostProcess, vk::Extent2D{});
     pScreenRender->Create(m_pResourceManager);
 
     m_pRoot->Create(m_pResourceManager);

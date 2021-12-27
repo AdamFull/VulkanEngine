@@ -4,8 +4,12 @@ namespace Engine
 {
     struct GlobalVariables
     {
-        static float ambientLight;
+        static float bloomThreshold;
+
         static float postprocessGamma;
         static float postprocessExposure;
+        static float blurScale;
+        static float blurStrength;
+        static int direction;
     };
 };

@@ -28,6 +28,9 @@ std::map<EShaderSet, std::map<vk::ShaderStageFlagBits, std::string>> PipelineFac
     {EShaderSet::eDeferred,
      {{vk::ShaderStageFlagBits::eVertex, "../../assets/shaders/compiled/deferred/vert.spv"},
       {vk::ShaderStageFlagBits::eFragment, "../../assets/shaders/compiled/deferred/frag.spv"}}},
+    {EShaderSet::ePostProcess,
+     {{vk::ShaderStageFlagBits::eVertex, "../../assets/shaders/compiled/postprocess/vert.spv"},
+      {vk::ShaderStageFlagBits::eFragment, "../../assets/shaders/compiled/postprocess/frag.spv"}}},
       
     {EShaderSet::eShadow,
      {{vk::ShaderStageFlagBits::eVertex, "../../assets/shaders/compiled/shadow/vert.spv"},

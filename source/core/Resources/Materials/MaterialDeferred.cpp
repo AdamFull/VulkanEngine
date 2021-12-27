@@ -1,21 +1,23 @@
 #include "MaterialDeferred.h"
 #include "Core/VulkanHighLevel.h"
 #include "Resources/ResourceManager.h"
+#include "Core/Rendering/RendererBase.h"
 
+using namespace Engine::Core;
 using namespace Engine::Resources;
 using namespace Engine::Resources::Material;
 using namespace Engine::Core::Descriptor;
 
 void MaterialDeferred::Create(std::shared_ptr<ResourceManager> pResMgr)
 {
-    renderPass = USwapChain->GetRenderPass();
+    renderPass = URenderer->GetRenderer(FRendererCreateInfo::ERendererType::ePBRComposition)->GetRenderPass();
 
     MaterialBase::Create(pResMgr);
 }
 
 void MaterialDeferred::ReCreate()
 {
-    renderPass = USwapChain->GetRenderPass();
+    renderPass = URenderer->GetRenderer(FRendererCreateInfo::ERendererType::ePBRComposition)->GetRenderPass();
     MaterialBase::ReCreate();
 }
 

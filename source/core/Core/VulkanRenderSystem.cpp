@@ -2,7 +2,7 @@
 #include "Resources/Textures/ImageLoader.h"
 #include "VulkanStaticHelper.h"
 #include "Rendering/DeferredRenderer.h"
-#include "Rendering/ShadowRenderer.h"
+#include "Rendering/PBRCompositionRenderer.h"
 #include "Rendering/FinalCompositionRenderer.h"
 #include "VulkanInitializers.h"
 
@@ -74,13 +74,16 @@ std::shared_ptr<Rendering::RendererBase> RenderSystem::PushStage(FRendererCreate
 
     switch (eType)
     {
-    case FRendererCreateInfo::ERendererType::eShadow:
+    /*case FRendererCreateInfo::ERendererType::eShadow:
         pNewRenderer = std::make_shared<Rendering::ShadowRenderer>();
-        break;
+        break;*/
     case FRendererCreateInfo::ERendererType::eDeferredPBR:
         pNewRenderer = std::make_shared<Rendering::DeferredRenderer>();
         break;
-    case FRendererCreateInfo::ERendererType::eFinalize:
+    case FRendererCreateInfo::ERendererType::ePBRComposition:
+        pNewRenderer = std::make_shared<Rendering::PBRCompositionRenderer>();
+        break;
+    case FRendererCreateInfo::ERendererType::ePostProcess:
         pNewRenderer = std::make_shared<Rendering::FinalCompositionRenderer>();
         break;
     }

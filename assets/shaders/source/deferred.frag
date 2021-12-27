@@ -17,6 +17,7 @@ layout (set = 1, binding = 8) uniform sampler2D mrah_tex;
 layout (location = 0) in vec2 inUV;
 
 layout (location = 0) out vec4 outFragcolor;
+layout (location = 1) out vec4 outBrightness;
 
 struct Light {
 	vec3 position;
@@ -29,8 +30,7 @@ layout(std140, set = 0, binding = 0) uniform UBO
 	vec3 viewPos;
 	Light lights[1024];
 	int lightCount;
-	float gamma;
-	float exposure;
+	float bloom_threshold;
 } ubo;
 
 #include "shared_lightning.glsl"
@@ -109,11 +109,11 @@ void main()
 		fragcolor = albedo;
 	}
 
-	// Tone mapping
-	fragcolor = Uncharted2Tonemap(fragcolor * ubo.exposure);
-	fragcolor = fragcolor * (1.0f / Uncharted2Tonemap(vec3(11.2f)));	
-	// Gamma correction
-	fragcolor = pow(fragcolor, vec3(1.0f / ubo.gamma));
+	float brightness = dot(fragcolor.rgb, vec3(0.2126, 0.7152, 0.0722));
+	if(brightness > ubo.bloom_threshold)
+        outBrightness = vec4(fragcolor.rgb, 1.0) * mask;
+    else
+        outBrightness = vec4(0.0, 0.0, 0.0, 1.0);
    
   	outFragcolor = vec4(fragcolor, 1.0f );	
 }

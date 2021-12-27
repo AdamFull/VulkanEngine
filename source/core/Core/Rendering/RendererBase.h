@@ -39,9 +39,10 @@ namespace Engine
 
             enum class ERendererType
             {
-                eShadow,
+                //eShadow,
                 eDeferredPBR,
-                eFinalize
+                ePBRComposition,
+                ePostProcess
             };
 
             struct FAttachmentInfo

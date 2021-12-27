@@ -2,6 +2,11 @@
 
 namespace Engine
 {
-    float GlobalVariables::postprocessGamma{1.6};
-    float GlobalVariables::postprocessExposure{6.0f};
+    float GlobalVariables::bloomThreshold{1.0};
+
+    float GlobalVariables::postprocessGamma{1.2};
+    float GlobalVariables::postprocessExposure{2.2f};
+    float GlobalVariables::blurScale{1.0};
+    float GlobalVariables::blurStrength{1.0f};
+    int GlobalVariables::direction{1};
 }

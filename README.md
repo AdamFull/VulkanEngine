@@ -13,3 +13,19 @@ SachaWilliems examples. To really hard, explore it after previous resources: htt
 Vulkan programming guide book. To consolidate the material and study the subtleties of working with Vulkan.
 
 Game engine architecture. Goog book for creating not bad game engine architecture.
+
+### Features
+- [x] ImGui integration
+- [x] GLTF support
+- [x] KTX support
+- [x] Deferred shading
+- [x] HDR
+- [x] Bloom
+- [x] PBR + IBL
+- [ ] Deferred multisampling
+- [ ] Deferred shadow mapping
+- [ ] Realtime reflections
+- [ ] Instancing
+- [ ] Tescellation
+- [ ] SSAO
+- [x] Parallax mapping

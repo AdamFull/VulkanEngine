@@ -29,6 +29,9 @@ FPipelineCreateInfo MaterialBase::CreateInfo(EShaderSet eSet)
     case EShaderSet::eDeferred:
         return PipelineConfig::CreateDeferredPipeline(renderPass, pipelineLayout, pipelineCache);
         break;
+    case EShaderSet::ePostProcess:
+        return PipelineConfig::CreatePostProcessPipeline(renderPass, pipelineLayout, pipelineCache);
+        break;
     }
 
     return FPipelineCreateInfo{};

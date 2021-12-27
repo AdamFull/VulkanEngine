@@ -29,6 +29,7 @@ namespace Engine
             eHeight,
             eOcclusion,
             eMRAH,
+            eBrightness,
             eDepth,
 
             eCubemap

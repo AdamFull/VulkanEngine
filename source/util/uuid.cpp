@@ -1,7 +1,7 @@
 #include "uuid.hpp"
 
 std::random_device uuid::rd;
-std::mt19937 uuid::gen(rd());
+std::mt19937_64 uuid::gen(rd());
 std::uniform_int_distribution<> uuid::dis(0, 15);
 std::uniform_int_distribution<> uuid::dis2(8, 11);
 

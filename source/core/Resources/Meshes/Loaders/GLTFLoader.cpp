@@ -9,7 +9,7 @@
 #include "Resources/Textures/ImageLoader.h"
 
 #include "Core/VulkanHighLevel.h"
-#include "GLTFSceneNode.hpp"
+#include "GLTFSceneNode.h"
 
 
 // Based on https://github.com/SaschaWillems/Vulkan/blob/master/base/VulkanglTFModel.cpp
@@ -85,7 +85,6 @@ void GLTFLoader::Load(std::string srPath, std::string srName, std::shared_ptr<Re
 void GLTFLoader::LoadNode(std::shared_ptr<Resources::ResourceManager> pResMgr, std::shared_ptr<GLTFSceneNode> pParent, const tinygltf::Node &node, uint32_t nodeIndex, const tinygltf::Model &model, float globalscale)
 {
     auto component = std::make_shared<GLTFSceneNode>();
-    component->Create();
     component->m_index = nodeIndex;
     component->SetName(node.name);
     if(pParent)

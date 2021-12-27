@@ -158,6 +158,8 @@ void Device::CreateDevice()
     deviceFeatures.samplerAnisotropy = VK_TRUE;
     deviceFeatures.sampleRateShading = VK_TRUE;
     deviceFeatures.fillModeNonSolid = VK_TRUE;
+    deviceFeatures.multiViewport = VK_TRUE;
+    deviceFeatures.geometryShader = VK_TRUE;
 
     auto createInfo = vk::DeviceCreateInfo(
         vk::DeviceCreateFlags(),

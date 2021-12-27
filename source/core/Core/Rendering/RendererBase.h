@@ -39,7 +39,7 @@ namespace Engine
 
             enum class ERendererType
             {
-                //eShadow,
+                eShadow,
                 eDeferredPBR,
                 eFinalize
             };
@@ -83,6 +83,8 @@ namespace Engine
                 virtual void Cleanup();
 
                 inline void SetExtent(vk::Extent2D extent) { out_extent = extent; }
+
+                //EasyDelegate::TDelegate<void(std::shared_ptr<RendererBase> pStage)> stageCB;
 
                 std::shared_ptr<RendererBase> Find(FRendererCreateInfo::ERendererType eType);
 

@@ -28,14 +28,14 @@ void ShadowRenderer::Create(std::shared_ptr<Resources::ResourceManager> pResMgr)
         }
     };
 
-    out_extent = vk::Extent2D{512, 512};
+    out_extent = vk::Extent2D{2048, 2048};
     RendererBase::Create(pResMgr);
     CreateMaterial(pResMgr);
 }
 
 void ShadowRenderer::ReCreate(uint32_t framesInFlight)
 {
-    out_extent = vk::Extent2D{512, 512};
+    out_extent = vk::Extent2D{2048, 2048};
 }
 
 void ShadowRenderer::Render(vk::CommandBuffer& commandBuffer)

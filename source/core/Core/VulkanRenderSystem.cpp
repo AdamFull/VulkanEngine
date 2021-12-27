@@ -2,6 +2,7 @@
 #include "Resources/Textures/ImageLoader.h"
 #include "VulkanStaticHelper.h"
 #include "Rendering/DeferredRenderer.h"
+#include "Rendering/ShadowRenderer.h"
 #include "Rendering/FinalCompositionRenderer.h"
 #include "VulkanInitializers.h"
 
@@ -18,13 +19,13 @@ RenderSystem::~RenderSystem()
 
 void RenderSystem::Create()
 {
-    screenExtent = USwapChain->GetExtent();
+    m_ScreenExtent = USwapChain->GetExtent();
     CreateCommandBuffers();
 }
 
 void RenderSystem::ReCreate()
 {
-    screenExtent = USwapChain->GetExtent();
+    m_ScreenExtent = USwapChain->GetExtent();
     m_pStages->ReCreate(USwapChain->GetFramesInFlight());
     CreateCommandBuffers();
 }
@@ -32,16 +33,16 @@ void RenderSystem::ReCreate()
 void RenderSystem::Cleanup()
 {
     m_pStages->Cleanup();
-    UDevice->Destroy(data.vCommandBuffers);
+    UDevice->Destroy(m_vCommandBuffers);
 }
 
 vk::CommandBuffer RenderSystem::BeginFrame()
 {
-    assert(!data.bFrameStarted && "Can't call beginFrame while already in progress");
+    assert(!m_bFrameStarted && "Can't call beginFrame while already in progress");
 
-    USwapChain->AcquireNextImage(&data.imageIndex);
+    USwapChain->AcquireNextImage(&m_iImageIndex);
 
-    data.bFrameStarted = true;
+    m_bFrameStarted = true;
 
     auto commandBuffer = GetCurrentCommandBuffer();
     vk::CommandBufferBeginInfo beginInfo = {};
@@ -53,12 +54,12 @@ vk::CommandBuffer RenderSystem::BeginFrame()
 
 vk::Result RenderSystem::EndFrame()
 {
-    assert(data.bFrameStarted && "Can't call endFrame while frame is not in progress");
+    assert(m_bFrameStarted && "Can't call endFrame while frame is not in progress");
     auto commandBuffer = GetCurrentCommandBuffer();
 
     commandBuffer.end();
-    data.bFrameStarted = false;
-    return USwapChain->SubmitCommandBuffers(&commandBuffer, &data.imageIndex);
+    m_bFrameStarted = false;
+    return USwapChain->SubmitCommandBuffers(&commandBuffer, &m_iImageIndex);
 }
 
 void RenderSystem::Render(vk::CommandBuffer& commandBuffer)
@@ -66,13 +67,16 @@ void RenderSystem::Render(vk::CommandBuffer& commandBuffer)
     m_pStages->Render(commandBuffer);
 }
 
-void RenderSystem::PushStage(FRendererCreateInfo::ERendererType eType, vk::Extent2D extent)
+std::shared_ptr<Rendering::RendererBase> RenderSystem::PushStage(FRendererCreateInfo::ERendererType eType, vk::Extent2D extent)
 {
     //TODO: create stage factory
     std::shared_ptr<Rendering::RendererBase> pNewRenderer;
 
     switch (eType)
     {
+    case FRendererCreateInfo::ERendererType::eShadow:
+        pNewRenderer = std::make_shared<Rendering::ShadowRenderer>();
+        break;
     case FRendererCreateInfo::ERendererType::eDeferredPBR:
         pNewRenderer = std::make_shared<Rendering::DeferredRenderer>();
         break;
@@ -84,76 +88,25 @@ void RenderSystem::PushStage(FRendererCreateInfo::ERendererType eType, vk::Exten
     if(!m_pStages)
     {
         m_pStages = pNewRenderer;
-        return;
+        return pNewRenderer;
     }
     
     m_pStages->SetNextStage(pNewRenderer);
+    return pNewRenderer;
 }
-
-/*void RenderSystem::BeginRender(vk::CommandBuffer& commandBuffer)
-{
-    assert(data.bFrameStarted && "Can't call beginSwapChainRenderPass if frame is not in progress");
-    assert(commandBuffer == GetCurrentCommandBuffer() && "Can't begin render pass on command buffer from a different frame");
-    m_pDeferredRenderer->BeginRender(commandBuffer);
-}
-
-void RenderSystem::EndRender(vk::CommandBuffer& commandBuffer)
-{
-    assert(data.bFrameStarted && "Can't call endSwapChainRenderPass if frame is not in progress");
-    assert(commandBuffer == GetCurrentCommandBuffer() && "Can't end render pass on command buffer from a different frame");
-    m_pDeferredRenderer->EndRender(commandBuffer);
-}*/
-
-/*void RenderSystem::BeginPostProcess(vk::CommandBuffer& commandBuffer)
-{
-    assert(data.bFrameStarted && "Can't call beginSwapChainRenderPass if frame is not in progress");
-    assert(commandBuffer == GetCurrentCommandBuffer() && "Can't begin render pass on command buffer from a different frame");
-
-    vk::RenderPassBeginInfo renderPassInfo = {};
-    renderPassInfo.renderPass = USwapChain->GetRenderPass();
-    renderPassInfo.framebuffer = USwapChain->GetFramebuffers().at(data.imageIndex);
-    renderPassInfo.renderArea.offset = vk::Offset2D{0, 0};
-    renderPassInfo.renderArea.extent = screenExtent;
-
-    std::array<vk::ClearValue, 2> clearValues{};
-    clearValues[0].color = {std::array<float, 4>{0.0f, 0.0f, 0.0f, 1.0f}};
-    clearValues[1].depthStencil = vk::ClearDepthStencilValue{1.0f, 0};
-
-    renderPassInfo.clearValueCount = static_cast<uint32_t>(clearValues.size());
-    renderPassInfo.pClearValues = clearValues.data();
-
-    commandBuffer.beginRenderPass(renderPassInfo, vk::SubpassContents::eInline);
-
-    vk::Viewport viewport = Initializers::Viewport(screenExtent.width, screenExtent.height);
-    vk::Rect2D scissor{{0, 0}, screenExtent};
-
-    commandBuffer.setViewport(0, 1, &viewport);
-    commandBuffer.setScissor(0, 1, &scissor);
-}
-
-void RenderSystem::EndPostProcess(vk::CommandBuffer& commandBuffer)
-{
-    commandBuffer.draw(3, 1, 0, 0);
-
-    UOverlay->DrawFrame(commandBuffer, data.imageIndex);
-
-    assert(data.bFrameStarted && "Can't call endSwapChainRenderPass if frame is not in progress");
-    assert(commandBuffer == GetCurrentCommandBuffer() && "Can't end render pass on command buffer from a different frame");
-    commandBuffer.endRenderPass();
-}*/
 
 void RenderSystem::CreateCommandBuffers()
 {
     assert(UDevice && "Cannot create command buffers, cause logical device is not valid.");
     assert(USwapChain && "Cannot create command buffers, cause swap chain is not valid.");
-    data.vCommandBuffers.resize(USwapChain->GetFramebuffers().size());
+    m_vCommandBuffers.resize(USwapChain->GetFramebuffers().size());
 
-    data.vCommandBuffers = UDevice->CreateCommandBuffer(vk::CommandBufferLevel::ePrimary, (uint32_t)data.vCommandBuffers.size());
-    assert(!data.vCommandBuffers.empty() && "Created command buffers is not valid.");
+    m_vCommandBuffers = UDevice->CreateCommandBuffer(vk::CommandBufferLevel::ePrimary, (uint32_t)m_vCommandBuffers.size());
+    assert(!m_vCommandBuffers.empty() && "Created command buffers is not valid.");
 }
 
 vk::CommandBuffer RenderSystem::GetCurrentCommandBuffer() const
 {
-    assert(data.bFrameStarted && "Cannot get command buffer when frame not in progress");
-    return data.vCommandBuffers[data.imageIndex];
+    assert(m_bFrameStarted && "Cannot get command buffer when frame not in progress");
+    return m_vCommandBuffers[m_iImageIndex];
 }

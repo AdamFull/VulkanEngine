@@ -138,6 +138,7 @@ std::shared_ptr<Core::Scene::Objects::RenderObject> SceneFactory::CreateGLTFMesh
     }
 
     auto mesh = std::make_shared<Core::Scene::Objects::Components::MeshComponentBase>();
+    mesh->SetInstances(info.vInstances);
     loader->Load(info.mesh.srSrc, info.srName, pResMgr);
     mesh->SetTransform(info.fTransform);
     mesh->SetName(info.srName);

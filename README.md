@@ -25,7 +25,9 @@ Game engine architecture. Goog book for creating not bad game engine architectur
 - [ ] Deferred multisampling
 - [ ] Deferred shadow mapping
 - [ ] Realtime reflections
-- [ ] Instancing
+- [x] Instancing
 - [ ] Tescellation
 - [ ] SSAO
 - [x] Parallax mapping
+- [ ] Global illumination
+- [ ] Ray tracing

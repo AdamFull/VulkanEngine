@@ -22,6 +22,7 @@ namespace Engine
         Resources::FLightCreateinfo light; 
         Resources::FTextureCreateInfo texture;
         FTransform fTransform;
+        std::vector<glm::vec4> vInstances;
         std::vector<FSceneObject> vSceneObjects;
     };
 

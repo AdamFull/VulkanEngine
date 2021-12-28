@@ -19,17 +19,18 @@ void MeshBase::ReCreate()
         fragment->ReCreate();
 }
 
-void MeshBase::Render(vk::CommandBuffer commandBuffer, uint32_t imageIndex, Core::FUniformData& ubo)
+void MeshBase::Render(vk::CommandBuffer commandBuffer, uint32_t imageIndex, Core::FUniformData& ubo, uint32_t instanceCount)
 {
     for (auto& fragment : m_vFragments)
     {
         //ubo.repeat = fRepeat;
         ubo.model = ubo.model * fragment->GetLocalMatrix();
         ubo.normal = glm::transpose(glm::inverse(ubo.model));
+
         m_pUniformBuffer->UpdateUniformBuffer(imageIndex, &ubo);
         auto& buffer = m_pUniformBuffer->GetUniformBuffer(imageIndex);
         fragment->Update(buffer->GetDscriptor() ,imageIndex);
-        fragment->Bind(commandBuffer, imageIndex);
+        fragment->Bind(commandBuffer, imageIndex, instanceCount);
     }
 }
 

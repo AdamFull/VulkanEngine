@@ -306,6 +306,7 @@ namespace Engine
             {"type", type.eObjectType},
             {"mesh", type.mesh},
             {"transform", type.fTransform},
+            {"instances", type.vInstances},
             {"childs", {type.vSceneObjects}}
         };
     }
@@ -339,6 +340,10 @@ namespace Engine
         // Optional
         if (json.find("transform") != json.end())
             json.at("transform").get_to(type.fTransform);
+        
+        // Optional
+        if (json.find("instances") != json.end())
+            json.at("instances").get_to(type.vInstances);
 
         // Optional
         if (json.find("childs") != json.end())

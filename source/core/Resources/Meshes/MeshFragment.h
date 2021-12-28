@@ -42,7 +42,7 @@ namespace Engine
                 virtual void SetMaterial(std::shared_ptr<Material::MaterialBase> material);
                 void ReCreate();
                 void Update(vk::DescriptorBufferInfo& uboDesc, uint32_t imageIndex);
-                void Bind(vk::CommandBuffer commandBuffer, uint32_t imageIndex);
+                void Bind(vk::CommandBuffer commandBuffer, uint32_t imageIndex, uint32_t instanceCount = 1);
                 void Cleanup();
                 void Destroy();
 

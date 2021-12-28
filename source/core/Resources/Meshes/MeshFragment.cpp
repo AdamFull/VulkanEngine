@@ -61,14 +61,14 @@ void MeshFragment::Update(vk::DescriptorBufferInfo& uboDesc, uint32_t imageIndex
     }
 }
 
-void MeshFragment::Bind(vk::CommandBuffer commandBuffer, uint32_t imageIndex)
+void MeshFragment::Bind(vk::CommandBuffer commandBuffer, uint32_t imageIndex, uint32_t instanceCount)
 {
     for (auto &primitive : m_vPrimitives)
     {
         if(primitive.material && primitive.bUseMaterial)
             primitive.material->Bind(commandBuffer, imageIndex);
             
-        commandBuffer.drawIndexed(primitive.indexCount, 1, primitive.firstIndex, 0, 0);
+        commandBuffer.drawIndexed(primitive.indexCount, instanceCount, primitive.firstIndex, 0, 0);
     }
 }
 

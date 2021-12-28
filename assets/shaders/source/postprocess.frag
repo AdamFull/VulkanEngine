@@ -45,7 +45,7 @@ void main()
 		}
 	}
 
-    float rOffset = 0.01;
+    /*float rOffset = 0.01;
     float gOffset = 0.02;
     float bOffset = -0.01;
 
@@ -53,7 +53,8 @@ void main()
     vec4 gValue = texture(samplerColor, inUV - gOffset);
     vec4 bValue = texture(samplerColor, inUV - bOffset); 
 
-    vec3 color = vec3(rValue.r, gValue.g, bValue.b);
+    vec3 color = vec3(rValue.r, gValue.g, bValue.b);*/
+    vec3 color = texture(samplerColor, inUV).rgb;
 
     vec3 fragcolor = color + result;
     //Exposure

@@ -19,12 +19,20 @@ namespace glm
     {
         if (json.find("x") != json.end())
             json.at("x").get_to(type.x);
+        else
+            type.x = 1.0;
         if (json.find("y") != json.end())
             json.at("y").get_to(type.y);
+        else
+            type.y = 1.0;
         if (json.find("z") != json.end())
             json.at("z").get_to(type.z);
+        else
+            type.z = 1.0;
         if (json.find("w") != json.end())
             json.at("w").get_to(type.w);
+        else
+            type.w = 1.0;
     }
 
 
@@ -43,10 +51,16 @@ namespace glm
     {
         if (json.find("x") != json.end())
             json.at("x").get_to(type.x);
+        else
+            type.x = 1.0;
         if (json.find("y") != json.end())
             json.at("y").get_to(type.y);
+        else
+            type.y = 1.0;
         if (json.find("z") != json.end())
             json.at("z").get_to(type.z);
+        else
+            type.z = 1.0;
     }
 
 
@@ -64,8 +78,12 @@ namespace glm
     {
         if (json.find("x") != json.end())
             json.at("x").get_to(type.x);
+        else
+            type.x = 1.0;
         if (json.find("y") != json.end())
             json.at("y").get_to(type.y);
+        else
+            type.y = 1.0;
     }
 
 
@@ -82,6 +100,8 @@ namespace glm
     {
         if (json.find("x") != json.end())
             json.at("x").get_to(type.x);
+        else
+            type.x = 1.0;
     }
 
 
@@ -101,12 +121,20 @@ namespace glm
     {
         if (json.find("x") != json.end())
             json.at("x").get_to(type.x);
+        else
+            type.x = 1.0;
         if (json.find("y") != json.end())
             json.at("y").get_to(type.y);
+        else
+            type.y = 1.0;
         if (json.find("z") != json.end())
             json.at("z").get_to(type.z);
+        else
+            type.z = 1.0;
         if (json.find("w") != json.end())
             json.at("w").get_to(type.w);
+        else
+            type.w = 1.0;
     }
 
 
@@ -125,10 +153,16 @@ namespace glm
     {
         if (json.find("x") != json.end())
             json.at("x").get_to(type.x);
+        else
+            type.x = 1.0;
         if (json.find("y") != json.end())
             json.at("y").get_to(type.y);
+        else
+            type.y = 1.0;
         if (json.find("z") != json.end())
             json.at("z").get_to(type.z);
+        else
+            type.z = 1.0;
     }
 
 
@@ -146,8 +180,12 @@ namespace glm
     {
         if (json.find("x") != json.end())
             json.at("x").get_to(type.x);
+        else
+            type.x = 1.0;
         if (json.find("y") != json.end())
             json.at("y").get_to(type.y);
+        else
+            type.y = 1.0;
     }
 
 
@@ -164,6 +202,8 @@ namespace glm
     {
         if (json.find("x") != json.end())
             json.at("x").get_to(type.x);
+        else
+            type.x = 1.0;
     }
 
 
@@ -183,12 +223,20 @@ namespace glm
     {
         if (json.find("x") != json.end())
             json.at("x").get_to(type.x);
+        else
+            type.x = 1.0;
         if (json.find("y") != json.end())
             json.at("y").get_to(type.y);
+        else
+            type.y = 1.0;
         if (json.find("z") != json.end())
             json.at("z").get_to(type.z);
+        else
+            type.z = 1.0;
         if (json.find("w") != json.end())
             json.at("w").get_to(type.w);
+        else
+            type.w = 1.0;
     }
 
 
@@ -207,10 +255,16 @@ namespace glm
     {
         if (json.find("x") != json.end())
             json.at("x").get_to(type.x);
+        else
+            type.x = 1.0;
         if (json.find("y") != json.end())
             json.at("y").get_to(type.y);
+        else
+            type.y = 1.0;
         if (json.find("z") != json.end())
             json.at("z").get_to(type.z);
+        else
+            type.z = 1.0;
     }
 
 
@@ -228,8 +282,12 @@ namespace glm
     {
         if (json.find("x") != json.end())
             json.at("x").get_to(type.x);
+        else
+            type.x = 1.0;
         if (json.find("y") != json.end())
             json.at("y").get_to(type.y);
+        else
+            type.y = 1.0;
     }
 
 
@@ -246,6 +304,8 @@ namespace glm
     {
         if (json.find("x") != json.end())
             json.at("x").get_to(type.x);
+        else
+            type.x = 1.0;
     }
 
     /*--------------------GLM vectors int--------------------*/
@@ -265,12 +325,20 @@ namespace glm
     {
         if (json.find("x") != json.end())
             json.at("x").get_to(type.x);
+        else
+            type.x = 1.0;
         if (json.find("y") != json.end())
             json.at("y").get_to(type.y);
+        else
+            type.y = 1.0;
         if (json.find("z") != json.end())
             json.at("z").get_to(type.z);
+        else
+            type.z = 1.0;
         if (json.find("w") != json.end())
             json.at("w").get_to(type.w);
+        else
+            type.w = 1.0;
     }
 
 
@@ -289,10 +357,16 @@ namespace glm
     {
         if (json.find("x") != json.end())
             json.at("x").get_to(type.x);
+        else
+            type.x = 1.0;
         if (json.find("y") != json.end())
             json.at("y").get_to(type.y);
+        else
+            type.y = 1.0;
         if (json.find("z") != json.end())
             json.at("z").get_to(type.z);
+        else
+            type.z = 1.0;
     }
 
 
@@ -310,8 +384,12 @@ namespace glm
     {
         if (json.find("x") != json.end())
             json.at("x").get_to(type.x);
+        else
+            type.x = 1.0;
         if (json.find("y") != json.end())
             json.at("y").get_to(type.y);
+        else
+            type.y = 1.0;
     }
 
 
@@ -328,6 +406,8 @@ namespace glm
     {
         if (json.find("x") != json.end())
             json.at("x").get_to(type.x);
+        else
+            type.x = 1.0;
     }
 
 
@@ -347,12 +427,20 @@ namespace glm
     {
         if (json.find("x") != json.end())
             json.at("x").get_to(type.x);
+        else
+            type.x = 1.0;
         if (json.find("y") != json.end())
             json.at("y").get_to(type.y);
+        else
+            type.y = 1.0;
         if (json.find("z") != json.end())
             json.at("z").get_to(type.z);
+        else
+            type.z = 1.0;
         if (json.find("w") != json.end())
             json.at("w").get_to(type.w);
+        else
+            type.w = 1.0;
     }
 
 
@@ -371,10 +459,16 @@ namespace glm
     {
         if (json.find("x") != json.end())
             json.at("x").get_to(type.x);
+        else
+            type.x = 1.0;
         if (json.find("y") != json.end())
             json.at("y").get_to(type.y);
+        else
+            type.y = 1.0;
         if (json.find("z") != json.end())
             json.at("z").get_to(type.z);
+        else
+            type.z = 1.0;
     }
 
 
@@ -392,8 +486,12 @@ namespace glm
     {
         if (json.find("x") != json.end())
             json.at("x").get_to(type.x);
+        else
+            type.x = 1.0;
         if (json.find("y") != json.end())
             json.at("y").get_to(type.y);
+        else
+            type.y = 1.0;
     }
 
 
@@ -410,6 +508,8 @@ namespace glm
     {
         if (json.find("x") != json.end())
             json.at("x").get_to(type.x);
+        else
+            type.x = 1.0;
     }
 
 
@@ -429,12 +529,20 @@ namespace glm
     {
         if (json.find("x") != json.end())
             json.at("x").get_to(type.x);
+        else
+            type.x = 1.0;
         if (json.find("y") != json.end())
             json.at("y").get_to(type.y);
+        else
+            type.y = 1.0;
         if (json.find("z") != json.end())
             json.at("z").get_to(type.z);
+        else
+            type.z = 1.0;
         if (json.find("w") != json.end())
             json.at("w").get_to(type.w);
+        else
+            type.w = 1.0;
     }
 
 
@@ -453,10 +561,16 @@ namespace glm
     {
         if (json.find("x") != json.end())
             json.at("x").get_to(type.x);
+        else
+            type.x = 1.0;
         if (json.find("y") != json.end())
             json.at("y").get_to(type.y);
+        else
+            type.y = 1.0;
         if (json.find("z") != json.end())
             json.at("z").get_to(type.z);
+        else
+            type.z = 1.0;
     }
 
 
@@ -474,8 +588,12 @@ namespace glm
     {
         if (json.find("x") != json.end())
             json.at("x").get_to(type.x);
+        else
+            type.x = 1.0;
         if (json.find("y") != json.end())
             json.at("y").get_to(type.y);
+        else
+            type.y = 1.0;
     }
 
 
@@ -492,6 +610,8 @@ namespace glm
     {
         if (json.find("x") != json.end())
             json.at("x").get_to(type.x);
+        else
+            type.x = 1.0;
     }
 
 
@@ -511,12 +631,20 @@ namespace glm
     {
         if (json.find("x") != json.end())
             json.at("x").get_to(type.x);
+        else
+            type.x = 1.0;
         if (json.find("y") != json.end())
             json.at("y").get_to(type.y);
+        else
+            type.y = 1.0;
         if (json.find("z") != json.end())
             json.at("z").get_to(type.z);
+        else
+            type.z = 1.0;
         if (json.find("w") != json.end())
             json.at("w").get_to(type.w);
+        else
+            type.w = 1.0;
     }
 
 
@@ -535,10 +663,16 @@ namespace glm
     {
         if (json.find("x") != json.end())
             json.at("x").get_to(type.x);
+        else
+            type.x = 1.0;
         if (json.find("y") != json.end())
             json.at("y").get_to(type.y);
+        else
+            type.y = 1.0;
         if (json.find("z") != json.end())
             json.at("z").get_to(type.z);
+        else
+            type.z = 1.0;
     }
 
 
@@ -556,8 +690,12 @@ namespace glm
     {
         if (json.find("x") != json.end())
             json.at("x").get_to(type.x);
+        else
+            type.x = 1.0;
         if (json.find("y") != json.end())
             json.at("y").get_to(type.y);
+        else
+            type.y = 1.0;
     }
 
 
@@ -574,6 +712,8 @@ namespace glm
     {
         if (json.find("x") != json.end())
             json.at("x").get_to(type.x);
+        else
+            type.x = 1.0;
     }
 
 
@@ -593,12 +733,20 @@ namespace glm
     {
         if (json.find("x") != json.end())
             json.at("x").get_to(type.x);
+        else
+            type.x = 1.0;
         if (json.find("y") != json.end())
             json.at("y").get_to(type.y);
+        else
+            type.y = 1.0;
         if (json.find("z") != json.end())
             json.at("z").get_to(type.z);
+        else
+            type.z = 1.0;
         if (json.find("w") != json.end())
             json.at("w").get_to(type.w);
+        else
+            type.w = 1.0;
     }
 
 
@@ -617,10 +765,16 @@ namespace glm
     {
         if (json.find("x") != json.end())
             json.at("x").get_to(type.x);
+        else
+            type.x = 1.0;
         if (json.find("y") != json.end())
             json.at("y").get_to(type.y);
+        else
+            type.y = 1.0;
         if (json.find("z") != json.end())
             json.at("z").get_to(type.z);
+        else
+            type.z = 1.0;
     }
 
 
@@ -638,8 +792,12 @@ namespace glm
     {
         if (json.find("x") != json.end())
             json.at("x").get_to(type.x);
+        else
+            type.x = 1.0;
         if (json.find("y") != json.end())
             json.at("y").get_to(type.y);
+        else
+            type.y = 1.0;
     }
 
 
@@ -656,6 +814,8 @@ namespace glm
     {
         if (json.find("x") != json.end())
             json.at("x").get_to(type.x);
+        else
+            type.x = 1.0;
     }
 
 
@@ -675,12 +835,20 @@ namespace glm
     {
         if (json.find("x") != json.end())
             json.at("x").get_to(type.x);
+        else
+            type.x = 1.0;
         if (json.find("y") != json.end())
             json.at("y").get_to(type.y);
+        else
+            type.y = 1.0;
         if (json.find("z") != json.end())
             json.at("z").get_to(type.z);
+        else
+            type.z = 1.0;
         if (json.find("w") != json.end())
             json.at("w").get_to(type.w);
+        else
+            type.w = 1.0;
     }
 
 
@@ -699,10 +867,16 @@ namespace glm
     {
         if (json.find("x") != json.end())
             json.at("x").get_to(type.x);
+        else
+            type.x = 1.0;
         if (json.find("y") != json.end())
             json.at("y").get_to(type.y);
+        else
+            type.y = 1.0;
         if (json.find("z") != json.end())
             json.at("z").get_to(type.z);
+        else
+            type.z = 1.0;
     }
 
 
@@ -720,8 +894,12 @@ namespace glm
     {
         if (json.find("x") != json.end())
             json.at("x").get_to(type.x);
+        else
+            type.x = 1.0;
         if (json.find("y") != json.end())
             json.at("y").get_to(type.y);
+        else
+            type.y = 1.0;
     }
 
 
@@ -738,6 +916,8 @@ namespace glm
     {
         if (json.find("x") != json.end())
             json.at("x").get_to(type.x);
+        else
+            type.x = 1.0;
     }
 
 
@@ -757,12 +937,20 @@ namespace glm
     {
         if (json.find("x") != json.end())
             json.at("x").get_to(type.x);
+        else
+            type.x = 1.0;
         if (json.find("y") != json.end())
             json.at("y").get_to(type.y);
+        else
+            type.y = 1.0;
         if (json.find("z") != json.end())
             json.at("z").get_to(type.z);
+        else
+            type.z = 1.0;
         if (json.find("w") != json.end())
             json.at("w").get_to(type.w);
+        else
+            type.w = 1.0;
     }
 
 
@@ -781,10 +969,16 @@ namespace glm
     {
         if (json.find("x") != json.end())
             json.at("x").get_to(type.x);
+        else
+            type.x = 1.0;
         if (json.find("y") != json.end())
             json.at("y").get_to(type.y);
+        else
+            type.y = 1.0;
         if (json.find("z") != json.end())
             json.at("z").get_to(type.z);
+        else
+            type.z = 1.0;
     }
 
 
@@ -802,8 +996,12 @@ namespace glm
     {
         if (json.find("x") != json.end())
             json.at("x").get_to(type.x);
+        else
+            type.x = 1.0;
         if (json.find("y") != json.end())
             json.at("y").get_to(type.y);
+        else
+            type.y = 1.0;
     }
 
 
@@ -820,6 +1018,8 @@ namespace glm
     {
         if (json.find("x") != json.end())
             json.at("x").get_to(type.x);
+        else
+            type.x = 1.0;
     }
 
 
@@ -839,12 +1039,20 @@ namespace glm
     {
         if (json.find("x") != json.end())
             json.at("x").get_to(type.x);
+        else
+            type.x = 1.0;
         if (json.find("y") != json.end())
             json.at("y").get_to(type.y);
+        else
+            type.y = 1.0;
         if (json.find("z") != json.end())
             json.at("z").get_to(type.z);
+        else
+            type.z = 1.0;
         if (json.find("w") != json.end())
             json.at("w").get_to(type.w);
+        else
+            type.w = 1.0;
     }
 
 
@@ -863,10 +1071,16 @@ namespace glm
     {
         if (json.find("x") != json.end())
             json.at("x").get_to(type.x);
+        else
+            type.x = 1.0;
         if (json.find("y") != json.end())
             json.at("y").get_to(type.y);
+        else
+            type.y = 1.0;
         if (json.find("z") != json.end())
             json.at("z").get_to(type.z);
+        else
+            type.z = 1.0;
     }
 
 
@@ -884,8 +1098,12 @@ namespace glm
     {
         if (json.find("x") != json.end())
             json.at("x").get_to(type.x);
+        else
+            type.x = 1.0;
         if (json.find("y") != json.end())
             json.at("y").get_to(type.y);
+        else
+            type.y = 1.0;
     }
 
 
@@ -902,6 +1120,8 @@ namespace glm
     {
         if (json.find("x") != json.end())
             json.at("x").get_to(type.x);
+        else
+            type.x = 1.0;
     }
 
 
@@ -921,12 +1141,20 @@ namespace glm
     {
         if (json.find("x") != json.end())
             json.at("x").get_to(type.x);
+        else
+            type.x = 1.0;
         if (json.find("y") != json.end())
             json.at("y").get_to(type.y);
+        else
+            type.y = 1.0;
         if (json.find("z") != json.end())
             json.at("z").get_to(type.z);
+        else
+            type.z = 1.0;
         if (json.find("w") != json.end())
             json.at("w").get_to(type.w);
+        else
+            type.w = 1.0;
     }
 
 
@@ -945,10 +1173,16 @@ namespace glm
     {
         if (json.find("x") != json.end())
             json.at("x").get_to(type.x);
+        else
+            type.x = 1.0;
         if (json.find("y") != json.end())
             json.at("y").get_to(type.y);
+        else
+            type.y = 1.0;
         if (json.find("z") != json.end())
             json.at("z").get_to(type.z);
+        else
+            type.z = 1.0;
     }
 
 
@@ -966,8 +1200,12 @@ namespace glm
     {
         if (json.find("x") != json.end())
             json.at("x").get_to(type.x);
+        else
+            type.x = 1.0;
         if (json.find("y") != json.end())
             json.at("y").get_to(type.y);
+        else
+            type.y = 1.0;
     }
 
 
@@ -984,6 +1222,8 @@ namespace glm
     {
         if (json.find("x") != json.end())
             json.at("x").get_to(type.x);
+        else
+            type.x = 1.0;
     }
 
 
@@ -1003,12 +1243,20 @@ namespace glm
     {
         if (json.find("x") != json.end())
             json.at("x").get_to(type.x);
+        else
+            type.x = 1.0;
         if (json.find("y") != json.end())
             json.at("y").get_to(type.y);
+        else
+            type.y = 1.0;
         if (json.find("z") != json.end())
             json.at("z").get_to(type.z);
+        else
+            type.z = 1.0;
         if (json.find("w") != json.end())
             json.at("w").get_to(type.w);
+        else
+            type.w = 1.0;
     }
 
 
@@ -1027,10 +1275,16 @@ namespace glm
     {
         if (json.find("x") != json.end())
             json.at("x").get_to(type.x);
+        else
+            type.x = 1.0;
         if (json.find("y") != json.end())
             json.at("y").get_to(type.y);
+        else
+            type.y = 1.0;
         if (json.find("z") != json.end())
             json.at("z").get_to(type.z);
+        else
+            type.z = 1.0;
     }
 
 
@@ -1048,8 +1302,12 @@ namespace glm
     {
         if (json.find("x") != json.end())
             json.at("x").get_to(type.x);
+        else
+            type.x = 1.0;
         if (json.find("y") != json.end())
             json.at("y").get_to(type.y);
+        else
+            type.y = 1.0;
     }
 
 
@@ -1066,6 +1324,8 @@ namespace glm
     {
         if (json.find("x") != json.end())
             json.at("x").get_to(type.x);
+        else
+            type.x = 1.0;
     }
 
 
@@ -1085,12 +1345,20 @@ namespace glm
     {
         if (json.find("x") != json.end())
             json.at("x").get_to(type.x);
+        else
+            type.x = 1.0;
         if (json.find("y") != json.end())
             json.at("y").get_to(type.y);
+        else
+            type.y = 1.0;
         if (json.find("z") != json.end())
             json.at("z").get_to(type.z);
+        else
+            type.z = 1.0;
         if (json.find("w") != json.end())
             json.at("w").get_to(type.w);
+        else
+            type.w = 1.0;
     }
 
 
@@ -1109,10 +1377,16 @@ namespace glm
     {
         if (json.find("x") != json.end())
             json.at("x").get_to(type.x);
+        else
+            type.x = 1.0;
         if (json.find("y") != json.end())
             json.at("y").get_to(type.y);
+        else
+            type.y = 1.0;
         if (json.find("z") != json.end())
             json.at("z").get_to(type.z);
+        else
+            type.z = 1.0;
     }
 
 
@@ -1130,8 +1404,12 @@ namespace glm
     {
         if (json.find("x") != json.end())
             json.at("x").get_to(type.x);
+        else
+            type.x = 1.0;
         if (json.find("y") != json.end())
             json.at("y").get_to(type.y);
+        else
+            type.y = 1.0;
     }
 
 
@@ -1148,6 +1426,8 @@ namespace glm
     {
         if (json.find("x") != json.end())
             json.at("x").get_to(type.x);
+        else
+            type.x = 1.0;
     }
 
 
@@ -1167,12 +1447,20 @@ namespace glm
     {
         if (json.find("x") != json.end())
             json.at("x").get_to(type.x);
+        else
+            type.x = 1.0;
         if (json.find("y") != json.end())
             json.at("y").get_to(type.y);
+        else
+            type.y = 1.0;
         if (json.find("z") != json.end())
             json.at("z").get_to(type.z);
+        else
+            type.z = 1.0;
         if (json.find("w") != json.end())
             json.at("w").get_to(type.w);
+        else
+            type.w = 1.0;
     }
 
 
@@ -1191,10 +1479,16 @@ namespace glm
     {
         if (json.find("x") != json.end())
             json.at("x").get_to(type.x);
+        else
+            type.x = 1.0;
         if (json.find("y") != json.end())
             json.at("y").get_to(type.y);
+        else
+            type.y = 1.0;
         if (json.find("z") != json.end())
             json.at("z").get_to(type.z);
+        else
+            type.z = 1.0;
     }
 
 
@@ -1210,10 +1504,14 @@ namespace glm
 
     void from_json(const nlohmann::json &json, i64vec2 &type)
     {
-        if (json.find("x") != json.end())
+       if (json.find("x") != json.end())
             json.at("x").get_to(type.x);
+        else
+            type.x = 1.0;
         if (json.find("y") != json.end())
             json.at("y").get_to(type.y);
+        else
+            type.y = 1.0;
     }
 
 
@@ -1230,6 +1528,8 @@ namespace glm
     {
         if (json.find("x") != json.end())
             json.at("x").get_to(type.x);
+        else
+            type.x = 1.0;
     }
 
 
@@ -1250,12 +1550,20 @@ namespace glm
     {
         if (json.find("x") != json.end())
             json.at("x").get_to(type.x);
+        else
+            type.x = 1.0;
         if (json.find("y") != json.end())
             json.at("y").get_to(type.y);
+        else
+            type.y = 1.0;
         if (json.find("z") != json.end())
             json.at("z").get_to(type.z);
+        else
+            type.z = 1.0;
         if (json.find("w") != json.end())
             json.at("w").get_to(type.w);
+        else
+            type.w = 1.0;
     }
 
 
@@ -1274,10 +1582,16 @@ namespace glm
     {
         if (json.find("x") != json.end())
             json.at("x").get_to(type.x);
+        else
+            type.x = 1.0;
         if (json.find("y") != json.end())
             json.at("y").get_to(type.y);
+        else
+            type.y = 1.0;
         if (json.find("z") != json.end())
             json.at("z").get_to(type.z);
+        else
+            type.z = 1.0;
     }
 
 
@@ -1295,8 +1609,12 @@ namespace glm
     {
         if (json.find("x") != json.end())
             json.at("x").get_to(type.x);
+        else
+            type.x = 1.0;
         if (json.find("y") != json.end())
             json.at("y").get_to(type.y);
+        else
+            type.y = 1.0;
     }
 
 
@@ -1313,6 +1631,8 @@ namespace glm
     {
         if (json.find("x") != json.end())
             json.at("x").get_to(type.x);
+        else
+            type.x = 1.0;
     }
 
 
@@ -1332,12 +1652,20 @@ namespace glm
     {
         if (json.find("x") != json.end())
             json.at("x").get_to(type.x);
+        else
+            type.x = 1.0;
         if (json.find("y") != json.end())
             json.at("y").get_to(type.y);
+        else
+            type.y = 1.0;
         if (json.find("z") != json.end())
             json.at("z").get_to(type.z);
+        else
+            type.z = 1.0;
         if (json.find("w") != json.end())
             json.at("w").get_to(type.w);
+        else
+            type.w = 1.0;
     }
 
 
@@ -1356,10 +1684,16 @@ namespace glm
     {
         if (json.find("x") != json.end())
             json.at("x").get_to(type.x);
+        else
+            type.x = 1.0;
         if (json.find("y") != json.end())
             json.at("y").get_to(type.y);
+        else
+            type.y = 1.0;
         if (json.find("z") != json.end())
             json.at("z").get_to(type.z);
+        else
+            type.z = 1.0;
     }
 
 
@@ -1377,8 +1711,12 @@ namespace glm
     {
         if (json.find("x") != json.end())
             json.at("x").get_to(type.x);
+        else
+            type.x = 1.0;
         if (json.find("y") != json.end())
             json.at("y").get_to(type.y);
+        else
+            type.y = 1.0;
     }
 
 
@@ -1395,6 +1733,8 @@ namespace glm
     {
         if (json.find("x") != json.end())
             json.at("x").get_to(type.x);
+        else
+            type.x = 1.0;
     }
 
 
@@ -1414,12 +1754,20 @@ namespace glm
     {
         if (json.find("x") != json.end())
             json.at("x").get_to(type.x);
+        else
+            type.x = 1.0;
         if (json.find("y") != json.end())
             json.at("y").get_to(type.y);
+        else
+            type.y = 1.0;
         if (json.find("z") != json.end())
             json.at("z").get_to(type.z);
+        else
+            type.z = 1.0;
         if (json.find("w") != json.end())
             json.at("w").get_to(type.w);
+        else
+            type.w = 1.0;
     }
 
 
@@ -1438,10 +1786,16 @@ namespace glm
     {
         if (json.find("x") != json.end())
             json.at("x").get_to(type.x);
+        else
+            type.x = 1.0;
         if (json.find("y") != json.end())
             json.at("y").get_to(type.y);
+        else
+            type.y = 1.0;
         if (json.find("z") != json.end())
             json.at("z").get_to(type.z);
+        else
+            type.z = 1.0;
     }
 
 
@@ -1459,8 +1813,12 @@ namespace glm
     {
         if (json.find("x") != json.end())
             json.at("x").get_to(type.x);
+        else
+            type.x = 1.0;
         if (json.find("y") != json.end())
             json.at("y").get_to(type.y);
+        else
+            type.y = 1.0;
     }
 
 
@@ -1477,6 +1835,8 @@ namespace glm
     {
         if (json.find("x") != json.end())
             json.at("x").get_to(type.x);
+        else
+            type.x = 1.0;
     }
 
 
@@ -1496,12 +1856,20 @@ namespace glm
     {
         if (json.find("x") != json.end())
             json.at("x").get_to(type.x);
+        else
+            type.x = 1.0;
         if (json.find("y") != json.end())
             json.at("y").get_to(type.y);
+        else
+            type.y = 1.0;
         if (json.find("z") != json.end())
             json.at("z").get_to(type.z);
+        else
+            type.z = 1.0;
         if (json.find("w") != json.end())
             json.at("w").get_to(type.w);
+        else
+            type.w = 1.0;
     }
 
 
@@ -1520,10 +1888,16 @@ namespace glm
     {
         if (json.find("x") != json.end())
             json.at("x").get_to(type.x);
+        else
+            type.x = 1.0;
         if (json.find("y") != json.end())
             json.at("y").get_to(type.y);
+        else
+            type.y = 1.0;
         if (json.find("z") != json.end())
             json.at("z").get_to(type.z);
+        else
+            type.z = 1.0;
     }
 
 
@@ -1541,8 +1915,12 @@ namespace glm
     {
         if (json.find("x") != json.end())
             json.at("x").get_to(type.x);
+        else
+            type.x = 1.0;
         if (json.find("y") != json.end())
             json.at("y").get_to(type.y);
+        else
+            type.y = 1.0;
     }
 
 
@@ -1559,6 +1937,8 @@ namespace glm
     {
         if (json.find("x") != json.end())
             json.at("x").get_to(type.x);
+        else
+            type.x = 1.0;
     }
 
 
@@ -1578,12 +1958,20 @@ namespace glm
     {
         if (json.find("x") != json.end())
             json.at("x").get_to(type.x);
+        else
+            type.x = 1.0;
         if (json.find("y") != json.end())
             json.at("y").get_to(type.y);
+        else
+            type.y = 1.0;
         if (json.find("z") != json.end())
             json.at("z").get_to(type.z);
+        else
+            type.z = 1.0;
         if (json.find("w") != json.end())
             json.at("w").get_to(type.w);
+        else
+            type.w = 1.0;
     }
 
 
@@ -1602,10 +1990,16 @@ namespace glm
     {
         if (json.find("x") != json.end())
             json.at("x").get_to(type.x);
+        else
+            type.x = 1.0;
         if (json.find("y") != json.end())
             json.at("y").get_to(type.y);
+        else
+            type.y = 1.0;
         if (json.find("z") != json.end())
             json.at("z").get_to(type.z);
+        else
+            type.z = 1.0;
     }
 
 
@@ -1623,8 +2017,12 @@ namespace glm
     {
         if (json.find("x") != json.end())
             json.at("x").get_to(type.x);
+        else
+            type.x = 1.0;
         if (json.find("y") != json.end())
             json.at("y").get_to(type.y);
+        else
+            type.y = 1.0;
     }
 
 
@@ -1641,6 +2039,8 @@ namespace glm
     {
         if (json.find("x") != json.end())
             json.at("x").get_to(type.x);
+        else
+            type.x = 1.0;
     }
 
 
@@ -1660,12 +2060,20 @@ namespace glm
     {
         if (json.find("x") != json.end())
             json.at("x").get_to(type.x);
+        else
+            type.x = 1.0;
         if (json.find("y") != json.end())
             json.at("y").get_to(type.y);
+        else
+            type.y = 1.0;
         if (json.find("z") != json.end())
             json.at("z").get_to(type.z);
+        else
+            type.z = 1.0;
         if (json.find("w") != json.end())
             json.at("w").get_to(type.w);
+        else
+            type.w = 1.0;
     }
 
 
@@ -1684,10 +2092,16 @@ namespace glm
     {
         if (json.find("x") != json.end())
             json.at("x").get_to(type.x);
+        else
+            type.x = 1.0;
         if (json.find("y") != json.end())
             json.at("y").get_to(type.y);
+        else
+            type.y = 1.0;
         if (json.find("z") != json.end())
             json.at("z").get_to(type.z);
+        else
+            type.z = 1.0;
     }
 
 
@@ -1705,8 +2119,12 @@ namespace glm
     {
         if (json.find("x") != json.end())
             json.at("x").get_to(type.x);
+        else
+            type.x = 1.0;
         if (json.find("y") != json.end())
             json.at("y").get_to(type.y);
+        else
+            type.y = 1.0;
     }
 
 
@@ -1723,6 +2141,8 @@ namespace glm
     {
         if (json.find("x") != json.end())
             json.at("x").get_to(type.x);
+        else
+            type.x = 1.0;
     }
 
 
@@ -1742,12 +2162,20 @@ namespace glm
     {
         if (json.find("x") != json.end())
             json.at("x").get_to(type.x);
+        else
+            type.x = 1.0;
         if (json.find("y") != json.end())
             json.at("y").get_to(type.y);
+        else
+            type.y = 1.0;
         if (json.find("z") != json.end())
             json.at("z").get_to(type.z);
+        else
+            type.z = 1.0;
         if (json.find("w") != json.end())
             json.at("w").get_to(type.w);
+        else
+            type.w = 1.0;
     }
 
 
@@ -1766,10 +2194,16 @@ namespace glm
     {
         if (json.find("x") != json.end())
             json.at("x").get_to(type.x);
+        else
+            type.x = 1.0;
         if (json.find("y") != json.end())
             json.at("y").get_to(type.y);
+        else
+            type.y = 1.0;
         if (json.find("z") != json.end())
             json.at("z").get_to(type.z);
+        else
+            type.z = 1.0;
     }
 
 
@@ -1787,8 +2221,12 @@ namespace glm
     {
         if (json.find("x") != json.end())
             json.at("x").get_to(type.x);
+        else
+            type.x = 1.0;
         if (json.find("y") != json.end())
             json.at("y").get_to(type.y);
+        else
+            type.y = 1.0;
     }
 
 
@@ -1805,6 +2243,8 @@ namespace glm
     {
         if (json.find("x") != json.end())
             json.at("x").get_to(type.x);
+        else
+            type.x = 1.0;
     }
 
 
@@ -1824,12 +2264,20 @@ namespace glm
     {
         if (json.find("x") != json.end())
             json.at("x").get_to(type.x);
+        else
+            type.x = 1.0;
         if (json.find("y") != json.end())
             json.at("y").get_to(type.y);
+        else
+            type.y = 1.0;
         if (json.find("z") != json.end())
             json.at("z").get_to(type.z);
+        else
+            type.z = 1.0;
         if (json.find("w") != json.end())
             json.at("w").get_to(type.w);
+        else
+            type.w = 1.0;
     }
 
 
@@ -1848,10 +2296,16 @@ namespace glm
     {
         if (json.find("x") != json.end())
             json.at("x").get_to(type.x);
+        else
+            type.x = 1.0;
         if (json.find("y") != json.end())
             json.at("y").get_to(type.y);
+        else
+            type.y = 1.0;
         if (json.find("z") != json.end())
             json.at("z").get_to(type.z);
+        else
+            type.z = 1.0;
     }
 
 
@@ -1869,8 +2323,12 @@ namespace glm
     {
         if (json.find("x") != json.end())
             json.at("x").get_to(type.x);
+        else
+            type.x = 1.0;
         if (json.find("y") != json.end())
             json.at("y").get_to(type.y);
+        else
+            type.y = 1.0;
     }
 
 
@@ -1887,6 +2345,8 @@ namespace glm
     {
         if (json.find("x") != json.end())
             json.at("x").get_to(type.x);
+        else
+            type.x = 1.0;
     }
 
 
@@ -1906,12 +2366,20 @@ namespace glm
     {
         if (json.find("x") != json.end())
             json.at("x").get_to(type.x);
+        else
+            type.x = 1.0;
         if (json.find("y") != json.end())
             json.at("y").get_to(type.y);
+        else
+            type.y = 1.0;
         if (json.find("z") != json.end())
             json.at("z").get_to(type.z);
+        else
+            type.z = 1.0;
         if (json.find("w") != json.end())
             json.at("w").get_to(type.w);
+        else
+            type.w = 1.0;
     }
 
     //glm::u16vec3
@@ -1929,10 +2397,16 @@ namespace glm
     {
         if (json.find("x") != json.end())
             json.at("x").get_to(type.x);
+        else
+            type.x = 1.0;
         if (json.find("y") != json.end())
             json.at("y").get_to(type.y);
+        else
+            type.y = 1.0;
         if (json.find("z") != json.end())
             json.at("z").get_to(type.z);
+        else
+            type.z = 1.0;
     }
 
 
@@ -1950,8 +2424,12 @@ namespace glm
     {
         if (json.find("x") != json.end())
             json.at("x").get_to(type.x);
+        else
+            type.x = 1.0;
         if (json.find("y") != json.end())
             json.at("y").get_to(type.y);
+        else
+            type.y = 1.0;
     }
 
 
@@ -1968,6 +2446,8 @@ namespace glm
     {
         if (json.find("x") != json.end())
             json.at("x").get_to(type.x);
+        else
+            type.x = 1.0;
     }
 
 
@@ -1987,12 +2467,20 @@ namespace glm
     {
         if (json.find("x") != json.end())
             json.at("x").get_to(type.x);
+        else
+            type.x = 1.0;
         if (json.find("y") != json.end())
             json.at("y").get_to(type.y);
+        else
+            type.y = 1.0;
         if (json.find("z") != json.end())
             json.at("z").get_to(type.z);
+        else
+            type.z = 1.0;
         if (json.find("w") != json.end())
             json.at("w").get_to(type.w);
+        else
+            type.w = 1.0;
     }
 
 
@@ -2011,10 +2499,16 @@ namespace glm
     {
         if (json.find("x") != json.end())
             json.at("x").get_to(type.x);
+        else
+            type.x = 1.0;
         if (json.find("y") != json.end())
             json.at("y").get_to(type.y);
+        else
+            type.y = 1.0;
         if (json.find("z") != json.end())
             json.at("z").get_to(type.z);
+        else
+            type.z = 1.0;
     }
 
 
@@ -2032,8 +2526,12 @@ namespace glm
     {
         if (json.find("x") != json.end())
             json.at("x").get_to(type.x);
+        else
+            type.x = 1.0;
         if (json.find("y") != json.end())
             json.at("y").get_to(type.y);
+        else
+            type.y = 1.0;
     }
 
 
@@ -2050,6 +2548,8 @@ namespace glm
     {
         if (json.find("x") != json.end())
             json.at("x").get_to(type.x);
+        else
+            type.x = 1.0;
     }
 
 
@@ -2069,12 +2569,20 @@ namespace glm
     {
         if (json.find("x") != json.end())
             json.at("x").get_to(type.x);
+        else
+            type.x = 1.0;
         if (json.find("y") != json.end())
             json.at("y").get_to(type.y);
+        else
+            type.y = 1.0;
         if (json.find("z") != json.end())
             json.at("z").get_to(type.z);
+        else
+            type.z = 1.0;
         if (json.find("w") != json.end())
             json.at("w").get_to(type.w);
+        else
+            type.w = 1.0;
     }
 
 
@@ -2093,10 +2601,16 @@ namespace glm
     {
         if (json.find("x") != json.end())
             json.at("x").get_to(type.x);
+        else
+            type.x = 1.0;
         if (json.find("y") != json.end())
             json.at("y").get_to(type.y);
+        else
+            type.y = 1.0;
         if (json.find("z") != json.end())
             json.at("z").get_to(type.z);
+        else
+            type.z = 1.0;
     }
 
 
@@ -2114,8 +2628,12 @@ namespace glm
     {
         if (json.find("x") != json.end())
             json.at("x").get_to(type.x);
+        else
+            type.x = 1.0;
         if (json.find("y") != json.end())
             json.at("y").get_to(type.y);
+        else
+            type.y = 1.0;
     }
 
 
@@ -2132,6 +2650,8 @@ namespace glm
     {
         if (json.find("x") != json.end())
             json.at("x").get_to(type.x);
+        else
+            type.x = 1.0;
     }
 
 
@@ -2151,12 +2671,20 @@ namespace glm
     {
         if (json.find("x") != json.end())
             json.at("x").get_to(type.x);
+        else
+            type.x = 1.0;
         if (json.find("y") != json.end())
             json.at("y").get_to(type.y);
+        else
+            type.y = 1.0;
         if (json.find("z") != json.end())
             json.at("z").get_to(type.z);
+        else
+            type.z = 1.0;
         if (json.find("w") != json.end())
             json.at("w").get_to(type.w);
+        else
+            type.w = 1.0;
     }
 
 
@@ -2175,10 +2703,16 @@ namespace glm
     {
         if (json.find("x") != json.end())
             json.at("x").get_to(type.x);
+        else
+            type.x = 1.0;
         if (json.find("y") != json.end())
             json.at("y").get_to(type.y);
+        else
+            type.y = 1.0;
         if (json.find("z") != json.end())
             json.at("z").get_to(type.z);
+        else
+            type.z = 1.0;
     }
 
 
@@ -2196,8 +2730,12 @@ namespace glm
     {
         if (json.find("x") != json.end())
             json.at("x").get_to(type.x);
+        else
+            type.x = 1.0;
         if (json.find("y") != json.end())
             json.at("y").get_to(type.y);
+        else
+            type.y = 1.0;
     }
 
 
@@ -2214,6 +2752,8 @@ namespace glm
     {
         if (json.find("x") != json.end())
             json.at("x").get_to(type.x);
+        else
+            type.x = 1.0;
     }
 
 
@@ -2234,12 +2774,20 @@ namespace glm
     {
         if (json.find("x") != json.end())
             json.at("x").get_to(type.x);
+        else
+            type.x = 1.0;
         if (json.find("y") != json.end())
             json.at("y").get_to(type.y);
+        else
+            type.y = 1.0;
         if (json.find("z") != json.end())
             json.at("z").get_to(type.z);
+        else
+            type.z = 1.0;
         if (json.find("w") != json.end())
             json.at("w").get_to(type.w);
+        else
+            type.w = 1.0;
     }
 
     //glm::lowp_vec3
@@ -2257,10 +2805,16 @@ namespace glm
     {
         if (json.find("x") != json.end())
             json.at("x").get_to(type.x);
+        else
+            type.x = 1.0;
         if (json.find("y") != json.end())
             json.at("y").get_to(type.y);
+        else
+            type.y = 1.0;
         if (json.find("z") != json.end())
             json.at("z").get_to(type.z);
+        else
+            type.z = 1.0;
     }
 
     //glm::lowp_vec2
@@ -2277,8 +2831,12 @@ namespace glm
     {
         if (json.find("x") != json.end())
             json.at("x").get_to(type.x);
+        else
+            type.x = 1.0;
         if (json.find("y") != json.end())
             json.at("y").get_to(type.y);
+        else
+            type.y = 1.0;
     }
 
     //glm::lowp_vec1
@@ -2294,6 +2852,8 @@ namespace glm
     {
         if (json.find("x") != json.end())
             json.at("x").get_to(type.x);
+        else
+            type.x = 1.0;
     }
 
 
@@ -2313,12 +2873,20 @@ namespace glm
     {
         if (json.find("x") != json.end())
             json.at("x").get_to(type.x);
+        else
+            type.x = 1.0;
         if (json.find("y") != json.end())
             json.at("y").get_to(type.y);
+        else
+            type.y = 1.0;
         if (json.find("z") != json.end())
             json.at("z").get_to(type.z);
+        else
+            type.z = 1.0;
         if (json.find("w") != json.end())
             json.at("w").get_to(type.w);
+        else
+            type.w = 1.0;
     }
 
     //glm::mediump_vec3
@@ -2336,10 +2904,16 @@ namespace glm
     {
         if (json.find("x") != json.end())
             json.at("x").get_to(type.x);
+        else
+            type.x = 1.0;
         if (json.find("y") != json.end())
             json.at("y").get_to(type.y);
+        else
+            type.y = 1.0;
         if (json.find("z") != json.end())
             json.at("z").get_to(type.z);
+        else
+            type.z = 1.0;
     }
 
     //glm::mediump_vec2
@@ -2356,8 +2930,12 @@ namespace glm
     {
         if (json.find("x") != json.end())
             json.at("x").get_to(type.x);
+        else
+            type.x = 1.0;
         if (json.find("y") != json.end())
             json.at("y").get_to(type.y);
+        else
+            type.y = 1.0;
     }
 
     //glm::mediump_vec1
@@ -2373,6 +2951,8 @@ namespace glm
     {
         if (json.find("x") != json.end())
             json.at("x").get_to(type.x);
+        else
+            type.x = 1.0;
     }
 
 
@@ -2392,12 +2972,20 @@ namespace glm
     {
         if (json.find("x") != json.end())
             json.at("x").get_to(type.x);
+        else
+            type.x = 1.0;
         if (json.find("y") != json.end())
             json.at("y").get_to(type.y);
+        else
+            type.y = 1.0;
         if (json.find("z") != json.end())
             json.at("z").get_to(type.z);
+        else
+            type.z = 1.0;
         if (json.find("w") != json.end())
             json.at("w").get_to(type.w);
+        else
+            type.w = 1.0;
     }
 
     //glm::vec3
@@ -2415,10 +3003,16 @@ namespace glm
     {
         if (json.find("x") != json.end())
             json.at("x").get_to(type.x);
+        else
+            type.x = 1.0;
         if (json.find("y") != json.end())
             json.at("y").get_to(type.y);
+        else
+            type.y = 1.0;
         if (json.find("z") != json.end())
             json.at("z").get_to(type.z);
+        else
+            type.z = 1.0;
     }
 
     //glm::vec2
@@ -2435,8 +3029,12 @@ namespace glm
     {
         if (json.find("x") != json.end())
             json.at("x").get_to(type.x);
+        else
+            type.x = 1.0;
         if (json.find("y") != json.end())
             json.at("y").get_to(type.y);
+        else
+            type.y = 1.0;
     }
 
     //glm::vec1
@@ -2452,6 +3050,8 @@ namespace glm
     {
         if (json.find("x") != json.end())
             json.at("x").get_to(type.x);
+        else
+            type.x = 1.0;
     }
 
 
@@ -2471,12 +3071,20 @@ namespace glm
     {
         if (json.find("x") != json.end())
             json.at("x").get_to(type.x);
+        else
+            type.x = 1.0;
         if (json.find("y") != json.end())
             json.at("y").get_to(type.y);
+        else
+            type.y = 1.0;
         if (json.find("z") != json.end())
             json.at("z").get_to(type.z);
+        else
+            type.z = 1.0;
         if (json.find("w") != json.end())
             json.at("w").get_to(type.w);
+        else
+            type.w = 1.0;
     }
 
     //glm::lowp_dvec3
@@ -2494,10 +3102,16 @@ namespace glm
     {
         if (json.find("x") != json.end())
             json.at("x").get_to(type.x);
+        else
+            type.x = 1.0;
         if (json.find("y") != json.end())
             json.at("y").get_to(type.y);
+        else
+            type.y = 1.0;
         if (json.find("z") != json.end())
             json.at("z").get_to(type.z);
+        else
+            type.z = 1.0;
     }
 
     //glm::lowp_dvec2
@@ -2514,8 +3128,12 @@ namespace glm
     {
         if (json.find("x") != json.end())
             json.at("x").get_to(type.x);
+        else
+            type.x = 1.0;
         if (json.find("y") != json.end())
             json.at("y").get_to(type.y);
+        else
+            type.y = 1.0;
     }
 
     //glm::lowp_dvec1
@@ -2531,6 +3149,8 @@ namespace glm
     {
         if (json.find("x") != json.end())
             json.at("x").get_to(type.x);
+        else
+            type.x = 1.0;
     }
 
 
@@ -2550,12 +3170,20 @@ namespace glm
     {
         if (json.find("x") != json.end())
             json.at("x").get_to(type.x);
+        else
+            type.x = 1.0;
         if (json.find("y") != json.end())
             json.at("y").get_to(type.y);
+        else
+            type.y = 1.0;
         if (json.find("z") != json.end())
             json.at("z").get_to(type.z);
+        else
+            type.z = 1.0;
         if (json.find("w") != json.end())
             json.at("w").get_to(type.w);
+        else
+            type.w = 1.0;
     }
 
     //glm::mediump_dvec3
@@ -2573,10 +3201,16 @@ namespace glm
     {
         if (json.find("x") != json.end())
             json.at("x").get_to(type.x);
+        else
+            type.x = 1.0;
         if (json.find("y") != json.end())
             json.at("y").get_to(type.y);
+        else
+            type.y = 1.0;
         if (json.find("z") != json.end())
             json.at("z").get_to(type.z);
+        else
+            type.z = 1.0;
     }
 
     //glm::mediump_dvec2
@@ -2593,8 +3227,12 @@ namespace glm
     {
         if (json.find("x") != json.end())
             json.at("x").get_to(type.x);
+        else
+            type.x = 1.0;
         if (json.find("y") != json.end())
             json.at("y").get_to(type.y);
+        else
+            type.y = 1.0;
     }
 
     //glm::mediump_dvec1
@@ -2610,6 +3248,8 @@ namespace glm
     {
         if (json.find("x") != json.end())
             json.at("x").get_to(type.x);
+        else
+            type.x = 1.0;
     }
 
 
@@ -2629,12 +3269,20 @@ namespace glm
     {
         if (json.find("x") != json.end())
             json.at("x").get_to(type.x);
+        else
+            type.x = 1.0;
         if (json.find("y") != json.end())
             json.at("y").get_to(type.y);
+        else
+            type.y = 1.0;
         if (json.find("z") != json.end())
             json.at("z").get_to(type.z);
+        else
+            type.z = 1.0;
         if (json.find("w") != json.end())
             json.at("w").get_to(type.w);
+        else
+            type.w = 1.0;
     }
 
     //glm::dvec3
@@ -2652,10 +3300,16 @@ namespace glm
     {
         if (json.find("x") != json.end())
             json.at("x").get_to(type.x);
+        else
+            type.x = 1.0;
         if (json.find("y") != json.end())
             json.at("y").get_to(type.y);
+        else
+            type.y = 1.0;
         if (json.find("z") != json.end())
             json.at("z").get_to(type.z);
+        else
+            type.z = 1.0;
     }
 
     //glm::dvec2
@@ -2672,8 +3326,12 @@ namespace glm
     {
         if (json.find("x") != json.end())
             json.at("x").get_to(type.x);
+        else
+            type.x = 1.0;
         if (json.find("y") != json.end())
             json.at("y").get_to(type.y);
+        else
+            type.y = 1.0;
     }
 
     //glm::dvec1
@@ -2689,6 +3347,8 @@ namespace glm
     {
         if (json.find("x") != json.end())
             json.at("x").get_to(type.x);
+        else
+            type.x = 1.0;
     }
 
     /*--------------------GLM matrices--------------------*/

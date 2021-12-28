@@ -16,24 +16,28 @@ layout (location = 2) out vec3 outColor;
 layout (location = 3) out vec3 outWorldPos;
 layout (location = 4) out vec4 outTangent;
 
-layout(set = 0, binding = 0) uniform FUniformData 
+layout(std140, set = 0, binding = 0) uniform FUniformData 
 {
   mat4 model;
   mat4 view;
   mat4 projection;
   mat4 normal;
+  vec4 instancePos[256];
   //float repeat;
 } ubo;
 
 void main() 
 {
+  vec4 tmpPos = vec4(inPosition, 1.0) + ubo.instancePos[gl_InstanceIndex];
+
+  outWorldPos = (ubo.model * tmpPos).xyz;
+
   mat3 normal = mat3(ubo.normal);
-  outWorldPos = (ubo.model * vec4(inPosition, 1.0)).xyz;
 	outUV = inTexCoord * 1.0;
   outNormal = normal * inNormal;
 	outTangent = vec4(normal * inTangent.xyz, inTangent.w);
 
   outColor = inColor;
   
-  gl_Position = ubo.projection * ubo.view * ubo.model * vec4(inPosition, 1.0);
+  gl_Position = ubo.projection * ubo.view * ubo.model * tmpPos;
 }

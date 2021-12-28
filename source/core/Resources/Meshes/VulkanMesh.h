@@ -39,7 +39,7 @@ namespace Engine
                 
                 virtual void Create(std::shared_ptr<ResourceManager> pResMgr);
                 virtual void ReCreate();
-                virtual void Render(vk::CommandBuffer commandBuffer, uint32_t imageIndex, Core::FUniformData& ubo);
+                virtual void Render(vk::CommandBuffer commandBuffer, uint32_t imageIndex, Core::FUniformData& ubo, uint32_t instanceCount = 1);
                 virtual void Cleanup();
                 virtual void Destroy();
 

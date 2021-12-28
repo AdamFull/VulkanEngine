@@ -55,9 +55,12 @@ void MeshComponentBase::Render(vk::CommandBuffer &commandBuffer, uint32_t imageI
         ubo.model = transform.GetModel();
         ubo.view = camera->GetView();
         ubo.projection = camera->GetProjection();
-        //ubo.normal = glm::transpose(glm::inverse(ubo.model));
 
-        m_pMesh->Render(commandBuffer, imageIndex, ubo);
+        for(uint32_t i = 0; i < m_vInstances.size(); i++)
+            ubo.instancePos[i] = m_vInstances.at(i);
+        
+        auto instanceCount = m_vInstances.size();
+        m_pMesh->Render(commandBuffer, imageIndex, ubo, instanceCount == 0 ? 1 : instanceCount);
     }
 }
 

@@ -4,11 +4,20 @@
 #include "Core/VulkanInitializers.h"
 
 using namespace Engine::Resources::Material::Generator;
+using namespace Engine::Core;
 using namespace Engine::Core::Descriptor;
 using namespace Engine::Resources::Texture;
 
 void GeneratorBRDF::Create(std::shared_ptr<ResourceManager> pResMgr)
 {
+    initial.shaders = 
+    {
+        {vk::ShaderStageFlagBits::eVertex, "../../assets/shaders/main/screenspace/vert.spv"},
+        {vk::ShaderStageFlagBits::eFragment, "../../assets/shaders/generators/brdflut_gen/frag.spv"}
+    };
+    finalLayout = vk::ImageLayout::eShaderReadOnlyOptimal;
+    iFormat = 0x822F; 
+    usageFlags = usageFlags | vk::ImageUsageFlagBits::eSampled;
     GeneratorBase::Create(pResMgr);
 }
 

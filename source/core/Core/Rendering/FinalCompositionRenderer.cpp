@@ -70,7 +70,6 @@ void FinalCompositionRenderer::Render(vk::CommandBuffer& commandBuffer)
     //Bloom
     ubo.blurScale = GlobalVariables::blurScale;
     ubo.blurStrength = GlobalVariables::blurStrength;
-    ubo.direction = GlobalVariables::direction;
 
     m_pUniform->UpdateUniformBuffer(imageIndex, &ubo);
     auto& buffer = m_pUniform->GetUniformBuffer(imageIndex);

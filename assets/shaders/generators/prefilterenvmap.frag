@@ -13,7 +13,7 @@ layout(push_constant) uniform PushConsts
 	layout (offset = 68) uint numSamples;
 } consts;
 
-#include "shared_lightning.glsl"
+#include "../shared_lightning.glsl"
 
 vec3 prefilterEnvMap(vec3 R, float roughness)
 {

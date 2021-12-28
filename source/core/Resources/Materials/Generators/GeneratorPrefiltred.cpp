@@ -14,6 +14,13 @@ using namespace Engine::Resources::Loaders;
 
 void GeneratorPrefiltred::Create(std::shared_ptr<ResourceManager> pResMgr)
 {
+    initial.vertexInputDesc = Vertex::getBindingDescription();
+    initial.vertexAtribDesc = Vertex::getAttributeDescriptions();
+    initial.shaders = 
+    {
+        {vk::ShaderStageFlagBits::eVertex, "../../assets/shaders/generators/filtercube/vert.spv"},
+        {vk::ShaderStageFlagBits::eFragment, "../../assets/shaders/generators/prefilterenvmap/frag.spv"}
+    };
     m_iDimension = 512;
     //CreateTextures();
 
@@ -21,6 +28,9 @@ void GeneratorPrefiltred::Create(std::shared_ptr<ResourceManager> pResMgr)
     constantRange.stageFlags = vk::ShaderStageFlagBits::eVertex | vk::ShaderStageFlagBits::eFragment;
     constantRange.size = sizeof(FPrefiltredPushBlock);
     m_vConstantRanges.emplace_back(constantRange);
+    iFormat = 0x881A;
+    bTransfer = true;
+    usageFlags = usageFlags | vk::ImageUsageFlagBits::eTransferSrc;
 
     GeneratorBase::Create(pResMgr);
 }

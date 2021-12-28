@@ -14,6 +14,14 @@ using namespace Engine::Resources::Loaders;
 
 void GeneratorIrradiate::Create(std::shared_ptr<ResourceManager> pResMgr)
 {
+    initial.vertexInputDesc = Vertex::getBindingDescription();
+    initial.vertexAtribDesc = Vertex::getAttributeDescriptions();
+    initial.shaders = 
+    {
+        {vk::ShaderStageFlagBits::eVertex, "../../assets/shaders/generators/filtercube/vert.spv"},
+        {vk::ShaderStageFlagBits::eFragment, "../../assets/shaders/generators/irradiancecube/frag.spv"}
+    };
+
     m_iDimension = 64;
     //CreateTextures();
 
@@ -21,6 +29,9 @@ void GeneratorIrradiate::Create(std::shared_ptr<ResourceManager> pResMgr)
     constantRange.stageFlags = vk::ShaderStageFlagBits::eVertex | vk::ShaderStageFlagBits::eFragment;
     constantRange.size = sizeof(FIrradiatePushBlock);
     m_vConstantRanges.emplace_back(constantRange);
+    iFormat = 0x8814;
+    bTransfer = true;
+    usageFlags = usageFlags | vk::ImageUsageFlagBits::eTransferSrc;
 
     GeneratorBase::Create(pResMgr);
 }

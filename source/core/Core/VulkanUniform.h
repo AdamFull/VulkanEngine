@@ -10,7 +10,6 @@ namespace Engine
             alignas(4) float exposure;
             alignas(4) float blurScale{0.003};
             alignas(4) float blurStrength{1.0};
-            alignas(4) int direction{1};
         };
 
         struct FLight 

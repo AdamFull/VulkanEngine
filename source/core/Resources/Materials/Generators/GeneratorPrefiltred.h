@@ -25,7 +25,6 @@ namespace Engine
                     void Generate(std::shared_ptr<Mesh::MeshBase> pMesh) override;
                     std::shared_ptr<Texture::Image> Get() override;
                 protected:
-                    inline Core::Pipeline::EShaderSet GetShaderSet() override { return Core::Pipeline::EShaderSet::ePrefiltred; }
                     void CreateDescriptors(uint32_t images) override;
                     void CreateTextures() override;
                 private:

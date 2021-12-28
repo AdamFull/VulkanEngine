@@ -10,6 +10,16 @@ using namespace Engine::Core::Descriptor;
 
 void MaterialDiffuse::Create(std::shared_ptr<ResourceManager> pResMgr)
 {
+    initial.vertexInputDesc = Vertex::getBindingDescription();
+    initial.vertexAtribDesc = Vertex::getAttributeDescriptions();
+    initial.culling = vk::CullModeFlagBits::eBack;
+    initial.color_attachments = 6;
+    initial.enableDepth = VK_TRUE;
+    initial.shaders = 
+    {
+        {vk::ShaderStageFlagBits::eVertex, "../../assets/shaders/main/diffuse/vert.spv"},
+        {vk::ShaderStageFlagBits::eFragment, "../../assets/shaders/main/diffuse/frag.spv"}
+    };
     renderPass = URenderer->GetRenderer(FRendererCreateInfo::ERendererType::eDeferredPBR)->GetRenderPass();
     MaterialBase::Create(pResMgr);
 }

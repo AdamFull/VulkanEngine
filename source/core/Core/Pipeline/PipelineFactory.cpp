@@ -5,49 +5,49 @@
 using namespace Engine::Core;
 using namespace Engine::Core::Pipeline;
 
-std::map<EShaderSet, std::map<vk::ShaderStageFlagBits, std::string>> PipelineFactory::mShaderSets{
+/*std::map<EShaderSet, std::map<vk::ShaderStageFlagBits, std::string>> PipelineFactory::mShaderSets{
     {EShaderSet::eUI,
-     {{vk::ShaderStageFlagBits::eVertex, "../../assets/shaders/compiled/ui/vert.spv"},
-      {vk::ShaderStageFlagBits::eFragment, "../../assets/shaders/compiled/ui/frag.spv"}}},
+     {{vk::ShaderStageFlagBits::eVertex, "../../assets/shaders/main/ui/vert.spv"},
+      {vk::ShaderStageFlagBits::eFragment, "../../assets/shaders/main/ui/frag.spv"}}},
     {EShaderSet::eDiffuse,
-     {{vk::ShaderStageFlagBits::eVertex, "../../assets/shaders/compiled/diffuse/vert.spv"},
-      {vk::ShaderStageFlagBits::eFragment, "../../assets/shaders/compiled/diffuse/frag.spv"}}},
+     {{vk::ShaderStageFlagBits::eVertex, "../../assets/shaders/main/diffuse/vert.spv"},
+      {vk::ShaderStageFlagBits::eFragment, "../../assets/shaders/main/diffuse/frag.spv"}}},
     {EShaderSet::eSkybox,
-     {{vk::ShaderStageFlagBits::eVertex, "../../assets/shaders/compiled/skybox/vert.spv"},
-      {vk::ShaderStageFlagBits::eFragment, "../../assets/shaders/compiled/skybox/frag.spv"}}},
+     {{vk::ShaderStageFlagBits::eVertex, "../../assets/shaders/main/skybox/vert.spv"},
+      {vk::ShaderStageFlagBits::eFragment, "../../assets/shaders/main/skybox/frag.spv"}}},
       
     {EShaderSet::eBRDF,
-     {{vk::ShaderStageFlagBits::eVertex, "../../assets/shaders/compiled/brdflut_gen/vert.spv"},
-      {vk::ShaderStageFlagBits::eFragment, "../../assets/shaders/compiled/brdflut_gen/frag.spv"}}},
+     {{vk::ShaderStageFlagBits::eVertex, "../../assets/shaders/main/screenspace/vert.spv"},
+      {vk::ShaderStageFlagBits::eFragment, "../../assets/shaders/generators/brdflut_gen/frag.spv"}}},
     {EShaderSet::eIrradiateCube,
-     {{vk::ShaderStageFlagBits::eVertex, "../../assets/shaders/compiled/filtercube/vert.spv"},
-      {vk::ShaderStageFlagBits::eFragment, "../../assets/shaders/compiled/irradiancecube/frag.spv"}}},
+     {{vk::ShaderStageFlagBits::eVertex, "../../assets/shaders/generators/filtercube/vert.spv"},
+      {vk::ShaderStageFlagBits::eFragment, "../../assets/shaders/generators/irradiancecube/frag.spv"}}},
     {EShaderSet::ePrefiltred,
-     {{vk::ShaderStageFlagBits::eVertex, "../../assets/shaders/compiled/filtercube/vert.spv"},
-      {vk::ShaderStageFlagBits::eFragment, "../../assets/shaders/compiled/prefilterenvmap/frag.spv"}}},
+     {{vk::ShaderStageFlagBits::eVertex, "../../assets/shaders/generators/filtercube/vert.spv"},
+      {vk::ShaderStageFlagBits::eFragment, "../../assets/shaders/generators/prefilterenvmap/frag.spv"}}},
     {EShaderSet::eDeferred,
-     {{vk::ShaderStageFlagBits::eVertex, "../../assets/shaders/compiled/deferred/vert.spv"},
-      {vk::ShaderStageFlagBits::eFragment, "../../assets/shaders/compiled/deferred/frag.spv"}}},
+     {{vk::ShaderStageFlagBits::eVertex, "../../assets/shaders/main/screenspace/vert.spv"},
+      {vk::ShaderStageFlagBits::eFragment, "../../assets/shaders/main/deferred/frag.spv"}}},
     {EShaderSet::ePostProcess,
-     {{vk::ShaderStageFlagBits::eVertex, "../../assets/shaders/compiled/postprocess/vert.spv"},
-      {vk::ShaderStageFlagBits::eFragment, "../../assets/shaders/compiled/postprocess/frag.spv"}}},
+     {{vk::ShaderStageFlagBits::eVertex, "../../assets/shaders/main/screenspace/vert.spv"},
+      {vk::ShaderStageFlagBits::eFragment, "../../assets/shaders/postprocess/bloom/frag.spv"}}},
       
     {EShaderSet::eShadow,
-     {{vk::ShaderStageFlagBits::eVertex, "../../assets/shaders/compiled/shadow/vert.spv"},
-      {vk::ShaderStageFlagBits::eGeometry, "../../assets/shaders/compiled/shadow/geom.spv"}}},
+     {{vk::ShaderStageFlagBits::eVertex, "../../assets/shaders/main/shadow/vert.spv"},
+      {vk::ShaderStageFlagBits::eGeometry, "../../assets/shaders/main/shadow/geom.spv"}}},
 
     {EShaderSet::eNormalDebugging,
-     {{vk::ShaderStageFlagBits::eVertex, "../../assets/shaders/compiled/normalDraw/vert.spv"},
-      {vk::ShaderStageFlagBits::eGeometry, "../../assets/shaders/compiled/normalDraw/geom.spv"},
-      {vk::ShaderStageFlagBits::eFragment, "../../assets/shaders/compiled/normalDraw/frag.spv"}}}}; 
+     {{vk::ShaderStageFlagBits::eVertex, "../../assets/shaders/debug/normalDraw/vert.spv"},
+      {vk::ShaderStageFlagBits::eGeometry, "../../assets/shaders/debug/normalDraw/geom.spv"},
+      {vk::ShaderStageFlagBits::eFragment, "../../assets/shaders/debug/normalDraw/frag.spv"}}}}; */
 
-std::map<EPipelineType, std::function<PipelineFactory::signature>> PipelineFactory::m_mFactory =
+std::map<vk::PipelineBindPoint, std::function<PipelineFactory::signature>> PipelineFactory::m_mFactory =
     {
-        {EPipelineType::eGraphics,
+        {vk::PipelineBindPoint::eGraphics,
             [](FPipelineCreateInfo createInfo)
             {
                auto pipeline = std::make_unique<GraphicsPipeline>();
-               pipeline->LoadShader(mShaderSets[createInfo.eSet]);
+               pipeline->LoadShader(createInfo.shaders);
                pipeline->Create(createInfo);
                return pipeline;
             }
@@ -55,5 +55,5 @@ std::map<EPipelineType, std::function<PipelineFactory::signature>> PipelineFacto
 
 std::unique_ptr<PipelineBase> PipelineFactory::CreatePipeline(FPipelineCreateInfo createInfo)
 {
-    return m_mFactory[createInfo.eType](createInfo);
+    return m_mFactory[createInfo.bindPoint](createInfo);
 }

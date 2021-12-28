@@ -13,7 +13,7 @@ GeneratorBase::~GeneratorBase()
     UDevice->Destroy(renderPass);
 }
 
-FPipelineCreateInfo GeneratorBase::CreateInfo(EShaderSet eSet)
+/*FPipelineCreateInfo GeneratorBase::CreateInfo(EShaderSet eSet)
 {
     switch (eSet)
     {
@@ -29,7 +29,7 @@ FPipelineCreateInfo GeneratorBase::CreateInfo(EShaderSet eSet)
     }
 
     return MaterialBase::CreateInfo(eSet);
-}
+}*/
 
 void GeneratorBase::Create(std::shared_ptr<ResourceManager> pResMgr)
 {
@@ -71,13 +71,7 @@ void GeneratorBase::CreateRenderPass(vk::Format format)
 	attDesc.stencilLoadOp = vk::AttachmentLoadOp::eDontCare;
 	attDesc.stencilStoreOp = vk::AttachmentStoreOp::eDontCare;
 	attDesc.initialLayout = vk::ImageLayout::eUndefined;
-	
-	switch (GetShaderSet())
-	{
-		case EShaderSet::eBRDF: attDesc.finalLayout = vk::ImageLayout::eShaderReadOnlyOptimal; break;
-		case EShaderSet::eIrradiateCube: attDesc.finalLayout = vk::ImageLayout::eColorAttachmentOptimal; break;
-		case EShaderSet::ePrefiltred: attDesc.finalLayout = vk::ImageLayout::eColorAttachmentOptimal; break;
-	}
+	attDesc.finalLayout = finalLayout;
 
 	vk::AttachmentReference colorReference = { 0, vk::ImageLayout::eColorAttachmentOptimal };
 
@@ -130,28 +124,6 @@ void GeneratorBase::CreateFramebuffer()
 
 void GeneratorBase::CreateTextures()
 {
-	int iFormat{0};
-	bool bTransfer{false};
-	vk::ImageUsageFlags usageFlags{};
-
-	switch (GetShaderSet())
-	{
-		case EShaderSet::eBRDF: 
-		iFormat = 0x822F; 
-		usageFlags = vk::ImageUsageFlagBits::eColorAttachment | vk::ImageUsageFlagBits::eSampled;
-		break;
-		case EShaderSet::eIrradiateCube: 
-		iFormat = 0x8814;
-		usageFlags = vk::ImageUsageFlagBits::eColorAttachment | vk::ImageUsageFlagBits::eTransferSrc;
-		bTransfer = true;
-		break;
-		case EShaderSet::ePrefiltred:
-		iFormat = 0x881A;
-		usageFlags = vk::ImageUsageFlagBits::eColorAttachment | vk::ImageUsageFlagBits::eTransferSrc;
-		bTransfer = true;
-		break;
-	}
-
 	m_pGeneratedImage = std::make_shared<Image>();
     ktxTexture *offscreen;
     ImageLoader::AllocateRawDataAsKTXTexture(&offscreen, &imageFormat, m_iDimension, m_iDimension, 1, 2, iFormat);

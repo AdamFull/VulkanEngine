@@ -23,8 +23,6 @@ namespace Engine
                     virtual void Generate(std::shared_ptr<Mesh::MeshBase> pMesh);
                     virtual std::shared_ptr<Texture::Image> Get();
                 protected:
-                    virtual inline Core::Pipeline::EShaderSet GetShaderSet() override { return Core::Pipeline::EShaderSet::eNone; }
-                    Core::Pipeline::FPipelineCreateInfo CreateInfo(Core::Pipeline::EShaderSet eSet) override;
                     virtual void CreateDescriptors(uint32_t images) override;
                     void CreateRenderPass(vk::Format format);
                     void CreateFramebuffer();
@@ -36,6 +34,10 @@ namespace Engine
                     vk::Format imageFormat;
                     uint32_t m_iDimension{1024};
                     uint32_t m_iInternalFormat{0x822F};
+                    vk::ImageLayout finalLayout{vk::ImageLayout::eColorAttachmentOptimal};
+                    vk::ImageUsageFlags usageFlags{vk::ImageUsageFlagBits::eColorAttachment};
+                    int iFormat{0};
+                    bool bTransfer{false};
 
                     const std::vector<glm::mat4> matrices
                     {

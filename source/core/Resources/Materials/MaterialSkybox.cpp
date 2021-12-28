@@ -10,11 +10,16 @@ using namespace Engine::Core::Descriptor;
 
 void MaterialSkybox::Create(std::shared_ptr<ResourceManager> pResMgr)
 {
+    initial.vertexInputDesc = Vertex::getBindingDescription();
+    initial.vertexAtribDesc = Vertex::getAttributeDescriptions();
+    initial.culling = vk::CullModeFlagBits::eFront;
+    initial.color_attachments = 6;
+    initial.shaders = 
+    {
+        {vk::ShaderStageFlagBits::eVertex, "../../assets/shaders/main/skybox/vert.spv"},
+        {vk::ShaderStageFlagBits::eFragment, "../../assets/shaders/main/skybox/frag.spv"}
+    };
     renderPass = URenderer->GetRenderer(FRendererCreateInfo::ERendererType::eDeferredPBR)->GetRenderPass();
-
-    //m_mTextures[ETextureAttachmentType::eCubemap] = pResMgr->Get<Texture::Image>("environment_component_irradiate_cube")->GetDescriptor();
-    //m_mTextures[ETextureAttachmentType::eCubemap] = pResMgr->Get<Texture::Image>("environment_component_prefiltred_cube")->GetDescriptor();
-
     MaterialBase::Create(pResMgr);
 }
 

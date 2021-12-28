@@ -10,6 +10,5 @@ namespace Engine
         static float postprocessExposure;
         static float blurScale;
         static float blurStrength;
-        static int direction;
     };
 };

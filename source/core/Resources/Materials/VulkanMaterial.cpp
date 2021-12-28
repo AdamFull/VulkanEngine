@@ -13,7 +13,7 @@ MaterialBase::~MaterialBase()
     UDevice->Destroy(pipelineCache);
 }
 
-FPipelineCreateInfo MaterialBase::CreateInfo(EShaderSet eSet)
+/*FPipelineCreateInfo MaterialBase::CreateInfo(EShaderSet eSet)
 {
     switch (eSet)
     {
@@ -35,7 +35,7 @@ FPipelineCreateInfo MaterialBase::CreateInfo(EShaderSet eSet)
     }
 
     return FPipelineCreateInfo{};
-}
+}*/
 
 void MaterialBase::Create(std::shared_ptr<ResourceManager> pResMgr)
 {
@@ -47,7 +47,10 @@ void MaterialBase::Create(std::shared_ptr<ResourceManager> pResMgr)
     CreatePipelineLayout(images);
     CreatePipelineCache();
 
-    pPipeline = PipelineFactory::CreatePipeline(CreateInfo(GetShaderSet()));
+    initial.renderPass = renderPass;
+    initial.pipelineLayout = pipelineLayout;
+    initial.pipelineCache = pipelineCache;
+    pPipeline = PipelineFactory::CreatePipeline(PipelineConfig::MakeInfo(initial));
     m_pMatDesc->UpdatePipelineInfo(pPipeline->GetBindPoint(), pipelineLayout);
 }
 
@@ -68,7 +71,10 @@ vk::DescriptorImageInfo& MaterialBase::GetTexture(ETextureAttachmentType eAttach
 
 void MaterialBase::ReCreate()
 {
-    pPipeline->RecreatePipeline(CreateInfo(GetShaderSet()));
+    initial.renderPass = renderPass;
+    initial.pipelineLayout = pipelineLayout;
+    initial.pipelineCache = pipelineCache;
+    pPipeline->RecreatePipeline(PipelineConfig::MakeInfo(initial));
 }
 
 void MaterialBase::Update(vk::DescriptorBufferInfo& uboDesc, uint32_t imageIndex)

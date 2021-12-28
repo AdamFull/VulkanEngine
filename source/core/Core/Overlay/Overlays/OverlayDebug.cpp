@@ -50,9 +50,8 @@ void OverlayDebug::Draw()
 
         ImGui::Text("PostProcess");
         ImGui::DragFloat("bloom_threshold", &GlobalVariables::bloomThreshold, 0.001, 0.65, 1.0);
-        ImGui::DragFloat("blur_scale", &GlobalVariables::blurScale, 0.001, 0.001, 1.0);
-        ImGui::DragFloat("blur_strength", &GlobalVariables::blurStrength, 0.001, 0.001, 1.0);
-        ImGui::DragInt("blur_direction", &GlobalVariables::direction, 1, 0, 1);
+        ImGui::DragFloat("blur_scale", &GlobalVariables::blurScale, 0.001, 0.003, 1.0);
+        ImGui::DragFloat("blur_strength", &GlobalVariables::blurStrength, 0.001, 1.0, 1.0);
 
         ImGui::Text("VBO");
         int vertices = UVBO->GetLastVertex();

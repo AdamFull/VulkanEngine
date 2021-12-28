@@ -8,6 +8,13 @@ using namespace Engine::Core::Descriptor;
 
 void MaterialUI::Create(std::shared_ptr<ResourceManager> pResMgr)
 {
+    initial.vertexInputDesc = Core::VertexUI::getBindingDescription();
+    initial.vertexAtribDesc = Core::VertexUI::getAttributeDescriptions();
+    initial.shaders = 
+    {
+        {vk::ShaderStageFlagBits::eVertex, "../../assets/shaders/main/ui/vert.spv"},
+        {vk::ShaderStageFlagBits::eFragment, "../../assets/shaders/main/ui/frag.spv"}
+    };
     renderPass = USwapChain->GetRenderPass();
     MaterialBase::Create(pResMgr);
 }

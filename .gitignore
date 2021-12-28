@@ -6,4 +6,6 @@ out/
 .vscode/
 assets/meshes/
 assets/textures/
-assets/shaders/cimpiled/*.spv
+assets/shaders/*.spv
+frag.spv
+vert.spv

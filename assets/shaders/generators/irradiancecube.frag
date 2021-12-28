@@ -15,7 +15,7 @@ layout(push_constant) uniform PushConsts
 } consts;
 
 
-#include "shared_lightning.glsl"
+#include "../shared_lightning.glsl"
 
 void main()
 {

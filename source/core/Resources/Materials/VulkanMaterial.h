@@ -54,8 +54,6 @@ namespace Engine
                 inline std::string GetName() { return m_srName; }
 
             protected:
-                virtual inline Core::Pipeline::EShaderSet GetShaderSet() { return Core::Pipeline::EShaderSet::eNone; }
-                virtual Core::Pipeline::FPipelineCreateInfo CreateInfo(Core::Pipeline::EShaderSet eSet);
                 void CreateDescriptorPool(uint32_t images);
                 void CreatePipelineLayout(uint32_t images);
                 void CreatePipelineCache();
@@ -71,6 +69,7 @@ namespace Engine
                 vk::RenderPass renderPass;
                 vk::PipelineLayout pipelineLayout;
                 vk::PipelineCache pipelineCache;
+                Core::Pipeline::FPipelineInitial initial;
                 std::shared_ptr<Core::Pipeline::PipelineBase> pPipeline;
                 std::map<ETextureAttachmentType, vk::DescriptorImageInfo> m_mTextures;
             };

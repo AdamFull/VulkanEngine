@@ -64,6 +64,24 @@
             }
         },
         {
+            "name": "floor_mesh_component",
+            "type": "gltf_mesh",
+            "mesh": 
+            {
+                "name": "floor_model_gltf",
+                "type": "static",
+                "src": "../../assets/meshes/floor/floor.gltf",
+                "repeat": 10.0,
+                "use_included_material": true
+            },
+            "transform":
+            {
+                "pos": {"x": 0.0, "y": 0.0, "z": 0.0},
+                "rot": {"x": 0.0, "y": 0.0, "z": 0.0},
+                "scale": {"x": 10.0, "y": 10.0, "z": 10.0}
+            }
+        },
+        {
             "name": "LightGold",
             "type": "gltf_mesh",
             "mesh": 
@@ -79,6 +97,24 @@
                 "pos": {"x": -6.0, "y": 2.5, "z": -4.0},
                 "rot": {"x": 0.0, "y": 0.0, "z": 0.0},
                 "scale": {"x": 1.4, "y": 1.4, "z": 1.4}
+            }
+        },
+        {
+            "name": "SciFiPannels",
+            "type": "gltf_mesh",
+            "mesh": 
+            {
+                "name": "SciFiPannels",
+                "type": "static",
+                "src": "../../assets/meshes/SciFiPannels/SciFiPannels.gltf",
+                "repeat": 2.0,
+                "use_included_material": true
+            },
+            "transform":
+            {
+                "pos": {"x": 3.0, "y": 5.0, "z": -2.0},
+                "rot": {"x": 0.0, "y": 0.0, "z": 0.0},
+                "scale": {"x": 1.0, "y": 1.0, "z": 1.0}
             }
         },
         {
@@ -161,7 +197,7 @@
                 {"x": 0.0, "y": -3.0, "z": 0.0},
                 {"x": 0.0, "y": 0.0, "z": 3.0},
                 {"x": 0.0, "y": 0.0, "z": -3.0},
-                
+
                 {"x": 3.0, "y": 3.0, "z": 0.0},
                 {"x": -3.0, "y": 3.0, "z": 0.0},
                 {"x": 3.0, "y": -3.0, "z": 0.0},
@@ -186,24 +222,6 @@
                 {"x": 3.0, "y": -3.0, "z": -3.0},
                 {"x": -3.0, "y": 3.0, "z": -3.0}
             ]
-        },
-        {
-            "name": "floor_mesh_component",
-            "type": "gltf_mesh",
-            "mesh": 
-            {
-                "name": "floor_model_gltf",
-                "type": "static",
-                "src": "../../assets/meshes/floor/floor.gltf",
-                "repeat": 10.0,
-                "use_included_material": true
-            },
-            "transform":
-            {
-                "pos": {"x": 0.0, "y": 0.0, "z": 0.0},
-                "rot": {"x": 0.0, "y": 0.0, "z": 0.0},
-                "scale": {"x": 10.0, "y": 10.0, "z": 10.0}
-            }
         },
         {
             "name": "PointLight_1",

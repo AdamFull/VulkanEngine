@@ -19,7 +19,6 @@ namespace Engine
                 void Cleanup() override;
 
             protected:
-                Core::Pipeline::EShaderSet GetShaderSet() override { return Core::Pipeline::EShaderSet::eSkybox; }
                 void CreateDescriptors(uint32_t images) override;
             };
         }

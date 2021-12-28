@@ -8,5 +8,4 @@ namespace Engine
     float GlobalVariables::postprocessExposure{2.2f};
     float GlobalVariables::blurScale{1.0};
     float GlobalVariables::blurStrength{1.0f};
-    int GlobalVariables::direction{1};
 }

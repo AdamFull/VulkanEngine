@@ -10,8 +10,15 @@ using namespace Engine::Core::Descriptor;
 
 void MaterialDeferred::Create(std::shared_ptr<ResourceManager> pResMgr)
 {
-    renderPass = URenderer->GetRenderer(FRendererCreateInfo::ERendererType::ePBRComposition)->GetRenderPass();
+    initial.culling = vk::CullModeFlagBits::eFront;
+    initial.color_attachments = 2;
+    initial.shaders = 
+    {
+        {vk::ShaderStageFlagBits::eVertex, "../../assets/shaders/main/screenspace/vert.spv"},
+        {vk::ShaderStageFlagBits::eFragment, "../../assets/shaders/main/deferred/frag.spv"}
+    };
 
+    renderPass = URenderer->GetRenderer(FRendererCreateInfo::ERendererType::ePBRComposition)->GetRenderPass();
     MaterialBase::Create(pResMgr);
 }
 

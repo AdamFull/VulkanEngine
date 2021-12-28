@@ -33,7 +33,7 @@ layout(std140, set = 0, binding = 0) uniform UBO
 	float bloom_threshold;
 } ubo;
 
-#include "shared_lightning.glsl"
+#include "../shared_lightning.glsl"
 
 void main() 
 {
@@ -102,7 +102,7 @@ void main()
 		vec3 ambient = (kD * diffuse + specular)/* * vec3(occlusion)*/;
 		// Ambient part
 		fragcolor = (ambient + Lo);
-		fragcolor += emission;
+		fragcolor += emission * 2.0f;
 	}
 	else
 	{

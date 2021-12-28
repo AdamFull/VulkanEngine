@@ -19,7 +19,6 @@ namespace Engine
                 void Cleanup() override;
 
             protected:
-                Core::Pipeline::EShaderSet GetShaderSet() override { return Core::Pipeline::EShaderSet::eDiffuse; }
                 void CreateDescriptors(uint32_t images) override;
             };
         }

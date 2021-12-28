@@ -10,8 +10,13 @@ using namespace Engine::Core::Descriptor;
 
 void MaterialPostProcess::Create(std::shared_ptr<ResourceManager> pResMgr)
 {
+    initial.culling = vk::CullModeFlagBits::eFront;
+    initial.shaders = 
+    {
+        {vk::ShaderStageFlagBits::eVertex, "../../assets/shaders/main/screenspace/vert.spv"},
+        {vk::ShaderStageFlagBits::eFragment, "../../assets/shaders/postprocess/bloom/frag.spv"}
+    };
     renderPass = URenderer->GetRenderer(FRendererCreateInfo::ERendererType::ePostProcess)->GetRenderPass();
-
     MaterialBase::Create(pResMgr);
 }
 

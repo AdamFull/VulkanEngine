@@ -23,7 +23,7 @@ layout (location = 3) out vec4 outAlbedo;
 layout (location = 4) out vec4 outEmission;
 layout (location = 5) out vec4 outMRAH;
 
-#include "shared_shaders.glsl"
+#include "../shared_shaders.glsl"
 
 const float NEAR_PLANE = 0.01f;
 const float FAR_PLANE = 1024.0f;

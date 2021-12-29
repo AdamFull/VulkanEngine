@@ -7,6 +7,7 @@ namespace Engine
     {
         namespace Rendering
         {
+            class BlurRenderer;
             class FinalCompositionRenderer : public RendererBase
             {
             public:
@@ -24,6 +25,8 @@ namespace Engine
             private:
                 std::shared_ptr<UniformBuffer> m_pUniform;
                 std::shared_ptr<Resources::Material::MaterialBase> m_pMaterial;
+                std::shared_ptr<BlurRenderer> m_pVertBlur;
+                std::shared_ptr<BlurRenderer> m_pHorizBlur;
             };
         }
     }

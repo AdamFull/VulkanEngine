@@ -1,11 +1,8 @@
 #include "FinalCompositionRenderer.h"
+#include "BlurRenderer.h"
 #include "Resources/Textures/Image.h"
 #include "Resources/Materials/MaterialPostProcess.h"
 #include "Resources/ResourceManager.h"
-#include "Core/Scene/Objects/RenderObject.h"
-#include "Core/Scene/Objects/Components/Camera/CameraManager.h"
-#include "Core/Scene/Lightning/LightSourceManager.h"
-#include "Core/Scene/Objects/Components/Light/LightComponent.h"
 #include "Core/VulkanHighLevel.h"
 #include "Core/VulkanInitializers.h"
 #include "GlobalVariables.h"
@@ -17,14 +14,18 @@ using namespace Engine::Resources::Texture;
 using namespace Engine::Resources::Material;
 using namespace Engine::Core::Scene;
 using namespace Engine::Core::Scene::Objects;
-using namespace Engine::Core::Scene::Objects::Components;
-using namespace Engine::Core::Scene::Objects::Components::Light;
 
 void FinalCompositionRenderer::Create(std::shared_ptr<Resources::ResourceManager> pResMgr)
 {
     auto framesInFlight = USwapChain->GetFramesInFlight();
     m_pUniform = std::make_shared<UniformBuffer>();
     m_pUniform->Create(framesInFlight, sizeof(FPostProcess));
+
+    m_pVertBlur = std::make_shared<BlurRenderer>();
+    m_pVertBlur->Create(pResMgr);
+
+    m_pHorizBlur = std::make_shared<BlurRenderer>();
+    m_pHorizBlur->Create(pResMgr);
 
     m_eRendererType = renderer_type_t::ePostProcess;
 
@@ -55,21 +56,33 @@ void FinalCompositionRenderer::ReCreate(uint32_t framesInFlight)
 
 void FinalCompositionRenderer::Render(vk::CommandBuffer& commandBuffer)
 {
+    auto& mImages = m_pPrev->GetProducts();
+
+    FBlurData blur;
+    blur.blurScale = GlobalVariables::blurScale;
+    blur.blurStrength = GlobalVariables::blurStrength;
+    blur.direction = 1;
+
+    m_pHorizBlur->AddProduct(ETextureAttachmentType::eDiffuseAlbedo, m_pPrev->GetProduct(ETextureAttachmentType::eBrightness));
+    m_pHorizBlur->SetUniform(&blur);
+    m_pHorizBlur->Render(commandBuffer);
+
+    blur.direction = 0;
+    m_pVertBlur->AddProduct(ETextureAttachmentType::eDiffuseAlbedo, m_pHorizBlur->GetProduct(ETextureAttachmentType::eDiffuseAlbedo));
+    m_pVertBlur->SetUniform(&blur);
+    m_pVertBlur->Render(commandBuffer);
+
     BeginRender(commandBuffer);
     auto imageIndex = USwapChain->GetCurrentFrame();
-    auto& mImages = m_pPrev->GetProducts();
-    for(auto& [attachment, texture] : mImages)
-        m_pMaterial->AddTexture(attachment, texture);
+    
+    m_pMaterial->AddTexture(ETextureAttachmentType::eDiffuseAlbedo, m_pPrev->GetProduct(ETextureAttachmentType::eDiffuseAlbedo));
+    m_pMaterial->AddTexture(ETextureAttachmentType::eBrightness, m_pVertBlur->GetProduct(ETextureAttachmentType::eDiffuseAlbedo));
 
     //May be move to CompositionObject
     FPostProcess ubo;
     //HDR
     ubo.gamma = GlobalVariables::postprocessGamma;
     ubo.exposure = GlobalVariables::postprocessExposure;
-
-    //Bloom
-    ubo.blurScale = GlobalVariables::blurScale;
-    ubo.blurStrength = GlobalVariables::blurStrength;
 
     m_pUniform->UpdateUniformBuffer(imageIndex, &ubo);
     auto& buffer = m_pUniform->GetUniformBuffer(imageIndex);

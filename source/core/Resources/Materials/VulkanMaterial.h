@@ -39,6 +39,7 @@ namespace Engine
                 MaterialBase() = default;
                 virtual ~MaterialBase();
 
+                virtual void Create(std::shared_ptr<ResourceManager> pResMgr, vk::RenderPass& rPass);
                 virtual void Create(std::shared_ptr<ResourceManager> pResMgr);
                 void AddTexture(ETextureAttachmentType eAttachment, vk::DescriptorImageInfo& descriptor);
                 void AddTexture(ETextureAttachmentType eAttachment, std::shared_ptr<Texture::Image> pTexture);

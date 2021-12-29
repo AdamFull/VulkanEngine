@@ -42,6 +42,7 @@ namespace Engine
                 //eShadow,
                 eDeferredPBR,
                 ePBRComposition,
+                eGaussianRender,
                 ePostProcess
             };
 
@@ -91,6 +92,9 @@ namespace Engine
 
                 std::shared_ptr<Resources::Texture::Image> GetProduct(texture_type_t eType);
                 image_map_t GetProducts();
+
+                virtual void AddProduct(texture_type_t eAttach, std::shared_ptr<Resources::Texture::Image> image) {}
+                virtual void SetUniform(void* uniform) {}
 
                 inline void SetRenderNode(std::shared_ptr<Scene::Objects::RenderObject> pRenderObject) { m_pRenderNode = pRenderObject; }
                 void SetNextStage(std::shared_ptr<RendererBase> pNext);

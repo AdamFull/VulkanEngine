@@ -1,4 +1,4 @@
-#include "MaterialPostProcess.h"
+#include "MaterialBlur.h"
 #include "Core/VulkanHighLevel.h"
 #include "Resources/ResourceManager.h"
 #include "Core/Rendering/RendererBase.h"
@@ -8,25 +8,36 @@ using namespace Engine::Resources;
 using namespace Engine::Resources::Material;
 using namespace Engine::Core::Descriptor;
 
-void MaterialPostProcess::Create(std::shared_ptr<ResourceManager> pResMgr)
+void MaterialBlur::Create(std::shared_ptr<ResourceManager> pResMgr, vk::RenderPass& rPass)
 {
     initial.culling = vk::CullModeFlagBits::eFront;
     initial.shaders = 
     {
         {vk::ShaderStageFlagBits::eVertex, "../../assets/shaders/main/screenspace/vert.spv"},
-        {vk::ShaderStageFlagBits::eFragment, "../../assets/shaders/postprocess/bloomcompose/frag.spv"}
+        {vk::ShaderStageFlagBits::eFragment, "../../assets/shaders/postprocess/gaussianblur/frag.spv"}
+    };
+    MaterialBase::Create(pResMgr, rPass);
+}
+
+void MaterialBlur::Create(std::shared_ptr<ResourceManager> pResMgr)
+{
+    initial.culling = vk::CullModeFlagBits::eFront;
+    initial.shaders = 
+    {
+        {vk::ShaderStageFlagBits::eVertex, "../../assets/shaders/main/screenspace/vert.spv"},
+        {vk::ShaderStageFlagBits::eFragment, "../../assets/shaders/postprocess/gaussianblur/frag.spv"}
     };
     renderPass = URenderer->GetRenderer(FRendererCreateInfo::ERendererType::ePostProcess)->GetRenderPass();
     MaterialBase::Create(pResMgr);
 }
 
-void MaterialPostProcess::ReCreate()
+void MaterialBlur::ReCreate()
 {
     renderPass = URenderer->GetRenderer(FRendererCreateInfo::ERendererType::ePostProcess)->GetRenderPass();
     MaterialBase::ReCreate();
 }
 
-void MaterialPostProcess::Update(vk::DescriptorBufferInfo& uboDesc, uint32_t imageIndex)
+void MaterialBlur::Update(vk::DescriptorBufferInfo& uboDesc, uint32_t imageIndex)
 {
     MaterialBase::Update(uboDesc, imageIndex);
 
@@ -37,22 +48,21 @@ void MaterialPostProcess::Update(vk::DescriptorBufferInfo& uboDesc, uint32_t ima
 
     auto imageInfo = VulkanDescriptorWriter().
     WriteImage(0, m_pMatDesc->GetSetLayout(1)->GetBindings(), &m_mTextures[ETextureAttachmentType::eDiffuseAlbedo]).
-    WriteImage(1, m_pMatDesc->GetSetLayout(1)->GetBindings(), &m_mTextures[ETextureAttachmentType::eBrightness]).
     Build();
     m_pMatDesc->Update(1, imageIndex, imageInfo);
 }
 
-void MaterialPostProcess::Bind(vk::CommandBuffer commandBuffer, uint32_t imageIndex)
+void MaterialBlur::Bind(vk::CommandBuffer commandBuffer, uint32_t imageIndex)
 {
     MaterialBase::Bind(commandBuffer, imageIndex);
 }
 
-void MaterialPostProcess::Cleanup()
+void MaterialBlur::Cleanup()
 {
     MaterialBase::Cleanup();
 }
 
-void MaterialPostProcess::CreateDescriptors(uint32_t images)
+void MaterialBlur::CreateDescriptors(uint32_t images)
 {
     // Matrices uniform
     auto matSetLayout = VulkanDescriptorSetLayout::Builder().
@@ -67,7 +77,6 @@ void MaterialPostProcess::CreateDescriptors(uint32_t images)
     // Texture uniform
     auto texSetLayout = VulkanDescriptorSetLayout::Builder().
     addBinding(0, vk::DescriptorType::eCombinedImageSampler, vk::ShaderStageFlagBits::eFragment).
-    addBinding(1, vk::DescriptorType::eCombinedImageSampler, vk::ShaderStageFlagBits::eFragment).
     build();
 
     auto texSet = std::make_unique<VulkanDescriptorSet>();

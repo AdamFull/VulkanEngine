@@ -37,6 +37,12 @@ MaterialBase::~MaterialBase()
     return FPipelineCreateInfo{};
 }*/
 
+void MaterialBase::Create(std::shared_ptr<ResourceManager> pResMgr, vk::RenderPass& rPass)
+{
+    renderPass = rPass;
+    MaterialBase::Create(pResMgr);
+}
+
 void MaterialBase::Create(std::shared_ptr<ResourceManager> pResMgr)
 {
     m_pMatDesc = std::make_unique<VulkanDescriptorSetContainer>();

@@ -4,3 +4,6 @@
 [submodule "source/external/glm"]
 	path = source/external/glm
 	url = https://github.com/g-truc/glm.git
+[submodule "source/external/glfw"]
+	path = source/external/glfw
+	url = https://github.com/glfw/glfw.git

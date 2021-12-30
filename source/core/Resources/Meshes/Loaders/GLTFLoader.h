@@ -1,5 +1,5 @@
 #pragma once
-#include "external/gltf/tiny_gltf.h"
+#include "external/tinygltf/tiny_gltf.h"
 #include "Resources/Meshes/VulkanMesh.h"
 #include "Core/DataTypes/VulkanVertex.hpp"
 

@@ -83,6 +83,11 @@ set(GLM_INCLUDE_DIR ${CMAKE_CURRENT_SOURCE_DIR}/source/external/glm)
 add_subdirectory(${CMAKE_CURRENT_SOURCE_DIR}/source/external/ktx)
 set(KTX_INCLUDE_DIR ${CMAKE_CURRENT_SOURCE_DIR}/source/external/ktx/include)
 
+# set(ENABLE_GLSLANG_WEBMIN OFF)
+# add_subdirectory(${CMAKE_CURRENT_SOURCE_DIR}/source/external/glslang)
+# set(GLSLANG_INCLUDE_DIR ${CMAKE_CURRENT_SOURCE_DIR}/source/external/glslang)
+find_package(glslang REQUIRED)
+
 add_executable(${PROJECT_NAME} ${CPP_FILES} ${HPP_FILES})
 # Link the debug and release libraries to the project
 target_link_libraries( ${PROJECT_NAME} PUBLIC 
@@ -90,6 +95,8 @@ target_link_libraries( ${PROJECT_NAME} PUBLIC
 	${VULKAN_LIB_LIST} 
 	imgui
 	libktx
+	glslang
+	SPIRV
 )
 
 target_include_directories( ${PROJECT_NAME} PRIVATE 
@@ -98,6 +105,8 @@ target_include_directories( ${PROJECT_NAME} PRIVATE
 	${CMAKE_CURRENT_SOURCE_DIR}/source/ 
 	${CMAKE_CURRENT_SOURCE_DIR}/source/core
 	${IMGUI_INCLUDE_DIR}
+	${GLSLANG_INCLUDE_DIR}
+	${SPIRV_INCLUDE_DIR}
 )
 
 target_precompile_headers( ${PROJECT_NAME} PUBLIC ${CMAKE_CURRENT_SOURCE_DIR}/common.h)

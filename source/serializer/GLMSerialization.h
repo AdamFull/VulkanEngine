@@ -1,5 +1,5 @@
 #pragma once
-#include "external/gltf/json.hpp"
+#include "external/tinygltf/json.hpp"
 
 namespace glm
 {

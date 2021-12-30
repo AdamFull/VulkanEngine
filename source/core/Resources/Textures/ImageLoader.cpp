@@ -3,7 +3,7 @@
 namespace fs = std::filesystem;
 
 #define STB_IMAGE_IMPLEMENTATION
-#include "external/gltf/stb_image.h"
+#include "external/tinygltf/stb_image.h"
 
 using namespace Engine::Resources::Loaders;
 

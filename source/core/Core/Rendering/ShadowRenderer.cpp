@@ -21,7 +21,7 @@ void ShadowRenderer::Create(std::shared_ptr<Resources::ResourceManager> pResMgr)
             ETextureAttachmentType::ePosition,
             FRendererCreateInfo::FAttachmentInfo
             (
-                UDevice->GetDepthFormat(),
+                Image::GetDepthFormat(),
                 vk::ImageUsageFlagBits::eDepthStencilAttachment | vk::ImageUsageFlagBits::eSampled,
                 {std::array<float, 4>{0.0f, 0.0f, 0.0f, 0.0f}}
             )

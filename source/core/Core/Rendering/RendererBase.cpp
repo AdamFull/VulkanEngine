@@ -21,7 +21,7 @@ void RendererBase::Create(std::shared_ptr<Resources::ResourceManager> pResMgr)
     m_DepthAttachment = 
     FRendererCreateInfo::FAttachmentInfo
     (
-        UDevice->GetDepthFormat(),
+        Image::GetDepthFormat(),
         vk::ImageUsageFlagBits::eDepthStencilAttachment | vk::ImageUsageFlagBits::eSampled,
         {std::array<float, 4>{0.0f, 0.0f, 0.0f, 0.0f}}
     );
@@ -133,7 +133,7 @@ image_map_t RendererBase::GetProducts()
 
 void RendererBase::CreateSampler()
 {
-    UDevice->CreateSampler(m_Sampler, 1,  vk::SamplerAddressMode::eClampToEdge);
+    Image::CreateSampler(m_Sampler, 1,  vk::SamplerAddressMode::eClampToEdge);
 }
 
 std::shared_ptr<Image> RendererBase::CreateImage(attachment_t attachment)

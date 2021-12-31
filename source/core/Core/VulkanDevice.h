@@ -28,8 +28,6 @@ namespace Engine
             inline void GPUWait() { m_logical.waitIdle(); }
 
             /***************************************************Helpers***************************************************/
-            vk::Format FindSupportedFormat(const std::vector<vk::Format> &candidates, vk::ImageTiling tiling, vk::FormatFeatureFlags features);
-            vk::Format GetDepthFormat();
             uint32_t FindMemoryType(uint32_t typeFilter, vk::MemoryPropertyFlags properties);
             QueueFamilyIndices FindQueueFamilies(vk::PhysicalDevice device);
             QueueFamilyIndices FindQueueFamilies();
@@ -54,12 +52,6 @@ namespace Engine
             void EndSingleTimeCommands(vk::CommandBuffer commandBuffer);
 
             /*****************************************Image work helpers*****************************************/
-            void CreateImage(vk::Image &image, vk::DeviceMemory &memory, vk::ImageCreateInfo createInfo, vk::MemoryPropertyFlags properties);
-            void TransitionImageLayout(vk::Image &image, std::vector<vk::ImageMemoryBarrier>& vBarriers, vk::ImageLayout oldLayout, vk::ImageLayout newLayout);
-            void TransitionImageLayout(vk::CommandBuffer& internalBuffer, vk::Image &image, std::vector<vk::ImageMemoryBarrier>& vBarriers, vk::ImageLayout oldLayout, vk::ImageLayout newLayout);
-            void CopyBufferToImage(vk::Buffer &buffer, vk::Image &image, std::vector<vk::BufferImageCopy> vRegions);
-            vk::ImageView CreateImageView(vk::Image &pImage, vk::ImageViewCreateInfo viewInfo);
-            void CreateSampler(vk::Sampler &sampler, uint32_t mip_levels, vk::SamplerAddressMode eAddressMode, vk::Filter magFilter = vk::Filter::eLinear);
 
             void CreateOnDeviceBuffer(vk::DeviceSize size, vk::BufferUsageFlags usage, vk::MemoryPropertyFlags properties, vk::Buffer &buffer, vk::DeviceMemory &bufferMemory);
             void CopyOnDeviceBuffer(vk::Buffer srcBuffer, vk::Buffer dstBuffer, vk::DeviceSize size);

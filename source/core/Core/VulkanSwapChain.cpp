@@ -1,5 +1,6 @@
 #include "VulkanStaticHelper.h"
 #include "VulkanHighLevel.h"
+#include "Image/Image.h"
 
 using namespace Engine::Core;
 using namespace Engine::Core::Window;
@@ -180,13 +181,13 @@ void SwapChain::CreateSwapChainImageViews()
         viewInfo.subresourceRange.baseArrayLayer = 0;
         viewInfo.subresourceRange.layerCount = 1;
 
-        m_vImageViews[i] = UDevice->CreateImageView(m_vImages[i], viewInfo);
+        m_vImageViews[i] = Image::CreateImageView(m_vImages[i], viewInfo);
     }
 }
 
 void SwapChain::CreateDepthResources()
 {
-    vk::Format depthFormat = UDevice->GetDepthFormat();
+    vk::Format depthFormat = Image::GetDepthFormat();
 
     vk::ImageCreateInfo imageInfo{};
     imageInfo.imageType = vk::ImageType::e2D;
@@ -202,7 +203,7 @@ void SwapChain::CreateDepthResources()
     imageInfo.sharingMode = vk::SharingMode::eExclusive;
     imageInfo.samples = vk::SampleCountFlagBits::e1;
 
-    UDevice->CreateImage(m_depthImage, m_depthImageMemory, imageInfo, vk::MemoryPropertyFlagBits::eDeviceLocal);
+    Image::CreateImage(m_depthImage, m_depthImageMemory, imageInfo, vk::MemoryPropertyFlagBits::eDeviceLocal);
 
     vk::ImageViewCreateInfo viewInfo{};
     viewInfo.viewType = vk::ImageViewType::e2D;
@@ -213,7 +214,7 @@ void SwapChain::CreateDepthResources()
     viewInfo.subresourceRange.baseArrayLayer = 0;
     viewInfo.subresourceRange.layerCount = 1;
 
-    m_depthImageView = UDevice->CreateImageView(m_depthImage, viewInfo);
+    m_depthImageView = Image::CreateImageView(m_depthImage, viewInfo);
 
     std::vector<vk::ImageMemoryBarrier> vBarriers;
     vk::ImageMemoryBarrier barrier{};
@@ -226,7 +227,7 @@ void SwapChain::CreateDepthResources()
     barrier.subresourceRange.layerCount = 1;
     vBarriers.push_back(barrier);
 
-    UDevice->TransitionImageLayout(m_depthImage, vBarriers, vk::ImageLayout::eUndefined, vk::ImageLayout::eDepthStencilAttachmentOptimal);
+    Image::TransitionImageLayout(m_depthImage, vBarriers, vk::ImageLayout::eUndefined, vk::ImageLayout::eDepthStencilAttachmentOptimal);
 }
 
 void SwapChain::CreateRenderPass()
@@ -243,7 +244,7 @@ void SwapChain::CreateRenderPass()
     colorAttachment.finalLayout = vk::ImageLayout::ePresentSrcKHR; //vk::ImageLayout::eColorAttachmentOptimal;
 
     vk::AttachmentDescription depthAttachment{};
-    depthAttachment.format = UDevice->GetDepthFormat();
+    depthAttachment.format = Image::GetDepthFormat();
     depthAttachment.samples =vk::SampleCountFlagBits::e1;
     depthAttachment.loadOp = vk::AttachmentLoadOp::eClear;
     depthAttachment.storeOp = vk::AttachmentStoreOp::eDontCare;

@@ -6,7 +6,7 @@
 #include "Core/VulkanDevice.h"
 #include "Core/VulkanBuffer.h"
 #include "Resources/ResourceManager.h"
-#include "Resources/Textures/Image.h"
+#include "Core/Image/Image.h"
 #include "Resources/Materials/MaterialUI.h"
 #include "Core/VulkanSwapChain.h"
 #include "Core/VulkanInitializers.h"
@@ -24,7 +24,7 @@
 using namespace Engine::Core;
 using namespace Engine::Core::Window;
 using namespace Engine::Resources;
-using namespace Engine::Resources::Texture;
+;
 using namespace Engine::Resources::Material;
 
 ImguiOverlay::~ImguiOverlay()

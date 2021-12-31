@@ -47,18 +47,18 @@ void Device::DestroyDebugUtilsMessengerEXT(VkInstance instance, VkDebugUtilsMess
 
 Device::~Device()
 {
-    Destroy(data.commandPool);
+    Destroy(m_commandPool);
 
     // surface is created by glfw, therefore not using a Unique handle
-    Destroy(data.surface);
+    Destroy(m_surface);
 
     if (VulkanStaticHelper::m_bEnableValidationLayers)
     {
-        DestroyDebugUtilsMessengerEXT(data.vkInstance, data.vkDebugUtils, nullptr);
+        DestroyDebugUtilsMessengerEXT(m_vkInstance, m_vkDebugUtils, nullptr);
     }
 
-    vkDestroyDevice(data.logical, nullptr);
-    vkDestroyInstance(data.vkInstance, nullptr);
+    vkDestroyDevice(m_logical, nullptr);
+    vkDestroyInstance(m_vkInstance, nullptr);
 }
 
 // TODO: add features picking while initialization
@@ -105,8 +105,8 @@ void Device::CreateInstance(const char *pApplicationName, uint32_t applicationVe
         createInfo.ppEnabledLayerNames = VulkanStaticHelper::m_vValidationLayers.data();
     }
 
-    data.vkInstance = vk::createInstance(createInfo, nullptr);
-    assert(data.vkInstance && "Vulkan instance was not created.");
+    m_vkInstance = vk::createInstance(createInfo, nullptr);
+    assert(m_vkInstance && "Vulkan instance was not created.");
 }
 
 void Device::CreateDebugCallback()
@@ -122,7 +122,7 @@ void Device::CreateDebugCallback()
         nullptr);
 
     // NOTE: Vulkan-hpp has methods for this, but they trigger linking errors...
-    if (CreateDebugUtilsMessengerEXT(data.vkInstance, reinterpret_cast<const VkDebugUtilsMessengerCreateInfoEXT *>(&createInfo), nullptr, &data.vkDebugUtils) != VK_SUCCESS)
+    if (CreateDebugUtilsMessengerEXT(m_vkInstance, reinterpret_cast<const VkDebugUtilsMessengerCreateInfoEXT *>(&createInfo), nullptr, &m_vkDebugUtils) != VK_SUCCESS)
     {
         throw std::runtime_error("failed to set up debug callback!");
     }
@@ -130,19 +130,19 @@ void Device::CreateDebugCallback()
 
 void Device::CreateSurface()
 {
-    assert(data.vkInstance && "Unable to create surface, cause vulkan instance is not valid");
-    UWinHandle->CreateWindowSurface(data.vkInstance, data.surface);
-    assert(data.surface && "Surface creation failed");
+    assert(m_vkInstance && "Unable to create surface, cause vulkan instance is not valid");
+    UWinHandle->CreateWindowSurface(m_vkInstance, m_surface);
+    assert(m_surface && "Surface creation failed");
 }
 
 void Device::CreateDevice()
 {
-    assert(data.vkInstance && "Unable to create ligical device, cause vulkan instance is not valid");
-    data.physical = GetPhysicalDevice();
-    assert(data.physical && "No avaliable physical devices. Check device dependencies.");
+    assert(m_vkInstance && "Unable to create ligical device, cause vulkan instance is not valid");
+    m_physical = GetPhysicalDevice();
+    assert(m_physical && "No avaliable physical devices. Check device dependencies.");
 
-    data.msaaSamples = GetMaxUsableSampleCount();
-    QueueFamilyIndices indices = FindQueueFamilies(data.physical);
+    m_msaaSamples = GetMaxUsableSampleCount();
+    QueueFamilyIndices indices = FindQueueFamilies(m_physical);
 
     std::vector<vk::DeviceQueueCreateInfo> queueCreateInfos;
     std::set<uint32_t> uniqueQueueFamilies = {indices.graphicsFamily.value(), indices.presentFamily.value()};
@@ -176,27 +176,27 @@ void Device::CreateDevice()
         createInfo.ppEnabledLayerNames = VulkanStaticHelper::m_vValidationLayers.data();
     }
 
-    data.logical = data.physical.createDevice(createInfo);
-    assert(data.logical && "Failed to create logical device.");
+    m_logical = m_physical.createDevice(createInfo);
+    assert(m_logical && "Failed to create logical device.");
 
-    data.qGraphicsQueue = data.logical.getQueue(indices.graphicsFamily.value(), 0);
-    assert(data.qGraphicsQueue && "Failed while getting graphics queue.");
-    data.qPresentQueue = data.logical.getQueue(indices.presentFamily.value(), 0);
-    assert(data.qPresentQueue && "Failed while getting present queue.");
+    m_qGraphicsQueue = m_logical.getQueue(indices.graphicsFamily.value(), 0);
+    assert(m_qGraphicsQueue && "Failed while getting graphics queue.");
+    m_qPresentQueue = m_logical.getQueue(indices.presentFamily.value(), 0);
+    assert(m_qPresentQueue && "Failed while getting present queue.");
 }
 
 void Device::CreateCommandPool()
 {
-    assert(data.physical && "Cannot create command pool, cause physical device is not valid.");
-    assert(data.logical && "Cannot create command pool, cause logical device is not valid.");
-    QueueFamilyIndices queueFamilyIndices = FindQueueFamilies(data.physical);
+    assert(m_physical && "Cannot create command pool, cause physical device is not valid.");
+    assert(m_logical && "Cannot create command pool, cause logical device is not valid.");
+    QueueFamilyIndices queueFamilyIndices = FindQueueFamilies(m_physical);
 
     vk::CommandPoolCreateInfo poolInfo = {};
     poolInfo.flags = vk::CommandPoolCreateFlagBits::eResetCommandBuffer;
     poolInfo.queueFamilyIndex = queueFamilyIndices.graphicsFamily.value();
 
-    data.commandPool = data.logical.createCommandPool(poolInfo);
-    assert(data.commandPool && "Failed while creating command pool");
+    m_commandPool = m_logical.createCommandPool(poolInfo);
+    assert(m_commandPool && "Failed while creating command pool");
 }
 
 vk::Format Device::FindSupportedFormat(const std::vector<vk::Format> &candidates, vk::ImageTiling tiling, vk::FormatFeatureFlags features)
@@ -204,7 +204,7 @@ vk::Format Device::FindSupportedFormat(const std::vector<vk::Format> &candidates
     for (vk::Format format : candidates)
     {
         vk::FormatProperties props;
-        data.physical.getFormatProperties(format, &props);
+        m_physical.getFormatProperties(format, &props);
 
         if (tiling == vk::ImageTiling::eLinear && (props.linearTilingFeatures & features) == features)
         {
@@ -236,7 +236,7 @@ vk::Format Device::GetDepthFormat()
 
 uint32_t Device::FindMemoryType(uint32_t typeFilter, vk::MemoryPropertyFlags properties)
 {
-    vk::PhysicalDeviceMemoryProperties memProperties = data.physical.getMemoryProperties();
+    vk::PhysicalDeviceMemoryProperties memProperties = m_physical.getMemoryProperties();
 
     for (uint32_t i = 0; i < memProperties.memoryTypeCount; i++)
     {
@@ -263,7 +263,7 @@ QueueFamilyIndices Device::FindQueueFamilies(vk::PhysicalDevice device)
             indices.graphicsFamily = i;
         }
 
-        if (queueFamily.queueCount > 0 && device.getSurfaceSupportKHR(i, data.surface))
+        if (queueFamily.queueCount > 0 && device.getSurfaceSupportKHR(i, m_surface))
         {
             indices.presentFamily = i;
         }
@@ -281,28 +281,28 @@ QueueFamilyIndices Device::FindQueueFamilies(vk::PhysicalDevice device)
 
 QueueFamilyIndices Device::FindQueueFamilies()
 {
-    return FindQueueFamilies(data.physical);
+    return FindQueueFamilies(m_physical);
 }
 
 SwapChainSupportDetails Device::QuerySwapChainSupport(const vk::PhysicalDevice &device)
 {
     SwapChainSupportDetails details;
-    details.capabilities = device.getSurfaceCapabilitiesKHR(data.surface);
-    details.formats = device.getSurfaceFormatsKHR(data.surface);
-    details.presentModes = device.getSurfacePresentModesKHR(data.surface);
+    details.capabilities = device.getSurfaceCapabilitiesKHR(m_surface);
+    details.formats = device.getSurfaceFormatsKHR(m_surface);
+    details.presentModes = device.getSurfacePresentModesKHR(m_surface);
 
     return details;
 }
 
 SwapChainSupportDetails Device::QuerySwapChainSupport()
 {
-    return QuerySwapChainSupport(data.physical);
+    return QuerySwapChainSupport(m_physical);
 }
 
 vk::SampleCountFlagBits Device::GetMaxUsableSampleCount()
 {
     vk::PhysicalDeviceProperties physicalDeviceProperties;
-    data.physical.getProperties(&physicalDeviceProperties);
+    m_physical.getProperties(&physicalDeviceProperties);
 
     vk::SampleCountFlags counts = physicalDeviceProperties.limits.framebufferColorSampleCounts & physicalDeviceProperties.limits.framebufferDepthSampleCounts;
     if (counts & vk::SampleCountFlagBits::e64)
@@ -337,26 +337,26 @@ vk::SampleCountFlagBits Device::GetMaxUsableSampleCount()
 std::vector<vk::CommandBuffer, std::allocator<vk::CommandBuffer>>
 Device::CreateCommandBuffer(vk::CommandBufferLevel level, vk::CommandPool &pool, uint32_t count)
 {
-    assert(data.logical && "Cannot create command buffer, cause logical device is not valid.");
+    assert(m_logical && "Cannot create command buffer, cause logical device is not valid.");
     vk::CommandBufferAllocateInfo allocInfo = {};
     allocInfo.commandPool = pool;
     allocInfo.level = level;
     allocInfo.commandBufferCount = count;
 
     // TODO: Handle error
-    return data.logical.allocateCommandBuffers(allocInfo);
+    return m_logical.allocateCommandBuffers(allocInfo);
 }
 
 std::vector<vk::CommandBuffer, std::allocator<vk::CommandBuffer>>
 Device::CreateCommandBuffer(vk::CommandBufferLevel level, uint32_t count)
 {
-    return CreateCommandBuffer(level, data.commandPool, count);
+    return CreateCommandBuffer(level, m_commandPool, count);
 }
 
 vk::CommandBuffer Device::BeginSingleTimeCommands()
 {
-    assert(data.commandPool && "Cannot create command buffer, cause command pool is not valid.");
-    vk::CommandBuffer commandBuffer = CreateCommandBuffer(vk::CommandBufferLevel::ePrimary, data.commandPool, 1)[0];
+    assert(m_commandPool && "Cannot create command buffer, cause command pool is not valid.");
+    vk::CommandBuffer commandBuffer = CreateCommandBuffer(vk::CommandBufferLevel::ePrimary, m_commandPool, 1)[0];
 
     vk::CommandBufferBeginInfo beginInfo{};
     beginInfo.flags = vk::CommandBufferUsageFlagBits::eOneTimeSubmit;
@@ -375,31 +375,31 @@ void Device::EndSingleTimeCommands(vk::CommandBuffer commandBuffer)
     submitInfo.commandBufferCount = 1;
     submitInfo.pCommandBuffers = &commandBuffer;
 
-    data.qGraphicsQueue.submit(submitInfo, nullptr);
-    data.qGraphicsQueue.waitIdle();
+    m_qGraphicsQueue.submit(submitInfo, nullptr);
+    m_qGraphicsQueue.waitIdle();
 
-    data.logical.freeCommandBuffers(data.commandPool, commandBuffer);
+    m_logical.freeCommandBuffers(m_commandPool, commandBuffer);
 }
 
 /*****************************************Image work helpers*****************************************/
 void Device::CreateImage(vk::Image &image, vk::DeviceMemory &memory, vk::ImageCreateInfo createInfo, vk::MemoryPropertyFlags properties)
 {
-    assert(data.logical && "Cannot create image, cause logical device is not valid.");
+    assert(m_logical && "Cannot create image, cause logical device is not valid.");
 
-    image = data.logical.createImage(createInfo, nullptr);
+    image = m_logical.createImage(createInfo, nullptr);
     assert(image && "Image was not created");
 
     vk::MemoryRequirements memReq{};
-    data.logical.getImageMemoryRequirements(image, &memReq);
+    m_logical.getImageMemoryRequirements(image, &memReq);
 
     vk::MemoryAllocateInfo allocInfo{};
     allocInfo.allocationSize = memReq.size;
     allocInfo.memoryTypeIndex = FindMemoryType(memReq.memoryTypeBits, properties);
 
-    memory = data.logical.allocateMemory(allocInfo);
+    memory = m_logical.allocateMemory(allocInfo);
     assert(memory && "Image memory was not allocated");
 
-    data.logical.bindImageMemory(image, memory, 0);
+    m_logical.bindImageMemory(image, memory, 0);
 }
 
 void Device::TransitionImageLayout(vk::Image &image, std::vector<vk::ImageMemoryBarrier>& vBarriers, vk::ImageLayout oldLayout, vk::ImageLayout newLayout)
@@ -509,12 +509,12 @@ void Device::CopyBufferToImage(vk::Buffer &buffer, vk::Image &image, std::vector
 
 vk::ImageView Device::CreateImageView(vk::Image &pImage, vk::ImageViewCreateInfo viewInfo)
 {
-    assert(data.logical && "Cannot create image view, cause logical device is not valid.");
+    assert(m_logical && "Cannot create image view, cause logical device is not valid.");
     viewInfo.image = pImage;
 
     vk::ImageView imageView;
     // TODO: Handle result
-    auto result = data.logical.createImageView(&viewInfo, nullptr, &imageView);
+    auto result = m_logical.createImageView(&viewInfo, nullptr, &imageView);
     assert(imageView && "Was not created");
 
     return imageView;
@@ -522,8 +522,8 @@ vk::ImageView Device::CreateImageView(vk::Image &pImage, vk::ImageViewCreateInfo
 
 void Device::CreateSampler(vk::Sampler &sampler, uint32_t mip_levels, vk::SamplerAddressMode eAddressMode, vk::Filter magFilter)
 {
-    assert(data.physical && "Cannot create sampler, cause physical device is not valid.");
-    assert(data.logical && "Cannot create sampler, cause logical device is not valid.");
+    assert(m_physical && "Cannot create sampler, cause physical device is not valid.");
+    assert(m_logical && "Cannot create sampler, cause logical device is not valid.");
     vk::SamplerCreateInfo samplerInfo{};
     samplerInfo.magFilter = magFilter;
     samplerInfo.minFilter = vk::Filter::eLinear;
@@ -532,7 +532,7 @@ void Device::CreateSampler(vk::Sampler &sampler, uint32_t mip_levels, vk::Sample
     samplerInfo.addressModeW = eAddressMode;
 
     vk::PhysicalDeviceProperties properties{};
-    properties = data.physical.getProperties();
+    properties = m_physical.getProperties();
 
     samplerInfo.anisotropyEnable = VK_TRUE;
     samplerInfo.maxAnisotropy = properties.limits.maxSamplerAnisotropy;
@@ -547,7 +547,7 @@ void Device::CreateSampler(vk::Sampler &sampler, uint32_t mip_levels, vk::Sample
     samplerInfo.maxLod = static_cast<float>(mip_levels);
 
     // TODO: Result handle
-    auto result = data.logical.createSampler(&samplerInfo, nullptr, &sampler);
+    auto result = m_logical.createSampler(&samplerInfo, nullptr, &sampler);
     assert(sampler && "Texture sampler was not created");
 }
 
@@ -558,19 +558,19 @@ void Device::CreateOnDeviceBuffer(vk::DeviceSize size, vk::BufferUsageFlags usag
     bufferInfo.usage = usage;
     bufferInfo.sharingMode = vk::SharingMode::eExclusive;
 
-    buffer = data.logical.createBuffer(bufferInfo);
+    buffer = m_logical.createBuffer(bufferInfo);
     assert(buffer && "On device buffer was not created");
 
-    vk::MemoryRequirements memRequirements = data.logical.getBufferMemoryRequirements(buffer);
+    vk::MemoryRequirements memRequirements = m_logical.getBufferMemoryRequirements(buffer);
 
     vk::MemoryAllocateInfo allocInfo = {};
     allocInfo.allocationSize = memRequirements.size;
     allocInfo.memoryTypeIndex = FindMemoryType(memRequirements.memoryTypeBits, properties);
 
-    bufferMemory = data.logical.allocateMemory(allocInfo);
+    bufferMemory = m_logical.allocateMemory(allocInfo);
     assert(bufferMemory && "Buffer memory was not allocated");
 
-    data.logical.bindBufferMemory(buffer, bufferMemory, 0);
+    m_logical.bindBufferMemory(buffer, bufferMemory, 0);
 }
 
 void Device::CopyOnDeviceBuffer(vk::Buffer srcBuffer, vk::Buffer dstBuffer, vk::DeviceSize size)
@@ -588,7 +588,7 @@ void Device::CopyOnDeviceBuffer(vk::Buffer srcBuffer, vk::Buffer dstBuffer, vk::
 
 vk::PhysicalDevice Device::GetPhysicalDevice()
 {
-    auto device = data.vkInstance.enumeratePhysicalDevices().front();
+    auto device = m_vkInstance.enumeratePhysicalDevices().front();
     if (device && IsDeviceSuitable(device))
     {
         return device;
@@ -598,7 +598,7 @@ vk::PhysicalDevice Device::GetPhysicalDevice()
 
 std::vector<vk::PhysicalDevice> Device::GetAvaliablePhysicalDevices()
 {
-    auto devices = data.vkInstance.enumeratePhysicalDevices();
+    auto devices = m_vkInstance.enumeratePhysicalDevices();
     std::vector<vk::PhysicalDevice> output_devices;
     if (devices.size() == 0)
     {

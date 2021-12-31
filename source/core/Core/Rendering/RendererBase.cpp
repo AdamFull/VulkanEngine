@@ -1,15 +1,15 @@
 #include "RendererBase.h"
 #include "Resources/ResourceManager.h"
-#include "Resources/Textures/ImageLoader.h"
-#include "Resources/Textures/Image.h"
+#include "Core/Image/ImageLoader.h"
+#include "Core/Image/Image.h"
 #include "Core/VulkanHighLevel.h"
 #include "Core/VulkanInitializers.h"
 
 using namespace Engine::Core;
 using namespace Engine::Core::Rendering;
 using namespace Engine::Resources;
-using namespace Engine::Resources::Loaders;
-using namespace Engine::Resources::Texture;
+using namespace Engine::Core::Loaders;
+;
 
 RendererBase::~RendererBase()
 {
@@ -204,7 +204,7 @@ void RendererBase::CreateRenderPass()
 	}
 
     //Depth source
-    desc.format = m_DepthImage->GetParams().format;
+    desc.format = m_DepthImage->GetFormat();
     desc.initialLayout = vk::ImageLayout::eUndefined;
 	desc.finalLayout = vk::ImageLayout::eDepthStencilAttachmentOptimal;
     descTemporary.emplace(ETextureAttachmentType::eDepth, desc);

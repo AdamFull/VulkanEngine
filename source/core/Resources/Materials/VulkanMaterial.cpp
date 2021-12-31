@@ -2,7 +2,6 @@
 #include "Core/VulkanHighLevel.h"
 #include "Resources/ResourceManager.h"
 
-using namespace Engine::Resources::Texture;
 using namespace Engine::Resources::Material;
 using namespace Engine::Core::Descriptor;
 using namespace Engine::Core::Pipeline;
@@ -65,7 +64,7 @@ void MaterialBase::AddTexture(ETextureAttachmentType eAttachment, vk::Descriptor
     m_mTextures[eAttachment] = descriptor;
 }
 
-void MaterialBase::AddTexture(ETextureAttachmentType eAttachment, std::shared_ptr<Texture::Image> pTexture)
+void MaterialBase::AddTexture(ETextureAttachmentType eAttachment, std::shared_ptr<Core::Image> pTexture)
 {
     m_mTextures[eAttachment] = pTexture->GetDescriptor();
 }

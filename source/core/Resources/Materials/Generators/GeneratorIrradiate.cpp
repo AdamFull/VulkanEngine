@@ -6,11 +6,10 @@
 #include "Core/VulkanInitializers.h"
 #include "Resources/Meshes/Primitives.hpp"
 
-using namespace Engine::Resources::Material::Generator;
 using namespace Engine::Core;
+using namespace Engine::Core::Loaders;
 using namespace Engine::Core::Descriptor;
-using namespace Engine::Resources::Texture;
-using namespace Engine::Resources::Loaders;
+using namespace Engine::Resources::Material::Generator;
 
 void GeneratorIrradiate::Create(std::shared_ptr<ResourceManager> pResMgr)
 {
@@ -88,7 +87,7 @@ void GeneratorIrradiate::Generate(std::shared_ptr<Mesh::MeshBase> pMesh)
     pLocalVBO->Create();
     pLocalVBO->Bind(tempBuffer);
 
-    for (uint32_t m = 0; m < m_pCubemap->GetParams().mipLevels; m++) 
+    for (uint32_t m = 0; m < m_pCubemap->GetMipLevels(); m++) 
     {
 		for (uint32_t f = 0; f < 6; f++) 
         {

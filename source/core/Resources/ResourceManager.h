@@ -1,13 +1,13 @@
 #pragma once
 #include "ResourceCunstruct.h"
 
-#include "Textures/Image.h"
+#include "Core/Image/Image.h"
 #include "Materials/VulkanMaterial.h"
 #include "Meshes/MeshFragment.h"
-
-#include "Textures/TextureFactory.h"
-#include "Materials/MaterialFactory.h"
 #include "Meshes/MeshFactory.h"
+//Old code in this includer, remove
+#include "Core/Image/TextureFactory.h"
+#include "Materials/MaterialFactory.h"
 
 namespace Engine
 {
@@ -39,15 +39,9 @@ namespace Engine
                 return nullptr;
             }
 
-            template <class ResType>
-            void Destroy(std::string srResourceName)
-            {
-                assert(false && "Cannot find resource type");
-            }
-
             /*******************************For texture****************************/
             template <>
-            void AddExisting<Texture::Image>(std::string srResourceName, std::shared_ptr<Texture::Image> pResource)
+            void AddExisting<Core::Image>(std::string srResourceName, std::shared_ptr<Core::Image> pResource)
             {
                 auto it = m_mTextures.find(srResourceName);
                 if (it != m_mTextures.end())
@@ -56,29 +50,20 @@ namespace Engine
             }
 
             template <>
-            std::shared_ptr<Texture::Image> ResourceManager::Add(FTextureCreateInfo info)
+            std::shared_ptr<Core::Image> ResourceManager::Add(FTextureCreateInfo info)
             {
-                std::shared_ptr<Texture::Image> texture = Texture::TextureFactory::Create(shared_from_this(), info);
+                std::shared_ptr<Core::Image> texture = Core::TextureFactory::Create(shared_from_this(), info);
                 AddExisting(info.srName, texture);
                 return nullptr;
             }
 
             template <>
-            std::shared_ptr<Texture::Image> Get(std::string srResourceName)
+            std::shared_ptr<Core::Image> Get(std::string srResourceName)
             {
                 auto it = m_mTextures.find(srResourceName);
                 if (it != m_mTextures.end())
                     return it->second;
                 return m_mTextures.at("no_texture");
-            }
-
-            template <>
-            void Destroy<Texture::Image>(std::string srResourceName)
-            {
-                auto it = m_mTextures.find(srResourceName);
-                if (it != m_mTextures.end())
-                    it->second->Destroy();
-                assert(false && "Cannot find resource named: .");
             }
 
             /*******************************For material****************************/
@@ -108,15 +93,6 @@ namespace Engine
                 return nullptr;
             }
 
-            template <>
-            void Destroy<Material::MaterialBase>(std::string srResourceName)
-            {
-                /*auto it = m_mMaterials.find(srResourceName);
-                if (it != m_mMaterials.end())
-                    it->second->Destroy();*/
-                assert(false && "Cannot find resource named: .");
-            }
-
             /*******************************For mesh****************************/
             template <>
             void AddExisting<Mesh::MeshFragment>(std::string srResourceName, std::shared_ptr<Mesh::MeshFragment> pResource)
@@ -144,19 +120,8 @@ namespace Engine
                 return nullptr;
             }
 
-            template <>
-            void Destroy<Mesh::MeshFragment>(std::string srResourceName)
-            {
-                auto it = m_mMeshes.find(srResourceName);
-                if (it != m_mMeshes.end())
-                    it->second->Destroy();
-                assert(false && "Cannot find resource named: .");
-            }
-
-            void DestroyAll();
-
         private:
-            std::map<std::string, std::shared_ptr<Texture::Image>> m_mTextures;
+            std::map<std::string, std::shared_ptr<Core::Image>> m_mTextures;
             std::map<std::string, std::shared_ptr<Material::MaterialBase>> m_mMaterials;
             std::map<std::string, std::shared_ptr<Mesh::MeshFragment>> m_mMeshes;
         };

@@ -1,5 +1,5 @@
 #include "PBRCompositionRenderer.h"
-#include "Resources/Textures/Image.h"
+#include "Core/Image/Image.h"
 #include "Resources/Materials/MaterialDeferred.h"
 #include "Resources/ResourceManager.h"
 #include "Core/Scene/Objects/RenderObject.h"
@@ -13,7 +13,7 @@
 using namespace Engine::Core;
 using namespace Engine::Core::Rendering;
 using namespace Engine::Resources;
-using namespace Engine::Resources::Texture;
+;
 using namespace Engine::Resources::Material;
 using namespace Engine::Core::Scene;
 using namespace Engine::Core::Scene::Objects;

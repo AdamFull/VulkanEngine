@@ -6,11 +6,11 @@ namespace Engine
 {
     namespace Resources
     {
-        namespace Texture { class Image; }
         namespace Material { class MaterialBase; }
     }
     namespace Core
     {
+        class Image;
         class RenderSystem
         {
         public:

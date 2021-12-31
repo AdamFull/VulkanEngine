@@ -6,21 +6,6 @@ namespace Engine
 {
     namespace Core
     {
-        struct FDevice
-        {
-            vk::Instance vkInstance; // Main vulkan instance
-            VkDebugUtilsMessengerEXT vkDebugUtils;
-            vk::SurfaceKHR surface; // Vulkan's drawing surface
-            vk::CommandPool commandPool;
-
-            vk::PhysicalDevice physical;
-            vk::Device logical;
-            vk::Queue qGraphicsQueue;
-            vk::Queue qPresentQueue;
-
-            vk::SampleCountFlagBits msaaSamples = vk::SampleCountFlagBits::e1;
-        };
-
         class Device
         {
         public:
@@ -40,7 +25,7 @@ namespace Engine
                         const char *pEngineName, uint32_t engineVersion,
                         uint32_t apiVersion);
 
-            inline void GPUWait() { data.logical.waitIdle(); }
+            inline void GPUWait() { m_logical.waitIdle(); }
 
             /***************************************************Helpers***************************************************/
             vk::Format FindSupportedFormat(const std::vector<vk::Format> &candidates, vk::ImageTiling tiling, vk::FormatFeatureFlags features);
@@ -56,9 +41,9 @@ namespace Engine
             template <class T>
             void MoveToMemory(T raw_data, vk::DeviceMemory &memory, vk::DeviceSize size)
             {
-                void *indata = data.logical->mapMemory(memory, 0, size);
+                void *indata = m_logical->mapMemory(memory, 0, size);
                 memcpy(indata, raw_data, static_cast<size_t>(size));
-                data.logical->unmapMemory(memory);
+                m_logical->unmapMemory(memory);
             }
 
             std::vector<vk::CommandBuffer, std::allocator<vk::CommandBuffer>>
@@ -80,81 +65,204 @@ namespace Engine
             void CopyOnDeviceBuffer(vk::Buffer srcBuffer, vk::Buffer dstBuffer, vk::DeviceSize size);
 
             /**************************************************Getters********************************************/
-            inline vk::Instance &GetVkInstance() { return data.vkInstance; }
-            inline vk::SurfaceKHR &GetSurface() { return data.surface; }
-            inline vk::CommandPool &GetCommandPool() { return data.commandPool; }
+            inline vk::Instance &GetVkInstance() { return m_vkInstance; }
+            inline vk::SurfaceKHR &GetSurface() { return m_surface; }
+            inline vk::CommandPool &GetCommandPool() { return m_commandPool; }
 
-            inline vk::PhysicalDevice GetPhysical() { return data.physical; }
-            inline vk::Device &GetLogical() { return data.logical; }
-            inline vk::Queue &GetGraphicsQueue() { return data.qGraphicsQueue; }
-            inline vk::Queue &GetPresentQueue() { return data.qPresentQueue; }
+            inline vk::PhysicalDevice GetPhysical() { return m_physical; }
+            inline vk::Device &GetLogical() { return m_logical; }
+            inline vk::Queue &GetGraphicsQueue() { return m_qGraphicsQueue; }
+            inline vk::Queue &GetPresentQueue() { return m_qPresentQueue; }
 
-            inline vk::SampleCountFlagBits GetSamples() { return data.msaaSamples; }
+            inline vk::SampleCountFlagBits GetSamples() { return m_msaaSamples; }
 
             /********************************************Specializations***************************************/
             template <class OutType, class InitializerType>
-            OutType Make(InitializerType &initializer) { assert(false && "Device: no Make specialisation found for given type"); }
-            template <>
-            vk::SwapchainKHR Make(vk::SwapchainCreateInfoKHR &initializer) { return data.logical.createSwapchainKHR(initializer); }
-            template <>
-            std::vector<vk::Image> Make(vk::SwapchainKHR &initializer) { return data.logical.getSwapchainImagesKHR(initializer); }
-            template <>
-            vk::RenderPass Make(vk::RenderPassCreateInfo &initializer) { return data.logical.createRenderPass(initializer); }
-            template <>
-            vk::Framebuffer Make(vk::FramebufferCreateInfo &initializer) { return data.logical.createFramebuffer(initializer); }
-            template <>
-            vk::Semaphore Make(vk::SemaphoreCreateInfo &initializer) { return data.logical.createSemaphore(initializer); }
-            template <>
-            vk::Fence Make(vk::FenceCreateInfo &initializer) { return data.logical.createFence(initializer); }
-            template <>
-            vk::ShaderModule Make(vk::ShaderModuleCreateInfo &initializer) { return data.logical.createShaderModule(initializer); }
-            template <>
-            vk::PipelineLayout Make(vk::PipelineLayoutCreateInfo &initializer) { return data.logical.createPipelineLayout(initializer); }
-            template <>
-            vk::Pipeline Make(vk::GraphicsPipelineCreateInfo &initializer) { return data.logical.createGraphicsPipeline(nullptr, initializer).value; }
-            template <>
-            vk::DescriptorPool Make(vk::DescriptorPoolCreateInfo &initializer) { return data.logical.createDescriptorPool(initializer); }
+            OutType Make(InitializerType &initializer) 
+            { 
+                assert(false && "Device: no Make specialisation found for given type");
+            }
 
+            template <>
+            vk::SwapchainKHR Make(vk::SwapchainCreateInfoKHR &initializer) 
+            { 
+                return m_logical.createSwapchainKHR(initializer); 
+            }
+
+            template <>
+            std::vector<vk::Image> Make(vk::SwapchainKHR &initializer) 
+            { 
+                return m_logical.getSwapchainImagesKHR(initializer); 
+            }
+
+            template <>
+            vk::RenderPass Make(vk::RenderPassCreateInfo &initializer) 
+            { 
+                return m_logical.createRenderPass(initializer); 
+            }
+
+            template <>
+            vk::Framebuffer Make(vk::FramebufferCreateInfo &initializer) 
+            { 
+                return m_logical.createFramebuffer(initializer); 
+            }
+
+            template <>
+            vk::Semaphore Make(vk::SemaphoreCreateInfo &initializer) 
+            { 
+                return m_logical.createSemaphore(initializer); 
+            }
+
+            template <>
+            vk::Fence Make(vk::FenceCreateInfo &initializer) 
+            { 
+                return m_logical.createFence(initializer); 
+            }
+
+            template <>
+            vk::ShaderModule Make(vk::ShaderModuleCreateInfo &initializer) 
+            { 
+                return m_logical.createShaderModule(initializer);
+            }
+
+            template <>
+            vk::PipelineLayout Make(vk::PipelineLayoutCreateInfo &initializer) 
+            { 
+                return m_logical.createPipelineLayout(initializer);
+            }
+
+            template <>
+            vk::Pipeline Make(vk::GraphicsPipelineCreateInfo &initializer) 
+            { 
+                return m_logical.createGraphicsPipeline(nullptr, initializer).value; 
+            }
+
+            template <>
+            vk::DescriptorPool Make(vk::DescriptorPoolCreateInfo &initializer) 
+            { 
+                return m_logical.createDescriptorPool(initializer); 
+            }
+
+            //Destroyers
             template <class ToDestroy>
-            void Destroy(ToDestroy &instance) { assert(false && "Device: no Destroy specialisation found for given type"); } // Instance destroyer)
+            void Destroy(ToDestroy &instance) 
+            { 
+                assert(false && "Device: no Destroy specialisation found for given type"); 
+            } // Instance destroyer)
+
             template <>
-            void Destroy(vk::Sampler &instance) { data.logical.destroySampler(instance); }
+            void Destroy(vk::Sampler &instance) 
+            { 
+                m_logical.destroySampler(instance); 
+            }
+
             template <>
-            void Destroy(vk::ImageView &instance) { data.logical.destroyImageView(instance); }
+            void Destroy(vk::ImageView &instance) 
+            { 
+                m_logical.destroyImageView(instance); 
+            }
+
             template <>
-            void Destroy(vk::Image &instance) { data.logical.destroyImage(instance); }
+            void Destroy(vk::Image &instance) 
+            { 
+                m_logical.destroyImage(instance); 
+            }
+
             template <>
-            void Destroy(vk::Buffer &instance) { data.logical.destroyBuffer(instance); }
+            void Destroy(vk::Buffer &instance) 
+            { 
+                m_logical.destroyBuffer(instance); 
+            }
+
             template <>
-            void Destroy(vk::DeviceMemory &instance) { data.logical.freeMemory(instance); }
+            void Destroy(vk::DeviceMemory &instance) 
+            { 
+                m_logical.freeMemory(instance); 
+            }
+
             template <>
-            void Destroy(vk::Framebuffer &instance) { data.logical.destroyFramebuffer(instance); }
+            void Destroy(vk::Framebuffer &instance) 
+            { 
+                m_logical.destroyFramebuffer(instance); 
+            }
+
             template <>
-            void Destroy(vk::RenderPass &instance) { data.logical.destroyRenderPass(instance); }
+            void Destroy(vk::RenderPass &instance) 
+            { 
+                m_logical.destroyRenderPass(instance); 
+            }
+
             template <>
-            void Destroy(vk::SwapchainKHR &instance) { data.logical.destroySwapchainKHR(instance); }
+            void Destroy(vk::SwapchainKHR &instance) 
+            { 
+                m_logical.destroySwapchainKHR(instance); 
+            }
+
             template <>
-            void Destroy(vk::Pipeline &instance) { data.logical.destroyPipeline(instance); }
+            void Destroy(vk::Pipeline &instance) 
+            { 
+                m_logical.destroyPipeline(instance); 
+            }
+
             template <>
-            void Destroy(vk::PipelineLayout &instance) { data.logical.destroyPipelineLayout(instance); }
+            void Destroy(vk::PipelineLayout &instance) 
+            { 
+                m_logical.destroyPipelineLayout(instance); 
+            }
+
             template <>
-            void Destroy(vk::PipelineCache &instance) { data.logical.destroyPipelineCache(instance); }
+            void Destroy(vk::PipelineCache &instance) 
+            { 
+                m_logical.destroyPipelineCache(instance); 
+            }
+
             template <>
-            void Destroy(vk::ShaderModule &instance) { data.logical.destroyShaderModule(instance); }
+            void Destroy(vk::ShaderModule &instance) 
+            {
+                m_logical.destroyShaderModule(instance); 
+            }
+
             template <>
-            void Destroy(std::vector<vk::CommandBuffer, std::allocator<vk::CommandBuffer>> &instance) { data.logical.freeCommandBuffers(data.commandPool, instance); }
+            void Destroy(std::vector<vk::CommandBuffer, std::allocator<vk::CommandBuffer>> &instance) 
+            { 
+                m_logical.freeCommandBuffers(m_commandPool, instance); 
+            }
+
             template <>
-            void Destroy(vk::CommandPool &instance) { data.logical.destroyCommandPool(instance); }
+            void Destroy(vk::CommandPool &instance) 
+            { 
+                m_logical.destroyCommandPool(instance); 
+            }
+
             template <>
-            void Destroy(vk::SurfaceKHR &instance) { data.vkInstance.destroySurfaceKHR(instance); }
+            void Destroy(vk::SurfaceKHR &instance) 
+            { 
+                m_vkInstance.destroySurfaceKHR(instance); 
+            }
+
             template <>
-            void Destroy(vk::DescriptorSetLayout &instance) { data.logical.destroyDescriptorSetLayout(instance); }
+            void Destroy(vk::DescriptorSetLayout &instance) 
+            { 
+                m_logical.destroyDescriptorSetLayout(instance); 
+            }
+
             template <>
-            void Destroy(vk::DescriptorPool &instance) { data.logical.destroyDescriptorPool(instance); }
+            void Destroy(vk::DescriptorPool &instance) 
+            { 
+                m_logical.destroyDescriptorPool(instance); 
+            }
+
             template <>
-            void Destroy(vk::Semaphore &instance) { data.logical.destroySemaphore(instance); }
+            void Destroy(vk::Semaphore &instance) 
+            { 
+                m_logical.destroySemaphore(instance); 
+            }
+
             template <>
-            void Destroy(vk::Fence &instance) { data.logical.destroyFence(instance); }
+            void Destroy(vk::Fence &instance) 
+            { 
+                m_logical.destroyFence(instance); 
+            }
 
         private:
             void CreateInstance(const char *pApplicationName, uint32_t applicationVersion,
@@ -170,7 +278,18 @@ namespace Engine
             std::vector<vk::PhysicalDevice> GetAvaliablePhysicalDevices();
             bool IsDeviceSuitable(const vk::PhysicalDevice &device);
 
-            FDevice data;
+        private:
+            vk::Instance m_vkInstance; // Main vulkan instance
+            VkDebugUtilsMessengerEXT m_vkDebugUtils;
+            vk::SurfaceKHR m_surface; // Vulkan's drawing surface
+            vk::CommandPool m_commandPool;
+
+            vk::PhysicalDevice m_physical;
+            vk::Device m_logical;
+            vk::Queue m_qGraphicsQueue;
+            vk::Queue m_qPresentQueue;
+
+            vk::SampleCountFlagBits m_msaaSamples{vk::SampleCountFlagBits::e1};
         };
     }
 }

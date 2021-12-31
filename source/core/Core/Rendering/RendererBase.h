@@ -22,11 +22,11 @@ namespace Engine
     namespace Resources
     {
         class ResourceManager;
-        namespace Texture { class Image; }
         namespace Material { class MaterialBase; }
     }
     namespace Core
     {
+        class Image;
         namespace Scene
         {
             namespace Objects { class RenderObject; }
@@ -65,7 +65,7 @@ namespace Engine
         };
 
         using texture_type_t = Resources::ETextureAttachmentType;
-        using image_map_t = std::map<texture_type_t, std::shared_ptr<Resources::Texture::Image>>;
+        using image_map_t = std::map<texture_type_t, std::shared_ptr<Image>>;
         using attachment_t = FRendererCreateInfo::FAttachmentInfo;
         using attachments_map_t = std::map<texture_type_t, attachment_t>;
         using renderer_type_t = FRendererCreateInfo::ERendererType;
@@ -90,10 +90,10 @@ namespace Engine
 
                 std::shared_ptr<RendererBase> Find(FRendererCreateInfo::ERendererType eType);
 
-                std::shared_ptr<Resources::Texture::Image> GetProduct(texture_type_t eType);
+                std::shared_ptr<Image> GetProduct(texture_type_t eType);
                 image_map_t GetProducts();
 
-                virtual void AddProduct(texture_type_t eAttach, std::shared_ptr<Resources::Texture::Image> image) {}
+                virtual void AddProduct(texture_type_t eAttach, std::shared_ptr<Image> image) {}
                 virtual void SetUniform(void* uniform) {}
 
                 inline void SetRenderNode(std::shared_ptr<Scene::Objects::RenderObject> pRenderObject) { m_pRenderNode = pRenderObject; }
@@ -109,7 +109,7 @@ namespace Engine
                 inline renderer_type_t GetType() { return m_eRendererType; }
             protected:
                 void CreateSampler();
-                virtual std::shared_ptr<Resources::Texture::Image> CreateImage(attachment_t attachment);
+                virtual std::shared_ptr<Image> CreateImage(attachment_t attachment);
                 virtual void CreateImages();
                 virtual void CreateRenderPass();
                 virtual void CreateFramebuffers();
@@ -123,7 +123,7 @@ namespace Engine
                 std::shared_ptr<RendererBase> m_pNext{nullptr};
 
                 std::vector<image_map_t> m_vImages;
-                std::shared_ptr<Resources::Texture::Image> m_DepthImage;
+                std::shared_ptr<Image> m_DepthImage;
                 vk::Sampler m_Sampler;
 
                 vk::RenderPass m_RenderPass;

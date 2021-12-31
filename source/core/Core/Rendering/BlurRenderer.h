@@ -17,7 +17,7 @@ namespace Engine
                 void Render(vk::CommandBuffer& commandBuffer) override;
                 void Cleanup() override;
 
-                void AddProduct(texture_type_t eAttach, std::shared_ptr<Resources::Texture::Image> image) override;
+                void AddProduct(texture_type_t eAttach, std::shared_ptr<Image> image) override;
                 void SetUniform(void* uniform) override;
             protected:
                 void CreateMaterial(std::shared_ptr<Resources::ResourceManager> pResMgr);

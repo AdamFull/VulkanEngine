@@ -3,7 +3,7 @@
 #include "serializer/JsonSerializer.h"
 #include "Core/VulkanHighLevel.h"
 
-using namespace Engine::Resources::Texture;
+using namespace Engine::Core;
 using namespace Engine::Resources::Material;
 using namespace Engine::Resources::Mesh;
 namespace Engine
@@ -12,7 +12,7 @@ namespace Engine
     {
         void ResourceManager::Create()
         {
-            std::shared_ptr<Resources::Texture::Image> pEmptyTexture = std::make_shared<Resources::Texture::Image>();
+            std::shared_ptr<Image> pEmptyTexture = std::make_shared<Image>();
             pEmptyTexture->CreateEmptyTexture(512, 512, 1, 2, 0x8C43);
             AddExisting("no_texture", pEmptyTexture);
         }
@@ -38,16 +38,6 @@ namespace Engine
 
             for (auto mesh : vMeshes)
                 Add<MeshFragment>(mesh);
-        }
-
-        void ResourceManager::DestroyAll()
-        {
-            for (auto &[key, value] : m_mTextures)
-                value->Destroy();
-            /*for (auto &[key, value] : m_mMaterials)
-                value->Destroy();*/
-            for (auto &[key, value] : m_mMeshes)
-                value->Destroy();
         }
     }
 }

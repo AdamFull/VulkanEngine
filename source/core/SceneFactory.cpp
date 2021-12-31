@@ -4,7 +4,7 @@
 #include "Resources/Meshes/MeshFactory.h"
 #include "Resources/Materials/MaterialFactory.h"
 #include "Resources/Meshes/Loaders/GLTFLoader.h"
-#include "Resources/Textures/TextureFactory.h"
+#include "Core/Image/TextureFactory.h"
 
 #include "Core/Scene/Objects/Components/Camera/CameraManager.h"
 #include "Core/Scene/Objects/Components/MeshComponentBase.h"
@@ -157,7 +157,7 @@ std::shared_ptr<Core::Scene::Objects::RenderObject> SceneFactory::CreateEnvironm
     loader->Load(info.mesh.srSrc, info.srName, pResMgr);
     environment->SetName(info.srName);
     environment->SetMesh(loader->GetMesh());
-    environment->SetTexture(Resources::Texture::TextureFactory::Create(pResMgr, info.texture));
+    environment->SetTexture(Core::TextureFactory::Create(pResMgr, info.texture));
 
     return environment;
 }

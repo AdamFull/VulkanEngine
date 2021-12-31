@@ -4,20 +4,6 @@ namespace Engine
 {
     namespace Core
     {
-        struct FBuffer
-        {
-            void *mapped = nullptr;
-            vk::Buffer buffer = VK_NULL_HANDLE;
-            vk::DeviceMemory memory = VK_NULL_HANDLE;
-
-            vk::DeviceSize bufferSize;
-            uint32_t instanceCount;
-            vk::DeviceSize instanceSize;
-            vk::DeviceSize alignmentSize;
-            vk::BufferUsageFlags usageFlags;
-            vk::MemoryPropertyFlags memoryPropertyFlags;
-        };
-
         class VulkanBuffer
         {
         public:
@@ -56,18 +42,29 @@ namespace Engine
             vk::Result InvalidateIndex(int index);
 
             // Getters
-            vk::Buffer GetBuffer() const { return data.buffer; }
-            void *GetMappedMemory() const { return data.mapped; }
-            uint32_t GetInstanceCount() const { return data.instanceCount; }
-            vk::DeviceSize GetInstanceSize() const { return data.instanceSize; }
-            vk::DeviceSize GetAlignmentSize() const { return data.instanceSize; }
-            vk::BufferUsageFlags GetUsageFlags() const { return data.usageFlags; }
-            vk::MemoryPropertyFlags GetMemoryPropertyFlags() const { return data.memoryPropertyFlags; }
-            vk::DeviceSize GetBufferSize() const { return data.bufferSize; }
+            vk::Buffer GetBuffer() const { return m_buffer; }
+            void *GetMappedMemory() const { return m_mapped; }
+            uint32_t GetInstanceCount() const { return m_instanceCount; }
+            vk::DeviceSize GetInstanceSize() const { return m_instanceSize; }
+            vk::DeviceSize GetAlignmentSize() const { return m_instanceSize; }
+            vk::BufferUsageFlags GetUsageFlags() const { return m_usageFlags; }
+            vk::MemoryPropertyFlags GetMemoryPropertyFlags() const { return m_memoryPropertyFlags; }
+            vk::DeviceSize GetBufferSize() const { return m_bufferSize; }
 
         private:
             static vk::DeviceSize GetAlignment(vk::DeviceSize instanceSize, vk::DeviceSize minOffsetAlignment);
-            FBuffer data;
+            
+        private:
+            void *m_mapped = nullptr;
+            vk::Buffer m_buffer = VK_NULL_HANDLE;
+            vk::DeviceMemory m_memory = VK_NULL_HANDLE;
+
+            vk::DeviceSize m_bufferSize;
+            uint32_t m_instanceCount;
+            vk::DeviceSize m_instanceSize;
+            vk::DeviceSize m_alignmentSize;
+            vk::BufferUsageFlags m_usageFlags;
+            vk::MemoryPropertyFlags m_memoryPropertyFlags;
         };
     }
 }

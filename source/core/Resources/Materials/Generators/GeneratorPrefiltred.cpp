@@ -6,11 +6,10 @@
 #include "Core/VulkanInitializers.h"
 #include "Resources/Meshes/Primitives.hpp"
 
-using namespace Engine::Resources::Material::Generator;
 using namespace Engine::Core;
 using namespace Engine::Core::Descriptor;
-using namespace Engine::Resources::Texture;
-using namespace Engine::Resources::Loaders;
+using namespace Engine::Core::Loaders;
+using namespace Engine::Resources::Material::Generator;
 
 void GeneratorPrefiltred::Create(std::shared_ptr<ResourceManager> pResMgr)
 {
@@ -87,9 +86,9 @@ void GeneratorPrefiltred::Generate(std::shared_ptr<Mesh::MeshBase> pMesh)
     pLocalVBO->Create();
     pLocalVBO->Bind(tempBuffer);
 
-    for (uint32_t m = 0; m < m_pCubemap->GetParams().mipLevels; m++) 
+    for (uint32_t m = 0; m < m_pCubemap->GetMipLevels(); m++) 
     {
-        pushBlock.roughness = (float)m / (float)(m_pCubemap->GetParams().mipLevels - 1);
+        pushBlock.roughness = (float)m / (float)(m_pCubemap->GetMipLevels() - 1);
 		for (uint32_t f = 0; f < 6; f++) 
         {
             viewport.width = static_cast<float>(m_iDimension * std::pow(0.5f, m));

@@ -6,7 +6,7 @@
 using namespace Engine::Resources::Material::Generator;
 using namespace Engine::Core;
 using namespace Engine::Core::Descriptor;
-using namespace Engine::Resources::Texture;
+;
 
 void GeneratorBRDF::Create(std::shared_ptr<ResourceManager> pResMgr)
 {

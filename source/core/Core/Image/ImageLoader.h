@@ -4,7 +4,7 @@
 
 namespace Engine
 {
-    namespace Resources
+    namespace Core
     {
         namespace Loaders
         {

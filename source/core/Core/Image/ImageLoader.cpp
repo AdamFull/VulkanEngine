@@ -5,7 +5,7 @@ namespace fs = std::filesystem;
 #define STB_IMAGE_IMPLEMENTATION
 #include "external/tinygltf/stb_image.h"
 
-using namespace Engine::Resources::Loaders;
+using namespace Engine::Core::Loaders;
 
 bool ImageLoader::Load(char const *filename, ktxTexture **target, vk::Format *format)
 {

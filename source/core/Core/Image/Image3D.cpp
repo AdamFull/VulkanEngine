@@ -1,33 +1,8 @@
 #include "Image3D.h"
-#include "Noise/PerlinNoise.hpp"
-#include "Noise/FractalNoise.hpp"
 
-using namespace Engine::Resources::Texture;
-
-void Image3D::ReCreate()
-{
-    Image::ReCreate();
-}
-
-void Image3D::Update(uint32_t imageIndex)
-{
-    Image::Update(imageIndex);
-}
-
-void Image3D::Bind(vk::CommandBuffer commandBuffer, uint32_t imageIndex)
-{
-    Image::Bind(commandBuffer, imageIndex);
-}
-
-void Image3D::Cleanup()
-{
-    Image::Cleanup();
-}
-
-void Image3D::Destroy()
-{
-    Image::Destroy();
-}
+using namespace Engine::Core;
+using namespace Engine::Core::Noise;
+using namespace Engine::Resources;
 
 void Image3D::LoadNoise(ENoisePattern ePattern, uint32_t width, uint32_t height, uint32_t depth)
 {
@@ -55,27 +30,27 @@ void Image3D::LoadNoise(ENoisePattern ePattern, uint32_t width, uint32_t height,
 
 void Image3D::GeneratePerlinNoise(ktxTexture *texture)
 {
-    vk::DeviceSize imgSize = fParams.width * fParams.height * fParams.depth;
+    vk::DeviceSize imgSize = m_extent.width * m_extent.height * m_extent.depth;
     texture->pData = static_cast<unsigned char *>(calloc(imgSize, sizeof(unsigned char)));
 
     Noise::PerlinNoise<float> perlinNoise;
 
 #pragma omp parallel for
-    for (int32_t z = 0; z < fParams.depth; z++)
+    for (int32_t z = 0; z < m_extent.depth; z++)
     {
-        for (int32_t y = 0; y < fParams.height; y++)
+        for (int32_t y = 0; y < m_extent.height; y++)
         {
-            for (int32_t x = 0; x < fParams.width; x++)
+            for (int32_t x = 0; x < m_extent.width; x++)
             {
-                float nx = (float)x / (float)fParams.width;
-                float ny = (float)y / (float)fParams.height;
-                float nz = (float)z / (float)fParams.depth;
+                float nx = (float)x / (float)m_extent.width;
+                float ny = (float)y / (float)m_extent.height;
+                float nz = (float)z / (float)m_extent.depth;
 
                 float n = 20.0 * perlinNoise.noise(nx, ny, nz);
 
                 n = n - floor(n);
 
-                texture->pData[x + y * fParams.width + z * fParams.width * fParams.height] = static_cast<uint8_t>(floor(n * 255));
+                texture->pData[x + y * m_extent.width + z * m_extent.width * m_extent.height] = static_cast<uint8_t>(floor(n * 255));
             }
         }
     }
@@ -83,7 +58,7 @@ void Image3D::GeneratePerlinNoise(ktxTexture *texture)
 
 void Image3D::GenerateFractalNoise(ktxTexture *texture, uint32_t octaves, float perceptation)
 {
-    vk::DeviceSize imgSize = fParams.width * fParams.height * fParams.depth;
+    vk::DeviceSize imgSize = m_extent.width * m_extent.height * m_extent.depth;
     texture->pData = static_cast<unsigned char *>(calloc(imgSize, sizeof(unsigned char)));
 
     Noise::PerlinNoise<float> perlinNoise;
@@ -92,21 +67,21 @@ void Image3D::GenerateFractalNoise(ktxTexture *texture, uint32_t octaves, float 
     const float noiseScale = static_cast<float>(rand() % 10) + 4.0f;
 
 #pragma omp parallel for
-    for (int32_t z = 0; z < fParams.depth; z++)
+    for (int32_t z = 0; z < m_extent.depth; z++)
     {
-        for (int32_t y = 0; y < fParams.height; y++)
+        for (int32_t y = 0; y < m_extent.height; y++)
         {
-            for (int32_t x = 0; x < fParams.width; x++)
+            for (int32_t x = 0; x < m_extent.width; x++)
             {
-                float nx = (float)x / (float)fParams.width;
-                float ny = (float)y / (float)fParams.height;
-                float nz = (float)z / (float)fParams.depth;
+                float nx = (float)x / (float)m_extent.width;
+                float ny = (float)y / (float)m_extent.height;
+                float nz = (float)z / (float)m_extent.depth;
 
                 float n = fractalNoise.noise(nx * noiseScale, ny * noiseScale, nz * noiseScale);
 
                 n = n - floor(n);
 
-                texture->pData[x + y * fParams.width + z * fParams.width * fParams.height] = static_cast<uint8_t>(floor(n * 255));
+                texture->pData[x + y * m_extent.width + z * m_extent.width * m_extent.height] = static_cast<uint8_t>(floor(n * 255));
             }
         }
     }

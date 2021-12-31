@@ -1,5 +1,5 @@
 #include "ShadowRenderer.h"
-#include "Resources/Textures/Image.h"
+#include "Core/Image/Image.h"
 #include "Resources/Materials/MaterialShadow.h"
 #include "Resources/ResourceManager.h"
 #include "Core/VulkanHighLevel.h"
@@ -8,7 +8,7 @@
 using namespace Engine::Core;
 using namespace Engine::Core::Rendering;
 using namespace Engine::Resources;
-using namespace Engine::Resources::Texture;
+;
 using namespace Engine::Resources::Material;
 
 void ShadowRenderer::Create(std::shared_ptr<Resources::ResourceManager> pResMgr)

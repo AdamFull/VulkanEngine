@@ -1,5 +1,5 @@
 #include "VulkanHighLevel.h"
-#include "Resources/Textures/ImageLoader.h"
+#include "Core/Image/ImageLoader.h"
 #include "VulkanStaticHelper.h"
 #include "Rendering/DeferredRenderer.h"
 #include "Rendering/PBRCompositionRenderer.h"
@@ -8,9 +8,8 @@
 
 using namespace Engine::Core;
 using namespace Engine::Resources;
-using namespace Engine::Resources::Texture;
 using namespace Engine::Resources::Material;
-using namespace Engine::Resources::Loaders;
+using namespace Engine::Core::Loaders;
 
 RenderSystem::~RenderSystem()
 {

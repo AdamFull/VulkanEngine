@@ -1,5 +1,5 @@
 #include "MaterialFactory.h"
-#include "Resources/Textures/TextureFactory.h"
+#include "Core/Image/TextureFactory.h"
 #include "Resources/ResourceManager.h"
 #include "Resources/Materials/MaterialUI.h"
 #include "Resources/Materials/MaterialDiffuse.h"
@@ -30,22 +30,11 @@ std::shared_ptr<MaterialBase> MaterialFactory::Create(std::shared_ptr<Resources:
 {
     auto material = m_mFactory[info.eType]();
 
-    if (!info.srAttachments.empty())
+    for (auto &texInfo : info.vTextures)
     {
-        for (auto &texName : info.srAttachments)
-        {
-            std::shared_ptr<Texture::Image> texture = resourceMgr->Get<Texture::Image>(texName);
-            material->AddTexture(texture->GetAttachment(), texture);
-        }
-    }
-    else
-    {
-        for (auto &texInfo : info.vTextures)
-        {
-            std::shared_ptr<Texture::Image> texture = Texture::TextureFactory::Create(resourceMgr, texInfo);
-            resourceMgr->AddExisting<Texture::Image>(texInfo.srName, texture);
-            material->AddTexture(texInfo.eAttachment, texture);
-        }
+        std::shared_ptr<Core::Image> texture = Core::TextureFactory::Create(resourceMgr, texInfo);
+        resourceMgr->AddExisting<Core::Image>(texInfo.srName, texture);
+        material->AddTexture(texInfo.eAttachment, texture);
     }
 
     return material;

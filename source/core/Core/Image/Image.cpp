@@ -1,57 +1,24 @@
 #include "Image.h"
 #include "Core/VulkanHighLevel.h"
 
-using namespace Engine::Resources;
-using namespace Engine::Resources::Texture;
-using namespace Engine::Resources::Loaders;
+using namespace Engine::Core;
+using namespace Engine::Core::Loaders;
 
 Image::~Image()
 {
-    UDevice->Destroy(image);
-    UDevice->Destroy(view);
-    UDevice->Destroy(deviceMemory);
+    UDevice->Destroy(m_image);
+    UDevice->Destroy(m_view);
+    UDevice->Destroy(m_deviceMemory);
 
-    if(!bUsingInternalSampler)
-        UDevice->Destroy(sampler);
-}
-
-void Image::ReCreate()
-{
-
-}
-
-void Image::Update(uint32_t imageIndex)
-{
-    UpdateDescriptor();
-}
-
-void Image::Bind(vk::CommandBuffer commandBuffer, uint32_t imageIndex)
-{
-}
-
-void Image::Cleanup()
-{
-}
-
-void Image::Destroy()
-{
+    if(!m_bUsingInternalSampler)
+        UDevice->Destroy(m_sampler);
 }
 
 void Image::UpdateDescriptor()
 {
-    descriptor.sampler = sampler;
-    descriptor.imageView = view;
-    descriptor.imageLayout = imageLayout;
-}
-
-void Image::SetAttachment(ETextureAttachmentType eAttachment)
-{
-    attachment = eAttachment;
-}
-
-ETextureAttachmentType Image::GetAttachment()
-{
-    return attachment;
+    m_descriptor.sampler = m_sampler;
+    m_descriptor.imageView = m_view;
+    m_descriptor.imageLayout = m_imageLayout;
 }
 
 void Image::GenerateMipmaps(vk::Image &image, uint32_t mipLevels, vk::Format format, uint32_t width, uint32_t height, vk::ImageAspectFlags aspectFlags)
@@ -115,8 +82,8 @@ void Image::LoadFromFile(std::string srPath)
 
 void Image::SetSampler(vk::Sampler& internalSampler)
 {
-    bUsingInternalSampler = true;
-    sampler = internalSampler;
+    m_bUsingInternalSampler = true;
+    m_sampler = internalSampler;
 }
 
 void Image::CreateEmptyTexture(uint32_t width, uint32_t height, uint32_t depth, uint32_t dims, uint32_t internalFormat, bool allocate_mem)
@@ -142,7 +109,7 @@ void Image::InitializeTexture(ktxTexture *info, vk::Format format, vk::ImageUsag
 {
     vk::PhysicalDeviceProperties devprops;
     UDevice->GetPhysical().getProperties(&devprops);
-    fParams.format = format;
+    m_format = format;
 
     uint32_t maxImageDimension3D(devprops.limits.maxImageDimension3D);
     if (info->baseWidth > maxImageDimension3D || info->baseHeight > maxImageDimension3D || info->baseDepth > maxImageDimension3D)
@@ -151,11 +118,9 @@ void Image::InitializeTexture(ktxTexture *info, vk::Format format, vk::ImageUsag
         return;
     }
 
-    fParams.width = info->baseWidth;
-    fParams.height = info->baseHeight;
-    fParams.depth = info->baseDepth;
-    fParams.mipLevels = info->numLevels;
-    fParams.layerCount = info->numLayers;
+    m_extent = vk::Extent3D{info->baseWidth, info->baseHeight, info->baseDepth};
+    m_mipLevels = info->numLevels;
+    m_layerCount = info->numLayers;
 
     vk::ImageCreateInfo imageInfo{};
     // Select image type
@@ -164,10 +129,8 @@ void Image::InitializeTexture(ktxTexture *info, vk::Format format, vk::ImageUsag
     else
         imageInfo.imageType = TypeFromKtx(info->numDimensions);
 
-    imageInfo.extent.width = info->baseWidth;
-    imageInfo.extent.height = info->baseHeight;
-    imageInfo.extent.depth = info->baseDepth;
-    imageInfo.mipLevels = info->numLevels;
+    imageInfo.extent = m_extent;
+    imageInfo.mipLevels = m_mipLevels;
 
     if (info->isArray)
         imageInfo.arrayLayers = info->numLayers;
@@ -176,11 +139,11 @@ void Image::InitializeTexture(ktxTexture *info, vk::Format format, vk::ImageUsag
     else
         imageInfo.arrayLayers = 1;
 
-    fParams.instCount = imageInfo.arrayLayers;
+    m_instCount = imageInfo.arrayLayers;
 
-    imageInfo.format = format;
+    imageInfo.format = m_format;
     imageInfo.tiling = vk::ImageTiling::eOptimal;
-    imageInfo.initialLayout = vk::ImageLayout::eUndefined;
+    imageInfo.initialLayout = m_imageLayout;
     imageInfo.usage = flags;
     imageInfo.sharingMode = vk::SharingMode::eExclusive;
 
@@ -193,7 +156,7 @@ void Image::InitializeTexture(ktxTexture *info, vk::Format format, vk::ImageUsag
 
     imageInfo.samples = vk::SampleCountFlagBits::e1;
 
-    UDevice->CreateImage(image, deviceMemory, imageInfo, vk::MemoryPropertyFlagBits::eDeviceLocal);
+    UDevice->CreateImage(m_image, m_deviceMemory, imageInfo, vk::MemoryPropertyFlagBits::eDeviceLocal);
 
     vk::ImageViewCreateInfo viewInfo{};
     if (info->isArray)
@@ -209,16 +172,16 @@ void Image::InitializeTexture(ktxTexture *info, vk::Format format, vk::ImageUsag
     viewInfo.components = {vk::ComponentSwizzle::eR, vk::ComponentSwizzle::eG, vk::ComponentSwizzle::eB, vk::ComponentSwizzle::eA};
     viewInfo.subresourceRange.aspectMask = aspect;
     viewInfo.subresourceRange.baseMipLevel = 0;
-    viewInfo.subresourceRange.levelCount = info->numLevels;
+    viewInfo.subresourceRange.levelCount = m_mipLevels;
     viewInfo.subresourceRange.baseArrayLayer = 0;
-    viewInfo.subresourceRange.layerCount = fParams.instCount;
+    viewInfo.subresourceRange.layerCount = m_instCount;
 
-    view = UDevice->CreateImageView(image, viewInfo);
+    m_view = UDevice->CreateImageView(m_image, viewInfo);
 
-    if(!sampler)
+    if(!m_sampler)
     {
-        auto addressMode = info->isArray || info->isCubemap || info->baseDepth > 1 ? vk::SamplerAddressMode::eClampToEdge : vk::SamplerAddressMode::eRepeat;
-        UDevice->CreateSampler(sampler, fParams.mipLevels, addressMode);
+        m_addressMode = info->isArray || info->isCubemap || info->baseDepth > 1 ? vk::SamplerAddressMode::eClampToEdge : vk::SamplerAddressMode::eRepeat;
+        UDevice->CreateSampler(m_sampler, m_mipLevels, m_addressMode, m_filter);
     }
     //imageLayout = vk::ImageLayout::eShaderReadOnlyOptimal;
 }
@@ -226,13 +189,13 @@ void Image::InitializeTexture(ktxTexture *info, vk::Format format, vk::ImageUsag
 void Image::TransitionImageLayout(vk::ImageLayout newLayout, vk::ImageAspectFlags aspectFlags, bool use_mips)
 {
     vk::CommandBuffer commandBuffer = UDevice->BeginSingleTimeCommands();
-    TransitionImageLayout(commandBuffer, imageLayout, newLayout, aspectFlags, use_mips);
+    TransitionImageLayout(commandBuffer, m_imageLayout, newLayout, aspectFlags, use_mips);
     UDevice->EndSingleTimeCommands(commandBuffer);
 }
 
 void Image::TransitionImageLayout(vk::CommandBuffer& commandBuffer, vk::ImageLayout newLayout, vk::ImageAspectFlags aspectFlags, bool use_mips, uint32_t base_mip)
 {
-    TransitionImageLayout(commandBuffer, imageLayout, newLayout, aspectFlags, use_mips, base_mip);
+    TransitionImageLayout(commandBuffer, m_imageLayout, newLayout, aspectFlags, use_mips, base_mip);
 }
 
 void Image::TransitionImageLayout(vk::CommandBuffer& commandBuffer, vk::ImageLayout oldLayout, vk::ImageLayout newLayout, vk::ImageAspectFlags aspectFlags, bool use_mips, uint32_t base_mip)
@@ -243,13 +206,13 @@ void Image::TransitionImageLayout(vk::CommandBuffer& commandBuffer, vk::ImageLay
     barrier.dstQueueFamilyIndex = VK_QUEUE_FAMILY_IGNORED;
     barrier.subresourceRange.aspectMask = aspectFlags;
     barrier.subresourceRange.baseMipLevel = base_mip;
-    barrier.subresourceRange.levelCount = use_mips ? fParams.mipLevels : 1;
+    barrier.subresourceRange.levelCount = use_mips ? m_mipLevels : 1;
     barrier.subresourceRange.baseArrayLayer = 0;
-    barrier.subresourceRange.layerCount = fParams.instCount;
+    barrier.subresourceRange.layerCount = m_instCount;
     vBarriers.push_back(barrier);
     
-    UDevice->TransitionImageLayout(commandBuffer, image, vBarriers, oldLayout, newLayout);
-    imageLayout = newLayout;
+    UDevice->TransitionImageLayout(commandBuffer, m_image, vBarriers, oldLayout, newLayout);
+    m_imageLayout = newLayout;
 }
 
 void Image::BlitImage(vk::CommandBuffer& commandBuffer, vk::ImageLayout dstLayout, vk::ImageAspectFlags aspectFlags, uint32_t level, int32_t mipWidth, int32_t mipHeight)
@@ -268,12 +231,12 @@ void Image::BlitImage(vk::CommandBuffer& commandBuffer, vk::ImageLayout dstLayou
     blit.dstSubresource.baseArrayLayer = 0;
     blit.dstSubresource.layerCount = 1;
 
-    commandBuffer.blitImage(image, imageLayout, image, dstLayout, 1, &blit, vk::Filter::eLinear);
+    commandBuffer.blitImage(m_image, m_imageLayout, m_image, dstLayout, 1, &blit, vk::Filter::eLinear);
 }
 
 void Image::CopyImageToDst(vk::CommandBuffer& commandBuffer, std::shared_ptr<Image> m_pDst, vk::ImageCopy& region, vk::ImageLayout dstLayout)
 {
-    commandBuffer.copyImage(image, imageLayout, m_pDst->image, dstLayout, 1, &region);
+    commandBuffer.copyImage(m_image, m_imageLayout, m_pDst->m_image, dstLayout, 1, &region);
 }
 
 void Image::WriteImageData(ktxTexture *info, vk::Format format, vk::ImageAspectFlags aspect)
@@ -294,21 +257,21 @@ void Image::WriteImageData(ktxTexture *info, vk::Format format, vk::ImageAspectF
         region.imageSubresource.aspectMask = aspect;
         region.imageSubresource.mipLevel = 0;
         region.imageSubresource.baseArrayLayer = 0;
-        region.imageSubresource.layerCount = fParams.instCount;
+        region.imageSubresource.layerCount = m_instCount;
         region.imageExtent.width = info->baseWidth;
         region.imageExtent.height = info->baseHeight;
         region.imageExtent.depth = info->baseDepth;
         region.bufferOffset = 0;
         vRegions.push_back(region);
-        UDevice->CopyBufferToImage(stagingBuffer.GetBuffer(), image, vRegions);
-        GenerateMipmaps(image, fParams.mipLevels, format, fParams.width, fParams.height, aspect);
+        UDevice->CopyBufferToImage(stagingBuffer.GetBuffer(), m_image, vRegions);
+        GenerateMipmaps(m_image, m_mipLevels, format, m_extent.width, m_extent.height, aspect);
     }
     else
     {
         std::vector<vk::BufferImageCopy> vRegions;
-        for (uint32_t layer = 0; layer < fParams.instCount; layer++)
+        for (uint32_t layer = 0; layer < m_instCount; layer++)
         {
-            for (uint32_t level = 0; level < fParams.mipLevels; level++)
+            for (uint32_t level = 0; level < m_mipLevels; level++)
             {
                 ktx_size_t offset;
                 KTX_error_code ret = ktxTexture_GetImageOffset(info, level, 0, layer, &offset);
@@ -317,7 +280,7 @@ void Image::WriteImageData(ktxTexture *info, vk::Format format, vk::ImageAspectF
                 region.imageSubresource.aspectMask = aspect;
                 region.imageSubresource.mipLevel = level;
                 region.imageSubresource.baseArrayLayer = layer;
-                region.imageSubresource.layerCount = fParams.layerCount;
+                region.imageSubresource.layerCount = m_layerCount;
                 region.imageExtent.width = info->baseWidth >> level;
                 region.imageExtent.height = info->baseHeight >> level;
                 region.imageExtent.depth = info->baseDepth;
@@ -325,7 +288,7 @@ void Image::WriteImageData(ktxTexture *info, vk::Format format, vk::ImageAspectF
                 vRegions.push_back(region);
             }
         }
-        UDevice->CopyBufferToImage(stagingBuffer.GetBuffer(), image, vRegions);
+        UDevice->CopyBufferToImage(stagingBuffer.GetBuffer(), m_image, vRegions);
 
         TransitionImageLayout(vk::ImageLayout::eShaderReadOnlyOptimal, aspect);
     }
@@ -340,10 +303,5 @@ void Image::LoadFromMemory(ktxTexture *info, vk::Format format)
 
 void Image::SetImageLayout(vk::ImageLayout layout)
 {
-    imageLayout = layout;
-}
-
-void Image::SetName(const std::string& srName)
-{
-    m_srName = srName + uuid::generate();
+    m_imageLayout = layout;
 }

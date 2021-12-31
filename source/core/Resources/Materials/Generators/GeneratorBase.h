@@ -21,7 +21,7 @@ namespace Engine
                     void Cleanup() override;
 
                     virtual void Generate(std::shared_ptr<Mesh::MeshBase> pMesh);
-                    virtual std::shared_ptr<Texture::Image> Get();
+                    virtual std::shared_ptr<Core::Image> Get();
                 protected:
                     virtual void CreateDescriptors(uint32_t images) override;
                     void CreateRenderPass(vk::Format format);
@@ -29,7 +29,7 @@ namespace Engine
                     virtual void CreateTextures();
 
                 protected:
-                    std::shared_ptr<Texture::Image> m_pGeneratedImage;
+                    std::shared_ptr<Core::Image> m_pGeneratedImage;
                     vk::Framebuffer framebuffer;
                     vk::Format imageFormat;
                     uint32_t m_iDimension{1024};

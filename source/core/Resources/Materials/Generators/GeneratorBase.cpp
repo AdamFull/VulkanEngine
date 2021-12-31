@@ -2,10 +2,10 @@
 #include "Resources/ResourceManager.h"
 #include "Core/VulkanHighLevel.h"
 
-using namespace Engine::Resources::Material::Generator;
+using namespace Engine::Core;
+using namespace Engine::Core::Loaders;
 using namespace Engine::Core::Pipeline;
-using namespace Engine::Resources::Texture;
-using namespace Engine::Resources::Loaders;
+using namespace Engine::Resources::Material::Generator;
 
 GeneratorBase::~GeneratorBase()
 {
@@ -115,8 +115,8 @@ void GeneratorBase::CreateFramebuffer()
 	framebufferCI.renderPass = renderPass;
 	framebufferCI.attachmentCount = 1;
 	framebufferCI.pAttachments = &m_pGeneratedImage->GetDescriptor().imageView;
-	framebufferCI.width = m_pGeneratedImage->GetParams().width;
-	framebufferCI.height = m_pGeneratedImage->GetParams().height;
+	framebufferCI.width = m_pGeneratedImage->GetExtent().width;
+	framebufferCI.height = m_pGeneratedImage->GetExtent().height;
 	framebufferCI.layers = 1;
 
 	framebuffer = UDevice->GetLogical().createFramebuffer(framebufferCI);

@@ -12,8 +12,8 @@ void GeneratorBRDF::Create(std::shared_ptr<ResourceManager> pResMgr)
 {
     initial.shaders = 
     {
-        {vk::ShaderStageFlagBits::eVertex, "../../assets/shaders/main/screenspace/vert.spv"},
-        {vk::ShaderStageFlagBits::eFragment, "../../assets/shaders/generators/brdflut_gen/frag.spv"}
+        {"../../assets/shaders/main/screenspace.vert"},
+        {"../../assets/shaders/generators/brdflut_gen.frag"}
     };
     finalLayout = vk::ImageLayout::eShaderReadOnlyOptimal;
     iFormat = 0x822F; 

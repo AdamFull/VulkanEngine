@@ -16,8 +16,8 @@ void MaterialSkybox::Create(std::shared_ptr<ResourceManager> pResMgr)
     initial.color_attachments = 6;
     initial.shaders = 
     {
-        {vk::ShaderStageFlagBits::eVertex, "../../assets/shaders/main/skybox/vert.spv"},
-        {vk::ShaderStageFlagBits::eFragment, "../../assets/shaders/main/skybox/frag.spv"}
+        {"../../assets/shaders/main/skybox.vert"},
+        {"../../assets/shaders/main/skybox.frag"}
     };
     renderPass = URenderer->GetRenderer(FRendererCreateInfo::ERendererType::eDeferredPBR)->GetRenderPass();
     MaterialBase::Create(pResMgr);

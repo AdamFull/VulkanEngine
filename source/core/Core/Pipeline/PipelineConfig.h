@@ -19,7 +19,7 @@ namespace Engine
                 vk::FrontFace font_face{vk::FrontFace::eCounterClockwise};
                 vk::Bool32 enableDepth{VK_FALSE};
                 std::vector<vk::DynamicState> dynamicStateEnables{vk::DynamicState::eViewport, vk::DynamicState::eScissor};
-                std::map<vk::ShaderStageFlagBits, std::string> shaders;
+                std::vector<std::string> shaders;
             };
 
             struct FPipelineCreateInfo
@@ -39,7 +39,7 @@ namespace Engine
                 vk::PipelineLayout pipelineLayout;
                 vk::PipelineCache pipelineCache;
                 vk::RenderPass renderPass;
-                std::map<vk::ShaderStageFlagBits, std::string> shaders;
+                std::vector<std::string> shaders;
             };
 
             class PipelineConfig

@@ -1,5 +1,6 @@
 #pragma once
 #include "PipelineConfig.h"
+#include "Shader.hpp"
 
 namespace Engine
 {
@@ -7,17 +8,7 @@ namespace Engine
     {
         namespace Pipeline
         {
-            struct FShaderCache
-            {
-                vk::ShaderStageFlagBits sShaderType;
-                std::vector<char> srShaderData;
-            };
-
-            struct FPipeline
-            {
-                vk::Pipeline pipeline;
-            };
-
+            class Shader;
             class PipelineBase
             {
             public:
@@ -28,27 +19,25 @@ namespace Engine
 
                 virtual void Bind(vk::CommandBuffer &commandBuffer);
 
-                virtual void LoadShader(const std::map<vk::ShaderStageFlagBits, std::string> &mShaders);
+                virtual void LoadShader(const std::vector<std::string> &vShaders);
                 virtual void RecreatePipeline(FPipelineCreateInfo createInfo);
 
                 virtual void Cleanup();
 
-                inline virtual vk::Pipeline &GetPipeline() { return data.pipeline; }
+                inline virtual vk::Pipeline &GetPipeline() { return m_pipeline; }
                 inline virtual vk::PipelineBindPoint &GetBindPoint() { return savedInfo.bindPoint; }
-                inline virtual FPipeline &get() { return data; }
 
             protected:
                 virtual void CreatePipeline() {}
-
-                virtual void LoadShader(const std::string &srShaderPath, vk::ShaderStageFlagBits fShaderType);
-                virtual void LoadShader(const std::vector<char> &vShaderCode, vk::ShaderStageFlagBits fShaderType);
                 virtual void RecreateShaders();
-                virtual void DestroyShaders();
 
-                std::vector<FShaderCache> m_vShaderCache;
-                std::vector<vk::PipelineShaderStageCreateInfo> m_vShaderBuffer;
+                std::vector<std::string> m_vShaderCache;
+
+                std::vector<Shader::Define> m_vDefines;
+
+                std::unique_ptr<Shader> m_pShader;
                 FPipelineCreateInfo savedInfo;
-                FPipeline data;
+                vk::Pipeline m_pipeline;
             };
         }
     }

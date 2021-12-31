@@ -25,9 +25,11 @@ void GraphicsPipeline::CreatePipeline()
 
     savedInfo.colorBlending.pAttachments = savedInfo.colorBlendAttachments.data();
 
+    auto shaderStages = m_pShader->GetStageCreateInfo();
+
     vk::GraphicsPipelineCreateInfo pipelineInfo = {};
-    pipelineInfo.stageCount = m_vShaderBuffer.size();
-    pipelineInfo.pStages = m_vShaderBuffer.data();
+    pipelineInfo.stageCount = shaderStages.size();
+    pipelineInfo.pStages = shaderStages.data();
     pipelineInfo.pVertexInputState = &savedInfo.vertexInputInfo;
     pipelineInfo.pInputAssemblyState = &savedInfo.inputAssembly;
     pipelineInfo.pViewportState = &viewportState;
@@ -41,8 +43,8 @@ void GraphicsPipeline::CreatePipeline()
     pipelineInfo.basePipelineHandle = nullptr;
     pipelineInfo.pDynamicState = &savedInfo.dynamicStateInfo;
 
-    UDevice->GetLogical().createGraphicsPipelines(savedInfo.pipelineCache, 1, &pipelineInfo, nullptr, &data.pipeline);
-    assert(data.pipeline && "Failed creating pipeline.");
+    UDevice->GetLogical().createGraphicsPipelines(savedInfo.pipelineCache, 1, &pipelineInfo, nullptr, &m_pipeline);
+    assert(m_pipeline && "Failed creating pipeline.");
 }
 
 void GraphicsPipeline::RecreatePipeline(FPipelineCreateInfo createInfo)

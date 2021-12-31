@@ -14,8 +14,8 @@ void MaterialDeferred::Create(std::shared_ptr<ResourceManager> pResMgr)
     initial.color_attachments = 2;
     initial.shaders = 
     {
-        {vk::ShaderStageFlagBits::eVertex, "../../assets/shaders/main/screenspace/vert.spv"},
-        {vk::ShaderStageFlagBits::eFragment, "../../assets/shaders/main/deferred/frag.spv"}
+        {"../../assets/shaders/main/screenspace.vert"},
+        {"../../assets/shaders/main/deferred.frag"}
     };
 
     renderPass = URenderer->GetRenderer(FRendererCreateInfo::ERendererType::ePBRComposition)->GetRenderPass();

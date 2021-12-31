@@ -1,6 +1,4 @@
 #include "ImageLoader.h"
-#include <filesystem>
-namespace fs = std::filesystem;
 
 #define STB_IMAGE_IMPLEMENTATION
 #include "external/tinygltf/stb_image.h"

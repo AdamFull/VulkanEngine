@@ -17,8 +17,8 @@ void GeneratorIrradiate::Create(std::shared_ptr<ResourceManager> pResMgr)
     initial.vertexAtribDesc = Vertex::getAttributeDescriptions();
     initial.shaders = 
     {
-        {vk::ShaderStageFlagBits::eVertex, "../../assets/shaders/generators/filtercube/vert.spv"},
-        {vk::ShaderStageFlagBits::eFragment, "../../assets/shaders/generators/irradiancecube/frag.spv"}
+        {"../../assets/shaders/generators/filtercube.vert"},
+        {"../../assets/shaders/generators/irradiancecube.frag"}
     };
 
     m_iDimension = 64;

@@ -27,6 +27,7 @@ namespace Engine
 
             inline void GPUWait() { m_logical.waitIdle(); }
 
+            uint32_t GetVulkanVersion();
             /***************************************************Helpers***************************************************/
             uint32_t FindMemoryType(uint32_t typeFilter, vk::MemoryPropertyFlags properties);
             QueueFamilyIndices FindQueueFamilies(vk::PhysicalDevice device);

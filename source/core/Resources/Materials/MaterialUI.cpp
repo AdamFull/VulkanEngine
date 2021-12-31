@@ -12,8 +12,8 @@ void MaterialUI::Create(std::shared_ptr<ResourceManager> pResMgr)
     initial.vertexAtribDesc = Core::VertexUI::getAttributeDescriptions();
     initial.shaders = 
     {
-        {vk::ShaderStageFlagBits::eVertex, "../../assets/shaders/main/ui/vert.spv"},
-        {vk::ShaderStageFlagBits::eFragment, "../../assets/shaders/main/ui/frag.spv"}
+        {"../../assets/shaders/main/ui.vert"},
+        {"../../assets/shaders/main/ui.frag"}
     };
     renderPass = USwapChain->GetRenderPass();
     MaterialBase::Create(pResMgr);

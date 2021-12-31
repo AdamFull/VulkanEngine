@@ -1,6 +1,4 @@
 #include "MeshLoader.h"
-#include <filesystem>
-namespace fs = std::filesystem;
 
 using namespace Engine::Resources::Loaders;
 

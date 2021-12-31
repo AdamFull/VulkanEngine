@@ -1,5 +1,6 @@
 #include "VulkanHighLevel.h"
 #include "VulkanStaticHelper.h"
+#include <glslang/Public/ShaderLang.h>
 
 using namespace Engine::Core;
 using namespace Engine::Core::Window;
@@ -24,8 +25,12 @@ void VulkanHighLevel::Create(FEngineCreateInfo createInfo)
     m_pWinHandle->Create(createInfo.window);
 
     m_pDevice->Create(createInfo.appName.c_str(), createInfo.appVersion, createInfo.engineName.c_str(), createInfo.engineVersion, createInfo.apiVersion);
+
     m_pSwapChain->Create();
     m_pRenderer->Create();
+
+    if (!glslang::InitializeProcess())
+		throw std::runtime_error("Failed to initialize glslang processor.");
 }
 
 vk::CommandBuffer VulkanHighLevel::BeginFrame(bool *bResult)

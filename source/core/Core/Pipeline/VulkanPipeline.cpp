@@ -7,7 +7,6 @@ using namespace Engine::Core::Pipeline;
 PipelineBase::~PipelineBase()
 {
     Cleanup();
-    DestroyShaders();
 }
 
 void PipelineBase::Create(FPipelineCreateInfo createInfo)
@@ -20,7 +19,7 @@ void PipelineBase::RecreatePipeline(FPipelineCreateInfo createInfo)
 
 void PipelineBase::Cleanup()
 {
-    UDevice->Destroy(data.pipeline);
+    UDevice->Destroy(m_pipeline);
 }
 
 void PipelineBase::Bind(vk::CommandBuffer &commandBuffer)
@@ -28,60 +27,26 @@ void PipelineBase::Bind(vk::CommandBuffer &commandBuffer)
     commandBuffer.bindPipeline(GetBindPoint(), GetPipeline());
 }
 
-void PipelineBase::LoadShader(const std::string &srShaderPath, vk::ShaderStageFlagBits fShaderType)
+void PipelineBase::LoadShader(const std::vector<std::string> &vShaders)
 {
-    auto shader_code = FilesystemHelper::ReadFile(srShaderPath);
-    m_vShaderCache.emplace_back(FShaderCache{fShaderType, shader_code});
-    LoadShader(shader_code, fShaderType);
-}
+    m_pShader = std::make_unique<Shader>();
+    std::stringstream defineBlock;
+    for (const auto &[defineName, defineValue] : m_vDefines)
+        defineBlock << "#define " << defineName << " " << defineValue << '\n';
 
-void PipelineBase::LoadShader(const std::map<vk::ShaderStageFlagBits, std::string> &mShaders)
-{
-    for (auto &[key, value] : mShaders)
+    for (auto &value : vShaders)
     {
-        LoadShader(value, key);
+        m_vShaderCache.emplace_back(value);
+        auto shader_code = FilesystemHelper::ReadFile(value);
+        m_pShader->AddStage(value, shader_code, defineBlock.str());
     }
-}
-
-void PipelineBase::LoadShader(const std::vector<char> &vShaderCode, vk::ShaderStageFlagBits fShaderType)
-{
-    vk::ShaderModule shaderModule;
-
-    try
-    {
-        shaderModule = UDevice->Make<vk::ShaderModule, vk::ShaderModuleCreateInfo>(
-            vk::ShaderModuleCreateInfo{
-                vk::ShaderModuleCreateFlags(),
-                vShaderCode.size(),
-                reinterpret_cast<const uint32_t *>(vShaderCode.data())});
-    }
-    catch (vk::SystemError err)
-    {
-        throw std::runtime_error("Failed to create shader module!");
-    }
-
-    m_vShaderBuffer.emplace_back(
-        vk::PipelineShaderStageCreateFlags(),
-        fShaderType,
-        shaderModule,
-        "main");
+    m_pShader->BuildReflection();
 }
 
 void PipelineBase::RecreateShaders()
 {
-    DestroyShaders();
-    for (auto &cached : m_vShaderCache)
-    {
-        LoadShader(cached.srShaderData, cached.sShaderType);
-    }
-}
-
-void PipelineBase::DestroyShaders()
-{
-    for (auto &stageInfo : m_vShaderBuffer)
-    {
-        UDevice->Destroy(stageInfo.module);
-    }
-
-    m_vShaderBuffer.clear();
+    std::vector<std::string> vCacheCopy = m_vShaderCache;
+    m_vShaderCache.clear();
+    m_pShader->Clear();
+    LoadShader(vCacheCopy);
 }

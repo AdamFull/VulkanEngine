@@ -17,8 +17,8 @@ void GeneratorPrefiltred::Create(std::shared_ptr<ResourceManager> pResMgr)
     initial.vertexAtribDesc = Vertex::getAttributeDescriptions();
     initial.shaders = 
     {
-        {vk::ShaderStageFlagBits::eVertex, "../../assets/shaders/generators/filtercube/vert.spv"},
-        {vk::ShaderStageFlagBits::eFragment, "../../assets/shaders/generators/prefilterenvmap/frag.spv"}
+        {"../../assets/shaders/generators/filtercube.vert"},
+        {"../../assets/shaders/generators/prefilterenvmap.frag"}
     };
     m_iDimension = 512;
     //CreateTextures();

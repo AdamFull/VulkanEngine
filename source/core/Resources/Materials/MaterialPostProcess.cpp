@@ -13,8 +13,8 @@ void MaterialPostProcess::Create(std::shared_ptr<ResourceManager> pResMgr)
     initial.culling = vk::CullModeFlagBits::eFront;
     initial.shaders = 
     {
-        {vk::ShaderStageFlagBits::eVertex, "../../assets/shaders/main/screenspace/vert.spv"},
-        {vk::ShaderStageFlagBits::eFragment, "../../assets/shaders/postprocess/bloomcompose/frag.spv"}
+        {"../../assets/shaders/main/screenspace.vert"},
+        {"../../assets/shaders/postprocess/bloomcompose.frag"}
     };
     renderPass = URenderer->GetRenderer(FRendererCreateInfo::ERendererType::ePostProcess)->GetRenderPass();
     MaterialBase::Create(pResMgr);

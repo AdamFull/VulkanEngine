@@ -26,6 +26,7 @@
 #include "util/uuid.hpp"
 #include "util/Singleton.hpp"
 #include "util/DynamicNode.hpp"
+#include "util/StringHelper.h"
 
 #include <cassert>
 #include <iostream>
@@ -40,3 +41,6 @@
 #include <random>
 
 #include <chrono>
+
+#include <filesystem>
+namespace fs = std::filesystem;

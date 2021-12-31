@@ -17,8 +17,8 @@ void MaterialDiffuse::Create(std::shared_ptr<ResourceManager> pResMgr)
     initial.enableDepth = VK_TRUE;
     initial.shaders = 
     {
-        {vk::ShaderStageFlagBits::eVertex, "../../assets/shaders/main/diffuse/vert.spv"},
-        {vk::ShaderStageFlagBits::eFragment, "../../assets/shaders/main/diffuse/frag.spv"}
+        {"../../assets/shaders/main/diffuse.vert"},
+        {"../../assets/shaders/main/diffuse.frag"}
     };
     renderPass = URenderer->GetRenderer(FRendererCreateInfo::ERendererType::eDeferredPBR)->GetRenderPass();
     MaterialBase::Create(pResMgr);

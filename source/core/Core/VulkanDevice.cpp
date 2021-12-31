@@ -73,6 +73,14 @@ void Device::Create(const char *pApplicationName, uint32_t applicationVersion,
     CreateCommandPool();
 }
 
+uint32_t Device::GetVulkanVersion()
+{
+	if (m_vkInstance)
+		return VK_API_VERSION_1_0;
+
+	return 0;
+}
+
 void Device::CreateInstance(const char *pApplicationName, uint32_t applicationVersion,
                             const char *pEngineName, uint32_t engineVersion,
                             uint32_t apiVersion)

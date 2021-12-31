@@ -506,6 +506,12 @@ void Shader::BuildReflection()
 		m_vAttributeDescriptions.emplace_back(attributeDescription);
 		currentOffset += attribute.m_iSize;
 	}
+
+	//Create descriptor pool
+	//Iterate via UniformBlocks
+	////Create VulkanDescriptorSet
+	////Iterate via Uniforms inside UniformBlock
+	////Create VulkanDescriptorSetLayouts
 }
 
 vk::ShaderStageFlagBits Shader::GetShaderStage(const std::filesystem::path &moduleName)

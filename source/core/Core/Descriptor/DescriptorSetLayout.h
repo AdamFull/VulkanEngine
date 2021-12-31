@@ -7,7 +7,6 @@ namespace Engine
 
     namespace Core
     {
-        
         namespace Descriptor
         {
             class VulkanDescriptorSetLayout

@@ -2,14 +2,14 @@
 #extension GL_ARB_separate_shader_objects : enable
 #extension GL_ARB_shading_language_420pack : enable
 
-layout (set = 1, binding = 0) uniform sampler2D samplerColor;
-layout (set = 1, binding = 1) uniform sampler2D samplerBrightness;
+layout (binding = 0) uniform sampler2D samplerColor;
+layout (binding = 1) uniform sampler2D samplerBrightness;
 
 layout (location = 0) in vec2 inUV;
 
 layout (location = 0) out vec4 outColor;
 
-layout(std140, set = 0, binding = 0) uniform FBloomUbo 
+layout(std140, binding = 2) uniform FBloomUbo 
 {
     //HDR
     float gamma;

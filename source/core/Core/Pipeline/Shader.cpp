@@ -4,6 +4,7 @@
 #include <glslang/Public/ShaderLang.h>
 #include "Core/VulkanStaticHelper.h"
 #include "filesystem/FilesystemHelper.h"
+#include "Core/DataTypes/VulkanVertex.hpp"
 
 using namespace Engine::Core::Pipeline;
 
@@ -398,7 +399,7 @@ void Shader::Clear()
 
 void Shader::BuildReflection()
 {
-    std::map<vk::DescriptorType, uint32_t> descriptorPoolCounts;
+    std::unordered_map<vk::DescriptorType, uint32_t> descriptorPoolCounts;
 
     // Process to descriptors.
 	for (const auto &[uniformBlockName, uniformBlock] : m_mUniformBlocks) 
@@ -409,11 +410,11 @@ void Shader::BuildReflection()
         {
 		case UniformBlock::EType::eUniform:
 			descriptorType = vk::DescriptorType::eUniformBuffer;
-			//descriptorSetLayouts.emplace_back(UniformBuffer::GetDescriptorSetLayout(static_cast<uint32_t>(uniformBlock.binding), descriptorType, uniformBlock.stageFlags, 1));
+			m_vDescriptorSetLayouts.emplace_back(MakeDescriptorSetLayoutBinding(static_cast<uint32_t>(uniformBlock.m_iBinding), descriptorType, uniformBlock.m_stageFlags, 1));
 			break;
 		case UniformBlock::EType::eStorage:
 			descriptorType = vk::DescriptorType::eStorageBuffer;
-			//descriptorSetLayouts.emplace_back(StorageBuffer::GetDescriptorSetLayout(static_cast<uint32_t>(uniformBlock.binding), descriptorType, uniformBlock.stageFlags, 1));
+			m_vDescriptorSetLayouts.emplace_back(MakeDescriptorSetLayoutBinding(static_cast<uint32_t>(uniformBlock.m_iBinding), descriptorType, uniformBlock.m_stageFlags, 1));
 			break;
 		case UniformBlock::EType::ePushConstant:
 			// Push constants are described in the pipeline.
@@ -439,13 +440,13 @@ void Shader::BuildReflection()
 		case 0x9108: // GL_SAMPLER_2D_MULTISAMPLE
 		case 0x9055: // GL_IMAGE_2D_MULTISAMPLE
 			descriptorType = uniform.m_bWriteOnly ? vk::DescriptorType::eStorageImage : vk::DescriptorType::eCombinedImageSampler;
-			//descriptorSetLayouts.emplace_back(Image2d::GetDescriptorSetLayout(static_cast<uint32_t>(uniform.binding), descriptorType, uniform.stageFlags, 1));
+			m_vDescriptorSetLayouts.emplace_back(MakeDescriptorSetLayoutBinding(static_cast<uint32_t>(uniform.m_iBinding), descriptorType, uniform.m_stageFlags, 1));
 			break;
 		case 0x8B60: // GL_SAMPLER_CUBE
 		case 0x9050: // GL_IMAGE_CUBE
 		case 0x9054: // GL_IMAGE_CUBE_MAP_ARRAY
 			descriptorType = uniform.m_bWriteOnly ? vk::DescriptorType::eStorageImage : vk::DescriptorType::eCombinedImageSampler;
-			//descriptorSetLayouts.emplace_back(ImageCube::GetDescriptorSetLayout(static_cast<uint32_t>(uniform.binding), descriptorType, uniform.stageFlags, 1));
+			m_vDescriptorSetLayouts.emplace_back(MakeDescriptorSetLayoutBinding(static_cast<uint32_t>(uniform.m_iBinding), descriptorType, uniform.m_stageFlags, 1));
 			break;
 		default:
 			break;
@@ -493,9 +494,27 @@ void Shader::BuildReflection()
 	for (const auto &descriptor : m_vDescriptorSetLayouts)
 		m_mDescriptorTypes.emplace(descriptor.binding, descriptor.descriptorType);
 
-	// Process attribute descriptions.
-	uint32_t currentOffset{4};
+	//Sorting attributes by location
+	std::vector<std::pair<std::string, Attribute>> sortingvec;
+	std::vector<std::string> vIgnore{"gl_InstanceIndex", "gl_VertexIndex", "gl_PerVertex"};
+	std::for_each(m_mAttributes.begin(), m_mAttributes.end(), [&](const auto &pair)
+	{
+		auto it = std::find(vIgnore.begin(), vIgnore.end(), pair.first);
+		if(it == vIgnore.end())
+			sortingvec.emplace_back(pair);
+	});
 
+	std::sort(sortingvec.begin(), sortingvec.end(), 
+    [](const auto &l, const auto &r) 
+    {
+		return l.second.GetLocation() < r.second.GetLocation();
+	});
+
+	m_mAttributes.clear();
+	std::for_each(sortingvec.begin(), sortingvec.end(), [&](const auto &pair){ m_mAttributes.emplace(pair); });
+
+	// Process attribute descriptions.
+	uint32_t currentOffset{0};
     for (const auto &[attributeName, attribute] : m_mAttributes) 
     {
 		vk::VertexInputAttributeDescription attributeDescription = {};
@@ -507,11 +526,9 @@ void Shader::BuildReflection()
 		currentOffset += attribute.m_iSize;
 	}
 
-	//Create descriptor pool
-	//Iterate via UniformBlocks
-	////Create VulkanDescriptorSet
-	////Iterate via Uniforms inside UniformBlock
-	////Create VulkanDescriptorSetLayouts
+    m_bindingDescriptions.binding = 0;
+    m_bindingDescriptions.stride = currentOffset;
+    m_bindingDescriptions.inputRate = vk::VertexInputRate::eVertex;
 }
 
 vk::ShaderStageFlagBits Shader::GetShaderStage(const std::filesystem::path &moduleName)
@@ -534,7 +551,18 @@ vk::ShaderStageFlagBits Shader::GetShaderStage(const std::filesystem::path &modu
 	return vk::ShaderStageFlagBits::eAll;
 }
 
-void Shader::IncrementDescriptorPool(std::map<vk::DescriptorType, uint32_t> &descriptorPoolCounts, vk::DescriptorType type)
+vk::DescriptorSetLayoutBinding Shader::MakeDescriptorSetLayoutBinding(uint32_t binding, vk::DescriptorType descriptorType, vk::ShaderStageFlags stage, uint32_t count) 
+{
+	vk::DescriptorSetLayoutBinding descriptorSetLayoutBinding = {};
+	descriptorSetLayoutBinding.binding = binding;
+	descriptorSetLayoutBinding.descriptorType = descriptorType;
+	descriptorSetLayoutBinding.descriptorCount = count;
+	descriptorSetLayoutBinding.stageFlags = stage;
+	descriptorSetLayoutBinding.pImmutableSamplers = nullptr;
+	return descriptorSetLayoutBinding;
+}
+
+void Shader::IncrementDescriptorPool(std::unordered_map<vk::DescriptorType, uint32_t> &descriptorPoolCounts, vk::DescriptorType type)
 {
 	if (auto it = descriptorPoolCounts.find(type); it != descriptorPoolCounts.end())
 		it->second++;
@@ -674,5 +702,5 @@ int32_t Shader::ComputeSize(const glslang::TType *ttype)
 		components *= arraySize;
 	}
 
-	return sizeof(float) * components;
+	return sizeof(float) * ttype->computeNumComponents();
 }

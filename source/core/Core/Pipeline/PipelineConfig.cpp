@@ -11,14 +11,14 @@ using namespace Engine::Core::Window;
 FPipelineCreateInfo PipelineConfig::MakeInfo(const FPipelineInitial& initial)
 {
     FPipelineCreateInfo createInfo{};
-    createInfo.vertexInputDesc = initial.vertexInputDesc;
+    /*createInfo.vertexInputDesc = initial.vertexInputDesc;
     createInfo.vertexAtribDesc = initial.vertexAtribDesc;
 
     createInfo.vertexInputInfo.vertexBindingDescriptionCount = 0;
     createInfo.vertexInputInfo.vertexAttributeDescriptionCount = 0;
 
     createInfo.vertexInputInfo.vertexBindingDescriptionCount = initial.vertexAtribDesc.size() > 0 ? 1 : 0;
-    createInfo.vertexInputInfo.vertexAttributeDescriptionCount = static_cast<uint32_t>(initial.vertexAtribDesc.size());
+    createInfo.vertexInputInfo.vertexAttributeDescriptionCount = static_cast<uint32_t>(initial.vertexAtribDesc.size());*/
 
     createInfo.inputAssembly = Initializers::PipelineInputAssemblyStateCI(vk::PrimitiveTopology::eTriangleList, VK_FALSE);
 
@@ -54,7 +54,7 @@ FPipelineCreateInfo PipelineConfig::MakeInfo(const FPipelineInitial& initial)
     return createInfo;
 }
 
-FPipelineCreateInfo PipelineConfig::CreateUIPipeline(vk::RenderPass renderPass, vk::PipelineLayout pipelineLayout, vk::PipelineCache pipelineCache)
+/*FPipelineCreateInfo PipelineConfig::CreateUIPipeline(vk::RenderPass renderPass, vk::PipelineLayout pipelineLayout, vk::PipelineCache pipelineCache)
 {
     FPipelineCreateInfo createInfo{};
     createInfo.vertexInputDesc = VertexUI::getBindingDescription();
@@ -428,4 +428,4 @@ FPipelineCreateInfo PipelineConfig::CreatePostProcessPipeline(vk::RenderPass ren
     createInfo.bindPoint = vk::PipelineBindPoint::eGraphics;
 
     return createInfo;
-}
+}*/

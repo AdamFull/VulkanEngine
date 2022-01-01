@@ -55,7 +55,10 @@ namespace Engine
             inline std::shared_ptr<RenderSystem> GetRenderer() { return m_pRenderer; }
             inline std::shared_ptr<VulkanVBO> GetVBO() { return m_pVertexBufferObject; }
 
+            inline vk::PipelineCache& GetPipelineCache() { return m_pipelineCache; }
+
         private:
+            void CreatePipelineCache();
             void RecreateSwapChain();
             void CleanupSwapChain();
 
@@ -71,6 +74,8 @@ namespace Engine
             std::shared_ptr<RenderSystem> m_pRenderer;
 
             std::shared_ptr<VulkanVBO> m_pVertexBufferObject;
+
+            vk::PipelineCache m_pipelineCache;
         };
     }
 }

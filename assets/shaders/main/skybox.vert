@@ -7,7 +7,7 @@ layout(location = 4) in vec4 inTangent;
 layout(location = 5) in vec4 inJoint;
 layout(location = 6) in vec4 inWeights;
 
-layout(set = 0, binding = 0) uniform FUniformData 
+layout(binding = 0) uniform FUniformData 
 {
   mat4 model;
   mat4 view;

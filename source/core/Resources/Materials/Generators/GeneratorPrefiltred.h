@@ -25,7 +25,6 @@ namespace Engine
                     void Generate(std::shared_ptr<Mesh::MeshBase> pMesh) override;
                     std::shared_ptr<Core::Image> Get() override;
                 protected:
-                    void CreateDescriptors(uint32_t images) override;
                     void CreateTextures() override;
                 private:
                     std::shared_ptr<Core::Image> m_pCubemap;

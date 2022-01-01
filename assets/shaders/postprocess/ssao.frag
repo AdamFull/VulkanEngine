@@ -9,7 +9,7 @@ layout(binding = 0) uniform sampler2D samplerPosition;
 layout(binding = 1) uniform sampler2D samplerNormal;
 layout(binding = 2) uniform sampler2D samplerNoise;
 
-layout(std140, binding = 0) uniform UniformScene 
+layout(std140, binding = 3) uniform UniformScene 
 {
     mat4 projection;
     vec4 cameraPosition;

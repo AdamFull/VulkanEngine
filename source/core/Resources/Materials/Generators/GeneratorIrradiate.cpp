@@ -17,40 +17,18 @@ void GeneratorIrradiate::Create(std::shared_ptr<ResourceManager> pResMgr)
     initial.vertexAtribDesc = Vertex::getAttributeDescriptions();
     initial.shaders = 
     {
-        {"../../assets/shaders/generators/filtercube.vert"},
+        {"../../assets/shaders/generators/irradiancecube.vert"},
         {"../../assets/shaders/generators/irradiancecube.frag"}
     };
 
     m_iDimension = 64;
     //CreateTextures();
 
-    vk::PushConstantRange constantRange{};
-    constantRange.stageFlags = vk::ShaderStageFlagBits::eVertex | vk::ShaderStageFlagBits::eFragment;
-    constantRange.size = sizeof(FIrradiatePushBlock);
-    m_vConstantRanges.emplace_back(constantRange);
     iFormat = 0x8814;
     bTransfer = true;
     usageFlags = usageFlags | vk::ImageUsageFlagBits::eTransferSrc;
 
     GeneratorBase::Create(pResMgr);
-}
-
-void GeneratorIrradiate::CreateDescriptors(uint32_t images)
-{
-    GeneratorBase::CreateDescriptors(images);
-
-    auto texSetLayout = VulkanDescriptorSetLayout::Builder().
-    addBinding(0, vk::DescriptorType::eCombinedImageSampler, vk::ShaderStageFlagBits::eFragment).
-    build();
-
-    auto texSet = std::make_unique<VulkanDescriptorSet>();
-    texSet->Create(m_pDescriptorPool, texSetLayout, images);
-    m_pMatDesc->AttachDescriptorSet(std::move(texSet), std::move(texSetLayout));
-
-    auto imageInfo = VulkanDescriptorWriter().
-    WriteImage(0, m_pMatDesc->GetSetLayout(0)->GetBindings(), &m_mTextures[ETextureAttachmentType::eCubemap]).
-    Build();
-    m_pMatDesc->Update(0, 0, imageInfo);
 }
 
 void GeneratorIrradiate::Generate(std::shared_ptr<Mesh::MeshBase> pMesh)
@@ -69,6 +47,10 @@ void GeneratorIrradiate::Generate(std::shared_ptr<Mesh::MeshBase> pMesh)
 	renderPassBeginInfo.framebuffer = framebuffer;
 
     vk::CommandBuffer tempBuffer = UDevice->BeginSingleTimeCommands();
+
+    m_pDescriptorSet->Clear();
+    m_pDescriptorSet->Set("samplerEnv", m_mTextures[ETextureAttachmentType::eCubemap]);
+    MaterialBase::Update(vk::DescriptorBufferInfo{}, 0);
 
     vk::Viewport viewport = Core::Initializers::Viewport(m_iDimension, m_iDimension);
 	vk::Rect2D scissor = Core::Initializers::Scissor(m_iDimension, m_iDimension);
@@ -97,9 +79,9 @@ void GeneratorIrradiate::Generate(std::shared_ptr<Mesh::MeshBase> pMesh)
 
             tempBuffer.beginRenderPass(renderPassBeginInfo, vk::SubpassContents::eInline);
             pushBlock.mvp = glm::perspective((float)(LONGPI / 2.0), 1.0f, 0.1f, 512.0f) * matrices[f];
-            tempBuffer.pushConstants(pipelineLayout, vk::ShaderStageFlagBits::eVertex | vk::ShaderStageFlagBits::eFragment, 0, sizeof(FIrradiatePushBlock), &pushBlock);
-            tempBuffer.bindPipeline(vk::PipelineBindPoint::eGraphics, pPipeline->GetPipeline());
-            m_pMatDesc->Bind(tempBuffer, 0);
+            tempBuffer.pushConstants(m_pPipeline->GetPipelineLayout(), vk::ShaderStageFlagBits::eVertex | vk::ShaderStageFlagBits::eFragment, 0, sizeof(FIrradiatePushBlock), &pushBlock);
+            tempBuffer.bindPipeline(vk::PipelineBindPoint::eGraphics, m_pPipeline->GetPipeline());
+            m_pDescriptorSet->Bind(tempBuffer, 0);
             
             tempBuffer.drawIndexed(pLocalVBO->GetLastIndex(), 1, 0, 0, 0);
             tempBuffer.endRenderPass();

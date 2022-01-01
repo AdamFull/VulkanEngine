@@ -23,7 +23,6 @@ namespace Engine
                     virtual void Generate(std::shared_ptr<Mesh::MeshBase> pMesh);
                     virtual std::shared_ptr<Core::Image> Get();
                 protected:
-                    virtual void CreateDescriptors(uint32_t images) override;
                     void CreateRenderPass(vk::Format format);
                     void CreateFramebuffer();
                     virtual void CreateTextures();

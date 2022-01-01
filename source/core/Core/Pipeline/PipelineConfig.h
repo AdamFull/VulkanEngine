@@ -24,9 +24,6 @@ namespace Engine
 
             struct FPipelineCreateInfo
             {
-                vk::VertexInputBindingDescription vertexInputDesc;
-                std::vector<vk::VertexInputAttributeDescription> vertexAtribDesc;
-                vk::PipelineVertexInputStateCreateInfo vertexInputInfo;
                 vk::PipelineInputAssemblyStateCreateInfo inputAssembly;
                 vk::PipelineRasterizationStateCreateInfo rasterizer;
                 vk::PipelineMultisampleStateCreateInfo multisampling;
@@ -46,19 +43,6 @@ namespace Engine
             {
             public:
                 static FPipelineCreateInfo MakeInfo(const FPipelineInitial& initial);
-                static FPipelineCreateInfo CreateUIPipeline(vk::RenderPass renderPass, vk::PipelineLayout pipelineLayout, vk::PipelineCache pipelineCache = VK_NULL_HANDLE);
-                static FPipelineCreateInfo CreateDiffusePipeline(vk::RenderPass renderPass, vk::PipelineLayout pipelineLayout, vk::PipelineCache pipelineCache = VK_NULL_HANDLE);
-                static FPipelineCreateInfo CreateSkyboxPipeline(vk::RenderPass renderPass, vk::PipelineLayout pipelineLayout, vk::PipelineCache pipelineCache = VK_NULL_HANDLE);
-
-                //PBR
-                static FPipelineCreateInfo CreateBRDFPipeline(vk::RenderPass renderPass, vk::PipelineLayout pipelineLayout, vk::PipelineCache pipelineCache = VK_NULL_HANDLE);
-                static FPipelineCreateInfo CreateIrradiatePipeline(vk::RenderPass renderPass, vk::PipelineLayout pipelineLayout, vk::PipelineCache pipelineCache = VK_NULL_HANDLE);
-                static FPipelineCreateInfo CreatePrefiltredPipeline(vk::RenderPass renderPass, vk::PipelineLayout pipelineLayout, vk::PipelineCache pipelineCache = VK_NULL_HANDLE);
-
-                //Deferred
-                static FPipelineCreateInfo CreateDeferredPipeline(vk::RenderPass renderPass, vk::PipelineLayout pipelineLayout, vk::PipelineCache pipelineCache = VK_NULL_HANDLE);
-                static FPipelineCreateInfo CreateDeferredShadowPipeline(vk::RenderPass renderPass, vk::PipelineLayout pipelineLayout, vk::PipelineCache pipelineCache = VK_NULL_HANDLE);
-                static FPipelineCreateInfo CreatePostProcessPipeline(vk::RenderPass renderPass, vk::PipelineLayout pipelineLayout, vk::PipelineCache pipelineCache = VK_NULL_HANDLE);
             };
         }
     }

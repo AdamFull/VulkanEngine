@@ -55,11 +55,6 @@ std::shared_ptr<Image> GeneratorBase::Get()
     return m_pGeneratedImage;
 }
 
-void GeneratorBase::CreateDescriptors(uint32_t images)
-{
-    MaterialBase::CreateDescriptors(images);
-}
-
 void GeneratorBase::CreateRenderPass(vk::Format format)
 {
 	vk::AttachmentDescription attDesc = {};

@@ -111,38 +111,6 @@ target_include_directories( ${PROJECT_NAME} PRIVATE
 
 target_precompile_headers( ${PROJECT_NAME} PUBLIC ${CMAKE_CURRENT_SOURCE_DIR}/common.h)
 
-# Compile shaders
-set(SHADER_PATH ${CMAKE_CURRENT_SOURCE_DIR}/assets/shaders)
-file(GLOB_RECURSE VERT_SHADER_SOURCES ${SHADER_PATH}/*.vert)
-file(GLOB_RECURSE FRAG_SHADER_SOURCES ${SHADER_PATH}/*.frag)
-
-foreach(cur_path IN LISTS VERT_SHADER_SOURCES)
-	get_filename_component(SHADER_FILE_NAME ${cur_path} NAME)
-	string(REPLACE ".vert" "" OUTPUT_DIRECTORY_NAME ${SHADER_FILE_NAME})
-	get_filename_component(SHADER_FILE_PATH ${cur_path} DIRECTORY)
-	set(OUTPUT_DIRECTORY_PATH "${SHADER_FILE_PATH}/${OUTPUT_DIRECTORY_NAME}")
-	if(NOT EXISTS ${OUTPUT_DIRECTORY_PATH})
-	file(MAKE_DIRECTORY ${OUTPUT_DIRECTORY_PATH})
-	endif()
-	set(OUTPUT_DIRECTORY_PATH ${OUTPUT_DIRECTORY_PATH}/vert.spv)
-	add_custom_command(TARGET ${PROJECT_NAME} PRE_BUILD COMMAND glslangValidator.exe -V ${cur_path} -o ${OUTPUT_DIRECTORY_PATH})
-	message(STATUS "executing glslangValidator.exe -V ${cur_path} -o ${OUTPUT_DIRECTORY_PATH}")
-endforeach()
-
-foreach(cur_path IN LISTS FRAG_SHADER_SOURCES)
-	get_filename_component(SHADER_FILE_NAME ${cur_path} NAME)
-	string(REPLACE ".frag" "" OUTPUT_DIRECTORY_NAME ${SHADER_FILE_NAME})
-	get_filename_component(SHADER_FILE_PATH ${cur_path} DIRECTORY)
-	set(OUTPUT_DIRECTORY_PATH "${SHADER_FILE_PATH}/${OUTPUT_DIRECTORY_NAME}")
-	if(NOT EXISTS ${OUTPUT_DIRECTORY_PATH})
-	file(MAKE_DIRECTORY ${OUTPUT_DIRECTORY_PATH})
-	endif()
-	set(OUTPUT_DIRECTORY_PATH ${OUTPUT_DIRECTORY_PATH}/frag.spv)
-	add_custom_command(TARGET ${PROJECT_NAME} PRE_BUILD COMMAND glslangValidator.exe -V ${cur_path} -o ${OUTPUT_DIRECTORY_PATH})
-	message(STATUS "executing glslangValidator.exe -V ${cur_path} -o ${OUTPUT_DIRECTORY_PATH}")
-endforeach()
-
-
 # Define project properties
 set_property(TARGET ${PROJECT_NAME} PROPERTY RUNTIME_OUTPUT_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/bin)
 set_property(TARGET ${PROJECT_NAME} PROPERTY RUNTIME_OUTPUT_DIRECTORY_DEBUG ${CMAKE_CURRENT_SOURCE_DIR}/bin/debug)

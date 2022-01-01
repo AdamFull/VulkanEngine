@@ -10,6 +10,7 @@ layout (binding = 0) uniform samplerCube samplerEnv;
 
 layout(push_constant) uniform PushConsts 
 {
+	layout (offset = 0) mat4 mvp;
 	layout (offset = 64) float deltaPhi;
 	layout (offset = 68) float deltaTheta;
 } consts;

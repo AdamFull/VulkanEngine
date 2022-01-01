@@ -3,16 +3,16 @@
 #extension GL_ARB_shading_language_420pack : enable
 #extension GL_GOOGLE_include_directive : require
 
-layout (set = 1, binding = 0) uniform sampler2D brdflut_tex;
-layout (set = 1, binding = 1) uniform samplerCube irradiance_tex;
-layout (set = 1, binding = 2) uniform samplerCube prefiltred_tex;
+layout (binding = 0) uniform sampler2D brdflut_tex;
+layout (binding = 1) uniform samplerCube irradiance_tex;
+layout (binding = 2) uniform samplerCube prefiltred_tex;
 
-layout (set = 1, binding = 3) uniform sampler2D position_tex;
-layout (set = 1, binding = 4) uniform sampler2D lightning_mask_tex;
-layout (set = 1, binding = 5) uniform sampler2D normal_tex;
-layout (set = 1, binding = 6) uniform sampler2D albedo_tex;
-layout (set = 1, binding = 7) uniform sampler2D emission_tex;
-layout (set = 1, binding = 8) uniform sampler2D mrah_tex;
+layout (binding = 3) uniform sampler2D position_tex;
+layout (binding = 4) uniform sampler2D lightning_mask_tex;
+layout (binding = 5) uniform sampler2D normal_tex;
+layout (binding = 6) uniform sampler2D albedo_tex;
+layout (binding = 7) uniform sampler2D emission_tex;
+layout (binding = 8) uniform sampler2D mrah_tex;
 
 layout (location = 0) in vec2 inUV;
 
@@ -25,7 +25,7 @@ struct Light {
 	float radius;
 };
 
-layout(std140, set = 0, binding = 0) uniform UBO 
+layout(std140, binding = 9) uniform UBOLightning
 {
 	vec3 viewPos;
 	Light lights[1024];

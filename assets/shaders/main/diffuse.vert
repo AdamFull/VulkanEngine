@@ -16,7 +16,7 @@ layout (location = 2) out vec3 outColor;
 layout (location = 3) out vec3 outWorldPos;
 layout (location = 4) out vec4 outTangent;
 
-layout(std140, set = 0, binding = 0) uniform FUniformData 
+layout(std140, binding = 0) uniform FUniformData 
 {
   mat4 model;
   mat4 view;

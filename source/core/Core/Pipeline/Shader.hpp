@@ -155,19 +155,21 @@ namespace Engine
                 std::optional<vk::DescriptorType> GetDescriptorType(uint32_t location) const;
 
                 const std::array<std::optional<uint32_t>, 3>& GetLocalSizes() const { return m_localSizes; }
-                const std::map<std::string, Uniform>& GetUniforms() const { return m_mUniforms; }
-                const std::map<std::string, UniformBlock>& GetUniformBlocks() const { return m_mUniformBlocks; }
-                const std::map<std::string, Attribute>& GetAttributes() const { return m_mAttributes; }
-                const std::map<std::string, Constant>& GetConstants() const { return m_mConstants; }
+                const std::unordered_map<std::string, Uniform>& GetUniforms() const { return m_mUniforms; }
+                const std::unordered_map<std::string, UniformBlock>& GetUniformBlocks() const { return m_mUniformBlocks; }
+                const std::unordered_map<std::string, Attribute>& GetAttributes() const { return m_mAttributes; }
+                const std::unordered_map<std::string, Constant>& GetConstants() const { return m_mConstants; }
 
                 const std::vector<vk::DescriptorSetLayoutBinding> &GetDescriptorSetLayouts() const { return m_vDescriptorSetLayouts; }
 	            const std::vector<vk::DescriptorPoolSize> &GetDescriptorPools() const { return m_vDescriptorPools; }
 	            const std::vector<vk::VertexInputAttributeDescription> &GetAttributeDescriptions() const { return m_vAttributeDescriptions; }
+	            const vk::VertexInputBindingDescription &GetBindingDescription() const { return m_bindingDescriptions; }
 
                 const std::vector<vk::PipelineShaderStageCreateInfo>& GetStageCreateInfo() const { return m_vShaderModules; }
                 static vk::ShaderStageFlagBits GetShaderStage(const std::filesystem::path &moduleName);
             private:
-                static void IncrementDescriptorPool(std::map<vk::DescriptorType, uint32_t> &descriptorPoolCounts, vk::DescriptorType type);
+                static vk::DescriptorSetLayoutBinding MakeDescriptorSetLayoutBinding(uint32_t binding, vk::DescriptorType descriptorType, vk::ShaderStageFlags stage, uint32_t count);
+                static void IncrementDescriptorPool(std::unordered_map<vk::DescriptorType, uint32_t> &descriptorPoolCounts, vk::DescriptorType type);
                 void LoadUniformBlock(const glslang::TProgram &program, vk::ShaderStageFlagBits stageFlag, int32_t i);
                 void LoadUniform(const glslang::TProgram &program, vk::ShaderStageFlagBits stageFlag, int32_t i);
                 void LoadAttribute(const glslang::TProgram &program, vk::ShaderStageFlagBits stageFlag, int32_t i);
@@ -175,19 +177,20 @@ namespace Engine
 
                 std::array<std::optional<uint32_t>, 3> m_localSizes;
 
-                std::map<std::string, uint32_t> m_mDescriptorLocations;
-	            std::map<std::string, uint32_t> m_mDescriptorSizes;
+                std::unordered_map<std::string, uint32_t> m_mDescriptorLocations;
+	            std::unordered_map<std::string, uint32_t> m_mDescriptorSizes;
 
-                std::map<std::string, Uniform> m_mUniforms;
-                std::map<std::string, UniformBlock> m_mUniformBlocks;
-                std::map<std::string, Attribute> m_mAttributes;
-                std::map<std::string, Constant> m_mConstants;
+                std::unordered_map<std::string, Uniform> m_mUniforms;
+                std::unordered_map<std::string, UniformBlock> m_mUniformBlocks;
+                std::unordered_map<std::string, Attribute> m_mAttributes;
+                std::unordered_map<std::string, Constant> m_mConstants;
 
                 std::vector<vk::DescriptorSetLayoutBinding> m_vDescriptorSetLayouts;
                 uint32_t lastDescriptorBinding = 0;
                 std::vector<vk::DescriptorPoolSize> m_vDescriptorPools;
-                std::map<uint32_t, vk::DescriptorType> m_mDescriptorTypes;
+                std::unordered_map<uint32_t, vk::DescriptorType> m_mDescriptorTypes;
                 std::vector<vk::VertexInputAttributeDescription> m_vAttributeDescriptions;
+                vk::VertexInputBindingDescription m_bindingDescriptions;
 
                 std::vector<vk::PipelineShaderStageCreateInfo> m_vShaderModules;
                 std::vector<vk::ShaderStageFlagBits> m_vShaderStage;

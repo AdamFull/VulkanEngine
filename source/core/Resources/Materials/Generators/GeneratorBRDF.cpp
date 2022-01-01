@@ -21,19 +21,6 @@ void GeneratorBRDF::Create(std::shared_ptr<ResourceManager> pResMgr)
     GeneratorBase::Create(pResMgr);
 }
 
-void GeneratorBRDF::CreateDescriptors(uint32_t images)
-{
-    GeneratorBase::CreateDescriptors(images);
-
-    auto texSetLayout = VulkanDescriptorSetLayout::Builder().
-    addBinding(0, vk::DescriptorType::eCombinedImageSampler, vk::ShaderStageFlagBits::eFragment).
-    build();
-
-    auto texSet = std::make_unique<VulkanDescriptorSet>();
-    texSet->Create(m_pDescriptorPool, texSetLayout, images);
-    m_pMatDesc->AttachDescriptorSet(std::move(texSet), std::move(texSetLayout));
-}
-
 void GeneratorBRDF::Generate(std::shared_ptr<Mesh::MeshBase> pMesh)
 {
     GeneratorBase::Generate(pMesh);
@@ -56,7 +43,7 @@ void GeneratorBRDF::Generate(std::shared_ptr<Mesh::MeshBase> pMesh)
 
     tempBuffer.setViewport(0, 1, &viewport);
     tempBuffer.setScissor(0, 1, &scissor);
-    tempBuffer.bindPipeline(vk::PipelineBindPoint::eGraphics, pPipeline->GetPipeline());
+    tempBuffer.bindPipeline(vk::PipelineBindPoint::eGraphics, m_pPipeline->GetPipeline());
     tempBuffer.draw(3, 1, 0, 0);
     tempBuffer.endRenderPass();
     UDevice->EndSingleTimeCommands(tempBuffer);

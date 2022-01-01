@@ -1,47 +1,42 @@
 #include "DescriptorSet.h"
-#include "DescriptorPool.h"
-#include "DescriptorSetLayout.h"
 #include "Core/VulkanHighLevel.h"
 
 using namespace Engine::Core;
 using namespace Engine::Core::Descriptor;
 
-VulkanDescriptorSet::~VulkanDescriptorSet()
+DescriptorSet::~DescriptorSet()
 {
-    UDevice->GetLogical().freeDescriptorSets(m_pool->Get(), descriptorSets);
+    UDevice->GetLogical().freeDescriptorSets(m_descriptorPool, m_vDescriptorSets);
 }
 
-void VulkanDescriptorSet::Create(std::shared_ptr<VulkanDescriptorPool> pool, std::unique_ptr<VulkanDescriptorSetLayout> &setLayout, uint32_t images)
+void DescriptorSet::Create(std::shared_ptr<Pipeline::PipelineBase> pPipeline, uint32_t images)
 {
-    m_pool = pool;
-    std::vector<vk::DescriptorSetLayout> vSetLayouts(images, setLayout->Get());
+    m_pipelineBindPoint = pPipeline->GetBindPoint();
+    m_pipelineLayout = pPipeline->GetPipelineLayout();
+    m_descriptorPool = pPipeline->GetDescriptorPool();
+
+    std::vector<vk::DescriptorSetLayout> vSetLayouts(images, pPipeline->GetDescriptorSetLayout());
     vk::DescriptorSetAllocateInfo allocInfo{};
-    allocInfo.descriptorPool = m_pool->Get();
+    allocInfo.descriptorPool = m_descriptorPool;
     allocInfo.descriptorSetCount = images;
     allocInfo.pSetLayouts = vSetLayouts.data();
-    descriptorSets.resize(images);
+    m_vDescriptorSets.resize(images);
 
-    if (UDevice->GetLogical().allocateDescriptorSets(&allocInfo, descriptorSets.data()) != vk::Result::eSuccess)
+    if (UDevice->GetLogical().allocateDescriptorSets(&allocInfo, m_vDescriptorSets.data()) != vk::Result::eSuccess)
     {
         throw std::runtime_error("failed to create descriptor set!");
     }
 }
 
-void VulkanDescriptorSet::UpdatePipelineInfo(vk::PipelineBindPoint bindPoint, vk::PipelineLayout layout)
-{
-    pipelineBindPoint = bindPoint;
-    pipelineLayout = layout;
-}
-
-void VulkanDescriptorSet::Update(std::vector<vk::WriteDescriptorSet> &vWrites, uint32_t index)
+void DescriptorSet::Update(std::vector<vk::WriteDescriptorSet> &vWrites, uint32_t index)
 {
     for (auto &write : vWrites)
-        write.dstSet = descriptorSets.at(index);
+        write.dstSet = m_vDescriptorSets.at(index);
 
     UDevice->GetLogical().updateDescriptorSets(static_cast<uint32_t>(vWrites.size()), vWrites.data(), 0, nullptr);
 }
 
-void VulkanDescriptorSet::Bind(const vk::CommandBuffer &commandBuffer, uint32_t index, uint32_t set) const
+void DescriptorSet::Bind(const vk::CommandBuffer &commandBuffer, uint32_t index) const
 {
-    commandBuffer.bindDescriptorSets(pipelineBindPoint, pipelineLayout, set, 1, &descriptorSets.at(index), 0, nullptr);
+    commandBuffer.bindDescriptorSets(m_pipelineBindPoint, m_pipelineLayout, 0, 1, &m_vDescriptorSets.at(index), 0, nullptr);
 }

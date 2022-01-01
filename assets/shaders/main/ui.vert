@@ -6,7 +6,7 @@ layout (location = 2) in vec4 inColor;
 layout (location = 0) out vec2 outUV;
 layout (location = 1) out vec4 outColor;
 
-layout(set = 0, binding = 0) uniform FUniformDataUI 
+layout(binding = 0) uniform FUniformDataUI 
 {
   vec2 scale;
 	vec2 translate;

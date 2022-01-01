@@ -552,6 +552,22 @@ vk::Format VulkanStaticHelper::GLFormatToVkFormat(uint32_t format)
 		case GL_DEPTH32F_STENCIL8:								return vk::Format::eD32SfloatS8Uint;
 		case GL_DEPTH32F_STENCIL8_NV:							return vk::Format::eD32SfloatS8Uint;
 
+		//
+		// Specific types
+		//
+		case 0x1406: 											return vk::Format::eR32Sfloat;
+		case 0x8B50: 											return vk::Format::eR32G32Sfloat;
+		case 0x8B51: 											return vk::Format::eR32G32B32Sfloat;
+		case 0x8B52: 											return vk::Format::eR32G32B32A32Sfloat;
+		case 0x1404:											return vk::Format::eR32Sint;
+		case 0x8B53: 											return vk::Format::eR32G32Sint;
+		case 0x8B54: 											return vk::Format::eR32G32B32Sint;
+		case 0x8B55: 											return vk::Format::eR32G32B32A32Sint;
+		case 0x1405: 											return vk::Format::eR32Sint;
+		case 0x8DC6: 											return vk::Format::eR32G32Sint;
+		case 0x8DC7: 											return vk::Format::eR32G32B32Sint;
+		case 0x8DC8: 											return vk::Format::eR32G32B32A32Sint;
+
 		default:												return vk::Format::eUndefined;
 	}
 }

@@ -11,6 +11,7 @@ std::unique_ptr<VulkanHighLevel> Singleton<VulkanHighLevel>::m_pInstance{nullptr
 VulkanHighLevel::~VulkanHighLevel()
 {
     m_pDevice->GPUWait();
+    UDevice->Destroy(m_pipelineCache);
 }
 
 void VulkanHighLevel::Create(FEngineCreateInfo createInfo)
@@ -25,6 +26,8 @@ void VulkanHighLevel::Create(FEngineCreateInfo createInfo)
     m_pWinHandle->Create(createInfo.window);
 
     m_pDevice->Create(createInfo.appName.c_str(), createInfo.appVersion, createInfo.engineName.c_str(), createInfo.engineVersion, createInfo.apiVersion);
+
+    CreatePipelineCache();
 
     m_pSwapChain->Create();
     m_pRenderer->Create();
@@ -78,6 +81,12 @@ void VulkanHighLevel::EndFrame(vk::CommandBuffer& commandBuffer, bool *bResult)
         *bResult = false;
         return;
     }
+}
+
+void VulkanHighLevel::CreatePipelineCache()
+{
+    vk::PipelineCacheCreateInfo pipelineCacheCreateInfo = {};
+    m_pipelineCache = UDevice->GetLogical().createPipelineCache(pipelineCacheCreateInfo);
 }
 
 void VulkanHighLevel::RecreateSwapChain()

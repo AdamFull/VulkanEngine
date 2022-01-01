@@ -3,12 +3,12 @@
 #extension GL_ARB_shading_language_420pack : enable
 #extension GL_GOOGLE_include_directive : require
 
-layout(set = 1, binding = 0) uniform sampler2D color_tex;
-layout(set = 1, binding = 1) uniform sampler2D metalRough_tex;
-layout(set = 1, binding = 2) uniform sampler2D emissive_tex;
-layout(set = 1, binding = 3) uniform sampler2D normal_tex;
-layout(set = 1, binding = 4) uniform sampler2D height_tex;
-layout(set = 1, binding = 5) uniform sampler2D ao_tex;
+layout(binding = 1) uniform sampler2D color_tex;
+layout(binding = 2) uniform sampler2D metalRough_tex;
+layout(binding = 3) uniform sampler2D emissive_tex;
+layout(binding = 4) uniform sampler2D normal_tex;
+layout(binding = 5) uniform sampler2D height_tex;
+layout(binding = 6) uniform sampler2D ao_tex;
 
 layout (location = 0) in vec3 inNormal;
 layout (location = 1) in vec2 inUV;

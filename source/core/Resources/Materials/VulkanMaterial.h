@@ -3,9 +3,7 @@
 #include "Core/Pipeline/PipelineFactory.h"
 #include "Core/Image/Image.h"
 
-#include "Core/Descriptor/DescriptorPool.h"
-#include "Core/Descriptor/DescriptorSetContainer.h"
-#include "Core/Descriptor/DescriptorWriter.h"
+#include "Core/Descriptor/DescriptorHandler.h"
 
 #include "Resources/ResourceCunstruct.h"
 
@@ -58,23 +56,14 @@ namespace Engine
                 inline std::string GetName() { return m_srName; }
 
             protected:
-                void CreateDescriptorPool(uint32_t images);
-                void CreatePipelineLayout(uint32_t images);
-                void CreatePipelineCache();
-                virtual void CreateDescriptors(uint32_t images);
-
                 FMaterialParams m_fMatParams{};
                 std::string m_srName;
 
-                std::unique_ptr<Core::Descriptor::VulkanDescriptorSetContainer> m_pMatDesc;
-                std::shared_ptr<Core::Descriptor::VulkanDescriptorPool> m_pDescriptorPool;
-                std::vector<vk::PushConstantRange> m_vConstantRanges;
+                std::unique_ptr<Core::Descriptor::DescriptorHandler> m_pDescriptorSet;
 
                 vk::RenderPass renderPass;
-                vk::PipelineLayout pipelineLayout;
-                vk::PipelineCache pipelineCache;
                 Core::Pipeline::FPipelineInitial initial;
-                std::shared_ptr<Core::Pipeline::PipelineBase> pPipeline;
+                std::shared_ptr<Core::Pipeline::PipelineBase> m_pPipeline;
                 std::map<ETextureAttachmentType, vk::DescriptorImageInfo> m_mTextures;
             };
         }

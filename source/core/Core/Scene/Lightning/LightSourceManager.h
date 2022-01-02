@@ -1,7 +1,7 @@
 #pragma once
 #include "Resources/ResourceCunstruct.h"
 #include "Core/Scene/Objects/Components/Light/LightComponent.h"
-#include "Core/VulkanUniform.h"
+#include "Core/Buffer/VulkanUniform.h"
 
 namespace Engine
 {

@@ -4,7 +4,8 @@
 #include "Core/Window/WinCallbacks.h"
 #include "Core/Window/WindowHandle.h"
 #include "Core/VulkanDevice.h"
-#include "Core/VulkanBuffer.h"
+#include "Core/Buffer/VulkanBuffer.h"
+#include "Core/Buffer/UniformHandler.hpp"
 #include "Resources/ResourceManager.h"
 #include "Core/Image/Image.h"
 #include "Resources/Materials/MaterialUI.h"
@@ -32,7 +33,7 @@ ImguiOverlay::~ImguiOverlay()
     ImGui_ImplGlfw_Shutdown();
     ImGui::DestroyContext();
     //fontMaterial->Destroy();
-    m_pUniform->Cleanup();
+    m_pUniformHandle->Cleanup();
 }
 
 void ImguiOverlay::Create(std::shared_ptr<ResourceManager> pResMgr, std::shared_ptr<Scene::Objects::RenderObject> pRoot)
@@ -41,12 +42,17 @@ void ImguiOverlay::Create(std::shared_ptr<ResourceManager> pResMgr, std::shared_
     fontMaterial = std::make_shared<MaterialUI>();
     vertexBuffer = std::make_shared<VulkanBuffer>();
     indexBuffer = std::make_shared<VulkanBuffer>();
-    m_pUniform = std::make_shared<UniformBuffer>();
+    m_pUniformHandle = std::make_shared<UniformHandler>();
 
     ImGui::CreateContext();
     BaseInitialize();
-    m_pUniform->Create(USwapChain->GetFramesInFlight(), sizeof(FUniformDataUI));
     CreateFontResources(pResMgr);
+
+    auto uniformBlock = fontMaterial->GetPipeline()->GetShader()->GetUniformBlock("FUniformDataUI");
+    if(uniformBlock)
+        m_pUniformHandle->Create(uniformBlock.value());
+    else
+        throw std::runtime_error("Cannot create uniform block!");
 
     m_vOverlays.emplace_back(std::make_shared<Overlay::OverlayDebug>("Debug info"));
     //m_vOverlays.emplace_back(std::make_shared<Overlay::OverlayConsole>("Console"));
@@ -60,13 +66,13 @@ void ImguiOverlay::Create(std::shared_ptr<ResourceManager> pResMgr, std::shared_
 void ImguiOverlay::ReCreate()
 {
     fontMaterial->ReCreate();
-    m_pUniform->ReCreate(USwapChain->GetFramesInFlight());
+    m_pUniformHandle->ReCreate();
 }
 
 void ImguiOverlay::Cleanup()
 {
     fontMaterial->Cleanup();
-    m_pUniform->Cleanup();
+    m_pUniformHandle->Cleanup();
 }
 
 void ImguiOverlay::BaseInitialize()
@@ -199,17 +205,16 @@ void ImguiOverlay::DrawFrame(vk::CommandBuffer commandBuffer, uint32_t index)
     {
         ImGuiIO &io = ImGui::GetIO();
 
-        auto& buffer = m_pUniform->GetUniformBuffer(index);
+        auto& buffer = m_pUniformHandle->GetUniformBuffer(index);
         fontMaterial->Update(buffer->GetDscriptor(), index);
         fontMaterial->Bind(commandBuffer, index);
 
         vk::Viewport viewport = Initializers::Viewport(ImGui::GetIO().DisplaySize.x, ImGui::GetIO().DisplaySize.y);
         commandBuffer.setViewport(0, 1, &viewport);
 
-        FUniformDataUI ubo{};
-        ubo.scale = glm::vec2(2.0f / io.DisplaySize.x, 2.0f / io.DisplaySize.y);
-        ubo.translate = glm::vec2(-1.0f);
-        m_pUniform->UpdateUniformBuffer(index, &ubo);
+        m_pUniformHandle->Set("scale", glm::vec2(2.0f / io.DisplaySize.x, 2.0f / io.DisplaySize.y), index);
+        m_pUniformHandle->Set("translate", glm::vec2(-1.0f), index);
+        m_pUniformHandle->Flush();
 
         // Render commands
         ImDrawData *imDrawData = ImGui::GetDrawData();
@@ -246,7 +251,7 @@ void ImguiOverlay::DrawFrame(vk::CommandBuffer commandBuffer, uint32_t index)
 
 std::unique_ptr<VulkanBuffer> &ImguiOverlay::GetBuffer(uint32_t index)
 {
-    return m_pUniform->GetUniformBuffer(index);
+    return m_pUniformHandle->GetUniformBuffer(index);
 }
 
 void ImguiOverlay::OnFocusChange(int focused)

@@ -51,16 +51,11 @@ namespace Engine
         
         class VulkanBuffer;
 
-        class UniformBuffer
+        class UniformBuffer : public NonCopyable, public NonMovable
         {
         public:
             UniformBuffer() = default;
             ~UniformBuffer();
-
-            UniformBuffer(const UniformBuffer &) = delete;
-            void operator=(const UniformBuffer &) = delete;
-            UniformBuffer(UniformBuffer &&) = delete;
-            UniformBuffer &operator=(UniformBuffer &&) = delete;
 
             void Create(uint32_t inFlightFrames, size_t uniform_size);
             void ReCreate(uint32_t inFlightFrames);

@@ -1,5 +1,5 @@
 #include "GeneratorPrefiltred.h"
-#include "Core/VulkanUniform.h"
+#include "Core/Buffer/VulkanUniform.h"
 #include "Resources/Meshes/VulkanMesh.h"
 #include "Resources/ResourceManager.h"
 #include "Core/VulkanHighLevel.h"

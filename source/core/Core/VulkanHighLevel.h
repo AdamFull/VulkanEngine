@@ -3,9 +3,9 @@
 #include "VulkanDevice.h"
 #include "VulkanSwapChain.h"
 #include "VulkanStaticHelper.h"
-#include "VulkanBuffer.h"
-#include "VulkanUniform.h"
-#include "VulkanVBO.h"
+#include "Buffer/VulkanBuffer.h"
+#include "Buffer/VulkanUniform.h"
+#include "Buffer/VulkanVBO.h"
 #include "VulkanRenderSystem.h"
 #include "Overlay/ImguiOverlay.h"
 

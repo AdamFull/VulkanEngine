@@ -4,7 +4,7 @@
 #include <Core/Scene/Objects/Components/Camera/CameraManager.h>
 #include <GlobalVariables.h>
 
-#include "Core/VulkanVBO.h"
+#include "Core/Buffer/VulkanVBO.h"
 #include "Core/VulkanHighLevel.h"
 
 using namespace Engine::Core::Overlay;

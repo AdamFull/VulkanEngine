@@ -53,6 +53,7 @@ namespace Engine
 
                 void SetName(const std::string& srName);
                 inline std::string GetName() { return m_srName; }
+                inline std::shared_ptr<Core::Pipeline::PipelineBase> GetPipeline() { return m_pPipeline; }
 
             protected:
                 FMaterialParams m_fMatParams{};

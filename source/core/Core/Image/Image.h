@@ -1,6 +1,6 @@
 #pragma once
 #include "Resources/ResourceCunstruct.h"
-#include "Core/VulkanBuffer.h"
+#include "Core/Buffer/VulkanBuffer.h"
 #include "ImageLoader.h"
 
 namespace Engine

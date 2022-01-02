@@ -1,6 +1,6 @@
 #pragma once
 #include "Resources/Materials/VulkanMaterial.h"
-#include "Core/VulkanBuffer.h"
+#include "Core/Buffer/VulkanBuffer.h"
 #include "Core/DataTypes/VulkanVertex.hpp"
 
 namespace Engine

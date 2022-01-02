@@ -14,7 +14,7 @@ namespace Engine
     {
         class Image;
         class VulkanBuffer;
-        class UniformBuffer;
+        class UniformHandler;
 
         struct FGUIControls
         {
@@ -56,7 +56,7 @@ namespace Engine
             void OnInputChar(unsigned int c);
             void OnMonitorEvent(int monitor);
 
-            std::shared_ptr<UniformBuffer> m_pUniform;
+            std::shared_ptr<UniformHandler> m_pUniformHandle;
             std::shared_ptr<Image> fontTexture;
             std::shared_ptr<Resources::Material::MaterialUI> fontMaterial;
             std::shared_ptr<VulkanBuffer> vertexBuffer;

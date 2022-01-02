@@ -10,22 +10,27 @@ using namespace Engine::Core;
 using namespace Engine::Core::Descriptor;
 using namespace Engine::Core::Loaders;
 using namespace Engine::Resources::Material::Generator;
+using namespace Engine::Core::Pipeline;
 
 void GeneratorPrefiltred::Create(std::shared_ptr<ResourceManager> pResMgr)
 {
-    initial.vertexInputDesc = Vertex::getBindingDescription();
-    initial.vertexAtribDesc = Vertex::getAttributeDescriptions();
-    initial.shaders = 
-    {
-        {"../../assets/shaders/generators/prefilterenvmap.vert"},
-        {"../../assets/shaders/generators/prefilterenvmap.frag"}
-    };
     m_iDimension = 512;
     //CreateTextures();
 
     iFormat = 0x881A;
     bTransfer = true;
     usageFlags = usageFlags | vk::ImageUsageFlagBits::eTransferSrc;
+
+    CreateTextures();
+    CreateRenderPass(imageFormat);
+    CreateFramebuffer();
+
+    m_pPipeline = PipelineBase::Builder().
+    SetRenderPass(renderPass).
+    SetVertexInput(VertexInput(Vertex::getBindingDescription(), Vertex::getAttributeDescriptions())).
+    AddShaderStage("../../assets/shaders/generators/prefilterenvmap.vert").
+    AddShaderStage("../../assets/shaders/generators/prefilterenvmap.frag").
+    Build();
 
     GeneratorBase::Create(pResMgr);
 }

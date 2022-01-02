@@ -328,7 +328,7 @@ void Shader::AddStage(const std::filesystem::path &moduleName, const std::vector
 	for (int32_t i = 0; i < program.getNumLiveUniformVariables(); i++)
 		LoadUniform(program, m_vShaderStage.back(), i);
 
-	for (int32_t i = 0; i < program.getNumLiveAttributes(); i++)
+	for (int32_t i = 0; i < program.getNumPipeInputs(); i++)
 		LoadAttribute(program, m_vShaderStage.back(), i);
 
     glslang::SpvOptions spvOptions;
@@ -495,7 +495,7 @@ void Shader::BuildReflection()
 		m_mDescriptorTypes.emplace(descriptor.binding, descriptor.descriptorType);
 
 	//Sorting attributes by location
-	std::vector<std::pair<std::string, Attribute>> sortingvec;
+	/*std::vector<std::pair<std::string, Attribute>> sortingvec;
 	std::vector<std::string> vIgnore{"gl_InstanceIndex", "gl_VertexIndex", "gl_PerVertex"};
 	std::for_each(m_mAttributes.begin(), m_mAttributes.end(), [&](const auto &pair)
 	{
@@ -528,7 +528,7 @@ void Shader::BuildReflection()
 
     m_bindingDescriptions.binding = 0;
     m_bindingDescriptions.stride = currentOffset;
-    m_bindingDescriptions.inputRate = vk::VertexInputRate::eVertex;
+    m_bindingDescriptions.inputRate = vk::VertexInputRate::eVertex;*/
 }
 
 vk::ShaderStageFlagBits Shader::GetShaderStage(const std::filesystem::path &moduleName)

@@ -1,6 +1,5 @@
 #pragma once
 #include "Core/Pipeline/VulkanPipeline.h"
-#include "Core/Pipeline/PipelineFactory.h"
 #include "Core/Image/Image.h"
 
 #include "Core/Descriptor/DescriptorHandler.h"
@@ -62,7 +61,6 @@ namespace Engine
                 std::unique_ptr<Core::Descriptor::DescriptorHandler> m_pDescriptorSet;
 
                 vk::RenderPass renderPass;
-                Core::Pipeline::FPipelineInitial initial;
                 std::shared_ptr<Core::Pipeline::PipelineBase> m_pPipeline;
                 std::map<ETextureAttachmentType, vk::DescriptorImageInfo> m_mTextures;
             };

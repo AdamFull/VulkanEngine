@@ -10,23 +10,27 @@ using namespace Engine::Core;
 using namespace Engine::Core::Loaders;
 using namespace Engine::Core::Descriptor;
 using namespace Engine::Resources::Material::Generator;
+using namespace Engine::Core::Pipeline;
 
 void GeneratorIrradiate::Create(std::shared_ptr<ResourceManager> pResMgr)
 {
-    initial.vertexInputDesc = Vertex::getBindingDescription();
-    initial.vertexAtribDesc = Vertex::getAttributeDescriptions();
-    initial.shaders = 
-    {
-        {"../../assets/shaders/generators/irradiancecube.vert"},
-        {"../../assets/shaders/generators/irradiancecube.frag"}
-    };
-
     m_iDimension = 64;
     //CreateTextures();
 
     iFormat = 0x8814;
     bTransfer = true;
     usageFlags = usageFlags | vk::ImageUsageFlagBits::eTransferSrc;
+
+    CreateTextures();
+    CreateRenderPass(imageFormat);
+    CreateFramebuffer();
+
+    m_pPipeline = PipelineBase::Builder().
+    SetRenderPass(renderPass).
+    SetVertexInput(VertexInput(Vertex::getBindingDescription(), Vertex::getAttributeDescriptions())).
+    AddShaderStage("../../assets/shaders/generators/irradiancecube.vert").
+    AddShaderStage("../../assets/shaders/generators/irradiancecube.frag").
+    Build();
 
     GeneratorBase::Create(pResMgr);
 }

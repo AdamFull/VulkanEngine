@@ -7,19 +7,19 @@
 using namespace Engine::Core;
 using namespace Engine::Resources::Material;
 using namespace Engine::Core::Descriptor;
+using namespace Engine::Core::Pipeline;
 
 void MaterialSkybox::Create(std::shared_ptr<ResourceManager> pResMgr)
 {
-    initial.vertexInputDesc = Vertex::getBindingDescription();
-    initial.vertexAtribDesc = Vertex::getAttributeDescriptions();
-    initial.culling = vk::CullModeFlagBits::eFront;
-    initial.color_attachments = 6;
-    initial.shaders = 
-    {
-        {"../../assets/shaders/main/skybox.vert"},
-        {"../../assets/shaders/main/skybox.frag"}
-    };
     renderPass = URenderer->GetRenderer(FRendererCreateInfo::ERendererType::eDeferredPBR)->GetRenderPass();
+    m_pPipeline = PipelineBase::Builder().
+    SetVertexInput(VertexInput(Vertex::getBindingDescription(), Vertex::getAttributeDescriptions())).
+    SetRenderPass(renderPass).
+    SetCulling(vk::CullModeFlagBits::eFront).
+    SetColorAttachments(6).
+    AddShaderStage("../../assets/shaders/main/skybox.vert").
+    AddShaderStage("../../assets/shaders/main/skybox.frag").
+    Build();
     MaterialBase::Create(pResMgr);
 }
 

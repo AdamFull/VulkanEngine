@@ -19,9 +19,6 @@ void MaterialBase::Create(std::shared_ptr<ResourceManager> pResMgr, vk::RenderPa
 void MaterialBase::Create(std::shared_ptr<ResourceManager> pResMgr)
 {
     uint32_t images = USwapChain->GetImages().size();
-
-    initial.renderPass = renderPass;
-    m_pPipeline = PipelineFactory::CreatePipeline(PipelineConfig::MakeInfo(initial));
     m_pDescriptorSet = std::make_unique<DescriptorHandler>();
     m_pDescriptorSet->Create(m_pPipeline);
     //m_pMatDesc->UpdatePipelineInfo(pPipeline->GetBindPoint(), pipelineLayout);
@@ -44,8 +41,7 @@ vk::DescriptorImageInfo& MaterialBase::GetTexture(ETextureAttachmentType eAttach
 
 void MaterialBase::ReCreate()
 {
-    initial.renderPass = renderPass;
-    m_pPipeline->RecreatePipeline(PipelineConfig::MakeInfo(initial));
+    m_pPipeline->RecreatePipeline();
 }
 
 void MaterialBase::Update(vk::DescriptorBufferInfo& uboDesc, uint32_t imageIndex)

@@ -6,18 +6,23 @@
 using namespace Engine::Resources::Material::Generator;
 using namespace Engine::Core;
 using namespace Engine::Core::Descriptor;
-;
+using namespace Engine::Core::Pipeline;
 
 void GeneratorBRDF::Create(std::shared_ptr<ResourceManager> pResMgr)
 {
-    initial.shaders = 
-    {
-        {"../../assets/shaders/main/screenspace.vert"},
-        {"../../assets/shaders/generators/brdflut_gen.frag"}
-    };
     finalLayout = vk::ImageLayout::eShaderReadOnlyOptimal;
     iFormat = 0x822F; 
     usageFlags = usageFlags | vk::ImageUsageFlagBits::eSampled;
+
+    CreateTextures();
+    CreateRenderPass(imageFormat);
+    CreateFramebuffer();
+
+    m_pPipeline = PipelineBase::Builder().
+    SetRenderPass(renderPass).
+    AddShaderStage("../../assets/shaders/main/screenspace.vert").
+    AddShaderStage("../../assets/shaders/generators/brdflut_gen.frag").
+    Build();
     GeneratorBase::Create(pResMgr);
 }
 

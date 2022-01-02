@@ -7,18 +7,18 @@ using namespace Engine::Core;
 using namespace Engine::Resources;
 using namespace Engine::Resources::Material;
 using namespace Engine::Core::Descriptor;
+using namespace Engine::Core::Pipeline;
 
 void MaterialDeferred::Create(std::shared_ptr<ResourceManager> pResMgr)
 {
-    initial.culling = vk::CullModeFlagBits::eFront;
-    initial.color_attachments = 2;
-    initial.shaders = 
-    {
-        {"../../assets/shaders/main/screenspace.vert"},
-        {"../../assets/shaders/main/deferred.frag"}
-    };
-
     renderPass = URenderer->GetRenderer(FRendererCreateInfo::ERendererType::ePBRComposition)->GetRenderPass();
+    m_pPipeline = PipelineBase::Builder().
+    SetRenderPass(renderPass).
+    SetCulling(vk::CullModeFlagBits::eFront).
+    SetColorAttachments(2).
+    AddShaderStage("../../assets/shaders/main/screenspace.vert").
+    AddShaderStage("../../assets/shaders/main/deferred.frag").
+    Build();
     MaterialBase::Create(pResMgr);
 }
 

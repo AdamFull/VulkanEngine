@@ -8,6 +8,7 @@ using namespace Engine::Core;
 using namespace Engine::Resources;
 using namespace Engine::Resources::Material;
 using namespace Engine::Core::Descriptor;
+using namespace Engine::Core::Pipeline;
 
 void MaterialShadow::Create(std::shared_ptr<ResourceManager> pResMgr)
 {

@@ -7,27 +7,28 @@ using namespace Engine::Core;
 using namespace Engine::Resources;
 using namespace Engine::Resources::Material;
 using namespace Engine::Core::Descriptor;
+using namespace Engine::Core::Pipeline;
 
 void MaterialBlur::Create(std::shared_ptr<ResourceManager> pResMgr, vk::RenderPass& rPass)
 {
-    initial.culling = vk::CullModeFlagBits::eFront;
-    initial.shaders = 
-    {
-        {"../../assets/shaders/main/screenspace.vert"},
-        {"../../assets/shaders/postprocess/gaussianblur.frag"}
-    };
+    m_pPipeline = PipelineBase::Builder().
+    SetRenderPass(rPass).
+    SetCulling(vk::CullModeFlagBits::eFront).
+    AddShaderStage("../../assets/shaders/main/screenspace.vert").
+    AddShaderStage("../../assets/shaders/postprocess/gaussianblur.frag").
+    Build();
     MaterialBase::Create(pResMgr, rPass);
 }
 
 void MaterialBlur::Create(std::shared_ptr<ResourceManager> pResMgr)
 {
-    initial.culling = vk::CullModeFlagBits::eFront;
-    initial.shaders = 
-    {
-        {"../../assets/shaders/main/screenspace.vert"},
-        {"../../assets/shaders/postprocess/gaussianblur.frag"}
-    };
     renderPass = URenderer->GetRenderer(FRendererCreateInfo::ERendererType::ePostProcess)->GetRenderPass();
+    m_pPipeline = PipelineBase::Builder().
+    SetRenderPass(renderPass).
+    SetCulling(vk::CullModeFlagBits::eFront).
+    AddShaderStage("../../assets/shaders/main/screenspace.vert").
+    AddShaderStage("../../assets/shaders/postprocess/gaussianblur.frag").
+    Build();
     MaterialBase::Create(pResMgr);
 }
 

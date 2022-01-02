@@ -3,19 +3,20 @@
 #include "Core/VulkanHighLevel.h"
 #include "Resources/ResourceManager.h"
 
+using namespace Engine::Core;
 using namespace Engine::Resources::Material;
 using namespace Engine::Core::Descriptor;
+using namespace Engine::Core::Pipeline;
 
 void MaterialUI::Create(std::shared_ptr<ResourceManager> pResMgr)
 {
-    initial.vertexInputDesc = Core::VertexUI::getBindingDescription();
-    initial.vertexAtribDesc = Core::VertexUI::getAttributeDescriptions();
-    initial.shaders = 
-    {
-        {"../../assets/shaders/main/ui.vert"},
-        {"../../assets/shaders/main/ui.frag"}
-    };
     renderPass = USwapChain->GetRenderPass();
+    m_pPipeline = PipelineBase::Builder().
+    SetVertexInput(VertexInput(VertexUI::getBindingDescription(), VertexUI::getAttributeDescriptions())).
+    SetRenderPass(renderPass).
+    AddShaderStage("../../assets/shaders/main/ui.vert").
+    AddShaderStage("../../assets/shaders/main/ui.frag").
+    Build();
     MaterialBase::Create(pResMgr);
 }
 

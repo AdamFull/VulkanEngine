@@ -13,30 +13,8 @@ GeneratorBase::~GeneratorBase()
     UDevice->Destroy(renderPass);
 }
 
-/*FPipelineCreateInfo GeneratorBase::CreateInfo(EShaderSet eSet)
-{
-    switch (eSet)
-    {
-    case EShaderSet::eBRDF:
-        return PipelineConfig::CreateBRDFPipeline(renderPass, pipelineLayout, pipelineCache);
-        break;
-    case EShaderSet::eIrradiateCube:
-        return PipelineConfig::CreateIrradiatePipeline(renderPass, pipelineLayout, pipelineCache);
-        break;
-    case EShaderSet::ePrefiltred:
-        return PipelineConfig::CreatePrefiltredPipeline(renderPass, pipelineLayout, pipelineCache);
-        break;
-    }
-
-    return MaterialBase::CreateInfo(eSet);
-}*/
-
 void GeneratorBase::Create(std::shared_ptr<ResourceManager> pResMgr)
 {
-    CreateTextures();
-    CreateRenderPass(imageFormat);
-    CreateFramebuffer();
-
     MaterialBase::Create(pResMgr);
 }
 

@@ -7,20 +7,20 @@ using namespace Engine::Core;
 using namespace Engine::Resources;
 using namespace Engine::Resources::Material;
 using namespace Engine::Core::Descriptor;
+using namespace Engine::Core::Pipeline;
 
 void MaterialDiffuse::Create(std::shared_ptr<ResourceManager> pResMgr)
 {
-    initial.vertexInputDesc = Vertex::getBindingDescription();
-    initial.vertexAtribDesc = Vertex::getAttributeDescriptions();
-    initial.culling = vk::CullModeFlagBits::eBack;
-    initial.color_attachments = 6;
-    initial.enableDepth = VK_TRUE;
-    initial.shaders = 
-    {
-        {"../../assets/shaders/main/diffuse.vert"},
-        {"../../assets/shaders/main/diffuse.frag"}
-    };
     renderPass = URenderer->GetRenderer(FRendererCreateInfo::ERendererType::eDeferredPBR)->GetRenderPass();
+    m_pPipeline = PipelineBase::Builder().
+    SetVertexInput(VertexInput(Vertex::getBindingDescription(), Vertex::getAttributeDescriptions())).
+    SetRenderPass(renderPass).
+    SetCulling(vk::CullModeFlagBits::eBack).
+    SetColorAttachments(6).
+    SetDepthEnabled(VK_TRUE).
+    AddShaderStage("../../assets/shaders/main/diffuse.vert").
+    AddShaderStage("../../assets/shaders/main/diffuse.frag").
+    Build();
     MaterialBase::Create(pResMgr);
 }
 

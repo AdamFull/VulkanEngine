@@ -1,5 +1,7 @@
 cmake_minimum_required(VERSION 3.19.1)
 
+include(FetchContent)
+
 option(AUTO_LOCATE_VULKAN "AUTO_LOCATE_VULKAN" ON)
 if(AUTO_LOCATE_VULKAN)
 	message(STATUS "Attempting auto locate Vulkan using CMake......")
@@ -48,12 +50,22 @@ endif()
 project(IncenerateRenderEngine)
 
 set(VULKAN_LIB_LIST "vulkan-1")
+if (CMAKE_BUILD_TYPE STREQUAL "Debug")
+	list(APPEND VULKAN_LIB_LIST "glslang")
+	list(APPEND VULKAN_LIB_LIST "SPIRV")
+	message("-- Using debug vulkan libs.")
+else()
+	list(APPEND VULKAN_LIB_LIST "glslang")
+	list(APPEND VULKAN_LIB_LIST "SPIRV")
+	message("-- Using debug vulkan libs.")
+endif()
+
 if(${CMAKE_SYSTEM_NAME} MATCHES "Windows")
 	# Include Vulkan header files from Vulkan SDK
-	include_directories(AFTER ${VULKAN_PATH}/Include)
+	include_directories(AFTER ${VULKAN_PATH}/Include; ${VULKAN_PATH}/Third-Party/Include)
 
 	# Link directory for vulkan-1
-	link_directories(${VULKAN_PATH}/Bin;${VULKAN_PATH}/Lib;)
+	link_directories(${VULKAN_PATH}/Bin;${VULKAN_PATH}/Lib;${VULKAN_PATH}/Third-Party/Bin;)
 endif()
 
 include_directories(${CMAKE_CURRENT_SOURCE_DIR}/core)
@@ -78,8 +90,6 @@ add_subdirectory(${CMAKE_CURRENT_SOURCE_DIR}/source/external/glfw)
 set(GLFW_INCLUDE_DIR ${CMAKE_CURRENT_SOURCE_DIR}/source/external/glfw/include)
 add_subdirectory(${CMAKE_CURRENT_SOURCE_DIR}/source/external/imgui)
 set(IMGUI_INCLUDE_DIR ${CMAKE_CURRENT_SOURCE_DIR}/source/external/imgui)
-add_subdirectory(${CMAKE_CURRENT_SOURCE_DIR}/source/external/glm)
-set(GLM_INCLUDE_DIR ${CMAKE_CURRENT_SOURCE_DIR}/source/external/glm)
 add_subdirectory(${CMAKE_CURRENT_SOURCE_DIR}/source/external/ktx)
 set(KTX_INCLUDE_DIR ${CMAKE_CURRENT_SOURCE_DIR}/source/external/ktx/include)
 
@@ -89,24 +99,20 @@ set(KTX_INCLUDE_DIR ${CMAKE_CURRENT_SOURCE_DIR}/source/external/ktx/include)
 find_package(glslang REQUIRED)
 
 add_executable(${PROJECT_NAME} ${CPP_FILES} ${HPP_FILES})
+
 # Link the debug and release libraries to the project
 target_link_libraries( ${PROJECT_NAME} PUBLIC 
 	glfw
 	${VULKAN_LIB_LIST} 
 	imgui
 	libktx
-	glslang
-	SPIRV
 )
 
 target_include_directories( ${PROJECT_NAME} PRIVATE 
-	${GLM_INCLUDE_DIR} 
 	${GLFW_INCLUDE_DIR}
 	${CMAKE_CURRENT_SOURCE_DIR}/source/ 
 	${CMAKE_CURRENT_SOURCE_DIR}/source/core
 	${IMGUI_INCLUDE_DIR}
-	${GLSLANG_INCLUDE_DIR}
-	${SPIRV_INCLUDE_DIR}
 )
 
 target_precompile_headers( ${PROJECT_NAME} PUBLIC ${CMAKE_CURRENT_SOURCE_DIR}/common.h)

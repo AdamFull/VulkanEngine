@@ -66,7 +66,7 @@ void PBRCompositionRenderer::Render(vk::CommandBuffer& commandBuffer)
 {
     BeginRender(commandBuffer);
     auto imageIndex = USwapChain->GetCurrentFrame();
-    auto& mImages = m_pPrev->GetProducts();
+    const auto& mImages = m_pPrev->GetProducts();
     for(auto& [attachment, texture] : mImages)
         m_pMaterial->AddTexture(attachment, texture);
 
@@ -83,7 +83,8 @@ void PBRCompositionRenderer::Render(vk::CommandBuffer& commandBuffer)
     
     m_pUniform->UpdateUniformBuffer(imageIndex, &ubo);
     auto& buffer = m_pUniform->GetUniformBuffer(imageIndex);
-    m_pMaterial->Update(buffer->GetDscriptor(), imageIndex);
+    auto descriptor = buffer->GetDscriptor();
+    m_pMaterial->Update(descriptor, imageIndex);
     m_pMaterial->Bind(commandBuffer, imageIndex);
 
     commandBuffer.draw(3, 1, 0, 0);

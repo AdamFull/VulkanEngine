@@ -50,7 +50,7 @@ namespace Engine
             }
 
             template <>
-            std::shared_ptr<Core::Image> ResourceManager::Add(FTextureCreateInfo info)
+            std::shared_ptr<Core::Image> Add(FTextureCreateInfo info)
             {
                 std::shared_ptr<Core::Image> texture = Core::TextureFactory::Create(shared_from_this(), info);
                 AddExisting(info.srName, texture);
@@ -77,7 +77,7 @@ namespace Engine
             }
 
             template <>
-            std::shared_ptr<Material::MaterialBase> ResourceManager::Add(FMaterialCreateInfo info)
+            std::shared_ptr<Material::MaterialBase> Add(FMaterialCreateInfo info)
             {
                 std::shared_ptr<Material::MaterialBase> material = Material::MaterialFactory::Create(shared_from_this(), info);
                 AddExisting(info.srName, material);
@@ -104,7 +104,7 @@ namespace Engine
             }
 
             template <>
-            std::shared_ptr<Mesh::MeshFragment> ResourceManager::Add(FMeshCreateInfo info)
+            std::shared_ptr<Mesh::MeshFragment> Add(FMeshCreateInfo info)
             {
                 std::shared_ptr<Mesh::MeshFragment> mesh = Mesh::MeshFactory::Create(shared_from_this(), info);
                 AddExisting(info.srName, mesh);

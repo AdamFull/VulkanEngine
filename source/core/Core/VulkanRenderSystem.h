@@ -11,16 +11,11 @@ namespace Engine
     namespace Core
     {
         class Image;
-        class RenderSystem
+        class RenderSystem : public NonCopyable, public NonMovable
         {
         public:
             RenderSystem() = default;
             ~RenderSystem();
-
-            RenderSystem(const RenderSystem &) = delete;
-            void operator=(const RenderSystem &) = delete;
-            RenderSystem(RenderSystem &&) = delete;
-            RenderSystem &operator=(RenderSystem &&) = delete;
 
             void Create();
 
@@ -43,7 +38,7 @@ namespace Engine
             inline std::vector<vk::CommandBuffer, std::allocator<vk::CommandBuffer>> &GetCommandBuffers() { return m_vCommandBuffers; }
             inline uint32_t GetImageIndex() { return m_iImageIndex; }
             inline bool GetFrameStartFlag() { return m_bFrameStarted; }
-            inline vk::CommandBuffer GetCurrentCommandBuffer() const;
+            vk::CommandBuffer GetCurrentCommandBuffer() const;
             inline std::shared_ptr<Rendering::RendererBase> GetRenderer(FRendererCreateInfo::ERendererType eType) { return m_pStages->Find(eType); }
             inline std::shared_ptr<Rendering::RendererBase> GetCurrentStage() { return m_pCurrentStage; }
 

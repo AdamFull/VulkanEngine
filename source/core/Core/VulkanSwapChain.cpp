@@ -29,7 +29,7 @@ void SwapChain::Create()
 
 vk::Result SwapChain::AcquireNextImage(uint32_t *imageIndex)
 {
-    UDevice->GetLogical().waitForFences(1, &m_vInFlightFences[m_currentFrame], VK_TRUE, std::numeric_limits<uint64_t>::max());
+    auto res = UDevice->GetLogical().waitForFences(1, &m_vInFlightFences[m_currentFrame], VK_TRUE, std::numeric_limits<uint64_t>::max());
 
     auto result = UDevice->GetLogical().acquireNextImageKHR(
         m_swapChain, std::numeric_limits<uint64_t>::max(),
@@ -56,7 +56,7 @@ vk::Result SwapChain::SubmitCommandBuffers(const vk::CommandBuffer *commandBuffe
     submitInfo.pSignalSemaphores = signalSemaphores;
 
     // TODO: Handle this result
-    UDevice->GetLogical().resetFences(1, &m_vInFlightFences[m_currentFrame]);
+    auto result = UDevice->GetLogical().resetFences(1, &m_vInFlightFences[m_currentFrame]);
 
     try
     {

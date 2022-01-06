@@ -3,7 +3,7 @@
 
 #include "Core/Window/WinCallbacks.h"
 #include "Core/Window/WindowHandle.h"
-#include "Core/VulkanDevice.h"
+#include "Core/VulkanDevice.hpp"
 #include "Core/Buffer/VulkanBuffer.h"
 #include "Core/Buffer/UniformHandler.hpp"
 #include "Resources/ResourceManager.h"
@@ -206,7 +206,8 @@ void ImguiOverlay::DrawFrame(vk::CommandBuffer commandBuffer, uint32_t index)
         ImGuiIO &io = ImGui::GetIO();
 
         auto& buffer = m_pUniformHandle->GetUniformBuffer(index);
-        fontMaterial->Update(buffer->GetDscriptor(), index);
+        auto descriptor = buffer->GetDscriptor();
+        fontMaterial->Update(descriptor, index);
         fontMaterial->Bind(commandBuffer, index);
 
         vk::Viewport viewport = Initializers::Viewport(ImGui::GetIO().DisplaySize.x, ImGui::GetIO().DisplaySize.y);
@@ -225,7 +226,8 @@ void ImguiOverlay::DrawFrame(vk::CommandBuffer commandBuffer, uint32_t index)
         {
 
             vk::DeviceSize offsets[1] = {0};
-            commandBuffer.bindVertexBuffers(0, 1, &vertexBuffer->GetBuffer(), offsets);
+            auto buffer = vertexBuffer->GetBuffer();
+            commandBuffer.bindVertexBuffers(0, 1, &buffer, offsets);
             commandBuffer.bindIndexBuffer(indexBuffer->GetBuffer(), 0, vk::IndexType::eUint16);
 
             for (int32_t i = 0; i < imDrawData->CmdListsCount; i++)

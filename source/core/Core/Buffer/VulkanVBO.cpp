@@ -18,7 +18,8 @@ void VulkanVBO::Bind(vk::CommandBuffer commandBuffer)
 {
     assert(m_bBuffersCreated && "Vertex and index buffers are not created!");
     vk::DeviceSize offsets[] = {0};
-    commandBuffer.bindVertexBuffers(0, 1, &vertexBuffer->GetBuffer(), offsets);
+    auto buffer = vertexBuffer->GetBuffer();
+    commandBuffer.bindVertexBuffers(0, 1, &buffer, offsets);
     commandBuffer.bindIndexBuffer(indexBuffer->GetBuffer(), 0, vk::IndexType::eUint32);
 }
 

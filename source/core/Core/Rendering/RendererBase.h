@@ -90,8 +90,8 @@ namespace Engine
 
                 std::shared_ptr<RendererBase> Find(FRendererCreateInfo::ERendererType eType);
 
-                std::shared_ptr<Image> GetProduct(texture_type_t eType);
-                image_map_t GetProducts();
+                const std::shared_ptr<Image> GetProduct(texture_type_t eType) const;
+                const image_map_t GetProducts() const;
 
                 virtual void AddProduct(texture_type_t eAttach, std::shared_ptr<Image> image) {}
                 virtual void SetUniform(void* uniform) {}

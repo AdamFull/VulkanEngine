@@ -75,7 +75,7 @@ void GraphicsPipeline::CreatePipeline()
     pipelineInfo.basePipelineHandle = nullptr;
     pipelineInfo.pDynamicState = &dynamicStateInfo;
 
-    UDevice->GetLogical().createGraphicsPipelines(UHLInstance->GetPipelineCache(), 1, &pipelineInfo, nullptr, &m_pipeline);
+    auto result = UDevice->GetLogical().createGraphicsPipelines(UHLInstance->GetPipelineCache(), 1, &pipelineInfo, nullptr, &m_pipeline);
     assert(m_pipeline && "Failed creating pipeline.");
 }
 

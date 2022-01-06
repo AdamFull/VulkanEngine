@@ -28,6 +28,7 @@ VKAPI_ATTR VkBool32 VKAPI_CALL Device::ValidationCallback(VkDebugUtilsMessageSev
     case VK_DEBUG_UTILS_MESSAGE_SEVERITY_INFO_BIT_EXT: ss << "INFO"; break;
     case VK_DEBUG_UTILS_MESSAGE_SEVERITY_WARNING_BIT_EXT: ss << "WARNING"; break;
     case VK_DEBUG_UTILS_MESSAGE_SEVERITY_ERROR_BIT_EXT: ss << "ERROR"; break;
+    case VK_DEBUG_UTILS_MESSAGE_SEVERITY_FLAG_BITS_MAX_ENUM_EXT: break;
     }
 
     ss << "]: " << pCallbackData->pMessage;

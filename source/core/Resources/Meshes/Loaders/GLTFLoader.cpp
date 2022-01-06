@@ -97,7 +97,7 @@ void GLTFLoader::LoadNode(std::shared_ptr<Resources::ResourceManager> pResMgr, s
     // Loading rotation data
     if (node.rotation.size() == 4)
     {
-        glm::quat quat = glm::make_vec4(node.rotation.data());
+        glm::quat quat = glm::make_quat(node.rotation.data());
         glm::vec3 rot = glm::eulerAngles(quat) * 3.14159f / 180.f;
         component->GetTransform().rot = rot;
     }

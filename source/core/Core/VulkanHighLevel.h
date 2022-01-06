@@ -1,6 +1,6 @@
 #pragma once
 #include "Window/WindowHandle.h"
-#include "VulkanDevice.h"
+#include "VulkanDevice.hpp"
 #include "VulkanSwapChain.h"
 #include "VulkanStaticHelper.h"
 #include "Buffer/VulkanBuffer.h"

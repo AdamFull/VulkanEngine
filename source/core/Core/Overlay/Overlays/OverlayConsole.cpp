@@ -137,7 +137,7 @@ void OverlayConsole::Draw()
             Strtrim(s);
             if (s[0])
                 ExecCommand(s);
-            strcpy(s, "");
+            std::strcpy(s, "");
             reclaim_focus = true;
         }
 

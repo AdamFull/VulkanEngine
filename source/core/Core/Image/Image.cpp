@@ -67,6 +67,7 @@ vk::ImageType Image::TypeFromKtx(uint32_t type)
         return vk::ImageType::e3D;
         break;
     }
+    return vk::ImageType{};
 }
 
 void Image::LoadFromFile(std::string srPath)
@@ -472,7 +473,9 @@ void Image::WriteImageData(ktxTexture *info, vk::Format format, vk::ImageAspectF
         region.imageExtent.depth = info->baseDepth;
         region.bufferOffset = 0;
         vRegions.push_back(region);
-        CopyBufferToImage(stagingBuffer.GetBuffer(), m_image, vRegions);
+
+        auto buffer = stagingBuffer.GetBuffer();
+        CopyBufferToImage(buffer, m_image, vRegions);
         GenerateMipmaps(m_image, m_mipLevels, format, m_extent.width, m_extent.height, aspect);
     }
     else
@@ -497,7 +500,8 @@ void Image::WriteImageData(ktxTexture *info, vk::Format format, vk::ImageAspectF
                 vRegions.push_back(region);
             }
         }
-        CopyBufferToImage(stagingBuffer.GetBuffer(), m_image, vRegions);
+        auto buffer = stagingBuffer.GetBuffer();
+        CopyBufferToImage(buffer, m_image, vRegions);
 
         TransitionImageLayout(vk::ImageLayout::eShaderReadOnlyOptimal, aspect);
     }

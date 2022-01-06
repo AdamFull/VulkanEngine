@@ -54,7 +54,8 @@ void GeneratorIrradiate::Generate(std::shared_ptr<Mesh::MeshBase> pMesh)
 
     m_pDescriptorSet->Clear();
     m_pDescriptorSet->Set("samplerEnv", m_mTextures[ETextureAttachmentType::eCubemap]);
-    MaterialBase::Update(vk::DescriptorBufferInfo{}, 0);
+    auto descriptor = vk::DescriptorBufferInfo{};
+    MaterialBase::Update(descriptor, 0);
 
     vk::Viewport viewport = Core::Initializers::Viewport(m_iDimension, m_iDimension);
 	vk::Rect2D scissor = Core::Initializers::Scissor(m_iDimension, m_iDimension);

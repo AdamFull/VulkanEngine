@@ -1,5 +1,5 @@
 #include "MeshComponentBase.h"
-#include "Core/VulkanDevice.h"
+#include "Core/VulkanDevice.hpp"
 #include "Core/VulkanRenderSystem.h"
 #include "Core/VulkanHighLevel.h"
 #include "Resources/Meshes/VulkanMesh.h"

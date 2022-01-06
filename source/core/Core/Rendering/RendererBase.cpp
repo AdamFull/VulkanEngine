@@ -118,13 +118,13 @@ void RendererBase::EndRender(vk::CommandBuffer& commandBuffer)
     commandBuffer.endRenderPass();
 }
 
-std::shared_ptr<Image> RendererBase::GetProduct(texture_type_t eType)
+const std::shared_ptr<Image> RendererBase::GetProduct(texture_type_t eType) const
 {
     auto mProductMap = GetProducts();
     return mProductMap[eType];
 }
 
-image_map_t RendererBase::GetProducts()
+const image_map_t RendererBase::GetProducts() const
 {
     auto imageIndex = USwapChain->GetCurrentFrame();
     auto mProductMap = m_vImages.at(imageIndex);

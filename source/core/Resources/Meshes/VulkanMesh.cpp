@@ -29,7 +29,8 @@ void MeshBase::Render(vk::CommandBuffer commandBuffer, uint32_t imageIndex, Core
 
         m_pUniformBuffer->UpdateUniformBuffer(imageIndex, &ubo);
         auto& buffer = m_pUniformBuffer->GetUniformBuffer(imageIndex);
-        fragment->Update(buffer->GetDscriptor() ,imageIndex);
+        auto descriptor = buffer->GetDscriptor();
+        fragment->Update(descriptor ,imageIndex);
         fragment->Bind(commandBuffer, imageIndex, instanceCount);
     }
 }

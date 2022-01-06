@@ -71,67 +71,67 @@ namespace Engine
 
             /********************************************Specializations***************************************/
             template <class OutType, class InitializerType>
-            OutType Make(InitializerType &initializer) 
+            OutType Make(InitializerType initializer) 
             { 
                 assert(false && "Device: no Make specialisation found for given type");
             }
 
             template <>
-            vk::SwapchainKHR Make(vk::SwapchainCreateInfoKHR &initializer) 
+            vk::SwapchainKHR Make(vk::SwapchainCreateInfoKHR initializer) 
             { 
                 return m_logical.createSwapchainKHR(initializer); 
             }
 
             template <>
-            std::vector<vk::Image> Make(vk::SwapchainKHR &initializer) 
+            std::vector<vk::Image> Make(vk::SwapchainKHR initializer) 
             { 
                 return m_logical.getSwapchainImagesKHR(initializer); 
             }
 
             template <>
-            vk::RenderPass Make(vk::RenderPassCreateInfo &initializer) 
+            vk::RenderPass Make(vk::RenderPassCreateInfo initializer) 
             { 
                 return m_logical.createRenderPass(initializer); 
             }
 
             template <>
-            vk::Framebuffer Make(vk::FramebufferCreateInfo &initializer) 
+            vk::Framebuffer Make(vk::FramebufferCreateInfo initializer) 
             { 
                 return m_logical.createFramebuffer(initializer); 
             }
 
             template <>
-            vk::Semaphore Make(vk::SemaphoreCreateInfo &initializer) 
+            vk::Semaphore Make(vk::SemaphoreCreateInfo initializer) 
             { 
                 return m_logical.createSemaphore(initializer); 
             }
 
             template <>
-            vk::Fence Make(vk::FenceCreateInfo &initializer) 
+            vk::Fence Make(vk::FenceCreateInfo initializer) 
             { 
                 return m_logical.createFence(initializer); 
             }
 
             template <>
-            vk::ShaderModule Make(vk::ShaderModuleCreateInfo &initializer) 
+            vk::ShaderModule Make(vk::ShaderModuleCreateInfo initializer) 
             { 
                 return m_logical.createShaderModule(initializer);
             }
 
             template <>
-            vk::PipelineLayout Make(vk::PipelineLayoutCreateInfo &initializer) 
+            vk::PipelineLayout Make(vk::PipelineLayoutCreateInfo initializer) 
             { 
                 return m_logical.createPipelineLayout(initializer);
             }
 
             template <>
-            vk::Pipeline Make(vk::GraphicsPipelineCreateInfo &initializer) 
+            vk::Pipeline Make(vk::GraphicsPipelineCreateInfo initializer) 
             { 
                 return m_logical.createGraphicsPipeline(nullptr, initializer).value; 
             }
 
             template <>
-            vk::DescriptorPool Make(vk::DescriptorPoolCreateInfo &initializer) 
+            vk::DescriptorPool Make(vk::DescriptorPoolCreateInfo initializer) 
             { 
                 return m_logical.createDescriptorPool(initializer); 
             }

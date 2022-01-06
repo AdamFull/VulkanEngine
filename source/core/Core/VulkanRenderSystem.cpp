@@ -85,6 +85,8 @@ std::shared_ptr<Rendering::RendererBase> RenderSystem::PushStage(FRendererCreate
     case FRendererCreateInfo::ERendererType::ePostProcess:
         pNewRenderer = std::make_shared<Rendering::FinalCompositionRenderer>();
         break;
+    default:
+        break;
     }
 
     if(!m_pStages)

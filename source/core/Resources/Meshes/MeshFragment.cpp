@@ -1,6 +1,6 @@
 #include "MeshFragment.h"
 #include "Resources/Materials/VulkanMaterial.h"
-#include "Core/VulkanDevice.h"
+#include "Core/VulkanDevice.hpp"
 #include "Core/VulkanHighLevel.h"
 
 using namespace Engine::Resources::Mesh;

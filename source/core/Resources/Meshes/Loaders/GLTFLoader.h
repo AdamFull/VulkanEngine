@@ -27,7 +27,7 @@ namespace Engine
 
                 inline void AddMaterial(std::shared_ptr<Material::MaterialBase> material) { vMaterials.emplace_back(material); }
 
-                inline std::shared_ptr<Mesh::MeshBase> GetMesh() { return m_pMesh; }
+                inline const std::shared_ptr<Mesh::MeshBase> GetMesh() const { return m_pMesh; }
 
             private:
                 void LoadNode(std::shared_ptr<Resources::ResourceManager> pResMgr, std::shared_ptr<GLTFSceneNode> pParent, const tinygltf::Node &node, uint32_t nodeIndex, const tinygltf::Model &model, float globalscale);

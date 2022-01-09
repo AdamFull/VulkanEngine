@@ -25,7 +25,7 @@ void UniformHandler::Cleanup()
     m_vMapped.clear();
 }
 
-void UniformHandler::Flush()
+void UniformHandler::Flush(vk::CommandBuffer& commandBuffer, std::shared_ptr<Pipeline::PipelineBase> pPipeline)
 {
     uint32_t index = USwapChain->GetCurrentFrame();
     if (!m_pBuffers.empty())

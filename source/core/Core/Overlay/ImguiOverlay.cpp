@@ -206,6 +206,7 @@ void ImguiOverlay::DrawFrame(vk::CommandBuffer commandBuffer, uint32_t index)
         ImGuiIO &io = ImGui::GetIO();
 
         auto& buffer = m_pUniformHandle->GetUniformBuffer(index);
+        auto pipeline = fontMaterial->GetPipeline();
         auto descriptor = buffer->GetDscriptor();
         fontMaterial->Update(descriptor, index);
         fontMaterial->Bind(commandBuffer, index);
@@ -215,7 +216,7 @@ void ImguiOverlay::DrawFrame(vk::CommandBuffer commandBuffer, uint32_t index)
 
         m_pUniformHandle->Set("scale", glm::vec2(2.0f / io.DisplaySize.x, 2.0f / io.DisplaySize.y), index);
         m_pUniformHandle->Set("translate", glm::vec2(-1.0f), index);
-        m_pUniformHandle->Flush();
+        m_pUniformHandle->Flush(commandBuffer, pipeline);
 
         // Render commands
         ImDrawData *imDrawData = ImGui::GetDrawData();

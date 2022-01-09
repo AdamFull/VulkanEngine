@@ -5,8 +5,7 @@ namespace Engine
 {
     namespace Core
     {
-        class VulkanBuffer;
-        class UniformHandler : public NonCopyable, public NonMovable
+        class PushHandler : public NonCopyable, public NonMovable
         {
         public:
             void Create(const Pipeline::UniformBlock &uniformBlock);
@@ -20,15 +19,9 @@ namespace Engine
                 if (!m_uniformBlock || m_pBuffers.empty())
 			        return;
 
-                if(!m_vMapped.at(index))
-                {
-                    m_pBuffers.at(index)->MapMem();
-                    m_vMapped.at(index) = true;
-                }
-
-                auto* data = m_pBuffers.at(index)->GetMappedMemory();
-
-                std::memcpy(static_cast<char *>(data) + offset, &object, size);
+                auto* data = m_vData.at(index)->get();
+                if(data)
+                    std::memcpy(static_cast<char *>(data) + offset, &object, size);
             }
 
             template<class T>
@@ -48,16 +41,9 @@ namespace Engine
                 Set(object, index, static_cast<std::size_t>(uniform->GetOffset()), realSize);
             }
 
-            // Getters
-            std::vector<std::unique_ptr<VulkanBuffer>> &GetUniformBuffers();
-            std::unique_ptr<VulkanBuffer> &GetUniformBuffer(uint32_t index);
         private:
-            void CreateUniformBuffers(uint32_t inFlightFrames);
-            
             std::optional<Pipeline::UniformBlock> m_uniformBlock;
-            size_t m_iUniformSize{0};
-            std::vector<std::unique_ptr<VulkanBuffer>> m_pBuffers;
-            std::vector<bool> m_vMapped;
+            std::vector<std::unique_ptr<char[]>> m_vData;
         };
     }
 }

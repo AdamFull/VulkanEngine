@@ -86,7 +86,7 @@ void main()
 		vec3 irradiance = pow(texture(irradiance_tex, N).rgb, vec3(2.2f));
 
 		// Diffuse based on irradiance
-		vec3 diffuse = irradiance * albedo;	
+		vec3 diffuse = /*irradiance * */albedo;	
 
 		vec3 F = F_SchlickR(max(dot(N, V), 0.0f), F0, roughness);
 

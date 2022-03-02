@@ -1,8 +1,9 @@
 #pragma once
-#include "Core/Pipeline/VulkanPipeline.h"
 #include "Core/Image/Image.h"
 
 #include "Core/Descriptor/DescriptorHandler.h"
+#include "Core/Buffer/UniformHandler.hpp"
+#include "Core/Buffer/PushHandler.hpp"
 
 #include "Resources/ResourceCunstruct.h"
 
@@ -60,6 +61,8 @@ namespace Engine
                 std::string m_srName;
 
                 std::unique_ptr<Core::Descriptor::DescriptorHandler> m_pDescriptorSet;
+                std::vector<std::shared_ptr<Core::UniformHandler>> m_vUniformBuffers;
+                std::vector<std::shared_ptr<Core::PushHandler>> m_vPushConstants;
 
                 vk::RenderPass renderPass;
                 std::shared_ptr<Core::Pipeline::PipelineBase> m_pPipeline;

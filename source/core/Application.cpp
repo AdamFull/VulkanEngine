@@ -13,7 +13,7 @@ namespace Engine
 
         Core::FEngineCreateInfo createInfo;
         createInfo.window.width = 2560;
-        createInfo.window.height = 1080;
+        createInfo.window.height = 1475;
         createInfo.window.name = "Vulkan";
         createInfo.appName = "Vulkan";
         createInfo.apiVersion = VK_MAKE_VERSION(1, 0, 0);

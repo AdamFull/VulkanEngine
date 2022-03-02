@@ -1,5 +1,5 @@
 #include "ImguiOverlay.h"
-#include "backends/imgui_impl_glfw.h"
+#include "imgui_impl_glfw.h"
 
 #include "Core/Window/WinCallbacks.h"
 #include "Core/Window/WindowHandle.h"

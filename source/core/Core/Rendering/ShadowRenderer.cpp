@@ -28,7 +28,7 @@ void ShadowRenderer::Create(std::shared_ptr<Resources::ResourceManager> pResMgr)
         }
     };
 
-    out_extent = vk::Extent2D{2048, 2048};
+    out_extent = vk::Extent2D{800, 600}; //vk::Extent2D{2048, 2048};
     RendererBase::Create(pResMgr);
     CreateMaterial(pResMgr);
 }

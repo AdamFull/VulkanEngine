@@ -86,8 +86,6 @@ set(CPP_FILES
 	${CPP_FILES_IMGUI}
 )
 
-add_subdirectory(${CMAKE_CURRENT_SOURCE_DIR}/source/external/glfw)
-set(GLFW_INCLUDE_DIR ${CMAKE_CURRENT_SOURCE_DIR}/source/external/glfw/include)
 add_subdirectory(${CMAKE_CURRENT_SOURCE_DIR}/source/external/imgui)
 set(IMGUI_INCLUDE_DIR ${CMAKE_CURRENT_SOURCE_DIR}/source/external/imgui)
 add_subdirectory(${CMAKE_CURRENT_SOURCE_DIR}/source/external/ktx)
@@ -96,7 +94,10 @@ set(KTX_INCLUDE_DIR ${CMAKE_CURRENT_SOURCE_DIR}/source/external/ktx/include)
 # set(ENABLE_GLSLANG_WEBMIN OFF)
 # add_subdirectory(${CMAKE_CURRENT_SOURCE_DIR}/source/external/glslang)
 # set(GLSLANG_INCLUDE_DIR ${CMAKE_CURRENT_SOURCE_DIR}/source/external/glslang)
+
+find_package(glfw3 REQUIRED)
 find_package(glslang REQUIRED)
+find_package(glm REQUIRED)
 
 add_executable(${PROJECT_NAME} ${CPP_FILES} ${HPP_FILES})
 
@@ -109,10 +110,13 @@ target_link_libraries( ${PROJECT_NAME} PUBLIC
 )
 
 target_include_directories( ${PROJECT_NAME} PRIVATE 
-	${GLFW_INCLUDE_DIR}
-	${CMAKE_CURRENT_SOURCE_DIR}/source/ 
+	${GLFW_INCLUDE_DIRS}
+	${CMAKE_CURRENT_SOURCE_DIR}/source/
 	${CMAKE_CURRENT_SOURCE_DIR}/source/core
 	${IMGUI_INCLUDE_DIR}
+	${KTX_INCLUDE_DIR}
+	${Vulkan_INCLUDE_DIRS}
+	${GLM_INCLUDE_DIR}
 )
 
 target_precompile_headers( ${PROJECT_NAME} PUBLIC ${CMAKE_CURRENT_SOURCE_DIR}/common.h)

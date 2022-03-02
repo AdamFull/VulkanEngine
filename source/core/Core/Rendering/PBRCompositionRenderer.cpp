@@ -50,7 +50,7 @@ void PBRCompositionRenderer::Create(std::shared_ptr<Resources::ResourceManager> 
         }
     };
 
-    out_extent = USwapChain->GetExtent();
+    out_extent = vk::Extent2D{800, 600}; //USwapChain->GetExtent();
     RendererBase::Create(pResMgr);
     CreateMaterial(pResMgr);
 }

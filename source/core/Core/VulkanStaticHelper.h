@@ -16,7 +16,6 @@ namespace Engine
 
             static vk::SurfaceFormatKHR ChooseSwapSurfaceFormat(const std::vector<vk::SurfaceFormatKHR> &);
             static vk::PresentModeKHR ChooseSwapPresentMode(const std::vector<vk::PresentModeKHR>);
-            static vk::Extent2D СhooseSwapExtent(const vk::SurfaceCapabilitiesKHR &, GLFWwindow *);
 
             static uint32_t VkFormatToGLFormat(vk::Format format);
             static vk::Format GLFormatToVkFormat(uint32_t format);

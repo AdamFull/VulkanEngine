@@ -119,6 +119,7 @@ void SwapChain::CreateSwapChain()
     vk::SurfaceFormatKHR surfaceFormat = VulkanStaticHelper::ChooseSwapSurfaceFormat(swapChainSupport.formats);
     vk::PresentModeKHR presentMode = VulkanStaticHelper::ChooseSwapPresentMode(swapChainSupport.presentModes);
     m_extent = ChooseSwapExtent(swapChainSupport.capabilities);
+    //m_extent = vk::Extent2D{m_extent.width / 2, m_extent.height / 2};
 
     uint32_t imageCount = m_iFramesInFlight; // swapChainSupport.capabilities.maxImageCount;
     /*if (swapChainSupport.capabilities.maxImageCount > 0 && imageCount > swapChainSupport.capabilities.maxImageCount)

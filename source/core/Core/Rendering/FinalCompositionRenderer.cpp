@@ -42,7 +42,7 @@ void FinalCompositionRenderer::Create(std::shared_ptr<Resources::ResourceManager
         }
     };
 
-    out_extent = vk::Extent2D{800, 600}; //USwapChain->GetExtent();
+    out_extent = USwapChain->GetExtent();
     RendererBase::Create(pResMgr);
     CreateMaterial(pResMgr);
 }

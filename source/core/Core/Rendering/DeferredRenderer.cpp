@@ -73,7 +73,7 @@ void DeferredRenderer::Create(std::shared_ptr<Resources::ResourceManager> pResMg
         }
     };
 
-    out_extent = vk::Extent2D{800, 600};//USwapChain->GetExtent();
+    out_extent = USwapChain->GetExtent();
     out_extent = vk::Extent2D(out_extent.width, out_extent.height);
     RendererBase::Create(pResMgr);
 }

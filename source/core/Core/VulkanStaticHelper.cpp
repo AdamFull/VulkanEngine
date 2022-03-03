@@ -3,25 +3,11 @@
 
 using namespace Engine::Core;
 
-#ifdef NDEBUG
-const bool VulkanStaticHelper::m_bEnableValidationLayers = false;
-#else
-const bool VulkanStaticHelper::m_bEnableValidationLayers = true;
-#endif
-
-const std::vector<const char *> VulkanStaticHelper::m_vValidationLayers =
-    {
-        "VK_LAYER_KHRONOS_validation"};
-
-const std::vector<const char *> VulkanStaticHelper::m_vDeviceExtensions =
-    {
-        VK_KHR_SWAPCHAIN_EXTENSION_NAME};
-
-bool VulkanStaticHelper::CheckValidationLayerSupport()
+bool VulkanStaticHelper::CheckValidationLayerSupport(const std::vector<const char*>& validationLayers)
 {
     auto availableLayers = vk::enumerateInstanceLayerProperties();
 
-    for (const char *layerName : m_vValidationLayers)
+    for (auto& layerName : validationLayers)
     {
         bool layerFound = false;
 
@@ -44,7 +30,7 @@ bool VulkanStaticHelper::CheckValidationLayerSupport()
     return true;
 }
 
-std::vector<const char *> VulkanStaticHelper::GetRequiredExtensions()
+std::vector<const char *> VulkanStaticHelper::GetRequiredExtensions(bool validation)
 {
     uint32_t glfwExtensionCount = 0;
     const char **glfwExtensions;
@@ -52,7 +38,7 @@ std::vector<const char *> VulkanStaticHelper::GetRequiredExtensions()
 
     std::vector<const char *> extensions(glfwExtensions, glfwExtensions + glfwExtensionCount);
 
-    if (m_bEnableValidationLayers)
+    if (validation)
     {
         extensions.push_back(VK_EXT_DEBUG_UTILS_EXTENSION_NAME);
     }
@@ -60,9 +46,9 @@ std::vector<const char *> VulkanStaticHelper::GetRequiredExtensions()
     return extensions;
 }
 
-bool VulkanStaticHelper::CheckDeviceExtensionSupport(const vk::PhysicalDevice &device)
+bool VulkanStaticHelper::CheckDeviceExtensionSupport(const vk::PhysicalDevice &device, const std::vector<const char*>& deviceExtensions)
 {
-    std::set<std::string> sRequiredExtensions(m_vDeviceExtensions.begin(), m_vDeviceExtensions.end());
+    std::set<std::string> sRequiredExtensions(deviceExtensions.begin(), deviceExtensions.end());
 
     for (const auto &extension : device.enumerateDeviceExtensionProperties())
     {

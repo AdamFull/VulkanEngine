@@ -4,6 +4,21 @@
 using namespace Engine::Core;
 using namespace Engine::Core::Window;
 
+std::vector<const char*> str_vector_to_char_ptr_vector(const std::vector<std::string>& from)
+{
+    std::vector<const char*> output{};
+    for(auto& str : from)
+    {
+        auto size = str.size();
+        char* data{nullptr};
+        data = static_cast<char*>(calloc(size, sizeof(char)));
+        memcpy(data, str.data(), size);
+        data[size] = '\0';
+        output.push_back(static_cast<const char*>(data));
+    }
+    return output;
+}
+
 VkResult Device::CreateDebugUtilsMessengerEXT(VkInstance instance, const VkDebugUtilsMessengerCreateInfoEXT *pCreateInfo, const VkAllocationCallbacks *pAllocator, VkDebugUtilsMessengerEXT *pCallback)
 {
     auto func = (PFN_vkCreateDebugUtilsMessengerEXT)vkGetInstanceProcAddr(instance, "vkCreateDebugUtilsMessengerEXT");
@@ -53,24 +68,21 @@ Device::~Device()
     // surface is created by glfw, therefore not using a Unique handle
     Destroy(m_surface);
 
-    if (VulkanStaticHelper::m_bEnableValidationLayers)
-    {
+    if (m_bValidation)
         DestroyDebugUtilsMessengerEXT(m_vkInstance, m_vkDebugUtils, nullptr);
-    }
 
     vkDestroyDevice(m_logical, nullptr);
     vkDestroyInstance(m_vkInstance, nullptr);
 }
 
 // TODO: add features picking while initialization
-void Device::Create(const char *pApplicationName, uint32_t applicationVersion,
-                    const char *pEngineName, uint32_t engineVersion,
-                    uint32_t apiVersion)
+void Device::Create(const FDeviceCreateInfo& deviceCI)
 {
-    CreateInstance(pApplicationName, applicationVersion, pEngineName, engineVersion, apiVersion);
-    CreateDebugCallback();
+    m_bValidation = deviceCI.validation;
+    CreateInstance(deviceCI);
+    CreateDebugCallback(deviceCI);
     CreateSurface();
-    CreateDevice();
+    CreateDevice(deviceCI);
     CreateCommandPool();
 }
 
@@ -82,45 +94,37 @@ uint32_t Device::GetVulkanVersion()
 	return 0;
 }
 
-void Device::CreateInstance(const char *pApplicationName, uint32_t applicationVersion,
-                            const char *pEngineName, uint32_t engineVersion,
-                            uint32_t apiVersion)
+void Device::CreateInstance(const FDeviceCreateInfo& deviceCI)
 {
-    if (VulkanStaticHelper::m_bEnableValidationLayers && !VulkanStaticHelper::CheckValidationLayerSupport())
+    if (deviceCI.validation && !VulkanStaticHelper::CheckValidationLayerSupport(deviceCI.validationLayers))
     {
         throw std::runtime_error("Validation layers requested, but not available!");
     }
 
-    auto appInfo = vk::ApplicationInfo{};
-    appInfo.pApplicationName = pApplicationName;
-    appInfo.applicationVersion = applicationVersion;
-    appInfo.pEngineName = pEngineName;
-    appInfo.engineVersion = engineVersion;
-    appInfo.apiVersion = apiVersion;
-
-    auto extensions = VulkanStaticHelper::GetRequiredExtensions();
+    auto extensions = VulkanStaticHelper::GetRequiredExtensions(deviceCI.validation);
 
     auto createInfo = vk::InstanceCreateInfo{};
     createInfo.flags = vk::InstanceCreateFlags();
-    createInfo.pApplicationInfo = &appInfo;
+    createInfo.pApplicationInfo = &deviceCI.appInfo;
     createInfo.enabledLayerCount = 0;
     createInfo.ppEnabledLayerNames = nullptr;
     createInfo.enabledExtensionCount = static_cast<uint32_t>(extensions.size());
     createInfo.ppEnabledExtensionNames = extensions.data();
 
-    if (VulkanStaticHelper::m_bEnableValidationLayers)
+
+    if (deviceCI.validation)
     {
-        createInfo.enabledLayerCount = static_cast<uint32_t>(VulkanStaticHelper::m_vValidationLayers.size());
-        createInfo.ppEnabledLayerNames = VulkanStaticHelper::m_vValidationLayers.data();
+        createInfo.enabledLayerCount = static_cast<uint32_t>(deviceCI.validationLayers.size());
+        createInfo.ppEnabledLayerNames = deviceCI.validationLayers.data();
     }
 
     m_vkInstance = vk::createInstance(createInfo, nullptr);
     assert(m_vkInstance && "Vulkan instance was not created.");
 }
 
-void Device::CreateDebugCallback()
+void Device::CreateDebugCallback(const FDeviceCreateInfo& deviceCI)
 {
-    if (!VulkanStaticHelper::m_bEnableValidationLayers)
+    if (!deviceCI.validation)
         return;
 
     auto createInfo = vk::DebugUtilsMessengerCreateInfoEXT(
@@ -144,10 +148,10 @@ void Device::CreateSurface()
     assert(m_surface && "Surface creation failed");
 }
 
-void Device::CreateDevice()
+void Device::CreateDevice(const FDeviceCreateInfo& deviceCI)
 {
     assert(m_vkInstance && "Unable to create ligical device, cause vulkan instance is not valid");
-    m_physical = GetPhysicalDevice();
+    m_physical = GetPhysicalDevice(deviceCI.deviceExtensions);
     assert(m_physical && "No avaliable physical devices. Check device dependencies.");
 
     m_msaaSamples = GetMaxUsableSampleCount();
@@ -163,26 +167,19 @@ void Device::CreateDevice()
         queueCreateInfos.push_back({vk::DeviceQueueCreateFlags(), queueFamily, 1, &queuePriority});
     }
 
-    auto deviceFeatures = vk::PhysicalDeviceFeatures();
-    deviceFeatures.samplerAnisotropy = VK_TRUE;
-    deviceFeatures.sampleRateShading = VK_TRUE;
-    deviceFeatures.fillModeNonSolid = VK_TRUE;
-    deviceFeatures.multiViewport = VK_TRUE;
-    deviceFeatures.geometryShader = VK_TRUE;
-
     auto createInfo = vk::DeviceCreateInfo(
         vk::DeviceCreateFlags(),
         static_cast<uint32_t>(queueCreateInfos.size()),
         queueCreateInfos.data());
 
-    createInfo.pEnabledFeatures = &deviceFeatures;
-    createInfo.enabledExtensionCount = static_cast<uint32_t>(VulkanStaticHelper::m_vDeviceExtensions.size());
-    createInfo.ppEnabledExtensionNames = VulkanStaticHelper::m_vDeviceExtensions.data();
+    createInfo.pEnabledFeatures = &deviceCI.deviceFeatures;
+    createInfo.enabledExtensionCount = static_cast<uint32_t>(deviceCI.deviceExtensions.size());
+    createInfo.ppEnabledExtensionNames = deviceCI.deviceExtensions.data();
 
-    if (VulkanStaticHelper::m_bEnableValidationLayers)
+    if (deviceCI.validation)
     {
-        createInfo.enabledLayerCount = static_cast<uint32_t>(VulkanStaticHelper::m_vValidationLayers.size());
-        createInfo.ppEnabledLayerNames = VulkanStaticHelper::m_vValidationLayers.data();
+        createInfo.enabledLayerCount = static_cast<uint32_t>(deviceCI.validationLayers.size());
+        createInfo.ppEnabledLayerNames = deviceCI.validationLayers.data();
     }
 
     m_logical = m_physical.createDevice(createInfo);
@@ -392,17 +389,17 @@ void Device::CopyOnDeviceBuffer(vk::Buffer srcBuffer, vk::Buffer dstBuffer, vk::
     EndSingleTimeCommands(commandBuffer);
 }
 
-vk::PhysicalDevice Device::GetPhysicalDevice()
+vk::PhysicalDevice Device::GetPhysicalDevice(const std::vector<const char*>& deviceExtensions)
 {
     auto device = m_vkInstance.enumeratePhysicalDevices().front();
-    if (device && IsDeviceSuitable(device))
+    if (device && IsDeviceSuitable(device, deviceExtensions))
     {
         return device;
     }
     return nullptr;
 }
 
-std::vector<vk::PhysicalDevice> Device::GetAvaliablePhysicalDevices()
+std::vector<vk::PhysicalDevice> Device::GetAvaliablePhysicalDevices(const std::vector<const char*>& deviceExtensions)
 {
     auto devices = m_vkInstance.enumeratePhysicalDevices();
     std::vector<vk::PhysicalDevice> output_devices;
@@ -413,7 +410,7 @@ std::vector<vk::PhysicalDevice> Device::GetAvaliablePhysicalDevices()
 
     for (const auto &device : devices)
     {
-        if (IsDeviceSuitable(device))
+        if (IsDeviceSuitable(device, deviceExtensions))
         {
             output_devices.emplace_back(device);
         }
@@ -426,11 +423,11 @@ std::vector<vk::PhysicalDevice> Device::GetAvaliablePhysicalDevices()
     return output_devices;
 }
 
-bool Device::IsDeviceSuitable(const vk::PhysicalDevice &device)
+bool Device::IsDeviceSuitable(const vk::PhysicalDevice &device, const std::vector<const char*>& deviceExtensions)
 {
     QueueFamilyIndices indices = FindQueueFamilies(device);
 
-    bool extensionsSupported = VulkanStaticHelper::CheckDeviceExtensionSupport(device);
+    bool extensionsSupported = VulkanStaticHelper::CheckDeviceExtensionSupport(device, deviceExtensions);
 
     bool swapChainAdequate = false;
     if (extensionsSupported)
@@ -443,4 +440,182 @@ bool Device::IsDeviceSuitable(const vk::PhysicalDevice &device)
     supportedFeatures = device.getFeatures();
 
     return indices.isComplete() && extensionsSupported && swapChainAdequate && supportedFeatures.samplerAnisotropy && supportedFeatures.sampleRateShading;
+}
+
+namespace vk
+{
+    void to_json(nlohmann::json &json, const ApplicationInfo &type)
+    {
+        std::string appName{type.pApplicationName}, engineName{type.pEngineName};
+        json = nlohmann::json{
+            {"app_name", appName},
+            {"app_version", type.applicationVersion},
+            {"engine_name", engineName},
+            {"engine_version", type.engineVersion},
+            {"api_version", type.apiVersion}};
+    }
+
+    void from_json(const nlohmann::json &json, ApplicationInfo &type)
+    {
+        std::string appName, engineName;
+        ParseArgument(json, appName, "app_name", true);
+        type.pApplicationName = appName.data();
+        ParseArgument(json, type.applicationVersion, "app_version", true);
+        ParseArgument(json, engineName, "engine_name", true);
+        type.pEngineName = engineName.data();
+        ParseArgument(json, type.engineVersion, "engine_version", true);
+        ParseArgument(json, type.apiVersion, "api_version", true);
+    }
+
+    void to_json(nlohmann::json &json, const PhysicalDeviceFeatures &type)
+    {
+        json = nlohmann::json{
+            {"robust_buffer_access", type.robustBufferAccess},
+            {"full_draw_index_uint32", type.fullDrawIndexUint32},
+            {"image_cube_array", type.imageCubeArray},
+            {"independent_blend", type.independentBlend},
+            {"geometry_shader", type.geometryShader},
+            {"tesselation_shader", type.tessellationShader},
+            {"sample_rate_shading", type.sampleRateShading},
+            {"dial_src_blend", type.dualSrcBlend},
+            {"logic_op", type.logicOp},
+            {"multi_draw_indirect", type.multiDrawIndirect},
+            {"draw_indirect_first_instance", type.drawIndirectFirstInstance},
+            {"depth_clamp", type.depthClamp},
+            {"depth_bias_clamp", type.depthBiasClamp},
+            {"full_mode_non_solid", type.fillModeNonSolid},
+            {"depth_bounds", type.depthBounds},
+            {"wide_lines", type.wideLines},
+            {"large_points", type.largePoints},
+            {"alpha_to_one", type.alphaToOne},
+            {"multi_viewport", type.multiViewport},
+            {"sampler_anisotropy", type.samplerAnisotropy},
+            {"texture_compression_etc2", type.textureCompressionETC2},
+            {"texture_compression_astc_ldr", type.textureCompressionASTC_LDR},
+            {"texture_compression_bc", type.textureCompressionBC},
+            {"occlusion_query_precise", type.occlusionQueryPrecise},
+            {"pipeline_statistics_query", type.pipelineStatisticsQuery},
+            {"vertex_pipeline_stores_and_atomics", type.vertexPipelineStoresAndAtomics},
+            {"fragment_stores_and_atomics", type.fragmentStoresAndAtomics},
+            {"shader_tessellation_and_geometry_point_size", type.shaderTessellationAndGeometryPointSize},
+            {"shader_image_gather_extended", type.shaderImageGatherExtended},
+            {"shader_storage_image_extended_formats", type.shaderStorageImageExtendedFormats},
+            {"shader_storage_image_multisample", type.shaderStorageImageMultisample},
+            {"shader_storage_image_read_without_format", type.shaderStorageImageReadWithoutFormat},
+            {"shader_storage_image_write_without_format", type.shaderStorageImageWriteWithoutFormat},
+            {"shader_uniform_buffer_array_dynamic_indexing", type.shaderUniformBufferArrayDynamicIndexing},
+            {"shader_sampled_image_array_dynamic_indexing", type.shaderSampledImageArrayDynamicIndexing},
+            {"shader_storage_buffer_array_dynamic_indexing", type.shaderStorageBufferArrayDynamicIndexing},
+            {"shader_storage_image_array_dynamic_indexing", type.shaderStorageImageArrayDynamicIndexing},
+            {"shader_clip_distance", type.shaderClipDistance},
+            {"shader_cull_distance", type.shaderCullDistance},
+            {"shader_float64", type.shaderFloat64},
+            {"shader_int64", type.shaderInt64},
+            {"shader_int16", type.shaderInt16},
+            {"shader_resource_residency", type.shaderResourceResidency},
+            {"shader_resource_min_log", type.shaderResourceMinLod},
+            {"sparse_binding", type.sparseBinding},
+            {"sparse_residency_buffer", type.sparseResidencyBuffer},
+            {"sparse_residency_image_2d", type.sparseResidencyImage2D},
+            {"sparse_residency_image_3d", type.sparseResidencyImage3D},
+            {"sparse_residency_2_samples", type.sparseResidency2Samples},
+            {"sparse_residency_4_samples", type.sparseResidency4Samples},
+            {"sparse_residency_8_samples", type.sparseResidency8Samples},
+            {"sparse_residency_16_samples", type.sparseResidency16Samples},
+            {"sparse_residency_aliased", type.sparseResidencyAliased},
+            {"variable_multisample_rate", type.variableMultisampleRate},
+            {"full_mode_non_soloid", type.fillModeNonSolid},
+            {"inherited_queries", type.inheritedQueries}};
+    }
+
+    void from_json(const nlohmann::json &json, PhysicalDeviceFeatures &type)
+    {
+        ParseArgument(json, type.robustBufferAccess, "robust_buffer_access");
+        ParseArgument(json, type.fullDrawIndexUint32, "full_draw_index_uint32");
+        ParseArgument(json, type.imageCubeArray, "image_cube_array");
+        ParseArgument(json, type.independentBlend, "independent_blend");
+        ParseArgument(json, type.geometryShader, "geometry_shader");
+        ParseArgument(json, type.tessellationShader, "tesselation_shader");
+        ParseArgument(json, type.sampleRateShading, "sample_rate_shading");
+        ParseArgument(json, type.dualSrcBlend, "dial_src_blend");
+        ParseArgument(json, type.logicOp, "logic_op");
+        ParseArgument(json, type.multiDrawIndirect, "multi_draw_indirect");
+        ParseArgument(json, type.drawIndirectFirstInstance, "draw_indirect_first_instance");
+        ParseArgument(json, type.depthClamp, "depth_clamp");
+        ParseArgument(json, type.depthBiasClamp, "depth_bias_clamp");
+        ParseArgument(json, type.fillModeNonSolid, "full_mode_non_solid");
+        ParseArgument(json, type.depthBounds, "depth_bounds");
+        ParseArgument(json, type.wideLines, "wide_lines");
+        ParseArgument(json, type.largePoints, "large_points");
+        ParseArgument(json, type.alphaToOne, "alpha_to_one");
+        ParseArgument(json, type.multiViewport, "multi_viewport");
+        ParseArgument(json, type.samplerAnisotropy, "sampler_anisotropy");
+        ParseArgument(json, type.textureCompressionETC2, "texture_compression_etc2");
+        ParseArgument(json, type.textureCompressionASTC_LDR, "texture_compression_astc_ldr");
+        ParseArgument(json, type.textureCompressionBC, "texture_compression_bc");
+        ParseArgument(json, type.occlusionQueryPrecise, "occlusion_query_precise");
+        ParseArgument(json, type.pipelineStatisticsQuery, "pipeline_statistics_query");
+        ParseArgument(json, type.vertexPipelineStoresAndAtomics, "vertex_pipeline_stores_and_atomics");
+        ParseArgument(json, type.fragmentStoresAndAtomics, "fragment_stores_and_atomics");
+        ParseArgument(json, type.shaderTessellationAndGeometryPointSize, "shader_tessellation_and_geometry_point_size");
+        ParseArgument(json, type.shaderImageGatherExtended, "shader_image_gather_extended");
+        ParseArgument(json, type.shaderStorageImageExtendedFormats, "shader_storage_image_extended_formats");
+        ParseArgument(json, type.shaderStorageImageMultisample, "shader_storage_image_multisample");
+        ParseArgument(json, type.shaderStorageImageReadWithoutFormat, "shader_storage_image_read_without_format");
+        ParseArgument(json, type.shaderStorageImageWriteWithoutFormat, "shader_storage_image_write_without_format");
+        ParseArgument(json, type.shaderUniformBufferArrayDynamicIndexing, "shader_uniform_buffer_array_dynamic_indexing");
+        ParseArgument(json, type.shaderSampledImageArrayDynamicIndexing, "shader_sampled_image_array_dynamic_indexing");
+        ParseArgument(json, type.shaderStorageBufferArrayDynamicIndexing, "shader_storage_buffer_array_dynamic_indexing");
+        ParseArgument(json, type.shaderStorageImageArrayDynamicIndexing, "shader_storage_image_array_dynamic_indexing");
+        ParseArgument(json, type.shaderClipDistance, "shader_clip_distance");
+        ParseArgument(json, type.shaderCullDistance, "shader_cull_distance");
+        ParseArgument(json, type.shaderFloat64, "shader_float64");
+        ParseArgument(json, type.shaderInt64, "shader_int64");
+        ParseArgument(json, type.shaderInt16, "shader_int16");
+        ParseArgument(json, type.shaderResourceMinLod, "shader_resource_residency");
+        ParseArgument(json, type.shaderResourceResidency, "shader_resource_min_log");
+        ParseArgument(json, type.sparseBinding, "sparse_binding");
+        ParseArgument(json, type.sparseResidencyBuffer, "sparse_residency_buffer");
+        ParseArgument(json, type.sparseResidencyImage2D, "sparse_residency_image_2d");
+        ParseArgument(json, type.sparseResidencyImage3D, "sparse_residency_image_3d");
+        ParseArgument(json, type.sparseResidency2Samples, "sparse_residency_2_samples");
+        ParseArgument(json, type.sparseResidency4Samples, "sparse_residency_4_samples");
+        ParseArgument(json, type.sparseResidency8Samples, "sparse_residency_8_samples");
+        ParseArgument(json, type.sparseResidency16Samples, "sparse_residency_16_samples");
+        ParseArgument(json, type.sparseResidencyAliased, "sparse_residency_aliased");
+        ParseArgument(json, type.variableMultisampleRate, "variable_multisample_rate");
+        ParseArgument(json, type.fillModeNonSolid, "full_mode_non_soloid");
+        ParseArgument(json, type.inheritedQueries, "inherited_queries");
+    }
+}
+
+namespace Engine
+{
+    namespace Core
+    {
+        void to_json(nlohmann::json &json, const FDeviceCreateInfo &type)
+        {
+            std::vector<std::string> validationLayers{type.validationLayers.begin(), type.validationLayers.end()}, 
+            deviceExtensions{type.deviceExtensions.begin(), type.deviceExtensions.end()};
+            json = nlohmann::json{
+                {"app_info", type.appInfo},
+                {"validation", type.validation},
+                {"validation_layers", validationLayers},
+                {"device_extensions", deviceExtensions},
+                {"physical_device_extensions", type.deviceFeatures}};
+        }
+
+        void from_json(const nlohmann::json &json, FDeviceCreateInfo &type)
+        {
+            std::vector<std::string> validationLayers, deviceExtensions;
+            ParseArgument(json, type.appInfo, "app_info", true);
+            ParseArgument(json, type.validation, "validation");
+            ParseArgument(json, validationLayers, "validation_layers", true);
+            ParseArgument(json, deviceExtensions, "device_extensions", true);
+            ParseArgument(json, type.deviceFeatures, "device_features", true);
+
+            type.validationLayers = str_vector_to_char_ptr_vector(validationLayers);
+            type.deviceExtensions = str_vector_to_char_ptr_vector(deviceExtensions);
+        }
+    }
 }

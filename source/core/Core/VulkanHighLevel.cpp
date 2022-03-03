@@ -25,7 +25,7 @@ void VulkanHighLevel::Create(FEngineCreateInfo createInfo)
 
     m_pWinHandle->Create(createInfo.window);
 
-    m_pDevice->Create(createInfo.appName.c_str(), createInfo.appVersion, createInfo.engineName.c_str(), createInfo.engineVersion, createInfo.apiVersion);
+    m_pDevice->Create(createInfo.device);
 
     CreatePipelineCache();
 
@@ -123,21 +123,13 @@ namespace Engine
         {
             json = nlohmann::json{
                 {"window", type.window},
-                {"app_name", type.appName},
-                {"app_version", type.appVersion},
-                {"engine_name", type.engineName},
-                {"engine_version", type.engineVersion},
-                {"api_version", type.apiVersion}};
+                {"device", type.device}};
         }
 
         void from_json(const nlohmann::json &json, FEngineCreateInfo &type)
         {
             ParseArgument(json, type.window, "window", true);
-            ParseArgument(json, type.appName, "app_name", true);
-            ParseArgument(json, type.appVersion, "app_version", true);
-            ParseArgument(json, type.engineName, "engine_name", true);
-            ParseArgument(json, type.engineVersion, "engine_version", true);
-            ParseArgument(json, type.apiVersion, "api_version", true);
+            ParseArgument(json, type.device, "device", true);
         }
     }
 }

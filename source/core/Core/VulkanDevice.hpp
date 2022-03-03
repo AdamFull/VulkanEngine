@@ -1,11 +1,21 @@
 #pragma once
 #include "DataTypes/VulkanQueueFamilies.h"
 #include "DataTypes/VulkanSwapChainSipportDetails.h"
+#include "serializer/Serialization.hpp"
 
 namespace Engine
 {
     namespace Core
     {
+        struct FDeviceCreateInfo
+        {
+            vk::ApplicationInfo appInfo;
+            bool validation;
+            std::vector<const char*> validationLayers;
+            std::vector<const char*> deviceExtensions;
+            vk::PhysicalDeviceFeatures deviceFeatures;
+        };
+
         class Device
         {
         public:
@@ -21,9 +31,7 @@ namespace Engine
             static VKAPI_ATTR VkBool32 VKAPI_CALL ValidationCallback(VkDebugUtilsMessageSeverityFlagBitsEXT, VkDebugUtilsMessageTypeFlagsEXT, const VkDebugUtilsMessengerCallbackDataEXT *, void *);
             static void DestroyDebugUtilsMessengerEXT(VkInstance, VkDebugUtilsMessengerEXT, const VkAllocationCallbacks *);
 
-            void Create(const char *pApplicationName, uint32_t applicationVersion,
-                        const char *pEngineName, uint32_t engineVersion,
-                        uint32_t apiVersion);
+            void Create(const FDeviceCreateInfo& deviceCI);
 
             inline void GPUWait() { m_logical.waitIdle(); }
 
@@ -258,18 +266,16 @@ namespace Engine
             }
 
         private:
-            void CreateInstance(const char *pApplicationName, uint32_t applicationVersion,
-                                const char *pEngineName, uint32_t engineVersion,
-                                uint32_t apiVersion);
-            void CreateDebugCallback();
+            void CreateInstance(const FDeviceCreateInfo& deviceCI);
+            void CreateDebugCallback(const FDeviceCreateInfo& deviceCI);
             void CreateSurface();
-            void CreateDevice();
+            void CreateDevice(const FDeviceCreateInfo& deviceCI);
             void CreateCommandPool();
 
             // Private helpers
-            vk::PhysicalDevice GetPhysicalDevice();
-            std::vector<vk::PhysicalDevice> GetAvaliablePhysicalDevices();
-            bool IsDeviceSuitable(const vk::PhysicalDevice &device);
+            vk::PhysicalDevice GetPhysicalDevice(const std::vector<const char*>& deviceExtensions);
+            std::vector<vk::PhysicalDevice> GetAvaliablePhysicalDevices(const std::vector<const char*>& deviceExtensions);
+            bool IsDeviceSuitable(const vk::PhysicalDevice &device, const std::vector<const char*>& deviceExtensions);
 
         private:
             vk::Instance m_vkInstance; // Main vulkan instance
@@ -283,6 +289,11 @@ namespace Engine
             vk::Queue m_qPresentQueue;
 
             vk::SampleCountFlagBits m_msaaSamples{vk::SampleCountFlagBits::e1};
+            bool m_bValidation{false};
         };
+
+        REGISTER_SERIALIZATION_BLOCK_H(vk::ApplicationInfo);
+        REGISTER_SERIALIZATION_BLOCK_H(vk::PhysicalDeviceFeatures);
+        REGISTER_SERIALIZATION_BLOCK_H(FDeviceCreateInfo);
     }
 }

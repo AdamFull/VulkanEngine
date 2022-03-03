@@ -28,11 +28,7 @@ namespace Engine
         struct FEngineCreateInfo
         {
             Window::FWindowCreateInfo window;
-            std::string appName;
-            uint32_t appVersion;
-            std::string engineName;
-            uint32_t engineVersion;
-            uint32_t apiVersion;
+            FDeviceCreateInfo device;
         };
 
         class VulkanHighLevel : public Singleton<VulkanHighLevel>

@@ -40,6 +40,7 @@
 #include <optional>
 #include <numeric>
 #include <random>
+#include <functional>
 
 #include <chrono>
 

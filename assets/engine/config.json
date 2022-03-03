@@ -8,9 +8,26 @@
         "windowed": true,
         "backend": ""
     },
-    "app_name": "Vulkan",
-    "app_version": 4194304,
-    "engine_name": "vkeng",
-    "engine_version": 4194304,
-    "api_version": 4194304
+    "device":
+    {
+        "app_info":
+        {
+            "app_name": "Vulkan",
+            "app_version": 4194304,
+            "engine_name": "vkeng",
+            "engine_version": 4194304,
+            "api_version": 4194304
+        },
+        "validation": true,
+        "validation_layers": ["VK_LAYER_KHRONOS_validation"],
+        "device_extensions": ["VK_KHR_swapchain"],
+        "device_features":
+        {
+            "sampler_anisotropy": true,
+            "sample_rate_shading": true,
+            "fill_mode_non_solid": true,
+            "multi_viewport": true,
+            "geometry_shader": true
+        }
+    }
 }

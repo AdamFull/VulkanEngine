@@ -76,7 +76,8 @@ void WindowHandle::Create(FWindowCreateInfo createInfo)
 
     glfwSetWindowUserPointer(m_pWindow, this);
     glfwSetInputMode(m_pWindow, GLFW_STICKY_KEYS, GLFW_TRUE);
-    // glfwSetInputMode(m_pWindow, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
+    if(createInfo.fullscreen)
+        glfwSetInputMode(m_pWindow, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
 
     glfwSetWindowSizeCallback(m_pWindow, &WinCallbacks::WinSizeChangeCallback);
     glfwSetWindowFocusCallback(m_pWindow, &WinCallbacks::WinInputFocusChangeCallback);

@@ -20,6 +20,14 @@ WindowHandle::~WindowHandle()
 
 void WindowHandle::Create(FWindowCreateInfo createInfo)
 {
+    auto* pPrimaryMonitor = glfwGetPrimaryMonitor();
+    const GLFWvidmode* mode = glfwGetVideoMode(pPrimaryMonitor);
+    if(createInfo.fullscreen)
+    {
+        createInfo.width = mode->width;
+        createInfo.height = mode->height;
+    }
+
     ResizeWindow(createInfo.width, createInfo.height);
     FrameBufferUpdated();
 
@@ -28,7 +36,11 @@ void WindowHandle::Create(FWindowCreateInfo createInfo)
     glfwWindowHint(GLFW_DECORATED, GLFW_TRUE);
     glfwWindowHint(GLFW_VISIBLE, GLFW_TRUE);
 
-    m_pWindow = glfwCreateWindow(createInfo.width, createInfo.height, createInfo.name.c_str(), nullptr, nullptr);
+    if(createInfo.windowed)
+        m_pWindow = glfwCreateWindow(createInfo.width, createInfo.height, createInfo.name.c_str(), nullptr, nullptr);
+    else
+        m_pWindow = glfwCreateWindow(createInfo.width, createInfo.height, createInfo.name.c_str(), pPrimaryMonitor, nullptr);
+
     glfwSetWindowUserPointer(m_pWindow, this);
     glfwSetInputMode(m_pWindow, GLFW_STICKY_KEYS, GLFW_TRUE);
     // glfwSetInputMode(m_pWindow, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
@@ -44,6 +56,8 @@ void WindowHandle::Create(FWindowCreateInfo createInfo)
     glfwSetMonitorCallback(&WinCallbacks::WinInputMonitorCallback);
 
     WinCallbacks::SubscribeSizeChange(this, &WindowHandle::ResizeWindow);
+
+
 }
 
 void WindowHandle::CreateWindowSurface(vk::Instance &instance, vk::SurfaceKHR &surface)

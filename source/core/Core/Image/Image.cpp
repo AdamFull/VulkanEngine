@@ -108,16 +108,11 @@ void Image::CreateEmptyTexture(uint32_t width, uint32_t height, uint32_t depth, 
 
 void Image::InitializeTexture(ktxTexture *info, vk::Format format, vk::ImageUsageFlags flags, vk::ImageAspectFlags aspect)
 {
-    vk::PhysicalDeviceProperties devprops;
-    UDevice->GetPhysical().getProperties(&devprops);
     m_format = format;
 
-    uint32_t maxImageDimension3D(devprops.limits.maxImageDimension3D);
-    if (info->baseWidth > maxImageDimension3D || info->baseHeight > maxImageDimension3D || info->baseDepth > maxImageDimension3D)
-    {
-        std::cout << "Error: Requested texture dimensions is greater than supported 3D texture dimension!" << std::endl;
-        return;
-    }
+    //TODO: Add checking for texture type here
+    if(!IsSupportedDimension(info))
+        throw std::runtime_error("Unsupported texture dimension.");
 
     m_extent = vk::Extent3D{info->baseWidth, info->baseHeight, info->baseDepth};
     m_mipLevels = info->numLevels;
@@ -395,6 +390,47 @@ void Image::CreateSampler(vk::Sampler &sampler, uint32_t mip_levels, vk::Sampler
     assert(sampler && "Texture sampler was not created");
 }
 
+bool Image::IsSupportedDimension(ktxTexture *info)
+{
+    vk::PhysicalDeviceProperties devprops;
+    UDevice->GetPhysical().getProperties(&devprops);
+
+    if(info->isCubemap)
+    {
+        return !(info->baseWidth > devprops.limits.maxImageDimensionCube || 
+        info->baseHeight > devprops.limits.maxImageDimensionCube || 
+        info->baseDepth > devprops.limits.maxImageDimensionCube);
+    }
+
+    if(info->isArray)
+    {
+        return !(info->numLayers > devprops.limits.maxImageArrayLayers || 
+        info->numFaces > devprops.limits.maxImageArrayLayers);
+    }
+
+    if(info->numDimensions == 1)
+    {
+        return !(info->baseWidth > devprops.limits.maxImageDimension1D ||
+        info->baseHeight > devprops.limits.maxImageDimension1D ||
+        info->baseDepth > devprops.limits.maxImageDimension1D);
+    }
+
+    if(info->numDimensions == 2)
+    {
+        return !(info->baseWidth > devprops.limits.maxImageDimension2D ||
+        info->baseHeight > devprops.limits.maxImageDimension2D ||
+        info->baseDepth > devprops.limits.maxImageDimension2D); 
+    }
+
+    if(info->numDimensions == 3)
+    {
+        return !(info->baseWidth > devprops.limits.maxImageDimension3D ||
+        info->baseHeight > devprops.limits.maxImageDimension3D ||
+        info->baseDepth > devprops.limits.maxImageDimension3D); 
+    }
+
+    return true;
+}
 
 void Image::TransitionImageLayout(vk::ImageLayout newLayout, vk::ImageAspectFlags aspectFlags, bool use_mips)
 {

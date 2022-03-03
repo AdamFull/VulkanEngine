@@ -3,6 +3,39 @@
 
 using namespace Engine::Core::Window;
 
+namespace Engine
+{
+    namespace Core
+    {
+        namespace Window
+        {
+            void to_json(nlohmann::json &json, const FWindowCreateInfo &type)
+            {
+                json = nlohmann::json
+                {
+                    {"name", type.name},
+                    {"width", type.width},
+                    {"height", type.height},
+                    {"fullscreen", type.fullscreen},
+                    {"windowed", type.windowed},
+                    {"backend", {type.backend}}
+                };
+            }
+
+            void from_json(const nlohmann::json &json, FWindowCreateInfo &type)
+            {
+                ParseArgument(json, type.name, "name", true);
+                ParseArgument(json, type.width, "width", true);
+                ParseArgument(json, type.height, "height", true);
+                ParseArgument(json, type.fullscreen, "fullscreen");
+                ParseArgument(json, type.windowed, "windowed");
+                ParseArgument(json, type.backend, "backend", true);
+            }
+        }
+    }
+}
+
+
 int32_t WindowHandle::m_iWidth{800};
 int32_t WindowHandle::m_iHeight{600};
 bool WindowHandle::m_bWasResized{false};

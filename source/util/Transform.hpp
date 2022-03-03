@@ -1,4 +1,5 @@
 #pragma once
+#include "serializer/Serialization.hpp"
 
 struct FTransform
 {
@@ -57,3 +58,5 @@ struct FTransform
         return glm::transpose(GetModel());
     }
 };
+
+REGISTER_SERIALIZATION_BLOCK_H(FTransform);

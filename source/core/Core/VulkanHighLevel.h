@@ -8,6 +8,7 @@
 #include "Buffer/VulkanVBO.h"
 #include "VulkanRenderSystem.h"
 #include "Overlay/ImguiOverlay.h"
+#include "serializer/Serialization.hpp"
 
 #include "Pipeline/VulkanPipeline.h"
 #include "Pipeline/GraphicsPipeline.h"
@@ -77,5 +78,7 @@ namespace Engine
 
             vk::PipelineCache m_pipelineCache;
         };
+
+        REGISTER_SERIALIZATION_BLOCK_H(FEngineCreateInfo);
     }
 }

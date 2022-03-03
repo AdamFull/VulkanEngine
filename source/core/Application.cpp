@@ -3,6 +3,7 @@
 #include "KeyMapping/InputMapper.h"
 #include "Core/Scene/Objects/Components/Camera/CameraManager.h"
 #include "SceneFactory.h"
+#include "filesystem/FilesystemHelper.h"
 
 namespace Engine
 {
@@ -11,21 +12,13 @@ namespace Engine
         InputMapper::getInstance()->CreateAction("ServiceHandles", EActionKey::eEscape, EActionKey::eF1);
         InputMapper::getInstance()->BindAction("ServiceHandles", EKeyState::eRelease, this, &Application::ServiceHandle);
 
-        Core::FEngineCreateInfo createInfo;
-        createInfo.window.width = 2560;
-        createInfo.window.height = 1475;
-        createInfo.window.name = "Vulkan";
-        createInfo.appName = "Vulkan";
-        createInfo.apiVersion = VK_MAKE_VERSION(1, 0, 0);
-        createInfo.engineName = "IncenerateEngine";
-        createInfo.engineVersion = VK_MAKE_VERSION(1, 0, 0);
-        createInfo.apiVersion = VK_API_VERSION_1_0;
+        Core::FEngineCreateInfo createInfo = FilesystemHelper::GetConfigAs<Core::FEngineCreateInfo>("engine/config.json");
         UHLInstance->Create(createInfo);
 
         m_pCameraController = std::make_unique<Controllers::CameraEditorController>();
         m_pCameraController->Create();
 
-        m_pRenderScene = SceneFactory::Create("../../assets/scene.json");
+        m_pRenderScene = SceneFactory::Create("scene.json");
     }
 
     void Application::ServiceHandle(EActionKey eKey, EKeyState eState)

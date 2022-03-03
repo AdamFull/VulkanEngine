@@ -1,18 +1,16 @@
 {
-    "Window":
+    "window":
     {
-        "width": 1920,
-        "height": 1080,
-        "fullscreen_mode": false,
-        "window_name": "Vulkan",
-        "engine_name": "vk"
+        "name": "Vulkan",
+        "width": 2560,
+        "height": 1475,
+        "fullscreen": false,
+        "windowed": true,
+        "backend": ""
     },
-    "Engine":
-    {
-        "Shaders":
-        {
-            "shader_info": "assets/shaders/shader_info.json",
-            "real_time_compilation": true
-        }
-    }
+    "app_name": "Vulkan",
+    "app_version": 4194304,
+    "engine_name": "vkeng",
+    "engine_version": 4194304,
+    "api_version": 4194304
 }

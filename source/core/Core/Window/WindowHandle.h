@@ -1,5 +1,6 @@
 #pragma once
 #include <GLFW/glfw3.h>
+#include "serializer/Serialization.hpp"
 
 namespace Engine
 {
@@ -56,6 +57,8 @@ namespace Engine
             private:
                 GLFWwindow *m_pWindow;
             };
+
+            REGISTER_SERIALIZATION_BLOCK_H(FWindowCreateInfo);
         }
     }
 }

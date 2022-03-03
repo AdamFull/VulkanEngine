@@ -9,7 +9,7 @@ void CameraEditorController::Create()
 {
 
     InputMapper::getInstance()->CreateAction("CameraMovement", EActionKey::eW, EActionKey::eS, EActionKey::eA,
-                                             EActionKey::eD, EActionKey::eSpace, EActionKey::eLeftControl, EActionKey::eMouseMiddle);
+                                             EActionKey::eD, EActionKey::eSpace, EActionKey::eLeftControl, EActionKey::eMouseLeft);
     InputMapper::getInstance()->CreateAction("CameraRotation", EActionKey::eCursorDelta);
     InputMapper::getInstance()->CreateAction("CameraMovementToPoint", EActionKey::eScrol);
 
@@ -49,7 +49,7 @@ void CameraEditorController::CameraMovement(EActionKey eKey, EKeyState eState)
     case EActionKey::eLeftControl:
         direction -= transform.GetUpVector();
         break;
-    case EActionKey::eMouseMiddle:
+    case EActionKey::eMouseLeft:
         m_bRotatePass = true;
         break;
 
@@ -75,7 +75,7 @@ void CameraEditorController::MouseRotation(float fX, float fY)
 
     if (glm::dot(rotate, rotate) > std::numeric_limits<float>::epsilon())
     {
-        transform.rot += rotate * 50.0f;
+        transform.rot += rotate * 2.0f;
 
         /*transform.rot.x = glm::clamp(transform.rot.x, -1.5f, 1.5f);
         transform.rot.y = glm::mod(transform.rot.y, glm::two_pi<float>());*/

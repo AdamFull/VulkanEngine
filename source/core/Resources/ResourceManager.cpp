@@ -1,6 +1,5 @@
 #include "ResourceManager.h"
 #include "filesystem/FilesystemHelper.h"
-#include "serializer/JsonSerializer.h"
 #include "Core/VulkanHighLevel.h"
 
 using namespace Engine::Core;

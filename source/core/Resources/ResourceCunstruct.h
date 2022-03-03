@@ -1,4 +1,5 @@
 #pragma once
+#include "serializer/Serialization.hpp"
 
 namespace Engine
 {
@@ -113,5 +114,12 @@ namespace Engine
             glm::vec3 vColor{};
             float fAttenuation{};
         };
+
+        REGISTER_SERIALIZATION_BLOCK_H(FNoiseParam);
+        REGISTER_SERIALIZATION_BLOCK_H(FTextureCreateInfo);
+        REGISTER_SERIALIZATION_BLOCK_H(FMaterialParamsInfo);
+        REGISTER_SERIALIZATION_BLOCK_H(FMaterialCreateInfo);
+        REGISTER_SERIALIZATION_BLOCK_H(FMeshCreateInfo);
+        REGISTER_SERIALIZATION_BLOCK_H(FLightCreateinfo);
     }
 }

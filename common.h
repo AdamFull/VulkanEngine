@@ -22,6 +22,7 @@
 #include <glm/gtc/type_ptr.hpp>
 
 #include "external/EasyDelegate/EasyDelegateImpl.hpp"
+#include "external/tinygltf/json.hpp"
 
 #include "util/uuid.hpp"
 #include "util/Singleton.hpp"

@@ -17,12 +17,7 @@ using namespace Engine::Core::Scene;
 
 std::unique_ptr<RenderScene> SceneFactory::Create(std::string srScenePath)
 {
-    auto input = FilesystemHelper::ReadFile(srScenePath);
-    auto res_json = nlohmann::json::parse(input);
-
-    FSceneCreateInfo info;
-    res_json.get_to(info);
-
+    FSceneCreateInfo info = FilesystemHelper::GetConfigAs<FSceneCreateInfo>(srScenePath);
     auto pRenderScene = std::make_unique<RenderScene>();
     pRenderScene->Create();
 

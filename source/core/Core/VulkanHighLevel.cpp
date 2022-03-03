@@ -114,3 +114,30 @@ void VulkanHighLevel::Cleanup()
     CleanupSwapChain();
     m_pOverlay->Cleanup();
 }
+
+namespace Engine
+{
+    namespace Core
+    {
+        void to_json(nlohmann::json &json, const FEngineCreateInfo &type)
+        {
+            json = nlohmann::json{
+                {"window", type.window},
+                {"app_name", type.appName},
+                {"app_version", type.appVersion},
+                {"engine_name", type.engineName},
+                {"engine_version", type.engineVersion},
+                {"api_version", type.apiVersion}};
+        }
+
+        void from_json(const nlohmann::json &json, FEngineCreateInfo &type)
+        {
+            ParseArgument(json, type.window, "window", true);
+            ParseArgument(json, type.appName, "app_name", true);
+            ParseArgument(json, type.appVersion, "app_version", true);
+            ParseArgument(json, type.engineName, "engine_name", true);
+            ParseArgument(json, type.engineVersion, "engine_version", true);
+            ParseArgument(json, type.apiVersion, "api_version", true);
+        }
+    }
+}

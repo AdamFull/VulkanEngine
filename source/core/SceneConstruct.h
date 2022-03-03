@@ -1,5 +1,6 @@
 #pragma once
 #include "Resources/ResourceCunstruct.h"
+#include "serializer/Serialization.hpp"
 
 namespace Engine
 {
@@ -32,4 +33,8 @@ namespace Engine
         FSceneObject environment;
         std::vector<FSceneObject> vSceneObjects;
     };
+
+    /*SCENE*/
+    REGISTER_SERIALIZATION_BLOCK_H(FSceneObject);
+    REGISTER_SERIALIZATION_BLOCK_H(FSceneCreateInfo);
 }

@@ -90,8 +90,6 @@ void WindowHandle::Create(FWindowCreateInfo createInfo)
     glfwSetMonitorCallback(&WinCallbacks::WinInputMonitorCallback);
 
     WinCallbacks::SubscribeSizeChange(this, &WindowHandle::ResizeWindow);
-
-
 }
 
 void WindowHandle::CreateWindowSurface(vk::Instance &instance, vk::SurfaceKHR &surface)

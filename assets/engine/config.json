@@ -29,5 +29,14 @@
             "multi_viewport": true,
             "geometry_shader": true
         }
+    },
+    "graphics":
+    {
+        "post_process": true,
+        "ray_tracing": false
+    },
+    "scene":
+    {
+        "default_scene": "scene.json"
     }
 }

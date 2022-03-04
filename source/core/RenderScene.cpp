@@ -13,14 +13,6 @@ using namespace Engine::Core::Scene;
 using namespace Engine::Core::Scene::Objects::Components;
 using namespace Engine::Resources;
 
-float frandom(float min, float max) 
-{
-    float random = ((float) rand()) / (float) RAND_MAX;
-    float diff = max - min;
-    float r = random * diff;
-    return min + r;
-}
-
 RenderScene::~RenderScene()
 {
     Destroy();
@@ -32,17 +24,6 @@ void RenderScene::Create()
     m_pResourceManager = std::make_shared<Resources::ResourceManager>();
     m_pResourceManager->Create();
     UOverlay->Create(m_pResourceManager, m_pRoot);   //TODO: bad!
-
-    //TODO: for test
-    //for(uint32_t i = 0; i < 10; i++)
-    //{
-    //    LightSourceManager::GetInstance()->CreateSource(ELightSourceType::ePoint,
-    //    glm::vec3(frandom(-8.f, 8.f), frandom(-3.f, -1.f), frandom(-8.f, 8.f)),
-    //    glm::vec3(frandom(0.f, 1.f), frandom(0.f, 1.f), frandom(0.f, 1.f)),
-    //    frandom(10.f, 30.f));
-    //}
-    //LightSourceManager::getInstance()->CreateSource(ELightSourceType::ePoint, glm::vec3(7.5, -2.7, 3.8f), glm::vec3(1.0f, 0.0, 0.0), 5.f);
-    //LightSourceManager::getInstance()->CreateSource(ELightSourceType::ePoint, glm::vec3(-7.7, -2.7, 3.8f), glm::vec3(0.0f, 1.0, 0.0), 5.f);
 }
 
 void RenderScene::ReCreate()

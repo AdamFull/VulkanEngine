@@ -7,5 +7,6 @@ out/
 assets/meshes/
 assets/textures/
 assets/shaders/*.spv
-frag.spv
-vert.spv
+/frag.spv
+/vert.spv
+/geom.spv

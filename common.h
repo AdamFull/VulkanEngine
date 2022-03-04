@@ -21,13 +21,13 @@
 #include <glm/gtx/matrix_operation.hpp>
 #include <glm/gtc/type_ptr.hpp>
 
-#include "external/EasyDelegate/EasyDelegateImpl.hpp"
-#include "external/tinygltf/json.hpp"
+#include <external/EasyDelegate/EasyDelegateImpl.hpp>
+#include <external/tinygltf/json.hpp>
 
-#include "util/uuid.hpp"
-#include "util/Singleton.hpp"
-#include "util/DynamicNode.hpp"
-#include "util/StringHelper.h"
+#include <util/uuid.hpp>
+#include <util/Singleton.hpp>
+#include <util/DynamicNode.hpp>
+#include <util/StringHelper.h>
 
 #include <cassert>
 #include <iostream>

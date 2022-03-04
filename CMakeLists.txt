@@ -86,10 +86,10 @@ set(CPP_FILES
 	${CPP_FILES_IMGUI}
 )
 
-add_subdirectory(${CMAKE_CURRENT_SOURCE_DIR}/source/external/imgui)
-set(IMGUI_INCLUDE_DIR ${CMAKE_CURRENT_SOURCE_DIR}/source/external/imgui)
-add_subdirectory(${CMAKE_CURRENT_SOURCE_DIR}/source/external/ktx)
-set(KTX_INCLUDE_DIR ${CMAKE_CURRENT_SOURCE_DIR}/source/external/ktx/include)
+add_subdirectory(${CMAKE_CURRENT_SOURCE_DIR}/external/imgui)
+set(IMGUI_INCLUDE_DIR ${CMAKE_CURRENT_SOURCE_DIR}/external/imgui)
+add_subdirectory(${CMAKE_CURRENT_SOURCE_DIR}/external/ktx)
+set(KTX_INCLUDE_DIR ${CMAKE_CURRENT_SOURCE_DIR}/external/ktx/include)
 
 # set(ENABLE_GLSLANG_WEBMIN OFF)
 # add_subdirectory(${CMAKE_CURRENT_SOURCE_DIR}/source/external/glslang)
@@ -111,8 +111,10 @@ target_link_libraries( ${PROJECT_NAME} PUBLIC
 
 target_include_directories( ${PROJECT_NAME} PRIVATE 
 	${GLFW_INCLUDE_DIRS}
+	${CMAKE_CURRENT_SOURCE_DIR}
+	${CMAKE_CURRENT_SOURCE_DIR}/external/
 	${CMAKE_CURRENT_SOURCE_DIR}/source/
-	${CMAKE_CURRENT_SOURCE_DIR}/source/core
+	${CMAKE_CURRENT_SOURCE_DIR}/source/core/
 	${IMGUI_INCLUDE_DIR}
 	${KTX_INCLUDE_DIR}
 	${Vulkan_INCLUDE_DIRS}

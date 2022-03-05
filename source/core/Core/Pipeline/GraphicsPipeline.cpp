@@ -74,6 +74,9 @@ void GraphicsPipeline::CreatePipeline()
         return ci.stage & vk::ShaderStageFlagBits::eFragment;
     });
 
+    if(foundStage != shaderStages.begin())
+        foundStage->pSpecializationInfo = &specializationInfo;
+
     vk::GraphicsPipelineCreateInfo pipelineInfo = {};
     pipelineInfo.stageCount = shaderStages.size();
     pipelineInfo.pStages = shaderStages.data();

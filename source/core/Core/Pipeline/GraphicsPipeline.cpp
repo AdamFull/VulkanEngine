@@ -32,6 +32,18 @@ void GraphicsPipeline::CreatePipeline()
     vk::PipelineMultisampleStateCreateInfo multisampling{};
     multisampling.rasterizationSamples = vk::SampleCountFlagBits::e1;
 
+    vk::SpecializationMapEntry specializationEntry{};
+    specializationEntry.constantID = 0;
+	specializationEntry.offset = 0;
+	specializationEntry.size = sizeof(uint32_t);
+
+    uint32_t specializationData = static_cast<uint32_t>(UDevice->GetSamples());
+	vk::SpecializationInfo specializationInfo;
+	specializationInfo.mapEntryCount = 1;
+	specializationInfo.pMapEntries = &specializationEntry;
+	specializationInfo.dataSize = sizeof(specializationData);
+	specializationInfo.pData = &specializationData;
+
     std::vector<vk::PipelineColorBlendAttachmentState> colorBlendAttachments;
     for(uint32_t i = 0; i < m_colorAttachments; i++)
     {
@@ -58,6 +70,9 @@ void GraphicsPipeline::CreatePipeline()
     viewportState.scissorCount = 1;
 
     auto shaderStages = m_pShader->GetStageCreateInfo();
+    auto foundStage = std::find_if(shaderStages.begin(), shaderStages.end(), [](const vk::PipelineShaderStageCreateInfo& ci){
+        return ci.stage & vk::ShaderStageFlagBits::eFragment;
+    });
 
     vk::GraphicsPipelineCreateInfo pipelineInfo = {};
     pipelineInfo.stageCount = shaderStages.size();

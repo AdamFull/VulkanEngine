@@ -28,12 +28,13 @@
             "fill_mode_non_solid": true,
             "multi_viewport": true,
             "geometry_shader": true
+        },
+        "graphics":
+        {
+            "multisampling": "1",
+            "post_process": true,
+            "ray_tracing": false
         }
-    },
-    "graphics":
-    {
-        "post_process": true,
-        "ray_tracing": false
     },
     "scene":
     {

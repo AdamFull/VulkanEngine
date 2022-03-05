@@ -189,7 +189,7 @@ void RendererBase::CreateRenderPass()
 	std::map<ETextureAttachmentType, vk::AttachmentDescription> descTemporary{};
 
     vk::AttachmentDescription desc{};
-    desc.samples = vk::SampleCountFlagBits::e1;
+    desc.samples = UDevice->GetSamples();
 	desc.loadOp = vk::AttachmentLoadOp::eClear;
 	desc.storeOp = vk::AttachmentStoreOp::eStore;
 	desc.stencilLoadOp = vk::AttachmentLoadOp::eDontCare;

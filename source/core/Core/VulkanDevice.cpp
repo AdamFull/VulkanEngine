@@ -154,7 +154,11 @@ void Device::CreateDevice(const FDeviceCreateInfo& deviceCI)
     m_physical = GetPhysicalDevice(deviceCI.deviceExtensions);
     assert(m_physical && "No avaliable physical devices. Check device dependencies.");
 
-    m_msaaSamples = GetMaxUsableSampleCount();
+    if(IsSupportedSampleCount(deviceCI.graphics.multisampling))
+        m_msaaSamples = deviceCI.graphics.multisampling;
+    else
+        m_msaaSamples = vk::SampleCountFlagBits::e1;
+
     QueueFamilyIndices indices = FindQueueFamilies(m_physical);
 
     std::vector<vk::DeviceQueueCreateInfo> queueCreateInfos;
@@ -270,38 +274,34 @@ SwapChainSupportDetails Device::QuerySwapChainSupport()
     return QuerySwapChainSupport(m_physical);
 }
 
-vk::SampleCountFlagBits Device::GetMaxUsableSampleCount()
+std::vector<vk::SampleCountFlagBits> Device::GetAvaliableSampleCount()
 {
     vk::PhysicalDeviceProperties physicalDeviceProperties;
     m_physical.getProperties(&physicalDeviceProperties);
+    std::vector<vk::SampleCountFlagBits> avaliableSamples{vk::SampleCountFlagBits::e1};
 
     vk::SampleCountFlags counts = physicalDeviceProperties.limits.framebufferColorSampleCounts & physicalDeviceProperties.limits.framebufferDepthSampleCounts;
     if (counts & vk::SampleCountFlagBits::e64)
-    {
-        return vk::SampleCountFlagBits::e64;
-    }
+        avaliableSamples.push_back(vk::SampleCountFlagBits::e64);
     if (counts & vk::SampleCountFlagBits::e32)
-    {
-        return vk::SampleCountFlagBits::e32;
-    }
+        avaliableSamples.push_back(vk::SampleCountFlagBits::e32);
     if (counts & vk::SampleCountFlagBits::e16)
-    {
-        return vk::SampleCountFlagBits::e16;
-    }
+        avaliableSamples.push_back(vk::SampleCountFlagBits::e16);
     if (counts & vk::SampleCountFlagBits::e8)
-    {
-        return vk::SampleCountFlagBits::e8;
-    }
+        avaliableSamples.push_back(vk::SampleCountFlagBits::e8);   
     if (counts & vk::SampleCountFlagBits::e4)
-    {
-        return vk::SampleCountFlagBits::e4;
-    }
+        avaliableSamples.push_back(vk::SampleCountFlagBits::e4);
     if (counts & vk::SampleCountFlagBits::e2)
-    {
-        return vk::SampleCountFlagBits::e2;
-    }
+        avaliableSamples.push_back(vk::SampleCountFlagBits::e2);
 
-    return vk::SampleCountFlagBits::e1;
+    return avaliableSamples;
+}
+
+bool Device::IsSupportedSampleCount(vk::SampleCountFlagBits samples)
+{
+    auto avaliableSamples = GetAvaliableSampleCount();
+    auto found = std::find(avaliableSamples.begin(), avaliableSamples.end(), samples);
+    return found != avaliableSamples.end();
 }
 
 /*************************************Data transfer***************************************************/
@@ -444,6 +444,20 @@ bool Device::IsDeviceSuitable(const vk::PhysicalDevice &device, const std::vecto
 
 namespace vk
 {
+    NLOHMANN_JSON_SERIALIZE_ENUM
+    (
+        SampleCountFlagBits,
+        {
+            {SampleCountFlagBits::e1, "1"},
+            {SampleCountFlagBits::e2, "2"},
+            {SampleCountFlagBits::e4, "4"},
+            {SampleCountFlagBits::e8, "8"},
+            {SampleCountFlagBits::e16, "16"},
+            {SampleCountFlagBits::e32, "32"},
+            {SampleCountFlagBits::e64, "64"}
+        }
+    )
+
     void to_json(nlohmann::json &json, const ApplicationInfo &type)
     {
         std::string appName{type.pApplicationName}, engineName{type.pEngineName};
@@ -614,8 +628,25 @@ namespace Engine
             ParseArgument(json, deviceExtensions, "device_extensions", true);
             ParseArgument(json, type.deviceFeatures, "device_features", true);
 
+            ParseArgument(json, type.graphics, "graphics", true);
+
             type.validationLayers = str_vector_to_char_ptr_vector(validationLayers);
             type.deviceExtensions = str_vector_to_char_ptr_vector(deviceExtensions);
+        }
+
+        void to_json(nlohmann::json &json, const FDeviceGraphicsInfo &type)
+        {
+            json = nlohmann::json{
+                {"multisampling", type.multisampling},
+                {"post_process", type.postProcess},
+                {"ray_tracing", type.rayTracing}};
+        }
+
+        void from_json(const nlohmann::json &json, FDeviceGraphicsInfo &type)
+        {
+            ParseArgument(json, type.multisampling, "multisampling", true);
+            ParseArgument(json, type.postProcess, "post_process");
+            ParseArgument(json, type.rayTracing, "ray_tracing");
         }
     }
 }

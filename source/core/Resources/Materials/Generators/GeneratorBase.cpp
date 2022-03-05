@@ -38,7 +38,7 @@ void GeneratorBase::CreateRenderPass(vk::Format format)
 	vk::AttachmentDescription attDesc = {};
 	// Color attachment
 	attDesc.format = format;
-	attDesc.samples = vk::SampleCountFlagBits::e1;
+	attDesc.samples = UDevice->GetSamples();
 	attDesc.loadOp = vk::AttachmentLoadOp::eClear;
 	attDesc.storeOp = vk::AttachmentStoreOp::eStore;
 	attDesc.stencilLoadOp = vk::AttachmentLoadOp::eDontCare;

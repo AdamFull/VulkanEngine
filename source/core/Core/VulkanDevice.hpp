@@ -7,6 +7,13 @@ namespace Engine
 {
     namespace Core
     {
+        struct FDeviceGraphicsInfo
+        {
+            vk::SampleCountFlagBits multisampling{};
+            bool postProcess;
+            bool rayTracing;
+        };
+
         struct FDeviceCreateInfo
         {
             vk::ApplicationInfo appInfo;
@@ -14,6 +21,8 @@ namespace Engine
             std::vector<const char*> validationLayers;
             std::vector<const char*> deviceExtensions;
             vk::PhysicalDeviceFeatures deviceFeatures;
+
+            FDeviceGraphicsInfo graphics;
         };
 
         class Device
@@ -42,7 +51,8 @@ namespace Engine
             QueueFamilyIndices FindQueueFamilies();
             SwapChainSupportDetails QuerySwapChainSupport(const vk::PhysicalDevice &device);
             SwapChainSupportDetails QuerySwapChainSupport();
-            vk::SampleCountFlagBits GetMaxUsableSampleCount();
+            std::vector<vk::SampleCountFlagBits> GetAvaliableSampleCount();
+            bool IsSupportedSampleCount(vk::SampleCountFlagBits samples);
 
             /*************************************Data transfer***************************************************/
             template <class T>
@@ -295,5 +305,6 @@ namespace Engine
         REGISTER_SERIALIZATION_BLOCK_H(vk::ApplicationInfo);
         REGISTER_SERIALIZATION_BLOCK_H(vk::PhysicalDeviceFeatures);
         REGISTER_SERIALIZATION_BLOCK_H(FDeviceCreateInfo);
+        REGISTER_SERIALIZATION_BLOCK_H(FDeviceGraphicsInfo);
     }
 }

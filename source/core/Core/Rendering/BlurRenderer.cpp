@@ -56,7 +56,6 @@ void BlurRenderer::Render(vk::CommandBuffer& commandBuffer)
     m_pMaterial->Update(descriptor, imageIndex);
     m_pMaterial->Bind(commandBuffer, imageIndex);
     commandBuffer.draw(3, 1, 0, 0);
-
     EndRender(commandBuffer);
 
     RendererBase::Render(commandBuffer);

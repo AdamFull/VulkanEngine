@@ -34,7 +34,7 @@ namespace Core
             CRenderPass() = default;
             ~CRenderPass();
 
-            void Create(const CRenderStage &renderStage, vk::Format depthFormat, vk::Format surfaceFormat, vk::SampleCountFlagBits samples = vk::SampleCountFlagBits::e1);
+            void Create(const CRenderStage &renderStage, vk::Format depthFormat, vk::Format surfaceFormat, vk::SampleCountFlagBits samples);
         private:
             vk::RenderPass renderPass{nullptr};
         };

@@ -150,7 +150,7 @@ void Image::InitializeTexture(ktxTexture *info, vk::Format format, vk::ImageUsag
     else
         imageInfo.flags = vk::ImageCreateFlags{};
 
-    imageInfo.samples = vk::SampleCountFlagBits::e1;
+    imageInfo.samples = UDevice->GetSamples();
 
     CreateImage(m_image, m_deviceMemory, imageInfo, vk::MemoryPropertyFlagBits::eDeviceLocal);
 

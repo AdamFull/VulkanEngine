@@ -123,7 +123,8 @@ namespace Engine
         {
             json = nlohmann::json{
                 {"window", type.window},
-                {"device", type.device}};
+                {"device", type.device}
+                };
         }
 
         void from_json(const nlohmann::json &json, FEngineCreateInfo &type)

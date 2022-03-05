@@ -202,7 +202,7 @@ void SwapChain::CreateDepthResources()
     imageInfo.initialLayout = vk::ImageLayout::eUndefined;
     imageInfo.usage = vk::ImageUsageFlagBits::eDepthStencilAttachment;
     imageInfo.sharingMode = vk::SharingMode::eExclusive;
-    imageInfo.samples = vk::SampleCountFlagBits::e1;
+    imageInfo.samples = UDevice->GetSamples();
 
     Image::CreateImage(m_depthImage, m_depthImageMemory, imageInfo, vk::MemoryPropertyFlagBits::eDeviceLocal);
 
@@ -236,7 +236,7 @@ void SwapChain::CreateRenderPass()
     assert(UDevice && "Cannot create render pass, cause logical device is not valid.");
     vk::AttachmentDescription colorAttachment = {};
     colorAttachment.format = m_imageFormat;
-    colorAttachment.samples = vk::SampleCountFlagBits::e1;
+    colorAttachment.samples = UDevice->GetSamples();
     colorAttachment.loadOp = vk::AttachmentLoadOp::eClear;
     colorAttachment.storeOp = vk::AttachmentStoreOp::eStore;
     colorAttachment.stencilLoadOp = vk::AttachmentLoadOp::eDontCare;
@@ -246,7 +246,7 @@ void SwapChain::CreateRenderPass()
 
     vk::AttachmentDescription depthAttachment{};
     depthAttachment.format = Image::GetDepthFormat();
-    depthAttachment.samples =vk::SampleCountFlagBits::e1;
+    depthAttachment.samples = UDevice->GetSamples();
     depthAttachment.loadOp = vk::AttachmentLoadOp::eClear;
     depthAttachment.storeOp = vk::AttachmentStoreOp::eDontCare;
     depthAttachment.stencilLoadOp = vk::AttachmentLoadOp::eDontCare;

@@ -5,7 +5,8 @@ namespace Engine
 {
     namespace Core
     {
-        class PushHandler : public NonCopyable, public NonMovable
+        class VulkanBuffer;
+        class PushHandler : public utl::non_copy_movable
         {
         public:
             void Create(const Pipeline::UniformBlock &uniformBlock);
@@ -43,6 +44,7 @@ namespace Engine
 
         private:
             std::optional<Pipeline::UniformBlock> m_uniformBlock;
+            std::vector<std::unique_ptr<VulkanBuffer>> m_pBuffers;
             std::vector<std::unique_ptr<char[]>> m_vData;
         };
     }

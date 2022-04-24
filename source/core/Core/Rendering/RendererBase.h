@@ -86,7 +86,7 @@ namespace Engine
 
                 inline void SetExtent(vk::Extent2D extent) { out_extent = extent; }
 
-                //EasyDelegate::TDelegate<void(std::shared_ptr<RendererBase> pStage)> stageCB;
+                //utl::function<void(std::shared_ptr<RendererBase> pStage)> stageCB;
 
                 std::shared_ptr<RendererBase> Find(FRendererCreateInfo::ERendererType eType);
 

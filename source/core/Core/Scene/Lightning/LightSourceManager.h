@@ -9,7 +9,7 @@ namespace Engine
     {
         namespace Scene
         {
-            class LightSourceManager : public Singleton<LightSourceManager>
+            class LightSourceManager : public utl::singleton<LightSourceManager>
             {
             public:
                 std::shared_ptr<Scene::Objects::Components::Light::LightComponent> CreateSource(Resources::ELightSourceType eType, glm::vec3 position);

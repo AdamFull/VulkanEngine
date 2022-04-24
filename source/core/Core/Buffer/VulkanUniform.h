@@ -51,7 +51,7 @@ namespace Engine
         
         class VulkanBuffer;
 
-        class UniformBuffer : public NonCopyable, public NonMovable
+        class UniformBuffer : public utl::non_copy_movable
         {
         public:
             UniformBuffer() = default;

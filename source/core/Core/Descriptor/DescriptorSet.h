@@ -7,7 +7,7 @@ namespace Engine
         namespace Pipeline { class PipelineBase; }
         namespace Descriptor
         {
-            class DescriptorSet : public NonCopyable
+            class DescriptorSet : public utl::non_copyable
             {
             public:
                 DescriptorSet() = default;

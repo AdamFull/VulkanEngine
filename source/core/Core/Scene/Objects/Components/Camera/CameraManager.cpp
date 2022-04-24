@@ -3,7 +3,7 @@
 using namespace Engine::Core::Scene::Objects::Components;
 
 template<>
-std::unique_ptr<CameraManager> Singleton<CameraManager>::m_pInstance{nullptr};
+std::unique_ptr<CameraManager> utl::singleton<CameraManager>::_instance{nullptr};
 
 std::shared_ptr<CameraComponent> CameraManager::GetCurrentCamera()
 {

@@ -6,7 +6,7 @@ using namespace Engine::Core;
 using namespace Engine::Core::Window;
 
 template<>
-std::unique_ptr<VulkanHighLevel> Singleton<VulkanHighLevel>::m_pInstance{nullptr};
+std::unique_ptr<VulkanHighLevel> utl::singleton<VulkanHighLevel>::_instance{nullptr};
 
 VulkanHighLevel::~VulkanHighLevel()
 {

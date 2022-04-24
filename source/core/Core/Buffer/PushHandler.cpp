@@ -1,5 +1,6 @@
 #include "PushHandler.hpp"
 #include "Core/VulkanHighLevel.h"
+#include "Core/Buffer/VulkanBuffer.h"
 
 using namespace Engine::Core;
 using namespace Engine::Core::Pipeline;

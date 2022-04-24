@@ -2,15 +2,15 @@
 
 using namespace Engine::Core::Window;
 
-std::vector<EasyDelegate::TDelegate<void(int, int)>> WinCallbacks::sizeChangeCallbacks;
-std::vector<EasyDelegate::TDelegate<void(int)>> WinCallbacks::focusChangeCallbacks;
-std::vector<EasyDelegate::TDelegate<void(int)>> WinCallbacks::cursorEnterCallbacks;
-std::vector<EasyDelegate::TDelegate<void(int, int, int)>> WinCallbacks::mouseButtonCallbacks;
-std::vector<EasyDelegate::TDelegate<void(float, float)>> WinCallbacks::mousePositionCallbacks;
-std::vector<EasyDelegate::TDelegate<void(float, float)>> WinCallbacks::scrollCallbacks;
-std::vector<EasyDelegate::TDelegate<void(int, int, int, int)>> WinCallbacks::keyCallbacks;
-std::vector<EasyDelegate::TDelegate<void(unsigned int)>> WinCallbacks::charCallbacks;
-std::vector<EasyDelegate::TDelegate<void(int)>> WinCallbacks::monitorCallbacks;
+std::vector<utl::function<void(int, int)>> WinCallbacks::sizeChangeCallbacks;
+std::vector<utl::function<void(int)>> WinCallbacks::focusChangeCallbacks;
+std::vector<utl::function<void(int)>> WinCallbacks::cursorEnterCallbacks;
+std::vector<utl::function<void(int, int, int)>> WinCallbacks::mouseButtonCallbacks;
+std::vector<utl::function<void(float, float)>> WinCallbacks::mousePositionCallbacks;
+std::vector<utl::function<void(float, float)>> WinCallbacks::scrollCallbacks;
+std::vector<utl::function<void(int, int, int, int)>> WinCallbacks::keyCallbacks;
+std::vector<utl::function<void(unsigned int)>> WinCallbacks::charCallbacks;
+std::vector<utl::function<void(int)>> WinCallbacks::monitorCallbacks;
 
 void WinCallbacks::WinSizeChangeCallback(GLFWwindow *window, int width, int height)
 {

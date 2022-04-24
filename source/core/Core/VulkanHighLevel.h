@@ -31,7 +31,7 @@ namespace Engine
             FDeviceCreateInfo device;
         };
 
-        class VulkanHighLevel : public Singleton<VulkanHighLevel>
+        class VulkanHighLevel : public utl::singleton<VulkanHighLevel>
         {
         public:
             ~VulkanHighLevel();

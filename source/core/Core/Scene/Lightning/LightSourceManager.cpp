@@ -6,7 +6,7 @@ using namespace Engine::Core::Scene;
 using namespace Engine::Core::Scene::Objects::Components::Light;
 
 template<>
-std::unique_ptr<LightSourceManager> Singleton<LightSourceManager>::m_pInstance{nullptr};
+std::unique_ptr<LightSourceManager> utl::singleton<LightSourceManager>::_instance{nullptr};
 
 std::shared_ptr<LightComponent> LightSourceManager::CreateSource(Resources::ELightSourceType eType, glm::vec3 position)
 {

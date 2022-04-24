@@ -6,7 +6,7 @@
 using namespace Engine;
 
     template<>
-    std::unique_ptr<InputMapper> Singleton<InputMapper>::m_pInstance{nullptr};
+    std::unique_ptr<InputMapper> utl::singleton<InputMapper>::_instance{nullptr};
 
     InputMapper::InputMapper()
     {
@@ -141,7 +141,7 @@ using namespace Engine;
         }
     }
 
-    FInputAction InputMapper::MakeBindAction(EKeyState eState, EasyDelegate::TDelegate<void(EActionKey, EKeyState)>&& dCallback)
+    FInputAction InputMapper::MakeBindAction(EKeyState eState, utl::function<void(EActionKey, EKeyState)>&& dCallback)
     {
         FInputAction newAction;
         newAction.eState = eState;
@@ -149,7 +149,7 @@ using namespace Engine;
         return newAction;
     }
 
-    FInputAxis InputMapper::MakeBindAxis(EasyDelegate::TDelegate<void(float, float)>&& dCallback)
+    FInputAxis InputMapper::MakeBindAxis(utl::function<void(float, float)>&& dCallback)
     {
         FInputAxis newAxis;
         newAxis.vListeners.emplace_back(std::move(dCallback));

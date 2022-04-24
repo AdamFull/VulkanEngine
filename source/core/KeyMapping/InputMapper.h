@@ -6,15 +6,15 @@ namespace Engine
     struct FInputAction
     {
         EKeyState eState;
-        std::vector<EasyDelegate::TDelegate<void(EActionKey, EKeyState)>> vListeners;
+        std::vector<utl::function<void(EActionKey, EKeyState)>> vListeners;
     };
 
     struct FInputAxis
     {
-        std::vector<EasyDelegate::TDelegate<void(float, float)>> vListeners;
+        std::vector<utl::function<void(float, float)>> vListeners;
     };
 
-    class InputMapper : public Singleton<InputMapper>
+    class InputMapper : public utl::singleton<InputMapper>
     {
     public:
         InputMapper();
@@ -42,12 +42,12 @@ namespace Engine
                 {
                     if(range_it->second.eState == eState)
                     {
-                        range_it->second.vListeners.emplace_back(EasyDelegate::TDelegate<void(EActionKey, EKeyState)>(std::forward<Args>(args)...));
+                        range_it->second.vListeners.emplace_back(utl::function<void(EActionKey, EKeyState)>(std::forward<Args>(args)...));
                         return;
                     }
                 }
             }
-            m_mInputActions.emplace(srActionName, MakeBindAction(eState, EasyDelegate::TDelegate<void(EActionKey, EKeyState)>(std::forward<Args>(args)...)));
+            m_mInputActions.emplace(srActionName, MakeBindAction(eState, utl::function<void(EActionKey, EKeyState)>(std::forward<Args>(args)...)));
         }
 
         template<class ...Args>
@@ -59,10 +59,10 @@ namespace Engine
                 auto range = m_mInputAxis.equal_range(srAxisName);
                 for(auto range_it = range.first; range_it != range.second; ++range_it)
                 {
-                    range_it->second.vListeners.emplace_back(EasyDelegate::TDelegate<void(float, float)>(std::forward<Args>(args)...));
+                    range_it->second.vListeners.emplace_back(utl::function<void(float, float)>(std::forward<Args>(args)...));
                 }
             }
-            m_mInputAxis.emplace(srAxisName, MakeBindAxis(EasyDelegate::TDelegate<void(float, float)>(std::forward<Args>(args)...)));
+            m_mInputAxis.emplace(srAxisName, MakeBindAxis(utl::function<void(float, float)>(std::forward<Args>(args)...)));
         }
 
         void Update(float fDeltaTime);
@@ -75,8 +75,8 @@ namespace Engine
         void HandleActions(std::string srActionName, EActionKey eKey, const EKeyState& eKeyState);
         void HandleAxis(std::string srAxisName,  glm::vec2 fValue);
 
-        FInputAction MakeBindAction(EKeyState eState, EasyDelegate::TDelegate<void(EActionKey, EKeyState)>&& dCallback);
-        FInputAxis MakeBindAxis(EasyDelegate::TDelegate<void(float, float)>&& dCallback);
+        FInputAction MakeBindAction(EKeyState eState, utl::function<void(EActionKey, EKeyState)>&& dCallback);
+        FInputAxis MakeBindAxis(utl::function<void(float, float)>&& dCallback);
 
         std::multimap<EActionKey, std::string> m_mInputDescriptor;
 

@@ -6,7 +6,7 @@ namespace Engine
     namespace Core
     {
         class VulkanBuffer;
-        class UniformHandler : public NonCopyable, public NonMovable
+        class UniformHandler : public utl::non_copy_movable
         {
         public:
             void Create(const Pipeline::UniformBlock &uniformBlock);

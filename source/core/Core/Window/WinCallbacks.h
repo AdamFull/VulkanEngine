@@ -33,67 +33,67 @@ namespace Engine
                 template <class... Args>
                 static void SubscribeSizeChange(Args... args)
                 {
-                    sizeChangeCallbacks.emplace_back(EasyDelegate::TDelegate<void(int, int)>(std::forward<Args>(args)...));
+                    sizeChangeCallbacks.emplace_back(utl::function<void(int, int)>(std::forward<Args>(args)...));
                 }
 
                 template <class... Args>
                 static void SubscribeFocusChange(Args... args)
                 {
-                    focusChangeCallbacks.emplace_back(EasyDelegate::TDelegate<void(int)>(std::forward<Args>(args)...));
+                    focusChangeCallbacks.emplace_back(utl::function<void(int)>(std::forward<Args>(args)...));
                 }
 
                 template <class... Args>
                 static void SubscribeCursorEnter(Args... args)
                 {
-                    cursorEnterCallbacks.emplace_back(EasyDelegate::TDelegate<void(int)>(std::forward<Args>(args)...));
+                    cursorEnterCallbacks.emplace_back(utl::function<void(int)>(std::forward<Args>(args)...));
                 }
 
                 template <class... Args>
                 static void SubscribeMouseButton(Args... args)
                 {
-                    mouseButtonCallbacks.emplace_back(EasyDelegate::TDelegate<void(int, int, int)>(std::forward<Args>(args)...));
+                    mouseButtonCallbacks.emplace_back(utl::function<void(int, int, int)>(std::forward<Args>(args)...));
                 }
 
                 template <class... Args>
                 static void SubscribeMousePosition(Args... args)
                 {
-                    mousePositionCallbacks.emplace_back(EasyDelegate::TDelegate<void(float, float)>(std::forward<Args>(args)...));
+                    mousePositionCallbacks.emplace_back(utl::function<void(float, float)>(std::forward<Args>(args)...));
                 }
 
                 template <class... Args>
                 static void SubscribeMouseScroll(Args... args)
                 {
-                    scrollCallbacks.emplace_back(EasyDelegate::TDelegate<void(float, float)>(std::forward<Args>(args)...));
+                    scrollCallbacks.emplace_back(utl::function<void(float, float)>(std::forward<Args>(args)...));
                 }
 
                 template <class... Args>
                 static void SubscribeKeyInput(Args... args)
                 {
-                    keyCallbacks.emplace_back(EasyDelegate::TDelegate<void(int, int, int, int)>(std::forward<Args>(args)...));
+                    keyCallbacks.emplace_back(utl::function<void(int, int, int, int)>(std::forward<Args>(args)...));
                 }
 
                 template <class... Args>
                 static void SubscribeCharInput(Args... args)
                 {
-                    charCallbacks.emplace_back(EasyDelegate::TDelegate<void(unsigned int)>(std::forward<Args>(args)...));
+                    charCallbacks.emplace_back(utl::function<void(unsigned int)>(std::forward<Args>(args)...));
                 }
 
                 template <class... Args>
                 static void SubscribeMonitor(Args... args)
                 {
-                    monitorCallbacks.emplace_back(EasyDelegate::TDelegate<void(int)>(std::forward<Args>(args)...));
+                    monitorCallbacks.emplace_back(utl::function<void(int)>(std::forward<Args>(args)...));
                 }
 
             private:
-                static std::vector<EasyDelegate::TDelegate<void(int, int)>> sizeChangeCallbacks;
-                static std::vector<EasyDelegate::TDelegate<void(int)>> focusChangeCallbacks;
-                static std::vector<EasyDelegate::TDelegate<void(int)>> cursorEnterCallbacks;
-                static std::vector<EasyDelegate::TDelegate<void(int, int, int)>> mouseButtonCallbacks;
-                static std::vector<EasyDelegate::TDelegate<void(float, float)>> mousePositionCallbacks;
-                static std::vector<EasyDelegate::TDelegate<void(float, float)>> scrollCallbacks;
-                static std::vector<EasyDelegate::TDelegate<void(int, int, int, int)>> keyCallbacks;
-                static std::vector<EasyDelegate::TDelegate<void(unsigned int)>> charCallbacks;
-                static std::vector<EasyDelegate::TDelegate<void(int)>> monitorCallbacks;
+                static std::vector<utl::function<void(int, int)>> sizeChangeCallbacks;
+                static std::vector<utl::function<void(int)>> focusChangeCallbacks;
+                static std::vector<utl::function<void(int)>> cursorEnterCallbacks;
+                static std::vector<utl::function<void(int, int, int)>> mouseButtonCallbacks;
+                static std::vector<utl::function<void(float, float)>> mousePositionCallbacks;
+                static std::vector<utl::function<void(float, float)>> scrollCallbacks;
+                static std::vector<utl::function<void(int, int, int, int)>> keyCallbacks;
+                static std::vector<utl::function<void(unsigned int)>> charCallbacks;
+                static std::vector<utl::function<void(int)>> monitorCallbacks;
             };
         }
     }

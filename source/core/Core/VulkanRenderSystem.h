@@ -11,7 +11,7 @@ namespace Engine
     namespace Core
     {
         class Image;
-        class RenderSystem : public NonCopyable, public NonMovable
+        class RenderSystem : public utl::non_copy_movable
         {
         public:
             RenderSystem() = default;

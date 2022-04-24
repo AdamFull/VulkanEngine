@@ -4,16 +4,11 @@ namespace Engine
 {
     namespace Core
     {
-        class VulkanBuffer
+        class VulkanBuffer : public utl::non_copy_movable
         {
         public:
             VulkanBuffer() = default;
             ~VulkanBuffer();
-
-            VulkanBuffer(const VulkanBuffer &) = delete;
-            void operator=(const VulkanBuffer &) = delete;
-            VulkanBuffer(VulkanBuffer &&) = delete;
-            VulkanBuffer &operator=(VulkanBuffer &&) = delete;
 
             void Create(vk::DeviceSize instanceSize, uint32_t instanceCount,
                         vk::BufferUsageFlags usageFlags, vk::MemoryPropertyFlags memoryPropertyFlags,

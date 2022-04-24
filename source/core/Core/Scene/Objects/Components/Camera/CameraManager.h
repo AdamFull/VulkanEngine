@@ -11,7 +11,7 @@ namespace Engine
             {
                 namespace Components
                 {
-                    class CameraManager : public Singleton<CameraManager>
+                    class CameraManager : public utl::singleton<CameraManager>
                     {
                     public:
                         std::shared_ptr<CameraComponent> GetCurrentCamera();

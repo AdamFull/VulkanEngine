@@ -7,7 +7,7 @@ namespace Engine
     {
         class VulkanBuffer;
         
-        class VulkanVBO
+        class VulkanVBO : public utl::non_copy_movable
         {
         public:
             VulkanVBO() = default;

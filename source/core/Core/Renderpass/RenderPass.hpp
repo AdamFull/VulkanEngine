@@ -8,7 +8,7 @@ namespace Core
         class CRenderPass
         {
         public:
-            class CVulkanSubpass : NonCopyable
+            class CVulkanSubpass : public utl::non_copyable
             {
                 CVulkanSubpass(vk::PipelineBindPoint bindPoint, std::vector<vk::AttachmentReference>&& colorAttachments, const std::optional<uint32_t> &depthAttachment) :
                 colorAttachments(std::move(colorAttachments))

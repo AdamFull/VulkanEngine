@@ -1,10 +1,10 @@
 #include "MaterialFactory.h"
-#include "Core/Image/TextureFactory.h"
-#include "Resources/ResourceManager.h"
-#include "Resources/Materials/MaterialUI.h"
-#include "Resources/Materials/MaterialDiffuse.h"
-#include "Resources/Materials/MaterialSkybox.h"
-#include "Core/VulkanHighLevel.h"
+#include "graphics/image/TextureFactory.h"
+#include "resources/ResourceManager.h"
+#include "resources/materials/MaterialUI.h"
+#include "resources/materials/MaterialDiffuse.h"
+#include "resources/materials/MaterialSkybox.h"
+#include "graphics/VulkanHighLevel.h"
 
 using namespace Engine::Resources;
 using namespace Engine::Resources::Material;

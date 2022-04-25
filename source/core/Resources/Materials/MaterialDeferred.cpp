@@ -1,7 +1,7 @@
 #include "MaterialDeferred.h"
-#include "Core/VulkanHighLevel.h"
-#include "Resources/ResourceManager.h"
-#include "Core/Rendering/RendererBase.h"
+#include "resources/ResourceManager.h"
+#include "graphics/rendering/RendererBase.h"
+#include "graphics/VulkanHighLevel.h"
 
 using namespace Engine::Core;
 using namespace Engine::Resources;

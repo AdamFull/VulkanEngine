@@ -3,12 +3,12 @@
 #define TINYGLTF_NO_STB_IMAGE_WRITE
 
 #include "GLTFLoader.h"
-#include "Resources/ResourceManager.h"
-#include "Resources/Meshes/MeshFragment.h"
-#include "Resources/Materials/MaterialDiffuse.h"
-#include "Core/Image/ImageLoader.h"
+#include "resources/ResourceManager.h"
+#include "resources/meshes/MeshFragment.h"
+#include "resources/materials/MaterialDiffuse.h"
+#include "graphics/image/ImageLoader.h"
 
-#include "Core/VulkanHighLevel.h"
+#include "graphics/VulkanHighLevel.h"
 #include "GLTFSceneNode.h"
 
 
@@ -285,8 +285,12 @@ void GLTFLoader::LoadMeshFragment(std::shared_ptr<Resources::ResourceManager> pR
                 break;
             }
             default:
-                std::cerr << "Index component type " << accessor.componentType << " not supported!" << std::endl;
+            {
+                std::stringstream ss;
+                ss << "Index component type " << accessor.componentType << " not supported!";
+                utl::logger::log(utl::ELogLevel::eWarning, ss.str());
                 return;
+            } break;
             }
         }
         
@@ -430,7 +434,7 @@ void GLTFLoader::LoadAnimations(const tinygltf::Model &model)
                     }
                     default: 
                     {
-                        std::cout << "unknown type" << std::endl;
+                        utl::logger::log(utl::ELogLevel::eInfo, "unknown type");
                         break;
                     }
 				}
@@ -452,7 +456,7 @@ void GLTFLoader::LoadAnimations(const tinygltf::Model &model)
 				channel.path = FAnimationChannel::EPathType::SCALE;
 
 			if (source.target_path == "weights") {
-				std::cout << "weights not yet supported, skipping channel" << std::endl;
+                utl::logger::log(utl::ELogLevel::eInfo, "weights not yet supported, skipping channel");
 				continue;
 			}
 			channel.samplerIndex = source.sampler;

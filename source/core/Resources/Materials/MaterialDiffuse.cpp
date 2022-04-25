@@ -1,7 +1,7 @@
 #include "MaterialDiffuse.h"
-#include "Core/VulkanHighLevel.h"
-#include "Core/Rendering/RendererBase.h"
-#include "Resources/ResourceManager.h"
+#include "graphics/VulkanHighLevel.h"
+#include "graphics/rendering/RendererBase.h"
+#include "resources/ResourceManager.h"
 
 using namespace Engine::Core;
 using namespace Engine::Resources;

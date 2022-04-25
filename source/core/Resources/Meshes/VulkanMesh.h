@@ -1,5 +1,5 @@
 #pragma once
-#include "Core/Buffer/VulkanUniform.h"
+#include "graphics/buffer/VulkanUniform.h"
 #include "MeshFragment.h"
 
 namespace Engine

@@ -1,7 +1,7 @@
 #pragma once
 #include "SceneConstruct.h"
 #include "RenderScene.h"
-#include "Core/Scene/Objects/RenderObject.h"
+#include "graphics/scene/objects/RenderObject.h"
 
 namespace Engine
 {

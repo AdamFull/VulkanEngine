@@ -1,5 +1,5 @@
 #pragma once
-#include "KeyMapping/KeycodeConfig.h"
+#include "keymapper/KeycodeConfig.h"
 
 namespace Engine
 {

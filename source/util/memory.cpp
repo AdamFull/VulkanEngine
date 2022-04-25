@@ -32,7 +32,7 @@ void *operator new(std::size_t size) throw(std::bad_alloc)
         throw std::bad_alloc();
     }
 #ifdef _DEBUG
-    (*get_map())[mem] = size;
+    //(*get_map())[mem] = size;
 #endif
     return mem;
 }
@@ -40,12 +40,12 @@ void *operator new(std::size_t size) throw(std::bad_alloc)
 void operator delete(void *mem) throw()
 {
 #ifdef _DEBUG
-    if (get_map()->erase(mem) == 0)
+    /*if (get_map()->erase(mem) == 0)
     {
         char buffer[256];
-        std::sprintf(buffer, "bug: memory at  %p wasn't allocated by us\n", mem);
+        std::sprintf(buffer, "bug: memory at  %p wasn't allocated by us", mem);
         utl::logger::log(utl::ELogLevel::eWarning, buffer);
-    }
+    }*/
 #endif
     std::free(mem);
 }

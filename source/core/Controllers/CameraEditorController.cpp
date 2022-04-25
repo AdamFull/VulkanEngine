@@ -1,6 +1,6 @@
 #include "CameraEditorController.h"
-#include "KeyMapping/InputMapper.h"
-#include "Core/Scene/Objects/Components/Camera/CameraManager.h"
+#include "keymapper/InputMapper.h"
+#include "graphics/scene/objects/components/camera/CameraManager.h"
 
 using namespace Engine::Controllers;
 using namespace Engine::Core::Scene::Objects;

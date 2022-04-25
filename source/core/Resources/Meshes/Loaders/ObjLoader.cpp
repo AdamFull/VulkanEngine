@@ -1,5 +1,5 @@
 #include "ObjLoader.h"
-#include "Core/Scene/Objects/RenderObject.h"
+#include "graphics/scene/objects/RenderObject.h"
 
 #define TINYOBJLOADER_IMPLEMENTATION
 #include "external/tiny_obj_loader.h"
@@ -20,7 +20,7 @@ void ObjLoader::Load(std::string srPath, std::shared_ptr<Core::Scene::Objects::R
         throw std::runtime_error(warn + err);
     }
 
-    std::cout << warn << std::endl;
+    utl::logger::log(utl::ELogLevel::eWarning, warn);
     std::unordered_map<Vertex, uint32_t> uniqueVertices{};
 
 #pragma omp parallel for

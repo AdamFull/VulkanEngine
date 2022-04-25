@@ -29,7 +29,8 @@ namespace utl
 
         static std::string to_string(std::source_location const source)
         {
-            return std::format("{}:{}:{}", source.file_name(), source.function_name(), source.line());
+            std::string sfile = source.file_name();
+            return std::format("{}:{}:{}", sfile.substr(sfile.find_last_of("/\\") + 1), source.function_name(), source.line());
         }
     public:
         static void log(ELogLevel const level, std::string_view const message, std::source_location const source = std::source_location::current())

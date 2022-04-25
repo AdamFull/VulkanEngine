@@ -1,5 +1,5 @@
 #pragma once
-#include "Resources/ResourceCunstruct.h"
+#include "resources/ResourceCunstruct.h"
 #include "serializer/Serialization.hpp"
 
 namespace Engine

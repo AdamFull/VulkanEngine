@@ -1,13 +1,13 @@
 #pragma once
 #include "ResourceCunstruct.h"
 
-#include "Core/Image/Image.h"
-#include "Materials/VulkanMaterial.h"
-#include "Meshes/MeshFragment.h"
-#include "Meshes/MeshFactory.h"
+#include "graphics/image/Image.h"
+#include "materials/VulkanMaterial.h"
+#include "meshes/MeshFragment.h"
+#include "meshes/MeshFactory.h"
 //Old code in this includer, remove
-#include "Core/Image/TextureFactory.h"
-#include "Materials/MaterialFactory.h"
+#include "graphics/image/TextureFactory.h"
+#include "materials/MaterialFactory.h"
 
 namespace Engine
 {

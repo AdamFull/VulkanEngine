@@ -1,6 +1,6 @@
 #include "ResourceManager.h"
 #include "filesystem/FilesystemHelper.h"
-#include "Core/VulkanHighLevel.h"
+#include "graphics/VulkanHighLevel.h"
 
 using namespace Engine::Core;
 using namespace Engine::Resources::Material;

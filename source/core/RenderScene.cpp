@@ -1,11 +1,11 @@
 #include "RenderScene.h"
-#include "Core/Scene/Objects/Components/Camera/CameraManager.h"
-#include "Core/VulkanHighLevel.h"
-#include "KeyMapping/InputMapper.h"
-#include "Core/Overlay/ImguiOverlay.h"
+#include "graphics/scene/objects/components/camera/CameraManager.h"
+#include "graphics/VulkanHighLevel.h"
+#include "keymapper/InputMapper.h"
+#include "graphics/overlay/ImguiOverlay.h"
 
-#include "Core/Rendering/RendererBase.h"
-#include "Resources/ResourceCunstruct.h"
+#include "graphics/rendering/RendererBase.h"
+#include "resources/ResourceCunstruct.h"
 
 using namespace Engine;
 using namespace Engine::Core;

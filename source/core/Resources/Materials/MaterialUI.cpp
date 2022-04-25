@@ -1,7 +1,7 @@
 #include "MaterialUI.h"
-#include "Core/Overlay/ImguiOverlay.h"
-#include "Core/VulkanHighLevel.h"
-#include "Resources/ResourceManager.h"
+#include "graphics/overlay/ImguiOverlay.h"
+#include "graphics/VulkanHighLevel.h"
+#include "resources/ResourceManager.h"
 
 using namespace Engine::Core;
 using namespace Engine::Resources::Material;

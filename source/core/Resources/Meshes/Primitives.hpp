@@ -1,5 +1,5 @@
 #pragma once
-#include "Core/DataTypes/VulkanVertex.hpp"
+#include "graphics/data_types/VulkanVertex.hpp"
 
 namespace Engine
 {

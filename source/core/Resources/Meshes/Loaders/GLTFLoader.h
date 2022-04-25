@@ -1,7 +1,7 @@
 #pragma once
 #include "external/tinygltf/tiny_gltf.h"
-#include "Resources/Meshes/VulkanMesh.h"
-#include "Core/DataTypes/VulkanVertex.hpp"
+#include "resources/meshes/VulkanMesh.h"
+#include "graphics/data_types/VulkanVertex.hpp"
 
 namespace Engine
 {

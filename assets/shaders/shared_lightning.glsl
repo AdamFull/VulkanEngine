@@ -13,6 +13,18 @@ vec3 Uncharted2Tonemap(vec3 color)
 	return ((color*(A*color+C*B)+D*E)/(color*(A*color+B)+D*F))-E/F;
 }
 
+vec3 cubeDir(vec2 texCoord, uint side) 
+{
+	vec2 tex = texCoord * 2.0f - 1.0f;
+	if(side == 0) return vec3(1.0f, -tex.y, -tex.x); // Front
+	if(side == 1) return vec3(-1.0f, -tex.y, tex.x); // Back
+	if(side == 2) return vec3(tex.x, 1.0f, tex.y); // Right
+	if(side == 3) return vec3(tex.x, -1.0f, -tex.y); // Left
+	if(side == 4) return vec3(tex.x, -tex.y, 1.0f); // Top
+	if(side == 5) return vec3(-tex.x, -tex.y, -1.0f); // Bottom
+	return vec3(1.0);
+}
+
 // Normal Distribution function --------------------------------------
 float D_GGX(float dotNH, float roughness)
 {

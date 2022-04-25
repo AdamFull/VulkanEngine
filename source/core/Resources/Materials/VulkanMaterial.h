@@ -1,11 +1,11 @@
 #pragma once
-#include "Core/Image/Image.h"
+#include "graphics/image/Image.h"
 
-#include "Core/Descriptor/DescriptorHandler.h"
-#include "Core/Buffer/UniformHandler.hpp"
-#include "Core/Buffer/PushHandler.hpp"
+#include "graphics/descriptor/DescriptorHandler.h"
+#include "graphics/buffer/UniformHandler.hpp"
+#include "graphics/buffer/PushHandler.hpp"
 
-#include "Resources/ResourceCunstruct.h"
+#include "resources/ResourceCunstruct.h"
 
 namespace Engine
 {

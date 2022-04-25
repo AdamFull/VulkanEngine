@@ -28,6 +28,7 @@
 #include <util/function.hpp>
 #include <util/helpers.hpp>
 #include <util/ulog.hpp>
+#include <util/threading.hpp>
 #include <util/DynamicNode.hpp>
 #include <util/StringHelper.h>
 

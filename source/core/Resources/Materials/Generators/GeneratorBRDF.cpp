@@ -1,7 +1,7 @@
 #include "GeneratorBRDF.h"
-#include "Resources/ResourceManager.h"
-#include "Core/VulkanHighLevel.h"
-#include "Core/VulkanInitializers.h"
+#include "resources/ResourceManager.h"
+#include "graphics/VulkanHighLevel.h"
+#include "graphics/VulkanInitializers.h"
 
 using namespace Engine::Resources::Material::Generator;
 using namespace Engine::Core;
@@ -41,7 +41,8 @@ void GeneratorBRDF::Generate(std::shared_ptr<Mesh::MeshBase> pMesh)
 	renderPassBeginInfo.pClearValues = clearValues;
 	renderPassBeginInfo.framebuffer = framebuffer;
 
-    vk::CommandBuffer tempBuffer = UDevice->BeginSingleTimeCommands();
+    auto cmdBuf = CommandBuffer();
+    auto tempBuffer = cmdBuf.GetCommandBuffer();
     tempBuffer.beginRenderPass(renderPassBeginInfo, vk::SubpassContents::eInline);
     vk::Viewport viewport = Core::Initializers::Viewport(m_iDimension, m_iDimension);
 	vk::Rect2D scissor = Core::Initializers::Scissor(m_iDimension, m_iDimension);
@@ -51,7 +52,7 @@ void GeneratorBRDF::Generate(std::shared_ptr<Mesh::MeshBase> pMesh)
     tempBuffer.bindPipeline(vk::PipelineBindPoint::eGraphics, m_pPipeline->GetPipeline());
     tempBuffer.draw(3, 1, 0, 0);
     tempBuffer.endRenderPass();
-    UDevice->EndSingleTimeCommands(tempBuffer);
+    cmdBuf.submitIdle();
     m_pGeneratedImage->SetImageLayout(vk::ImageLayout::eShaderReadOnlyOptimal);
     m_pGeneratedImage->UpdateDescriptor();
 }

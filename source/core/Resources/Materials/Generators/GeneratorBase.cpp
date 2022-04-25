@@ -1,6 +1,6 @@
 #include "GeneratorBase.h"
-#include "Resources/ResourceManager.h"
-#include "Core/VulkanHighLevel.h"
+#include "resources/ResourceManager.h"
+#include "graphics/VulkanHighLevel.h"
 
 using namespace Engine::Core;
 using namespace Engine::Core::Loaders;

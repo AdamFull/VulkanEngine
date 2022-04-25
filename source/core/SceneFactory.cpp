@@ -1,16 +1,16 @@
 #include "SceneFactory.h"
 #include "filesystem/FilesystemHelper.h"
 
-#include "Resources/Meshes/MeshFactory.h"
-#include "Resources/Materials/MaterialFactory.h"
-#include "Resources/Meshes/Loaders/GLTFLoader.h"
-#include "Core/Image/TextureFactory.h"
+#include "resources/meshes/MeshFactory.h"
+#include "resources/materials/MaterialFactory.h"
+#include "resources/meshes/loaders/GLTFLoader.h"
+#include "graphics/image/TextureFactory.h"
 
-#include "Core/Scene/Objects/Components/Camera/CameraManager.h"
-#include "Core/Scene/Objects/Components/MeshComponentBase.h"
-#include "Core/Scene/Objects/Components/MeshVolumeComponent.h"
+#include "graphics/scene/objects/components/camera/CameraManager.h"
+#include "graphics/scene/objects/components/MeshComponentBase.h"
+#include "graphics/scene/objects/components/MeshVolumeComponent.h"
 
-#include "Core/Scene/Lightning/LightSourceManager.h"
+#include "graphics/scene/lightning/LightSourceManager.h"
 
 using namespace Engine;
 using namespace Engine::Core::Scene;

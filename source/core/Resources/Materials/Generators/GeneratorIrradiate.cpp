@@ -1,10 +1,10 @@
 #include "GeneratorIrradiate.h"
-#include "Core/Buffer/VulkanUniform.h"
-#include "Resources/Meshes/VulkanMesh.h"
-#include "Resources/ResourceManager.h"
-#include "Core/VulkanHighLevel.h"
-#include "Core/VulkanInitializers.h"
-#include "Resources/Meshes/Primitives.hpp"
+#include "resources/Meshes/VulkanMesh.h"
+#include "resources/ResourceManager.h"
+#include "resources/Meshes/Primitives.hpp"
+#include "graphics/VulkanHighLevel.h"
+#include "graphics/VulkanInitializers.h"
+#include "graphics/Buffer/VulkanUniform.h"
 
 using namespace Engine::Core;
 using namespace Engine::Core::Loaders;
@@ -50,7 +50,8 @@ void GeneratorIrradiate::Generate(std::shared_ptr<Mesh::MeshBase> pMesh)
 	renderPassBeginInfo.pClearValues = clearValues;
 	renderPassBeginInfo.framebuffer = framebuffer;
 
-    vk::CommandBuffer tempBuffer = UDevice->BeginSingleTimeCommands();
+    auto cmdBuf = CommandBuffer();
+    auto tempBuffer = cmdBuf.GetCommandBuffer();
 
     m_pDescriptorSet->Clear();
     m_pDescriptorSet->Set("samplerEnv", m_mTextures[ETextureAttachmentType::eCubemap]);
@@ -119,7 +120,7 @@ void GeneratorIrradiate::Generate(std::shared_ptr<Mesh::MeshBase> pMesh)
     m_pCubemap->TransitionImageLayout(tempBuffer, vk::ImageLayout::eShaderReadOnlyOptimal, vk::ImageAspectFlagBits::eColor);
     m_pCubemap->UpdateDescriptor();
 
-    UDevice->EndSingleTimeCommands(tempBuffer);
+    cmdBuf.submitIdle();
 }
 
 std::shared_ptr<Image> GeneratorIrradiate::Get()

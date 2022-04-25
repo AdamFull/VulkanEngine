@@ -1,7 +1,7 @@
 #include "Application.h"
-#include "Core/VulkanHighLevel.h"
-#include "KeyMapping/InputMapper.h"
-#include "Core/Scene/Objects/Components/Camera/CameraManager.h"
+#include "graphics/VulkanHighLevel.h"
+#include "keymapper/InputMapper.h"
+#include "graphics/scene/objects/components/camera/CameraManager.h"
 #include "SceneFactory.h"
 #include "filesystem/FilesystemHelper.h"
 

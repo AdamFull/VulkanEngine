@@ -24,7 +24,7 @@ namespace Engine
             void Create();
 
             vk::Result AcquireNextImage(uint32_t *imageIndex);
-            vk::Result SubmitCommandBuffers(const vk::CommandBuffer *commandBuffer, uint32_t *imageIndex);
+            vk::Result SubmitCommandBuffers(const vk::CommandBuffer *commandBuffer, uint32_t *imageIndex, vk::QueueFlagBits queueBit);
 
             void Cleanup();
             void ReCreate();

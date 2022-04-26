@@ -38,7 +38,7 @@ vk::Result SwapChain::AcquireNextImage(uint32_t *imageIndex)
     return result;
 }
 
-vk::Result SwapChain::SubmitCommandBuffers(const vk::CommandBuffer *commandBuffer, uint32_t *imageIndex)
+vk::Result SwapChain::SubmitCommandBuffers(const vk::CommandBuffer *commandBuffer, uint32_t *imageIndex, vk::QueueFlagBits queueBit)
 {
     vk::SubmitInfo submitInfo = {};
 
@@ -60,7 +60,21 @@ vk::Result SwapChain::SubmitCommandBuffers(const vk::CommandBuffer *commandBuffe
 
     try
     {
-        UDevice->GetGraphicsQueue().submit(submitInfo, m_vInFlightFences[m_currentFrame]);
+        vk::Queue queue{};
+        switch (queueBit)
+        {
+        case vk::QueueFlagBits::eGraphics: {
+            queue = UDevice->GetGraphicsQueue();
+        } break;
+        case vk::QueueFlagBits::eCompute: {
+            queue = UDevice->GetComputeQueue();
+        } break;
+        case vk::QueueFlagBits::eTransfer: {
+            queue = UDevice->GetComputeQueue();
+        } break;
+        }
+        queue.submit(submitInfo, m_vInFlightFences[m_currentFrame]);
+        //UDevice->GetGraphicsQueue().submit(submitInfo, m_vInFlightFences[m_currentFrame]);
     }
     catch (vk::SystemError err)
     {

@@ -150,8 +150,8 @@ namespace utl
 		template<class _Ty, class... _Types, typename _Kty = std::invoke_result_t<std::decay_t<_Ty>, std::decay_t<_Types>...>, typename = std::enable_if_t<!std::is_void_v<_Ty>>>
 		future<_Kty> submit(_Ty&& work, _Types&& ...args)
 		{
-			auto task_promise = make_shared<std::promise<_Kty>>();
-			auto future = task_promise->get_future();
+			auto task_promise = std::make_shared<std::promise<_Kty>>();
+			auto _future = task_promise->get_future();
 
 			_workers.at(_current)->push([work = std::forward<_Ty>(work), args..., task_promise]()
 			{
@@ -166,7 +166,7 @@ namespace utl
 			if(_current < _total)
                 _current = 0;
 
-			return future(future);
+			return future<_Kty>(std::move(_future));
 		}
 
         void set_worker_count(const size_t& count)

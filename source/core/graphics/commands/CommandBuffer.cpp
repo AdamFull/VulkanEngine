@@ -59,7 +59,19 @@ void CommandBuffer::submitIdle()
     submitInfo.commandBufferCount = vCommandBuffers.size();
     submitInfo.pCommandBuffers = vCommandBuffers.data();
 
-    auto& queue = UDevice->GetGraphicsQueue();
+    vk::Queue queue{};
+    switch (queueType)
+    {
+    case vk::QueueFlagBits::eGraphics: {
+        queue = UDevice->GetGraphicsQueue();
+    } break;
+    case vk::QueueFlagBits::eCompute: {
+        queue = UDevice->GetComputeQueue();
+    } break;
+    case vk::QueueFlagBits::eTransfer: {
+        queue = UDevice->GetComputeQueue();
+    } break;
+    }
     queue.submit(submitInfo, nullptr);
     queue.waitIdle();
 }
@@ -70,5 +82,5 @@ vk::Result CommandBuffer::submit(uint32_t& imageIndex)
 		end();
 
     auto commandBuffer = GetCommandBuffer();
-    return USwapChain->SubmitCommandBuffers(&commandBuffer, &imageIndex);
+    return USwapChain->SubmitCommandBuffers(&commandBuffer, &imageIndex, queueType);
 }

@@ -75,7 +75,7 @@ void CameraEditorController::MouseRotation(float fX, float fY)
 
     if (glm::dot(rotate, rotate) > std::numeric_limits<float>::epsilon())
     {
-        transform.rot += rotate * 2.0f;
+        transform.rot += rotate * 20.0f;
 
         /*transform.rot.x = glm::clamp(transform.rot.x, -1.5f, 1.5f);
         transform.rot.y = glm::mod(transform.rot.y, glm::two_pi<float>());*/

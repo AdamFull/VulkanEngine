@@ -11,6 +11,7 @@
 #include "graphics/pipeline/Pipeline.h"
 #include "graphics/pipeline/ComputePipeline.h"
 #include "graphics/descriptor/DescriptorHandler.h"
+#include "graphics/image/ImageLoader.h"
 #include "GlobalVariables.h"
 
 using namespace Engine::Core;
@@ -55,6 +56,9 @@ void PBRCompositionRenderer::Create(std::shared_ptr<Resources::ResourceManager> 
 
     out_extent = USwapChain->GetExtent();
     RendererBase::Create(pResMgr);
+
+    brdf = UHLInstance->GetThreadPool()->submit(&PBRCompositionRenderer::ComputeBRDFLUT, 512);
+
     CreateMaterial(pResMgr);
 }
 
@@ -67,6 +71,8 @@ void PBRCompositionRenderer::ReCreate(uint32_t framesInFlight)
 
 void PBRCompositionRenderer::Render(vk::CommandBuffer& commandBuffer)
 {
+    m_pMaterial->AddTexture(ETextureAttachmentType::eBRDFLUT, *brdf);
+
     BeginRender(commandBuffer);
     auto imageIndex = USwapChain->GetCurrentFrame();
     const auto& mImages = m_pPrev->GetProducts();
@@ -106,15 +112,20 @@ void PBRCompositionRenderer::CreateMaterial(std::shared_ptr<ResourceManager> pRe
 {
     m_pMaterial = std::make_shared<MaterialDeferred>();
     m_pMaterial->Create(nullptr);
-    m_pMaterial->AddTexture(ETextureAttachmentType::eBRDFLUT, pResMgr->Get<Image>("environment_component_brdf"));
+    m_pMaterial->AddTexture(ETextureAttachmentType::eBRDFLUT, *brdf); //pResMgr->Get<Image>("environment_component_brdf")
     m_pMaterial->AddTexture(ETextureAttachmentType::eIrradiance, pResMgr->Get<Image>("environment_component_irradiate_cube"));
     m_pMaterial->AddTexture(ETextureAttachmentType::ePrefiltred, pResMgr->Get<Image>("environment_component_prefiltred_cube"));
 }
 
-std::unique_ptr<Image> PBRCompositionRenderer::ComputeBRDFLUT(uint32_t size)
+std::shared_ptr<Image> PBRCompositionRenderer::ComputeBRDFLUT(uint32_t size)
 {
-    auto brdfImage = std::make_unique<Image>();
-    //glm::vec2(size), vk::Format::eR16G16Sfloat, vk::ImageLayout::eGeneral
+    auto brdfImage = std::make_shared<Image>();
+    ktxTexture *offscreen;
+    vk::Format format{};
+    Loaders::ImageLoader::AllocateRawDataAsKTXTexture(&offscreen, &format, size, size, 1, 2, VulkanStaticHelper::VkFormatToGLFormat(vk::Format::eR16G16Sfloat));
+    brdfImage->InitializeTexture(offscreen, format, vk::ImageUsageFlagBits::eTransferSrc | vk::ImageUsageFlagBits::eTransferDst | vk::ImageUsageFlagBits::eSampled | vk::ImageUsageFlagBits::eColorAttachment | vk::ImageUsageFlagBits::eStorage);
+    brdfImage->TransitionImageLayout(vk::ImageLayout::eGeneral, vk::ImageAspectFlagBits::eColor);
+    brdfImage->UpdateDescriptor();
 
     auto cmdBuf = CommandBuffer(true, vk::QueueFlagBits::eCompute);
     auto commandBuffer = cmdBuf.GetCommandBuffer();
@@ -136,20 +147,22 @@ std::unique_ptr<Image> PBRCompositionRenderer::ComputeBRDFLUT(uint32_t size)
     commandBuffer.dispatch(groupCountX, groupCountY, 1);
     cmdBuf.submitIdle();
 
+    Loaders::ImageLoader::Close(&offscreen);
+
     return brdfImage;
 }
 
-std::unique_ptr<Image> PBRCompositionRenderer::ComputeIrradiance(const std::shared_ptr<Image> &source, uint32_t size)
+std::shared_ptr<Image> PBRCompositionRenderer::ComputeIrradiance(const std::shared_ptr<Image> &source, uint32_t size)
 {
-    auto irradianceCubemap = std::make_unique<Image>();
+    auto irradianceCubemap = std::make_shared<Image>();
     //glm::vec2(size), vk::Format::eR32G32B32A32Sfloat, vk::ImageLayout::eGeneral
 
     return irradianceCubemap;
 }
 
-std::unique_ptr<Image> PBRCompositionRenderer::ComputePrefiltered(const std::shared_ptr<Image> &source, uint32_t size)
+std::shared_ptr<Image> PBRCompositionRenderer::ComputePrefiltered(const std::shared_ptr<Image> &source, uint32_t size)
 {
-    auto prefilteredCubemap = std::make_unique<Image>();
+    auto prefilteredCubemap = std::make_shared<Image>();
     //glm::vec2(size), vk::Format::eR16G16B16A16Sfloat, vk::ImageLayout::eGeneral, vk::ImageUsageFlagBits::eColorAttachment | vk::ImageUsageFlagBits::eStorage, vk::Filter::eLinear, vk::SamplerAddressMode::eClampToEdge, vk::SampleCountFlagBits::e1, true, true
 
     return prefilteredCubemap;

@@ -19,17 +19,17 @@ namespace Engine
                 void Cleanup() override;
             protected:
                 void CreateMaterial(std::shared_ptr<Resources::ResourceManager> pResMgr);
-                static std::unique_ptr<Image> ComputeBRDFLUT(uint32_t size);
-                static std::unique_ptr<Image> ComputeIrradiance(const std::shared_ptr<Image> &source, uint32_t size);
-                static std::unique_ptr<Image> ComputePrefiltered(const std::shared_ptr<Image> &source, uint32_t size);
+                static std::shared_ptr<Image> ComputeBRDFLUT(uint32_t size);
+                static std::shared_ptr<Image> ComputeIrradiance(const std::shared_ptr<Image> &source, uint32_t size);
+                static std::shared_ptr<Image> ComputePrefiltered(const std::shared_ptr<Image> &source, uint32_t size);
 
             private:
                 std::shared_ptr<UniformBuffer> m_pUniform;
                 std::shared_ptr<Resources::Material::MaterialBase> m_pMaterial;
 
-                utl::future<std::unique_ptr<Image>> brdf;
-                utl::future<std::unique_ptr<Image>> irradiance;
-                utl::future<std::unique_ptr<Image>> prefiltered;
+                utl::future<std::shared_ptr<Image>> brdf;
+                utl::future<std::shared_ptr<Image>> irradiance;
+                utl::future<std::shared_ptr<Image>> prefiltered;
             };
         }
     }

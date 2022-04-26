@@ -189,6 +189,8 @@ void Device::CreateDevice(const FDeviceCreateInfo& deviceCI)
     assert(m_qGraphicsQueue && "Failed while getting graphics queue.");
     m_qPresentQueue = m_logical.getQueue(indices.presentFamily.value(), 0);
     assert(m_qPresentQueue && "Failed while getting present queue.");
+    m_qComputeQueue = m_logical.getQueue(indices.computeFamily.value(), 0);
+    assert(m_qComputeQueue && "Failed while getting present queue.");
 }
 
 uint32_t Device::FindMemoryType(uint32_t typeFilter, vk::MemoryPropertyFlags properties)
@@ -218,6 +220,16 @@ QueueFamilyIndices Device::FindQueueFamilies(vk::PhysicalDevice device)
         if (queueFamily.queueCount > 0 && queueFamily.queueFlags & vk::QueueFlagBits::eGraphics)
         {
             indices.graphicsFamily = i;
+        }
+
+        if (queueFamily.queueCount > 0 && queueFamily.queueFlags & vk::QueueFlagBits::eCompute)
+        {
+            indices.computeFamily = i;
+        }
+
+        if (queueFamily.queueCount > 0 && queueFamily.queueFlags & vk::QueueFlagBits::eTransfer)
+        {
+            indices.transferFamily = i;
         }
 
         if (queueFamily.queueCount > 0 && device.getSurfaceSupportKHR(i, m_surface))

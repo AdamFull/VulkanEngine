@@ -13,6 +13,8 @@ layout(binding = 0, rgba32f) uniform writeonly imageCube outColour;
 
 layout(binding = 1) uniform samplerCube samplerColour;
 
+#include "../shared_lightning.glsl"
+
 const uint samples = 32u;
 
 vec3 prefilterEnvMap(samplerCube envmap, vec3 R, float roughness) 

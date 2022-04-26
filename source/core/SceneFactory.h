@@ -18,7 +18,6 @@ namespace Engine
         static std::shared_ptr<Core::Scene::Objects::RenderObject> CreateStaticMesh(std::shared_ptr<Resources::ResourceManager> pResMgr, FSceneObject info);
         static std::shared_ptr<Core::Scene::Objects::RenderObject> CreateSkybox(std::shared_ptr<Resources::ResourceManager> pResMgr, FSceneObject info);
         static std::shared_ptr<Core::Scene::Objects::RenderObject> CreateGLTFMesh(std::shared_ptr<Resources::ResourceManager> pResMgr, FSceneObject info);
-        static std::shared_ptr<Core::Scene::Objects::RenderObject> CreateEnvironment(std::shared_ptr<Resources::ResourceManager> pResMgr, FSceneObject info);
         static std::shared_ptr<Core::Scene::Objects::RenderObject> CreateLightSource(std::shared_ptr<Resources::ResourceManager> pResMgr, FSceneObject info);
     };
 }

@@ -22,6 +22,8 @@ Game engine architecture. Goog book for creating not bad game engine architectur
 - [x] HDR
 - [x] Bloom
 - [x] PBR + IBL
+- [x] Compute shaders
+- [x] Multithreading
 - [ ] Deferred multisampling
 - [ ] Deferred shadow mapping
 - [ ] Realtime reflections

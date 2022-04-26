@@ -26,6 +26,7 @@ namespace Engine
             private:
                 std::shared_ptr<UniformBuffer> m_pUniform;
                 std::shared_ptr<Resources::Material::MaterialBase> m_pMaterial;
+                std::shared_ptr<Image> m_pSkybox;
 
                 utl::future<std::shared_ptr<Image>> brdf;
                 utl::future<std::shared_ptr<Image>> irradiance;

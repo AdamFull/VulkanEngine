@@ -33,24 +33,6 @@
             "scale": {"x": 2.0, "y": 2.0, "z": 2.0}
         }
     },
-    "environment":
-    {
-        "name": "environment_component",
-        "type": "environment",
-        "mesh": 
-        {
-            "name": "environment_obj",
-            "type": "static",
-            "src": "../../assets/meshes/cube.gltf"
-        },
-        "texture":
-        {
-            "name": "environment_cubemap_tex",
-            "type": "cubemap",
-            "attachment": "cubemap",
-            "src": "../../assets/textures/cubemaps/sky_skybox.ktx"
-        }
-    },
     "objects":
     [
         {

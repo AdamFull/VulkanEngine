@@ -190,7 +190,9 @@ void Device::CreateDevice(const FDeviceCreateInfo& deviceCI)
     m_qPresentQueue = m_logical.getQueue(indices.presentFamily.value(), 0);
     assert(m_qPresentQueue && "Failed while getting present queue.");
     m_qComputeQueue = m_logical.getQueue(indices.computeFamily.value(), 0);
-    assert(m_qComputeQueue && "Failed while getting present queue.");
+    assert(m_qComputeQueue && "Failed while getting compute queue.");
+    m_qTransferQueue = m_logical.getQueue(indices.transferFamily.value(), 0);
+    assert(m_qTransferQueue && "Failed while getting transfer queue.");
 }
 
 uint32_t Device::FindMemoryType(uint32_t typeFilter, vk::MemoryPropertyFlags properties)
@@ -324,7 +326,7 @@ void Device::CreateOnDeviceBuffer(vk::DeviceSize size, vk::BufferUsageFlags usag
 
 void Device::CopyOnDeviceBuffer(vk::Buffer srcBuffer, vk::Buffer dstBuffer, vk::DeviceSize size)
 {
-    auto cmdBuf = CommandBuffer();
+    auto cmdBuf = CommandBuffer(true, vk::QueueFlagBits::eTransfer);
     auto commandBuffer = cmdBuf.GetCommandBuffer();
 
     vk::BufferCopy copyRegion = {};

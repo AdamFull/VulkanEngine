@@ -17,12 +17,7 @@ namespace Engine
             template<class T>
             void Set(const T &object, uint32_t index, std::size_t offset, std::size_t size)
             {
-                if (!m_uniformBlock || m_pBuffers.empty())
-			        return;
-
-                auto* data = m_vData.at(index)->get();
-                if(data)
-                    std::memcpy(static_cast<char *>(data) + offset, &object, size);
+                std::memcpy(m_vData.at(index).get() + offset, &object, size);
             }
 
             template<class T>

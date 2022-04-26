@@ -31,7 +31,7 @@ void Image::GenerateMipmaps(vk::Image &image, uint32_t mipLevels, vk::Format for
         throw std::runtime_error("Texture image format does not support linear blitting!");
     }
 
-    auto cmdBuf = CommandBuffer();
+    auto cmdBuf = CommandBuffer(true, vk::QueueFlagBits::eTransfer);
     auto commandBuffer = cmdBuf.GetCommandBuffer();
 
     int32_t mipWidth = width;
@@ -132,7 +132,7 @@ void Image::InitializeTexture(ktxTexture *info, vk::Format format, vk::ImageUsag
     if (info->isArray)
         imageInfo.arrayLayers = info->numLayers;
     else if (info->isCubemap)
-        imageInfo.arrayLayers = info->numFaces;
+        imageInfo.arrayLayers = 6;
     else
         imageInfo.arrayLayers = 1;
 
@@ -240,7 +240,7 @@ void Image::CreateImage(vk::Image &image, vk::DeviceMemory &memory, vk::ImageCre
 
 void Image::TransitionImageLayout(vk::Image &image, std::vector<vk::ImageMemoryBarrier>& vBarriers, vk::ImageLayout oldLayout, vk::ImageLayout newLayout)
 {
-    auto cmdBuf = CommandBuffer();
+    auto cmdBuf = CommandBuffer(true, vk::QueueFlagBits::eTransfer);
     auto commandBuffer = cmdBuf.GetCommandBuffer();
 
     TransitionImageLayout(commandBuffer, image, vBarriers, oldLayout, newLayout);
@@ -347,7 +347,7 @@ void Image::TransitionImageLayout(vk::CommandBuffer& internalBuffer, vk::Image &
 
 void Image::CopyBufferToImage(vk::Buffer &buffer, vk::Image &image, std::vector<vk::BufferImageCopy> vRegions)
 {
-    auto cmdBuf = CommandBuffer();
+    auto cmdBuf = CommandBuffer(true, vk::QueueFlagBits::eTransfer);
     auto commandBuffer = cmdBuf.GetCommandBuffer();
     commandBuffer.copyBufferToImage(buffer, image, vk::ImageLayout::eTransferDstOptimal, static_cast<uint32_t>(vRegions.size()), vRegions.data());
     cmdBuf.submitIdle();
@@ -445,7 +445,7 @@ bool Image::IsSupportedDimension(ktxTexture *info)
 
 void Image::TransitionImageLayout(vk::ImageLayout newLayout, vk::ImageAspectFlags aspectFlags, bool use_mips)
 {
-    auto cmdBuf = CommandBuffer();
+    auto cmdBuf = CommandBuffer(true, vk::QueueFlagBits::eTransfer);
     auto commandBuffer = cmdBuf.GetCommandBuffer();
     TransitionImageLayout(commandBuffer, m_imageLayout, newLayout, aspectFlags, use_mips);
     cmdBuf.submitIdle();

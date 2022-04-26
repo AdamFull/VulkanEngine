@@ -26,8 +26,6 @@ void PushHandler::Cleanup()
 void PushHandler::Flush(vk::CommandBuffer& commandBuffer, std::shared_ptr<Pipeline::PipelineBase> pPipeline)
 {
     uint32_t index = USwapChain->GetCurrentFrame();
-    if (!m_vData.empty())
-		return;
     
     auto& data = m_vData.at(index);
     if(data)

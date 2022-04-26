@@ -61,3 +61,8 @@ void DescriptorHandler::Set(const std::string& srUniformName, vk::DescriptorImag
     write.descriptorCount = 1;
     m_vWriteDescriptorSets.emplace_back(std::move(write));
 }
+
+void DescriptorHandler::Set(const std::string& srUniformName, vk::WriteDescriptorSet& writeInfo)
+{
+    m_vWriteDescriptorSets.emplace_back(std::move(writeInfo));
+}

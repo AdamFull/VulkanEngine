@@ -50,7 +50,7 @@ namespace Engine
 
             void SetImageLayout(vk::ImageLayout m_layout);
 
-            const vk::Image& GetImage() const { return m_image; }
+            vk::Image& GetImage() { return m_image; }
             const vk::DeviceMemory& GetMemory() const { return m_deviceMemory; }
             const vk::ImageView& GetView() const { return m_view; }
             const vk::Sampler& GetSampler() const { return m_sampler; }

@@ -79,6 +79,7 @@ namespace Engine
             inline vk::Queue &GetGraphicsQueue() { return m_qGraphicsQueue; }
             inline vk::Queue &GetPresentQueue() { return m_qPresentQueue; }
             inline vk::Queue &GetComputeQueue() { return m_qComputeQueue; }
+            inline vk::Queue &GetTransferQueue() { return m_qTransferQueue; }
 
             inline vk::SampleCountFlagBits GetSamples() { return m_msaaSamples; }
 
@@ -286,6 +287,7 @@ namespace Engine
             vk::Queue m_qGraphicsQueue;
             vk::Queue m_qPresentQueue;
             vk::Queue m_qComputeQueue;
+            vk::Queue m_qTransferQueue;
 
             vk::SampleCountFlagBits m_msaaSamples{vk::SampleCountFlagBits::e1};
             bool m_bValidation{false};

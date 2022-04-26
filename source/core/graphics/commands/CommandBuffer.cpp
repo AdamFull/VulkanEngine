@@ -69,7 +69,7 @@ void CommandBuffer::submitIdle()
         queue = UDevice->GetComputeQueue();
     } break;
     case vk::QueueFlagBits::eTransfer: {
-        queue = UDevice->GetComputeQueue();
+        queue = UDevice->GetTransferQueue();
     } break;
     }
     queue.submit(submitInfo, nullptr);

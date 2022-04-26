@@ -10,7 +10,6 @@ namespace Engine
         eSkybox,
         eMeshComponent,
         eGltfMesh,
-        eEnvironment,
         eLightSource
     };
 
@@ -30,7 +29,6 @@ namespace Engine
     struct FSceneCreateInfo
     {
         FSceneObject skybox;
-        FSceneObject environment;
         std::vector<FSceneObject> vSceneObjects;
     };
 

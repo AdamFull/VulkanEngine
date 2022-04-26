@@ -12,7 +12,6 @@ namespace Engine
             {ESceneObjectType::eSkybox, "skybox"},
             {ESceneObjectType::eMeshComponent, "static_mesh"},
             {ESceneObjectType::eGltfMesh, "gltf_mesh"},
-            {ESceneObjectType::eEnvironment, "environment"},
             {ESceneObjectType::eLightSource, "light_source"}
         }
     )
@@ -57,7 +56,6 @@ namespace Engine
     void from_json(const nlohmann::json &json, FSceneCreateInfo &type)
     {
         ParseArgument(json, type.skybox, "skybox");
-        ParseArgument(json, type.environment, "environment");
         ParseArgument(json, type.vSceneObjects, "objects");
     }
 }

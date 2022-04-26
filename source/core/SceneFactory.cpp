@@ -8,7 +8,6 @@
 
 #include "graphics/scene/objects/components/camera/CameraManager.h"
 #include "graphics/scene/objects/components/MeshComponentBase.h"
-#include "graphics/scene/objects/components/MeshVolumeComponent.h"
 
 #include "graphics/scene/lightning/LightSourceManager.h"
 
@@ -25,8 +24,6 @@ std::unique_ptr<RenderScene> SceneFactory::Create(std::string srScenePath)
     auto pResMgr = pRenderScene->GetResourceManager();
     // TODO: check is skybox exists
     pRoot->Attach(CreateComponent(pResMgr, info.skybox));
-    //TODO: Made it better
-    pRenderScene->SetEnvironment(CreateComponent(pResMgr, info.environment));
 
     CreateComponents(pRoot, pResMgr, info.vSceneObjects);
 
@@ -58,9 +55,6 @@ std::shared_ptr<Core::Scene::Objects::RenderObject> SceneFactory::CreateComponen
         break;
     case ESceneObjectType::eGltfMesh:
         object = CreateGLTFMesh(pResMgr, info);
-        break;
-    case ESceneObjectType::eEnvironment:
-        object = CreateEnvironment(pResMgr, info);
         break;
     case ESceneObjectType::eLightSource:
         object = CreateLightSource(pResMgr, info);
@@ -142,19 +136,6 @@ std::shared_ptr<Core::Scene::Objects::RenderObject> SceneFactory::CreateGLTFMesh
     mesh->SetMesh(loaded);
 
     return mesh;
-}
-
-std::shared_ptr<Core::Scene::Objects::RenderObject> SceneFactory::CreateEnvironment(std::shared_ptr<Resources::ResourceManager> pResMgr, FSceneObject info)
-{
-    auto loader = std::make_shared<Resources::Loaders::GLTFLoader>(false, false, info.srName, info.srUseVolume);
-
-    auto environment = std::make_shared<Core::Scene::Objects::Components::MeshVolumeComponent>();
-    loader->Load(info.mesh.srSrc, info.srName, pResMgr);
-    environment->SetName(info.srName);
-    environment->SetMesh(loader->GetMesh());
-    environment->SetTexture(Core::TextureFactory::Create(pResMgr, info.texture));
-
-    return environment;
 }
 
 std::shared_ptr<Core::Scene::Objects::RenderObject> SceneFactory::CreateLightSource(std::shared_ptr<Resources::ResourceManager> pResMgr, FSceneObject info)

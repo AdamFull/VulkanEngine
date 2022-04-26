@@ -70,7 +70,7 @@ vk::Result SwapChain::SubmitCommandBuffers(const vk::CommandBuffer *commandBuffe
             queue = UDevice->GetComputeQueue();
         } break;
         case vk::QueueFlagBits::eTransfer: {
-            queue = UDevice->GetComputeQueue();
+            queue = UDevice->GetTransferQueue();
         } break;
         }
         queue.submit(submitInfo, m_vInFlightFences[m_currentFrame]);

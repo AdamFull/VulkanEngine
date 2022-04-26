@@ -51,15 +51,9 @@ void RenderScene::AttachObject(std::shared_ptr<Core::Scene::Objects::RenderObjec
     object->SetParent(m_pRoot);
 }
 
-void RenderScene::SetEnvironment(std::shared_ptr<Core::Scene::Objects::RenderObject> pEnvironment)
-{
-    m_pEnvironment = pEnvironment;
-}
-
 void RenderScene::CreateObjects()
 {
     UVBO->Create();
-    m_pEnvironment->Create(m_pResourceManager);
     
     /*auto pShadowRenderer = URenderer->PushStage(FRendererCreateInfo::ERendererType::eShadow, vk::Extent2D{});
     pShadowRenderer->Create(m_pResourceManager);

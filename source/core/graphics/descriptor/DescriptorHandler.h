@@ -21,6 +21,7 @@ namespace Engine
 
                 void Set(const std::string& srUniformName, vk::DescriptorBufferInfo& bufferInfo);
                 void Set(const std::string& srUniformName, vk::DescriptorImageInfo& imageInfo);
+                void Set(const std::string& srUniformName, vk::WriteDescriptorSet& writeInfo);
             private:
                 std::shared_ptr<Pipeline::PipelineBase> m_pPipeline;
                 std::unique_ptr<DescriptorSet> m_pDescriptorSet;

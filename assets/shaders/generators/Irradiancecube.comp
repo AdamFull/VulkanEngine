@@ -9,6 +9,8 @@ layout(binding = 0, rgba32f) uniform writeonly imageCube outColour;
 
 layout(binding = 1) uniform samplerCube samplerColour;
 
+#include "../shared_lightning.glsl"
+
 const float deltaPhi = (2.0f * PI) / 180.0f;
 const float deltaTheta = (0.5f * PI) / 64.0f;
 

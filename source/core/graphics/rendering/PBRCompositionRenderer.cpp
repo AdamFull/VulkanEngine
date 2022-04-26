@@ -9,6 +9,8 @@
 #include "graphics/VulkanHighLevel.h"
 #include "graphics/VulkanInitializers.h"
 #include "graphics/pipeline/Pipeline.h"
+#include "graphics/pipeline/ComputePipeline.h"
+#include "graphics/descriptor/DescriptorHandler.h"
 #include "GlobalVariables.h"
 
 using namespace Engine::Core;
@@ -112,15 +114,27 @@ void PBRCompositionRenderer::CreateMaterial(std::shared_ptr<ResourceManager> pRe
 std::unique_ptr<Image> PBRCompositionRenderer::ComputeBRDFLUT(uint32_t size)
 {
     auto brdfImage = std::make_unique<Image>();
-    auto computePipeline = Pipeline::PipelineBase::Builder().
-    AddShaderStage("../../assets/shaders/generators/brdflut.comp").
-    Build(vk::PipelineBindPoint::eCompute);
     //glm::vec2(size), vk::Format::eR16G16Sfloat, vk::ImageLayout::eGeneral
 
-    /*vk::CommandBufferBeginInfo beginInfo{};
-    beginInfo.bufferLe
-    auto commandBuffer = UDevice->BeginSingleTimeCommands(beginInfo);
-	PipelineCompute compute("Shaders/Brdf.comp");*/
+    auto cmdBuf = CommandBuffer(true, vk::QueueFlagBits::eCompute);
+    auto commandBuffer = cmdBuf.GetCommandBuffer();
+    auto descriptor = Descriptor::DescriptorHandler();
+
+    std::shared_ptr<Pipeline::PipelineBase> computePipeline = Pipeline::PipelineBase::Builder().
+    AddShaderStage("../../assets/shaders/generators/brdflut.comp").
+    Build(vk::PipelineBindPoint::eCompute);
+
+    computePipeline->Bind(commandBuffer);
+
+    descriptor.Create(computePipeline);
+    descriptor.Set("outColour", brdfImage->GetDescriptor());
+    descriptor.Update(0);
+    descriptor.Bind(commandBuffer, 0);
+    
+    auto groupCountX = static_cast<uint32_t>(std::ceil(static_cast<float>(size) / static_cast<float>(*computePipeline->GetShader()->GetLocalSizes()[0])));
+	auto groupCountY = static_cast<uint32_t>(std::ceil(static_cast<float>(size) / static_cast<float>(*computePipeline->GetShader()->GetLocalSizes()[1])));
+    commandBuffer.dispatch(groupCountX, groupCountY, 1);
+    cmdBuf.submitIdle();
 
     return brdfImage;
 }

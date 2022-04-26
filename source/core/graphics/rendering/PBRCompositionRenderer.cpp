@@ -245,12 +245,10 @@ std::shared_ptr<Image> PBRCompositionRenderer::ComputePrefiltered(const std::sha
 		descriptorWrite.descriptorCount = 1;
 		descriptorWrite.descriptorType = *computePipeline->GetShader()->GetDescriptorType(descriptorWrite.dstBinding);
 		descriptorWrite.pImageInfo = &imageInfo;
-        //UDevice->GetLogical().updateDescriptorSets(1, &descriptorWrite, 0, nullptr);
 
         push.Set("roughness", static_cast<float>(i) / static_cast<float>(prefilteredCubemap->GetMipLevels() - 1), 0);
 
         descriptor.Create(computePipeline);
-        //descriptor.Set("PushObject", push);
         descriptor.Set("outColour", descriptorWrite);
         descriptor.Set("samplerColour", source->GetDescriptor());
         descriptor.Update(0);

@@ -38,6 +38,8 @@ namespace Core
             void setRenderArea(vk::Offset2D offset, vk::Extent2D extent);
             void setRenderArea(vk::Rect2D&& area);
 
+            operator const vk::RenderPass &() const { return renderPass; }
+
             vk::RenderPass& get() { return renderPass; }
         private:
             vk::RenderPass renderPass{nullptr};

@@ -80,6 +80,8 @@ CRenderPass::CRenderPass(vk::RenderPass&& pass) : renderPass(std::move(pass))
 
 void CRenderPass::begin(vk::CommandBuffer& commandBuffer)
 {
+    auto imageIndex = USwapChain->GetCurrentFrame();
+    
     vk::RenderPassBeginInfo renderPassBeginInfo{};
     renderPassBeginInfo.renderPass = renderPass;
     renderPassBeginInfo.renderArea = renderArea;

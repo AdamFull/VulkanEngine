@@ -1,24 +1,41 @@
 #pragma once
 
-namespace Core
+namespace Engine
 {
-    namespace Render
+    namespace Core
     {
         class Image;
-        class CFramebuffer
+        namespace Render
         {
-        public:
-            class Builder
+            class CFramebuffer
             {
             public:
-                std::unique_ptr<CFramebuffer> build(vk::RenderPass& renderPass);
-            private:
-            };
+                friend class Builder;
+                class Builder
+                {
+                public:
+                    struct FAttachmentInfo
+                    {
+                        vk::Format format;
+                        vk::ImageUsageFlags usageFlags;
+                    };
 
-            CFramebuffer() = default;
-        private:
-            std::vector<vk::Framebuffer> vFramebuffers;
-            std::map<uint32_t, std::vector<Image>> mImages;
-        };
+                    Builder &addImage(vk::Format format, vk::ImageUsageFlags usageFlags);
+                    std::unique_ptr<CFramebuffer> build(vk::RenderPass &renderPass, vk::Extent2D extent);
+
+                private:
+                    std::shared_ptr<Image> createImage(vk::Format format, vk::ImageUsageFlags usageFlags, vk::Extent2D extent);
+                    std::vector<FAttachmentInfo> attachments;
+                };
+
+                CFramebuffer() = default;
+                CFramebuffer(std::vector<vk::Framebuffer> &&framebuffers);
+
+            private:
+                std::vector<vk::Framebuffer> vFramebuffers;
+                std::map<uint32_t, std::vector<std::shared_ptr<Image>>> mImages;
+                std::shared_ptr<Image> pDepth;
+            };
+        }
     }
 }

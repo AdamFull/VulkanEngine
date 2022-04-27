@@ -43,8 +43,11 @@ namespace Engine
 
                 CRenderPass() = default;
                 CRenderPass(vk::RenderPass &&pass);
+                ~CRenderPass();
 
                 void create();
+                void reCreate();
+                void cleanup();
 
                 void begin(vk::CommandBuffer &commandBuffer);
                 void end(vk::CommandBuffer &commandBuffer);
@@ -60,11 +63,17 @@ namespace Engine
                 vk::RenderPass &get() { return renderPass; }
 
             private:
-                std::vector<FInputAttachment> vAttachments;
                 std::vector<std::shared_ptr<CSubpass>> vSubpasses;
                 std::shared_ptr<CFramebuffer> pFramebuffer;
-                vk::RenderPass renderPass{nullptr};
+
+                //ReCreate data
+                std::vector<FInputAttachment> vAttachments;
+                std::vector<vk::AttachmentDescription> vAttachDesc;
+                std::vector<vk::SubpassDescription> vSubpassDesc;
+                std::vector<vk::SubpassDependency> vSubpassDep;
                 std::vector<vk::ClearValue> vClearValues;
+
+                vk::RenderPass renderPass{nullptr};
                 vk::Rect2D renderArea;
             };
         }

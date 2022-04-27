@@ -56,10 +56,10 @@ namespace Engine
             inline std::unique_ptr<utl::threadpool>& GetThreadPool() { return m_pThreadPool; }
 
             inline vk::PipelineCache& GetPipelineCache() { return m_pipelineCache; }
+            void RecreateSwapChain();
 
         private:
             void CreatePipelineCache();
-            void RecreateSwapChain();
             void CleanupSwapChain();
 
             std::unique_ptr<utl::threadpool> m_pThreadPool;

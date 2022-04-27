@@ -11,7 +11,7 @@ namespace Engine
             public:
                 CSubpass() = default;
 
-                virtual void create(vk::RenderPass& renderPass) {}
+                virtual void create(vk::RenderPass& renderPass, uint32_t subpass) {}
                 virtual void render(vk::CommandBuffer& commandBuffer) {}
             private:
             };

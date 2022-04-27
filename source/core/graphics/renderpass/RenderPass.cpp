@@ -81,12 +81,20 @@ std::unique_ptr<CRenderPass> CRenderPass::Builder::build()
     auto pRenderPass = std::make_unique<CRenderPass>(std::move(renderPass));
     pRenderPass->vAttachments = std::move(vAttachments);
     pRenderPass->vClearValues = std::move(vClearValues);
+    pRenderPass->vAttachDesc = std::move(vAttachDesc);
+    pRenderPass->vSubpassDesc = std::move(vSubpassDesc);
+    pRenderPass->vSubpassDep = std::move(vSubpassDep);
     return pRenderPass;
 }
 
 CRenderPass::CRenderPass(vk::RenderPass&& pass) : renderPass(std::move(pass))
 {
 
+}
+
+CRenderPass::~CRenderPass()
+{
+    UDevice->Destroy(renderPass);
 }
 
 void CRenderPass::create()
@@ -97,12 +105,41 @@ void CRenderPass::create()
         fbBuilder = fbBuilder.addImage(attach.format, attach.usageFlags);
     pFramebuffer = fbBuilder.build(renderPass, renderArea.extent);
 
+    //Creating subpasses (render stages)
+    uint32_t subpassNum{0};
     for(auto& subpass : vSubpasses)
-        subpass->create(renderPass);
+    {
+        subpass->create(renderPass, subpassNum);
+        subpassNum++;
+    }
+}
+
+void CRenderPass::reCreate()
+{
+    //Recreating render pass instance with framebuffer
+    cleanup();
+
+    vk::RenderPassCreateInfo renderPassCI = {};
+    renderPassCI.attachmentCount = static_cast<uint32_t>(vAttachDesc.size());
+    renderPassCI.pAttachments = vAttachDesc.data();
+    renderPassCI.subpassCount = static_cast<uint32_t>(vSubpassDesc.size());
+    renderPassCI.pSubpasses = vSubpassDesc.data();
+    renderPassCI.dependencyCount = static_cast<uint32_t>(vSubpassDep.size());
+    renderPassCI.pDependencies = vSubpassDep.data();
+    renderPass = UDevice->GetLogical().createRenderPass(renderPassCI);
+
+    pFramebuffer->reCreate(renderPass);
+}
+
+void CRenderPass::cleanup()
+{
+    UDevice->Destroy(renderPass);
+    //TODO: cleanup
 }
 
 void CRenderPass::begin(vk::CommandBuffer& commandBuffer)
 {
+    //Begins render pass for start rendering
     auto imageIndex = USwapChain->GetCurrentFrame();
 
     vk::RenderPassBeginInfo renderPassBeginInfo{};
@@ -122,6 +159,7 @@ void CRenderPass::render(vk::CommandBuffer& commandBuffer)
 {
     begin(commandBuffer);
 
+    //Render each stage
     for(auto& subpass : vSubpasses)
     {
         subpass->render(commandBuffer);

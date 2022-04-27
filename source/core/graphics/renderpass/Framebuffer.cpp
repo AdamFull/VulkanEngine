@@ -101,3 +101,20 @@ CFramebuffer::CFramebuffer(std::vector<vk::Framebuffer>&& framebuffers)
 {
     vFramebuffers = std::move(framebuffers);
 }
+
+CFramebuffer::~CFramebuffer()
+{
+    cleanup();
+}
+
+void CFramebuffer::reCreate(vk::RenderPass& renderPass)
+{
+    //TODO: re create ops
+}
+
+void CFramebuffer::cleanup()
+{
+    mImages.clear();
+    for(auto& fb : vFramebuffers)
+        UDevice->Destroy(fb);
+}

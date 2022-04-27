@@ -30,6 +30,10 @@ namespace Engine
 
                 CFramebuffer() = default;
                 CFramebuffer(std::vector<vk::Framebuffer> &&framebuffers);
+                ~CFramebuffer();
+
+                void reCreate(vk::RenderPass& renderPass);
+                void cleanup();
 
             private:
                 std::vector<vk::Framebuffer> vFramebuffers;

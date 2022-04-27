@@ -4,39 +4,45 @@ namespace Core
 {
     namespace Render
     {
-        class CRenderStage;
         class CRenderPass
         {
         public:
-            class CVulkanSubpass : public utl::non_copyable
+            class Builder
             {
-                CVulkanSubpass(vk::PipelineBindPoint bindPoint, std::vector<vk::AttachmentReference>&& colorAttachments, const std::optional<uint32_t> &depthAttachment) :
-                colorAttachments(std::move(colorAttachments))
-                {
-                    subpassDescription.pipelineBindPoint = bindPoint;
-                    subpassDescription.colorAttachmentCount = static_cast<uint32_t>(this->colorAttachments.size());
-                    subpassDescription.pColorAttachments = this->colorAttachments.data();
+            public:
+                Builder& addAttachmentDescription(vk::AttachmentDescription&& desc);
+                Builder& addAttachmentDescription(const vk::Format format, vk::SampleCountFlagBits samples, vk::AttachmentLoadOp loadOp, vk::AttachmentStoreOp storeOp,
+                vk::AttachmentLoadOp stencilLoadOp, vk::AttachmentStoreOp stencilStoreOp, vk::ImageLayout initialLayout, vk::ImageLayout finalLayout);
 
-                    if (depthAttachment) 
-                    {
-                        depthStencilAttachment.attachment = *depthAttachment;
-                        depthStencilAttachment.layout = vk::ImageLayout::eDepthAttachmentOptimal;
-                        subpassDescription.pDepthStencilAttachment = &depthStencilAttachment;
-                    }
-                }
-                const vk::SubpassDescription &GetSubpassDescription() const { return subpassDescription; }
+                Builder& addSubpassDescription(vk::SubpassDescription&& desc);
+                Builder& addSubpassDescription(vk::PipelineBindPoint bindPoint, const std::vector<vk::AttachmentReference>& attachRef, vk::AttachmentReference* depthAttach = nullptr, const std::vector<vk::AttachmentReference>& inputRef = {});
+
+                Builder& addSubpassDependency(vk::SubpassDependency&& dep);
+                Builder& addSubpassDependency(uint32_t src, uint32_t dst, vk::PipelineStageFlags srcStageMask, vk::PipelineStageFlags dstStageMask, vk::AccessFlags srcAccessMask, vk::AccessFlags dstAccessMask, vk::DependencyFlags depFlags);
+
+                std::unique_ptr<CRenderPass> build();
             private:
-                vk::SubpassDescription subpassDescription = {};
-		        std::vector<vk::AttachmentReference> colorAttachments;
-		        vk::AttachmentReference depthStencilAttachment = {};
+                std::vector<vk::AttachmentDescription> vAttachDesc;
+                std::vector<vk::SubpassDescription> vSubpassDesc;
+                std::vector<vk::SubpassDependency> vSubpassDep;
+                std::vector<vk::ClearValue> vClearValues;
             };
 
             CRenderPass() = default;
-            ~CRenderPass();
+            CRenderPass(vk::RenderPass&& pass);
 
-            void Create(const CRenderStage &renderStage, vk::Format depthFormat, vk::Format surfaceFormat, vk::SampleCountFlagBits samples);
+            void begin(vk::CommandBuffer& commandBuffer);
+            void end(vk::CommandBuffer& commandBuffer);
+
+            void setRenderArea(uint32_t offset_x, uint32_t offset_y, uint32_t width, uint32_t height);
+            void setRenderArea(vk::Offset2D offset, vk::Extent2D extent);
+            void setRenderArea(vk::Rect2D&& area);
+
+            vk::RenderPass& get() { return renderPass; }
         private:
             vk::RenderPass renderPass{nullptr};
+            std::vector<vk::ClearValue> vClearValues;
+            vk::Rect2D renderArea;
         };
     }
 }

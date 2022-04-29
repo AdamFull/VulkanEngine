@@ -22,7 +22,7 @@ namespace Engine
                     RenderObject(std::string srName);
 
                     // Create render object
-                    virtual void Create(std::shared_ptr<Resources::ResourceManager> resourceMgr);
+                    virtual void Create(vk::RenderPass& renderPass, uint32_t subpass);
                     // Recreate render object
                     virtual void ReCreate();
                     // Do render things

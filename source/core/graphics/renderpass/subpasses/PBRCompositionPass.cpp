@@ -1,5 +1,4 @@
-#include "PBRCompositionRenderer.h"
-#include "graphics/image/Image.h"
+#include "PBRCompositionPass.h"
 #include "resources/materials/MaterialDeferred.h"
 #include "resources/ResourceManager.h"
 #include "graphics/scene/objects/RenderObject.h"
@@ -16,75 +15,38 @@
 #include "GlobalVariables.h"
 
 using namespace Engine::Core;
-using namespace Engine::Core::Rendering;
+using namespace Engine::Core::Render;
 using namespace Engine::Resources;
-;
 using namespace Engine::Resources::Material;
 using namespace Engine::Core::Scene;
 using namespace Engine::Core::Scene::Objects;
 using namespace Engine::Core::Scene::Objects::Components;
 using namespace Engine::Core::Scene::Objects::Components::Light;
 
-void PBRCompositionRenderer::Create(std::shared_ptr<Resources::ResourceManager> pResMgr)
+
+void CPBRCompositionPass::create(std::shared_ptr<ResourceManager> resourceManager, std::shared_ptr<RenderObject> root, vk::RenderPass& renderPass, uint32_t subpass)
 {
     auto framesInFlight = USwapChain->GetFramesInFlight();
     m_pUniform = std::make_shared<UniformBuffer>();
     m_pUniform->Create(framesInFlight, sizeof(FLightningData));
 
-    m_eRendererType = renderer_type_t::ePBRComposition;
+    m_pSkybox = resourceManager->Get<Image>("skybox_cubemap_tex");
 
-    m_vColorAttachments = 
-    {
-        {
-            ETextureAttachmentType::eDiffuseAlbedo,
-            FRendererCreateInfo::FAttachmentInfo
-            (
-                vk::Format::eR16G16B16A16Sfloat,
-                vk::ImageUsageFlagBits::eColorAttachment | vk::ImageUsageFlagBits::eSampled,
-                {std::array<float, 4>{0.0f, 0.0f, 0.0f, 0.0f}}
-            )
-        },
-        {
-            ETextureAttachmentType::eBrightness,
-            FRendererCreateInfo::FAttachmentInfo
-            (
-                vk::Format::eR16G16B16A16Sfloat,
-                vk::ImageUsageFlagBits::eColorAttachment | vk::ImageUsageFlagBits::eSampled,
-                {std::array<float, 4>{0.0f, 0.0f, 0.0f, 0.0f}}
-            )
-        }
-    };
+    brdf = UHLInstance->GetThreadPool()->submit(&CPBRCompositionPass::ComputeBRDFLUT, 512);
+    irradiance = UHLInstance->GetThreadPool()->submit(&CPBRCompositionPass::ComputeIrradiance, m_pSkybox, 64);
+    prefiltered = UHLInstance->GetThreadPool()->submit(&CPBRCompositionPass::ComputePrefiltered, m_pSkybox, 512);
 
-    m_pSkybox = pResMgr->Get<Image>("skybox_cubemap_tex");
-
-    out_extent = USwapChain->GetExtent();
-    RendererBase::Create(pResMgr);
-
-    brdf = UHLInstance->GetThreadPool()->submit(&PBRCompositionRenderer::ComputeBRDFLUT, 512);
-    irradiance = UHLInstance->GetThreadPool()->submit(&PBRCompositionRenderer::ComputeIrradiance, m_pSkybox, 64);
-    prefiltered = UHLInstance->GetThreadPool()->submit(&PBRCompositionRenderer::ComputePrefiltered, m_pSkybox, 512);
-
-    CreateMaterial(pResMgr);
+    m_pMaterial = std::make_shared<MaterialDeferred>();
+    m_pMaterial->Create(renderPass, subpass);
 }
 
-void PBRCompositionRenderer::ReCreate(uint32_t framesInFlight)
-{
-    out_extent = USwapChain->GetExtent();
-    RendererBase::ReCreate(framesInFlight);
-    m_pMaterial->ReCreate();
-}
-
-void PBRCompositionRenderer::Render(vk::CommandBuffer& commandBuffer)
+void CPBRCompositionPass::render(vk::CommandBuffer& commandBuffer, std::shared_ptr<RenderObject> root)
 {
     m_pMaterial->AddTexture(ETextureAttachmentType::eBRDFLUT, *brdf);
     m_pMaterial->AddTexture(ETextureAttachmentType::eIrradiance, *irradiance);
     m_pMaterial->AddTexture(ETextureAttachmentType::ePrefiltred, *prefiltered);
 
-    BeginRender(commandBuffer);
     auto imageIndex = USwapChain->GetCurrentFrame();
-    const auto& mImages = m_pPrev->GetProducts();
-    for(auto& [attachment, texture] : mImages)
-        m_pMaterial->AddTexture(attachment, texture);
 
     //May be move to CompositionObject
     FLightningData ubo;
@@ -104,27 +66,14 @@ void PBRCompositionRenderer::Render(vk::CommandBuffer& commandBuffer)
     m_pMaterial->Bind(commandBuffer, imageIndex);
 
     commandBuffer.draw(3, 1, 0, 0);
-
-    EndRender(commandBuffer);
-
-    RendererBase::Render(commandBuffer);
 }
 
-void PBRCompositionRenderer::Cleanup()
+void CPBRCompositionPass::cleanup()
 {
-    RendererBase::Cleanup();
+    CSubpass::cleanup();
 }
 
-void PBRCompositionRenderer::CreateMaterial(std::shared_ptr<ResourceManager> pResMgr)
-{
-    m_pMaterial = std::make_shared<MaterialDeferred>();
-    m_pMaterial->Create(nullptr);
-    m_pMaterial->AddTexture(ETextureAttachmentType::eBRDFLUT, *brdf); //pResMgr->Get<Image>("environment_component_brdf")
-    //m_pMaterial->AddTexture(ETextureAttachmentType::eIrradiance, pResMgr->Get<Image>("environment_component_irradiate_cube"));
-    //m_pMaterial->AddTexture(ETextureAttachmentType::ePrefiltred, pResMgr->Get<Image>("environment_component_prefiltred_cube"));
-}
-
-std::shared_ptr<Image> PBRCompositionRenderer::ComputeBRDFLUT(uint32_t size)
+std::shared_ptr<Image> CPBRCompositionPass::ComputeBRDFLUT(uint32_t size)
 {
     auto brdfImage = std::make_shared<Image>();
     ktxTexture *offscreen;
@@ -139,8 +88,8 @@ std::shared_ptr<Image> PBRCompositionRenderer::ComputeBRDFLUT(uint32_t size)
     auto descriptor = Descriptor::DescriptorHandler();
 
     std::shared_ptr<Pipeline::PipelineBase> computePipeline = Pipeline::PipelineBase::Builder().
-    AddShaderStage("../../assets/shaders/generators/brdflut.comp").
-    Build(vk::PipelineBindPoint::eCompute);
+    addShaderStage("../../assets/shaders/generators/brdflut.comp").
+    build();
 
     computePipeline->Bind(commandBuffer);
 
@@ -159,7 +108,7 @@ std::shared_ptr<Image> PBRCompositionRenderer::ComputeBRDFLUT(uint32_t size)
     return brdfImage;
 }
 
-std::shared_ptr<Image> PBRCompositionRenderer::ComputeIrradiance(const std::shared_ptr<Image> &source, uint32_t size)
+std::shared_ptr<Image> CPBRCompositionPass::ComputeIrradiance(const std::shared_ptr<Image> &source, uint32_t size)
 {
     auto irradianceCubemap = std::make_shared<Image>();
 
@@ -176,8 +125,8 @@ std::shared_ptr<Image> PBRCompositionRenderer::ComputeIrradiance(const std::shar
     auto descriptor = Descriptor::DescriptorHandler();
     
     std::shared_ptr<Pipeline::PipelineBase> computePipeline = Pipeline::PipelineBase::Builder().
-    AddShaderStage("../../assets/shaders/generators/irradiancecube.comp").
-    Build(vk::PipelineBindPoint::eCompute);
+    addShaderStage("../../assets/shaders/generators/irradiancecube.comp").
+    build();
 
     computePipeline->Bind(commandBuffer);
 
@@ -197,7 +146,7 @@ std::shared_ptr<Image> PBRCompositionRenderer::ComputeIrradiance(const std::shar
     return irradianceCubemap;
 }
 
-std::shared_ptr<Image> PBRCompositionRenderer::ComputePrefiltered(const std::shared_ptr<Image> &source, uint32_t size)
+std::shared_ptr<Image> CPBRCompositionPass::ComputePrefiltered(const std::shared_ptr<Image> &source, uint32_t size)
 {
     auto prefilteredCubemap = std::make_shared<Image>();
 
@@ -214,8 +163,8 @@ std::shared_ptr<Image> PBRCompositionRenderer::ComputePrefiltered(const std::sha
     auto push = PushHandler();
     
     std::shared_ptr<Pipeline::PipelineBase> computePipeline = Pipeline::PipelineBase::Builder().
-    AddShaderStage("../../assets/shaders/generators/prefilteredmap.comp").
-    Build(vk::PipelineBindPoint::eCompute);
+    addShaderStage("../../assets/shaders/generators/prefilteredmap.comp").
+    build();
     push.Create(*computePipeline->GetShader()->GetUniformBlock("PushObject"));
 
     for (uint32_t i = 0; i < prefilteredCubemap->GetMipLevels(); i++)

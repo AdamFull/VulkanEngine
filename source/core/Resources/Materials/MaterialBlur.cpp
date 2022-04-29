@@ -1,6 +1,5 @@
 #include "MaterialBlur.h"
 #include "resources/ResourceManager.h"
-#include "graphics/rendering/RendererBase.h"
 #include "graphics/VulkanHighLevel.h"
 
 using namespace Engine::Core;
@@ -9,32 +8,19 @@ using namespace Engine::Resources::Material;
 using namespace Engine::Core::Descriptor;
 using namespace Engine::Core::Pipeline;
 
-void MaterialBlur::Create(std::shared_ptr<ResourceManager> pResMgr, vk::RenderPass& rPass)
+void MaterialBlur::Create(vk::RenderPass& renderPass, uint32_t subpass)
 {
     m_pPipeline = PipelineBase::Builder().
-    SetRenderPass(rPass).
-    SetCulling(vk::CullModeFlagBits::eFront).
-    AddShaderStage("../../assets/shaders/main/screenspace.vert").
-    AddShaderStage("../../assets/shaders/postprocess/gaussianblur.frag").
-    Build();
-    MaterialBase::Create(pResMgr, rPass);
-}
-
-void MaterialBlur::Create(std::shared_ptr<ResourceManager> pResMgr)
-{
-    renderPass = URenderer->GetRenderer(FRendererCreateInfo::ERendererType::ePostProcess)->GetRenderPass();
-    m_pPipeline = PipelineBase::Builder().
-    SetRenderPass(renderPass).
-    SetCulling(vk::CullModeFlagBits::eFront).
-    AddShaderStage("../../assets/shaders/main/screenspace.vert").
-    AddShaderStage("../../assets/shaders/postprocess/gaussianblur.frag").
-    Build();
-    MaterialBase::Create(pResMgr);
+    setCulling(vk::CullModeFlagBits::eFront).
+    addShaderStage("../../assets/shaders/main/screenspace.vert").
+    addShaderStage("../../assets/shaders/postprocess/gaussianblur.frag").
+    build(renderPass, subpass);
+    MaterialBase::Create(renderPass, subpass);
 }
 
 void MaterialBlur::ReCreate()
 {
-    renderPass = URenderer->GetRenderer(FRendererCreateInfo::ERendererType::ePostProcess)->GetRenderPass();
+    m_pPipeline->RecreatePipeline();
     MaterialBase::ReCreate();
 }
 

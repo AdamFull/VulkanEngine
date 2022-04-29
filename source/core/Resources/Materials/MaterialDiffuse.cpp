@@ -1,6 +1,5 @@
 #include "MaterialDiffuse.h"
 #include "graphics/VulkanHighLevel.h"
-#include "graphics/rendering/RendererBase.h"
 #include "resources/ResourceManager.h"
 
 using namespace Engine::Core;
@@ -9,24 +8,22 @@ using namespace Engine::Resources::Material;
 using namespace Engine::Core::Descriptor;
 using namespace Engine::Core::Pipeline;
 
-void MaterialDiffuse::Create(std::shared_ptr<ResourceManager> pResMgr)
+void MaterialDiffuse::Create(vk::RenderPass& renderPass, uint32_t subpass)
 {
-    renderPass = URenderer->GetRenderer(FRendererCreateInfo::ERendererType::eDeferredPBR)->GetRenderPass();
     m_pPipeline = PipelineBase::Builder().
-    SetVertexInput(VertexInput(Vertex::getBindingDescription(), Vertex::getAttributeDescriptions())).
-    SetRenderPass(renderPass).
-    SetCulling(vk::CullModeFlagBits::eBack).
-    SetColorAttachments(6).
-    SetDepthEnabled(VK_TRUE).
-    AddShaderStage("../../assets/shaders/main/diffuse.vert").
-    AddShaderStage("../../assets/shaders/main/diffuse.frag").
-    Build();
-    MaterialBase::Create(pResMgr);
+    setVertexInput(VertexInput(Vertex::getBindingDescription(), Vertex::getAttributeDescriptions())).
+    setCulling(vk::CullModeFlagBits::eBack).
+    setColorAttachments(7).
+    setDepthEnabled(VK_TRUE).
+    addShaderStage("../../assets/shaders/main/diffuse.vert").
+    addShaderStage("../../assets/shaders/main/diffuse.frag").
+    build(renderPass, subpass);
+    MaterialBase::Create(renderPass, subpass);
 }
 
 void MaterialDiffuse::ReCreate()
 {
-    renderPass = URenderer->GetRenderer(FRendererCreateInfo::ERendererType::eDeferredPBR)->GetRenderPass();
+    m_pPipeline->RecreatePipeline();
     MaterialBase::ReCreate();
 }
 

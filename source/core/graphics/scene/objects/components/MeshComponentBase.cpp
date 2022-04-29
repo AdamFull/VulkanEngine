@@ -11,13 +11,13 @@ using namespace Engine::Core::Scene::Objects::Components;
 using namespace Engine::Resources;
 using namespace Engine::Core;
 
-void MeshComponentBase::Create(std::shared_ptr<ResourceManager> resourceMgr)
+void MeshComponentBase::Create(vk::RenderPass& renderPass, uint32_t subpass)
 {
-    ComponentBase::Create(resourceMgr);
+    ComponentBase::Create(renderPass, subpass);
 
     if (m_pMesh)
     {
-        m_pMesh->Create(resourceMgr);
+        m_pMesh->Create(renderPass, subpass);
     }
 }
 
@@ -37,7 +37,6 @@ void MeshComponentBase::Update(float fDeltaTime)
 
     if (m_pMesh)
     {
-        uint32_t imageIndex = URenderer->GetImageIndex();
 
         
     }

@@ -12,7 +12,7 @@ namespace Engine
             public:
                 ComputePipeline() = default;
 
-                void Create(vk::PipelineBindPoint bindPoint,  const std::vector<Shader::Define>& vDefines, const std::vector<std::string>& vStages) override;
+                void Create() override;
                 void RecreatePipeline() override;
 
             protected:

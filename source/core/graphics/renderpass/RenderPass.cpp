@@ -1,21 +1,24 @@
 #include "RenderPass.hpp"
 #include "graphics/VulkanHighLevel.h"
-#include "Framebuffer.hpp"
+#include "graphics/scene/objects/RenderObject.h"
+#include "graphics/VulkanInitializers.h"
 #include "Subpass.h"
 
 using namespace Engine::Core::Render;
+using namespace Engine::Resources;
+using namespace Engine::Core::Scene::Objects;
 
 CRenderPass::Builder& CRenderPass::Builder::addAttachmentDescription(vk::AttachmentDescription&& desc)
 {
     vk::ClearValue cv{};
-    if(desc.finalLayout == vk::ImageLayout::eDepthAttachmentOptimal)
+    if(desc.finalLayout == vk::ImageLayout::eDepthStencilAttachmentOptimal)
     {
-        vAttachments.emplace_back(FInputAttachment{desc.format, vk::ImageUsageFlagBits::eDepthStencilAttachment | vk::ImageUsageFlagBits::eSampled});
+        vAttachments.emplace_back(FInputAttachment{desc.format, vk::ImageUsageFlagBits::eDepthStencilAttachment | vk::ImageUsageFlagBits::eInputAttachment});
         cv.setDepthStencil(vk::ClearDepthStencilValue{1.0f, 0});
     }
     else
     {
-        vAttachments.emplace_back(FInputAttachment{desc.format, vk::ImageUsageFlagBits::eColorAttachment | vk::ImageUsageFlagBits::eSampled});
+        vAttachments.emplace_back(FInputAttachment{desc.format, vk::ImageUsageFlagBits::eColorAttachment | vk::ImageUsageFlagBits::eInputAttachment});
         cv.setColor(vk::ClearColorValue{std::array<float, 4>{0.0f, 0.0f, 0.0f, 0.0f}});
     }
 
@@ -36,7 +39,8 @@ CRenderPass::Builder& CRenderPass::Builder::addSubpassDescription(vk::SubpassDes
     return *this;
 }
 
-CRenderPass::Builder& CRenderPass::Builder::addSubpassDescription(vk::PipelineBindPoint bindPoint, const std::vector<vk::AttachmentReference>& attachRef, vk::AttachmentReference* depthAttach, const std::vector<vk::AttachmentReference>& inputRef)
+CRenderPass::Builder& CRenderPass::Builder::addSubpassDescription(vk::PipelineBindPoint bindPoint, const std::vector<vk::AttachmentReference>& attachRef, 
+vk::AttachmentReference* depthAttach, const std::vector<vk::AttachmentReference>& inputRef)
 {
     vk::SubpassDescription desc{};
     desc.pipelineBindPoint = bindPoint;
@@ -54,7 +58,8 @@ CRenderPass::Builder& CRenderPass::Builder::addSubpassDependency(vk::SubpassDepe
     return *this;
 }
 
-CRenderPass::Builder& CRenderPass::Builder::addSubpassDependency(uint32_t src, uint32_t dst, vk::PipelineStageFlags srcStageMask, vk::PipelineStageFlags dstStageMask, vk::AccessFlags srcAccessMask, vk::AccessFlags dstAccessMask, vk::DependencyFlags depFlags)
+CRenderPass::Builder& CRenderPass::Builder::addSubpassDependency(uint32_t src, uint32_t dst, vk::PipelineStageFlags srcStageMask, vk::PipelineStageFlags dstStageMask, 
+vk::AccessFlags srcAccessMask, vk::AccessFlags dstAccessMask, vk::DependencyFlags depFlags)
 {
     vk::SubpassDependency dep{};
     dep.srcSubpass = src;
@@ -69,21 +74,13 @@ CRenderPass::Builder& CRenderPass::Builder::addSubpassDependency(uint32_t src, u
 
 std::unique_ptr<CRenderPass> CRenderPass::Builder::build()
 {
-    vk::RenderPassCreateInfo renderPassCI = {};
-    renderPassCI.attachmentCount = static_cast<uint32_t>(vAttachDesc.size());
-    renderPassCI.pAttachments = vAttachDesc.data();
-    renderPassCI.subpassCount = static_cast<uint32_t>(vSubpassDesc.size());
-    renderPassCI.pSubpasses = vSubpassDesc.data();
-    renderPassCI.dependencyCount = static_cast<uint32_t>(vSubpassDep.size());
-    renderPassCI.pDependencies = vSubpassDep.data();
-    auto renderPass = UDevice->GetLogical().createRenderPass(renderPassCI);
-
-    auto pRenderPass = std::make_unique<CRenderPass>(std::move(renderPass));
+    auto pRenderPass = std::make_unique<CRenderPass>();
     pRenderPass->vAttachments = std::move(vAttachments);
     pRenderPass->vClearValues = std::move(vClearValues);
     pRenderPass->vAttachDesc = std::move(vAttachDesc);
     pRenderPass->vSubpassDesc = std::move(vSubpassDesc);
     pRenderPass->vSubpassDep = std::move(vSubpassDep);
+    pRenderPass->renderPass = pRenderPass->createRenderPass();
     return pRenderPass;
 }
 
@@ -97,19 +94,13 @@ CRenderPass::~CRenderPass()
     UDevice->Destroy(renderPass);
 }
 
-void CRenderPass::create()
+void CRenderPass::create(std::shared_ptr<ResourceManager> resourceManager, std::shared_ptr<RenderObject> root)
 {
-    //Create a framebuffer
-    auto fbBuilder = CFramebuffer::Builder();
-    for(auto& attach : vAttachments)
-        fbBuilder = fbBuilder.addImage(attach.format, attach.usageFlags);
-    pFramebuffer = fbBuilder.build(renderPass, renderArea.extent);
-
     //Creating subpasses (render stages)
     uint32_t subpassNum{0};
     for(auto& subpass : vSubpasses)
     {
-        subpass->create(renderPass, subpassNum);
+        subpass->create(resourceManager, root, renderPass, subpassNum);
         subpassNum++;
     }
 }
@@ -118,17 +109,7 @@ void CRenderPass::reCreate()
 {
     //Recreating render pass instance with framebuffer
     cleanup();
-
-    vk::RenderPassCreateInfo renderPassCI = {};
-    renderPassCI.attachmentCount = static_cast<uint32_t>(vAttachDesc.size());
-    renderPassCI.pAttachments = vAttachDesc.data();
-    renderPassCI.subpassCount = static_cast<uint32_t>(vSubpassDesc.size());
-    renderPassCI.pSubpasses = vSubpassDesc.data();
-    renderPassCI.dependencyCount = static_cast<uint32_t>(vSubpassDep.size());
-    renderPassCI.pDependencies = vSubpassDep.data();
-    renderPass = UDevice->GetLogical().createRenderPass(renderPassCI);
-
-    pFramebuffer->reCreate(renderPass);
+    renderPass = createRenderPass();
 }
 
 void CRenderPass::cleanup()
@@ -137,17 +118,24 @@ void CRenderPass::cleanup()
     //TODO: cleanup
 }
 
-void CRenderPass::begin(vk::CommandBuffer& commandBuffer)
+void CRenderPass::begin(vk::CommandBuffer& commandBuffer, std::vector<vk::Framebuffer>& framebuffer)
 {
     //Begins render pass for start rendering
     auto imageIndex = USwapChain->GetCurrentFrame();
 
     vk::RenderPassBeginInfo renderPassBeginInfo{};
     renderPassBeginInfo.renderPass = renderPass;
+    renderPassBeginInfo.framebuffer = framebuffer.at(imageIndex);
     renderPassBeginInfo.renderArea = renderArea;
     renderPassBeginInfo.clearValueCount = static_cast<uint32_t>(vClearValues.size());
     renderPassBeginInfo.pClearValues = vClearValues.data();
     commandBuffer.beginRenderPass(renderPassBeginInfo, vk::SubpassContents::eInline);
+
+    vk::Viewport viewport = Initializers::Viewport(renderArea.extent.width, renderArea.extent.height);
+    vk::Rect2D scissor = renderArea;
+
+    commandBuffer.setViewport(0, 1, &viewport);
+    commandBuffer.setScissor(0, 1, &scissor);
 }
 
 void CRenderPass::end(vk::CommandBuffer& commandBuffer)
@@ -155,18 +143,18 @@ void CRenderPass::end(vk::CommandBuffer& commandBuffer)
     commandBuffer.endRenderPass();
 }
 
-void CRenderPass::render(vk::CommandBuffer& commandBuffer)
+void CRenderPass::render(vk::CommandBuffer& commandBuffer, std::shared_ptr<RenderObject> root)
 {
-    begin(commandBuffer);
+    //begin(commandBuffer);
 
     //Render each stage
     for(auto& subpass : vSubpasses)
     {
-        subpass->render(commandBuffer);
+        subpass->render(commandBuffer, root);
         commandBuffer.nextSubpass(vk::SubpassContents::eInline);
     }
 
-    end(commandBuffer);
+    //end(commandBuffer);
 }
 
 void CRenderPass::setRenderArea(int32_t offset_x, int32_t offset_y, uint32_t width, uint32_t height)
@@ -182,4 +170,21 @@ void CRenderPass::setRenderArea(vk::Offset2D offset, vk::Extent2D extent)
 void CRenderPass::setRenderArea(vk::Rect2D&& area)
 {
     renderArea = std::move(area);
+}
+
+void CRenderPass::pushSubpass(std::shared_ptr<CSubpass>&& subpass)
+{
+    vSubpasses.emplace_back(std::move(subpass));
+}
+
+vk::RenderPass CRenderPass::createRenderPass()
+{
+    vk::RenderPassCreateInfo renderPassCI = {};
+    renderPassCI.attachmentCount = static_cast<uint32_t>(vAttachDesc.size());
+    renderPassCI.pAttachments = vAttachDesc.data();
+    renderPassCI.subpassCount = static_cast<uint32_t>(vSubpassDesc.size());
+    renderPassCI.pSubpasses = vSubpassDesc.data();
+    renderPassCI.dependencyCount = static_cast<uint32_t>(vSubpassDep.size());
+    renderPassCI.pDependencies = vSubpassDep.data();
+    return UDevice->GetLogical().createRenderPass(renderPassCI);
 }

@@ -1,7 +1,5 @@
 #include "MaterialSkybox.h"
 #include "graphics/VulkanHighLevel.h"
-#include "graphics/rendering/RendererBase.h"
-#include "graphics/rendering/RendererBase.h"
 #include "resources/ResourceManager.h"
 
 using namespace Engine::Core;
@@ -9,23 +7,21 @@ using namespace Engine::Resources::Material;
 using namespace Engine::Core::Descriptor;
 using namespace Engine::Core::Pipeline;
 
-void MaterialSkybox::Create(std::shared_ptr<ResourceManager> pResMgr)
+void MaterialSkybox::Create(vk::RenderPass& renderPass, uint32_t subpass)
 {
-    renderPass = URenderer->GetRenderer(FRendererCreateInfo::ERendererType::eDeferredPBR)->GetRenderPass();
     m_pPipeline = PipelineBase::Builder().
-    SetVertexInput(VertexInput(Vertex::getBindingDescription(), Vertex::getAttributeDescriptions())).
-    SetRenderPass(renderPass).
-    SetCulling(vk::CullModeFlagBits::eFront).
-    SetColorAttachments(6).
-    AddShaderStage("../../assets/shaders/main/skybox.vert").
-    AddShaderStage("../../assets/shaders/main/skybox.frag").
-    Build();
-    MaterialBase::Create(pResMgr);
+    setVertexInput(VertexInput(Vertex::getBindingDescription(), Vertex::getAttributeDescriptions())).
+    setCulling(vk::CullModeFlagBits::eFront).
+    setColorAttachments(7).
+    addShaderStage("../../assets/shaders/main/skybox.vert").
+    addShaderStage("../../assets/shaders/main/skybox.frag").
+    build(renderPass, subpass);
+    MaterialBase::Create(renderPass, subpass);
 }
 
 void MaterialSkybox::ReCreate()
 {
-    renderPass = URenderer->GetRenderer(FRendererCreateInfo::ERendererType::eDeferredPBR)->GetRenderPass();
+    m_pPipeline->RecreatePipeline();
     MaterialBase::ReCreate();
 }
 

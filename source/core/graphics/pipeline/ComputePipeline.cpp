@@ -3,9 +3,9 @@
 
 using namespace Engine::Core::Pipeline;
 
-void ComputePipeline::Create(vk::PipelineBindPoint bindPoint,  const std::vector<Shader::Define>& vDefines, const std::vector<std::string>& vStages)
+void ComputePipeline::Create()
 {
-    PipelineBase::Create(bindPoint, vDefines, vStages);
+    PipelineBase::Create();
     CreatePipeline();
 }
 

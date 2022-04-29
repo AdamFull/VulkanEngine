@@ -37,7 +37,7 @@ namespace Engine
             {
             public:
                 
-                virtual void Create(std::shared_ptr<ResourceManager> pResMgr);
+                virtual void Create(vk::RenderPass& renderPass, uint32_t subpass);
                 virtual void ReCreate();
                 virtual void Render(vk::CommandBuffer commandBuffer, uint32_t imageIndex, Core::FUniformData& ubo, uint32_t instanceCount = 1);
                 virtual void Cleanup();

@@ -38,20 +38,12 @@ namespace Engine
 
             // Getters
             inline vk::Format GetImageFormat() { return m_imageFormat; };
-            inline vk::Format GetDepthFormat() { return m_depthFormat; }
             inline vk::Extent2D GetExtent() { return m_extent; }
-
-            inline std::vector<vk::Framebuffer> &GetFramebuffers() { return m_vFramebuffers; }
-            inline vk::RenderPass &GetRenderPass() { return m_renderPass; }
 
             void UpdateCompositionMaterial(vk::CommandBuffer& commandBuffer);
 
             inline std::vector<vk::Image> &GetImages() { return m_vImages; }
             inline std::vector<vk::ImageView> &GetImageViews() { return m_vImageViews; }
-
-            inline vk::Image &GetDepthImage() { return m_depthImage; }
-            inline vk::DeviceMemory &GetDepthImageMemory() { return m_depthImageMemory; }
-            inline vk::ImageView &GetDepthImageView() { return m_depthImageView; }
 
             inline vk::Extent2D GetWindowExtent() { return m_windowExtent; }
 
@@ -66,29 +58,17 @@ namespace Engine
         private:
             void CreateSwapChain();
             void CreateSwapChainImageViews();
-            void CreateDepthResources();
-            void CreateRenderPass();
-            void CreateFrameBuffers();
             void CreateSyncObjects();
 
             vk::Extent2D ChooseSwapExtent(const vk::SurfaceCapabilitiesKHR &);
 
         private:
             vk::Format m_imageFormat;
-            vk::Format m_depthFormat;
             vk::Extent2D m_extent;
-
-            std::vector<vk::Framebuffer> m_vFramebuffers;
-            vk::RenderPass m_renderPass;
 
             // Swap chain buffer
             std::vector<vk::Image> m_vImages;
             std::vector<vk::ImageView> m_vImageViews;
-
-            // Depth buffer
-            vk::Image m_depthImage;
-            vk::DeviceMemory m_depthImageMemory;
-            vk::ImageView m_depthImageView;
 
             // LveDevice &device;
             vk::Extent2D m_windowExtent;

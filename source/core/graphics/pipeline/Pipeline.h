@@ -25,23 +25,23 @@ namespace Engine
             class PipelineBase
             {
             public:
+                friend class Builder;
                 class Builder
                 {
                 public:
                     Builder() = default;
-                    inline Builder& SetVertexInput(VertexInput&& vertexInput) { m_vertexInput = std::move(vertexInput); return *this; }
-                    inline Builder& SetRenderPass(const vk::RenderPass& renderPass) { m_renderPass = renderPass; return *this; }
-                    inline Builder& SetColorAttachments(uint32_t attachments) { m_colorAttachments = attachments; return *this; }
-                    inline Builder& SetCulling(vk::CullModeFlagBits culling) { m_culling = culling; return *this; }
-                    inline Builder& SetFontFace(vk::FrontFace fontface) { m_fontface = fontface; return *this; }
-                    inline Builder& SetDepthEnabled(vk::Bool32 enableDepth) { m_enableDepth = enableDepth; return *this; }
-                    inline Builder& AddDynamicState(vk::DynamicState state) { m_vDynamicStateEnables.emplace_back(state); return *this; }
-                    inline Builder& AddShaderStage(const std::string& stage) { m_vStages.emplace_back(stage); return *this; }
-                    inline Builder& AddDefine(const std::string& name, const std::string& value) { m_vDefines.emplace_back(std::make_pair(name, value)); return *this; }
-                    std::unique_ptr<PipelineBase> Build(vk::PipelineBindPoint bindPoint = vk::PipelineBindPoint::eGraphics);
+                    inline Builder& setVertexInput(VertexInput&& vertexInput) { m_vertexInput = std::move(vertexInput); return *this; }
+                    inline Builder& setColorAttachments(uint32_t attachments) { m_colorAttachments = attachments; return *this; }
+                    inline Builder& setCulling(vk::CullModeFlagBits culling) { m_culling = culling; return *this; }
+                    inline Builder& setFontFace(vk::FrontFace fontface) { m_fontface = fontface; return *this; }
+                    inline Builder& setDepthEnabled(vk::Bool32 enableDepth) { m_enableDepth = enableDepth; return *this; }
+                    inline Builder& addDynamicState(vk::DynamicState state) { m_vDynamicStateEnables.emplace_back(state); return *this; }
+                    inline Builder& addShaderStage(const std::string& stage) { m_vStages.emplace_back(stage); return *this; }
+                    inline Builder& addDefine(const std::string& name, const std::string& value) { m_vDefines.emplace_back(std::make_pair(name, value)); return *this; }
+                    std::unique_ptr<PipelineBase> build(vk::RenderPass& renderPass, uint32_t subpass);
+                    std::unique_ptr<PipelineBase> build();
                 private:
                     VertexInput m_vertexInput;
-                    vk::RenderPass m_renderPass{nullptr};
                     uint32_t m_colorAttachments{1};
                     vk::CullModeFlagBits m_culling{vk::CullModeFlagBits::eNone};
                     vk::FrontFace m_fontface{vk::FrontFace::eCounterClockwise};
@@ -53,9 +53,7 @@ namespace Engine
                 PipelineBase() = default;
                 virtual ~PipelineBase();
 
-                virtual void Create(VertexInput&& vertexInput, vk::RenderPass& renderPass, vk::PipelineBindPoint bindPoint, uint32_t colorAttachments, vk::CullModeFlagBits culling, vk::FrontFace fontface, 
-                vk::Bool32 enableDepth, const std::vector<vk::DynamicState>& vDynamicStateEnables, const std::vector<Shader::Define>& vDefines, const std::vector<std::string>& vStages);
-                virtual void Create(vk::PipelineBindPoint bindPoint,  const std::vector<Shader::Define>& vDefines, const std::vector<std::string>& vStages);
+                virtual void Create();
 
                 void Bind(vk::CommandBuffer &commandBuffer);
 
@@ -98,6 +96,8 @@ namespace Engine
                 vk::FrontFace m_fontface;
                 vk::Bool32 m_enableDepth;
                 std::vector<vk::DynamicState> m_vDynamicStateEnables;
+                std::vector<std::string> m_vStages;
+                uint32_t subpass{0};
 
                 vk::Pipeline m_pipeline;
             };

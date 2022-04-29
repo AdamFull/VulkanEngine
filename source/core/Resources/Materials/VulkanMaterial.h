@@ -40,8 +40,7 @@ namespace Engine
                 MaterialBase() = default;
                 virtual ~MaterialBase();
 
-                virtual void Create(std::shared_ptr<ResourceManager> pResMgr, vk::RenderPass& rPass);
-                virtual void Create(std::shared_ptr<ResourceManager> pResMgr);
+                virtual void Create(vk::RenderPass& renderPass, uint32_t subpass);
                 void AddTexture(ETextureAttachmentType eAttachment, vk::DescriptorImageInfo& descriptor);
                 void AddTexture(ETextureAttachmentType eAttachment, std::shared_ptr<Core::Image> pTexture);
                 vk::DescriptorImageInfo& GetTexture(ETextureAttachmentType eAttachment);
@@ -63,8 +62,6 @@ namespace Engine
                 std::unique_ptr<Core::Descriptor::DescriptorHandler> m_pDescriptorSet;
                 std::vector<std::shared_ptr<Core::UniformHandler>> m_vUniformBuffers;
                 std::vector<std::shared_ptr<Core::PushHandler>> m_vPushConstants;
-
-                vk::RenderPass renderPass;
                 std::shared_ptr<Core::Pipeline::PipelineBase> m_pPipeline;
                 std::map<ETextureAttachmentType, vk::DescriptorImageInfo> m_mTextures;
             };

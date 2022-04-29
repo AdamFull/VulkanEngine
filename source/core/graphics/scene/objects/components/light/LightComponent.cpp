@@ -4,9 +4,9 @@ using namespace Engine::Resources;
 using namespace Engine::Core;
 using namespace Engine::Core::Scene::Objects::Components::Light;
 
-void LightComponent::Create(std::shared_ptr<ResourceManager> resourceMgr)
+void LightComponent::Create(vk::RenderPass& renderPass, uint32_t subpass)
 {
-    ComponentBase::Create(resourceMgr);
+    ComponentBase::Create(renderPass, subpass);
 }
 
 void LightComponent::ReCreate()

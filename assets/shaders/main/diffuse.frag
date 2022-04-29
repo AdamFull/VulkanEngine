@@ -16,12 +16,13 @@ layout (location = 2) in vec3 inColor;
 layout (location = 3) in vec3 inWorldPos;
 layout (location = 4) in vec4 inTangent;
 
-layout (location = 0) out vec4 outPosition;
-layout (location = 1) out vec4 outMask;
-layout (location = 2) out vec4 outNormal;
-layout (location = 3) out vec4 outAlbedo;
-layout (location = 4) out vec4 outEmission;
-layout (location = 5) out vec4 outMRAH;
+layout (location = 0) out vec4 outColor;
+layout (location = 1) out vec4 outPosition;
+layout (location = 2) out vec4 outMask;
+layout (location = 3) out vec4 outNormal;
+layout (location = 4) out vec4 outAlbedo;
+layout (location = 5) out vec4 outEmission;
+layout (location = 6) out vec4 outMRAH;
 
 #include "../shared_shaders.glsl"
 
@@ -54,4 +55,5 @@ void main()
 
 	outEmission = texture(emissive_tex, inUV);
 	outMRAH = vec4(metal, rough, occlusion, 1.0);
+	outColor = vec4(0.0);
 }

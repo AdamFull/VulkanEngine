@@ -4,27 +4,32 @@
 
 using namespace Engine::Core::Pipeline;
 
-std::unique_ptr<PipelineBase> PipelineBase::Builder::Build(vk::PipelineBindPoint bindPoint)
+std::unique_ptr<PipelineBase> PipelineBase::Builder::build(vk::RenderPass& renderPass, uint32_t subpass)
 {
-    std::unique_ptr<PipelineBase> pPipeline;
-    switch (bindPoint)
-    {
-    case vk::PipelineBindPoint::eGraphics: pPipeline = std::make_unique<GraphicsPipeline>(); break;
-    case vk::PipelineBindPoint::eCompute: pPipeline = std::make_unique<ComputePipeline>(); break;
-    case vk::PipelineBindPoint::eRayTracingKHR: break;
-    case vk::PipelineBindPoint::eSubpassShadingHUAWEI: break;
-    //case vk::PipelineBindPoint::eRayTracingNV: break;
-    }    
+    std::unique_ptr<PipelineBase> pPipeline = std::make_unique<GraphicsPipeline>();
 
-    switch (bindPoint)
-    {
-    case vk::PipelineBindPoint::eGraphics: {
-        pPipeline->Create(std::move(m_vertexInput), m_renderPass, bindPoint, m_colorAttachments, m_culling, m_fontface, m_enableDepth, m_vDynamicStateEnables, m_vDefines, m_vStages);
-    }break;
-    case vk::PipelineBindPoint::eCompute: {
-        pPipeline->Create(bindPoint, m_vDefines, m_vStages);
-    }break;
-    }
+    pPipeline->m_vertexInput = std::move(m_vertexInput);
+    pPipeline->m_renderPass = renderPass;
+    pPipeline->subpass = subpass;
+    pPipeline->m_bindPoint = vk::PipelineBindPoint::eGraphics;
+    pPipeline->m_colorAttachments = m_colorAttachments;
+    pPipeline->m_culling = m_culling;
+    pPipeline->m_fontface = m_fontface;
+    pPipeline->m_enableDepth = m_enableDepth;
+    pPipeline->m_vDynamicStateEnables = m_vDynamicStateEnables;
+    pPipeline->m_vDefines = std::move(m_vDefines);
+    pPipeline->m_vStages = std::move(m_vStages);
+    pPipeline->Create();
+    return pPipeline;
+}
+
+std::unique_ptr<PipelineBase> PipelineBase::Builder::build()
+{
+    std::unique_ptr<PipelineBase> pPipeline = std::make_unique<ComputePipeline>();
+    pPipeline->m_bindPoint = vk::PipelineBindPoint::eCompute;
+    pPipeline->m_vDefines = std::move(m_vDefines);
+    pPipeline->m_vStages = std::move(m_vStages);
+    pPipeline->Create();
     return pPipeline;
 }
 
@@ -34,31 +39,9 @@ PipelineBase::~PipelineBase()
     Cleanup();
 }
 
-void PipelineBase::Create(VertexInput&& vertexInput, vk::RenderPass& renderPass, vk::PipelineBindPoint bindPoint, uint32_t colorAttachments, vk::CullModeFlagBits culling, vk::FrontFace fontface, 
-                          vk::Bool32 enableDepth, const std::vector<vk::DynamicState>& vDynamicStateEnables, const std::vector<Shader::Define>& vDefines, const std::vector<std::string>& vStages)
+void PipelineBase::Create()
 {
-    m_vertexInput = vertexInput;
-    m_renderPass = renderPass;
-    m_bindPoint = bindPoint;
-    m_colorAttachments = colorAttachments;
-    m_culling = culling;
-    m_fontface = fontface;
-    m_enableDepth = enableDepth;
-    m_vDynamicStateEnables = vDynamicStateEnables;
-    m_vDefines = vDefines;
-
-    LoadShader(vStages);
-    CreateDescriptorPool();
-    CreateDescriptorSetLayout();
-    CreatePipelineLayout();
-}
-
-void PipelineBase::Create(vk::PipelineBindPoint bindPoint,  const std::vector<Shader::Define>& vDefines, const std::vector<std::string>& vStages)
-{
-    m_bindPoint = bindPoint;
-    m_vDefines = vDefines;
-
-    LoadShader(vStages);
+    LoadShader(m_vStages);
     CreateDescriptorPool();
     CreateDescriptorSetLayout();
     CreatePipelineLayout();

@@ -447,6 +447,10 @@ void Shader::BuildReflection()
 
 		switch (uniform.m_iGlType) 
         {
+		case 0x0:
+			descriptorType = vk::DescriptorType::eInputAttachment;
+			m_vDescriptorSetLayouts.emplace_back(MakeDescriptorSetLayoutBinding(static_cast<uint32_t>(uniform.m_iBinding), descriptorType, uniform.m_stageFlags, 1));
+			break;
 		case 0x8B5E: // GL_SAMPLER_2D
 		case 0x904D: // GL_IMAGE_2D
 		case 0x8DC1: // GL_TEXTURE_2D_ARRAY

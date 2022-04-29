@@ -30,7 +30,7 @@ namespace Engine
             ImguiOverlay() = default;
             ~ImguiOverlay();
 
-            void Create(std::shared_ptr<Resources::ResourceManager> pResMgr, std::shared_ptr<Scene::Objects::RenderObject> pRoot);
+            void Create(std::shared_ptr<Scene::Objects::RenderObject> pRoot, vk::RenderPass& renderPass, uint32_t subpass);
             void ReCreate();
             void Cleanup();
 
@@ -43,7 +43,7 @@ namespace Engine
 
         private:
             void BaseInitialize();
-            void CreateFontResources(std::shared_ptr<Resources::ResourceManager> pResMgr);
+            void CreateFontResources(vk::RenderPass& renderPass, uint32_t subpass);
 
             void InitializeWindowBackend();
 

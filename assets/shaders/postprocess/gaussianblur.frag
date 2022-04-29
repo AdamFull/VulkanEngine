@@ -3,11 +3,13 @@
 #extension GL_ARB_shading_language_420pack : enable
 #extension GL_GOOGLE_include_directive : require
 
-layout (binding = 0) uniform sampler2D samplerColor;
+layout (input_attachment_index = 0, binding = 0) uniform subpassInput samplerColor;
+layout (input_attachment_index = 1, binding = 1) uniform subpassInput samplerBrightness;
 
 layout (location = 0) in vec2 inUV;
 
 layout (location = 0) out vec4 outColor;
+layout (location = 1) out vec4 outBrightness;
 
 layout(std140, binding = 1) uniform FBloomUbo 
 {
@@ -29,24 +31,25 @@ const float weights[] = float[](0.227027, 0.1945946, 0.1216216, 0.054054, 0.0162
 
 void main() 
 {
-    vec2 tex_offset = 1.0 / textureSize(samplerColor, 0) * ubo.blurScale; // gets size of single texel
-	vec3 result = texture(samplerColor, inUV).rgb * weights[0]; // current fragment's contribution
+    vec2 tex_offset = 1.0 / textureSize(samplerBrightness, 0) * ubo.blurScale; // gets size of single texel
+	vec3 result = texture(samplerBrightness, inUV).rgb * weights[0]; // current fragment's contribution
 
 	for(int i = 1; i < weights.length(); ++i)
 	{
 		if (ubo.direction == 1)
 		{
 			// H
-			result += texture(samplerColor, inUV + vec2(tex_offset.x * i, 0.0)).rgb * weights[i] * ubo.blurStrength;
-			result += texture(samplerColor, inUV - vec2(tex_offset.x * i, 0.0)).rgb * weights[i] * ubo.blurStrength;
+			result += texture(samplerBrightness, inUV + vec2(tex_offset.x * i, 0.0)).rgb * weights[i] * ubo.blurStrength;
+			result += texture(samplerBrightness, inUV - vec2(tex_offset.x * i, 0.0)).rgb * weights[i] * ubo.blurStrength;
 		}
 		else
 		{
 			// V
-			result += texture(samplerColor, inUV + vec2(0.0, tex_offset.y * i)).rgb * weights[i] * ubo.blurStrength;
-			result += texture(samplerColor, inUV - vec2(0.0, tex_offset.y * i)).rgb * weights[i] * ubo.blurStrength;
+			result += texture(samplerBrightness, inUV + vec2(0.0, tex_offset.y * i)).rgb * weights[i] * ubo.blurStrength;
+			result += texture(samplerBrightness, inUV - vec2(0.0, tex_offset.y * i)).rgb * weights[i] * ubo.blurStrength;
 		}
 	}
 
-	outColor = vec4(result, 1.0);
+	outColor = subpassLoad(samplerColor, inUV);
+	outBrightness = vec4(result, 1.0);
 }

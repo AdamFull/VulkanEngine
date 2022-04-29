@@ -1,7 +1,5 @@
 #include "MaterialShadow.h"
 #include "graphics/VulkanHighLevel.h"
-#include "graphics/rendering/RendererBase.h"
-#include "graphics/rendering/RendererBase.h"
 #include "resources/ResourceManager.h"
 
 using namespace Engine::Core;
@@ -10,15 +8,14 @@ using namespace Engine::Resources::Material;
 using namespace Engine::Core::Descriptor;
 using namespace Engine::Core::Pipeline;
 
-void MaterialShadow::Create(std::shared_ptr<ResourceManager> pResMgr)
+void MaterialShadow::Create(vk::RenderPass& renderPass, uint32_t subpass)
 {
-    renderPass = URenderer->GetRenderer(FRendererCreateInfo::ERendererType::eDeferredPBR)->GetRenderPass();
-    MaterialBase::Create(pResMgr);
+    MaterialBase::Create(renderPass, subpass);
 }
 
 void MaterialShadow::ReCreate()
 {
-    renderPass = URenderer->GetRenderer(FRendererCreateInfo::ERendererType::eDeferredPBR)->GetRenderPass();
+    m_pPipeline->RecreatePipeline();
     MaterialBase::ReCreate();
 }
 

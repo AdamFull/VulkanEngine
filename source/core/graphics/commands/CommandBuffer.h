@@ -20,7 +20,7 @@ namespace Engine
 
             operator const vk::CommandBuffer &() const { return vCommandBuffers.at(frameIndex); }
 
-            vk::CommandBuffer &GetCommandBuffer() const { return vCommandBuffers.at(frameIndex); }
+            vk::CommandBuffer &GetCommandBuffer() { return vCommandBuffers.at(frameIndex); }
             bool IsRunning() const { return running; }
         private:
             vk::Queue GetQueue() const;

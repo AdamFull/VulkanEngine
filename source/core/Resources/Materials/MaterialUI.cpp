@@ -8,21 +8,19 @@ using namespace Engine::Resources::Material;
 using namespace Engine::Core::Descriptor;
 using namespace Engine::Core::Pipeline;
 
-void MaterialUI::Create(std::shared_ptr<ResourceManager> pResMgr)
+void MaterialUI::Create(vk::RenderPass& renderPass, uint32_t subpass)
 {
-    renderPass = USwapChain->GetRenderPass();
     m_pPipeline = PipelineBase::Builder().
-    SetVertexInput(VertexInput(VertexUI::getBindingDescription(), VertexUI::getAttributeDescriptions())).
-    SetRenderPass(renderPass).
-    AddShaderStage("../../assets/shaders/main/ui.vert").
-    AddShaderStage("../../assets/shaders/main/ui.frag").
-    Build();
-    MaterialBase::Create(pResMgr);
+    setVertexInput(VertexInput(VertexUI::getBindingDescription(), VertexUI::getAttributeDescriptions())).
+    addShaderStage("../../assets/shaders/main/ui.vert").
+    addShaderStage("../../assets/shaders/main/ui.frag").
+    build(renderPass, subpass);
+    MaterialBase::Create(renderPass, subpass);
 }
 
 void MaterialUI::ReCreate()
 {
-    renderPass = USwapChain->GetRenderPass();
+    m_pPipeline->RecreatePipeline();
     MaterialBase::ReCreate();
 }
 

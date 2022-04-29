@@ -9,19 +9,85 @@ using namespace Engine::Core::Render;
 
 CFramebuffer::Builder& CFramebuffer::Builder::addImage(vk::Format format, vk::ImageUsageFlags usageFlags)
 {
-    /*if(usageFlags & vk::ImageUsageFlagBits::eDepthStencilAttachment)
-        depth = createImage(format, usageFlags, extent);
-    else
-    {
-        for(auto frame = 0; frame < USwapChain->GetFramesInFlight(); frame++)
-            images[frame].emplace_back(createImage(format, usageFlags, extent));
-    }*/
     attachments.emplace_back(FAttachmentInfo{format, usageFlags});
-
     return *this;
 }
 
-std::shared_ptr<Image> CFramebuffer::Builder::createImage(vk::Format format, vk::ImageUsageFlags usageFlags, vk::Extent2D extent)
+std::unique_ptr<CFramebuffer> CFramebuffer::Builder::build(vk::RenderPass &renderPass)
+{
+    auto pFramebuffer = std::make_unique<CFramebuffer>();
+    pFramebuffer->attachments = std::move(attachments);
+    return pFramebuffer;
+}
+
+CFramebuffer::CFramebuffer(std::vector<vk::Framebuffer>&& framebuffers)
+{
+    vFramebuffers = std::move(framebuffers);
+}
+
+CFramebuffer::~CFramebuffer()
+{
+    cleanup();
+}
+
+void CFramebuffer::create(vk::RenderPass& renderPass, vk::Extent2D extent)
+{
+    imagesExtent = extent;
+    auto framesInFlight = USwapChain->GetFramesInFlight();
+    for(size_t frame = 0; frame < framesInFlight; frame++)
+    {
+        std::vector<vk::ImageView> imageViews{};
+        for(auto& attachment : attachments)
+        {
+            if(attachment.usageFlags & vk::ImageUsageFlagBits::eDepthStencilAttachment)
+            {
+                if(!pDepth)
+                    pDepth = createImage(attachment.format, attachment.usageFlags, extent);
+            }
+            else
+            {
+                if(attachment.format == USwapChain->GetImageFormat())
+                {
+                    imageViews.push_back(USwapChain->GetImageViews()[frame]);
+                }
+                else
+                {
+                    mImages[frame].emplace_back(createImage(attachment.format, attachment.usageFlags, extent));
+                    imageViews.push_back(mImages[frame].back()->GetDescriptor().imageView);
+                }
+            }
+        }
+
+        imageViews.push_back(pDepth->GetDescriptor().imageView);
+
+        vk::FramebufferCreateInfo framebufferCI = {};
+        framebufferCI.pNext = nullptr;
+        framebufferCI.renderPass = renderPass;
+        framebufferCI.pAttachments = imageViews.data();
+        framebufferCI.attachmentCount = static_cast<uint32_t>(imageViews.size());
+        framebufferCI.width = extent.width;
+        framebufferCI.height = extent.height;
+        framebufferCI.layers = 1;
+
+        vFramebuffers.emplace_back(UDevice->Make<vk::Framebuffer, vk::FramebufferCreateInfo>(framebufferCI));
+    }
+}
+
+void CFramebuffer::reCreate(vk::RenderPass& renderPass)
+{
+    //TODO: re create ops
+    cleanup();
+    create(renderPass, imagesExtent);
+}
+
+void CFramebuffer::cleanup()
+{
+    mImages.clear();
+    for(auto& fb : vFramebuffers)
+        UDevice->Destroy(fb);
+}
+
+std::shared_ptr<Image> CFramebuffer::createImage(vk::Format format, vk::ImageUsageFlags usageFlags, vk::Extent2D extent)
 {
     auto texture = std::make_shared<Image>();
     ktxTexture *offscreen;
@@ -50,71 +116,4 @@ std::shared_ptr<Image> CFramebuffer::Builder::createImage(vk::Format format, vk:
 
     texture->UpdateDescriptor();
     return texture;
-}
-
-std::unique_ptr<CFramebuffer> CFramebuffer::Builder::build(vk::RenderPass &renderPass, vk::Extent2D extent)
-{
-    auto framesInFlight = USwapChain->GetFramesInFlight();
-    std::vector<vk::Framebuffer> framebuffers{};
-    framebuffers.resize(framesInFlight);
-    std::map<uint32_t, std::vector<std::shared_ptr<Image>>> images;
-    std::shared_ptr<Image> depth;
-
-    for(size_t frame = 0; frame < framesInFlight; frame++)
-    {
-        std::vector<vk::ImageView> imageViews{};
-        for(auto& attachment : attachments)
-        {
-            if(attachment.usageFlags & vk::ImageUsageFlagBits::eDepthStencilAttachment)
-            {
-                if(!depth)
-                    depth = createImage(attachment.format, attachment.usageFlags, extent);
-            }
-            else
-            {
-                images[frame].emplace_back(createImage(attachment.format, attachment.usageFlags, extent));
-                imageViews.push_back(images[frame].back()->GetDescriptor().imageView);
-            }
-        }
-
-        imageViews.push_back(depth->GetDescriptor().imageView);
-
-        vk::FramebufferCreateInfo framebufferCI = {};
-        framebufferCI.pNext = nullptr;
-        framebufferCI.renderPass = renderPass;
-        framebufferCI.pAttachments = imageViews.data();
-        framebufferCI.attachmentCount = static_cast<uint32_t>(imageViews.size());
-        framebufferCI.width = extent.width;
-        framebufferCI.height = extent.height;
-        framebufferCI.layers = 1;
-
-        framebuffers[frame] = UDevice->Make<vk::Framebuffer, vk::FramebufferCreateInfo>(framebufferCI);
-    }
-
-    auto pFramebuffer = std::make_unique<CFramebuffer>(std::move(framebuffers));
-    pFramebuffer->mImages = std::move(images);
-    pFramebuffer->pDepth = std::move(depth);
-    return pFramebuffer;
-}
-
-CFramebuffer::CFramebuffer(std::vector<vk::Framebuffer>&& framebuffers)
-{
-    vFramebuffers = std::move(framebuffers);
-}
-
-CFramebuffer::~CFramebuffer()
-{
-    cleanup();
-}
-
-void CFramebuffer::reCreate(vk::RenderPass& renderPass)
-{
-    //TODO: re create ops
-}
-
-void CFramebuffer::cleanup()
-{
-    mImages.clear();
-    for(auto& fb : vFramebuffers)
-        UDevice->Destroy(fb);
 }

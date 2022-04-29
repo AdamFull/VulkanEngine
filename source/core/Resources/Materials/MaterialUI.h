@@ -12,7 +12,7 @@ namespace Engine
             public:
                 MaterialUI() = default;
 
-                void Create(std::shared_ptr<ResourceManager> pResMgr) override;
+                void Create(vk::RenderPass& renderPass, uint32_t subpass) override;
                 void ReCreate() override;
                 void Update(vk::DescriptorBufferInfo& uboDesc, uint32_t imageIndex) override;
                 void Bind(vk::CommandBuffer commandBuffer, uint32_t imageIndex) override;

@@ -4,10 +4,9 @@
 
 using namespace Engine::Core::Pipeline;
 
-void GraphicsPipeline::Create(VertexInput&& vertexInput, vk::RenderPass& renderPass, vk::PipelineBindPoint bindPoint, uint32_t colorAttachments, vk::CullModeFlagBits culling, vk::FrontFace fontface, 
-                              vk::Bool32 enableDepth, const std::vector<vk::DynamicState>& vDynamicStateEnables, const std::vector<Shader::Define>& vDefines, const std::vector<std::string>& vStages)
+void GraphicsPipeline::Create()
 {
-    PipelineBase::Create(std::move(vertexInput), renderPass, bindPoint, colorAttachments, culling, fontface, enableDepth, vDynamicStateEnables, vDefines, vStages);
+    PipelineBase::Create();
     CreatePipeline();
 }
 
@@ -89,7 +88,7 @@ void GraphicsPipeline::CreatePipeline()
     pipelineInfo.pDepthStencilState = &depthStencil;
     pipelineInfo.layout = m_pipelineLayout;
     pipelineInfo.renderPass = m_renderPass;
-    pipelineInfo.subpass = 0;
+    pipelineInfo.subpass = subpass;
     pipelineInfo.basePipelineHandle = nullptr;
     pipelineInfo.pDynamicState = &dynamicStateInfo;
 

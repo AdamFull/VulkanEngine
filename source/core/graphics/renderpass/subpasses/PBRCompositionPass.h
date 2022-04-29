@@ -1,28 +1,24 @@
 #pragma once
-#include "RendererBase.h"
+#include "graphics/renderpass/Subpass.h"
 #include "graphics/image/Image.h"
 
 namespace Engine
 {
     namespace Core
     {
-        namespace Rendering
+        namespace Render
         {
-            class PBRCompositionRenderer : public RendererBase
+            class CPBRCompositionPass : public CSubpass
             {
             public:
-                PBRCompositionRenderer() = default;
+                void create(std::shared_ptr<Resources::ResourceManager> resourceManager, std::shared_ptr<Scene::Objects::RenderObject> root, vk::RenderPass& renderPass, uint32_t subpass) override;
+                void render(vk::CommandBuffer& commandBuffer, std::shared_ptr<Scene::Objects::RenderObject> root) override;
+                void cleanup() override;
 
-                void Create(std::shared_ptr<Resources::ResourceManager> pResMgr) override;
-                void ReCreate(uint32_t framesInFlight) override;
-                void Render(vk::CommandBuffer& commandBuffer) override;
-                void Cleanup() override;
             protected:
-                void CreateMaterial(std::shared_ptr<Resources::ResourceManager> pResMgr);
                 static std::shared_ptr<Image> ComputeBRDFLUT(uint32_t size);
                 static std::shared_ptr<Image> ComputeIrradiance(const std::shared_ptr<Image> &source, uint32_t size);
                 static std::shared_ptr<Image> ComputePrefiltered(const std::shared_ptr<Image> &source, uint32_t size);
-
             private:
                 std::shared_ptr<UniformBuffer> m_pUniform;
                 std::shared_ptr<Resources::Material::MaterialBase> m_pMaterial;

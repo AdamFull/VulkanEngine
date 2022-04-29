@@ -36,6 +36,7 @@ namespace utl
         static void log(ELogLevel const level, std::string_view const message, std::source_location const source = std::source_location::current())
         {
             std::cout << std::format("[{}] {} | {} | {}", static_cast<char>(level), to_string(get_time(std::chrono::system_clock::now())), to_string(source), message) << '\n';
+            std::cout.flush();
         }
     };
 }

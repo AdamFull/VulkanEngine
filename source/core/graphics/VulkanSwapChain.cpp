@@ -21,9 +21,6 @@ void SwapChain::Create()
 {
     CreateSwapChain();
     CreateSwapChainImageViews();
-    CreateDepthResources();
-    CreateRenderPass();
-    CreateFrameBuffers();
     CreateSyncObjects();
 }
 
@@ -100,16 +97,6 @@ vk::Result SwapChain::SubmitCommandBuffers(const vk::CommandBuffer *commandBuffe
 
 void SwapChain::Cleanup()
 {
-    // Destroying depth image
-    UDevice->Destroy(m_depthImageView);
-    UDevice->Destroy(m_depthImage);
-    UDevice->Destroy(m_depthImageMemory);
-
-    for (auto framebuffer : m_vFramebuffers)
-        UDevice->Destroy(framebuffer);
-
-    UDevice->Destroy(m_renderPass);
-
     for (auto imageView : m_vImageViews)
         UDevice->Destroy(imageView);
 
@@ -120,9 +107,6 @@ void SwapChain::ReCreate()
 {
     CreateSwapChain();
     CreateSwapChainImageViews();
-    CreateRenderPass();
-    CreateDepthResources();
-    CreateFrameBuffers();
 }
 
 void SwapChain::CreateSwapChain()
@@ -197,140 +181,6 @@ void SwapChain::CreateSwapChainImageViews()
         viewInfo.subresourceRange.layerCount = 1;
 
         m_vImageViews[i] = Image::CreateImageView(m_vImages[i], viewInfo);
-    }
-}
-
-void SwapChain::CreateDepthResources()
-{
-    vk::Format depthFormat = Image::GetDepthFormat();
-
-    vk::ImageCreateInfo imageInfo{};
-    imageInfo.imageType = vk::ImageType::e2D;
-    imageInfo.extent.width = m_extent.width;
-    imageInfo.extent.height = m_extent.height;
-    imageInfo.extent.depth = 1;
-    imageInfo.mipLevels = 1;
-    imageInfo.arrayLayers = 1;
-    imageInfo.format = depthFormat;
-    imageInfo.tiling = vk::ImageTiling::eOptimal;
-    imageInfo.initialLayout = vk::ImageLayout::eUndefined;
-    imageInfo.usage = vk::ImageUsageFlagBits::eDepthStencilAttachment;
-    imageInfo.sharingMode = vk::SharingMode::eExclusive;
-    imageInfo.samples = UDevice->GetSamples();
-
-    Image::CreateImage(m_depthImage, m_depthImageMemory, imageInfo, vk::MemoryPropertyFlagBits::eDeviceLocal);
-
-    vk::ImageViewCreateInfo viewInfo{};
-    viewInfo.viewType = vk::ImageViewType::e2D;
-    viewInfo.format = depthFormat;
-    viewInfo.subresourceRange.aspectMask = vk::ImageAspectFlagBits::eDepth;
-    viewInfo.subresourceRange.baseMipLevel = 0;
-    viewInfo.subresourceRange.levelCount = 1;
-    viewInfo.subresourceRange.baseArrayLayer = 0;
-    viewInfo.subresourceRange.layerCount = 1;
-
-    m_depthImageView = Image::CreateImageView(m_depthImage, viewInfo);
-
-    std::vector<vk::ImageMemoryBarrier> vBarriers;
-    vk::ImageMemoryBarrier barrier{};
-    barrier.srcQueueFamilyIndex = VK_QUEUE_FAMILY_IGNORED;
-    barrier.dstQueueFamilyIndex = VK_QUEUE_FAMILY_IGNORED;
-    barrier.subresourceRange.aspectMask = vk::ImageAspectFlagBits::eDepth;
-    barrier.subresourceRange.baseMipLevel = 0;
-    barrier.subresourceRange.levelCount = 1;
-    barrier.subresourceRange.baseArrayLayer = 0;
-    barrier.subresourceRange.layerCount = 1;
-    vBarriers.push_back(barrier);
-
-    Image::TransitionImageLayout(m_depthImage, vBarriers, vk::ImageLayout::eUndefined, vk::ImageLayout::eDepthStencilAttachmentOptimal);
-}
-
-void SwapChain::CreateRenderPass()
-{
-    assert(UDevice && "Cannot create render pass, cause logical device is not valid.");
-    vk::AttachmentDescription colorAttachment = {};
-    colorAttachment.format = m_imageFormat;
-    colorAttachment.samples = UDevice->GetSamples();
-    colorAttachment.loadOp = vk::AttachmentLoadOp::eClear;
-    colorAttachment.storeOp = vk::AttachmentStoreOp::eStore;
-    colorAttachment.stencilLoadOp = vk::AttachmentLoadOp::eDontCare;
-    colorAttachment.stencilStoreOp = vk::AttachmentStoreOp::eDontCare;
-    colorAttachment.initialLayout = vk::ImageLayout::eUndefined;
-    colorAttachment.finalLayout = vk::ImageLayout::ePresentSrcKHR; //vk::ImageLayout::eColorAttachmentOptimal;
-
-    vk::AttachmentDescription depthAttachment{};
-    depthAttachment.format = Image::GetDepthFormat();
-    depthAttachment.samples = UDevice->GetSamples();
-    depthAttachment.loadOp = vk::AttachmentLoadOp::eClear;
-    depthAttachment.storeOp = vk::AttachmentStoreOp::eDontCare;
-    depthAttachment.stencilLoadOp = vk::AttachmentLoadOp::eDontCare;
-    depthAttachment.stencilStoreOp = vk::AttachmentStoreOp::eDontCare;
-    depthAttachment.initialLayout = vk::ImageLayout::eUndefined;
-    depthAttachment.finalLayout = vk::ImageLayout::eDepthStencilAttachmentOptimal;
-
-    vk::AttachmentReference colorAttachmentRef = {};
-    colorAttachmentRef.attachment = 0;
-    colorAttachmentRef.layout = vk::ImageLayout::eColorAttachmentOptimal;
-
-    vk::AttachmentReference depthAttachmentRef{};
-    depthAttachmentRef.attachment = 1;
-    depthAttachmentRef.layout = vk::ImageLayout::eDepthStencilAttachmentOptimal;
-
-    vk::SubpassDescription subpass = {};
-    subpass.pipelineBindPoint = vk::PipelineBindPoint::eGraphics;
-    subpass.colorAttachmentCount = 1;
-    subpass.pColorAttachments = &colorAttachmentRef;
-    subpass.pDepthStencilAttachment = &depthAttachmentRef;
-
-    vk::SubpassDependency dependency = {};
-    dependency.srcSubpass = VK_SUBPASS_EXTERNAL;
-    dependency.dstSubpass = 0;
-    dependency.srcStageMask = vk::PipelineStageFlagBits::eColorAttachmentOutput | vk::PipelineStageFlagBits::eEarlyFragmentTests;
-    dependency.dstStageMask = vk::PipelineStageFlagBits::eColorAttachmentOutput | vk::PipelineStageFlagBits::eEarlyFragmentTests;
-    dependency.dstAccessMask = vk::AccessFlagBits::eColorAttachmentWrite | vk::AccessFlagBits::eDepthStencilAttachmentWrite; // vk::AccessFlagBits::eColorAttachmentRead
-
-    std::array<vk::AttachmentDescription, 2> attachments = {colorAttachment, depthAttachment};
-
-    vk::RenderPassCreateInfo renderPassInfo = {};
-    renderPassInfo.attachmentCount = static_cast<uint32_t>(attachments.size());
-    ;
-    renderPassInfo.pAttachments = attachments.data();
-    renderPassInfo.subpassCount = 1;
-    renderPassInfo.pSubpasses = &subpass;
-    renderPassInfo.dependencyCount = 1;
-    renderPassInfo.pDependencies = &dependency;
-
-    m_renderPass = UDevice->Make<vk::RenderPass, vk::RenderPassCreateInfo>(renderPassInfo);
-    assert(m_renderPass && "Render pass was not created");
-}
-
-void SwapChain::CreateFrameBuffers()
-{
-    assert(!m_vImageViews.empty() && "Cannot create framebuffers, cause swap chain image views are empty.");
-    assert(UDevice && "Cannot create framebuffers, cause logical device is not valid.");
-    assert(m_renderPass && "Cannot create framebuffers, cause render pass is not valid.");
-    assert(m_depthImageView && "Cannot create framebuffers, cause depth image view is not valid.");
-
-    m_vFramebuffers.resize(m_vImageViews.size());
-
-    for (size_t i = 0; i < m_vImageViews.size(); i++)
-    {
-        std::array<vk::ImageView, 2> attachments =
-            {
-                m_vImageViews[i],
-                m_depthImageView
-            };
-
-        vk::FramebufferCreateInfo framebufferInfo = {};
-        framebufferInfo.renderPass = m_renderPass;
-        framebufferInfo.attachmentCount = static_cast<uint32_t>(attachments.size());
-        framebufferInfo.pAttachments = attachments.data();
-        framebufferInfo.width = m_extent.width;
-        framebufferInfo.height = m_extent.height;
-        framebufferInfo.layers = 1;
-
-        m_vFramebuffers[i] = UDevice->Make<vk::Framebuffer, vk::FramebufferCreateInfo>(framebufferInfo);
-        assert(m_vFramebuffers[i] && "Failed while creating framebuffer");
     }
 }
 

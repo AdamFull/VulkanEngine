@@ -36,7 +36,7 @@ namespace Engine
             {
             public:
                 
-                void Create(std::shared_ptr<ResourceManager> pResMgr);
+                void Create(vk::RenderPass& renderPass, uint32_t subpass);
                 virtual void AddPrimitive(Primitive &&primitive);
                 Primitive& GetPrimitive(uint32_t index);
                 virtual void SetMaterial(std::shared_ptr<Material::MaterialBase> material);

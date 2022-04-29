@@ -36,7 +36,7 @@ ImguiOverlay::~ImguiOverlay()
     m_pUniformHandle->Cleanup();
 }
 
-void ImguiOverlay::Create(std::shared_ptr<ResourceManager> pResMgr, std::shared_ptr<Scene::Objects::RenderObject> pRoot)
+void ImguiOverlay::Create(std::shared_ptr<Scene::Objects::RenderObject> pRoot, vk::RenderPass& renderPass, uint32_t subpass)
 {
     fontTexture = std::make_shared<Image>();
     fontMaterial = std::make_shared<MaterialUI>();
@@ -46,7 +46,7 @@ void ImguiOverlay::Create(std::shared_ptr<ResourceManager> pResMgr, std::shared_
 
     ImGui::CreateContext();
     BaseInitialize();
-    CreateFontResources(pResMgr);
+    CreateFontResources(renderPass, subpass);
 
     auto uniformBlock = fontMaterial->GetPipeline()->GetShader()->GetUniformBlock("FUniformDataUI");
     if(uniformBlock)
@@ -104,7 +104,7 @@ void ImguiOverlay::BaseInitialize()
     io.DisplayFramebufferScale = ImVec2(1.0f, 1.0f);
 }
 
-void ImguiOverlay::CreateFontResources(std::shared_ptr<ResourceManager> pResMgr)
+void ImguiOverlay::CreateFontResources(vk::RenderPass& renderPass, uint32_t subpass)
 {
     ImGuiIO &io = ImGui::GetIO();
 
@@ -120,7 +120,7 @@ void ImguiOverlay::CreateFontResources(std::shared_ptr<ResourceManager> pResMgr)
     fontTexture->InitializeTexture(texture, format);
     fontTexture->LoadFromMemory(texture, format);
     fontMaterial->AddTexture(ETextureAttachmentType::eDiffuseAlbedo, fontTexture);
-    fontMaterial->Create(pResMgr);
+    fontMaterial->Create(renderPass, subpass);
 
     Loaders::ImageLoader::Close(&texture);
 }

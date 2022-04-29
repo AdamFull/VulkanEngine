@@ -10,18 +10,11 @@ MaterialBase::~MaterialBase()
 {
 }
 
-void MaterialBase::Create(std::shared_ptr<ResourceManager> pResMgr, vk::RenderPass& rPass)
-{
-    renderPass = rPass;
-    MaterialBase::Create(pResMgr);
-}
-
-void MaterialBase::Create(std::shared_ptr<ResourceManager> pResMgr)
+void MaterialBase::Create(vk::RenderPass& renderPass, uint32_t subpass)
 {
     uint32_t images = USwapChain->GetImages().size();
     m_pDescriptorSet = std::make_unique<DescriptorHandler>();
     m_pDescriptorSet->Create(m_pPipeline);
-    //m_pMatDesc->UpdatePipelineInfo(pPipeline->GetBindPoint(), pipelineLayout);
 }
 
 void MaterialBase::AddTexture(ETextureAttachmentType eAttachment, vk::DescriptorImageInfo& descriptor)

@@ -21,7 +21,7 @@ namespace Engine
                     class MeshComponentBase : public ComponentBase
                     {
                     public:
-                        void Create(std::shared_ptr<Resources::ResourceManager> resourceMgr) override;
+                        void Create(vk::RenderPass& renderPass, uint32_t subpass) override;
                         void ReCreate() override;
                         void Update(float fDeltaTime) override;
                         void Render(vk::CommandBuffer &commandBuffer, uint32_t imageIndex) override;

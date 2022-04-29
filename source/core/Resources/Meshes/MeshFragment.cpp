@@ -14,12 +14,12 @@ void Primitive::setDimensions(glm::vec3 min, glm::vec3 max)
     dimensions.radius = glm::distance(min, max) / 2.0f;
 }
 
-void MeshFragment::Create(std::shared_ptr<ResourceManager> pResMgr)
+void MeshFragment::Create(vk::RenderPass& renderPass, uint32_t subpass)
 {
     for (auto &primitive : m_vPrimitives)
     {
         if(primitive.material)
-            primitive.material->Create(pResMgr);
+            primitive.material->Create(renderPass, subpass);
     }
 }
 

@@ -3,12 +3,12 @@
 using namespace Engine::Core;
 using namespace Engine::Resources::Mesh;
 
-void MeshBase::Create(std::shared_ptr<ResourceManager> pResMgr)
+void MeshBase::Create(vk::RenderPass& renderPass, uint32_t subpass)
 {
     m_pUniformBuffer = std::make_shared<UniformBuffer>();
     m_pUniformBuffer->Create(2, sizeof(FUniformData));
     for (auto& fragment : m_vFragments)
-        fragment->Create(pResMgr);
+        fragment->Create(renderPass, subpass);
 }
 
 void MeshBase::ReCreate()

@@ -30,59 +30,11 @@ void VulkanHighLevel::Create(FEngineCreateInfo createInfo)
     CreatePipelineCache();
 
     m_pSwapChain->Create();
-    m_pRenderer->Create();
 
     m_pThreadPool = std::make_unique<utl::threadpool>();
 
     if (!glslang::InitializeProcess())
 		throw std::runtime_error("Failed to initialize glslang processor.");
-}
-
-vk::CommandBuffer VulkanHighLevel::BeginFrame(bool *bResult)
-{
-    vk::CommandBuffer commandBuffer;
-    try
-    {
-        commandBuffer = m_pRenderer->BeginFrame();
-    }
-    catch (vk::OutOfDateKHRError err)
-    {
-        RecreateSwapChain();
-        *bResult = false;
-        return nullptr;
-    }
-    catch (vk::SystemError err)
-    {
-        throw std::runtime_error("Failed to acquire swap chain image!");
-    }
-
-    *bResult = true;
-    return commandBuffer;
-}
-
-void VulkanHighLevel::EndFrame(vk::CommandBuffer& commandBuffer, bool *bResult)
-{
-    vk::Result resultPresent;
-    try
-    {
-        resultPresent = m_pRenderer->EndFrame();
-    }
-    catch (vk::OutOfDateKHRError err)
-    {
-        resultPresent = vk::Result::eErrorOutOfDateKHR;
-    }
-    catch (vk::SystemError err)
-    {
-        throw std::runtime_error("failed to present swap chain image!");
-    }
-
-    if (resultPresent == vk::Result::eSuboptimalKHR || resultPresent == vk::Result::eErrorOutOfDateKHR || WindowHandle::m_bWasResized)
-    {
-        WindowHandle::m_bWasResized = false;
-        RecreateSwapChain();
-        *bResult = false;
-        return;
-    }
 }
 
 void VulkanHighLevel::CreatePipelineCache()
@@ -99,14 +51,14 @@ void VulkanHighLevel::RecreateSwapChain()
     CleanupSwapChain();
     m_pSwapChain->ReCreate();
 
-    m_pRenderer->ReCreate();
+    m_pRenderer->reCreate();
     m_pOverlay->ReCreate();
 }
 
 void VulkanHighLevel::CleanupSwapChain()
 {
     m_pSwapChain->Cleanup();
-    m_pRenderer->Cleanup();
+    m_pRenderer->cleanup();
 }
 
 void VulkanHighLevel::Cleanup()

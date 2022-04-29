@@ -7,12 +7,12 @@ layout (binding = 0) uniform sampler2D brdflut_tex;
 layout (binding = 1) uniform samplerCube irradiance_tex;
 layout (binding = 2) uniform samplerCube prefiltred_tex;
 
-layout (binding = 3) uniform sampler2D position_tex;
-layout (binding = 4) uniform sampler2D lightning_mask_tex;
-layout (binding = 5) uniform sampler2D normal_tex;
-layout (binding = 6) uniform sampler2D albedo_tex;
-layout (binding = 7) uniform sampler2D emission_tex;
-layout (binding = 8) uniform sampler2D mrah_tex;
+layout (input_attachment_index = 0, binding = 3) uniform subpassInput position_tex;
+layout (input_attachment_index = 1, binding = 4) uniform subpassInput lightning_mask_tex;
+layout (input_attachment_index = 2, binding = 5) uniform subpassInput normal_tex;
+layout (input_attachment_index = 3, binding = 6) uniform subpassInput albedo_tex;
+layout (input_attachment_index = 4, binding = 7) uniform subpassInput emission_tex;
+layout (input_attachment_index = 5, binding = 8) uniform subpassInput mrah_tex;
 
 layout (location = 0) in vec2 inUV;
 
@@ -38,12 +38,12 @@ layout(std140, binding = 9) uniform UBOLightning
 void main() 
 {
 	// Get G-Buffer values
-	vec3 inWorldPos = texture(position_tex, inUV).rgb;
-	float mask = texture(lightning_mask_tex, inUV).r;
-	vec3 albedo = pow(texture(albedo_tex, inUV).rgb, vec3(2.2f));
-	vec3 N = texture(normal_tex, inUV).rgb;
-	vec3 emission = pow(texture(emission_tex, inUV).rgb, vec3(2.2f));
-	vec4 mrah = texture(mrah_tex, inUV);
+	vec3 inWorldPos = subpassLoad(position_tex).rgb;
+	float mask = subpassLoad(lightning_mask_tex).r;
+	vec3 albedo = pow(subpassLoad(albedo_tex).rgb, vec3(2.2f));
+	vec3 N = subpassLoad(normal_tex).rgb;
+	vec3 emission = pow(subpassLoad(emission_tex).rgb, vec3(2.2f));
+	vec4 mrah = subpassLoad(mrah_tex);
 
 	float metalic = mrah.r;
 	float roughness = mrah.g;

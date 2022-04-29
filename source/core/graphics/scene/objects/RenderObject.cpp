@@ -15,10 +15,10 @@ RenderObject::RenderObject(std::string srName)
     //m_srUUID = uuid::generate();
 }
 
-void RenderObject::Create(std::shared_ptr<ResourceManager> resourceMgr)
+void RenderObject::Create(vk::RenderPass& renderPass, uint32_t subpass)
 {
     for (auto &[name, child] : m_mChilds)
-        child->Create(resourceMgr);
+        child->Create(renderPass, subpass);
 }
 
 void RenderObject::ReCreate()

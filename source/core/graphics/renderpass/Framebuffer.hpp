@@ -21,10 +21,9 @@ namespace Engine
                     };
 
                     Builder &addImage(vk::Format format, vk::ImageUsageFlags usageFlags);
-                    std::unique_ptr<CFramebuffer> build(vk::RenderPass &renderPass, vk::Extent2D extent);
+                    std::unique_ptr<CFramebuffer> build(vk::RenderPass &renderPass);
 
                 private:
-                    std::shared_ptr<Image> createImage(vk::Format format, vk::ImageUsageFlags usageFlags, vk::Extent2D extent);
                     std::vector<FAttachmentInfo> attachments;
                 };
 
@@ -32,11 +31,17 @@ namespace Engine
                 CFramebuffer(std::vector<vk::Framebuffer> &&framebuffers);
                 ~CFramebuffer();
 
+                void create(vk::RenderPass& renderPass, vk::Extent2D extent);
                 void reCreate(vk::RenderPass& renderPass);
                 void cleanup();
 
+                std::vector<vk::Framebuffer>& get() { return vFramebuffers; }
+
             private:
+                std::shared_ptr<Image> createImage(vk::Format format, vk::ImageUsageFlags usageFlags, vk::Extent2D extent);
                 std::vector<vk::Framebuffer> vFramebuffers;
+                std::vector<Builder::FAttachmentInfo> attachments;
+                vk::Extent2D imagesExtent;
                 std::map<uint32_t, std::vector<std::shared_ptr<Image>>> mImages;
                 std::shared_ptr<Image> pDepth;
             };

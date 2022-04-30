@@ -10,17 +10,18 @@ using namespace Engine::Core::Scene::Objects;
 using namespace Engine::Resources;
 using namespace Engine::Resources::Material;
 
-void CShadowPass::create(std::shared_ptr<ResourceManager> resourceManager, std::vector<std::shared_ptr<Image>>& images, std::shared_ptr<RenderObject> root, vk::RenderPass& renderPass, uint32_t subpass)
+void CShadowPass::create(std::shared_ptr<FRenderCreateInfo> createData)
 {
     m_pMaterial = std::make_shared<MaterialShadow>();
+    CSubpass::create(createData);
 }
 
-void CShadowPass::render(vk::CommandBuffer& commandBuffer, std::vector<std::shared_ptr<Image>>& images, std::shared_ptr<RenderObject> root)
+void CShadowPass::render(std::shared_ptr<FRenderProcessInfo> renderData)
 {
     auto imageIndex = USwapChain->GetCurrentFrame();
-    UVBO->Bind(commandBuffer);
-    m_pMaterial->Bind(commandBuffer, imageIndex);
-    root->Render(commandBuffer, imageIndex);
+    UVBO->Bind(renderData->commandBuffer);
+    m_pMaterial->Bind(renderData->commandBuffer, imageIndex);
+    renderData->root->Render(renderData->commandBuffer, imageIndex);
 }
 
 void CShadowPass::cleanup()

@@ -12,8 +12,8 @@ namespace Engine
             public:
                 CGaussianBlurPass() = default;
                 explicit CGaussianBlurPass(int direction) : direction(direction) {}
-                void create(std::shared_ptr<Resources::ResourceManager> resourceManager, std::vector<std::shared_ptr<Image>>& images, std::shared_ptr<Scene::Objects::RenderObject> root, vk::RenderPass& renderPass, uint32_t subpass) override;
-                void render(vk::CommandBuffer& commandBuffer, std::vector<std::shared_ptr<Image>>& images, std::shared_ptr<Scene::Objects::RenderObject> root) override;
+                void create(std::shared_ptr<FRenderCreateInfo> createData) override;
+                void render(std::shared_ptr<FRenderProcessInfo> renderData) override;
                 void cleanup() override;
             private:
                 std::shared_ptr<UniformBuffer> m_pUniform;

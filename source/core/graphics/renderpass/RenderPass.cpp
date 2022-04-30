@@ -13,15 +13,9 @@ CRenderPass::Builder& CRenderPass::Builder::addAttachmentDescription(vk::Attachm
 {
     vk::ClearValue cv{};
     if(desc.finalLayout == vk::ImageLayout::eDepthStencilAttachmentOptimal)
-    {
-        vAttachments.emplace_back(FInputAttachment{desc.format, vk::ImageUsageFlagBits::eDepthStencilAttachment | vk::ImageUsageFlagBits::eInputAttachment});
         cv.setDepthStencil(vk::ClearDepthStencilValue{1.0f, 0});
-    }
     else
-    {
-        vAttachments.emplace_back(FInputAttachment{desc.format, vk::ImageUsageFlagBits::eColorAttachment | vk::ImageUsageFlagBits::eInputAttachment});
         cv.setColor(vk::ClearColorValue{std::array<float, 4>{0.0f, 0.0f, 0.0f, 0.0f}});
-    }
 
     vClearValues.emplace_back(cv);
     vAttachDesc.emplace_back(std::move(desc));
@@ -76,7 +70,6 @@ vk::AccessFlags srcAccessMask, vk::AccessFlags dstAccessMask, vk::DependencyFlag
 std::unique_ptr<CRenderPass> CRenderPass::Builder::build()
 {
     auto pRenderPass = std::make_unique<CRenderPass>();
-    pRenderPass->vAttachments = std::move(vAttachments);
     pRenderPass->vClearValues = std::move(vClearValues);
     pRenderPass->vAttachDesc = std::move(vAttachDesc);
     pRenderPass->vSubpassDesc = std::move(vSubpassDesc);
@@ -95,13 +88,14 @@ CRenderPass::~CRenderPass()
     UDevice->Destroy(renderPass);
 }
 
-void CRenderPass::create(std::shared_ptr<ResourceManager> resourceManager, std::vector<std::shared_ptr<Image>>& images, std::shared_ptr<RenderObject> root)
+void CRenderPass::create(std::shared_ptr<FRenderCreateInfo> createData)
 {
     //Creating subpasses (render stages)
     uint32_t subpassNum{0};
     for(auto& subpass : vSubpasses)
     {
-        subpass->create(resourceManager, images, root, renderPass, subpassNum);
+        createData->subpass = subpassNum;
+        subpass->create(createData);
         subpassNum++;
     }
 }
@@ -144,7 +138,7 @@ void CRenderPass::end(vk::CommandBuffer& commandBuffer)
     commandBuffer.endRenderPass();
 }
 
-void CRenderPass::render(vk::CommandBuffer& commandBuffer, std::vector<std::shared_ptr<Image>>& images, std::shared_ptr<RenderObject> root)
+void CRenderPass::render(std::shared_ptr<FRenderProcessInfo> renderData)
 {
     //begin(commandBuffer);
 
@@ -152,9 +146,9 @@ void CRenderPass::render(vk::CommandBuffer& commandBuffer, std::vector<std::shar
     uint32_t subpass_id{0};
     for(auto& subpass : vSubpasses)
     {
-        subpass->render(commandBuffer, images, root);
+        subpass->render(renderData);
         if((vSubpasses.size() - 1) > subpass_id)
-            commandBuffer.nextSubpass(vk::SubpassContents::eInline);
+            renderData->commandBuffer.nextSubpass(vk::SubpassContents::eInline);
         subpass_id++;
     }
 

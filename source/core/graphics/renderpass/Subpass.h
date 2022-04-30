@@ -1,26 +1,35 @@
 #pragma once
+#include "resources/ResourceManager.h"
+#include "graphics/image/Image.h"
+#include "graphics/scene/objects/RenderObject.h"
 
 namespace Engine
 {
     namespace Resources
     {
-        class ResourceManager;
         namespace Material { class MaterialBase; }
     }
     namespace Core
     {
         class UniformBuffer;
-        class Image;
-        namespace Scene {namespace Objects { class RenderObject; }}
         namespace Render
         {
             struct FRenderCreateInfo
             {
+                FRenderCreateInfo() {}
                 std::shared_ptr<Resources::ResourceManager> resourceManager;
-                std::vector<std::shared_ptr<Image>>& images;
+                std::unordered_map<std::string, std::shared_ptr<Image>> images;
                 std::shared_ptr<Scene::Objects::RenderObject> root;
-                vk::RenderPass& renderPass;
+                vk::RenderPass renderPass;
                 uint32_t subpass;
+            };
+
+            struct FRenderProcessInfo
+            {
+                FRenderProcessInfo() {}
+                vk::CommandBuffer commandBuffer;
+                std::unordered_map<std::string, std::shared_ptr<Image>> images;
+                std::shared_ptr<Scene::Objects::RenderObject> root;
             };
 
             class CSubpass
@@ -28,8 +37,8 @@ namespace Engine
             public:
                 CSubpass() = default;
 
-                virtual void create(std::shared_ptr<Resources::ResourceManager> resourceManager, std::vector<std::shared_ptr<Image>>& images, std::shared_ptr<Scene::Objects::RenderObject> root, vk::RenderPass& renderPass, uint32_t subpass) {}
-                virtual void render(vk::CommandBuffer& commandBuffer, std::vector<std::shared_ptr<Image>>& images, std::shared_ptr<Scene::Objects::RenderObject> root) {}
+                virtual void create(std::shared_ptr<FRenderCreateInfo> createData) {}
+                virtual void render(std::shared_ptr<FRenderProcessInfo> renderData) {}
                 virtual void cleanup() {}
             private:
             };

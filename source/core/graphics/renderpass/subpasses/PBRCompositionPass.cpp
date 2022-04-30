@@ -25,33 +25,34 @@ using namespace Engine::Core::Scene::Objects::Components;
 using namespace Engine::Core::Scene::Objects::Components::Light;
 
 
-void CPBRCompositionPass::create(std::shared_ptr<ResourceManager> resourceManager, std::vector<std::shared_ptr<Image>>& images, std::shared_ptr<RenderObject> root, vk::RenderPass& renderPass, uint32_t subpass)
+void CPBRCompositionPass::create(std::shared_ptr<FRenderCreateInfo> createData)
 {
     auto framesInFlight = USwapChain->GetFramesInFlight();
     m_pUniform = std::make_shared<UniformBuffer>();
     m_pUniform->Create(framesInFlight, sizeof(FLightningData));
 
-    m_pSkybox = resourceManager->Get<Image>("skybox_cubemap_tex");
+    m_pSkybox = createData->resourceManager->Get<Image>("skybox_cubemap_tex");
 
     brdf = UHLInstance->GetThreadPool()->submit(&CPBRCompositionPass::ComputeBRDFLUT, 512);
     irradiance = UHLInstance->GetThreadPool()->submit(&CPBRCompositionPass::ComputeIrradiance, m_pSkybox, 64);
     prefiltered = UHLInstance->GetThreadPool()->submit(&CPBRCompositionPass::ComputePrefiltered, m_pSkybox, 512);
 
     m_pMaterial = std::make_shared<MaterialDeferred>();
-    m_pMaterial->Create(renderPass, subpass);
+    m_pMaterial->Create(createData->renderPass, createData->subpass);
+    CSubpass::create(createData);
 }
 
-void CPBRCompositionPass::render(vk::CommandBuffer& commandBuffer, std::vector<std::shared_ptr<Image>>& images, std::shared_ptr<RenderObject> root)
+void CPBRCompositionPass::render(std::shared_ptr<FRenderProcessInfo> renderData)
 {
     m_pMaterial->AddTexture("brdflut_tex", *brdf);
     m_pMaterial->AddTexture("irradiance_tex", *irradiance);
     m_pMaterial->AddTexture("prefiltred_tex", *prefiltered);
-    m_pMaterial->AddTexture("position_tex", images.at(0));
-    m_pMaterial->AddTexture("lightning_mask_tex", images.at(1));
-    m_pMaterial->AddTexture("normal_tex", images.at(2));
-    m_pMaterial->AddTexture("albedo_tex", images.at(3));
-    m_pMaterial->AddTexture("emission_tex", images.at(4));
-    m_pMaterial->AddTexture("mrah_tex", images.at(5));
+    m_pMaterial->AddTexture("position_tex", renderData->images["position_tex"]);
+    m_pMaterial->AddTexture("lightning_mask_tex", renderData->images["lightning_mask_tex"]);
+    m_pMaterial->AddTexture("normal_tex", renderData->images["normal_tex"]);
+    m_pMaterial->AddTexture("albedo_tex", renderData->images["albedo_tex"]);
+    m_pMaterial->AddTexture("emission_tex", renderData->images["emission_tex"]);
+    m_pMaterial->AddTexture("mrah_tex", renderData->images["mrah_tex"]);
 
     auto imageIndex = USwapChain->GetCurrentFrame();
 
@@ -70,9 +71,9 @@ void CPBRCompositionPass::render(vk::CommandBuffer& commandBuffer, std::vector<s
     auto& buffer = m_pUniform->GetUniformBuffer(imageIndex);
     auto descriptor = buffer->GetDscriptor();
     m_pMaterial->Update(descriptor, imageIndex);
-    m_pMaterial->Bind(commandBuffer, imageIndex);
+    m_pMaterial->Bind(renderData->commandBuffer, imageIndex);
 
-    commandBuffer.draw(3, 1, 0, 0);
+    renderData->commandBuffer.draw(3, 1, 0, 0);
 }
 
 void CPBRCompositionPass::cleanup()

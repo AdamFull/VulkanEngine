@@ -1,4 +1,5 @@
 #pragma once
+#include "Subpass.h"
 
 namespace Engine
 {
@@ -39,7 +40,6 @@ namespace Engine
                     std::unique_ptr<CRenderPass> build();
 
                 private:
-                    std::vector<FInputAttachment> vAttachments;
                     std::vector<vk::AttachmentDescription> vAttachDesc;
                     std::vector<vk::SubpassDescription> vSubpassDesc;
                     std::vector<vk::SubpassDependency> vSubpassDep;
@@ -50,20 +50,18 @@ namespace Engine
                 CRenderPass(vk::RenderPass &&pass);
                 ~CRenderPass();
 
-                void create(std::shared_ptr<Resources::ResourceManager> resourceManager, std::vector<std::shared_ptr<Image>>& images, std::shared_ptr<Scene::Objects::RenderObject> root);
+                void create(std::shared_ptr<FRenderCreateInfo> createData);
                 void reCreate();
                 void cleanup();
 
                 void begin(vk::CommandBuffer &commandBuffer, std::vector<vk::Framebuffer>& framebuffer);
                 void end(vk::CommandBuffer &commandBuffer);
 
-                void render(vk::CommandBuffer& commandBuffer, std::vector<std::shared_ptr<Image>>& images, std::shared_ptr<Scene::Objects::RenderObject> root);
+                void render(std::shared_ptr<FRenderProcessInfo> renderData);
 
                 void setRenderArea(int32_t offset_x, int32_t offset_y, uint32_t width, uint32_t height);
                 void setRenderArea(vk::Offset2D offset, vk::Extent2D extent);
                 void setRenderArea(vk::Rect2D &&area);
-
-                const std::vector<FInputAttachment>& getAttachments() const { return vAttachments; }
 
                 void pushSubpass(std::shared_ptr<CSubpass>&& subpass);
                 const uint32_t getSubpassCount() const { return vSubpasses.size(); }
@@ -77,7 +75,6 @@ namespace Engine
                 std::vector<std::shared_ptr<CSubpass>> vSubpasses;
 
                 //ReCreate data
-                std::vector<FInputAttachment> vAttachments;
                 std::vector<vk::AttachmentDescription> vAttachDesc;
                 std::vector<vk::SubpassDescription> vSubpassDesc;
                 std::vector<vk::SubpassDependency> vSubpassDep;

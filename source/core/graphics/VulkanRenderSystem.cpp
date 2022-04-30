@@ -1,5 +1,6 @@
 #include "graphics/VulkanHighLevel.h"
 #include "graphics/renderpass/RenderPass.hpp"
+#include "graphics/renderpass/Subpass.h"
 #include "graphics/renderpass/subpasses/GBufferPass.h"
 #include "graphics/renderpass/subpasses/PBRCompositionPass.h"
 #include "graphics/renderpass/subpasses/GaussianBlurPass.h"
@@ -31,12 +32,6 @@ void RenderSystem::create(std::shared_ptr<Resources::ResourceManager> resourceMa
     };
     vk::AttachmentReference depthReference{8, vk::ImageLayout::eDepthStencilAttachmentOptimal};
 
-    /*[E] 2022-04-29 21:32:35.7899637 GMT+3 | VulkanDevice.cpp:ValidationCallback:48 | 
-    Validation Error: [ VUID-VkSubpassDescription-None-04437 ] Object 0: handle = 0x12f71a69360, type = VK_OBJECT_TYPE_DEVICE; | MessageID = 0x438c2f01 | 
-    vkCreateRenderPass(): pSubpasses[1].pColorAttachments[1] is also an input attachment so the layout (VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL) must not be VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL or VK_IMAGE_LAYOUT_ATTACHMENT_OPTIMAL_KHR. 
-    The Vulkan spec states: Each attachment must follow the image layout requirements specified for its attachment type (https://vulkan.lunarg.com/doc/view/1.2.198.1/windows/1.2-extensions/vkspec.html#VUID-VkSubpassDescription-None-04437)
-*/
-
     std::vector<vk::AttachmentReference> vReferences_1
     {
         {0, vk::ImageLayout::eColorAttachmentOptimal},
@@ -53,7 +48,7 @@ void RenderSystem::create(std::shared_ptr<Resources::ResourceManager> resourceMa
         {6, vk::ImageLayout::eShaderReadOnlyOptimal}
     };
 
-    auto renderPass = Render::CRenderPass::Builder().
+    renderPass = Render::CRenderPass::Builder().
     //KHR color attachment
     addAttachmentDescription(USwapChain->GetImageFormat(), vk::SampleCountFlagBits::e1, vk::AttachmentLoadOp::eClear, vk::AttachmentStoreOp::eStore, 
     vk::AttachmentLoadOp::eDontCare, vk::AttachmentStoreOp::eDontCare, vk::ImageLayout::eUndefined, vk::ImageLayout::ePresentSrcKHR).
@@ -82,37 +77,39 @@ void RenderSystem::create(std::shared_ptr<Resources::ResourceManager> resourceMa
 
     renderPass->pushSubpass(std::make_shared<Render::CGBufferPass>());
     renderPass->pushSubpass(std::make_shared<Render::CPBRCompositionPass>());
-    //renderPass->pushSubpass(std::make_shared<Render::CGaussianBlurPass>(1));
-    //renderPass->pushSubpass(std::make_shared<Render::CGaussianBlurPass>(-1));
-    //renderPass->pushSubpass(std::make_shared<Render::CFinalCompositionPass>());
 
-    auto fbBuilder = Render::CFramebuffer::Builder();
-    for(auto& attach : renderPass->getAttachments())
-        fbBuilder = fbBuilder.addImage(attach.format, attach.usageFlags);
-    auto framebuffer = fbBuilder.build(renderPass->get());
+    framebuffer = std::make_shared<Render::CFramebuffer>();
+    framebuffer->addImage("present_khr", USwapChain->GetImageFormat(), vk::ImageUsageFlagBits::eColorAttachment | vk::ImageUsageFlagBits::eInputAttachment);
+    framebuffer->addImage("position_tex", vk::Format::eR16G16B16A16Sfloat, vk::ImageUsageFlagBits::eColorAttachment | vk::ImageUsageFlagBits::eInputAttachment);
+    framebuffer->addImage("lightning_mask_tex", vk::Format::eR16G16B16A16Sfloat, vk::ImageUsageFlagBits::eColorAttachment | vk::ImageUsageFlagBits::eInputAttachment);
+    framebuffer->addImage("normal_tex", vk::Format::eR16G16B16A16Sfloat, vk::ImageUsageFlagBits::eColorAttachment | vk::ImageUsageFlagBits::eInputAttachment);
+    framebuffer->addImage("albedo_tex", vk::Format::eR8G8B8A8Snorm, vk::ImageUsageFlagBits::eColorAttachment | vk::ImageUsageFlagBits::eInputAttachment);
+    framebuffer->addImage("emission_tex", vk::Format::eR8G8B8A8Snorm, vk::ImageUsageFlagBits::eColorAttachment | vk::ImageUsageFlagBits::eInputAttachment);
+    framebuffer->addImage("mrah_tex", vk::Format::eR8G8B8A8Snorm, vk::ImageUsageFlagBits::eColorAttachment | vk::ImageUsageFlagBits::eInputAttachment);
+    framebuffer->addImage("brightness_buffer", vk::Format::eR16G16B16A16Sfloat, vk::ImageUsageFlagBits::eColorAttachment | vk::ImageUsageFlagBits::eInputAttachment);
+    framebuffer->addImage("depth_image", Image::GetDepthFormat(), vk::ImageUsageFlagBits::eDepthStencilAttachment | vk::ImageUsageFlagBits::eInputAttachment);
 
     //UOverlay->Create(root, renderPass->get(), renderPass->getSubpassCount() - 1);
 
-    mRenderers.emplace(std::move(renderPass), std::move(framebuffer));
+    auto creationBuffer = std::make_shared<Render::FRenderCreateInfo>();
+    creationBuffer->resourceManager = resourceManager;
+    creationBuffer->root = root;
 
-    for(auto& [pass, fb] : mRenderers)
-    {
-        pass->setRenderArea(vk::Offset2D{0, 0}, screenExtent);
-        fb->create(pass->get(), screenExtent);
-        pass->create(resourceManager, fb->getImages(imageIndex), root);
-    }
+    renderPass->setRenderArea(vk::Offset2D{0, 0}, screenExtent);
+    framebuffer->create(renderPass->get(), screenExtent);
+    creationBuffer->renderPass = renderPass->get();
+    creationBuffer->images = framebuffer->getImages(imageIndex);
+    renderPass->create(creationBuffer);
 }
 
 void RenderSystem::reCreate()
 {
     screenExtent = USwapChain->GetExtent();
     commandBuffers = std::make_shared<CommandBuffer>(false, vk::QueueFlagBits::eGraphics, vk::CommandBufferLevel::ePrimary, USwapChain->GetFramesInFlight());
-    for(auto& [pass, fb] : mRenderers)
-    {
-        pass->setRenderArea(vk::Offset2D{0, 0}, screenExtent);
-        pass->reCreate();
-        fb->reCreate(pass->get());
-    }
+
+    renderPass->setRenderArea(vk::Offset2D{0, 0}, screenExtent);
+    renderPass->reCreate();
+    framebuffer->reCreate(renderPass->get());
 }
 
 void RenderSystem::render(std::shared_ptr<Scene::Objects::RenderObject> root)
@@ -122,12 +119,14 @@ void RenderSystem::render(std::shared_ptr<Scene::Objects::RenderObject> root)
     catch (vk::OutOfDateKHRError err) { UHLInstance->RecreateSwapChain(); }
     catch (vk::SystemError err) { throw std::runtime_error("Failed to acquire swap chain image!"); }
 
-    for(auto& [pass, fb] : mRenderers)
-    {
-        pass->begin(commandBuffer, fb->get());
-        pass->render(commandBuffer, fb->getImages(imageIndex), root);
-        pass->end(commandBuffer);
-    }
+    auto renderData = std::make_shared<Render::FRenderProcessInfo>();
+    renderData->commandBuffer = commandBuffer;
+    renderData->root = root;
+
+    renderData->images = framebuffer->getImages(imageIndex);
+    renderPass->begin(commandBuffer, framebuffer->get());
+    renderPass->render(renderData);
+    renderPass->end(commandBuffer);
 
     vk::Result resultPresent;
     try { resultPresent = endFrame(); }
@@ -143,11 +142,8 @@ void RenderSystem::render(std::shared_ptr<Scene::Objects::RenderObject> root)
 
 void RenderSystem::cleanup()
 {
-    for(auto& [pass, fb] : mRenderers)
-    {
-        pass->cleanup();
-        fb->cleanup();
-    }
+    renderPass->cleanup();
+    framebuffer->cleanup();
 }
 
 vk::CommandBuffer& RenderSystem::getCurrentCommandBuffer()

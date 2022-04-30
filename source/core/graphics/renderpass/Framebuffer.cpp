@@ -7,19 +7,6 @@
 using namespace Engine::Core;
 using namespace Engine::Core::Render;
 
-CFramebuffer::Builder& CFramebuffer::Builder::addImage(vk::Format format, vk::ImageUsageFlags usageFlags)
-{
-    attachments.emplace_back(FAttachmentInfo{format, usageFlags});
-    return *this;
-}
-
-std::unique_ptr<CFramebuffer> CFramebuffer::Builder::build(vk::RenderPass &renderPass)
-{
-    auto pFramebuffer = std::make_unique<CFramebuffer>();
-    pFramebuffer->attachments = std::move(attachments);
-    return pFramebuffer;
-}
-
 CFramebuffer::CFramebuffer(std::vector<vk::Framebuffer>&& framebuffers)
 {
     vFramebuffers = std::move(framebuffers);
@@ -52,8 +39,9 @@ void CFramebuffer::create(vk::RenderPass& renderPass, vk::Extent2D extent)
                 }
                 else
                 {
-                    mImages[frame].emplace_back(createImage(attachment.format, attachment.usageFlags, extent));
-                    imageViews.push_back(mImages[frame].back()->GetDescriptor().imageView);
+                    auto image = createImage(attachment.format, attachment.usageFlags, extent);
+                    mImages[frame].emplace(attachment.name, image);
+                    imageViews.push_back(image->GetDescriptor().imageView);
                 }
             }
         }
@@ -85,6 +73,11 @@ void CFramebuffer::cleanup()
     mImages.clear();
     for(auto& fb : vFramebuffers)
         UDevice->Destroy(fb);
+}
+
+void CFramebuffer::addImage(const std::string& name, vk::Format format, vk::ImageUsageFlags usageFlags)
+{
+    attachments.emplace_back(FTextureAttachmentInfo{name, format, usageFlags});
 }
 
 std::shared_ptr<Image> CFramebuffer::createImage(vk::Format format, vk::ImageUsageFlags usageFlags, vk::Extent2D extent)

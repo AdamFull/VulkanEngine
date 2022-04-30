@@ -28,7 +28,9 @@ namespace Engine
             uint32_t imageIndex{0};
             bool frameStarted{false};
             vk::Extent2D screenExtent{};
-            std::map<std::shared_ptr<Render::CRenderPass>, std::unique_ptr<Render::CFramebuffer>> mRenderers;
+
+            std::shared_ptr<Render::CRenderPass> renderPass;
+            std::shared_ptr<Render::CFramebuffer> framebuffer;
         };
     }
 }

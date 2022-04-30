@@ -7,7 +7,12 @@ namespace Engine
     namespace Resources { class ResourceManager; }
     namespace Core
     {
-        namespace Render { class CRenderPass; }
+        namespace Render 
+        { 
+            class CRenderPass; 
+            struct FRenderCreateInfo;
+            struct FRenderProcessInfo;
+        }
         namespace Scene { namespace Objects { class RenderObject; } }
         class RenderSystem
         {
@@ -28,6 +33,9 @@ namespace Engine
             uint32_t imageIndex{0};
             bool frameStarted{false};
             vk::Extent2D screenExtent{};
+            
+            std::shared_ptr<Render::FRenderCreateInfo> creationBuffer;
+            std::shared_ptr<Render::FRenderProcessInfo> renderData;
 
             std::shared_ptr<Render::CRenderPass> renderPass;
             std::shared_ptr<Render::CFramebuffer> framebuffer;

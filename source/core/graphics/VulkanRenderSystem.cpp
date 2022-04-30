@@ -91,7 +91,8 @@ void RenderSystem::create(std::shared_ptr<Resources::ResourceManager> resourceMa
 
     //UOverlay->Create(root, renderPass->get(), renderPass->getSubpassCount() - 1);
 
-    auto creationBuffer = std::make_shared<Render::FRenderCreateInfo>();
+    creationBuffer = std::make_shared<Render::FRenderCreateInfo>();
+    renderData = std::make_shared<Render::FRenderProcessInfo>();
     creationBuffer->resourceManager = resourceManager;
     creationBuffer->root = root;
 
@@ -119,7 +120,6 @@ void RenderSystem::render(std::shared_ptr<Scene::Objects::RenderObject> root)
     catch (vk::OutOfDateKHRError err) { UHLInstance->RecreateSwapChain(); }
     catch (vk::SystemError err) { throw std::runtime_error("Failed to acquire swap chain image!"); }
 
-    auto renderData = std::make_shared<Render::FRenderProcessInfo>();
     renderData->commandBuffer = commandBuffer;
     renderData->root = root;
 

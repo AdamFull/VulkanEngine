@@ -87,7 +87,7 @@ namespace Engine
             json = nlohmann::json{
                 {"name", type.srName},
                 {"type", type.eType},
-                {"attachment", type.eAttachment},
+                {"attachment", type.attachment},
                 {"src", type.srSrc},
                 {"noise", type.noise}};
         }
@@ -96,7 +96,7 @@ namespace Engine
         {
             ParseArgument(json, type.srName, "name", true);
             ParseArgument(json, type.eType, "type", true);
-            ParseArgument(json, type.eAttachment, "attachment", true);
+            ParseArgument(json, type.attachment, "attachment", true);
             ParseArgument(json, type.srSrc, "src");
             ParseArgument(json, type.noise, "noise");
         }

@@ -119,7 +119,7 @@ void ImguiOverlay::CreateFontResources(vk::RenderPass& renderPass, uint32_t subp
 
     fontTexture->InitializeTexture(texture, format);
     fontTexture->LoadFromMemory(texture, format);
-    fontMaterial->AddTexture(ETextureAttachmentType::eDiffuseAlbedo, fontTexture);
+    fontMaterial->AddTexture("fontSampler", fontTexture);
     fontMaterial->Create(renderPass, subpass);
 
     Loaders::ImageLoader::Close(&texture);

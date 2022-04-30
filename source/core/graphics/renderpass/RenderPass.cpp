@@ -1,6 +1,7 @@
 #include "RenderPass.hpp"
 #include "graphics/VulkanHighLevel.h"
 #include "graphics/scene/objects/RenderObject.h"
+#include "graphics/image/Image.h"
 #include "graphics/VulkanInitializers.h"
 #include "Subpass.h"
 
@@ -94,13 +95,13 @@ CRenderPass::~CRenderPass()
     UDevice->Destroy(renderPass);
 }
 
-void CRenderPass::create(std::shared_ptr<ResourceManager> resourceManager, std::shared_ptr<RenderObject> root)
+void CRenderPass::create(std::shared_ptr<ResourceManager> resourceManager, std::vector<std::shared_ptr<Image>>& images, std::shared_ptr<RenderObject> root)
 {
     //Creating subpasses (render stages)
     uint32_t subpassNum{0};
     for(auto& subpass : vSubpasses)
     {
-        subpass->create(resourceManager, root, renderPass, subpassNum);
+        subpass->create(resourceManager, images, root, renderPass, subpassNum);
         subpassNum++;
     }
 }
@@ -143,15 +144,18 @@ void CRenderPass::end(vk::CommandBuffer& commandBuffer)
     commandBuffer.endRenderPass();
 }
 
-void CRenderPass::render(vk::CommandBuffer& commandBuffer, std::shared_ptr<RenderObject> root)
+void CRenderPass::render(vk::CommandBuffer& commandBuffer, std::vector<std::shared_ptr<Image>>& images, std::shared_ptr<RenderObject> root)
 {
     //begin(commandBuffer);
 
     //Render each stage
+    uint32_t subpass_id{0};
     for(auto& subpass : vSubpasses)
     {
-        subpass->render(commandBuffer, root);
-        commandBuffer.nextSubpass(vk::SubpassContents::eInline);
+        subpass->render(commandBuffer, images, root);
+        if((vSubpasses.size() - 1) > subpass_id)
+            commandBuffer.nextSubpass(vk::SubpassContents::eInline);
+        subpass_id++;
     }
 
     //end(commandBuffer);

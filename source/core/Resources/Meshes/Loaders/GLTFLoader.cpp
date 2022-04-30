@@ -499,14 +499,14 @@ void GLTFLoader::LoadMaterials(std::shared_ptr<Resources::ResourceManager> pResM
         std::shared_ptr<MaterialBase> nativeMaterial = std::make_shared<MaterialDiffuse>();
         nativeMaterial->SetName(ss.str());
 
-        nativeMaterial->AddTexture(ETextureAttachmentType::eBRDFLUT, pResMgr->Get<Core::Image>(srVolumeName + "_brdf"));
-        nativeMaterial->AddTexture(ETextureAttachmentType::eIrradiance, pResMgr->Get<Core::Image>(srVolumeName + "_irradiate_cube"));
-        nativeMaterial->AddTexture(ETextureAttachmentType::ePrefiltred, pResMgr->Get<Core::Image>(srVolumeName + "_prefiltred_cube"));
+        //nativeMaterial->AddTexture(ETextureAttachmentType::eBRDFLUT, pResMgr->Get<Core::Image>(srVolumeName + "_brdf"));
+        //nativeMaterial->AddTexture(ETextureAttachmentType::eIrradiance, pResMgr->Get<Core::Image>(srVolumeName + "_irradiate_cube"));
+        //nativeMaterial->AddTexture(ETextureAttachmentType::ePrefiltred, pResMgr->Get<Core::Image>(srVolumeName + "_prefiltred_cube"));
 
-        nativeMaterial->AddTexture(ETextureAttachmentType::eDiffuseAlbedo, get_texture(mat.values, "baseColorTexture"));
-        nativeMaterial->AddTexture(ETextureAttachmentType::eMetalicRoughness, get_texture(mat.values, "metallicRoughnessTexture"));
-        nativeMaterial->AddTexture(ETextureAttachmentType::eSpecularGlossiness, get_texture(mat.values, "specularGlossinessTexture"));
-        nativeMaterial->AddTexture(ETextureAttachmentType::eHeight, get_texture(mat.values, "displacementGeometryTexture"));
+        nativeMaterial->AddTexture("color_tex", get_texture(mat.values, "baseColorTexture"));
+        nativeMaterial->AddTexture("metalRough_tex", get_texture(mat.values, "metallicRoughnessTexture"));
+        //nativeMaterial->AddTexture(ETextureAttachmentType::eSpecularGlossiness, get_texture(mat.values, "specularGlossinessTexture"));
+        nativeMaterial->AddTexture("height_tex", get_texture(mat.values, "displacementGeometryTexture"));
 
         if (mat.values.find("roughnessFactor") != mat.values.end())
             params.roughnessFactor = static_cast<float>(mat.values.at("roughnessFactor").Factor());
@@ -517,9 +517,9 @@ void GLTFLoader::LoadMaterials(std::shared_ptr<Resources::ResourceManager> pResM
         if (mat.values.find("baseColorFactor") != mat.values.end())
             params.baseColorFactor = glm::make_vec4(mat.values.at("baseColorFactor").ColorFactor().data());
 
-        nativeMaterial->AddTexture(ETextureAttachmentType::eNormal, get_texture(mat.additionalValues, "normalTexture"));
-        nativeMaterial->AddTexture(ETextureAttachmentType::eEmissive, get_texture(mat.additionalValues, "emissiveTexture"));
-        nativeMaterial->AddTexture(ETextureAttachmentType::eOcclusion, get_texture(mat.additionalValues, "occlusionTexture"));
+        nativeMaterial->AddTexture("normal_tex", get_texture(mat.additionalValues, "normalTexture"));
+        nativeMaterial->AddTexture("emissive_tex", get_texture(mat.additionalValues, "emissiveTexture"));
+        nativeMaterial->AddTexture("ao_tex", get_texture(mat.additionalValues, "occlusionTexture"));
 
         if (mat.additionalValues.find("alphaMode") != mat.additionalValues.end())
         {

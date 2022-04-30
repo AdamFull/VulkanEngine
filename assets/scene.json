@@ -19,7 +19,7 @@
                         {
                             "name": "skybox_cubemap_tex",
                             "type": "cubemap",
-                            "attachment": "cubemap",
+                            "attachment": "samplerCubeMap",
                             "src": "../../assets/textures/cubemaps/sky_skybox.ktx"
                         }
                     ]

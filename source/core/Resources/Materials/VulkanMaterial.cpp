@@ -17,19 +17,19 @@ void MaterialBase::Create(vk::RenderPass& renderPass, uint32_t subpass)
     m_pDescriptorSet->Create(m_pPipeline);
 }
 
-void MaterialBase::AddTexture(ETextureAttachmentType eAttachment, vk::DescriptorImageInfo& descriptor)
+void MaterialBase::AddTexture(const std::string& attachment, vk::DescriptorImageInfo& descriptor)
 {
-    m_mTextures[eAttachment] = descriptor;
+    m_mTextures[attachment] = descriptor;
 }
 
-void MaterialBase::AddTexture(ETextureAttachmentType eAttachment, std::shared_ptr<Core::Image> pTexture)
+void MaterialBase::AddTexture(const std::string& attachment, std::shared_ptr<Core::Image> pTexture)
 {
-    m_mTextures[eAttachment] = pTexture->GetDescriptor();
+    m_mTextures[attachment] = pTexture->GetDescriptor();
 }
 
-vk::DescriptorImageInfo& MaterialBase::GetTexture(ETextureAttachmentType eAttachment)
+vk::DescriptorImageInfo& MaterialBase::GetTexture(const std::string& attachment)
 {
-    return m_mTextures[eAttachment];
+    return m_mTextures[attachment];
 }
 
 void MaterialBase::ReCreate()

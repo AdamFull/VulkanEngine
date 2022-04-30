@@ -29,15 +29,8 @@ void MaterialDeferred::Update(vk::DescriptorBufferInfo& uboDesc, uint32_t imageI
 {
     m_pDescriptorSet->Clear();
     m_pDescriptorSet->Set("UBOLightning", uboDesc);
-    m_pDescriptorSet->Set("brdflut_tex", m_mTextures[ETextureAttachmentType::eBRDFLUT]);
-    m_pDescriptorSet->Set("irradiance_tex", m_mTextures[ETextureAttachmentType::eIrradiance]);
-    m_pDescriptorSet->Set("prefiltred_tex", m_mTextures[ETextureAttachmentType::ePrefiltred]);
-    /*m_pDescriptorSet->Set("position_tex", m_mTextures[ETextureAttachmentType::ePosition]);
-    m_pDescriptorSet->Set("lightning_mask_tex", m_mTextures[ETextureAttachmentType::eLightningMask]);
-    m_pDescriptorSet->Set("normal_tex", m_mTextures[ETextureAttachmentType::eNormal]);
-    m_pDescriptorSet->Set("albedo_tex", m_mTextures[ETextureAttachmentType::eDiffuseAlbedo]);
-    m_pDescriptorSet->Set("emission_tex", m_mTextures[ETextureAttachmentType::eEmissive]);
-    m_pDescriptorSet->Set("mrah_tex", m_mTextures[ETextureAttachmentType::eMRAH]);*/
+    for(auto& [key, texture] : m_mTextures)
+        m_pDescriptorSet->Set(key, texture); //"brdflut_tex", "irradiance_tex", "prefiltred_tex", "position_tex", "lightning_mask_tex", "normal_tex", "albedo_tex", "emission_tex", "mrah_tex"
     MaterialBase::Update(uboDesc, imageIndex);
 }
 

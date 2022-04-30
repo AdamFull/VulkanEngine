@@ -109,9 +109,9 @@ std::shared_ptr<Image> CFramebuffer::createImage(vk::Format format, vk::ImageUsa
     }
 
     texture->InitializeTexture(offscreen, imageFormat, usageFlags, aspectMask);
-    if(usageFlags & vk::ImageUsageFlagBits::eDepthStencilAttachment)
+    /*if(usageFlags & vk::ImageUsageFlagBits::eDepthStencilAttachment)
         texture->TransitionImageLayout(imageLayout, aspectMask, false);
-    else
+    else*/
         texture->SetImageLayout(imageLayout);
 
     texture->UpdateDescriptor();

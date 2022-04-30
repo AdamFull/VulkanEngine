@@ -11,6 +11,7 @@
 #include "graphics/pipeline/ComputePipeline.h"
 #include "graphics/descriptor/DescriptorHandler.h"
 #include "graphics/image/ImageLoader.h"
+#include "graphics/image/Image.h"
 #include "graphics/buffer/PushHandler.hpp"
 #include "GlobalVariables.h"
 
@@ -24,7 +25,7 @@ using namespace Engine::Core::Scene::Objects::Components;
 using namespace Engine::Core::Scene::Objects::Components::Light;
 
 
-void CPBRCompositionPass::create(std::shared_ptr<ResourceManager> resourceManager, std::shared_ptr<RenderObject> root, vk::RenderPass& renderPass, uint32_t subpass)
+void CPBRCompositionPass::create(std::shared_ptr<ResourceManager> resourceManager, std::vector<std::shared_ptr<Image>>& images, std::shared_ptr<RenderObject> root, vk::RenderPass& renderPass, uint32_t subpass)
 {
     auto framesInFlight = USwapChain->GetFramesInFlight();
     m_pUniform = std::make_shared<UniformBuffer>();
@@ -40,11 +41,17 @@ void CPBRCompositionPass::create(std::shared_ptr<ResourceManager> resourceManage
     m_pMaterial->Create(renderPass, subpass);
 }
 
-void CPBRCompositionPass::render(vk::CommandBuffer& commandBuffer, std::shared_ptr<RenderObject> root)
+void CPBRCompositionPass::render(vk::CommandBuffer& commandBuffer, std::vector<std::shared_ptr<Image>>& images, std::shared_ptr<RenderObject> root)
 {
-    m_pMaterial->AddTexture(ETextureAttachmentType::eBRDFLUT, *brdf);
-    m_pMaterial->AddTexture(ETextureAttachmentType::eIrradiance, *irradiance);
-    m_pMaterial->AddTexture(ETextureAttachmentType::ePrefiltred, *prefiltered);
+    m_pMaterial->AddTexture("brdflut_tex", *brdf);
+    m_pMaterial->AddTexture("irradiance_tex", *irradiance);
+    m_pMaterial->AddTexture("prefiltred_tex", *prefiltered);
+    m_pMaterial->AddTexture("position_tex", images.at(0));
+    m_pMaterial->AddTexture("lightning_mask_tex", images.at(1));
+    m_pMaterial->AddTexture("normal_tex", images.at(2));
+    m_pMaterial->AddTexture("albedo_tex", images.at(3));
+    m_pMaterial->AddTexture("emission_tex", images.at(4));
+    m_pMaterial->AddTexture("mrah_tex", images.at(5));
 
     auto imageIndex = USwapChain->GetCurrentFrame();
 

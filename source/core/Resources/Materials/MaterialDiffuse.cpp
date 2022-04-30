@@ -31,12 +31,8 @@ void MaterialDiffuse::Update(vk::DescriptorBufferInfo& uboDesc, uint32_t imageIn
 {
     m_pDescriptorSet->Clear();
     m_pDescriptorSet->Set("FUniformData", uboDesc);
-    m_pDescriptorSet->Set("color_tex", m_mTextures[ETextureAttachmentType::eDiffuseAlbedo]);
-    m_pDescriptorSet->Set("metalRough_tex", m_mTextures[ETextureAttachmentType::eMetalicRoughness]);
-    m_pDescriptorSet->Set("emissive_tex", m_mTextures[ETextureAttachmentType::eEmissive]);
-    m_pDescriptorSet->Set("normal_tex", m_mTextures[ETextureAttachmentType::eNormal]);
-    m_pDescriptorSet->Set("height_tex", m_mTextures[ETextureAttachmentType::eHeight]);
-    m_pDescriptorSet->Set("ao_tex", m_mTextures[ETextureAttachmentType::eOcclusion]);
+    for(auto& [key, texture] : m_mTextures)
+        m_pDescriptorSet->Set(key, texture); // "color_tex", "metalRough_tex", "emissive_tex", "normal_tex", "height_tex", "ao_tex"
     MaterialBase::Update(uboDesc, imageIndex);
 }
 

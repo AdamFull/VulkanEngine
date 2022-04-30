@@ -36,6 +36,7 @@ namespace Engine
                 void cleanup();
 
                 std::vector<vk::Framebuffer>& get() { return vFramebuffers; }
+                std::vector<std::shared_ptr<Image>>& getImages(uint32_t index) { return mImages[index]; }
 
             private:
                 std::shared_ptr<Image> createImage(vk::Format format, vk::ImageUsageFlags usageFlags, vk::Extent2D extent);

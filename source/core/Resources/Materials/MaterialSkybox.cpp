@@ -29,7 +29,8 @@ void MaterialSkybox::Update(vk::DescriptorBufferInfo& uboDesc, uint32_t imageInd
 {
     m_pDescriptorSet->Clear();
     m_pDescriptorSet->Set("FUniformData", uboDesc);
-    m_pDescriptorSet->Set("samplerCubeMap", m_mTextures[ETextureAttachmentType::eCubemap]);
+    for(auto& [key, texture] : m_mTextures)
+        m_pDescriptorSet->Set(key, texture); //"samplerCubeMap"
     MaterialBase::Update(uboDesc, imageIndex);
 }
 

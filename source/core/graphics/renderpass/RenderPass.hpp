@@ -5,6 +5,7 @@ namespace Engine
     namespace Resources { class ResourceManager; }
     namespace Core
     {
+        class Image;
         namespace Scene {namespace Objects { class RenderObject; }}
         namespace Render
         {
@@ -49,14 +50,14 @@ namespace Engine
                 CRenderPass(vk::RenderPass &&pass);
                 ~CRenderPass();
 
-                void create(std::shared_ptr<Resources::ResourceManager> resourceManager, std::shared_ptr<Scene::Objects::RenderObject> root);
+                void create(std::shared_ptr<Resources::ResourceManager> resourceManager, std::vector<std::shared_ptr<Image>>& images, std::shared_ptr<Scene::Objects::RenderObject> root);
                 void reCreate();
                 void cleanup();
 
                 void begin(vk::CommandBuffer &commandBuffer, std::vector<vk::Framebuffer>& framebuffer);
                 void end(vk::CommandBuffer &commandBuffer);
 
-                void render(vk::CommandBuffer& commandBuffer, std::shared_ptr<Scene::Objects::RenderObject> root);
+                void render(vk::CommandBuffer& commandBuffer, std::vector<std::shared_ptr<Image>>& images, std::shared_ptr<Scene::Objects::RenderObject> root);
 
                 void setRenderArea(int32_t offset_x, int32_t offset_y, uint32_t width, uint32_t height);
                 void setRenderArea(vk::Offset2D offset, vk::Extent2D extent);

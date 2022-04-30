@@ -28,7 +28,8 @@ void MaterialUI::Update(vk::DescriptorBufferInfo& uboDesc, uint32_t imageIndex)
 {
     m_pDescriptorSet->Clear();
     m_pDescriptorSet->Set("FUniformDataUI", uboDesc);
-    m_pDescriptorSet->Set("fontSampler", m_mTextures[ETextureAttachmentType::eDiffuseAlbedo]);
+    for(auto& [key, texture] : m_mTextures)
+        m_pDescriptorSet->Set(key, texture); //"fontSampler"
     MaterialBase::Update(uboDesc, imageIndex);
 }
 

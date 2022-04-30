@@ -27,8 +27,8 @@ void MaterialPostProcess::Update(vk::DescriptorBufferInfo& uboDesc, uint32_t ima
 {
     m_pDescriptorSet->Clear();
     m_pDescriptorSet->Set("FBloomUbo", uboDesc);
-    m_pDescriptorSet->Set("samplerColor", m_mTextures[ETextureAttachmentType::eDiffuseAlbedo]);
-    m_pDescriptorSet->Set("samplerBrightness", m_mTextures[ETextureAttachmentType::eBrightness]);
+    for(auto& [key, texture] : m_mTextures)
+        m_pDescriptorSet->Set(key, texture); //"samplerColor", "samplerBrightness"
     MaterialBase::Update(uboDesc, imageIndex);
 }
 

@@ -34,7 +34,7 @@ std::shared_ptr<MaterialBase> MaterialFactory::Create(std::shared_ptr<Resources:
     {
         std::shared_ptr<Core::Image> texture = Core::TextureFactory::Create(resourceMgr, texInfo);
         resourceMgr->AddExisting<Core::Image>(texInfo.srName, texture);
-        material->AddTexture(texInfo.eAttachment, texture);
+        material->AddTexture(texInfo.attachment, texture);
     }
 
     return material;

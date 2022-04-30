@@ -41,9 +41,9 @@ namespace Engine
                 virtual ~MaterialBase();
 
                 virtual void Create(vk::RenderPass& renderPass, uint32_t subpass);
-                void AddTexture(ETextureAttachmentType eAttachment, vk::DescriptorImageInfo& descriptor);
-                void AddTexture(ETextureAttachmentType eAttachment, std::shared_ptr<Core::Image> pTexture);
-                vk::DescriptorImageInfo& GetTexture(ETextureAttachmentType eAttachment);
+                void AddTexture(const std::string& attachment, vk::DescriptorImageInfo& descriptor);
+                void AddTexture(const std::string& attachment, std::shared_ptr<Core::Image> pTexture);
+                vk::DescriptorImageInfo& GetTexture(const std::string& attachment);
                 virtual void ReCreate();
                 virtual void Update(vk::DescriptorBufferInfo& uboDesc, uint32_t imageIndex);
                 virtual void Bind(vk::CommandBuffer commandBuffer, uint32_t imageIndex);
@@ -63,7 +63,7 @@ namespace Engine
                 std::vector<std::shared_ptr<Core::UniformHandler>> m_vUniformBuffers;
                 std::vector<std::shared_ptr<Core::PushHandler>> m_vPushConstants;
                 std::shared_ptr<Core::Pipeline::PipelineBase> m_pPipeline;
-                std::map<ETextureAttachmentType, vk::DescriptorImageInfo> m_mTextures;
+                std::map<std::string, vk::DescriptorImageInfo> m_mTextures;
             };
         }
     }

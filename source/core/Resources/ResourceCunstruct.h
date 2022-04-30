@@ -54,7 +54,7 @@ namespace Engine
         {
             std::string srName{};
             ETextureType eType{};
-            ETextureAttachmentType eAttachment{};
+            std::string attachment{};
             std::string srSrc{};
             FNoiseParam noise{};
         };

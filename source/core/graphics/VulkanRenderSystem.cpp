@@ -53,41 +53,6 @@ void RenderSystem::create(std::shared_ptr<Resources::ResourceManager> resourceMa
         {6, vk::ImageLayout::eShaderReadOnlyOptimal}
     };
 
-    /*std::vector<vk::AttachmentReference> vReferences_2
-    {
-        {9, vk::ImageLayout::eColorAttachmentOptimal},
-        {10, vk::ImageLayout::eColorAttachmentOptimal}
-    };
-
-    std::vector<vk::AttachmentReference> vInputReferences_2
-    {
-        {7, vk::ImageLayout::eShaderReadOnlyOptimal},
-        {8, vk::ImageLayout::eShaderReadOnlyOptimal}
-    };
-
-    std::vector<vk::AttachmentReference> vReferences_3
-    {
-        {7, vk::ImageLayout::eColorAttachmentOptimal},
-        {8, vk::ImageLayout::eColorAttachmentOptimal}
-    };
-
-    std::vector<vk::AttachmentReference> vInputReferences_3
-    {
-        {9, vk::ImageLayout::eShaderReadOnlyOptimal},
-        {10, vk::ImageLayout::eShaderReadOnlyOptimal}
-    };
-
-    std::vector<vk::AttachmentReference> vReferences_4
-    {
-        {0, vk::ImageLayout::eColorAttachmentOptimal}
-    };
-
-    std::vector<vk::AttachmentReference> vInputReferences_4
-    {
-        {7, vk::ImageLayout::eShaderReadOnlyOptimal},
-        {8, vk::ImageLayout::eShaderReadOnlyOptimal}
-    };*/
-
     auto renderPass = Render::CRenderPass::Builder().
     //KHR color attachment
     addAttachmentDescription(USwapChain->GetImageFormat(), vk::SampleCountFlagBits::e1, vk::AttachmentLoadOp::eClear, vk::AttachmentStoreOp::eStore, 
@@ -105,21 +70,11 @@ void RenderSystem::create(std::shared_ptr<Resources::ResourceManager> resourceMa
     addSubpassDescription(vk::PipelineBindPoint::eGraphics, vReferences_0, &depthReference).
     //PBR composition description
     addSubpassDescription(vk::PipelineBindPoint::eGraphics, vReferences_1, &depthReference, vInputReferences_1).
-    //Horisontal blur
-    //addSubpassDescription(vk::PipelineBindPoint::eGraphics, vReferences_2, &depthReference, vInputReferences_2).
-    //Vertical blur
-    //addSubpassDescription(vk::PipelineBindPoint::eGraphics, vReferences_3, &depthReference, vInputReferences_3).
-    //Final composition
-    //addSubpassDescription(vk::PipelineBindPoint::eGraphics, vReferences_4, &depthReference, vInputReferences_2).
     //Begin drawing gbuffer
     addSubpassDependency(VK_SUBPASS_EXTERNAL, 0, vk::PipelineStageFlagBits::eBottomOfPipe, vk::PipelineStageFlagBits::eColorAttachmentOutput,
     vk::AccessFlagBits::eMemoryRead, vk::AccessFlagBits::eColorAttachmentRead | vk::AccessFlagBits::eColorAttachmentWrite).
     //Begin drawing first composition
     addSubpassDependency(0, 1).
-    //Draw horisontal blur pass
-    //addSubpassDependency(1, 2).
-    //Draw vertical blur pass
-    //addSubpassDependency(2, 3).
     //Draw final composition
     addSubpassDependency(1, VK_SUBPASS_EXTERNAL, vk::PipelineStageFlagBits::eColorAttachmentOutput, vk::PipelineStageFlagBits::eBottomOfPipe,
     vk::AccessFlagBits::eColorAttachmentRead | vk::AccessFlagBits::eColorAttachmentWrite, vk::AccessFlagBits::eMemoryRead).
@@ -144,7 +99,7 @@ void RenderSystem::create(std::shared_ptr<Resources::ResourceManager> resourceMa
     {
         pass->setRenderArea(vk::Offset2D{0, 0}, screenExtent);
         fb->create(pass->get(), screenExtent);
-        pass->create(resourceManager, root);
+        pass->create(resourceManager, fb->getImages(imageIndex), root);
     }
 }
 
@@ -170,7 +125,7 @@ void RenderSystem::render(std::shared_ptr<Scene::Objects::RenderObject> root)
     for(auto& [pass, fb] : mRenderers)
     {
         pass->begin(commandBuffer, fb->get());
-        pass->render(commandBuffer, root);
+        pass->render(commandBuffer, fb->getImages(imageIndex), root);
         pass->end(commandBuffer);
     }
 

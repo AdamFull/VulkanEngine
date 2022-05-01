@@ -44,7 +44,8 @@ namespace Engine
                 json = nlohmann::json
                 {
                     {"stage", type.shaderStage},
-                    {"code", type.shaderCode}
+                    {"code", type.shaderCode},
+                    {"sizes", type.localSizes}
                 };
             }
 
@@ -52,6 +53,7 @@ namespace Engine
             {
                 ParseArgument(json, type.shaderStage, "stage", true);
                 ParseArgument(json, type.shaderCode, "code", true);
+                ParseArgument(json, type.localSizes, "sizes", true);
             }
 
 
@@ -86,21 +88,22 @@ CShaderCache::~CShaderCache()
     save();
 }
 
-void CShaderCache::add(const std::string& name, vk::ShaderStageFlagBits stage, const std::vector<uint32_t>& code)
+void CShaderCache::add(const std::string& name, vk::ShaderStageFlagBits stage, const std::vector<uint32_t>& code, std::array<std::optional<uint32_t>, 3>& localSizes)
 {
+    //add file data hashing for check difference
     auto it = cacheDTO.cache.find(name);
     if(it != cacheDTO.cache.end())
     {
         if(code != it->second.shaderCode)
-            update(name, code);
+            update(name, code, localSizes);
         return;
     }
     
-    cacheDTO.cache.emplace(name, FShaderCache::FCachedShader{stage, code});
+    cacheDTO.cache.emplace(name, FShaderCache::FCachedShader{stage, code, localSizes});
     save();
 }
 
-void CShaderCache::update(const std::string& name, const std::vector<uint32_t>& code)
+void CShaderCache::update(const std::string& name, const std::vector<uint32_t>& code, std::array<std::optional<uint32_t>, 3>& localSizes)
 {
     cacheDTO.cache[name].shaderCode = code;
     save();

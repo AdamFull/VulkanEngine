@@ -9,8 +9,8 @@ using namespace Engine::Core::Pipeline;
 
 void MaterialSkybox::Create(vk::RenderPass& renderPass, uint32_t subpass)
 {
-    m_pPipeline = PipelineBase::Builder().
-    setVertexInput(VertexInput(Vertex::getBindingDescription(), Vertex::getAttributeDescriptions())).
+    m_pPipeline = CPipelineBase::Builder().
+    setVertexInput(CVertexInput(Vertex::getBindingDescription(), Vertex::getAttributeDescriptions())).
     setCulling(vk::CullModeFlagBits::eFront).
     setColorAttachments(7).
     addShaderStage("../../assets/shaders/main/skybox.vert").
@@ -21,7 +21,7 @@ void MaterialSkybox::Create(vk::RenderPass& renderPass, uint32_t subpass)
 
 void MaterialSkybox::ReCreate()
 {
-    m_pPipeline->RecreatePipeline();
+    m_pPipeline->recreatePipeline();
     MaterialBase::ReCreate();
 }
 

@@ -5,11 +5,11 @@
 using namespace Engine::Core;
 using namespace Engine::Core::Pipeline;
 
-void UniformHandler::Create(const UniformBlock &uniformBlock)
+void UniformHandler::Create(const CUniformBlock &uniformBlock)
 {
     uint32_t images = USwapChain->GetFramesInFlight();
     m_vMapped.resize(images);
-    m_iUniformSize = uniformBlock.GetSize();
+    m_iUniformSize = uniformBlock.getSize();
     m_uniformBlock = uniformBlock;
     CreateUniformBuffers(images);
 }
@@ -25,7 +25,7 @@ void UniformHandler::Cleanup()
     m_vMapped.clear();
 }
 
-void UniformHandler::Flush(vk::CommandBuffer& commandBuffer, std::shared_ptr<Pipeline::PipelineBase> pPipeline)
+void UniformHandler::Flush(vk::CommandBuffer& commandBuffer, std::shared_ptr<Pipeline::CPipelineBase> pPipeline)
 {
     uint32_t index = USwapChain->GetCurrentFrame();
     if (!m_pBuffers.empty())

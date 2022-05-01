@@ -10,8 +10,8 @@ using namespace Engine::Core::Pipeline;
 
 void MaterialDiffuse::Create(vk::RenderPass& renderPass, uint32_t subpass)
 {
-    m_pPipeline = PipelineBase::Builder().
-    setVertexInput(VertexInput(Vertex::getBindingDescription(), Vertex::getAttributeDescriptions())).
+    m_pPipeline = CPipelineBase::Builder().
+    setVertexInput(CVertexInput(Vertex::getBindingDescription(), Vertex::getAttributeDescriptions())).
     setCulling(vk::CullModeFlagBits::eBack).
     setColorAttachments(7).
     setDepthEnabled(VK_TRUE).
@@ -23,7 +23,7 @@ void MaterialDiffuse::Create(vk::RenderPass& renderPass, uint32_t subpass)
 
 void MaterialDiffuse::ReCreate()
 {
-    m_pPipeline->RecreatePipeline();
+    m_pPipeline->recreatePipeline();
     MaterialBase::ReCreate();
 }
 

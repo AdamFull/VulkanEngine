@@ -9,13 +9,13 @@ DescriptorSet::~DescriptorSet()
     UDevice->GetLogical().freeDescriptorSets(m_descriptorPool, m_vDescriptorSets);
 }
 
-void DescriptorSet::Create(std::shared_ptr<Pipeline::PipelineBase> pPipeline, uint32_t images)
+void DescriptorSet::Create(std::shared_ptr<Pipeline::CPipelineBase> pPipeline, uint32_t images)
 {
-    m_pipelineBindPoint = pPipeline->GetBindPoint();
-    m_pipelineLayout = pPipeline->GetPipelineLayout();
-    m_descriptorPool = pPipeline->GetDescriptorPool();
+    m_pipelineBindPoint = pPipeline->getBindPoint();
+    m_pipelineLayout = pPipeline->getPipelineLayout();
+    m_descriptorPool = pPipeline->getDescriptorPool();
 
-    std::vector<vk::DescriptorSetLayout> vSetLayouts(images, pPipeline->GetDescriptorSetLayout());
+    std::vector<vk::DescriptorSetLayout> vSetLayouts(images, pPipeline->getDescriptorSetLayout());
     vk::DescriptorSetAllocateInfo allocInfo{};
     allocInfo.descriptorPool = m_descriptorPool;
     allocInfo.descriptorSetCount = images;

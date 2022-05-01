@@ -48,7 +48,7 @@ void ImguiOverlay::Create(std::shared_ptr<Scene::Objects::RenderObject> pRoot, v
     BaseInitialize();
     CreateFontResources(renderPass, subpass);
 
-    auto uniformBlock = fontMaterial->GetPipeline()->GetShader()->GetUniformBlock("FUniformDataUI");
+    auto uniformBlock = fontMaterial->GetPipeline()->getShader()->getUniformBlock("FUniformDataUI");
     if(uniformBlock)
         m_pUniformHandle->Create(uniformBlock.value());
     else

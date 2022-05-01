@@ -4,7 +4,7 @@ namespace Engine
 {
     namespace Core
     {
-        namespace Pipeline { class PipelineBase; }
+        namespace Pipeline { class CPipelineBase; }
         namespace Descriptor
         {
             class DescriptorSet : public utl::non_copyable
@@ -13,7 +13,7 @@ namespace Engine
                 DescriptorSet() = default;
                 ~DescriptorSet();
 
-                void Create(std::shared_ptr<Pipeline::PipelineBase> pPipeline, uint32_t images);
+                void Create(std::shared_ptr<Pipeline::CPipelineBase> pPipeline, uint32_t images);
                 void Update(std::vector<vk::WriteDescriptorSet> &vWrites, uint32_t index);
                 void Bind(const vk::CommandBuffer &commandBuffer, uint32_t index) const;
 

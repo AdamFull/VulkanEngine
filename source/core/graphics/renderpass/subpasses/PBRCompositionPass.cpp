@@ -95,19 +95,19 @@ std::shared_ptr<Image> CPBRCompositionPass::ComputeBRDFLUT(uint32_t size)
     auto commandBuffer = cmdBuf.GetCommandBuffer();
     auto descriptor = Descriptor::DescriptorHandler();
 
-    std::shared_ptr<Pipeline::PipelineBase> computePipeline = Pipeline::PipelineBase::Builder().
+    std::shared_ptr<Pipeline::CPipelineBase> computePipeline = Pipeline::CPipelineBase::Builder().
     addShaderStage("../../assets/shaders/generators/brdflut.comp").
     build();
 
-    computePipeline->Bind(commandBuffer);
+    computePipeline->bind(commandBuffer);
 
     descriptor.Create(computePipeline);
     descriptor.Set("outColour", brdfImage->GetDescriptor());
     descriptor.Update(0);
     descriptor.Bind(commandBuffer, 0);
     
-    auto groupCountX = static_cast<uint32_t>(std::ceil(static_cast<float>(size) / static_cast<float>(*computePipeline->GetShader()->GetLocalSizes()[0])));
-	auto groupCountY = static_cast<uint32_t>(std::ceil(static_cast<float>(size) / static_cast<float>(*computePipeline->GetShader()->GetLocalSizes()[1])));
+    auto groupCountX = static_cast<uint32_t>(std::ceil(static_cast<float>(size) / static_cast<float>(*computePipeline->getShader()->getLocalSizes()[0])));
+	auto groupCountY = static_cast<uint32_t>(std::ceil(static_cast<float>(size) / static_cast<float>(*computePipeline->getShader()->getLocalSizes()[1])));
     commandBuffer.dispatch(groupCountX, groupCountY, 1);
     cmdBuf.submitIdle();
 
@@ -132,11 +132,11 @@ std::shared_ptr<Image> CPBRCompositionPass::ComputeIrradiance(const std::shared_
     auto commandBuffer = cmdBuf.GetCommandBuffer();
     auto descriptor = Descriptor::DescriptorHandler();
     
-    std::shared_ptr<Pipeline::PipelineBase> computePipeline = Pipeline::PipelineBase::Builder().
+    std::shared_ptr<Pipeline::CPipelineBase> computePipeline = Pipeline::CPipelineBase::Builder().
     addShaderStage("../../assets/shaders/generators/irradiancecube.comp").
     build();
 
-    computePipeline->Bind(commandBuffer);
+    computePipeline->bind(commandBuffer);
 
     descriptor.Create(computePipeline);
     descriptor.Set("outColour", irradianceCubemap->GetDescriptor());
@@ -144,8 +144,8 @@ std::shared_ptr<Image> CPBRCompositionPass::ComputeIrradiance(const std::shared_
     descriptor.Update(0);
     descriptor.Bind(commandBuffer, 0);
 
-    auto groupCountX = static_cast<uint32_t>(std::ceil(static_cast<float>(size) / static_cast<float>(*computePipeline->GetShader()->GetLocalSizes()[0])));
-	auto groupCountY = static_cast<uint32_t>(std::ceil(static_cast<float>(size) / static_cast<float>(*computePipeline->GetShader()->GetLocalSizes()[1])));
+    auto groupCountX = static_cast<uint32_t>(std::ceil(static_cast<float>(size) / static_cast<float>(*computePipeline->getShader()->getLocalSizes()[0])));
+	auto groupCountY = static_cast<uint32_t>(std::ceil(static_cast<float>(size) / static_cast<float>(*computePipeline->getShader()->getLocalSizes()[1])));
     commandBuffer.dispatch(groupCountX, groupCountY, 1);
     cmdBuf.submitIdle();
 
@@ -170,10 +170,10 @@ std::shared_ptr<Image> CPBRCompositionPass::ComputePrefiltered(const std::shared
     auto descriptor = Descriptor::DescriptorHandler();
     auto push = PushHandler();
     
-    std::shared_ptr<Pipeline::PipelineBase> computePipeline = Pipeline::PipelineBase::Builder().
+    std::shared_ptr<Pipeline::CPipelineBase> computePipeline = Pipeline::CPipelineBase::Builder().
     addShaderStage("../../assets/shaders/generators/prefilteredmap.comp").
     build();
-    push.Create(*computePipeline->GetShader()->GetUniformBlock("PushObject"));
+    push.Create(*computePipeline->getShader()->getPushBlock("object"));
 
     for (uint32_t i = 0; i < prefilteredCubemap->GetMipLevels(); i++)
     {
@@ -190,17 +190,17 @@ std::shared_ptr<Image> CPBRCompositionPass::ComputePrefiltered(const std::shared
 
         cmdBuf.begin();
         auto commandBuffer = cmdBuf.GetCommandBuffer();
-        computePipeline->Bind(commandBuffer);
+        computePipeline->bind(commandBuffer);
 
         auto imageInfo = prefilteredCubemap->GetDescriptor();
 		imageInfo.imageView = levelView;
 
         vk::WriteDescriptorSet descriptorWrite = {};
 		descriptorWrite.dstSet = VK_NULL_HANDLE; // Will be set in the descriptor handler.
-		descriptorWrite.dstBinding = *computePipeline->GetShader()->GetDescriptorLocation("outColour");
+		descriptorWrite.dstBinding = *computePipeline->getShader()->getDescriptorLocation("outColour");
 		descriptorWrite.dstArrayElement = 0;
 		descriptorWrite.descriptorCount = 1;
-		descriptorWrite.descriptorType = *computePipeline->GetShader()->GetDescriptorType(descriptorWrite.dstBinding);
+		descriptorWrite.descriptorType = *computePipeline->getShader()->getDescriptorType(descriptorWrite.dstBinding);
 		descriptorWrite.pImageInfo = &imageInfo;
 
         push.Set("roughness", static_cast<float>(i) / static_cast<float>(prefilteredCubemap->GetMipLevels() - 1), 0);
@@ -212,8 +212,8 @@ std::shared_ptr<Image> CPBRCompositionPass::ComputePrefiltered(const std::shared
         descriptor.Bind(commandBuffer, USwapChain->GetCurrentFrame());
         push.Flush(commandBuffer, computePipeline);
 
-        auto groupCountX = static_cast<uint32_t>(std::ceil(static_cast<float>(size) / static_cast<float>(*computePipeline->GetShader()->GetLocalSizes()[0])));
-        auto groupCountY = static_cast<uint32_t>(std::ceil(static_cast<float>(size) / static_cast<float>(*computePipeline->GetShader()->GetLocalSizes()[1])));
+        auto groupCountX = static_cast<uint32_t>(std::ceil(static_cast<float>(size) / static_cast<float>(*computePipeline->getShader()->getLocalSizes()[0])));
+        auto groupCountY = static_cast<uint32_t>(std::ceil(static_cast<float>(size) / static_cast<float>(*computePipeline->getShader()->getLocalSizes()[1])));
         commandBuffer.dispatch(groupCountX, groupCountY, 1);
         cmdBuf.submitIdle();
 

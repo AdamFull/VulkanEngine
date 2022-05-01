@@ -11,7 +11,7 @@ DescriptorHandler::~DescriptorHandler()
 
 }
 
-void DescriptorHandler::Create(std::shared_ptr<Pipeline::PipelineBase> pPipeline)
+void DescriptorHandler::Create(std::shared_ptr<Pipeline::CPipelineBase> pPipeline)
 {
     uint32_t images = USwapChain->GetImages().size();
     m_pDescriptorSet = std::make_unique<DescriptorSet>();
@@ -38,12 +38,12 @@ void DescriptorHandler::Clear()
 
 void DescriptorHandler::Set(const std::string& srUniformName, vk::DescriptorBufferInfo& bufferInfo)
 {
-    auto uniformBlock = m_pPipeline->GetShader()->GetUniformBlock(srUniformName);
-    auto descriptorType = m_pPipeline->GetShader()->GetDescriptorType(uniformBlock->GetBinding());
+    auto uniformBlock = m_pPipeline->getShader()->getUniformBlock(srUniformName);
+    auto descriptorType = m_pPipeline->getShader()->getDescriptorType(uniformBlock->getBinding());
 
     vk::WriteDescriptorSet write{};
     write.descriptorType = descriptorType.value();
-    write.dstBinding = uniformBlock->GetBinding();
+    write.dstBinding = uniformBlock->getBinding();
     write.pBufferInfo = &bufferInfo;
     write.descriptorCount = 1;
     m_vWriteDescriptorSets.emplace_back(std::move(write));
@@ -51,12 +51,12 @@ void DescriptorHandler::Set(const std::string& srUniformName, vk::DescriptorBuff
 
 void DescriptorHandler::Set(const std::string& srUniformName, vk::DescriptorImageInfo& imageInfo)
 {
-    auto uniform = m_pPipeline->GetShader()->GetUniform(srUniformName);
-    auto descriptorType = m_pPipeline->GetShader()->GetDescriptorType(uniform->GetBinding());
+    auto uniform = m_pPipeline->getShader()->getUniform(srUniformName);
+    auto descriptorType = m_pPipeline->getShader()->getDescriptorType(uniform->getBinding());
 
     vk::WriteDescriptorSet write{};
     write.descriptorType = descriptorType.value();
-    write.dstBinding = uniform->GetBinding();
+    write.dstBinding = uniform->getBinding();
     write.pImageInfo = &imageInfo;
     write.descriptorCount = 1;
     m_vWriteDescriptorSets.emplace_back(std::move(write));

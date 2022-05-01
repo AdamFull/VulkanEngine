@@ -273,6 +273,12 @@ void CShader::addStage(const std::filesystem::path &moduleName, const std::vecto
             assert(false && "Error while building shader reflection.");
         }
 
+        for (uint32_t dim = 0; dim < 3; ++dim) 
+        {
+            if (auto localSize = program.getLocalSize(dim); localSize > 1)
+                m_localSizes[dim] = localSize;
+        }
+
         glslang::SpvOptions spvOptions;
 #if defined(_DEBUG)
         spvOptions.generateDebugInfo = true;
@@ -286,12 +292,13 @@ void CShader::addStage(const std::filesystem::path &moduleName, const std::vecto
 
         spv::SpvBuildLogger logger;
         GlslangToSpv(*program.getIntermediate(static_cast<EShLanguage>(language)), spirv, &logger, &spvOptions);
-        CShaderCache::getInstance()->add(moduleName.filename().string(), getShaderStage(moduleName), spirv);
+        CShaderCache::getInstance()->add(moduleName.filename().string(), getShaderStage(moduleName), spirv, m_localSizes);
     }
     else
     {
         m_vShaderStage.emplace_back(spirv_cache.value().shaderStage);
         spirv = spirv_cache.value().shaderCode;
+        m_localSizes = spirv_cache.value().localSizes;
     }
 
     buildReflection(spirv, m_vShaderStage.back());
@@ -458,6 +465,13 @@ std::optional<CUniform> CShader::getUniform(const std::string &name) const
 std::optional<CUniformBlock> CShader::getUniformBlock(const std::string &name) const
 {
     if (auto it = m_mUniformBlocks.find(name); it != m_mUniformBlocks.end())
+		return it->second;
+	return std::nullopt;
+}
+
+std::optional<CPushConstBlock> CShader::getPushBlock(const std::string &name) const
+{
+    if (auto it = m_mPushBlocks.find(name); it != m_mPushBlocks.end())
 		return it->second;
 	return std::nullopt;
 }

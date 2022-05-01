@@ -10,7 +10,7 @@ using namespace Engine::Core::Pipeline;
 
 void MaterialPostProcess::Create(vk::RenderPass& renderPass, uint32_t subpass)
 {
-    m_pPipeline = PipelineBase::Builder().
+    m_pPipeline = CPipelineBase::Builder().
     setCulling(vk::CullModeFlagBits::eFront).
     addShaderStage("../../assets/shaders/main/screenspace.vert").
     addShaderStage("../../assets/shaders/postprocess/bloomcompose.frag").

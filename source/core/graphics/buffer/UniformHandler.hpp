@@ -9,10 +9,10 @@ namespace Engine
         class UniformHandler : public utl::non_copy_movable
         {
         public:
-            void Create(const Pipeline::UniformBlock &uniformBlock);
+            void Create(const Pipeline::CUniformBlock &uniformBlock);
             void ReCreate();
             void Cleanup();
-            void Flush(vk::CommandBuffer& commandBuffer, std::shared_ptr<Pipeline::PipelineBase> pPipeline);
+            void Flush(vk::CommandBuffer& commandBuffer, std::shared_ptr<Pipeline::CPipelineBase> pPipeline);
 
             template<class T>
             void Set(const T &object, uint32_t index, std::size_t offset, std::size_t size)
@@ -37,15 +37,15 @@ namespace Engine
                 if (!m_uniformBlock)
 			        return;
 
-                auto uniform = m_uniformBlock->GetUniform(uniformName);
+                auto uniform = m_uniformBlock->getUniform(uniformName);
                 if (!uniform)
                     return;
 
                 auto realSize = size;
                 if (realSize == 0)
-                    realSize = std::min(sizeof(object), static_cast<std::size_t>(uniform->GetSize()));
+                    realSize = std::min(sizeof(object), static_cast<std::size_t>(uniform->getSize()));
                 
-                Set(object, index, static_cast<std::size_t>(uniform->GetOffset()), realSize);
+                Set(object, index, static_cast<std::size_t>(uniform->getOffset()), realSize);
             }
 
             // Getters
@@ -54,7 +54,7 @@ namespace Engine
         private:
             void CreateUniformBuffers(uint32_t inFlightFrames);
             
-            std::optional<Pipeline::UniformBlock> m_uniformBlock;
+            std::optional<Pipeline::CUniformBlock> m_uniformBlock;
             size_t m_iUniformSize{0};
             std::vector<std::unique_ptr<VulkanBuffer>> m_pBuffers;
             std::vector<bool> m_vMapped;

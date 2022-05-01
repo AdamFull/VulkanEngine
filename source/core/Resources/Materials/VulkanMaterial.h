@@ -53,7 +53,7 @@ namespace Engine
 
                 void SetName(const std::string& srName);
                 inline std::string GetName() { return m_srName; }
-                inline std::shared_ptr<Core::Pipeline::PipelineBase> GetPipeline() { return m_pPipeline; }
+                inline std::shared_ptr<Core::Pipeline::CPipelineBase> GetPipeline() { return m_pPipeline; }
 
             protected:
                 FMaterialParams m_fMatParams{};
@@ -62,7 +62,7 @@ namespace Engine
                 std::unique_ptr<Core::Descriptor::DescriptorHandler> m_pDescriptorSet;
                 std::vector<std::shared_ptr<Core::UniformHandler>> m_vUniformBuffers;
                 std::vector<std::shared_ptr<Core::PushHandler>> m_vPushConstants;
-                std::shared_ptr<Core::Pipeline::PipelineBase> m_pPipeline;
+                std::shared_ptr<Core::Pipeline::CPipelineBase> m_pPipeline;
                 std::map<std::string, vk::DescriptorImageInfo> m_mTextures;
             };
         }

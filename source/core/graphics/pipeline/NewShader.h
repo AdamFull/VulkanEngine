@@ -135,6 +135,7 @@ namespace Engine
                 uint32_t type;
             };
 
+            //remove descriptors buffer maybe
             class CShader
             {
             public:
@@ -151,12 +152,14 @@ namespace Engine
                 std::optional<uint32_t> getDescriptorSize(const std::string &name) const;
                 std::optional<CUniform> getUniform(const std::string &name) const;
                 std::optional<CUniformBlock> getUniformBlock(const std::string &name) const;
+                std::optional<CPushConstBlock> getPushBlock(const std::string &name) const;
                 std::optional<CAttribute> getInputAttribute(const std::string &name) const;
                 std::optional<CAttribute> getOutputAttribute(const std::string &name) const;
                 std::vector<vk::PushConstantRange> getPushConstantRanges() const;
 
                 std::optional<vk::DescriptorType> getDescriptorType(uint32_t location) const;
 
+                const std::array<std::optional<uint32_t>, 3>& getLocalSizes() const { return m_localSizes; }
                 const std::unordered_map<std::string, CUniform>& getUniforms() const { return m_mUniforms; }
                 const std::unordered_map<std::string, CUniformBlock>& getUniformBlocks() const { return m_mUniformBlocks; }
                 const std::unordered_map<std::string, CPushConstBlock>& getPushBlocks() const { return m_mPushBlocks; }
@@ -170,13 +173,14 @@ namespace Engine
 	            const vk::VertexInputBindingDescription &getBindingDescription() const { return m_bindingDescriptions; }
 
                 const std::vector<vk::PipelineShaderStageCreateInfo>& getStageCreateInfo() const { return m_vShaderModules; }
-                std::vector<vk::PushConstantRange> getPushConstantRanges() const;
             private:
                 void buildReflection(std::vector<uint32_t>& spirv, vk::ShaderStageFlagBits stageFlag);
                 CUniformBlock buildUniformBlock(spirv_cross::Compiler* compiler, const spirv_cross::Resource &res, vk::ShaderStageFlagBits stageFlag, vk::DescriptorType descriptorType);
                 CPushConstBlock buildPushBlock(spirv_cross::Compiler* compiler, const spirv_cross::Resource &res, vk::ShaderStageFlagBits stageFlag);
                 CUniform buildUnifrom(spirv_cross::Compiler* compiler, const spirv_cross::Resource &res, vk::ShaderStageFlagBits stageFlag, vk::DescriptorType descriptorType);
                 CAttribute buildAttribute(spirv_cross::Compiler* compiler, const spirv_cross::Resource &res, uint32_t& offset);
+
+                std::array<std::optional<uint32_t>, 3> m_localSizes;
 
                 std::unordered_map<std::string, uint32_t> m_mDescriptorLocations;
 	            std::unordered_map<std::string, uint32_t> m_mDescriptorSizes;

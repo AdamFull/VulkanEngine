@@ -15,7 +15,7 @@ void MaterialShadow::Create(vk::RenderPass& renderPass, uint32_t subpass)
 
 void MaterialShadow::ReCreate()
 {
-    m_pPipeline->RecreatePipeline();
+    m_pPipeline->recreatePipeline();
     MaterialBase::ReCreate();
 }
 

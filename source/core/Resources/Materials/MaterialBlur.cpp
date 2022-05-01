@@ -10,7 +10,7 @@ using namespace Engine::Core::Pipeline;
 
 void MaterialBlur::Create(vk::RenderPass& renderPass, uint32_t subpass)
 {
-    m_pPipeline = PipelineBase::Builder().
+    m_pPipeline = CPipelineBase::Builder().
     setCulling(vk::CullModeFlagBits::eFront).
     addShaderStage("../../assets/shaders/main/screenspace.vert").
     addShaderStage("../../assets/shaders/postprocess/gaussianblur.frag").
@@ -20,7 +20,7 @@ void MaterialBlur::Create(vk::RenderPass& renderPass, uint32_t subpass)
 
 void MaterialBlur::ReCreate()
 {
-    m_pPipeline->RecreatePipeline();
+    m_pPipeline->recreatePipeline();
     MaterialBase::ReCreate();
 }
 

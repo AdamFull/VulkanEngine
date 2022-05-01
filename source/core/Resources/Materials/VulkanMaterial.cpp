@@ -34,7 +34,7 @@ vk::DescriptorImageInfo& MaterialBase::GetTexture(const std::string& attachment)
 
 void MaterialBase::ReCreate()
 {
-    m_pPipeline->RecreatePipeline();
+    m_pPipeline->recreatePipeline();
 }
 
 void MaterialBase::Update(vk::DescriptorBufferInfo& uboDesc, uint32_t imageIndex)
@@ -45,7 +45,7 @@ void MaterialBase::Update(vk::DescriptorBufferInfo& uboDesc, uint32_t imageIndex
 void MaterialBase::Bind(vk::CommandBuffer commandBuffer, uint32_t imageIndex)
 {
     m_pDescriptorSet->Bind(commandBuffer, imageIndex);
-    m_pPipeline->Bind(commandBuffer);
+    m_pPipeline->bind(commandBuffer);
 }
 
 void MaterialBase::Cleanup()

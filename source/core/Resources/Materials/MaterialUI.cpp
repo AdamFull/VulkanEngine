@@ -10,8 +10,8 @@ using namespace Engine::Core::Pipeline;
 
 void MaterialUI::Create(vk::RenderPass& renderPass, uint32_t subpass)
 {
-    m_pPipeline = PipelineBase::Builder().
-    setVertexInput(VertexInput(VertexUI::getBindingDescription(), VertexUI::getAttributeDescriptions())).
+    m_pPipeline = CPipelineBase::Builder().
+    setVertexInput(CVertexInput(VertexUI::getBindingDescription(), VertexUI::getAttributeDescriptions())).
     addShaderStage("../../assets/shaders/main/ui.vert").
     addShaderStage("../../assets/shaders/main/ui.frag").
     build(renderPass, subpass);
@@ -20,7 +20,7 @@ void MaterialUI::Create(vk::RenderPass& renderPass, uint32_t subpass)
 
 void MaterialUI::ReCreate()
 {
-    m_pPipeline->RecreatePipeline();
+    m_pPipeline->recreatePipeline();
     MaterialBase::ReCreate();
 }
 

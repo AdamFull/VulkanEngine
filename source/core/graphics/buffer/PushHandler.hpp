@@ -9,10 +9,10 @@ namespace Engine
         class PushHandler : public utl::non_copy_movable
         {
         public:
-            void Create(const Pipeline::UniformBlock &uniformBlock);
+            void Create(const Pipeline::CPushConstBlock &pushBlock);
             void ReCreate();
             void Cleanup();
-            void Flush(vk::CommandBuffer& commandBuffer, std::shared_ptr<Pipeline::PipelineBase> pPipeline);
+            void Flush(vk::CommandBuffer& commandBuffer, std::shared_ptr<Pipeline::CPipelineBase> pPipeline);
 
             template<class T>
             void Set(const T &object, uint32_t index, std::size_t offset, std::size_t size)
@@ -23,22 +23,22 @@ namespace Engine
             template<class T>
             void Set(const std::string &uniformName, const T &object, uint32_t index, std::size_t size = 0)
             {
-                if (!m_uniformBlock)
+                if (!m_pushBlock)
 			        return;
 
-                auto uniform = m_uniformBlock->GetUniform(uniformName);
+                auto uniform = m_pushBlock->getUniform(uniformName);
                 if (!uniform)
                     return;
 
                 auto realSize = size;
                 if (realSize == 0)
-                    realSize = std::min(sizeof(object), static_cast<std::size_t>(uniform->GetSize()));
+                    realSize = std::min(sizeof(object), static_cast<std::size_t>(uniform->getSize()));
                 
-                Set(object, index, static_cast<std::size_t>(uniform->GetOffset()), realSize);
+                Set(object, index, static_cast<std::size_t>(uniform->getOffset()), realSize);
             }
 
         private:
-            std::optional<Pipeline::UniformBlock> m_uniformBlock;
+            std::optional<Pipeline::CPushConstBlock> m_pushBlock;
             std::vector<std::unique_ptr<VulkanBuffer>> m_pBuffers;
             std::vector<std::unique_ptr<char[]>> m_vData;
         };

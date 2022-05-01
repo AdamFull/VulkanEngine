@@ -10,7 +10,7 @@ using namespace Engine::Core::Pipeline;
 
 void MaterialDeferred::Create(vk::RenderPass& renderPass, uint32_t subpass)
 {
-    m_pPipeline = PipelineBase::Builder().
+    m_pPipeline = CPipelineBase::Builder().
     setCulling(vk::CullModeFlagBits::eFront).
     setColorAttachments(2).
     addShaderStage("../../assets/shaders/main/screenspace.vert").
@@ -21,7 +21,7 @@ void MaterialDeferred::Create(vk::RenderPass& renderPass, uint32_t subpass)
 
 void MaterialDeferred::ReCreate()
 {
-    m_pPipeline->RecreatePipeline();
+    m_pPipeline->recreatePipeline();
     MaterialBase::ReCreate();
 }
 

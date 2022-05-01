@@ -1,18 +1,13 @@
 #pragma once
 #include "graphics/commands/CommandBuffer.h"
-#include "graphics/renderpass/Framebuffer.hpp"
+#include "graphics/renderpass/Subpass.h"
+#include "graphics/renderpass/RenderStage.h"
 
 namespace Engine
 {
     namespace Resources { class ResourceManager; }
     namespace Core
     {
-        namespace Render 
-        { 
-            class CRenderPass; 
-            struct FRenderCreateInfo;
-            struct FRenderProcessInfo;
-        }
         namespace Scene { namespace Objects { class RenderObject; } }
         class RenderSystem
         {
@@ -34,11 +29,10 @@ namespace Engine
             bool frameStarted{false};
             vk::Extent2D screenExtent{};
             
-            std::shared_ptr<Render::FRenderCreateInfo> creationBuffer;
-            std::shared_ptr<Render::FRenderProcessInfo> renderData;
+            std::unique_ptr<Render::FRenderCreateInfo> creationBuffer;
+            std::unique_ptr<Render::FRenderProcessInfo> renderData;
 
-            std::shared_ptr<Render::CRenderPass> renderPass;
-            std::shared_ptr<Render::CFramebuffer> framebuffer;
+            std::vector<std::unique_ptr<Render::CRenderStage>> vStages;
         };
     }
 }

@@ -50,14 +50,14 @@ namespace Engine
                 CRenderPass(vk::RenderPass &&pass);
                 ~CRenderPass();
 
-                void create(std::shared_ptr<FRenderCreateInfo> createData);
+                void create(std::unique_ptr<FRenderCreateInfo>& createData);
                 void reCreate();
                 void cleanup();
 
                 void begin(vk::CommandBuffer &commandBuffer, std::vector<vk::Framebuffer>& framebuffer);
                 void end(vk::CommandBuffer &commandBuffer);
 
-                void render(std::shared_ptr<FRenderProcessInfo> renderData);
+                void render(std::unique_ptr<FRenderProcessInfo>& renderData);
 
                 void setRenderArea(int32_t offset_x, int32_t offset_y, uint32_t width, uint32_t height);
                 void setRenderArea(vk::Offset2D offset, vk::Extent2D extent);

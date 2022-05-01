@@ -1,5 +1,5 @@
 #pragma once
-#include "graphics/renderpass/Subpass.h"
+#include "graphics/renderpass/RenderStage.h"
 
 namespace Engine
 {
@@ -7,15 +7,15 @@ namespace Engine
     {
         namespace Render
         {
-            class CShadowPass : public CSubpass
+            class CDeferredStage : public CRenderStage
             {
             public:
+                ~CDeferredStage();
                 void create(std::unique_ptr<FRenderCreateInfo>& createInfo) override;
+                void reCreate() override;
                 void render(std::unique_ptr<FRenderProcessInfo>& renderData) override;
                 void cleanup() override;
             private:
-                std::shared_ptr<UniformBuffer> m_pUniform;
-                std::shared_ptr<Resources::Material::MaterialBase> m_pMaterial;
             };
         }
     }

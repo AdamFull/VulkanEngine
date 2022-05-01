@@ -60,15 +60,9 @@ endif()
 project(IncenerateRenderEngine)
 
 set(VULKAN_LIB_LIST "vulkan-1")
-if (CMAKE_BUILD_TYPE STREQUAL "Debug")
-	list(APPEND VULKAN_LIB_LIST "glslang")
-	list(APPEND VULKAN_LIB_LIST "SPIRV")
-	message("-- Using debug vulkan libs.")
-else()
-	list(APPEND VULKAN_LIB_LIST "glslang")
-	list(APPEND VULKAN_LIB_LIST "SPIRV")
-	message("-- Using debug vulkan libs.")
-endif()
+
+list(APPEND VULKAN_LIB_LIST "glslang")
+list(APPEND VULKAN_LIB_LIST "SPIRV")
 
 if(${CMAKE_SYSTEM_NAME} MATCHES "Windows")
 	# Include Vulkan header files from Vulkan SDK
@@ -107,6 +101,7 @@ set(KTX_INCLUDE_DIR ${CMAKE_CURRENT_SOURCE_DIR}/external/ktx/include)
 
 find_package(glfw3 REQUIRED)
 find_package(glslang REQUIRED)
+find_package(spirv_cross_core CONFIG REQUIRED)
 find_package(glm REQUIRED)
 
 add_executable(${PROJECT_NAME} ${CPP_FILES} ${HPP_FILES})
@@ -115,6 +110,7 @@ add_executable(${PROJECT_NAME} ${CPP_FILES} ${HPP_FILES})
 target_link_libraries( ${PROJECT_NAME} PUBLIC 
 	glfw
 	${VULKAN_LIB_LIST} 
+	spirv-cross-core
 	imgui
 	libktx
 )

@@ -4,9 +4,9 @@
 
 using namespace Engine::Core::Pipeline;
 
-std::unique_ptr<PipelineBase> PipelineBase::Builder::build(vk::RenderPass& renderPass, uint32_t subpass)
+std::unique_ptr<CPipelineBase> CPipelineBase::Builder::build(vk::RenderPass& renderPass, uint32_t subpass)
 {
-    std::unique_ptr<PipelineBase> pPipeline = std::make_unique<GraphicsPipeline>();
+    std::unique_ptr<CPipelineBase> pPipeline = std::make_unique<CGraphicsPipeline>();
 
     pPipeline->m_vertexInput = std::move(m_vertexInput);
     pPipeline->m_renderPass = renderPass;
@@ -19,52 +19,52 @@ std::unique_ptr<PipelineBase> PipelineBase::Builder::build(vk::RenderPass& rende
     pPipeline->m_vDynamicStateEnables = m_vDynamicStateEnables;
     pPipeline->m_vDefines = std::move(m_vDefines);
     pPipeline->m_vStages = std::move(m_vStages);
-    pPipeline->Create();
+    pPipeline->create();
     return pPipeline;
 }
 
-std::unique_ptr<PipelineBase> PipelineBase::Builder::build()
+std::unique_ptr<CPipelineBase> CPipelineBase::Builder::build()
 {
-    std::unique_ptr<PipelineBase> pPipeline = std::make_unique<ComputePipeline>();
+    std::unique_ptr<CPipelineBase> pPipeline = std::make_unique<CComputePipeline>();
     pPipeline->m_bindPoint = vk::PipelineBindPoint::eCompute;
     pPipeline->m_vDefines = std::move(m_vDefines);
     pPipeline->m_vStages = std::move(m_vStages);
-    pPipeline->Create();
+    pPipeline->create();
     return pPipeline;
 }
 
 
-PipelineBase::~PipelineBase()
+CPipelineBase::~CPipelineBase()
 {
-    Cleanup();
+    cleanup();
 }
 
-void PipelineBase::Create()
+void CPipelineBase::create()
 {
-    LoadShader(m_vStages);
-    CreateDescriptorPool();
-    CreateDescriptorSetLayout();
-    CreatePipelineLayout();
+    loadShader(m_vStages);
+    createDescriptorPool();
+    createDescriptorSetLayout();
+    createPipelineLayout();
 }
 
-void PipelineBase::RecreatePipeline()
+void CPipelineBase::recreatePipeline()
 {
 }
 
-void PipelineBase::Cleanup()
+void CPipelineBase::cleanup()
 {
     UDevice->Destroy(m_pipeline);
     UDevice->Destroy(m_pipelineLayout);
 }
 
-void PipelineBase::Bind(vk::CommandBuffer &commandBuffer)
+void CPipelineBase::bind(vk::CommandBuffer &commandBuffer)
 {
-    commandBuffer.bindPipeline(GetBindPoint(), GetPipeline());
+    commandBuffer.bindPipeline(getBindPoint(), getPipeline());
 }
 
-void PipelineBase::LoadShader(const std::vector<std::string> &vShaders)
+void CPipelineBase::loadShader(const std::vector<std::string> &vShaders)
 {
-    m_pShader = std::make_unique<Shader>();
+    m_pShader = std::make_unique<CShader>();
     std::stringstream defineBlock;
     for (const auto &[defineName, defineValue] : m_vDefines)
         defineBlock << "#define " << defineName << " " << defineValue << '\n';
@@ -73,14 +73,14 @@ void PipelineBase::LoadShader(const std::vector<std::string> &vShaders)
     {
         m_vShaderCache.emplace_back(value);
         auto shader_code = FilesystemHelper::ReadFile(value);
-        m_pShader->AddStage(value, shader_code, defineBlock.str());
+        m_pShader->addStage(value, shader_code, defineBlock.str());
     }
-    m_pShader->BuildReflection();
+    m_pShader->finalizeReflection();
 }
 
-void PipelineBase::CreateDescriptorSetLayout()
+void CPipelineBase::createDescriptorSetLayout()
 {
-    auto &descriptorSetLayouts = m_pShader->GetDescriptorSetLayouts();
+    auto &descriptorSetLayouts = m_pShader->getDescriptorSetLayouts();
 
 	vk::DescriptorSetLayoutCreateInfo descriptorSetLayoutCreateInfo = {};
 	descriptorSetLayoutCreateInfo.bindingCount = static_cast<uint32_t>(descriptorSetLayouts.size());
@@ -92,9 +92,9 @@ void PipelineBase::CreateDescriptorSetLayout()
     }
 }
 
-void PipelineBase::CreateDescriptorPool()
+void CPipelineBase::createDescriptorPool()
 {
-    auto &descriptorPools = m_pShader->GetDescriptorPools();
+    auto &descriptorPools = m_pShader->getDescriptorPools();
 
 	vk::DescriptorPoolCreateInfo descriptorPoolCreateInfo = {};
 	descriptorPoolCreateInfo.flags = vk::DescriptorPoolCreateFlagBits::eFreeDescriptorSet;
@@ -104,9 +104,9 @@ void PipelineBase::CreateDescriptorPool()
     m_descriptorPool = UDevice->Make<vk::DescriptorPool, vk::DescriptorPoolCreateInfo>(descriptorPoolCreateInfo);
 }
 
-void PipelineBase::CreatePipelineLayout()
+void CPipelineBase::createPipelineLayout()
 {
-    auto pushConstantRanges = m_pShader->GetPushConstantRanges();
+    auto pushConstantRanges = m_pShader->getPushConstantRanges();
 
 	vk::PipelineLayoutCreateInfo pipelineLayoutCreateInfo = {};
 	pipelineLayoutCreateInfo.setLayoutCount = 1;
@@ -116,10 +116,10 @@ void PipelineBase::CreatePipelineLayout()
     m_pipelineLayout = UDevice->Make<vk::PipelineLayout, vk::PipelineLayoutCreateInfo>(pipelineLayoutCreateInfo);
 }
 
-void PipelineBase::RecreateShaders()
+void CPipelineBase::recreateShaders()
 {
     std::vector<std::string> vCacheCopy = m_vShaderCache;
     m_vShaderCache.clear();
-    m_pShader->Clear();
-    LoadShader(vCacheCopy);
+    m_pShader->clear();
+    loadShader(vCacheCopy);
 }

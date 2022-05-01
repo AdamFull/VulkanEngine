@@ -12,18 +12,18 @@ using namespace Engine::Core::Scene::Objects;
 using namespace Engine::Resources;
 using namespace Engine::Resources::Material;
 
-void CFinalCompositionPass::create(std::shared_ptr<FRenderCreateInfo> createData)
+void CFinalCompositionPass::create(std::unique_ptr<FRenderCreateInfo>& createInfo)
 {
     auto framesInFlight = USwapChain->GetFramesInFlight();
     m_pUniform = std::make_shared<UniformBuffer>();
     m_pUniform->Create(framesInFlight, sizeof(FPostProcess));
 
     m_pMaterial = std::make_shared<MaterialPostProcess>();
-    m_pMaterial->Create(createData->renderPass, createData->subpass);
-    CSubpass::create(createData);
+    m_pMaterial->Create(createInfo->renderPass, createInfo->subpass);
+    CSubpass::create(createInfo);
 }
 
-void CFinalCompositionPass::render(std::shared_ptr<FRenderProcessInfo> renderData)
+void CFinalCompositionPass::render(std::unique_ptr<FRenderProcessInfo>& renderData)
 {
     auto imageIndex = USwapChain->GetCurrentFrame();
     //May be move to CompositionObject

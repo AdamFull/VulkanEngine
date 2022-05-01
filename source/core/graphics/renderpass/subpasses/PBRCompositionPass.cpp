@@ -25,24 +25,24 @@ using namespace Engine::Core::Scene::Objects::Components;
 using namespace Engine::Core::Scene::Objects::Components::Light;
 
 
-void CPBRCompositionPass::create(std::shared_ptr<FRenderCreateInfo> createData)
+void CPBRCompositionPass::create(std::unique_ptr<FRenderCreateInfo>& createInfo)
 {
     auto framesInFlight = USwapChain->GetFramesInFlight();
     m_pUniform = std::make_shared<UniformBuffer>();
     m_pUniform->Create(framesInFlight, sizeof(FLightningData));
 
-    m_pSkybox = createData->resourceManager->Get<Image>("skybox_cubemap_tex");
+    m_pSkybox = createInfo->resourceManager->Get<Image>("skybox_cubemap_tex");
 
     brdf = UHLInstance->GetThreadPool()->submit(&CPBRCompositionPass::ComputeBRDFLUT, 512);
     irradiance = UHLInstance->GetThreadPool()->submit(&CPBRCompositionPass::ComputeIrradiance, m_pSkybox, 64);
     prefiltered = UHLInstance->GetThreadPool()->submit(&CPBRCompositionPass::ComputePrefiltered, m_pSkybox, 512);
 
     m_pMaterial = std::make_shared<MaterialDeferred>();
-    m_pMaterial->Create(createData->renderPass, createData->subpass);
-    CSubpass::create(createData);
+    m_pMaterial->Create(createInfo->renderPass, createInfo->subpass);
+    CSubpass::create(createInfo);
 }
 
-void CPBRCompositionPass::render(std::shared_ptr<FRenderProcessInfo> renderData)
+void CPBRCompositionPass::render(std::unique_ptr<FRenderProcessInfo>& renderData)
 {
     m_pMaterial->AddTexture("brdflut_tex", *brdf);
     m_pMaterial->AddTexture("irradiance_tex", *irradiance);

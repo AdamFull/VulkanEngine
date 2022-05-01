@@ -8,13 +8,13 @@ using namespace Engine::Core::Render;
 using namespace Engine::Core::Scene::Objects;
 using namespace Engine::Resources;
 
-void CGBufferPass::create(std::shared_ptr<FRenderCreateInfo> createData)
+void CGBufferPass::create(std::unique_ptr<FRenderCreateInfo>& createInfo)
 {
-    createData->root->Create(createData->renderPass, createData->subpass);
-    CSubpass::create(createData);
+    createInfo->root->Create(createInfo->renderPass, createInfo->subpass);
+    CSubpass::create(createInfo);
 }
 
-void CGBufferPass::render(std::shared_ptr<FRenderProcessInfo> renderData)
+void CGBufferPass::render(std::unique_ptr<FRenderProcessInfo>& renderData)
 {
     auto imageIndex = USwapChain->GetCurrentFrame();
     UVBO->Bind(renderData->commandBuffer);

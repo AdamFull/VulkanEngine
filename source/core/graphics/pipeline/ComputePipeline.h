@@ -7,16 +7,16 @@ namespace Engine
     {
         namespace Pipeline
         {
-            class ComputePipeline : public PipelineBase
+            class CComputePipeline : public CPipelineBase
             {
             public:
-                ComputePipeline() = default;
+                CComputePipeline() = default;
 
-                void Create() override;
-                void RecreatePipeline() override;
+                void create() override;
+                void recreatePipeline() override;
 
             protected:
-                void CreatePipeline() override;
+                void createPipeline() override;
             };
         }
     }

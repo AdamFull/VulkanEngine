@@ -88,7 +88,7 @@ CRenderPass::~CRenderPass()
     UDevice->Destroy(renderPass);
 }
 
-void CRenderPass::create(std::shared_ptr<FRenderCreateInfo> createData)
+void CRenderPass::create(std::unique_ptr<FRenderCreateInfo>& createData)
 {
     //Creating subpasses (render stages)
     uint32_t subpassNum{0};
@@ -138,7 +138,7 @@ void CRenderPass::end(vk::CommandBuffer& commandBuffer)
     commandBuffer.endRenderPass();
 }
 
-void CRenderPass::render(std::shared_ptr<FRenderProcessInfo> renderData)
+void CRenderPass::render(std::unique_ptr<FRenderProcessInfo>& renderData)
 {
     //begin(commandBuffer);
 

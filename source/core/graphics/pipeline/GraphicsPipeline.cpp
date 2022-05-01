@@ -4,19 +4,19 @@
 
 using namespace Engine::Core::Pipeline;
 
-void GraphicsPipeline::Create()
+void CGraphicsPipeline::create()
 {
-    PipelineBase::Create();
-    CreatePipeline();
+    CPipelineBase::create();
+    createPipeline();
 }
 
-void GraphicsPipeline::CreatePipeline()
+void CGraphicsPipeline::createPipeline()
 {
     assert(UDevice && "Cannot create pipeline, cause logical device is not valid.");
     assert(USwapChain && "Cannot create pipeline, cause render pass is not valid.");
 
-    auto& bindingDescription = m_vertexInput.GetInputBindingDescription();
-    auto& attributeDescription = m_vertexInput.GetInputAttributeDescription();
+    auto& bindingDescription = m_vertexInput.getInputBindingDescription();
+    auto& attributeDescription = m_vertexInput.getInputAttributeDescription();
 
     vk::PipelineVertexInputStateCreateInfo vertexInputCI{};
     vertexInputCI.vertexBindingDescriptionCount = 0;
@@ -68,7 +68,7 @@ void GraphicsPipeline::CreatePipeline()
     viewportState.viewportCount = 1;
     viewportState.scissorCount = 1;
 
-    auto shaderStages = m_pShader->GetStageCreateInfo();
+    auto shaderStages = m_pShader->getStageCreateInfo();
     auto foundStage = std::find_if(shaderStages.begin(), shaderStages.end(), [](const vk::PipelineShaderStageCreateInfo& ci){
         return ci.stage & vk::ShaderStageFlagBits::eFragment;
     });
@@ -96,8 +96,8 @@ void GraphicsPipeline::CreatePipeline()
     assert(m_pipeline && "Failed creating pipeline.");
 }
 
-void GraphicsPipeline::RecreatePipeline()
+void CGraphicsPipeline::recreatePipeline()
 {
-    RecreateShaders();
-    CreatePipeline();
+    recreateShaders();
+    createPipeline();
 }

@@ -3,24 +3,24 @@
 
 using namespace Engine::Core::Pipeline;
 
-void ComputePipeline::Create()
+void CComputePipeline::create()
 {
-    PipelineBase::Create();
-    CreatePipeline();
+    CPipelineBase::create();
+    createPipeline();
 }
 
-void ComputePipeline::RecreatePipeline()
+void CComputePipeline::recreatePipeline()
 {
-    RecreateShaders();
-    CreatePipeline();
+    recreateShaders();
+    createPipeline();
 }
 
-void ComputePipeline::CreatePipeline()
+void CComputePipeline::createPipeline()
 {
     assert(UDevice && "Cannot create pipeline, cause logical device is not valid.");
     assert(USwapChain && "Cannot create pipeline, cause render pass is not valid.");
 
-    auto shaderStages = m_pShader->GetStageCreateInfo();
+    auto shaderStages = m_pShader->getStageCreateInfo();
 
     vk::ComputePipelineCreateInfo pipelineInfo{};
     pipelineInfo.stage = shaderStages.front();

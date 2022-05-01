@@ -10,13 +10,13 @@ using namespace Engine::Core::Scene::Objects;
 using namespace Engine::Resources;
 using namespace Engine::Resources::Material;
 
-void CShadowPass::create(std::shared_ptr<FRenderCreateInfo> createData)
+void CShadowPass::create(std::unique_ptr<FRenderCreateInfo>& createInfo)
 {
     m_pMaterial = std::make_shared<MaterialShadow>();
-    CSubpass::create(createData);
+    CSubpass::create(createInfo);
 }
 
-void CShadowPass::render(std::shared_ptr<FRenderProcessInfo> renderData)
+void CShadowPass::render(std::unique_ptr<FRenderProcessInfo>& renderData)
 {
     auto imageIndex = USwapChain->GetCurrentFrame();
     UVBO->Bind(renderData->commandBuffer);

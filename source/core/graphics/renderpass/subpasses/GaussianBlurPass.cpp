@@ -11,18 +11,18 @@ using namespace Engine::Core::Scene::Objects;
 using namespace Engine::Resources;
 using namespace Engine::Resources::Material;
 
-void CGaussianBlurPass::create(std::shared_ptr<FRenderCreateInfo> createData)
+void CGaussianBlurPass::create(std::unique_ptr<FRenderCreateInfo>& createInfo)
 {
     auto framesInFlight = USwapChain->GetFramesInFlight();
     m_pUniform = std::make_shared<UniformBuffer>();
     m_pUniform->Create(framesInFlight, sizeof(FBlurData));
 
     m_pMaterial = std::make_shared<MaterialBlur>();
-    m_pMaterial->Create(createData->renderPass, createData->subpass);
-    CSubpass::create(createData);
+    m_pMaterial->Create(createInfo->renderPass, createInfo->subpass);
+    CSubpass::create(createInfo);
 }
 
-void CGaussianBlurPass::render(std::shared_ptr<FRenderProcessInfo> renderData)
+void CGaussianBlurPass::render(std::unique_ptr<FRenderProcessInfo>& renderData)
 {
     auto imageIndex = USwapChain->GetCurrentFrame();
     FBlurData uniform;

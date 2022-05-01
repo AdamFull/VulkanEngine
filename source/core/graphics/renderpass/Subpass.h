@@ -37,8 +37,8 @@ namespace Engine
             public:
                 CSubpass() = default;
 
-                virtual void create(std::shared_ptr<FRenderCreateInfo> createData) {}
-                virtual void render(std::shared_ptr<FRenderProcessInfo> renderData) {}
+                virtual void create(std::unique_ptr<FRenderCreateInfo>& createInfo) {}
+                virtual void render(std::unique_ptr<FRenderProcessInfo>& renderData) {}
                 virtual void cleanup() {}
             private:
             };

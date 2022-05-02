@@ -28,9 +28,6 @@ namespace Engine
             uint32_t imageIndex{0};
             bool frameStarted{false};
             vk::Extent2D screenExtent{};
-            
-            std::unique_ptr<Render::FRenderCreateInfo> creationBuffer;
-            std::unique_ptr<Render::FRenderProcessInfo> renderData;
 
             std::vector<std::unique_ptr<Render::CRenderStage>> vStages;
         };

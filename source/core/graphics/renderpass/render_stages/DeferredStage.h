@@ -11,9 +11,9 @@ namespace Engine
             {
             public:
                 ~CDeferredStage();
-                void create(std::unique_ptr<FRenderCreateInfo>& createInfo) override;
+                void create(std::shared_ptr<Resources::CResourceManager>& resourceManager, std::shared_ptr<Scene::CRenderObject>& root) override;
                 void reCreate() override;
-                void render(std::unique_ptr<FRenderProcessInfo>& renderData) override;
+                void render(vk::CommandBuffer& commandBuffer, std::shared_ptr<Scene::CRenderObject>& root) override;
                 void cleanup() override;
             private:
             };

@@ -8,16 +8,14 @@ namespace Engine
     {
         namespace Render
         {
-            struct FRenderCreateInfo;
-            struct FRenderProcessInfo;
             class CRenderStage
             {
             public:
                 CRenderStage() = default;
                 virtual ~CRenderStage() {}
-                virtual void create(std::unique_ptr<FRenderCreateInfo>& createInfo) {}
+                virtual void create(std::shared_ptr<Resources::CResourceManager>& resourceManager, std::shared_ptr<Scene::CRenderObject>& root) {}
                 virtual void reCreate() {}
-                virtual void render(std::unique_ptr<FRenderProcessInfo>& renderData) {}
+                virtual void render(vk::CommandBuffer& commandBuffer, std::shared_ptr<Scene::CRenderObject>& root) {}
                 virtual void cleanup() {}
             protected:
                 std::unique_ptr<CRenderPass> pRenderPass;

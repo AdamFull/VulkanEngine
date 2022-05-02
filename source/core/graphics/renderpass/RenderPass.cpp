@@ -88,14 +88,13 @@ CRenderPass::~CRenderPass()
     UDevice->destroy(renderPass);
 }
 
-void CRenderPass::create(std::unique_ptr<FRenderCreateInfo>& createData)
+void CRenderPass::create(std::shared_ptr<Resources::CResourceManager>& resourceManager, std::shared_ptr<Scene::CRenderObject>& root)
 {
     //Creating subpasses (render stages)
     uint32_t subpassNum{0};
     for(auto& subpass : vSubpasses)
     {
-        createData->subpass = subpassNum;
-        subpass->create(createData);
+        subpass->create(resourceManager, root, renderPass, subpassNum);
         subpassNum++;
     }
 }
@@ -138,21 +137,17 @@ void CRenderPass::end(vk::CommandBuffer& commandBuffer)
     commandBuffer.endRenderPass();
 }
 
-void CRenderPass::render(std::unique_ptr<FRenderProcessInfo>& renderData)
+void CRenderPass::render(vk::CommandBuffer& commandBuffer, std::unordered_map<std::string, std::shared_ptr<CImage>>& images, std::shared_ptr<Scene::CRenderObject>& root)
 {
-    //begin(commandBuffer);
-
     //Render each stage
     uint32_t subpass_id{0};
     for(auto& subpass : vSubpasses)
     {
-        subpass->render(renderData);
+        subpass->render(commandBuffer, images, root);
         if((vSubpasses.size() - 1) > subpass_id)
-            renderData->commandBuffer.nextSubpass(vk::SubpassContents::eInline);
+            commandBuffer.nextSubpass(vk::SubpassContents::eInline);
         subpass_id++;
     }
-
-    //end(commandBuffer);
 }
 
 void CRenderPass::setRenderArea(int32_t offset_x, int32_t offset_y, uint32_t width, uint32_t height)

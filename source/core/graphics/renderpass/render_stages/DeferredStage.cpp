@@ -12,7 +12,7 @@ CDeferredStage::~CDeferredStage()
     cleanup();
 }
 
-void CDeferredStage::create(std::unique_ptr<FRenderCreateInfo>& createInfo)
+void CDeferredStage::create(std::shared_ptr<Resources::CResourceManager>& resourceManager, std::shared_ptr<Scene::CRenderObject>& root)
 {
     screenExtent = USwapChain->getExtent();
 
@@ -87,9 +87,7 @@ void CDeferredStage::create(std::unique_ptr<FRenderCreateInfo>& createInfo)
 
     pRenderPass->setRenderArea(vk::Offset2D{0, 0}, screenExtent);
     pFramebuffer->create(pRenderPass->get(), screenExtent);
-    createInfo->renderPass = pRenderPass->get();
-    createInfo->images = pFramebuffer->getImages(USwapChain->getCurrentFrame());
-    pRenderPass->create(createInfo);
+    pRenderPass->create(resourceManager, root);
 }
 
 void CDeferredStage::reCreate()
@@ -100,12 +98,11 @@ void CDeferredStage::reCreate()
     pFramebuffer->reCreate(pRenderPass->get());
 }
 
-void CDeferredStage::render(std::unique_ptr<FRenderProcessInfo>& renderData)
+void CDeferredStage::render(vk::CommandBuffer& commandBuffer, std::shared_ptr<Scene::CRenderObject>& root)
 {
-    renderData->images = pFramebuffer->getImages(USwapChain->getCurrentFrame());
-    pRenderPass->begin(renderData->commandBuffer, pFramebuffer->get());
-    pRenderPass->render(renderData);
-    pRenderPass->end(renderData->commandBuffer);
+    pRenderPass->begin(commandBuffer, pFramebuffer->get());
+    pRenderPass->render(commandBuffer, pFramebuffer->getImages(USwapChain->getCurrentFrame()), root);
+    pRenderPass->end(commandBuffer);
 }
 
 void CDeferredStage::cleanup()

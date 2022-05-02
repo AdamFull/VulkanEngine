@@ -8,17 +8,17 @@ using namespace Engine::Core::Render;
 using namespace Engine::Core::Scene;
 using namespace Engine::Resources;
 
-void CGBufferPass::create(std::unique_ptr<FRenderCreateInfo>& createInfo)
+void CGBufferPass::create(std::shared_ptr<Resources::CResourceManager>& resourceManager, std::shared_ptr<Scene::CRenderObject>& root, vk::RenderPass& renderPass, uint32_t subpass)
 {
-    createInfo->root->create(createInfo->renderPass, createInfo->subpass);
-    CSubpass::create(createInfo);
+    root->create(renderPass, subpass);
+    CSubpass::create(resourceManager, root, renderPass, subpass);
 }
 
-void CGBufferPass::render(std::unique_ptr<FRenderProcessInfo>& renderData)
+void CGBufferPass::render(vk::CommandBuffer& commandBuffer, std::unordered_map<std::string, std::shared_ptr<CImage>>& images, std::shared_ptr<Scene::CRenderObject>& root)
 {
     auto imageIndex = USwapChain->getCurrentFrame();
-    UVBO->bind(renderData->commandBuffer);
-    renderData->root->render(renderData->commandBuffer, imageIndex);
+    UVBO->bind(commandBuffer);
+    root->render(commandBuffer, imageIndex);
 }
 
 void CGBufferPass::cleanup()

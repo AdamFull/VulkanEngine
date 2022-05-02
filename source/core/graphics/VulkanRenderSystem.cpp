@@ -15,15 +15,10 @@ void CRenderSystem::create(std::shared_ptr<Resources::CResourceManager> resource
     screenExtent = USwapChain->getExtent();
     commandBuffers = std::make_shared<CCommandBuffer>(false, vk::QueueFlagBits::eGraphics, vk::CommandBufferLevel::ePrimary, USwapChain->getFramesInFlight());
 
-    creationBuffer = std::make_unique<Render::FRenderCreateInfo>();
-    renderData = std::make_unique<Render::FRenderProcessInfo>();
-    creationBuffer->resourceManager = resourceManager;
-    creationBuffer->root = root;
-
     vStages.emplace_back(std::make_unique<Render::CDeferredStage>());
 
     for(auto& stage : vStages)
-        stage->create(creationBuffer);
+        stage->create(resourceManager, root);
 }
 
 void CRenderSystem::reCreate()
@@ -39,11 +34,8 @@ void CRenderSystem::render(std::shared_ptr<Scene::CRenderObject> root)
     catch (vk::OutOfDateKHRError err) { UHLInstance->recreateSwapChain(); }
     catch (vk::SystemError err) { throw std::runtime_error("Failed to acquire swap chain image!"); }
 
-    renderData->commandBuffer = commandBuffer;
-    renderData->root = root;
-
     for(auto& stage : vStages)
-        stage->render(renderData);
+        stage->render(commandBuffer, root);
 
     vk::Result resultPresent;
     try { resultPresent = endFrame(); }

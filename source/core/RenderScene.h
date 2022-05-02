@@ -4,7 +4,7 @@
 
 namespace Engine
 {
-    namespace Resources { class ResourceManager; }
+    namespace Resources { class CResourceManager; }
     
     class RenderScene
     {
@@ -20,9 +20,9 @@ namespace Engine
         void CreateObjects();
         void Render(float fDeltaTime);
 
-        std::shared_ptr<Resources::ResourceManager> GetResourceManager() { return m_pResourceManager; }
+        std::shared_ptr<Resources::CResourceManager> GetResourceManager() { return m_pResourceManager; }
     private:
         std::shared_ptr<Core::Scene::Objects::RenderObject> m_pRoot;
-        std::shared_ptr<Resources::ResourceManager> m_pResourceManager;
+        std::shared_ptr<Resources::CResourceManager> m_pResourceManager;
     };
 }

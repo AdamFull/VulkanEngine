@@ -49,7 +49,7 @@ namespace Engine
         };
 
         
-        class VulkanBuffer;
+        class CVulkanBuffer;
 
         class CUniformBuffer : public utl::non_copy_movable
         {
@@ -63,14 +63,14 @@ namespace Engine
             void updateUniformBuffer(uint32_t index, void *ubo);
 
             // Getters
-            std::vector<std::unique_ptr<VulkanBuffer>> &getUniformBuffers();
-            std::unique_ptr<VulkanBuffer> &getUniformBuffer(uint32_t index);
+            std::vector<std::unique_ptr<CVulkanBuffer>> &getUniformBuffers();
+            std::unique_ptr<CVulkanBuffer> &getUniformBuffer(uint32_t index);
 
         private:
             void createUniformBuffers(uint32_t inFlightFrames);
             size_t iUniformSize{0};
 
-            std::vector<std::unique_ptr<VulkanBuffer>> vBuffers;
+            std::vector<std::unique_ptr<CVulkanBuffer>> vBuffers;
         };
     }
 }

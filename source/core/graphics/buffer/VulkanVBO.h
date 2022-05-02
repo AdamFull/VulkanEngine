@@ -5,8 +5,7 @@ namespace Engine
 {
     namespace Core
     {
-        class VulkanBuffer;
-        
+        class CVulkanBuffer;
         class CVulkanVBO : public utl::non_copy_movable
         {
         public:
@@ -25,10 +24,10 @@ namespace Engine
             bool bBuffersCreated{false};
 
             std::vector<Vertex> vVertices;
-            std::unique_ptr<VulkanBuffer> vertexBuffer;
+            std::unique_ptr<CVulkanBuffer> vertexBuffer;
 
             std::vector<uint32_t> vIndices;
-            std::unique_ptr<VulkanBuffer> indexBuffer;
+            std::unique_ptr<CVulkanBuffer> indexBuffer;
         };
     }
 }

@@ -11,8 +11,8 @@ namespace Engine
     }
     namespace Resources
     {
-        class ResourceManager;
-        namespace Material { class MaterialBase; }
+        class CResourceManager;
+        namespace Material { class CMaterialBase; }
 
         namespace Loaders
         {
@@ -23,31 +23,31 @@ namespace Engine
             public:
                 GLTFLoader(bool loadMaterials, bool useMaterials, const std::string& modelName, const std::string& volumeName);
 
-                void Load(std::string srPath, std::string srName, std::shared_ptr<Resources::ResourceManager> pResMgr);
+                void load(std::string srPath, std::string srName, std::shared_ptr<Resources::CResourceManager> pResMgr);
 
-                inline void AddMaterial(std::shared_ptr<Material::MaterialBase> material) { vMaterials.emplace_back(material); }
+                inline void addMaterial(std::shared_ptr<Material::CMaterialBase> material) { vMaterials.emplace_back(material); }
 
-                inline const std::shared_ptr<Mesh::MeshBase> GetMesh() const { return m_pMesh; }
+                inline const std::shared_ptr<Mesh::CMeshBase> getMesh() const { return m_pMesh; }
 
             private:
-                void LoadNode(std::shared_ptr<Resources::ResourceManager> pResMgr, std::shared_ptr<GLTFSceneNode> pParent, const tinygltf::Node &node, uint32_t nodeIndex, const tinygltf::Model &model, float globalscale);
+                void loadNode(std::shared_ptr<Resources::CResourceManager> pResMgr, std::shared_ptr<GLTFSceneNode> pParent, const tinygltf::Node &node, uint32_t nodeIndex, const tinygltf::Model &model, float globalscale);
 
-                void LoadMeshFragment(std::shared_ptr<Resources::ResourceManager> pResMgr, std::shared_ptr<GLTFSceneNode> sceneNode, const tinygltf::Node &node, const tinygltf::Model &model);
-                void RecalculateTangents(std::vector<Core::Vertex>& vertices, std::vector<uint32_t>& indices, uint64_t startIndex);
+                void loadMeshFragment(std::shared_ptr<Resources::CResourceManager> pResMgr, std::shared_ptr<GLTFSceneNode> sceneNode, const tinygltf::Node &node, const tinygltf::Model &model);
+                void recalculateTangents(std::vector<Core::Vertex>& vertices, std::vector<uint32_t>& indices, uint64_t startIndex);
 
-                void LoadAnimations(const tinygltf::Model &model);
+                void loadAnimations(const tinygltf::Model &model);
 
-                void LoadMaterials(std::shared_ptr<Resources::ResourceManager> pResMgr, const tinygltf::Model &model);
-                void LoadTextures(std::shared_ptr<Resources::ResourceManager> pResMgr, const tinygltf::Model &model);
-                std::shared_ptr<Core::CImage> LoadTexture(const tinygltf::Image &model, std::string path);
-                void LoadSkins(const tinygltf::Model &model);
+                void loadMaterials(std::shared_ptr<Resources::CResourceManager> pResMgr, const tinygltf::Model &model);
+                void loadTextures(std::shared_ptr<Resources::CResourceManager> pResMgr, const tinygltf::Model &model);
+                std::shared_ptr<Core::CImage> loadTexture(const tinygltf::Image &model, std::string path);
+                void loadSkins(const tinygltf::Model &model);
 
                 uint32_t current_primitive;
-                std::shared_ptr<Mesh::MeshBase> m_pMesh;
+                std::shared_ptr<Mesh::CMeshBase> m_pMesh;
                 //std::shared_ptr<Light::Point> m_pPointLights;
                 //std::shared_ptr<Camera::Base> m_pCameras;
                 std::vector<std::shared_ptr<Core::CImage>> vTextures;
-                std::vector<std::shared_ptr<Material::MaterialBase>> vMaterials;
+                std::vector<std::shared_ptr<Material::CMaterialBase>> vMaterials;
 
                 std::vector<std::shared_ptr<GLTFSceneNode>> m_vNodes;
                 std::vector<std::shared_ptr<GLTFSceneNode>> m_vLinearNodes;

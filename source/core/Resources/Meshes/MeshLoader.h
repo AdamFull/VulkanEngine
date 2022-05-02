@@ -9,14 +9,14 @@ namespace Engine
     {
         namespace Loaders
         {
-            struct MeshLoader
+            struct CMeshLoader
             {
             public:
-                static bool Load(std::string srPath, std::shared_ptr<Resources::ResourceManager> pResourceManager, std::shared_ptr<Mesh::MeshFragment> pMesh, bool bLoadMaterial = false);
+                static bool load(std::string srPath, std::shared_ptr<Resources::CResourceManager> pResourceManager, std::shared_ptr<Mesh::CMeshFragment> pMesh, bool bLoadMaterial = false);
 
             private:
-                static void CalculateTangents(std::vector<Core::Vertex> &vertices, std::vector<uint32_t> indices);
-                static glm::vec4 GenerateNormals(std::vector<Core::Vertex> &vertices, std::vector<uint32_t> indices);
+                static void calculateTangents(std::vector<Core::Vertex> &vertices, std::vector<uint32_t> indices);
+                static glm::vec4 generateNormals(std::vector<Core::Vertex> &vertices, std::vector<uint32_t> indices);
             };
         }
     }

@@ -3,7 +3,6 @@
 
 int main()
 {
-    //Engine::ResourceManager::GetInstance()->Load("../../assets/resources.json");
     Engine::Application app;
     app.Create();
 

@@ -4,7 +4,7 @@ namespace Engine
 {
     namespace Resources
     {
-        namespace Mesh { class MeshFragment; }
+        namespace Mesh { class CMeshFragment; }
         namespace Loaders
         {
             class GLTFSceneNode;
@@ -20,32 +20,32 @@ namespace Engine
             {
             public:
                 // Deep search
-                std::shared_ptr<GLTFSceneNode> Find(std::string srName);
-                void AddChild(std::shared_ptr<GLTFSceneNode> child);
-                void SetParent(std::shared_ptr<GLTFSceneNode> parent);
-                void Attach(std::shared_ptr<GLTFSceneNode> child);
-                void Detach(std::shared_ptr<GLTFSceneNode> child);
+                std::shared_ptr<GLTFSceneNode> find(std::string srName);
+                void addChild(std::shared_ptr<GLTFSceneNode> child);
+                void setParent(std::shared_ptr<GLTFSceneNode> parent);
+                void attach(std::shared_ptr<GLTFSceneNode> child);
+                void detach(std::shared_ptr<GLTFSceneNode> child);
 
-                std::string &GetName();
-                std::string &GetUUID();
-                std::shared_ptr<GLTFSceneNode> &GetParent();
-                std::map<std::string, std::shared_ptr<GLTFSceneNode>> &GetChilds();
+                std::string &getName();
+                std::string &getUUID();
+                std::shared_ptr<GLTFSceneNode> &getParent();
+                std::map<std::string, std::shared_ptr<GLTFSceneNode>> &getChilds();
 
-                FTransform GetTransform();
-                const glm::vec3 GetPosition() const;
-                const glm::vec3 GetRotation() const;
-                const glm::vec3 GetScale() const;
+                FTransform getTransform();
+                const glm::vec3 getPosition() const;
+                const glm::vec3 getRotation() const;
+                const glm::vec3 getScale() const;
 
-                void SetName(std::string srName);
+                void setName(std::string srName);
 
-                void SetTransform(FTransform transformNew);
-                void SetPosition(glm::vec3 position);
-                void SetRotation(glm::vec3 rotation);
-                void SetScale(glm::vec3 scale);
+                void setTransform(FTransform transformNew);
+                void setPosition(glm::vec3 position);
+                void setRotation(glm::vec3 rotation);
+                void setScale(glm::vec3 scale);
 
                 uint32_t m_index;
 		
-                std::shared_ptr<Mesh::MeshFragment> m_pMesh;
+                std::shared_ptr<Mesh::CMeshFragment> m_pMesh;
                 std::unique_ptr<Skin> m_pSkin;
             protected:
                 std::string m_srName;

@@ -2,7 +2,7 @@
 
 using namespace Engine::Resources::Loaders;
 
-bool MeshLoader::Load(std::string srPath, std::shared_ptr<Resources::ResourceManager> pResourceManager, std::shared_ptr<Mesh::MeshFragment> pMesh, bool bLoadMaterial)
+bool CMeshLoader::load(std::string srPath, std::shared_ptr<Resources::CResourceManager> pResourceManager, std::shared_ptr<Mesh::CMeshFragment> pMesh, bool bLoadMaterial)
 {
     fs::path filepath{srPath};
 
@@ -20,7 +20,7 @@ bool MeshLoader::Load(std::string srPath, std::shared_ptr<Resources::ResourceMan
     return false;
 }
 
-void MeshLoader::CalculateTangents(std::vector<Core::Vertex> &vertices, std::vector<uint32_t> indices)
+void CMeshLoader::calculateTangents(std::vector<Core::Vertex> &vertices, std::vector<uint32_t> indices)
 {
 #pragma omp parallel for
     for (int i = 0; i < vertices.size(); i++)
@@ -35,7 +35,7 @@ void MeshLoader::CalculateTangents(std::vector<Core::Vertex> &vertices, std::vec
     }
 }
 
-glm::vec4 MeshLoader::GenerateNormals(std::vector<Core::Vertex> &vertices, std::vector<uint32_t> indices)
+glm::vec4 CMeshLoader::generateNormals(std::vector<Core::Vertex> &vertices, std::vector<uint32_t> indices)
 {
     return glm::vec4{};
 }

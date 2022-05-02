@@ -7,18 +7,18 @@ namespace Engine
 {
     namespace Resources
     {
-        class ResourceManager;
+        class CResourceManager;
 
         namespace Mesh
         {
-            struct Primitive
+            struct FPrimitive
             {
                 uint32_t firstIndex;
                 uint32_t indexCount;
                 uint32_t firstVertex;
                 uint32_t vertexCount;
                 bool bUseMaterial{false};
-                std::shared_ptr<Material::MaterialBase> material;
+                std::shared_ptr<Material::CMaterialBase> material;
 
                 struct Dimensions
                 {
@@ -32,28 +32,28 @@ namespace Engine
                 void setDimensions(glm::vec3 min, glm::vec3 max);
             };
 
-            class MeshFragment
+            class CMeshFragment
             {
             public:
                 
-                void Create(vk::RenderPass& renderPass, uint32_t subpass);
-                virtual void AddPrimitive(Primitive &&primitive);
-                Primitive& GetPrimitive(uint32_t index);
-                virtual void SetMaterial(std::shared_ptr<Material::MaterialBase> material);
-                void ReCreate();
-                void Update(vk::DescriptorBufferInfo& uboDesc, uint32_t imageIndex);
-                void Bind(vk::CommandBuffer commandBuffer, uint32_t imageIndex, uint32_t instanceCount = 1);
-                void Cleanup();
-                void Destroy();
+                void create(vk::RenderPass& renderPass, uint32_t subpass);
+                virtual void addPrimitive(FPrimitive &&primitive);
+                FPrimitive& getPrimitive(uint32_t index);
+                virtual void setMaterial(std::shared_ptr<Material::CMaterialBase> material);
+                void reCreate();
+                void update(vk::DescriptorBufferInfo& uboDesc, uint32_t imageIndex);
+                void bind(vk::CommandBuffer commandBuffer, uint32_t imageIndex, uint32_t instanceCount = 1);
+                void cleanup();
+                void destroy();
 
-                inline void SetLocalMatrix(glm::mat4 matrix) { m_mMatrix = matrix; }
-                inline glm::mat4& GetLocalMatrix() { return m_mMatrix; }
+                inline void setLocalMatrix(glm::mat4 matrix) { m_mMatrix = matrix; }
+                inline glm::mat4& getLocalMatrix() { return m_mMatrix; }
 
-                void SetName(const std::string& srName);
-                inline std::string GetName() { return m_srName; }
+                void setName(const std::string& srName);
+                inline std::string getName() { return m_srName; }
 
             protected:
-                std::vector<Primitive> m_vPrimitives;
+                std::vector<FPrimitive> m_vPrimitives;
                 glm::mat4 m_mMatrix;
                 std::string m_srName;
             };

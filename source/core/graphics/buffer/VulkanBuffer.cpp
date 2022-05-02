@@ -3,124 +3,124 @@
 
 using namespace Engine::Core;
 
-VulkanBuffer::~VulkanBuffer()
+CVulkanBuffer::~CVulkanBuffer()
 {
-    Clean();
+    clean();
 }
 
-void VulkanBuffer::Create(vk::DeviceSize instanceSize, uint32_t instanceCount,
+void CVulkanBuffer::create(vk::DeviceSize instanceSize, uint32_t instanceCount,
                           vk::BufferUsageFlags usageFlags, vk::MemoryPropertyFlags memoryPropertyFlags,
                           vk::DeviceSize minOffsetAlignment)
 {
-    m_alignmentSize = GetAlignment(instanceSize, minOffsetAlignment);
-    m_bufferSize = m_alignmentSize * instanceCount;
-    UDevice->CreateOnDeviceBuffer(m_bufferSize, usageFlags, memoryPropertyFlags, m_buffer, m_memory);
+    alignmentSize = getAlignment(instanceSize, minOffsetAlignment);
+    bufferSize = alignmentSize * instanceCount;
+    UDevice->CreateOnDeviceBuffer(bufferSize, usageFlags, memoryPropertyFlags, buffer, deviceMemory);
 }
 
-void VulkanBuffer::ReCreate(vk::DeviceSize instanceSize, uint32_t instanceCount,
+void CVulkanBuffer::reCreate(vk::DeviceSize instanceSize, uint32_t instanceCount,
                             vk::BufferUsageFlags usageFlags, vk::MemoryPropertyFlags memoryPropertyFlags,
                             vk::DeviceSize minOffsetAlignment)
 {
-    Create(instanceSize, instanceCount, usageFlags, memoryPropertyFlags, minOffsetAlignment);
+    create(instanceSize, instanceCount, usageFlags, memoryPropertyFlags, minOffsetAlignment);
 }
 
-void VulkanBuffer::Clean()
+void CVulkanBuffer::clean()
 {
-    UnmapMem();
-    UDevice->Destroy(m_buffer);
-    UDevice->Destroy(m_memory);
+    unmapMem();
+    UDevice->Destroy(buffer);
+    UDevice->Destroy(deviceMemory);
 }
 
-vk::DescriptorBufferInfo VulkanBuffer::GetDscriptor(vk::DeviceSize size, vk::DeviceSize offset)
+vk::DescriptorBufferInfo CVulkanBuffer::getDscriptor(vk::DeviceSize size, vk::DeviceSize offset)
 {
-    return vk::DescriptorBufferInfo{m_buffer, offset, size};
+    return vk::DescriptorBufferInfo{buffer, offset, size};
 }
 
-vk::DescriptorBufferInfo VulkanBuffer::GetDscriptor()
+vk::DescriptorBufferInfo CVulkanBuffer::getDscriptor()
 {
-    return GetDscriptor(m_bufferSize, 0);
+    return getDscriptor(bufferSize, 0);
 }
 
-vk::Result VulkanBuffer::MapMem(vk::DeviceSize size, vk::DeviceSize offset)
+vk::Result CVulkanBuffer::mapMem(vk::DeviceSize size, vk::DeviceSize offset)
 {
-    assert(UDevice && m_buffer && m_memory && "Called map on buffer before create");
+    assert(UDevice && buffer && deviceMemory && "Called map on buffer before create");
     if (size == VK_WHOLE_SIZE)
     {
-        return UDevice->GetLogical().mapMemory(m_memory, 0, m_bufferSize, vk::MemoryMapFlags{}, &m_mapped);
+        return UDevice->GetLogical().mapMemory(deviceMemory, 0, bufferSize, vk::MemoryMapFlags{}, &mappedMemory);
     }
-    return UDevice->GetLogical().mapMemory(m_memory, offset, size, vk::MemoryMapFlags{}, &m_mapped);
+    return UDevice->GetLogical().mapMemory(deviceMemory, offset, size, vk::MemoryMapFlags{}, &mappedMemory);
 }
 
-void VulkanBuffer::UnmapMem()
+void CVulkanBuffer::unmapMem()
 {
-    if (m_mapped)
+    if (mappedMemory)
     {
-        UDevice->GetLogical().unmapMemory(m_memory);
-        m_mapped = nullptr;
+        UDevice->GetLogical().unmapMemory(deviceMemory);
+        mappedMemory = nullptr;
     }
 }
 
-void VulkanBuffer::Write(void *idata, vk::DeviceSize size, vk::DeviceSize offset)
+void CVulkanBuffer::write(void *idata, vk::DeviceSize size, vk::DeviceSize offset)
 {
-    assert(UDevice && m_mapped && "Cannot copy to unmapped buffer");
+    assert(UDevice && mappedMemory && "Cannot copy to unmapped buffer");
 
     if (size == VK_WHOLE_SIZE)
     {
-        memcpy(m_mapped, idata, m_bufferSize);
+        memcpy(mappedMemory, idata, bufferSize);
     }
     else
     {
-        char *memOffset = (char *)m_mapped;
+        char *memOffset = (char *)mappedMemory;
         memOffset += offset;
         memcpy(memOffset, idata, size);
     }
 }
 
-vk::Result VulkanBuffer::Flush(vk::DeviceSize size, vk::DeviceSize offset)
+vk::Result CVulkanBuffer::flush(vk::DeviceSize size, vk::DeviceSize offset)
 {
     vk::MappedMemoryRange mappedRange = {};
-    mappedRange.memory = m_memory;
+    mappedRange.memory = deviceMemory;
     mappedRange.offset = offset;
     mappedRange.size = size;
     return UDevice->GetLogical().flushMappedMemoryRanges(1, &mappedRange);
 }
 
-vk::DescriptorBufferInfo VulkanBuffer::DescriptorInfo(vk::DeviceSize size, vk::DeviceSize offset)
+vk::DescriptorBufferInfo CVulkanBuffer::descriptorInfo(vk::DeviceSize size, vk::DeviceSize offset)
 {
-    return vk::DescriptorBufferInfo{m_buffer, offset, size};
+    return vk::DescriptorBufferInfo{buffer, offset, size};
 }
 
-vk::Result VulkanBuffer::Invalidate(vk::DeviceSize size, vk::DeviceSize offset)
+vk::Result CVulkanBuffer::invalidate(vk::DeviceSize size, vk::DeviceSize offset)
 {
     vk::MappedMemoryRange mappedRange = {};
-    mappedRange.memory = m_memory;
+    mappedRange.memory = deviceMemory;
     mappedRange.offset = offset;
     mappedRange.size = size;
 
     return UDevice->GetLogical().invalidateMappedMemoryRanges(1, &mappedRange);
 }
 
-void VulkanBuffer::WriteToIndex(void *idata, int index)
+void CVulkanBuffer::writeToIndex(void *idata, int index)
 {
-    Write(idata, m_instanceSize, index * m_alignmentSize);
+    write(idata, instanceSize, index * alignmentSize);
 }
 
-vk::Result VulkanBuffer::FlushIndex(int index)
+vk::Result CVulkanBuffer::flushIndex(int index)
 {
-    return Flush(m_alignmentSize, index * m_alignmentSize);
+    return flush(alignmentSize, index * alignmentSize);
 }
 
-vk::DescriptorBufferInfo VulkanBuffer::DescriptorInfoForIndex(int index)
+vk::DescriptorBufferInfo CVulkanBuffer::descriptorInfoForIndex(int index)
 {
-    return DescriptorInfo(m_alignmentSize, index * m_alignmentSize);
+    return descriptorInfo(alignmentSize, index * alignmentSize);
 }
 
-vk::Result VulkanBuffer::InvalidateIndex(int index)
+vk::Result CVulkanBuffer::invalidateIndex(int index)
 {
-    return Invalidate(m_alignmentSize, index * m_alignmentSize);
+    return invalidate(alignmentSize, index * alignmentSize);
 }
 
-vk::DeviceSize VulkanBuffer::GetAlignment(vk::DeviceSize instanceSize, vk::DeviceSize minOffsetAlignment)
+vk::DeviceSize CVulkanBuffer::getAlignment(vk::DeviceSize instanceSize, vk::DeviceSize minOffsetAlignment)
 {
     if (minOffsetAlignment > 0)
     {

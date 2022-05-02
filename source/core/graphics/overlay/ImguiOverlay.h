@@ -6,15 +6,15 @@ namespace Engine
 {
     namespace Resources
     {
-        class ResourceManager;
-        namespace Material { class MaterialUI; }
+        class CResourceManager;
+        namespace Material { class CMaterialUI; }
     }
 
     namespace Core
     {
         class CImage;
-        class VulkanBuffer;
-        class UniformHandler;
+        class CVulkanBuffer;
+        class CUniformHandler;
 
         struct FGUIControls
         {
@@ -39,7 +39,7 @@ namespace Engine
             void Update(float deltaTime);
             void DrawFrame(vk::CommandBuffer commandBuffer, uint32_t index);
 
-            std::unique_ptr<VulkanBuffer> &GetBuffer(uint32_t index);
+            std::unique_ptr<CVulkanBuffer> &GetBuffer(uint32_t index);
 
         private:
             void BaseInitialize();
@@ -56,11 +56,11 @@ namespace Engine
             void OnInputChar(unsigned int c);
             void OnMonitorEvent(int monitor);
 
-            std::shared_ptr<UniformHandler> m_pUniformHandle;
+            std::shared_ptr<CUniformHandler> m_pUniformHandle;
             std::shared_ptr<CImage> fontTexture;
-            std::shared_ptr<Resources::Material::MaterialUI> fontMaterial;
-            std::shared_ptr<VulkanBuffer> vertexBuffer;
-            std::shared_ptr<VulkanBuffer> indexBuffer;
+            std::shared_ptr<Resources::Material::CMaterialUI> fontMaterial;
+            std::shared_ptr<CVulkanBuffer> vertexBuffer;
+            std::shared_ptr<CVulkanBuffer> indexBuffer;
             int vertexCount{0};
             int indexCount{0};
 

@@ -37,22 +37,22 @@ void CPBRCompositionPass::create(std::unique_ptr<FRenderCreateInfo>& createInfo)
     irradiance = UHLInstance->GetThreadPool()->submit(&CPBRCompositionPass::ComputeIrradiance, m_pSkybox, 64);
     prefiltered = UHLInstance->GetThreadPool()->submit(&CPBRCompositionPass::ComputePrefiltered, m_pSkybox, 512);
 
-    pMaterial = std::make_shared<MaterialDeferred>();
-    pMaterial->Create(createInfo->renderPass, createInfo->subpass);
+    pMaterial = std::make_shared<CMaterialDeferred>();
+    pMaterial->create(createInfo->renderPass, createInfo->subpass);
     CSubpass::create(createInfo);
 }
 
 void CPBRCompositionPass::render(std::unique_ptr<FRenderProcessInfo>& renderData)
 {
-    pMaterial->AddTexture("brdflut_tex", *brdf);
-    pMaterial->AddTexture("irradiance_tex", *irradiance);
-    pMaterial->AddTexture("prefiltred_tex", *prefiltered);
-    pMaterial->AddTexture("position_tex", renderData->images["position_tex"]);
-    pMaterial->AddTexture("lightning_mask_tex", renderData->images["lightning_mask_tex"]);
-    pMaterial->AddTexture("normal_tex", renderData->images["normal_tex"]);
-    pMaterial->AddTexture("albedo_tex", renderData->images["albedo_tex"]);
-    pMaterial->AddTexture("emission_tex", renderData->images["emission_tex"]);
-    pMaterial->AddTexture("mrah_tex", renderData->images["mrah_tex"]);
+    pMaterial->addTexture("brdflut_tex", *brdf);
+    pMaterial->addTexture("irradiance_tex", *irradiance);
+    pMaterial->addTexture("prefiltred_tex", *prefiltered);
+    pMaterial->addTexture("position_tex", renderData->images["position_tex"]);
+    pMaterial->addTexture("lightning_mask_tex", renderData->images["lightning_mask_tex"]);
+    pMaterial->addTexture("normal_tex", renderData->images["normal_tex"]);
+    pMaterial->addTexture("albedo_tex", renderData->images["albedo_tex"]);
+    pMaterial->addTexture("emission_tex", renderData->images["emission_tex"]);
+    pMaterial->addTexture("mrah_tex", renderData->images["mrah_tex"]);
 
     auto imageIndex = USwapChain->GetCurrentFrame();
 
@@ -69,9 +69,9 @@ void CPBRCompositionPass::render(std::unique_ptr<FRenderProcessInfo>& renderData
     
     pUniform->updateUniformBuffer(imageIndex, &ubo);
     auto& buffer = pUniform->getUniformBuffer(imageIndex);
-    auto descriptor = buffer->GetDscriptor();
-    pMaterial->Update(descriptor, imageIndex);
-    pMaterial->Bind(renderData->commandBuffer, imageIndex);
+    auto descriptor = buffer->getDscriptor();
+    pMaterial->update(descriptor, imageIndex);
+    pMaterial->bind(renderData->commandBuffer, imageIndex);
 
     renderData->commandBuffer.draw(3, 1, 0, 0);
 }
@@ -168,12 +168,12 @@ std::shared_ptr<CImage> CPBRCompositionPass::ComputePrefiltered(const std::share
 
     auto cmdBuf = CCommandBuffer(true, vk::QueueFlagBits::eCompute);
     auto descriptor = Descriptor::CDescriptorHandler();
-    auto push = PushHandler();
+    auto push = CPushHandler();
     
     std::shared_ptr<Pipeline::CPipelineBase> computePipeline = Pipeline::CPipelineBase::Builder().
     addShaderStage("../../assets/shaders/generators/prefilteredmap.comp").
     build();
-    push.Create(*computePipeline->getShader()->getPushBlock("object"));
+    push.create(*computePipeline->getShader()->getPushBlock("object"));
 
     for (uint32_t i = 0; i < prefilteredCubemap->getMipLevels(); i++)
     {
@@ -203,14 +203,14 @@ std::shared_ptr<CImage> CPBRCompositionPass::ComputePrefiltered(const std::share
 		descriptorWrite.descriptorType = *computePipeline->getShader()->getDescriptorType(descriptorWrite.dstBinding);
 		descriptorWrite.pImageInfo = &imageInfo;
 
-        push.Set("roughness", static_cast<float>(i) / static_cast<float>(prefilteredCubemap->getMipLevels() - 1), 0);
+        push.set("roughness", static_cast<float>(i) / static_cast<float>(prefilteredCubemap->getMipLevels() - 1), 0);
 
         descriptor.create(computePipeline);
         descriptor.set("outColour", descriptorWrite);
         descriptor.set("samplerColour", source->getDescriptor());
         descriptor.update(0);
         descriptor.bind(commandBuffer, USwapChain->GetCurrentFrame());
-        push.Flush(commandBuffer, computePipeline);
+        push.flush(commandBuffer, computePipeline);
 
         auto groupCountX = static_cast<uint32_t>(std::ceil(static_cast<float>(size) / static_cast<float>(*computePipeline->getShader()->getLocalSizes()[0])));
         auto groupCountY = static_cast<uint32_t>(std::ceil(static_cast<float>(size) / static_cast<float>(*computePipeline->getShader()->getLocalSizes()[1])));

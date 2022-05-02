@@ -5,7 +5,7 @@
 
 namespace Engine
 {
-    namespace Resources { class ResourceManager; }
+    namespace Resources { class CResourceManager; }
     namespace Core
     {
         namespace Scene { namespace Objects { class RenderObject; } }
@@ -14,7 +14,7 @@ namespace Engine
         public:
             RenderSystem() = default;
             ~RenderSystem();
-            void create(std::shared_ptr<Resources::ResourceManager> resourceManager, std::shared_ptr<Scene::Objects::RenderObject> root);
+            void create(std::shared_ptr<Resources::CResourceManager> resourceManager, std::shared_ptr<Scene::Objects::RenderObject> root);
             void reCreate();
             void render(std::shared_ptr<Scene::Objects::RenderObject> root);
             void cleanup();

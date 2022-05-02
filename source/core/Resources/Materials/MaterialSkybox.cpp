@@ -7,7 +7,7 @@ using namespace Engine::Resources::Material;
 using namespace Engine::Core::Descriptor;
 using namespace Engine::Core::Pipeline;
 
-void MaterialSkybox::Create(vk::RenderPass& renderPass, uint32_t subpass)
+void CMaterialSkybox::create(vk::RenderPass& renderPass, uint32_t subpass)
 {
     m_pPipeline = CPipelineBase::Builder().
     setVertexInput(CVertexInput(Vertex::getBindingDescription(), Vertex::getAttributeDescriptions())).
@@ -16,30 +16,30 @@ void MaterialSkybox::Create(vk::RenderPass& renderPass, uint32_t subpass)
     addShaderStage("../../assets/shaders/main/skybox.vert").
     addShaderStage("../../assets/shaders/main/skybox.frag").
     build(renderPass, subpass);
-    MaterialBase::Create(renderPass, subpass);
+    CMaterialBase::create(renderPass, subpass);
 }
 
-void MaterialSkybox::ReCreate()
+void CMaterialSkybox::reCreate()
 {
     m_pPipeline->recreatePipeline();
-    MaterialBase::ReCreate();
+    CMaterialBase::reCreate();
 }
 
-void MaterialSkybox::Update(vk::DescriptorBufferInfo& uboDesc, uint32_t imageIndex)
+void CMaterialSkybox::update(vk::DescriptorBufferInfo& uboDesc, uint32_t imageIndex)
 {
     m_pDescriptorSet->clear();
     m_pDescriptorSet->set("FUniformData", uboDesc);
     for(auto& [key, texture] : m_mTextures)
         m_pDescriptorSet->set(key, texture); //"samplerCubeMap"
-    MaterialBase::Update(uboDesc, imageIndex);
+    CMaterialBase::update(uboDesc, imageIndex);
 }
 
-void MaterialSkybox::Bind(vk::CommandBuffer commandBuffer, uint32_t imageIndex)
+void CMaterialSkybox::bind(vk::CommandBuffer commandBuffer, uint32_t imageIndex)
 {
-    MaterialBase::Bind(commandBuffer, imageIndex);
+    CMaterialBase::bind(commandBuffer, imageIndex);
 }
 
-void MaterialSkybox::Cleanup()
+void CMaterialSkybox::cleanup()
 {
-    MaterialBase::Cleanup();
+    CMaterialBase::cleanup();
 }

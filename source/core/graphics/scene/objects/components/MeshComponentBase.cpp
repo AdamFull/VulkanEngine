@@ -17,7 +17,7 @@ void MeshComponentBase::Create(vk::RenderPass& renderPass, uint32_t subpass)
 
     if (m_pMesh)
     {
-        m_pMesh->Create(renderPass, subpass);
+        m_pMesh->create(renderPass, subpass);
     }
 }
 
@@ -27,7 +27,7 @@ void MeshComponentBase::ReCreate()
 
     if (m_pMesh)
     {
-        m_pMesh->ReCreate();
+        m_pMesh->reCreate();
     }
 }
 
@@ -59,7 +59,7 @@ void MeshComponentBase::Render(vk::CommandBuffer &commandBuffer, uint32_t imageI
             ubo.instancePos[i] = m_vInstances.at(i);
         
         auto instanceCount = m_vInstances.size();
-        m_pMesh->Render(commandBuffer, imageIndex, ubo, instanceCount == 0 ? 1 : instanceCount);
+        m_pMesh->render(commandBuffer, imageIndex, ubo, instanceCount == 0 ? 1 : instanceCount);
     }
 }
 
@@ -69,7 +69,7 @@ void MeshComponentBase::Cleanup()
 
     if (m_pMesh)
     {
-        m_pMesh->Cleanup();
+        m_pMesh->cleanup();
     }
 }
 

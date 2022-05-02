@@ -7,16 +7,16 @@ namespace Engine
     {
         namespace Material
         {
-            class MaterialBlur : public MaterialBase
+            class CMaterialBlur : public CMaterialBase
             {
             public:
-                MaterialBlur() = default;
+                CMaterialBlur() = default;
 
-                void Create(vk::RenderPass& renderPass, uint32_t subpass) override;
-                void ReCreate() override;
-                void Update(vk::DescriptorBufferInfo& uboDesc, uint32_t imageIndex) override;
-                void Bind(vk::CommandBuffer commandBuffer, uint32_t imageIndex) override;
-                void Cleanup() override;
+                void create(vk::RenderPass& renderPass, uint32_t subpass) override;
+                void reCreate() override;
+                void update(vk::DescriptorBufferInfo& uboDesc, uint32_t imageIndex) override;
+                void bind(vk::CommandBuffer commandBuffer, uint32_t imageIndex) override;
+                void cleanup() override;
             };
         }
     }

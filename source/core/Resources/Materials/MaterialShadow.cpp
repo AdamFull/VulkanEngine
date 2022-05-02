@@ -8,20 +8,20 @@ using namespace Engine::Resources::Material;
 using namespace Engine::Core::Descriptor;
 using namespace Engine::Core::Pipeline;
 
-void MaterialShadow::Create(vk::RenderPass& renderPass, uint32_t subpass)
+void CMaterialShadow::create(vk::RenderPass& renderPass, uint32_t subpass)
 {
-    MaterialBase::Create(renderPass, subpass);
+    CMaterialBase::create(renderPass, subpass);
 }
 
-void MaterialShadow::ReCreate()
+void CMaterialShadow::reCreate()
 {
     m_pPipeline->recreatePipeline();
-    MaterialBase::ReCreate();
+    CMaterialBase::reCreate();
 }
 
-void MaterialShadow::Update(vk::DescriptorBufferInfo& uboDesc, uint32_t imageIndex)
+void CMaterialShadow::update(vk::DescriptorBufferInfo& uboDesc, uint32_t imageIndex)
 {
-    MaterialBase::Update(uboDesc, imageIndex);
+    CMaterialBase::update(uboDesc, imageIndex);
 
     /*auto bufferInfo = VulkanDescriptorWriter().
     WriteBuffer(0, m_pMatDesc->GetSetLayout(0)->GetBindings(), &uboDesc).
@@ -29,12 +29,12 @@ void MaterialShadow::Update(vk::DescriptorBufferInfo& uboDesc, uint32_t imageInd
     m_pMatDesc->Update(0, imageIndex, bufferInfo);*/
 }
 
-void MaterialShadow::Bind(vk::CommandBuffer commandBuffer, uint32_t imageIndex)
+void CMaterialShadow::bind(vk::CommandBuffer commandBuffer, uint32_t imageIndex)
 {
-    MaterialBase::Bind(commandBuffer, imageIndex);
+    CMaterialBase::bind(commandBuffer, imageIndex);
 }
 
-void MaterialShadow::Cleanup()
+void CMaterialShadow::cleanup()
 {
-    MaterialBase::Cleanup();
+    CMaterialBase::cleanup();
 }

@@ -5,17 +5,17 @@ namespace Engine
 {
     namespace Resources
     {
-        class ResourceManager;
+        class CResourceManager;
         namespace Material
         {
-            class MaterialBase;
+            class CMaterialBase;
 
-            struct MaterialFactory
+            struct CMaterialFactory
             {
-                using material_t = std::unique_ptr<MaterialBase>;
+                using material_t = std::unique_ptr<CMaterialBase>;
 
             public:
-                static std::shared_ptr<MaterialBase> Create(std::shared_ptr<Resources::ResourceManager> resourceMgr, FMaterialCreateInfo info);
+                static std::shared_ptr<CMaterialBase> create(std::shared_ptr<Resources::CResourceManager> resourceMgr, FMaterialCreateInfo info);
 
             private:
                 static std::map<EMaterialType, std::function<material_t()>> m_mFactory;

@@ -12,7 +12,7 @@ namespace Engine
         InputMapper::getInstance()->CreateAction("ServiceHandles", EActionKey::eEscape, EActionKey::eF1);
         InputMapper::getInstance()->BindAction("ServiceHandles", EKeyState::eRelease, this, &Application::ServiceHandle);
 
-        Core::FEngineCreateInfo createInfo = FilesystemHelper::GetConfigAs<Core::FEngineCreateInfo>("engine/config.json");
+        Core::FEngineCreateInfo createInfo = FilesystemHelper::getConfigAs<Core::FEngineCreateInfo>("engine/config.json");
         UHLInstance->Create(createInfo);
 
         m_pCameraController = std::make_unique<Controllers::CameraEditorController>();

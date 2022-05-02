@@ -3,7 +3,7 @@
 
 namespace Engine
 {
-    namespace Resources { class ResourceManager; }
+    namespace Resources { class CResourceManager; }
     namespace Core
     {
         class CImage;

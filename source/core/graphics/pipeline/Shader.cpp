@@ -17,7 +17,7 @@ public:
 	IncludeResult *includeLocal(const char *headerName, const char *includerName, size_t inclusionDepth) override 
     {
 		auto directory = fs::path(includerName).parent_path();
-		auto fileLoaded = Engine::FilesystemHelper::ReadFile((directory / headerName).string());
+		auto fileLoaded = Engine::FilesystemHelper::readFile((directory / headerName).string());
 
 		if (fileLoaded.empty()) 
         {
@@ -34,7 +34,7 @@ public:
 
 	IncludeResult *includeSystem(const char *headerName, const char *includerName, size_t inclusionDepth) override 
     {
-		auto fileLoaded = Engine::FilesystemHelper::ReadFile(headerName);
+		auto fileLoaded = Engine::FilesystemHelper::readFile(headerName);
 
 		if (fileLoaded.empty()) {
 			std::stringstream ss;

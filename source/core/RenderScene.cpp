@@ -20,8 +20,8 @@ RenderScene::~RenderScene()
 void RenderScene::Create()
 {
     m_pRoot = std::make_shared<Core::Scene::Objects::Components::SceneRootComponent>();
-    m_pResourceManager = std::make_shared<Resources::ResourceManager>();
-    m_pResourceManager->Create();
+    m_pResourceManager = std::make_shared<Resources::CResourceManager>();
+    m_pResourceManager->create();
 }
 
 void RenderScene::ReCreate()

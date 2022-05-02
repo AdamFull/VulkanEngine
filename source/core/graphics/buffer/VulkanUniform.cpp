@@ -24,8 +24,8 @@ void CUniformBuffer::cleanup()
 }
 void CUniformBuffer::updateUniformBuffer(uint32_t index, void *ubo)
 {
-    vBuffers[index]->Write(ubo);
-    vBuffers[index]->Flush();
+    vBuffers[index]->write(ubo);
+    vBuffers[index]->flush();
 }
 
 void CUniformBuffer::createUniformBuffers(uint32_t inFlightFrames)
@@ -36,21 +36,21 @@ void CUniformBuffer::createUniformBuffers(uint32_t inFlightFrames)
     auto minOffsetAllignment = std::lcm(physProps.limits.minUniformBufferOffsetAlignment, physProps.limits.nonCoherentAtomSize);
     for (size_t i = 0; i < inFlightFrames; i++)
     {
-        auto uniform = std::make_unique<VulkanBuffer>();
-        uniform->Create(iUniformSize, 1, vk::BufferUsageFlagBits::eUniformBuffer,
+        auto uniform = std::make_unique<CVulkanBuffer>();
+        uniform->create(iUniformSize, 1, vk::BufferUsageFlagBits::eUniformBuffer,
                         vk::MemoryPropertyFlagBits::eHostVisible | vk::MemoryPropertyFlagBits::eHostCoherent, minOffsetAllignment);
-        uniform->MapMem();
+        uniform->mapMem();
 
         vBuffers[i] = std::move(uniform);
     }
 }
 
-std::vector<std::unique_ptr<VulkanBuffer>> &CUniformBuffer::getUniformBuffers()
+std::vector<std::unique_ptr<CVulkanBuffer>> &CUniformBuffer::getUniformBuffers()
 {
     return vBuffers;
 }
 
-std::unique_ptr<VulkanBuffer> &CUniformBuffer::getUniformBuffer(uint32_t index)
+std::unique_ptr<CVulkanBuffer> &CUniformBuffer::getUniformBuffer(uint32_t index)
 {
     return vBuffers[index];
 }

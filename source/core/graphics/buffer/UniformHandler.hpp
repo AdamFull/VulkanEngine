@@ -5,39 +5,39 @@ namespace Engine
 {
     namespace Core
     {
-        class VulkanBuffer;
-        class UniformHandler : public utl::non_copy_movable
+        class CVulkanBuffer;
+        class CUniformHandler : public utl::non_copy_movable
         {
         public:
-            void Create(const Pipeline::CUniformBlock &uniformBlock);
-            void ReCreate();
-            void Cleanup();
-            void Flush(vk::CommandBuffer& commandBuffer, std::shared_ptr<Pipeline::CPipelineBase> pPipeline);
+            void create(const Pipeline::CUniformBlock &uniformBlock);
+            void reCreate();
+            void cleanup();
+            void flush(vk::CommandBuffer& commandBuffer, std::shared_ptr<Pipeline::CPipelineBase> pPipeline);
 
             template<class T>
-            void Set(const T &object, uint32_t index, std::size_t offset, std::size_t size)
+            void set(const T &object, uint32_t index, std::size_t offset, std::size_t size)
             {
-                if (!m_uniformBlock || m_pBuffers.empty())
+                if (!uniformBlock || vBuffers.empty())
 			        return;
 
-                if(!m_vMapped.at(index))
+                if(!vMapped.at(index))
                 {
-                    m_pBuffers.at(index)->MapMem();
-                    m_vMapped.at(index) = true;
+                    vBuffers.at(index)->mapMem();
+                    vMapped.at(index) = true;
                 }
 
-                auto* data = m_pBuffers.at(index)->GetMappedMemory();
+                auto* data = vBuffers.at(index)->getMappedMemory();
 
                 std::memcpy(static_cast<char *>(data) + offset, &object, size);
             }
 
             template<class T>
-            void Set(const std::string &uniformName, const T &object, uint32_t index, std::size_t size = 0)
+            void set(const std::string &uniformName, const T &object, uint32_t index, std::size_t size = 0)
             {
-                if (!m_uniformBlock)
+                if (!uniformBlock)
 			        return;
 
-                auto uniform = m_uniformBlock->getUniform(uniformName);
+                auto uniform = uniformBlock->getUniform(uniformName);
                 if (!uniform)
                     return;
 
@@ -45,19 +45,19 @@ namespace Engine
                 if (realSize == 0)
                     realSize = std::min(sizeof(object), static_cast<std::size_t>(uniform->getSize()));
                 
-                Set(object, index, static_cast<std::size_t>(uniform->getOffset()), realSize);
+                set(object, index, static_cast<std::size_t>(uniform->getOffset()), realSize);
             }
 
             // Getters
-            std::vector<std::unique_ptr<VulkanBuffer>> &GetUniformBuffers();
-            std::unique_ptr<VulkanBuffer> &GetUniformBuffer(uint32_t index);
+            std::vector<std::unique_ptr<CVulkanBuffer>> &getUniformBuffers();
+            std::unique_ptr<CVulkanBuffer> &getUniformBuffer(uint32_t index);
         private:
-            void CreateUniformBuffers(uint32_t inFlightFrames);
+            void createUniformBuffers(uint32_t inFlightFrames);
             
-            std::optional<Pipeline::CUniformBlock> m_uniformBlock;
-            size_t m_iUniformSize{0};
-            std::vector<std::unique_ptr<VulkanBuffer>> m_pBuffers;
-            std::vector<bool> m_vMapped;
+            std::optional<Pipeline::CUniformBlock> uniformBlock;
+            size_t iUniformSize{0};
+            std::vector<std::unique_ptr<CVulkanBuffer>> vBuffers;
+            std::vector<bool> vMapped;
         };
     }
 }

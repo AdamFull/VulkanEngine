@@ -5,7 +5,7 @@
 
 using namespace Engine::Resources::Mesh;
 
-void Primitive::setDimensions(glm::vec3 min, glm::vec3 max)
+void FPrimitive::setDimensions(glm::vec3 min, glm::vec3 max)
 {
     dimensions.min = min;
     dimensions.max = max;
@@ -14,26 +14,26 @@ void Primitive::setDimensions(glm::vec3 min, glm::vec3 max)
     dimensions.radius = glm::distance(min, max) / 2.0f;
 }
 
-void MeshFragment::Create(vk::RenderPass& renderPass, uint32_t subpass)
+void CMeshFragment::create(vk::RenderPass& renderPass, uint32_t subpass)
 {
     for (auto &primitive : m_vPrimitives)
     {
         if(primitive.material)
-            primitive.material->Create(renderPass, subpass);
+            primitive.material->create(renderPass, subpass);
     }
 }
 
-void MeshFragment::AddPrimitive(Primitive &&primitive)
+void CMeshFragment::addPrimitive(FPrimitive &&primitive)
 {
     m_vPrimitives.emplace_back(primitive);
 }
 
-Primitive& MeshFragment::GetPrimitive(uint32_t index)
+FPrimitive& CMeshFragment::getPrimitive(uint32_t index)
 {
     return m_vPrimitives.at(index);
 }
 
-void MeshFragment::SetMaterial(std::shared_ptr<Material::MaterialBase> material)
+void CMeshFragment::setMaterial(std::shared_ptr<Material::CMaterialBase> material)
 {
     /*auto it = m_vPrimitives.find(srPrimitiveName);
     std::find(m_vPrimitives.begin(), m_vPrimitives.end(), )
@@ -43,50 +43,50 @@ void MeshFragment::SetMaterial(std::shared_ptr<Material::MaterialBase> material)
         assert(false && "Primitive for material was not found");*/
 }
 
-void MeshFragment::ReCreate()
+void CMeshFragment::reCreate()
 {
     for (auto &primitive : m_vPrimitives)
     {
         if(primitive.material)
-            primitive.material->ReCreate();
+            primitive.material->reCreate();
     }
 }
 
-void MeshFragment::Update(vk::DescriptorBufferInfo& uboDesc, uint32_t imageIndex)
+void CMeshFragment::update(vk::DescriptorBufferInfo& uboDesc, uint32_t imageIndex)
 {
     for (auto &primitive : m_vPrimitives)
     {
         if(primitive.material && primitive.bUseMaterial)
-            primitive.material->Update(uboDesc, imageIndex);
+            primitive.material->update(uboDesc, imageIndex);
     }
 }
 
-void MeshFragment::Bind(vk::CommandBuffer commandBuffer, uint32_t imageIndex, uint32_t instanceCount)
+void CMeshFragment::bind(vk::CommandBuffer commandBuffer, uint32_t imageIndex, uint32_t instanceCount)
 {
     for (auto &primitive : m_vPrimitives)
     {
         if(primitive.material && primitive.bUseMaterial)
-            primitive.material->Bind(commandBuffer, imageIndex);
+            primitive.material->bind(commandBuffer, imageIndex);
             
         commandBuffer.drawIndexed(primitive.indexCount, instanceCount, primitive.firstIndex, 0, 0);
     }
 }
 
-void MeshFragment::Cleanup()
+void CMeshFragment::cleanup()
 {
     for (auto &primitive : m_vPrimitives)
     {
         if(primitive.material)
-            primitive.material->Cleanup();
+            primitive.material->cleanup();
     }
 }
 
-void MeshFragment::Destroy()
+void CMeshFragment::destroy()
 {
 
 }
 
-void MeshFragment::SetName(const std::string& srName)
+void CMeshFragment::setName(const std::string& srName)
 {
     m_srName = srName + uuid::generate();
 }

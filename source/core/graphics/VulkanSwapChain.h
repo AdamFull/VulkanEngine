@@ -5,7 +5,7 @@ namespace Engine
 {
     namespace Resources
     {
-        namespace Material { class MaterialBase; }
+        namespace Material { class CMaterialBase; }
     }
     namespace Core
     {

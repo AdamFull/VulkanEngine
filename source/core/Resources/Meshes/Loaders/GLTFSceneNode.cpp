@@ -3,7 +3,7 @@
 using namespace Engine::Resources::Mesh;
 using namespace Engine::Resources::Loaders;
 
-void GLTFSceneNode::SetName(std::string srName)
+void GLTFSceneNode::setName(std::string srName)
 {
     if (m_pParent)
     {
@@ -19,28 +19,28 @@ void GLTFSceneNode::SetName(std::string srName)
     m_srName = srName;
 }
 
-std::string &GLTFSceneNode::GetName()
+std::string &GLTFSceneNode::getName()
 {
     return m_srName;
 }
 
-std::string &GLTFSceneNode::GetUUID()
+std::string &GLTFSceneNode::getUUID()
 {
     return m_srUUID;
 }
 
-std::shared_ptr<GLTFSceneNode> &GLTFSceneNode::GetParent()
+std::shared_ptr<GLTFSceneNode> &GLTFSceneNode::getParent()
 {
     return m_pParent;
 }
 
-std::map<std::string, std::shared_ptr<GLTFSceneNode>> &GLTFSceneNode::GetChilds()
+std::map<std::string, std::shared_ptr<GLTFSceneNode>> &GLTFSceneNode::getChilds()
 {
     return m_mChilds;
 }
 
 // Deep search
-std::shared_ptr<GLTFSceneNode> GLTFSceneNode::Find(std::string srName)
+std::shared_ptr<GLTFSceneNode> GLTFSceneNode::find(std::string srName)
 {
     auto it_id = m_mUUID.find(srName);
     if (it_id != m_mUUID.end())
@@ -50,31 +50,31 @@ std::shared_ptr<GLTFSceneNode> GLTFSceneNode::Find(std::string srName)
             return it->second;
     }
     for (auto &[name, child] : m_mChilds)
-        child->Find(srName);
+        child->find(srName);
     return nullptr;
 }
 
-void GLTFSceneNode::AddChild(std::shared_ptr<GLTFSceneNode> child)
+void GLTFSceneNode::addChild(std::shared_ptr<GLTFSceneNode> child)
 {
     m_mChilds.emplace(child->m_srUUID, child);
     m_mUUID.emplace(child->m_srName, child->m_srUUID);
-    child->SetParent(shared_from_this());
+    child->setParent(shared_from_this());
 }
 
-void GLTFSceneNode::SetParent(std::shared_ptr<GLTFSceneNode> parent)
+void GLTFSceneNode::setParent(std::shared_ptr<GLTFSceneNode> parent)
 {
     m_pParentOld = m_pParent;
     m_pParent = parent;
     // If you set parent for this, you should attach self to parent's child's
     if (m_pParentOld)
-        m_pParentOld->Detach(shared_from_this());
+        m_pParentOld->detach(shared_from_this());
 }
-void GLTFSceneNode::Attach(std::shared_ptr<GLTFSceneNode> child)
+void GLTFSceneNode::attach(std::shared_ptr<GLTFSceneNode> child)
 {
-    AddChild(child);
+    addChild(child);
 }
 
-void GLTFSceneNode::Detach(std::shared_ptr<GLTFSceneNode> child)
+void GLTFSceneNode::detach(std::shared_ptr<GLTFSceneNode> child)
 {
     auto it = m_mChilds.find(child->m_srUUID);
     if (it != m_mChilds.end())
@@ -86,54 +86,54 @@ void GLTFSceneNode::Detach(std::shared_ptr<GLTFSceneNode> child)
     }
 }
 
-FTransform GLTFSceneNode::GetTransform()
+FTransform GLTFSceneNode::getTransform()
 {
     FTransform transform = m_transform;
     if (m_pParent)
-        transform += m_pParent->GetTransform();
+        transform += m_pParent->getTransform();
     return transform;
 }
 
-const glm::vec3 GLTFSceneNode::GetPosition() const
+const glm::vec3 GLTFSceneNode::getPosition() const
 {
     glm::vec3 position = m_transform.pos;
     if (m_pParent)
-        position += m_pParent->GetPosition();
+        position += m_pParent->getPosition();
     return position;
 }
 
-const glm::vec3 GLTFSceneNode::GetRotation() const
+const glm::vec3 GLTFSceneNode::getRotation() const
 {
     glm::vec3 rotation = m_transform.rot;
     if (m_pParent)
-        rotation += m_pParent->GetRotation();
+        rotation += m_pParent->getRotation();
     return rotation;
 }
 
-const glm::vec3 GLTFSceneNode::GetScale() const
+const glm::vec3 GLTFSceneNode::getScale() const
 {
     glm::vec3 scale = m_transform.scale;
     if (m_pParent)
-        scale *= m_pParent->GetScale();
+        scale *= m_pParent->getScale();
     return scale;
 }
 
-void GLTFSceneNode::SetTransform(FTransform transformNew)
+void GLTFSceneNode::setTransform(FTransform transformNew)
 {
     m_transform = transformNew;
 }
 
-void GLTFSceneNode::SetPosition(glm::vec3 position)
+void GLTFSceneNode::setPosition(glm::vec3 position)
 {
     m_transform.pos = position;
 }
 
-void GLTFSceneNode::SetRotation(glm::vec3 rotation)
+void GLTFSceneNode::setRotation(glm::vec3 rotation)
 {
     m_transform.rot = rotation;
 }
 
-void GLTFSceneNode::SetScale(glm::vec3 scale)
+void GLTFSceneNode::setScale(glm::vec3 scale)
 {
     m_transform.scale = scale;
 }

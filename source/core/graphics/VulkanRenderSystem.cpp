@@ -10,7 +10,7 @@ RenderSystem::~RenderSystem()
     cleanup();
 }
 
-void RenderSystem::create(std::shared_ptr<Resources::ResourceManager> resourceManager, std::shared_ptr<Scene::Objects::RenderObject> root)
+void RenderSystem::create(std::shared_ptr<Resources::CResourceManager> resourceManager, std::shared_ptr<Scene::Objects::RenderObject> root)
 {
     screenExtent = USwapChain->GetExtent();
     commandBuffers = std::make_shared<CCommandBuffer>(false, vk::QueueFlagBits::eGraphics, vk::CommandBufferLevel::ePrimary, USwapChain->GetFramesInFlight());

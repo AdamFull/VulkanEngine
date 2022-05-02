@@ -5,62 +5,62 @@
 using namespace Engine::Core;
 using namespace Engine::Core::Pipeline;
 
-void UniformHandler::Create(const CUniformBlock &uniformBlock)
+void CUniformHandler::create(const CUniformBlock &_uniformBlock)
 {
     uint32_t images = USwapChain->GetFramesInFlight();
-    m_vMapped.resize(images);
-    m_iUniformSize = uniformBlock.getSize();
-    m_uniformBlock = uniformBlock;
-    CreateUniformBuffers(images);
+    vMapped.resize(images);
+    iUniformSize = _uniformBlock.getSize();
+    uniformBlock = _uniformBlock;
+    createUniformBuffers(images);
 }
 
-void UniformHandler::ReCreate()
+void CUniformHandler::reCreate()
 {
-    Create(m_uniformBlock.value());
+    create(uniformBlock.value());
 }
 
-void UniformHandler::Cleanup()
+void CUniformHandler::cleanup()
 {
-    m_pBuffers.clear();
-    m_vMapped.clear();
+    vBuffers.clear();
+    vMapped.clear();
 }
 
-void UniformHandler::Flush(vk::CommandBuffer& commandBuffer, std::shared_ptr<Pipeline::CPipelineBase> pPipeline)
+void CUniformHandler::flush(vk::CommandBuffer& commandBuffer, std::shared_ptr<Pipeline::CPipelineBase> pPipeline)
 {
     uint32_t index = USwapChain->GetCurrentFrame();
-    if (!m_pBuffers.empty())
+    if (!vBuffers.empty())
 		return;
     
-    if(m_vMapped.at(index))
+    if(vMapped.at(index))
     {
-        m_pBuffers.at(index)->Flush();
-        m_pBuffers.at(index)->UnmapMem();
-        m_vMapped.at(index) = false;
+        vBuffers.at(index)->flush();
+        vBuffers.at(index)->unmapMem();
+        vMapped.at(index) = false;
     }
 }
 
-void UniformHandler::CreateUniformBuffers(uint32_t inFlightFrames)
+void CUniformHandler::createUniformBuffers(uint32_t inFlightFrames)
 {
-    m_pBuffers.resize(inFlightFrames);
+    vBuffers.resize(inFlightFrames);
 
     auto physProps = UDevice->GetPhysical().getProperties();
     auto minOffsetAllignment = std::lcm(physProps.limits.minUniformBufferOffsetAlignment, physProps.limits.nonCoherentAtomSize);
     for (size_t i = 0; i < inFlightFrames; i++)
     {
-        auto uniform = std::make_unique<VulkanBuffer>();
-        uniform->Create(m_iUniformSize, 1, vk::BufferUsageFlagBits::eUniformBuffer, vk::MemoryPropertyFlagBits::eHostVisible | vk::MemoryPropertyFlagBits::eHostCoherent, minOffsetAllignment);
+        auto uniform = std::make_unique<CVulkanBuffer>();
+        uniform->create(iUniformSize, 1, vk::BufferUsageFlagBits::eUniformBuffer, vk::MemoryPropertyFlagBits::eHostVisible | vk::MemoryPropertyFlagBits::eHostCoherent, minOffsetAllignment);
         //uniform->MapMem();
 
-        m_pBuffers[i] = std::move(uniform);
+        vBuffers[i] = std::move(uniform);
     }
 }
 
-std::vector<std::unique_ptr<VulkanBuffer>> &UniformHandler::GetUniformBuffers()
+std::vector<std::unique_ptr<CVulkanBuffer>> &CUniformHandler::getUniformBuffers()
 {
-    return m_pBuffers;
+    return vBuffers;
 }
 
-std::unique_ptr<VulkanBuffer> &UniformHandler::GetUniformBuffer(uint32_t index)
+std::unique_ptr<CVulkanBuffer> &CUniformHandler::getUniformBuffer(uint32_t index)
 {
-    return m_pBuffers.at(index);
+    return vBuffers.at(index);
 }

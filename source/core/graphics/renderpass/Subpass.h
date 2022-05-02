@@ -7,7 +7,7 @@ namespace Engine
 {
     namespace Resources
     {
-        namespace Material { class MaterialBase; }
+        namespace Material { class CMaterialBase; }
     }
     namespace Core
     {
@@ -17,7 +17,7 @@ namespace Engine
             struct FRenderCreateInfo
             {
                 FRenderCreateInfo() {}
-                std::shared_ptr<Resources::ResourceManager> resourceManager;
+                std::shared_ptr<Resources::CResourceManager> resourceManager;
                 std::unordered_map<std::string, std::shared_ptr<CImage>> images;
                 std::shared_ptr<Scene::Objects::RenderObject> root;
                 vk::RenderPass renderPass;
@@ -42,7 +42,7 @@ namespace Engine
                 virtual void cleanup() {}
             protected:
                 std::shared_ptr<CUniformBuffer> pUniform;
-                std::shared_ptr<Resources::Material::MaterialBase> pMaterial;
+                std::shared_ptr<Resources::Material::CMaterialBase> pMaterial;
             };
         }
     }

@@ -18,8 +18,8 @@ void CFinalCompositionPass::create(std::unique_ptr<FRenderCreateInfo>& createInf
     pUniform = std::make_shared<CUniformBuffer>();
     pUniform->create(framesInFlight, sizeof(FPostProcess));
 
-    pMaterial = std::make_shared<MaterialPostProcess>();
-    pMaterial->Create(createInfo->renderPass, createInfo->subpass);
+    pMaterial = std::make_shared<CMaterialPostProcess>();
+    pMaterial->create(createInfo->renderPass, createInfo->subpass);
     CSubpass::create(createInfo);
 }
 
@@ -34,9 +34,9 @@ void CFinalCompositionPass::render(std::unique_ptr<FRenderProcessInfo>& renderDa
 
     pUniform->updateUniformBuffer(imageIndex, &ubo);
     auto& buffer = pUniform->getUniformBuffer(imageIndex);
-    auto descriptor = buffer->GetDscriptor();
-    pMaterial->Update(descriptor, imageIndex);
-    pMaterial->Bind(renderData->commandBuffer, imageIndex);
+    auto descriptor = buffer->getDscriptor();
+    pMaterial->update(descriptor, imageIndex);
+    pMaterial->bind(renderData->commandBuffer, imageIndex);
 
     renderData->commandBuffer.draw(3, 1, 0, 0);
     //UOverlay->DrawFrame(renderData.commandBuffer, imageIndex);

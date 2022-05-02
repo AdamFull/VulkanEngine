@@ -8,7 +8,7 @@ using namespace Engine::Resources::Material;
 using namespace Engine::Core::Descriptor;
 using namespace Engine::Core::Pipeline;
 
-void MaterialDiffuse::Create(vk::RenderPass& renderPass, uint32_t subpass)
+void CMaterialDiffuse::create(vk::RenderPass& renderPass, uint32_t subpass)
 {
     m_pPipeline = CPipelineBase::Builder().
     setVertexInput(CVertexInput(Vertex::getBindingDescription(), Vertex::getAttributeDescriptions())).
@@ -18,30 +18,30 @@ void MaterialDiffuse::Create(vk::RenderPass& renderPass, uint32_t subpass)
     addShaderStage("../../assets/shaders/main/diffuse.vert").
     addShaderStage("../../assets/shaders/main/diffuse.frag").
     build(renderPass, subpass);
-    MaterialBase::Create(renderPass, subpass);
+    CMaterialBase::create(renderPass, subpass);
 }
 
-void MaterialDiffuse::ReCreate()
+void CMaterialDiffuse::reCreate()
 {
     m_pPipeline->recreatePipeline();
-    MaterialBase::ReCreate();
+    CMaterialBase::reCreate();
 }
 
-void MaterialDiffuse::Update(vk::DescriptorBufferInfo& uboDesc, uint32_t imageIndex)
+void CMaterialDiffuse::update(vk::DescriptorBufferInfo& uboDesc, uint32_t imageIndex)
 {
     m_pDescriptorSet->clear();
     m_pDescriptorSet->set("FUniformData", uboDesc);
     for(auto& [key, texture] : m_mTextures)
         m_pDescriptorSet->set(key, texture); // "color_tex", "metalRough_tex", "emissive_tex", "normal_tex", "height_tex", "ao_tex"
-    MaterialBase::Update(uboDesc, imageIndex);
+    CMaterialBase::update(uboDesc, imageIndex);
 }
 
-void MaterialDiffuse::Bind(vk::CommandBuffer commandBuffer, uint32_t imageIndex)
+void CMaterialDiffuse::bind(vk::CommandBuffer commandBuffer, uint32_t imageIndex)
 {
-    MaterialBase::Bind(commandBuffer, imageIndex);
+    CMaterialBase::bind(commandBuffer, imageIndex);
 }
 
-void MaterialDiffuse::Cleanup()
+void CMaterialDiffuse::cleanup()
 {
-    MaterialBase::Cleanup();
+    CMaterialBase::cleanup();
 }

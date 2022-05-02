@@ -501,10 +501,10 @@ void CImage::writeImageData(ktxTexture *info, vk::Format format, vk::ImageAspect
 {
     vk::DeviceSize imgSize = info->dataSize;
 
-    Core::VulkanBuffer stagingBuffer;
-    stagingBuffer.Create(imgSize, 1, vk::BufferUsageFlagBits::eTransferSrc, vk::MemoryPropertyFlagBits::eHostVisible | vk::MemoryPropertyFlagBits::eHostCoherent);
-    auto result = stagingBuffer.MapMem();
-    stagingBuffer.Write((void *)info->pData);
+    Core::CVulkanBuffer stagingBuffer;
+    stagingBuffer.create(imgSize, 1, vk::BufferUsageFlagBits::eTransferSrc, vk::MemoryPropertyFlagBits::eHostVisible | vk::MemoryPropertyFlagBits::eHostCoherent);
+    auto result = stagingBuffer.mapMem();
+    stagingBuffer.write((void *)info->pData);
 
     transitionImageLayout(vk::ImageLayout::eTransferDstOptimal, aspect);
 
@@ -522,7 +522,7 @@ void CImage::writeImageData(ktxTexture *info, vk::Format format, vk::ImageAspect
         region.bufferOffset = 0;
         vRegions.push_back(region);
 
-        auto buffer = stagingBuffer.GetBuffer();
+        auto buffer = stagingBuffer.getBuffer();
         copyBufferToImage(buffer, _image, vRegions);
         generateMipmaps(_image, _mipLevels, format, _extent.width, _extent.height, aspect);
     }
@@ -548,7 +548,7 @@ void CImage::writeImageData(ktxTexture *info, vk::Format format, vk::ImageAspect
                 vRegions.push_back(region);
             }
         }
-        auto buffer = stagingBuffer.GetBuffer();
+        auto buffer = stagingBuffer.getBuffer();
         copyBufferToImage(buffer, _image, vRegions);
 
         transitionImageLayout(vk::ImageLayout::eShaderReadOnlyOptimal, aspect);

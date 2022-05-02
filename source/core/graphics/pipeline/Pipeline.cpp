@@ -72,7 +72,7 @@ void CPipelineBase::loadShader(const std::vector<std::string> &vShaders)
     for (auto &value : vShaders)
     {
         m_vShaderCache.emplace_back(value);
-        auto shader_code = FilesystemHelper::ReadFile(value);
+        auto shader_code = FilesystemHelper::readFile(value);
         m_pShader->addStage(value, shader_code, defineBlock.str());
     }
     m_pShader->finalizeReflection();

@@ -8,36 +8,36 @@ using namespace Engine::Resources::Material;
 using namespace Engine::Core::Descriptor;
 using namespace Engine::Core::Pipeline;
 
-void MaterialPostProcess::Create(vk::RenderPass& renderPass, uint32_t subpass)
+void CMaterialPostProcess::create(vk::RenderPass& renderPass, uint32_t subpass)
 {
     m_pPipeline = CPipelineBase::Builder().
     setCulling(vk::CullModeFlagBits::eFront).
     addShaderStage("../../assets/shaders/main/screenspace.vert").
     addShaderStage("../../assets/shaders/postprocess/bloomcompose.frag").
     build(renderPass, subpass);
-    MaterialBase::Create(renderPass, subpass);
+    CMaterialBase::create(renderPass, subpass);
 }
 
-void MaterialPostProcess::ReCreate()
+void CMaterialPostProcess::reCreate()
 {
-    MaterialBase::ReCreate();
+    CMaterialBase::reCreate();
 }
 
-void MaterialPostProcess::Update(vk::DescriptorBufferInfo& uboDesc, uint32_t imageIndex)
+void CMaterialPostProcess::update(vk::DescriptorBufferInfo& uboDesc, uint32_t imageIndex)
 {
     m_pDescriptorSet->clear();
     m_pDescriptorSet->set("FBloomUbo", uboDesc);
     for(auto& [key, texture] : m_mTextures)
         m_pDescriptorSet->set(key, texture); //"samplerColor", "samplerBrightness"
-    MaterialBase::Update(uboDesc, imageIndex);
+    CMaterialBase::update(uboDesc, imageIndex);
 }
 
-void MaterialPostProcess::Bind(vk::CommandBuffer commandBuffer, uint32_t imageIndex)
+void CMaterialPostProcess::bind(vk::CommandBuffer commandBuffer, uint32_t imageIndex)
 {
-    MaterialBase::Bind(commandBuffer, imageIndex);
+    CMaterialBase::bind(commandBuffer, imageIndex);
 }
 
-void MaterialPostProcess::Cleanup()
+void CMaterialPostProcess::cleanup()
 {
-    MaterialBase::Cleanup();
+    CMaterialBase::cleanup();
 }

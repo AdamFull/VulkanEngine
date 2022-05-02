@@ -7,7 +7,7 @@ namespace Engine
 {
     namespace Resources
     {
-        class ResourceManager;
+        class CResourceManager;
     }
     namespace Core
     {

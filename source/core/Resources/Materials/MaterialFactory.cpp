@@ -8,24 +8,24 @@
 using namespace Engine::Resources;
 using namespace Engine::Resources::Material;
 
-std::map<EMaterialType, std::function<MaterialFactory::material_t()>> MaterialFactory::m_mFactory{
+std::map<EMaterialType, std::function<CMaterialFactory::material_t()>> CMaterialFactory::m_mFactory{
     {EMaterialType::eUI, []()
      {
-         auto material = std::make_unique<MaterialUI>();
+         auto material = std::make_unique<CMaterialUI>();
          return material;
      }},
     {EMaterialType::eDiffuse, []()
      {
-         auto material = std::make_unique<MaterialDiffuse>();
+         auto material = std::make_unique<CMaterialDiffuse>();
          return material;
      }},
     {EMaterialType::eSkybox, []()
      {
-         auto material = std::make_unique<MaterialSkybox>();
+         auto material = std::make_unique<CMaterialSkybox>();
          return material;
      }}};
 
-std::shared_ptr<MaterialBase> MaterialFactory::Create(std::shared_ptr<Resources::ResourceManager> resourceMgr, FMaterialCreateInfo info)
+std::shared_ptr<CMaterialBase> CMaterialFactory::create(std::shared_ptr<Resources::CResourceManager> resourceMgr, FMaterialCreateInfo info)
 {
     auto material = m_mFactory[info.eType]();
 
@@ -33,8 +33,8 @@ std::shared_ptr<MaterialBase> MaterialFactory::Create(std::shared_ptr<Resources:
     {
         std::shared_ptr<Core::CImage> texture = std::make_shared<Core::CImage>();
         texture->loadFromFile(texInfo.srSrc);
-        resourceMgr->AddExisting<Core::CImage>(texInfo.srName, texture);
-        material->AddTexture(texInfo.attachment, texture);
+        resourceMgr->addExisting<Core::CImage>(texInfo.srName, texture);
+        material->addTexture(texInfo.attachment, texture);
     }
 
     return material;

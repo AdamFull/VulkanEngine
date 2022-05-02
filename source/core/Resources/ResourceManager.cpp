@@ -9,16 +9,16 @@ namespace Engine
 {
     namespace Resources
     {
-        void ResourceManager::Create()
+        void CResourceManager::create()
         {
             std::shared_ptr<CImage> pEmptyTexture = std::make_shared<CImage>();
             pEmptyTexture->createEmptyTexture(512, 512, 1, 2, 0x8C43);
-            AddExisting("no_texture", pEmptyTexture);
+            addExisting("no_texture", pEmptyTexture);
         }
 
-        void ResourceManager::Load(std::string srResourcesPath)
+        void CResourceManager::load(std::string srResourcesPath)
         {
-            auto input = FilesystemHelper::ReadFile(srResourcesPath);
+            auto input = FilesystemHelper::readFile(srResourcesPath);
             auto res_json = nlohmann::json::parse(input).front();
 
             std::vector<FTextureCreateInfo> vTextures;
@@ -33,10 +33,10 @@ namespace Engine
                 Add<CImage>(texture);
 
             for (auto material : vMaterials)
-                Add<MaterialBase>(material);
+                Add<CMaterialBase>(material);
 
             for (auto mesh : vMeshes)
-                Add<MeshFragment>(mesh);
+                Add<CMeshFragment>(mesh);
         }
     }
 }

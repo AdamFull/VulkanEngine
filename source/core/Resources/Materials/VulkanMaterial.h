@@ -15,7 +15,7 @@ namespace Engine
     }
     namespace Resources
     {
-        class ResourceManager;
+        class CResourceManager;
         namespace Material
         {
             struct FMaterialParams
@@ -34,34 +34,34 @@ namespace Engine
                 glm::vec4 baseColorFactor = glm::vec4(1.0f);
             };
 
-            class MaterialBase 
+            class CMaterialBase 
             {
             public:
-                MaterialBase() = default;
-                virtual ~MaterialBase();
+                CMaterialBase() = default;
+                virtual ~CMaterialBase();
 
-                virtual void Create(vk::RenderPass& renderPass, uint32_t subpass);
-                void AddTexture(const std::string& attachment, vk::DescriptorImageInfo& descriptor);
-                void AddTexture(const std::string& attachment, std::shared_ptr<Core::CImage> pTexture);
-                vk::DescriptorImageInfo& GetTexture(const std::string& attachment);
-                virtual void ReCreate();
-                virtual void Update(vk::DescriptorBufferInfo& uboDesc, uint32_t imageIndex);
-                virtual void Bind(vk::CommandBuffer commandBuffer, uint32_t imageIndex);
-                virtual void Cleanup();
+                virtual void create(vk::RenderPass& renderPass, uint32_t subpass);
+                void addTexture(const std::string& attachment, vk::DescriptorImageInfo& descriptor);
+                void addTexture(const std::string& attachment, std::shared_ptr<Core::CImage> pTexture);
+                vk::DescriptorImageInfo& getTexture(const std::string& attachment);
+                virtual void reCreate();
+                virtual void update(vk::DescriptorBufferInfo& uboDesc, uint32_t imageIndex);
+                virtual void bind(vk::CommandBuffer commandBuffer, uint32_t imageIndex);
+                virtual void cleanup();
 
-                inline void SetParams(FMaterialParams &&params) { m_fMatParams = params; }
+                inline void setParams(FMaterialParams &&params) { m_fMatParams = params; }
 
-                void SetName(const std::string& srName);
-                inline std::string GetName() { return m_srName; }
-                inline std::shared_ptr<Core::Pipeline::CPipelineBase> GetPipeline() { return m_pPipeline; }
+                void setName(const std::string& srName);
+                inline std::string getName() { return m_srName; }
+                inline std::shared_ptr<Core::Pipeline::CPipelineBase> getPipeline() { return m_pPipeline; }
 
             protected:
                 FMaterialParams m_fMatParams{};
                 std::string m_srName;
 
                 std::unique_ptr<Core::Descriptor::CDescriptorHandler> m_pDescriptorSet;
-                std::vector<std::shared_ptr<Core::UniformHandler>> m_vUniformBuffers;
-                std::vector<std::shared_ptr<Core::PushHandler>> m_vPushConstants;
+                std::vector<std::shared_ptr<Core::CUniformHandler>> m_vUniformBuffers;
+                std::vector<std::shared_ptr<Core::CPushHandler>> m_vPushConstants;
                 std::shared_ptr<Core::Pipeline::CPipelineBase> m_pPipeline;
                 std::map<std::string, vk::DescriptorImageInfo> m_mTextures;
             };

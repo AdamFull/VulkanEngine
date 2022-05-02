@@ -33,24 +33,24 @@ ImguiOverlay::~ImguiOverlay()
     ImGui_ImplGlfw_Shutdown();
     ImGui::DestroyContext();
     //fontMaterial->Destroy();
-    m_pUniformHandle->Cleanup();
+    m_pUniformHandle->cleanup();
 }
 
 void ImguiOverlay::Create(std::shared_ptr<Scene::Objects::RenderObject> pRoot, vk::RenderPass& renderPass, uint32_t subpass)
 {
     fontTexture = std::make_shared<CImage>();
-    fontMaterial = std::make_shared<MaterialUI>();
-    vertexBuffer = std::make_shared<VulkanBuffer>();
-    indexBuffer = std::make_shared<VulkanBuffer>();
-    m_pUniformHandle = std::make_shared<UniformHandler>();
+    fontMaterial = std::make_shared<CMaterialUI>();
+    vertexBuffer = std::make_shared<CVulkanBuffer>();
+    indexBuffer = std::make_shared<CVulkanBuffer>();
+    m_pUniformHandle = std::make_shared<CUniformHandler>();
 
     ImGui::CreateContext();
     BaseInitialize();
     CreateFontResources(renderPass, subpass);
 
-    auto uniformBlock = fontMaterial->GetPipeline()->getShader()->getUniformBlock("FUniformDataUI");
+    auto uniformBlock = fontMaterial->getPipeline()->getShader()->getUniformBlock("FUniformDataUI");
     if(uniformBlock)
-        m_pUniformHandle->Create(uniformBlock.value());
+        m_pUniformHandle->create(uniformBlock.value());
     else
         throw std::runtime_error("Cannot create uniform block!");
 
@@ -65,14 +65,14 @@ void ImguiOverlay::Create(std::shared_ptr<Scene::Objects::RenderObject> pRoot, v
 
 void ImguiOverlay::ReCreate()
 {
-    fontMaterial->ReCreate();
-    m_pUniformHandle->ReCreate();
+    fontMaterial->reCreate();
+    m_pUniformHandle->reCreate();
 }
 
 void ImguiOverlay::Cleanup()
 {
-    fontMaterial->Cleanup();
-    m_pUniformHandle->Cleanup();
+    fontMaterial->cleanup();
+    m_pUniformHandle->cleanup();
 }
 
 void ImguiOverlay::BaseInitialize()
@@ -119,8 +119,8 @@ void ImguiOverlay::CreateFontResources(vk::RenderPass& renderPass, uint32_t subp
 
     fontTexture->initializeTexture(texture, format);
     fontTexture->loadFromMemory(texture, format);
-    fontMaterial->AddTexture("fontSampler", fontTexture);
-    fontMaterial->Create(renderPass, subpass);
+    fontMaterial->addTexture("fontSampler", fontTexture);
+    fontMaterial->create(renderPass, subpass);
 
     Loaders::CImageLoader::close(&texture);
 }
@@ -161,28 +161,28 @@ void ImguiOverlay::Update(float deltaTime)
         auto physProps = UDevice->GetPhysical().getProperties();
         auto minOffsetAllignment = std::lcm(physProps.limits.minUniformBufferOffsetAlignment, physProps.limits.nonCoherentAtomSize);
         // Vertex buffer
-        if (!vertexBuffer->GetBuffer() /*|| vertexCount != drawdata->TotalVtxCount*/)
+        if (!vertexBuffer->getBuffer() /*|| vertexCount != drawdata->TotalVtxCount*/)
         {
-            vertexBuffer->UnmapMem();
-            vertexBuffer->Clean();
-            vertexBuffer->Create(sizeof(ImDrawVert), 10000, vk::BufferUsageFlagBits::eVertexBuffer, vk::MemoryPropertyFlagBits::eHostVisible, minOffsetAllignment);
-            vertexBuffer->MapMem();
+            vertexBuffer->unmapMem();
+            vertexBuffer->clean();
+            vertexBuffer->create(sizeof(ImDrawVert), 10000, vk::BufferUsageFlagBits::eVertexBuffer, vk::MemoryPropertyFlagBits::eHostVisible, minOffsetAllignment);
+            vertexBuffer->mapMem();
             vertexCount = drawdata->TotalVtxCount;
         }
 
         // Index buffer
-        if (!indexBuffer->GetBuffer() /*|| indexCount != drawdata->TotalIdxCount*/)
+        if (!indexBuffer->getBuffer() /*|| indexCount != drawdata->TotalIdxCount*/)
         {
-            indexBuffer->UnmapMem();
-            indexBuffer->Clean();
-            indexBuffer->Create(sizeof(ImDrawIdx), 20000, vk::BufferUsageFlagBits::eIndexBuffer, vk::MemoryPropertyFlagBits::eHostVisible, minOffsetAllignment);
-            indexBuffer->MapMem();
+            indexBuffer->unmapMem();
+            indexBuffer->clean();
+            indexBuffer->create(sizeof(ImDrawIdx), 20000, vk::BufferUsageFlagBits::eIndexBuffer, vk::MemoryPropertyFlagBits::eHostVisible, minOffsetAllignment);
+            indexBuffer->mapMem();
             indexCount = drawdata->TotalIdxCount;
         }
 
         // Upload data
-        ImDrawVert *vtxDst = (ImDrawVert *)vertexBuffer->GetMappedMemory();
-        ImDrawIdx *idxDst = (ImDrawIdx *)indexBuffer->GetMappedMemory();
+        ImDrawVert *vtxDst = (ImDrawVert *)vertexBuffer->getMappedMemory();
+        ImDrawIdx *idxDst = (ImDrawIdx *)indexBuffer->getMappedMemory();
 
         for (int n = 0; n < drawdata->CmdListsCount; n++)
         {
@@ -194,8 +194,8 @@ void ImguiOverlay::Update(float deltaTime)
         }
 
         // Flush to make writes visible to GPU
-        vertexBuffer->Flush();
-        indexBuffer->Flush();
+        vertexBuffer->flush();
+        indexBuffer->flush();
     }
 }
 
@@ -205,18 +205,18 @@ void ImguiOverlay::DrawFrame(vk::CommandBuffer commandBuffer, uint32_t index)
     {
         ImGuiIO &io = ImGui::GetIO();
 
-        auto& buffer = m_pUniformHandle->GetUniformBuffer(index);
-        auto pipeline = fontMaterial->GetPipeline();
-        auto descriptor = buffer->GetDscriptor();
-        fontMaterial->Update(descriptor, index);
-        fontMaterial->Bind(commandBuffer, index);
+        auto& buffer = m_pUniformHandle->getUniformBuffer(index);
+        auto pipeline = fontMaterial->getPipeline();
+        auto descriptor = buffer->getDscriptor();
+        fontMaterial->update(descriptor, index);
+        fontMaterial->bind(commandBuffer, index);
 
         vk::Viewport viewport = Initializers::Viewport(ImGui::GetIO().DisplaySize.x, ImGui::GetIO().DisplaySize.y);
         commandBuffer.setViewport(0, 1, &viewport);
 
-        m_pUniformHandle->Set("scale", glm::vec2(2.0f / io.DisplaySize.x, 2.0f / io.DisplaySize.y), index);
-        m_pUniformHandle->Set("translate", glm::vec2(-1.0f), index);
-        m_pUniformHandle->Flush(commandBuffer, pipeline);
+        m_pUniformHandle->set("scale", glm::vec2(2.0f / io.DisplaySize.x, 2.0f / io.DisplaySize.y), index);
+        m_pUniformHandle->set("translate", glm::vec2(-1.0f), index);
+        m_pUniformHandle->flush(commandBuffer, pipeline);
 
         // Render commands
         ImDrawData *imDrawData = ImGui::GetDrawData();
@@ -227,9 +227,9 @@ void ImguiOverlay::DrawFrame(vk::CommandBuffer commandBuffer, uint32_t index)
         {
 
             vk::DeviceSize offsets[1] = {0};
-            auto buffer = vertexBuffer->GetBuffer();
+            auto buffer = vertexBuffer->getBuffer();
             commandBuffer.bindVertexBuffers(0, 1, &buffer, offsets);
-            commandBuffer.bindIndexBuffer(indexBuffer->GetBuffer(), 0, vk::IndexType::eUint16);
+            commandBuffer.bindIndexBuffer(indexBuffer->getBuffer(), 0, vk::IndexType::eUint16);
 
             for (int32_t i = 0; i < imDrawData->CmdListsCount; i++)
             {
@@ -252,9 +252,9 @@ void ImguiOverlay::DrawFrame(vk::CommandBuffer commandBuffer, uint32_t index)
     }
 }
 
-std::unique_ptr<VulkanBuffer> &ImguiOverlay::GetBuffer(uint32_t index)
+std::unique_ptr<CVulkanBuffer> &ImguiOverlay::GetBuffer(uint32_t index)
 {
-    return m_pUniformHandle->GetUniformBuffer(index);
+    return m_pUniformHandle->getUniformBuffer(index);
 }
 
 void ImguiOverlay::OnFocusChange(int focused)

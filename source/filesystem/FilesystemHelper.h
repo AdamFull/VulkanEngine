@@ -4,7 +4,7 @@ namespace Engine
 {
     struct FilesystemHelper
     {
-        static std::vector<char> ReadFile(const fs::path& srPAth);
+        static std::string ReadFile(const fs::path& srPAth);
         static bool IsFileExist(const fs::path& srPath);
         static fs::path GetWorkDir();
         

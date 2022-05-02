@@ -45,7 +45,8 @@ namespace Engine
                 {
                     {"stage", type.shaderStage},
                     {"code", type.shaderCode},
-                    {"sizes", type.localSizes}
+                    {"sizes", type.localSizes},
+                    {"hash", type.hash}
                 };
             }
 
@@ -54,6 +55,7 @@ namespace Engine
                 ParseArgument(json, type.shaderStage, "stage", true);
                 ParseArgument(json, type.shaderCode, "code", true);
                 ParseArgument(json, type.localSizes, "sizes", true);
+                ParseArgument(json, type.hash, "hash", true);
             }
 
 
@@ -88,32 +90,39 @@ CShaderCache::~CShaderCache()
     save();
 }
 
-void CShaderCache::add(const std::string& name, vk::ShaderStageFlagBits stage, const std::vector<uint32_t>& code, std::array<std::optional<uint32_t>, 3>& localSizes)
+void CShaderCache::add(const std::string& name, vk::ShaderStageFlagBits stage, const std::vector<uint32_t>& code, const std::string& moduleCode, std::array<std::optional<uint32_t>, 3>& localSizes)
 {
-    //add file data hashing for check difference
+    auto hash = std::to_string(hasher(moduleCode));
     auto it = cacheDTO.cache.find(name);
     if(it != cacheDTO.cache.end())
     {
-        if(code != it->second.shaderCode)
-            update(name, code, localSizes);
+        if(hash != it->second.hash)
+            update(name, code, localSizes, hash);
         return;
     }
     
-    cacheDTO.cache.emplace(name, FShaderCache::FCachedShader{stage, code, localSizes});
+    cacheDTO.cache.emplace(name, FShaderCache::FCachedShader{stage, code, localSizes, hash});
     save();
 }
 
-void CShaderCache::update(const std::string& name, const std::vector<uint32_t>& code, std::array<std::optional<uint32_t>, 3>& localSizes)
+void CShaderCache::update(const std::string& name, const std::vector<uint32_t>& code, std::array<std::optional<uint32_t>, 3>& localSizes, const std::string& hash)
 {
     cacheDTO.cache[name].shaderCode = code;
+    cacheDTO.cache[name].localSizes = localSizes;
+    cacheDTO.cache[name].hash = std::stoull(hash);
     save();
 }
 
-std::optional<FShaderCache::FCachedShader> CShaderCache::get(const std::string& name)
+std::optional<FShaderCache::FCachedShader> CShaderCache::get(const std::string& name, const std::string& moduleCode)
 {   
+    auto hash = std::to_string(hasher(moduleCode));
     auto it = cacheDTO.cache.find(name);
     if(it != cacheDTO.cache.end())
+    {
+        if(hash != it->second.hash)
+            return std::nullopt;
         return it->second;
+    }
     return std::nullopt;
 }
 

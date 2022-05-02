@@ -143,7 +143,7 @@ namespace Engine
                 CShader() = default;
                 ~CShader();
 
-                void addStage(const std::filesystem::path &moduleName, const std::vector<char> &moduleCode, const std::string &preamble);
+                void addStage(const std::filesystem::path &moduleName, const std::string& moduleCode, const std::string &preamble);
                 void clear();
                 void finalizeReflection();
                 static vk::ShaderStageFlagBits getShaderStage(const std::filesystem::path &moduleName);
@@ -159,20 +159,20 @@ namespace Engine
 
                 std::optional<vk::DescriptorType> getDescriptorType(uint32_t location) const;
 
-                const std::array<std::optional<uint32_t>, 3>& getLocalSizes() const { return m_localSizes; }
-                const std::unordered_map<std::string, CUniform>& getUniforms() const { return m_mUniforms; }
-                const std::unordered_map<std::string, CUniformBlock>& getUniformBlocks() const { return m_mUniformBlocks; }
-                const std::unordered_map<std::string, CPushConstBlock>& getPushBlocks() const { return m_mPushBlocks; }
-                const std::unordered_map<std::string, CAttribute>& getInputAttributes() const { return m_mInputAttributes; }
-                const std::unordered_map<std::string, CAttribute>& getOutputAttributes() const { return m_mOutputAttributes; }
-                const std::unordered_map<std::string, CConstant>& getConstants() const { return m_mConstants; }
+                const std::array<std::optional<uint32_t>, 3>& getLocalSizes() const { return localSizes; }
+                const std::unordered_map<std::string, CUniform>& getUniforms() const { return mUniforms; }
+                const std::unordered_map<std::string, CUniformBlock>& getUniformBlocks() const { return mUniformBlocks; }
+                const std::unordered_map<std::string, CPushConstBlock>& getPushBlocks() const { return mPushBlocks; }
+                const std::unordered_map<std::string, CAttribute>& getInputAttributes() const { return mInputAttributes; }
+                const std::unordered_map<std::string, CAttribute>& getOutputAttributes() const { return mOutputAttributes; }
+                const std::unordered_map<std::string, CConstant>& getConstants() const { return mConstants; }
 
-                const std::vector<vk::DescriptorSetLayoutBinding> &getDescriptorSetLayouts() const { return m_vDescriptorSetLayouts; }
-	            const std::vector<vk::DescriptorPoolSize> &getDescriptorPools() const { return m_vDescriptorPools; }
-	            const std::vector<vk::VertexInputAttributeDescription> &getAttributeDescriptions() const { return m_vAttributeDescriptions; }
-	            const vk::VertexInputBindingDescription &getBindingDescription() const { return m_bindingDescriptions; }
+                const std::vector<vk::DescriptorSetLayoutBinding> &getDescriptorSetLayouts() const { return vDescriptorSetLayouts; }
+	            const std::vector<vk::DescriptorPoolSize> &getDescriptorPools() const { return vDescriptorPools; }
+	            const std::vector<vk::VertexInputAttributeDescription> &getAttributeDescriptions() const { return vAttributeDescriptions; }
+	            const vk::VertexInputBindingDescription &getBindingDescription() const { return bindingDescriptions; }
 
-                const std::vector<vk::PipelineShaderStageCreateInfo>& getStageCreateInfo() const { return m_vShaderModules; }
+                const std::vector<vk::PipelineShaderStageCreateInfo>& getStageCreateInfo() const { return vShaderModules; }
             private:
                 void buildReflection(std::vector<uint32_t>& spirv, vk::ShaderStageFlagBits stageFlag);
                 CUniformBlock buildUniformBlock(spirv_cross::Compiler* compiler, const spirv_cross::Resource &res, vk::ShaderStageFlagBits stageFlag, vk::DescriptorType descriptorType);
@@ -180,27 +180,27 @@ namespace Engine
                 CUniform buildUnifrom(spirv_cross::Compiler* compiler, const spirv_cross::Resource &res, vk::ShaderStageFlagBits stageFlag, vk::DescriptorType descriptorType);
                 CAttribute buildAttribute(spirv_cross::Compiler* compiler, const spirv_cross::Resource &res, uint32_t& offset);
 
-                std::array<std::optional<uint32_t>, 3> m_localSizes;
+                std::array<std::optional<uint32_t>, 3> localSizes;
 
-                std::unordered_map<std::string, uint32_t> m_mDescriptorLocations;
-	            std::unordered_map<std::string, uint32_t> m_mDescriptorSizes;
+                std::unordered_map<std::string, uint32_t> mDescriptorLocations;
+	            std::unordered_map<std::string, uint32_t> mDescriptorSizes;
 
-                std::unordered_map<std::string, CUniform> m_mUniforms;
-                std::unordered_map<std::string, CUniformBlock> m_mUniformBlocks;
-                std::unordered_map<std::string, CPushConstBlock> m_mPushBlocks;
-                std::unordered_map<std::string, CAttribute> m_mInputAttributes;
-                std::unordered_map<std::string, CAttribute> m_mOutputAttributes;
-                std::unordered_map<std::string, CConstant> m_mConstants;
+                std::unordered_map<std::string, CUniform> mUniforms;
+                std::unordered_map<std::string, CUniformBlock> mUniformBlocks;
+                std::unordered_map<std::string, CPushConstBlock> mPushBlocks;
+                std::unordered_map<std::string, CAttribute> mInputAttributes;
+                std::unordered_map<std::string, CAttribute> mOutputAttributes;
+                std::unordered_map<std::string, CConstant> mConstants;
 
-                std::vector<vk::DescriptorSetLayoutBinding> m_vDescriptorSetLayouts;
+                std::vector<vk::DescriptorSetLayoutBinding> vDescriptorSetLayouts;
                 uint32_t lastDescriptorBinding = 0;
-                std::vector<vk::DescriptorPoolSize> m_vDescriptorPools;
-                std::unordered_map<uint32_t, vk::DescriptorType> m_mDescriptorTypes;
-                std::vector<vk::VertexInputAttributeDescription> m_vAttributeDescriptions;
-                vk::VertexInputBindingDescription m_bindingDescriptions;
+                std::vector<vk::DescriptorPoolSize> vDescriptorPools;
+                std::unordered_map<uint32_t, vk::DescriptorType> mDescriptorTypes;
+                std::vector<vk::VertexInputAttributeDescription> vAttributeDescriptions;
+                vk::VertexInputBindingDescription bindingDescriptions;
 
-                std::vector<vk::PipelineShaderStageCreateInfo> m_vShaderModules;
-                std::vector<vk::ShaderStageFlagBits> m_vShaderStage;
+                std::vector<vk::PipelineShaderStageCreateInfo> vShaderModules;
+                std::vector<vk::ShaderStageFlagBits> vShaderStage;
             };
         }
     }

@@ -192,14 +192,14 @@ CShader::~CShader()
     clear();
 }
 
-void CShader::addStage(const std::filesystem::path &moduleName, const std::vector<char> &moduleCode, const std::string &preamble)
+void CShader::addStage(const std::filesystem::path &moduleName, const std::string& moduleCode, const std::string &preamble)
 {
     std::vector<uint32_t> spirv;
-    auto spirv_cache = CShaderCache::getInstance()->get(moduleName.filename().string());
+    auto spirv_cache = CShaderCache::getInstance()->get(moduleName.filename().string(), moduleCode);
     if (!spirv_cache)
     {
-        m_vShaderStage.emplace_back(getShaderStage(moduleName));
-        auto language = getEshLanguage(m_vShaderStage.back());
+        vShaderStage.emplace_back(getShaderStage(moduleName));
+        auto language = getEshLanguage(vShaderStage.back());
         glslang::TProgram program;
         glslang::TShader shader(language);
         auto resources = getResources();
@@ -276,7 +276,7 @@ void CShader::addStage(const std::filesystem::path &moduleName, const std::vecto
         for (uint32_t dim = 0; dim < 3; ++dim) 
         {
             if (auto localSize = program.getLocalSize(dim); localSize > 1)
-                m_localSizes[dim] = localSize;
+                localSizes[dim] = localSize;
         }
 
         glslang::SpvOptions spvOptions;
@@ -292,16 +292,16 @@ void CShader::addStage(const std::filesystem::path &moduleName, const std::vecto
 
         spv::SpvBuildLogger logger;
         GlslangToSpv(*program.getIntermediate(static_cast<EShLanguage>(language)), spirv, &logger, &spvOptions);
-        CShaderCache::getInstance()->add(moduleName.filename().string(), getShaderStage(moduleName), spirv, m_localSizes);
+        CShaderCache::getInstance()->add(moduleName.filename().string(), getShaderStage(moduleName), spirv, moduleCode, localSizes);
     }
     else
     {
-        m_vShaderStage.emplace_back(spirv_cache.value().shaderStage);
+        vShaderStage.emplace_back(spirv_cache.value().shaderStage);
         spirv = spirv_cache.value().shaderCode;
-        m_localSizes = spirv_cache.value().localSizes;
+        localSizes = spirv_cache.value().localSizes;
     }
 
-    buildReflection(spirv, m_vShaderStage.back());
+    buildReflection(spirv, vShaderStage.back());
 
     try
     {
@@ -315,12 +315,12 @@ void CShader::addStage(const std::filesystem::path &moduleName, const std::vecto
             }
         );
 
-        m_vShaderModules.emplace_back
+        vShaderModules.emplace_back
         (
             vk::PipelineShaderStageCreateInfo
             {
                 vk::PipelineShaderStageCreateFlags(),
-                m_vShaderStage.back(),
+                vShaderStage.back(),
                 shaderModule,
                 "main"
             }
@@ -334,30 +334,30 @@ void CShader::addStage(const std::filesystem::path &moduleName, const std::vecto
 
 void CShader::clear()
 {
-    for(auto& stage : m_vShaderModules)
+    for(auto& stage : vShaderModules)
         UDevice->Destroy(stage.module);
 
-    m_vShaderModules.clear();
-    m_vShaderStage.clear();
-    m_mDescriptorLocations.clear();
-    m_mDescriptorSizes.clear();
-    m_mUniforms.clear();
-    m_mUniformBlocks.clear();
-    m_mInputAttributes.clear();
-    m_mOutputAttributes.clear();
-    m_mConstants.clear();
+    vShaderModules.clear();
+    vShaderStage.clear();
+    mDescriptorLocations.clear();
+    mDescriptorSizes.clear();
+    mUniforms.clear();
+    mUniformBlocks.clear();
+    mInputAttributes.clear();
+    mOutputAttributes.clear();
+    mConstants.clear();
     //Destroy before clear
-    m_vDescriptorSetLayouts.clear();
-    m_vDescriptorPools.clear();
-    m_mDescriptorTypes.clear();
-    m_vAttributeDescriptions.clear();
+    vDescriptorSetLayouts.clear();
+    vDescriptorPools.clear();
+    mDescriptorTypes.clear();
+    vAttributeDescriptions.clear();
     lastDescriptorBinding = 0;
 }
 
 void CShader::finalizeReflection()
 {
     //Preparing descriptors for uniform/storage buffers
-    for (const auto &[uniformBlockName, uniformBlock] : m_mUniformBlocks) 
+    for (const auto &[uniformBlockName, uniformBlock] : mUniformBlocks) 
     {
         vk::DescriptorSetLayoutBinding descriptorSetLayoutBinding = {};
         descriptorSetLayoutBinding.binding = uniformBlock.binding;
@@ -365,13 +365,13 @@ void CShader::finalizeReflection()
         descriptorSetLayoutBinding.descriptorCount = 1;
         descriptorSetLayoutBinding.stageFlags = uniformBlock.stageFlags;
         descriptorSetLayoutBinding.pImmutableSamplers = nullptr;
-        m_vDescriptorSetLayouts.emplace_back(descriptorSetLayoutBinding);
+        vDescriptorSetLayouts.emplace_back(descriptorSetLayoutBinding);
 
-        m_mDescriptorLocations.emplace(uniformBlockName, uniformBlock.binding);
-		m_mDescriptorSizes.emplace(uniformBlockName, uniformBlock.size);
+        mDescriptorLocations.emplace(uniformBlockName, uniformBlock.binding);
+		mDescriptorSizes.emplace(uniformBlockName, uniformBlock.size);
     }
 
-    for (const auto &[uniformName, uniform] : m_mUniforms) 
+    for (const auto &[uniformName, uniform] : mUniforms) 
     {
         vk::DescriptorSetLayoutBinding descriptorSetLayoutBinding = {};
         descriptorSetLayoutBinding.binding = uniform.binding;
@@ -379,46 +379,46 @@ void CShader::finalizeReflection()
         descriptorSetLayoutBinding.descriptorCount = 1;
         descriptorSetLayoutBinding.stageFlags = uniform.stageFlags;
         descriptorSetLayoutBinding.pImmutableSamplers = nullptr;
-        m_vDescriptorSetLayouts.emplace_back(descriptorSetLayoutBinding);
+        vDescriptorSetLayouts.emplace_back(descriptorSetLayoutBinding);
 
-        m_mDescriptorLocations.emplace(uniformName, uniform.binding);
-		m_mDescriptorSizes.emplace(uniformName, uniform.size);
+        mDescriptorLocations.emplace(uniformName, uniform.binding);
+		mDescriptorSizes.emplace(uniformName, uniform.size);
     }
 
-    m_vDescriptorPools.resize(9);
-	m_vDescriptorPools[0].type = vk::DescriptorType::eCombinedImageSampler;
-	m_vDescriptorPools[0].descriptorCount = 4096;
-	m_vDescriptorPools[1].type = vk::DescriptorType::eUniformBuffer;
-	m_vDescriptorPools[1].descriptorCount = 2048;
-	m_vDescriptorPools[2].type = vk::DescriptorType::eStorageImage;
-	m_vDescriptorPools[2].descriptorCount = 2048;
-    m_vDescriptorPools[3].type = vk::DescriptorType::eUniformTexelBuffer;
-	m_vDescriptorPools[3].descriptorCount = 2048;
-    m_vDescriptorPools[4].type = vk::DescriptorType::eStorageTexelBuffer;
-	m_vDescriptorPools[4].descriptorCount = 2048;
-    m_vDescriptorPools[5].type = vk::DescriptorType::eStorageBuffer;
-	m_vDescriptorPools[5].descriptorCount = 2048;
-	m_vDescriptorPools[6].type = vk::DescriptorType::eSampledImage;
-	m_vDescriptorPools[6].descriptorCount = 2048;
-    m_vDescriptorPools[7].type = vk::DescriptorType::eSampler;
-	m_vDescriptorPools[7].descriptorCount = 2048;
-    m_vDescriptorPools[8].type = vk::DescriptorType::eInputAttachment;
-	m_vDescriptorPools[8].descriptorCount = 2048;
+    vDescriptorPools.resize(9);
+	vDescriptorPools[0].type = vk::DescriptorType::eCombinedImageSampler;
+	vDescriptorPools[0].descriptorCount = 4096;
+	vDescriptorPools[1].type = vk::DescriptorType::eUniformBuffer;
+	vDescriptorPools[1].descriptorCount = 2048;
+	vDescriptorPools[2].type = vk::DescriptorType::eStorageImage;
+	vDescriptorPools[2].descriptorCount = 2048;
+    vDescriptorPools[3].type = vk::DescriptorType::eUniformTexelBuffer;
+	vDescriptorPools[3].descriptorCount = 2048;
+    vDescriptorPools[4].type = vk::DescriptorType::eStorageTexelBuffer;
+	vDescriptorPools[4].descriptorCount = 2048;
+    vDescriptorPools[5].type = vk::DescriptorType::eStorageBuffer;
+	vDescriptorPools[5].descriptorCount = 2048;
+	vDescriptorPools[6].type = vk::DescriptorType::eSampledImage;
+	vDescriptorPools[6].descriptorCount = 2048;
+    vDescriptorPools[7].type = vk::DescriptorType::eSampler;
+	vDescriptorPools[7].descriptorCount = 2048;
+    vDescriptorPools[8].type = vk::DescriptorType::eInputAttachment;
+	vDescriptorPools[8].descriptorCount = 2048;
 
     // Sort descriptors by binding.
-	std::sort(m_vDescriptorSetLayouts.begin(), m_vDescriptorSetLayouts.end(), 
+	std::sort(vDescriptorSetLayouts.begin(), vDescriptorSetLayouts.end(), 
     [](const vk::DescriptorSetLayoutBinding &l, const vk::DescriptorSetLayoutBinding &r) 
     {
 		return l.binding < r.binding;
 	});
 
     // Gets the last descriptors binding.
-	if (!m_vDescriptorSetLayouts.empty())
-		lastDescriptorBinding = m_vDescriptorSetLayouts.back().binding;
+	if (!vDescriptorSetLayouts.empty())
+		lastDescriptorBinding = vDescriptorSetLayouts.back().binding;
 
     // Gets the descriptor type for each descriptor.
-	for (const auto &descriptor : m_vDescriptorSetLayouts)
-		m_mDescriptorTypes.emplace(descriptor.binding, descriptor.descriptorType);
+	for (const auto &descriptor : vDescriptorSetLayouts)
+		mDescriptorTypes.emplace(descriptor.binding, descriptor.descriptorType);
 }
 
 vk::ShaderStageFlagBits CShader::getShaderStage(const std::filesystem::path &moduleName)
@@ -443,49 +443,49 @@ vk::ShaderStageFlagBits CShader::getShaderStage(const std::filesystem::path &mod
 
 std::optional<uint32_t> CShader::getDescriptorLocation(const std::string &name) const
 {
-    if (auto it = m_mDescriptorLocations.find(name); it != m_mDescriptorLocations.end())
+    if (auto it = mDescriptorLocations.find(name); it != mDescriptorLocations.end())
 		return it->second;
 	return std::nullopt;
 }
 
 std::optional<uint32_t> CShader::getDescriptorSize(const std::string &name) const
 {
-    if (auto it = m_mDescriptorSizes.find(name); it != m_mDescriptorSizes.end())
+    if (auto it = mDescriptorSizes.find(name); it != mDescriptorSizes.end())
 		return it->second;
 	return std::nullopt;
 }
 
 std::optional<CUniform> CShader::getUniform(const std::string &name) const
 {
-    if (auto it = m_mUniforms.find(name); it != m_mUniforms.end())
+    if (auto it = mUniforms.find(name); it != mUniforms.end())
 		return it->second;
 	return std::nullopt;
 }
 
 std::optional<CUniformBlock> CShader::getUniformBlock(const std::string &name) const
 {
-    if (auto it = m_mUniformBlocks.find(name); it != m_mUniformBlocks.end())
+    if (auto it = mUniformBlocks.find(name); it != mUniformBlocks.end())
 		return it->second;
 	return std::nullopt;
 }
 
 std::optional<CPushConstBlock> CShader::getPushBlock(const std::string &name) const
 {
-    if (auto it = m_mPushBlocks.find(name); it != m_mPushBlocks.end())
+    if (auto it = mPushBlocks.find(name); it != mPushBlocks.end())
 		return it->second;
 	return std::nullopt;
 }
 
 std::optional<CAttribute> CShader::getInputAttribute(const std::string &name) const
 {
-    if (auto it = m_mInputAttributes.find(name); it != m_mInputAttributes.end())
+    if (auto it = mInputAttributes.find(name); it != mInputAttributes.end())
 		return it->second;
 	return std::nullopt;
 }
 
 std::optional<CAttribute> CShader::getOutputAttribute(const std::string &name) const
 {
-    if (auto it = m_mOutputAttributes.find(name); it != m_mOutputAttributes.end())
+    if (auto it = mOutputAttributes.find(name); it != mOutputAttributes.end())
 		return it->second;
 	return std::nullopt;
 }
@@ -495,7 +495,7 @@ std::vector<vk::PushConstantRange> CShader::getPushConstantRanges() const
     std::vector<vk::PushConstantRange> pushConstantRanges;
 	uint32_t currentOffset = 0;
 
-	for (const auto &[pushBlockName, pushBlock] : m_mPushBlocks) 
+	for (const auto &[pushBlockName, pushBlock] : mPushBlocks) 
     {
 		vk::PushConstantRange pushConstantRange = {};
 		pushConstantRange.stageFlags = pushBlock.stageFlags;
@@ -509,7 +509,7 @@ std::vector<vk::PushConstantRange> CShader::getPushConstantRanges() const
 
 std::optional<vk::DescriptorType> CShader::getDescriptorType(uint32_t location) const
 {
-    if (auto it = m_mDescriptorTypes.find(location); it != m_mDescriptorTypes.end())
+    if (auto it = mDescriptorTypes.find(location); it != mDescriptorTypes.end())
 		return it->second;
 	return std::nullopt;
 }
@@ -525,87 +525,87 @@ void CShader::buildReflection(std::vector<uint32_t>& spirv, vk::ShaderStageFlagB
     for(const auto& res : resources.uniform_buffers)
     {
         //Looking for the block if already exists and put stage flag
-        auto it = m_mUniformBlocks.find(res.name);
-        if (it != m_mUniformBlocks.end())
+        auto it = mUniformBlocks.find(res.name);
+        if (it != mUniformBlocks.end())
             it->second.stageFlags |= stageFlag;
         else
-            m_mUniformBlocks.emplace(res.name, buildUniformBlock(&compiler, res, stageFlag, vk::DescriptorType::eUniformBuffer));
+            mUniformBlocks.emplace(res.name, buildUniformBlock(&compiler, res, stageFlag, vk::DescriptorType::eUniformBuffer));
     }
 
     for(const auto& res : resources.storage_buffers)
     {
-        auto it = m_mUniformBlocks.find(res.name);
-        if(it != m_mUniformBlocks.end())
+        auto it = mUniformBlocks.find(res.name);
+        if(it != mUniformBlocks.end())
             it->second.stageFlags |= stageFlag;
         else
-            m_mUniformBlocks.emplace(res.name, buildUniformBlock(&compiler, res, stageFlag, vk::DescriptorType::eStorageBuffer));
+            mUniformBlocks.emplace(res.name, buildUniformBlock(&compiler, res, stageFlag, vk::DescriptorType::eStorageBuffer));
     }
 
     //check comp.get_active_buffer_ranges(res.push_constant_buffers[0].id);
     for(const auto& res : resources.push_constant_buffers)
     {
-        auto it = m_mPushBlocks.find(res.name);
-        if(it != m_mPushBlocks.end())
+        auto it = mPushBlocks.find(res.name);
+        if(it != mPushBlocks.end())
             it->second.stageFlags |= stageFlag;
         else
-            m_mPushBlocks.emplace(res.name, buildPushBlock(&compiler, res, stageFlag));
+            mPushBlocks.emplace(res.name, buildPushBlock(&compiler, res, stageFlag));
     }
 
     for(const auto& res : resources.sampled_images)
     {
-        auto it = m_mUniforms.find(res.name);
-        if(it != m_mUniforms.end())
+        auto it = mUniforms.find(res.name);
+        if(it != mUniforms.end())
             it->second.stageFlags |= stageFlag;
         else
-            m_mUniforms.emplace(res.name, buildUnifrom(&compiler, res, stageFlag, vk::DescriptorType::eCombinedImageSampler));
+            mUniforms.emplace(res.name, buildUnifrom(&compiler, res, stageFlag, vk::DescriptorType::eCombinedImageSampler));
     }
 
     for(const auto& res : resources.separate_images)
     {
-        auto it = m_mUniforms.find(res.name);
-        if(it != m_mUniforms.end())
+        auto it = mUniforms.find(res.name);
+        if(it != mUniforms.end())
             it->second.stageFlags |= stageFlag;
         else
-            m_mUniforms.emplace(res.name, buildUnifrom(&compiler, res, stageFlag, vk::DescriptorType::eSampledImage));
+            mUniforms.emplace(res.name, buildUnifrom(&compiler, res, stageFlag, vk::DescriptorType::eSampledImage));
     }
 
     for(const auto& res : resources.separate_samplers)
     {
-        auto it = m_mUniforms.find(res.name);
-        if(it != m_mUniforms.end())
+        auto it = mUniforms.find(res.name);
+        if(it != mUniforms.end())
             it->second.stageFlags |= stageFlag;
         else
-            m_mUniforms.emplace(res.name, buildUnifrom(&compiler, res, stageFlag, vk::DescriptorType::eSampler));
+            mUniforms.emplace(res.name, buildUnifrom(&compiler, res, stageFlag, vk::DescriptorType::eSampler));
     }
 
     for(const auto& res : resources.storage_images)
     {
-        auto it = m_mUniforms.find(res.name);
-        if(it != m_mUniforms.end())
+        auto it = mUniforms.find(res.name);
+        if(it != mUniforms.end())
             it->second.stageFlags |= stageFlag;
         else
-            m_mUniforms.emplace(res.name, buildUnifrom(&compiler, res, stageFlag, vk::DescriptorType::eStorageImage));
+            mUniforms.emplace(res.name, buildUnifrom(&compiler, res, stageFlag, vk::DescriptorType::eStorageImage));
     }
 
     for(const auto& res : resources.subpass_inputs)
     {
-        auto it = m_mUniforms.find(res.name);
-        if(it != m_mUniforms.end())
+        auto it = mUniforms.find(res.name);
+        if(it != mUniforms.end())
             it->second.stageFlags |= stageFlag;
         else
-            m_mUniforms.emplace(res.name, buildUnifrom(&compiler, res, stageFlag, vk::DescriptorType::eInputAttachment));
+            mUniforms.emplace(res.name, buildUnifrom(&compiler, res, stageFlag, vk::DescriptorType::eInputAttachment));
     }
 
     uint32_t input_offset = 0;
     for(const auto& res : resources.stage_inputs)
     {
-        m_mInputAttributes.emplace(res.name, buildAttribute(&compiler, res, input_offset));
+        mInputAttributes.emplace(res.name, buildAttribute(&compiler, res, input_offset));
     }
 
     input_offset = 0;
     for(const auto& res : resources.stage_outputs)
     {
-        m_mOutputAttributes.emplace(res.name, buildAttribute(&compiler, res, input_offset));
+        mOutputAttributes.emplace(res.name, buildAttribute(&compiler, res, input_offset));
     }
 }
 

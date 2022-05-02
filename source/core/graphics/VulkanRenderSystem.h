@@ -8,15 +8,15 @@ namespace Engine
     namespace Resources { class CResourceManager; }
     namespace Core
     {
-        namespace Scene { namespace Objects { class RenderObject; } }
-        class RenderSystem
+        namespace Scene { class CRenderObject; }
+        class CRenderSystem
         {
         public:
-            RenderSystem() = default;
-            ~RenderSystem();
-            void create(std::shared_ptr<Resources::CResourceManager> resourceManager, std::shared_ptr<Scene::Objects::RenderObject> root);
+            CRenderSystem() = default;
+            ~CRenderSystem();
+            void create(std::shared_ptr<Resources::CResourceManager> resourceManager, std::shared_ptr<Scene::CRenderObject> root);
             void reCreate();
-            void render(std::shared_ptr<Scene::Objects::RenderObject> root);
+            void render(std::shared_ptr<Scene::CRenderObject> root);
             void cleanup();
 
             vk::CommandBuffer& getCurrentCommandBuffer();

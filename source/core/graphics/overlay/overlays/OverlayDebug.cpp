@@ -9,7 +9,7 @@
 
 using namespace Engine::Core::Overlay;
 
-void OverlayDebug::Draw()
+void COverlayDebug::draw()
 {
     if (bOverlayState)
     {
@@ -20,9 +20,9 @@ void OverlayDebug::Draw()
         }
 
         float fFrameTime = 1000.0f / ImGui::GetIO().Framerate;
-        auto camera = Core::Scene::Objects::Components::CameraManager::getInstance()->GetCurrentCamera();
+        auto camera = Core::Scene::CCameraManager::getInstance()->getCurrentCamera();
 
-        int viewport_size[2] = {Window::WindowHandle::m_iWidth, Window::WindowHandle::m_iHeight};
+        int viewport_size[2] = {Window::CWindowHandle::m_iWidth, Window::CWindowHandle::m_iHeight};
 
         std::rotate(frameTimes.begin(), frameTimes.begin() + 1, frameTimes.end());
         frameTimes.back() = fFrameTime;
@@ -39,7 +39,7 @@ void OverlayDebug::Draw()
 
         ImGui::InputInt2("Viewport size", viewport_size);
 
-        glm::vec3 rotation = camera->GetRotation();
+        glm::vec3 rotation = camera->getRotation();
         ImGui::Text("Camera");
         ImGui::InputFloat3("Position", glm::value_ptr(camera->viewPos));
         ImGui::InputFloat3("Rotation", glm::value_ptr(rotation));

@@ -6,12 +6,12 @@ using namespace Engine::Core::Loaders;
 
 CImage::~CImage()
 {
-    UDevice->Destroy(_image);
-    UDevice->Destroy(_view);
-    UDevice->Destroy(_deviceMemory);
+    UDevice->destroy(_image);
+    UDevice->destroy(_view);
+    UDevice->destroy(_deviceMemory);
 
     if(!_bUsingInternalSampler)
-        UDevice->Destroy(_sampler);
+        UDevice->destroy(_sampler);
 }
 
 void CImage::updateDescriptor()
@@ -24,7 +24,7 @@ void CImage::updateDescriptor()
 void CImage::generateMipmaps(vk::Image &image, uint32_t mipLevels, vk::Format format, uint32_t width, uint32_t height, vk::ImageAspectFlags aspectFlags)
 {
     vk::FormatProperties formatProperties;
-    UDevice->GetPhysical().getFormatProperties(format, &formatProperties);
+    UDevice->getPhysical().getFormatProperties(format, &formatProperties);
 
     if (!(formatProperties.optimalTilingFeatures & vk::FormatFeatureFlagBits::eSampledImageFilterLinear))
     {
@@ -151,7 +151,7 @@ void CImage::initializeTexture(ktxTexture *info, vk::Format format, vk::ImageUsa
     else
         imageInfo.flags = vk::ImageCreateFlags{};
 
-    imageInfo.samples = UDevice->GetSamples();
+    imageInfo.samples = UDevice->getSamples();
 
     createImage(_image, _deviceMemory, imageInfo, vk::MemoryPropertyFlagBits::eDeviceLocal);
 
@@ -188,7 +188,7 @@ vk::Format CImage::findSupportedFormat(const std::vector<vk::Format> &candidates
     for (vk::Format format : candidates)
     {
         vk::FormatProperties props;
-        UDevice->GetPhysical().getFormatProperties(format, &props);
+        UDevice->getPhysical().getFormatProperties(format, &props);
 
         if (tiling == vk::ImageTiling::eLinear && (props.linearTilingFeatures & features) == features)
         {
@@ -222,20 +222,20 @@ void CImage::createImage(vk::Image &image, vk::DeviceMemory &memory, vk::ImageCr
 {
     assert(UDevice && "Cannot create image, cause logical device is not valid.");
 
-    image = UDevice->GetLogical().createImage(createInfo, nullptr);
+    image = UDevice->getLogical().createImage(createInfo, nullptr);
     assert(image && "Image was not created");
 
     vk::MemoryRequirements memReq{};
-    UDevice->GetLogical().getImageMemoryRequirements(image, &memReq);
+    UDevice->getLogical().getImageMemoryRequirements(image, &memReq);
 
     vk::MemoryAllocateInfo allocInfo{};
     allocInfo.allocationSize = memReq.size;
-    allocInfo.memoryTypeIndex = UDevice->FindMemoryType(memReq.memoryTypeBits, properties);
+    allocInfo.memoryTypeIndex = UDevice->findMemoryType(memReq.memoryTypeBits, properties);
 
-    memory = UDevice->GetLogical().allocateMemory(allocInfo);
+    memory = UDevice->getLogical().allocateMemory(allocInfo);
     assert(memory && "Image memory was not allocated");
 
-    UDevice->GetLogical().bindImageMemory(image, memory, 0);
+    UDevice->getLogical().bindImageMemory(image, memory, 0);
 }
 
 void CImage::transitionImageLayout(vk::Image &image, std::vector<vk::ImageMemoryBarrier>& vBarriers, vk::ImageLayout oldLayout, vk::ImageLayout newLayout)
@@ -365,7 +365,7 @@ vk::ImageView CImage::createImageView(vk::Image &pImage, vk::ImageViewCreateInfo
 
     vk::ImageView imageView;
     // TODO: Handle result
-    auto result = UDevice->GetLogical().createImageView(&viewInfo, nullptr, &imageView);
+    auto result = UDevice->getLogical().createImageView(&viewInfo, nullptr, &imageView);
     assert(imageView && "Was not created");
 
     return imageView;
@@ -382,7 +382,7 @@ void CImage::createSampler(vk::Sampler &sampler, uint32_t mip_levels, vk::Sample
     samplerInfo.addressModeW = eAddressMode;
 
     vk::PhysicalDeviceProperties properties{};
-    properties = UDevice->GetPhysical().getProperties();
+    properties = UDevice->getPhysical().getProperties();
 
     samplerInfo.anisotropyEnable = VK_TRUE;
     samplerInfo.maxAnisotropy = properties.limits.maxSamplerAnisotropy;
@@ -397,14 +397,14 @@ void CImage::createSampler(vk::Sampler &sampler, uint32_t mip_levels, vk::Sample
     samplerInfo.maxLod = static_cast<float>(mip_levels);
 
     // TODO: Result handle
-    auto result = UDevice->GetLogical().createSampler(&samplerInfo, nullptr, &sampler);
+    auto result = UDevice->getLogical().createSampler(&samplerInfo, nullptr, &sampler);
     assert(sampler && "Texture sampler was not created");
 }
 
 bool CImage::isSupportedDimension(ktxTexture *info)
 {
     vk::PhysicalDeviceProperties devprops;
-    UDevice->GetPhysical().getProperties(&devprops);
+    UDevice->getPhysical().getProperties(&devprops);
 
     if(info->isCubemap)
     {

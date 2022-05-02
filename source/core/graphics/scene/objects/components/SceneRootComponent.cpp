@@ -2,20 +2,20 @@
 #include "graphics/VulkanDevice.hpp"
 #include "resources/ResourceManager.h"
 
-using namespace Engine::Core::Scene::Objects::Components;
+using namespace Engine::Core::Scene;
 using namespace Engine::Resources;
 
-void SceneRootComponent::Create(vk::RenderPass& renderPass, uint32_t subpass)
+void CSceneRootComponent::create(vk::RenderPass& renderPass, uint32_t subpass)
 {
-    RenderObject::Create(renderPass, subpass);
+    CRenderObject::create(renderPass, subpass);
 }
 
-void SceneRootComponent::Render(vk::CommandBuffer &commandBuffer, uint32_t imageIndex)
+void CSceneRootComponent::render(vk::CommandBuffer &commandBuffer, uint32_t imageIndex)
 {
-    RenderObject::Render(commandBuffer, imageIndex);
+    CRenderObject::render(commandBuffer, imageIndex);
 }
 
-void SceneRootComponent::Update(float fDeltaTime)
+void CSceneRootComponent::update(float fDeltaTime)
 {
-    RenderObject::Update(fDeltaTime);
+    CRenderObject::update(fDeltaTime);
 }

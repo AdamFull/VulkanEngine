@@ -4,7 +4,7 @@
 using namespace Engine::Core;
 
 CCommandBuffer::CCommandBuffer(bool _begin, vk::QueueFlagBits queueType, vk::CommandBufferLevel bufferLevel, uint32_t count) :
-commandPool(UDevice->GetCommandPool()), queueType(queueType)
+commandPool(UDevice->getCommandPool()), queueType(queueType)
 {
     vk::CommandBufferAllocateInfo allocInfo = {};
     allocInfo.commandPool = commandPool->getCommandPool();
@@ -12,7 +12,7 @@ commandPool(UDevice->GetCommandPool()), queueType(queueType)
     allocInfo.commandBufferCount = count;
 
     // TODO: Handle error
-    vCommandBuffers = UDevice->GetLogical().allocateCommandBuffers(allocInfo);
+    vCommandBuffers = UDevice->getLogical().allocateCommandBuffers(allocInfo);
 
     if(_begin)
         begin();
@@ -20,7 +20,7 @@ commandPool(UDevice->GetCommandPool()), queueType(queueType)
 
 CCommandBuffer::~CCommandBuffer()
 {
-    UDevice->GetLogical().freeCommandBuffers(commandPool->getCommandPool(), vCommandBuffers);
+    UDevice->getLogical().freeCommandBuffers(commandPool->getCommandPool(), vCommandBuffers);
     vCommandBuffers.clear();
 }
 
@@ -63,13 +63,13 @@ void CCommandBuffer::submitIdle()
     switch (queueType)
     {
     case vk::QueueFlagBits::eGraphics: {
-        queue = UDevice->GetGraphicsQueue();
+        queue = UDevice->getGraphicsQueue();
     } break;
     case vk::QueueFlagBits::eCompute: {
-        queue = UDevice->GetComputeQueue();
+        queue = UDevice->getComputeQueue();
     } break;
     case vk::QueueFlagBits::eTransfer: {
-        queue = UDevice->GetTransferQueue();
+        queue = UDevice->getTransferQueue();
     } break;
     }
     queue.submit(submitInfo, nullptr);
@@ -82,5 +82,5 @@ vk::Result CCommandBuffer::submit(uint32_t& imageIndex)
 		end();
 
     auto commandBuffer = getCommandBuffer();
-    return USwapChain->SubmitCommandBuffers(&commandBuffer, &imageIndex, queueType);
+    return USwapChain->submitCommandBuffers(&commandBuffer, &imageIndex, queueType);
 }

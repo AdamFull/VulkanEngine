@@ -6,7 +6,7 @@
 #include "resources/materials/MaterialShadow.h"
 
 using namespace Engine::Core::Render;
-using namespace Engine::Core::Scene::Objects;
+using namespace Engine::Core::Scene;
 using namespace Engine::Resources;
 using namespace Engine::Resources::Material;
 
@@ -18,10 +18,10 @@ void CShadowPass::create(std::unique_ptr<FRenderCreateInfo>& createInfo)
 
 void CShadowPass::render(std::unique_ptr<FRenderProcessInfo>& renderData)
 {
-    auto imageIndex = USwapChain->GetCurrentFrame();
+    auto imageIndex = USwapChain->getCurrentFrame();
     UVBO->bind(renderData->commandBuffer);
     pMaterial->bind(renderData->commandBuffer, imageIndex);
-    renderData->root->Render(renderData->commandBuffer, imageIndex);
+    renderData->root->render(renderData->commandBuffer, imageIndex);
 }
 
 void CShadowPass::cleanup()

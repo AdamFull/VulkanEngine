@@ -7,13 +7,13 @@
 #include "GlobalVariables.h"
 
 using namespace Engine::Core::Render;
-using namespace Engine::Core::Scene::Objects;
+using namespace Engine::Core::Scene;
 using namespace Engine::Resources;
 using namespace Engine::Resources::Material;
 
 void CGaussianBlurPass::create(std::unique_ptr<FRenderCreateInfo>& createInfo)
 {
-    auto framesInFlight = USwapChain->GetFramesInFlight();
+    auto framesInFlight = USwapChain->getFramesInFlight();
     pUniform = std::make_shared<CUniformBuffer>();
     pUniform->create(framesInFlight, sizeof(FBlurData));
 
@@ -24,7 +24,7 @@ void CGaussianBlurPass::create(std::unique_ptr<FRenderCreateInfo>& createInfo)
 
 void CGaussianBlurPass::render(std::unique_ptr<FRenderProcessInfo>& renderData)
 {
-    auto imageIndex = USwapChain->GetCurrentFrame();
+    auto imageIndex = USwapChain->getCurrentFrame();
     FBlurData uniform;
     uniform.blurScale = GlobalVariables::blurScale;
     uniform.blurStrength = GlobalVariables::blurStrength;

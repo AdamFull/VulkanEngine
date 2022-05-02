@@ -5,14 +5,14 @@
 
 namespace Engine
 {
-    class Application
+    class CApplication
     {
     public:
-        void Create();
-        void ServiceHandle(EActionKey eKey, EKeyState eState);
+        void create();
+        void serviceHandle(EActionKey eKey, EKeyState eState);
         void run();
     private:
-        std::unique_ptr<RenderScene> m_pRenderScene;
-        std::unique_ptr<Controllers::CameraController> m_pCameraController;
+        std::unique_ptr<CRenderScene> m_pRenderScene;
+        std::unique_ptr<Controllers::CCameraController> m_pCameraController;
     };
 }

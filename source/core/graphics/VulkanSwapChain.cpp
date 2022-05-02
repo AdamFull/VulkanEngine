@@ -5,37 +5,37 @@
 using namespace Engine::Core;
 using namespace Engine::Core::Window;
 
-SwapChain::~SwapChain()
+CSwapChain::~CSwapChain()
 {
-    Cleanup();
+    cleanup();
 
     for (size_t i = 0; i < m_iFramesInFlight; i++)
     {
-        UDevice->Destroy(m_vRenderFinishedSemaphores[i]);
-        UDevice->Destroy(m_vImageAvailableSemaphores[i]);
-        UDevice->Destroy(m_vInFlightFences[i]);
+        UDevice->destroy(m_vRenderFinishedSemaphores[i]);
+        UDevice->destroy(m_vImageAvailableSemaphores[i]);
+        UDevice->destroy(m_vInFlightFences[i]);
     }
 }
 
-void SwapChain::Create()
+void CSwapChain::create()
 {
-    CreateSwapChain();
-    CreateSwapChainImageViews();
-    CreateSyncObjects();
+    createSwapChain();
+    createSwapChainImageViews();
+    createSyncObjects();
 }
 
-vk::Result SwapChain::AcquireNextImage(uint32_t *imageIndex)
+vk::Result CSwapChain::acquireNextImage(uint32_t *imageIndex)
 {
-    auto res = UDevice->GetLogical().waitForFences(1, &m_vInFlightFences[m_currentFrame], VK_TRUE, std::numeric_limits<uint64_t>::max());
+    auto res = UDevice->getLogical().waitForFences(1, &m_vInFlightFences[m_currentFrame], VK_TRUE, std::numeric_limits<uint64_t>::max());
 
-    auto result = UDevice->GetLogical().acquireNextImageKHR(
+    auto result = UDevice->getLogical().acquireNextImageKHR(
         m_swapChain, std::numeric_limits<uint64_t>::max(),
         m_vImageAvailableSemaphores[m_currentFrame], nullptr, imageIndex);
 
     return result;
 }
 
-vk::Result SwapChain::SubmitCommandBuffers(const vk::CommandBuffer *commandBuffer, uint32_t *imageIndex, vk::QueueFlagBits queueBit)
+vk::Result CSwapChain::submitCommandBuffers(const vk::CommandBuffer *commandBuffer, uint32_t *imageIndex, vk::QueueFlagBits queueBit)
 {
     vk::SubmitInfo submitInfo = {};
 
@@ -53,7 +53,7 @@ vk::Result SwapChain::SubmitCommandBuffers(const vk::CommandBuffer *commandBuffe
     submitInfo.pSignalSemaphores = signalSemaphores;
 
     // TODO: Handle this result
-    auto result = UDevice->GetLogical().resetFences(1, &m_vInFlightFences[m_currentFrame]);
+    auto result = UDevice->getLogical().resetFences(1, &m_vInFlightFences[m_currentFrame]);
 
     try
     {
@@ -61,13 +61,13 @@ vk::Result SwapChain::SubmitCommandBuffers(const vk::CommandBuffer *commandBuffe
         switch (queueBit)
         {
         case vk::QueueFlagBits::eGraphics: {
-            queue = UDevice->GetGraphicsQueue();
+            queue = UDevice->getGraphicsQueue();
         } break;
         case vk::QueueFlagBits::eCompute: {
-            queue = UDevice->GetComputeQueue();
+            queue = UDevice->getComputeQueue();
         } break;
         case vk::QueueFlagBits::eTransfer: {
-            queue = UDevice->GetTransferQueue();
+            queue = UDevice->getTransferQueue();
         } break;
         }
         queue.submit(submitInfo, m_vInFlightFences[m_currentFrame]);
@@ -88,35 +88,35 @@ vk::Result SwapChain::SubmitCommandBuffers(const vk::CommandBuffer *commandBuffe
     presentInfo.pImageIndices = imageIndex;
 
     vk::Result resultPresent;
-    resultPresent = UDevice->GetPresentQueue().presentKHR(presentInfo);
+    resultPresent = UDevice->getPresentQueue().presentKHR(presentInfo);
 
     m_currentFrame = (m_currentFrame + 1) % m_iFramesInFlight;
 
     return resultPresent;
 }
 
-void SwapChain::Cleanup()
+void CSwapChain::cleanup()
 {
     for (auto imageView : m_vImageViews)
-        UDevice->Destroy(imageView);
+        UDevice->destroy(imageView);
 
-    UDevice->Destroy(m_swapChain);
+    UDevice->destroy(m_swapChain);
 }
 
-void SwapChain::ReCreate()
+void CSwapChain::reCreate()
 {
-    CreateSwapChain();
-    CreateSwapChainImageViews();
+    createSwapChain();
+    createSwapChainImageViews();
 }
 
-void SwapChain::CreateSwapChain()
+void CSwapChain::createSwapChain()
 {
     assert(UDevice && "Cannot create swap chain, cause logical device is not valid.");
-    SwapChainSupportDetails swapChainSupport = UDevice->QuerySwapChainSupport();
+    SwapChainSupportDetails swapChainSupport = UDevice->querySwapChainSupport();
 
     vk::SurfaceFormatKHR surfaceFormat = VulkanStaticHelper::ChooseSwapSurfaceFormat(swapChainSupport.formats);
     vk::PresentModeKHR presentMode = VulkanStaticHelper::ChooseSwapPresentMode(swapChainSupport.presentModes);
-    m_extent = ChooseSwapExtent(swapChainSupport.capabilities);
+    m_extent = chooseSwapExtent(swapChainSupport.capabilities);
     //m_extent = vk::Extent2D{m_extent.width / 2, m_extent.height / 2};
 
     uint32_t imageCount = m_iFramesInFlight; // swapChainSupport.capabilities.maxImageCount;
@@ -127,7 +127,7 @@ void SwapChain::CreateSwapChain()
 
     vk::SwapchainCreateInfoKHR createInfo(
         vk::SwapchainCreateFlagsKHR(),
-        UDevice->GetSurface(),
+        UDevice->getSurface(),
         imageCount,
         surfaceFormat.format,
         surfaceFormat.colorSpace,
@@ -135,7 +135,7 @@ void SwapChain::CreateSwapChain()
         1, // imageArrayLayers
         vk::ImageUsageFlagBits::eColorAttachment);
 
-    QueueFamilyIndices indices = UDevice->FindQueueFamilies();
+    QueueFamilyIndices indices = UDevice->findQueueFamilies();
     uint32_t queueFamilyIndices[] = {indices.graphicsFamily.value(), indices.presentFamily.value()};
 
     if (indices.graphicsFamily != indices.presentFamily)
@@ -156,16 +156,16 @@ void SwapChain::CreateSwapChain()
 
     createInfo.oldSwapchain = vk::SwapchainKHR(nullptr);
 
-    m_swapChain = UDevice->Make<vk::SwapchainKHR, vk::SwapchainCreateInfoKHR>(createInfo);
+    m_swapChain = UDevice->make<vk::SwapchainKHR, vk::SwapchainCreateInfoKHR>(createInfo);
     assert(m_swapChain && "Swap chain was not created");
 
-    m_vImages = UDevice->Make<std::vector<vk::Image>, vk::SwapchainKHR>(m_swapChain);
+    m_vImages = UDevice->make<std::vector<vk::Image>, vk::SwapchainKHR>(m_swapChain);
     assert(!m_vImages.empty() && "Swap chain images was not created");
 
     m_imageFormat = surfaceFormat.format;
 }
 
-void SwapChain::CreateSwapChainImageViews()
+void CSwapChain::createSwapChainImageViews()
 {
     m_vImageViews.resize(m_vImages.size());
 
@@ -184,7 +184,7 @@ void SwapChain::CreateSwapChainImageViews()
     }
 }
 
-void SwapChain::CreateSyncObjects()
+void CSwapChain::createSyncObjects()
 {
     m_vImageAvailableSemaphores.resize(m_iFramesInFlight);
     m_vRenderFinishedSemaphores.resize(m_iFramesInFlight);
@@ -194,9 +194,9 @@ void SwapChain::CreateSyncObjects()
     {
         for (size_t i = 0; i < m_iFramesInFlight; i++)
         {
-            m_vImageAvailableSemaphores[i] = UDevice->Make<vk::Semaphore, vk::SemaphoreCreateInfo>(vk::SemaphoreCreateInfo{});
-            m_vRenderFinishedSemaphores[i] = UDevice->Make<vk::Semaphore, vk::SemaphoreCreateInfo>(vk::SemaphoreCreateInfo{});
-            m_vInFlightFences[i] = UDevice->Make<vk::Fence, vk::FenceCreateInfo>(vk::FenceCreateInfo{vk::FenceCreateFlagBits::eSignaled});
+            m_vImageAvailableSemaphores[i] = UDevice->make<vk::Semaphore, vk::SemaphoreCreateInfo>(vk::SemaphoreCreateInfo{});
+            m_vRenderFinishedSemaphores[i] = UDevice->make<vk::Semaphore, vk::SemaphoreCreateInfo>(vk::SemaphoreCreateInfo{});
+            m_vInFlightFences[i] = UDevice->make<vk::Fence, vk::FenceCreateInfo>(vk::FenceCreateInfo{vk::FenceCreateFlagBits::eSignaled});
         }
     }
     catch (vk::SystemError err)
@@ -205,7 +205,7 @@ void SwapChain::CreateSyncObjects()
     }
 }
 
-vk::Extent2D SwapChain::ChooseSwapExtent(const vk::SurfaceCapabilitiesKHR &capabilities)
+vk::Extent2D CSwapChain::chooseSwapExtent(const vk::SurfaceCapabilitiesKHR &capabilities)
 {
     if (capabilities.currentExtent.width != std::numeric_limits<uint32_t>::max())
     {
@@ -213,7 +213,7 @@ vk::Extent2D SwapChain::ChooseSwapExtent(const vk::SurfaceCapabilitiesKHR &capab
     }
     else
     {
-        vk::Extent2D actualExtent = {static_cast<uint32_t>(WindowHandle::m_iWidth), static_cast<uint32_t>(WindowHandle::m_iHeight)};
+        vk::Extent2D actualExtent = {static_cast<uint32_t>(CWindowHandle::m_iWidth), static_cast<uint32_t>(CWindowHandle::m_iHeight)};
 
         actualExtent.width = std::max(capabilities.minImageExtent.width, std::min(capabilities.maxImageExtent.width, actualExtent.width));
         actualExtent.height = std::max(capabilities.minImageExtent.height, std::min(capabilities.maxImageExtent.height, actualExtent.height));

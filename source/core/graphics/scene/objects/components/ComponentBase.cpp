@@ -1,34 +1,34 @@
 #include "ComponentBase.h"
 
-using namespace Engine::Core::Scene::Objects::Components;
+using namespace Engine::Core::Scene;
 using namespace Engine::Resources;
 
-void ComponentBase::Create(vk::RenderPass& renderPass, uint32_t subpass)
+void CComponentBase::create(vk::RenderPass& renderPass, uint32_t subpass)
 {
-    RenderObject::Create(renderPass, subpass);
+    CRenderObject::create(renderPass, subpass);
 }
 
-void ComponentBase::ReCreate()
+void CComponentBase::reCreate()
 {
-    RenderObject::ReCreate();
+    CRenderObject::reCreate();
 }
 
-void ComponentBase::Update(float fDeltaTime)
+void CComponentBase::update(float fDeltaTime)
 {
-    RenderObject::Update(fDeltaTime);
+    CRenderObject::update(fDeltaTime);
 }
 
-void ComponentBase::Render(vk::CommandBuffer &commandBuffer, uint32_t imageIndex)
+void CComponentBase::render(vk::CommandBuffer &commandBuffer, uint32_t imageIndex)
 {
-    RenderObject::Render(commandBuffer, imageIndex);
+    CRenderObject::render(commandBuffer, imageIndex);
 }
 
-void ComponentBase::Cleanup()
+void CComponentBase::cleanup()
 {
-    RenderObject::Cleanup();
+    CRenderObject::cleanup();
 }
 
-void ComponentBase::Destroy()
+void CComponentBase::destroy()
 {
-    RenderObject::Destroy();
+    CRenderObject::destroy();
 }

@@ -7,15 +7,15 @@ namespace Engine
     {
         namespace Overlay
         {
-            class OverlayDebug : public OverlayBase
+            class COverlayDebug : public COverlayBase
             {
             public:
-                OverlayDebug() = default;
-                OverlayDebug(std::string srName)
+                COverlayDebug() = default;
+                COverlayDebug(std::string srName)
                 {
                     srOverlayName = srName;
                 }
-                void Draw() override;
+                void draw() override;
 
             private:
                 bool show_demo_window = true;

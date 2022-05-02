@@ -7,27 +7,27 @@ namespace Engine
     {
         namespace Overlay
         {
-            class OverlayConsole : public OverlayBase
+            class COverlayConsole : public COverlayBase
             {
             public:
-                OverlayConsole() = default;
-                OverlayConsole(std::string srName);
-                ~OverlayConsole();
+                COverlayConsole() = default;
+                COverlayConsole(std::string srName);
+                ~COverlayConsole();
 
-                void Draw() override;
+                void draw() override;
 
-                static int Stricmp(const char *s1, const char *s2);
-                static int Strnicmp(const char *s1, const char *s2, int n);
-                static char *Strdup(const char *s);
-                static void Strtrim(char *s);
+                static int stricmp(const char *s1, const char *s2);
+                static int strnicmp(const char *s1, const char *s2, int n);
+                static char* strdup(const char *s);
+                static void strtrim(char *s);
 
-                static int TextEditCallbackStub(ImGuiInputTextCallbackData *data);
+                static int textEditCallbackStub(ImGuiInputTextCallbackData *data);
 
             private:
-                void ClearLog();
-                void ExecCommand(const char *command_line);
-                int TextEditCallback(ImGuiInputTextCallbackData *data);
-                void AddLog(const char *fmt, ...) IM_FMTARGS(2);
+                void clearLog();
+                void execCommand(const char *command_line);
+                int textEditCallback(ImGuiInputTextCallbackData *data);
+                void addLog(const char *fmt, ...) IM_FMTARGS(2);
 
                 char InputBuf[256];
                 ImVector<char *> Items;

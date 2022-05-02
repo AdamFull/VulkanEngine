@@ -3,7 +3,7 @@
 
 using namespace Engine::Core::Overlay;
 
-void OverlaySceneGraph::Draw()
+void COverlaySceneGraph::draw()
 {
     if (bOverlayState)
     {
@@ -16,13 +16,13 @@ void OverlaySceneGraph::Draw()
         ImGui::PushStyleVar(ImGuiStyleVar_FramePadding, ImVec2(2, 2));
         if (ImGui::BeginTable("split", 1, ImGuiTableFlags_BordersOuter | ImGuiTableFlags_Resizable))
         {
-            auto& sceneObjects = m_pRoot->GetChilds();
+            auto& sceneObjects = m_pRoot->getChilds();
             uint32_t objCounter{0};
             for (auto& object : sceneObjects)
             {
                 if(object.second)
                 {
-                    CreateObject(object.second->GetName(), object.second, objCounter);
+                    createObject(object.second->getName(), object.second, objCounter);
                     objCounter++;
                 }
             }
@@ -35,7 +35,7 @@ void OverlaySceneGraph::Draw()
     }
 }
 
-void OverlaySceneGraph::CreateObject(std::string name, std::shared_ptr<Scene::Objects::RenderObject> pObject, int id)
+void COverlaySceneGraph::createObject(std::string name, std::shared_ptr<Scene::CRenderObject> pObject, int id)
 {
     ImGui::PushID(id);
 
@@ -47,13 +47,13 @@ void OverlaySceneGraph::CreateObject(std::string name, std::shared_ptr<Scene::Ob
     // Including nodes
     if (node_open)
     {
-        auto& nodeChilds = pObject->GetChilds();
+        auto& nodeChilds = pObject->getChilds();
         uint32_t objCounter{0};
         for (auto& child : nodeChilds)
         {
             ImGui::PushID(objCounter); // Use field index as identifier.
             if(child.second)
-                CreateObject(child.second->GetName(), child.second, objCounter);
+                createObject(child.second->getName(), child.second, objCounter);
             objCounter++;
             ImGui::PopID();
         }

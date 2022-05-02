@@ -7,13 +7,13 @@
 #include "resources/ResourceManager.h"
 #include "GlobalVariables.h"
 
-using namespace Engine::Core::Scene::Objects::Components;
+using namespace Engine::Core::Scene;
 using namespace Engine::Resources;
 using namespace Engine::Core;
 
-void MeshComponentBase::Create(vk::RenderPass& renderPass, uint32_t subpass)
+void CMeshComponentBase::create(vk::RenderPass& renderPass, uint32_t subpass)
 {
-    ComponentBase::Create(renderPass, subpass);
+    CComponentBase::create(renderPass, subpass);
 
     if (m_pMesh)
     {
@@ -21,9 +21,9 @@ void MeshComponentBase::Create(vk::RenderPass& renderPass, uint32_t subpass)
     }
 }
 
-void MeshComponentBase::ReCreate()
+void CMeshComponentBase::reCreate()
 {
-    ComponentBase::ReCreate();
+    CComponentBase::reCreate();
 
     if (m_pMesh)
     {
@@ -31,9 +31,9 @@ void MeshComponentBase::ReCreate()
     }
 }
 
-void MeshComponentBase::Update(float fDeltaTime)
+void CMeshComponentBase::update(float fDeltaTime)
 {
-    ComponentBase::Update(fDeltaTime);
+    CComponentBase::update(fDeltaTime);
 
     if (m_pMesh)
     {
@@ -42,18 +42,18 @@ void MeshComponentBase::Update(float fDeltaTime)
     }
 }
 
-void MeshComponentBase::Render(vk::CommandBuffer &commandBuffer, uint32_t imageIndex)
+void CMeshComponentBase::render(vk::CommandBuffer &commandBuffer, uint32_t imageIndex)
 {
-    ComponentBase::Render(commandBuffer, imageIndex);
+    CComponentBase::render(commandBuffer, imageIndex);
 
     if (m_pMesh)
     {
-        auto camera = CameraManager::getInstance()->GetCurrentCamera();
-        auto transform = GetTransform();
+        auto camera = CCameraManager::getInstance()->getCurrentCamera();
+        auto transform = getTransform();
         FUniformData ubo{};
-        ubo.model = transform.GetModel();
-        ubo.view = camera->GetView();
-        ubo.projection = camera->GetProjection();
+        ubo.model = transform.getModel();
+        ubo.view = camera->getView();
+        ubo.projection = camera->getProjection();
 
         for(uint32_t i = 0; i < m_vInstances.size(); i++)
             ubo.instancePos[i] = m_vInstances.at(i);
@@ -63,9 +63,9 @@ void MeshComponentBase::Render(vk::CommandBuffer &commandBuffer, uint32_t imageI
     }
 }
 
-void MeshComponentBase::Cleanup()
+void CMeshComponentBase::cleanup()
 {
-    ComponentBase::Cleanup();
+    CComponentBase::cleanup();
 
     if (m_pMesh)
     {
@@ -73,7 +73,7 @@ void MeshComponentBase::Cleanup()
     }
 }
 
-void MeshComponentBase::Destroy()
+void CMeshComponentBase::destroy()
 {
-    ComponentBase::Destroy();
+    CComponentBase::destroy();
 }

@@ -7,22 +7,16 @@ namespace Engine
     {
         namespace Scene
         {
-            namespace Objects
+            class CComponentBase : public CRenderObject
             {
-                namespace Components
-                {
-                    class ComponentBase : public RenderObject
-                    {
-                    public:
-                        void Create(vk::RenderPass& renderPass, uint32_t subpass) override;
-                        void ReCreate() override;
-                        void Update(float fDeltaTime) override;
-                        void Render(vk::CommandBuffer &commandBuffer, uint32_t imageIndex) override;
-                        void Cleanup() override;
-                        void Destroy() override;
-                    };
-                }
-            }
+            public:
+                void create(vk::RenderPass &renderPass, uint32_t subpass) override;
+                void reCreate() override;
+                void update(float fDeltaTime) override;
+                void render(vk::CommandBuffer &commandBuffer, uint32_t imageIndex) override;
+                void cleanup() override;
+                void destroy() override;
+            };
         }
     }
 }

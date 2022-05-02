@@ -7,19 +7,19 @@ namespace Engine
     {
         namespace Overlay
         {
-            class OverlayLog : public OverlayBase
+            class COverlayLog : public COverlayBase
             {
             public:
-                OverlayLog() = default;
-                OverlayLog(std::string srName)
+                COverlayLog() = default;
+                COverlayLog(std::string srName)
                 {
                     srOverlayName = srName;
                     bOverlayState = false;
                 }
-                void Draw() override;
+                void draw() override;
 
             private:
-                void Clear();
+                void clear();
 
                 ImGuiTextBuffer Buf;
                 ImGuiTextFilter Filter;

@@ -7,7 +7,7 @@
 
 using namespace Engine::Core::Render;
 using namespace Engine::Resources;
-using namespace Engine::Core::Scene::Objects;
+using namespace Engine::Core::Scene;
 
 CRenderPass::Builder& CRenderPass::Builder::addAttachmentDescription(vk::AttachmentDescription&& desc)
 {
@@ -85,7 +85,7 @@ CRenderPass::CRenderPass(vk::RenderPass&& pass) : renderPass(std::move(pass))
 
 CRenderPass::~CRenderPass()
 {
-    UDevice->Destroy(renderPass);
+    UDevice->destroy(renderPass);
 }
 
 void CRenderPass::create(std::unique_ptr<FRenderCreateInfo>& createData)
@@ -109,14 +109,14 @@ void CRenderPass::reCreate()
 
 void CRenderPass::cleanup()
 {
-    UDevice->Destroy(renderPass);
+    UDevice->destroy(renderPass);
     //TODO: cleanup
 }
 
 void CRenderPass::begin(vk::CommandBuffer& commandBuffer, std::vector<vk::Framebuffer>& framebuffer)
 {
     //Begins render pass for start rendering
-    auto imageIndex = USwapChain->GetCurrentFrame();
+    auto imageIndex = USwapChain->getCurrentFrame();
 
     vk::RenderPassBeginInfo renderPassBeginInfo{};
     renderPassBeginInfo.renderPass = renderPass;
@@ -184,5 +184,5 @@ vk::RenderPass CRenderPass::createRenderPass()
     renderPassCI.pSubpasses = vSubpassDesc.data();
     renderPassCI.dependencyCount = static_cast<uint32_t>(vSubpassDep.size());
     renderPassCI.pDependencies = vSubpassDep.data();
-    return UDevice->GetLogical().createRenderPass(renderPassCI);
+    return UDevice->getLogical().createRenderPass(renderPassCI);
 }

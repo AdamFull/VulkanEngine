@@ -7,21 +7,21 @@ namespace Engine
     {
         namespace Overlay
         {
-            class OverlaySceneGraph : public OverlayBase
+            class COverlaySceneGraph : public COverlayBase
             {
             public:
-                OverlaySceneGraph() = default;
-                OverlaySceneGraph(std::string srName, std::shared_ptr<Scene::Objects::RenderObject> pRoot)
+                COverlaySceneGraph() = default;
+                COverlaySceneGraph(std::string srName, std::shared_ptr<Scene::CRenderObject> pRoot)
                 {
                     srOverlayName = srName;
                     bOverlayState = true;
                     m_pRoot = pRoot;
                 }
-                void Draw() override;
+                void draw() override;
 
             private:
-                void CreateObject(std::string name, std::shared_ptr<Scene::Objects::RenderObject> pObject, int id);
-                std::shared_ptr<Scene::Objects::RenderObject> m_pRoot;
+                void createObject(std::string name, std::shared_ptr<Scene::CRenderObject> pObject, int id);
+                std::shared_ptr<Scene::CRenderObject> m_pRoot;
             };
         }
     }

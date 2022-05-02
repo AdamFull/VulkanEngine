@@ -41,7 +41,7 @@ void CVulkanVBO::createVertexBuffer()
 
     vertexBuffer = std::make_unique<CVulkanBuffer>();
     vertexBuffer->create(vertexSize, vVertices.size(), vk::BufferUsageFlagBits::eTransferDst | vk::BufferUsageFlagBits::eVertexBuffer, vk::MemoryPropertyFlagBits::eDeviceLocal);
-    UDevice->CopyOnDeviceBuffer(stagingBuffer.getBuffer(), vertexBuffer->getBuffer(), bufferSize);
+    UDevice->copyOnDeviceBuffer(stagingBuffer.getBuffer(), vertexBuffer->getBuffer(), bufferSize);
     // m_vVertices.clear();
 }
 
@@ -57,6 +57,6 @@ void CVulkanVBO::createIndexBuffer()
 
     indexBuffer = std::make_unique<CVulkanBuffer>();
     indexBuffer->create(indexSize, vIndices.size(), vk::BufferUsageFlagBits::eTransferDst | vk::BufferUsageFlagBits::eIndexBuffer, vk::MemoryPropertyFlagBits::eDeviceLocal);
-    UDevice->CopyOnDeviceBuffer(stagingBuffer.getBuffer(), indexBuffer->getBuffer(), bufferSize);
+    UDevice->copyOnDeviceBuffer(stagingBuffer.getBuffer(), indexBuffer->getBuffer(), bufferSize);
     // m_vIndices.clear();
 }

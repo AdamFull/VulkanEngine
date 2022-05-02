@@ -14,7 +14,7 @@ CDeferredStage::~CDeferredStage()
 
 void CDeferredStage::create(std::unique_ptr<FRenderCreateInfo>& createInfo)
 {
-    screenExtent = USwapChain->GetExtent();
+    screenExtent = USwapChain->getExtent();
 
     std::vector<vk::AttachmentReference> vReferences_0
     {
@@ -46,7 +46,7 @@ void CDeferredStage::create(std::unique_ptr<FRenderCreateInfo>& createInfo)
 
     pRenderPass = Render::CRenderPass::Builder().
     //KHR color attachment
-    addAttachmentDescription(USwapChain->GetImageFormat(), vk::SampleCountFlagBits::e1, vk::AttachmentLoadOp::eClear, vk::AttachmentStoreOp::eStore, 
+    addAttachmentDescription(USwapChain->getImageFormat(), vk::SampleCountFlagBits::e1, vk::AttachmentLoadOp::eClear, vk::AttachmentStoreOp::eStore, 
     vk::AttachmentLoadOp::eDontCare, vk::AttachmentStoreOp::eDontCare, vk::ImageLayout::eUndefined, vk::ImageLayout::ePresentSrcKHR).
     addAttachmentDescription(vk::Format::eR16G16B16A16Sfloat). //Position buffer
     addAttachmentDescription(vk::Format::eR16G16B16A16Sfloat). //Light mask buffer
@@ -75,7 +75,7 @@ void CDeferredStage::create(std::unique_ptr<FRenderCreateInfo>& createInfo)
     pRenderPass->pushSubpass(std::make_shared<CPBRCompositionPass>());
 
     pFramebuffer = std::make_unique<CFramebuffer>();
-    pFramebuffer->addImage("present_khr", USwapChain->GetImageFormat(), vk::ImageUsageFlagBits::eColorAttachment | vk::ImageUsageFlagBits::eInputAttachment);
+    pFramebuffer->addImage("present_khr", USwapChain->getImageFormat(), vk::ImageUsageFlagBits::eColorAttachment | vk::ImageUsageFlagBits::eInputAttachment);
     pFramebuffer->addImage("position_tex", vk::Format::eR16G16B16A16Sfloat, vk::ImageUsageFlagBits::eColorAttachment | vk::ImageUsageFlagBits::eInputAttachment);
     pFramebuffer->addImage("lightning_mask_tex", vk::Format::eR16G16B16A16Sfloat, vk::ImageUsageFlagBits::eColorAttachment | vk::ImageUsageFlagBits::eInputAttachment);
     pFramebuffer->addImage("normal_tex", vk::Format::eR16G16B16A16Sfloat, vk::ImageUsageFlagBits::eColorAttachment | vk::ImageUsageFlagBits::eInputAttachment);
@@ -90,13 +90,13 @@ void CDeferredStage::create(std::unique_ptr<FRenderCreateInfo>& createInfo)
     pRenderPass->setRenderArea(vk::Offset2D{0, 0}, screenExtent);
     pFramebuffer->create(pRenderPass->get(), screenExtent);
     createInfo->renderPass = pRenderPass->get();
-    createInfo->images = pFramebuffer->getImages(USwapChain->GetCurrentFrame());
+    createInfo->images = pFramebuffer->getImages(USwapChain->getCurrentFrame());
     pRenderPass->create(createInfo);
 }
 
 void CDeferredStage::reCreate()
 {
-    screenExtent = USwapChain->GetExtent();
+    screenExtent = USwapChain->getExtent();
     pRenderPass->setRenderArea(vk::Offset2D{0, 0}, screenExtent);
     pRenderPass->reCreate();
     pFramebuffer->reCreate(pRenderPass->get());
@@ -104,7 +104,7 @@ void CDeferredStage::reCreate()
 
 void CDeferredStage::render(std::unique_ptr<FRenderProcessInfo>& renderData)
 {
-    renderData->images = pFramebuffer->getImages(USwapChain->GetCurrentFrame());
+    renderData->images = pFramebuffer->getImages(USwapChain->getCurrentFrame());
     pRenderPass->begin(renderData->commandBuffer, pFramebuffer->get());
     pRenderPass->render(renderData);
     pRenderPass->end(renderData->commandBuffer);

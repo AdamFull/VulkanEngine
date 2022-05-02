@@ -5,15 +5,15 @@
 
 using namespace Engine::Core;
 
-RenderSystem::~RenderSystem()
+CRenderSystem::~CRenderSystem()
 {
     cleanup();
 }
 
-void RenderSystem::create(std::shared_ptr<Resources::CResourceManager> resourceManager, std::shared_ptr<Scene::Objects::RenderObject> root)
+void CRenderSystem::create(std::shared_ptr<Resources::CResourceManager> resourceManager, std::shared_ptr<Scene::CRenderObject> root)
 {
-    screenExtent = USwapChain->GetExtent();
-    commandBuffers = std::make_shared<CCommandBuffer>(false, vk::QueueFlagBits::eGraphics, vk::CommandBufferLevel::ePrimary, USwapChain->GetFramesInFlight());
+    screenExtent = USwapChain->getExtent();
+    commandBuffers = std::make_shared<CCommandBuffer>(false, vk::QueueFlagBits::eGraphics, vk::CommandBufferLevel::ePrimary, USwapChain->getFramesInFlight());
 
     //UOverlay->Create(root, renderPass->get(), renderPass->getSubpassCount() - 1);
 
@@ -28,17 +28,17 @@ void RenderSystem::create(std::shared_ptr<Resources::CResourceManager> resourceM
         stage->create(creationBuffer);
 }
 
-void RenderSystem::reCreate()
+void CRenderSystem::reCreate()
 {
-    screenExtent = USwapChain->GetExtent();
-    commandBuffers = std::make_shared<CCommandBuffer>(false, vk::QueueFlagBits::eGraphics, vk::CommandBufferLevel::ePrimary, USwapChain->GetFramesInFlight());
+    screenExtent = USwapChain->getExtent();
+    commandBuffers = std::make_shared<CCommandBuffer>(false, vk::QueueFlagBits::eGraphics, vk::CommandBufferLevel::ePrimary, USwapChain->getFramesInFlight());
 }
 
-void RenderSystem::render(std::shared_ptr<Scene::Objects::RenderObject> root)
+void CRenderSystem::render(std::shared_ptr<Scene::CRenderObject> root)
 {
     vk::CommandBuffer commandBuffer{};
     try { commandBuffer = beginFrame(); }
-    catch (vk::OutOfDateKHRError err) { UHLInstance->RecreateSwapChain(); }
+    catch (vk::OutOfDateKHRError err) { UHLInstance->recreateSwapChain(); }
     catch (vk::SystemError err) { throw std::runtime_error("Failed to acquire swap chain image!"); }
 
     renderData->commandBuffer = commandBuffer;
@@ -52,35 +52,35 @@ void RenderSystem::render(std::shared_ptr<Scene::Objects::RenderObject> root)
     catch (vk::OutOfDateKHRError err) { resultPresent = vk::Result::eErrorOutOfDateKHR; }
     catch (vk::SystemError err) { throw std::runtime_error("failed to present swap chain image!"); }
 
-    if (resultPresent == vk::Result::eSuboptimalKHR || resultPresent == vk::Result::eErrorOutOfDateKHR || Window::WindowHandle::m_bWasResized)
+    if (resultPresent == vk::Result::eSuboptimalKHR || resultPresent == vk::Result::eErrorOutOfDateKHR || Window::CWindowHandle::m_bWasResized)
     {
-        Window::WindowHandle::m_bWasResized = false;
-        UHLInstance->RecreateSwapChain();
+        Window::CWindowHandle::m_bWasResized = false;
+        UHLInstance->recreateSwapChain();
     }
 }
 
-void RenderSystem::cleanup()
+void CRenderSystem::cleanup()
 {
     for(auto& stage : vStages)
         stage->cleanup();
 }
 
-vk::CommandBuffer& RenderSystem::getCurrentCommandBuffer()
+vk::CommandBuffer& CRenderSystem::getCurrentCommandBuffer()
 {
     return commandBuffers->getCommandBuffer();
 }
 
-vk::CommandBuffer& RenderSystem::beginFrame()
+vk::CommandBuffer& CRenderSystem::beginFrame()
 {
     assert(!frameStarted && "Can't call beginFrame while already in progress");
-    USwapChain->AcquireNextImage(&imageIndex);
+    USwapChain->acquireNextImage(&imageIndex);
     frameStarted = true;
 
     commandBuffers->begin(vk::CommandBufferUsageFlagBits::eSimultaneousUse, imageIndex);
     return commandBuffers->getCommandBuffer();
 }
 
-vk::Result RenderSystem::endFrame()
+vk::Result CRenderSystem::endFrame()
 {
     assert(frameStarted && "Can't call endFrame while frame is not in progress");
     commandBuffers->end();

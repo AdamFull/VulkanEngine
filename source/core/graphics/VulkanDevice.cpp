@@ -19,7 +19,7 @@ std::vector<const char*> str_vector_to_char_ptr_vector(const std::vector<std::st
     return output;
 }
 
-VkResult Device::CreateDebugUtilsMessengerEXT(VkInstance instance, const VkDebugUtilsMessengerCreateInfoEXT *pCreateInfo, const VkAllocationCallbacks *pAllocator, VkDebugUtilsMessengerEXT *pCallback)
+VkResult CDevice::createDebugUtilsMessengerEXT(VkInstance instance, const VkDebugUtilsMessengerCreateInfoEXT *pCreateInfo, const VkAllocationCallbacks *pAllocator, VkDebugUtilsMessengerEXT *pCallback)
 {
     auto func = (PFN_vkCreateDebugUtilsMessengerEXT)vkGetInstanceProcAddr(instance, "vkCreateDebugUtilsMessengerEXT");
     if (func != nullptr)
@@ -32,7 +32,7 @@ VkResult Device::CreateDebugUtilsMessengerEXT(VkInstance instance, const VkDebug
     }
 }
 
-VKAPI_ATTR VkBool32 VKAPI_CALL Device::ValidationCallback(VkDebugUtilsMessageSeverityFlagBitsEXT messageSeverity, VkDebugUtilsMessageTypeFlagsEXT messageType, const VkDebugUtilsMessengerCallbackDataEXT *pCallbackData, void *pUserData)
+VKAPI_ATTR VkBool32 VKAPI_CALL CDevice::validationCallback(VkDebugUtilsMessageSeverityFlagBitsEXT messageSeverity, VkDebugUtilsMessageTypeFlagsEXT messageType, const VkDebugUtilsMessengerCallbackDataEXT *pCallbackData, void *pUserData)
 {
     utl::ELogLevel eType;
 
@@ -50,7 +50,7 @@ VKAPI_ATTR VkBool32 VKAPI_CALL Device::ValidationCallback(VkDebugUtilsMessageSev
     return VK_FALSE;
 }
 
-void Device::DestroyDebugUtilsMessengerEXT(VkInstance instance, VkDebugUtilsMessengerEXT callback, const VkAllocationCallbacks *pAllocator)
+void CDevice::destroyDebugUtilsMessengerEXT(VkInstance instance, VkDebugUtilsMessengerEXT callback, const VkAllocationCallbacks *pAllocator)
 {
     auto func = (PFN_vkDestroyDebugUtilsMessengerEXT)vkGetInstanceProcAddr(instance, "vkDestroyDebugUtilsMessengerEXT");
     if (func != nullptr)
@@ -59,30 +59,30 @@ void Device::DestroyDebugUtilsMessengerEXT(VkInstance instance, VkDebugUtilsMess
     }
 }
 
-Device::~Device()
+CDevice::~CDevice()
 {
     // surface is created by glfw, therefore not using a Unique handle
-    Destroy(m_surface);
+    destroy(m_surface);
 
     if (m_bValidation)
-        DestroyDebugUtilsMessengerEXT(m_vkInstance, m_vkDebugUtils, nullptr);
+        destroyDebugUtilsMessengerEXT(m_vkInstance, m_vkDebugUtils, nullptr);
 
     vkDestroyDevice(m_logical, nullptr);
     vkDestroyInstance(m_vkInstance, nullptr);
 }
 
 // TODO: add features picking while initialization
-void Device::Create(const FDeviceCreateInfo& deviceCI)
+void CDevice::create(const FDeviceCreateInfo& deviceCI)
 {
     m_bValidation = deviceCI.validation;
-    CreateInstance(deviceCI);
-    CreateDebugCallback(deviceCI);
-    CreateSurface();
-    CreateDevice(deviceCI);
+    createInstance(deviceCI);
+    createDebugCallback(deviceCI);
+    createSurface();
+    createDevice(deviceCI);
     m_pCommandPool = std::make_unique<CCommandPool>();
 }
 
-uint32_t Device::GetVulkanVersion()
+uint32_t CDevice::getVulkanVersion()
 {
 	if (m_vkInstance)
 		return VK_API_VERSION_1_0;
@@ -90,7 +90,7 @@ uint32_t Device::GetVulkanVersion()
 	return 0;
 }
 
-void Device::CreateInstance(const FDeviceCreateInfo& deviceCI)
+void CDevice::createInstance(const FDeviceCreateInfo& deviceCI)
 {
     if (deviceCI.validation && !VulkanStaticHelper::CheckValidationLayerSupport(deviceCI.validationLayers))
     {
@@ -118,7 +118,7 @@ void Device::CreateInstance(const FDeviceCreateInfo& deviceCI)
     assert(m_vkInstance && "Vulkan instance was not created.");
 }
 
-void Device::CreateDebugCallback(const FDeviceCreateInfo& deviceCI)
+void CDevice::createDebugCallback(const FDeviceCreateInfo& deviceCI)
 {
     if (!deviceCI.validation)
         return;
@@ -127,35 +127,35 @@ void Device::CreateDebugCallback(const FDeviceCreateInfo& deviceCI)
         vk::DebugUtilsMessengerCreateFlagsEXT(),
         vk::DebugUtilsMessageSeverityFlagBitsEXT::eVerbose | vk::DebugUtilsMessageSeverityFlagBitsEXT::eWarning | vk::DebugUtilsMessageSeverityFlagBitsEXT::eError,
         vk::DebugUtilsMessageTypeFlagBitsEXT::eGeneral | vk::DebugUtilsMessageTypeFlagBitsEXT::eValidation | vk::DebugUtilsMessageTypeFlagBitsEXT::ePerformance,
-        ValidationCallback,
+        validationCallback,
         nullptr);
 
     // NOTE: Vulkan-hpp has methods for this, but they trigger linking errors...
-    if (CreateDebugUtilsMessengerEXT(m_vkInstance, reinterpret_cast<const VkDebugUtilsMessengerCreateInfoEXT *>(&createInfo), nullptr, &m_vkDebugUtils) != VK_SUCCESS)
+    if (createDebugUtilsMessengerEXT(m_vkInstance, reinterpret_cast<const VkDebugUtilsMessengerCreateInfoEXT *>(&createInfo), nullptr, &m_vkDebugUtils) != VK_SUCCESS)
     {
         throw std::runtime_error("failed to set up debug callback!");
     }
 }
 
-void Device::CreateSurface()
+void CDevice::createSurface()
 {
     assert(m_vkInstance && "Unable to create surface, cause vulkan instance is not valid");
-    UWinHandle->CreateWindowSurface(m_vkInstance, m_surface);
+    UWinHandle->createWindowSurface(m_vkInstance, m_surface);
     assert(m_surface && "Surface creation failed");
 }
 
-void Device::CreateDevice(const FDeviceCreateInfo& deviceCI)
+void CDevice::createDevice(const FDeviceCreateInfo& deviceCI)
 {
     assert(m_vkInstance && "Unable to create ligical device, cause vulkan instance is not valid");
-    m_physical = GetPhysicalDevice(deviceCI.deviceExtensions);
+    m_physical = getPhysicalDevice(deviceCI.deviceExtensions);
     assert(m_physical && "No avaliable physical devices. Check device dependencies.");
 
-    if(IsSupportedSampleCount(deviceCI.graphics.multisampling))
+    if(isSupportedSampleCount(deviceCI.graphics.multisampling))
         m_msaaSamples = deviceCI.graphics.multisampling;
     else
         m_msaaSamples = vk::SampleCountFlagBits::e1;
 
-    QueueFamilyIndices indices = FindQueueFamilies(m_physical);
+    QueueFamilyIndices indices = findQueueFamilies(m_physical);
 
     std::vector<vk::DeviceQueueCreateInfo> queueCreateInfos;
     std::set<uint32_t> uniqueQueueFamilies = {indices.graphicsFamily.value(), indices.presentFamily.value()};
@@ -195,7 +195,7 @@ void Device::CreateDevice(const FDeviceCreateInfo& deviceCI)
     assert(m_qTransferQueue && "Failed while getting transfer queue.");
 }
 
-uint32_t Device::FindMemoryType(uint32_t typeFilter, vk::MemoryPropertyFlags properties)
+uint32_t CDevice::findMemoryType(uint32_t typeFilter, vk::MemoryPropertyFlags properties)
 {
     vk::PhysicalDeviceMemoryProperties memProperties = m_physical.getMemoryProperties();
 
@@ -210,7 +210,7 @@ uint32_t Device::FindMemoryType(uint32_t typeFilter, vk::MemoryPropertyFlags pro
     throw std::runtime_error("Failed to find suitable memory type!");
 }
 
-QueueFamilyIndices Device::FindQueueFamilies(vk::PhysicalDevice device)
+QueueFamilyIndices CDevice::findQueueFamilies(vk::PhysicalDevice device)
 {
     QueueFamilyIndices indices;
 
@@ -250,12 +250,12 @@ QueueFamilyIndices Device::FindQueueFamilies(vk::PhysicalDevice device)
     return indices;
 }
 
-QueueFamilyIndices Device::FindQueueFamilies()
+QueueFamilyIndices CDevice::findQueueFamilies()
 {
-    return FindQueueFamilies(m_physical);
+    return findQueueFamilies(m_physical);
 }
 
-SwapChainSupportDetails Device::QuerySwapChainSupport(const vk::PhysicalDevice &device)
+SwapChainSupportDetails CDevice::querySwapChainSupport(const vk::PhysicalDevice &device)
 {
     SwapChainSupportDetails details;
     details.capabilities = device.getSurfaceCapabilitiesKHR(m_surface);
@@ -265,12 +265,12 @@ SwapChainSupportDetails Device::QuerySwapChainSupport(const vk::PhysicalDevice &
     return details;
 }
 
-SwapChainSupportDetails Device::QuerySwapChainSupport()
+SwapChainSupportDetails CDevice::querySwapChainSupport()
 {
-    return QuerySwapChainSupport(m_physical);
+    return querySwapChainSupport(m_physical);
 }
 
-std::vector<vk::SampleCountFlagBits> Device::GetAvaliableSampleCount()
+std::vector<vk::SampleCountFlagBits> CDevice::getAvaliableSampleCount()
 {
     vk::PhysicalDeviceProperties physicalDeviceProperties;
     m_physical.getProperties(&physicalDeviceProperties);
@@ -293,16 +293,16 @@ std::vector<vk::SampleCountFlagBits> Device::GetAvaliableSampleCount()
     return avaliableSamples;
 }
 
-bool Device::IsSupportedSampleCount(vk::SampleCountFlagBits samples)
+bool CDevice::isSupportedSampleCount(vk::SampleCountFlagBits samples)
 {
-    auto avaliableSamples = GetAvaliableSampleCount();
+    auto avaliableSamples = getAvaliableSampleCount();
     auto found = std::find(avaliableSamples.begin(), avaliableSamples.end(), samples);
     return found != avaliableSamples.end();
 }
 
 /*****************************************Image work helpers*****************************************/
 
-void Device::CreateOnDeviceBuffer(vk::DeviceSize size, vk::BufferUsageFlags usage, vk::MemoryPropertyFlags properties, vk::Buffer &buffer, vk::DeviceMemory &bufferMemory)
+void CDevice::createOnDeviceBuffer(vk::DeviceSize size, vk::BufferUsageFlags usage, vk::MemoryPropertyFlags properties, vk::Buffer &buffer, vk::DeviceMemory &bufferMemory)
 {
     vk::BufferCreateInfo bufferInfo = {};
     bufferInfo.size = size;
@@ -316,7 +316,7 @@ void Device::CreateOnDeviceBuffer(vk::DeviceSize size, vk::BufferUsageFlags usag
 
     vk::MemoryAllocateInfo allocInfo = {};
     allocInfo.allocationSize = memRequirements.size;
-    allocInfo.memoryTypeIndex = FindMemoryType(memRequirements.memoryTypeBits, properties);
+    allocInfo.memoryTypeIndex = findMemoryType(memRequirements.memoryTypeBits, properties);
 
     bufferMemory = m_logical.allocateMemory(allocInfo);
     assert(bufferMemory && "Buffer memory was not allocated");
@@ -324,7 +324,7 @@ void Device::CreateOnDeviceBuffer(vk::DeviceSize size, vk::BufferUsageFlags usag
     m_logical.bindBufferMemory(buffer, bufferMemory, 0);
 }
 
-void Device::CopyOnDeviceBuffer(vk::Buffer srcBuffer, vk::Buffer dstBuffer, vk::DeviceSize size)
+void CDevice::copyOnDeviceBuffer(vk::Buffer srcBuffer, vk::Buffer dstBuffer, vk::DeviceSize size)
 {
     auto cmdBuf = CCommandBuffer(true, vk::QueueFlagBits::eTransfer);
     auto commandBuffer = cmdBuf.getCommandBuffer();
@@ -338,17 +338,17 @@ void Device::CopyOnDeviceBuffer(vk::Buffer srcBuffer, vk::Buffer dstBuffer, vk::
     cmdBuf.submitIdle();
 }
 
-vk::PhysicalDevice Device::GetPhysicalDevice(const std::vector<const char*>& deviceExtensions)
+vk::PhysicalDevice CDevice::getPhysicalDevice(const std::vector<const char*>& deviceExtensions)
 {
     auto device = m_vkInstance.enumeratePhysicalDevices().front();
-    if (device && IsDeviceSuitable(device, deviceExtensions))
+    if (device && isDeviceSuitable(device, deviceExtensions))
     {
         return device;
     }
     return nullptr;
 }
 
-std::vector<vk::PhysicalDevice> Device::GetAvaliablePhysicalDevices(const std::vector<const char*>& deviceExtensions)
+std::vector<vk::PhysicalDevice> CDevice::getAvaliablePhysicalDevices(const std::vector<const char*>& deviceExtensions)
 {
     auto devices = m_vkInstance.enumeratePhysicalDevices();
     std::vector<vk::PhysicalDevice> output_devices;
@@ -359,7 +359,7 @@ std::vector<vk::PhysicalDevice> Device::GetAvaliablePhysicalDevices(const std::v
 
     for (const auto &device : devices)
     {
-        if (IsDeviceSuitable(device, deviceExtensions))
+        if (isDeviceSuitable(device, deviceExtensions))
         {
             output_devices.emplace_back(device);
         }
@@ -372,16 +372,16 @@ std::vector<vk::PhysicalDevice> Device::GetAvaliablePhysicalDevices(const std::v
     return output_devices;
 }
 
-bool Device::IsDeviceSuitable(const vk::PhysicalDevice &device, const std::vector<const char*>& deviceExtensions)
+bool CDevice::isDeviceSuitable(const vk::PhysicalDevice &device, const std::vector<const char*>& deviceExtensions)
 {
-    QueueFamilyIndices indices = FindQueueFamilies(device);
+    QueueFamilyIndices indices = findQueueFamilies(device);
 
     bool extensionsSupported = VulkanStaticHelper::CheckDeviceExtensionSupport(device, deviceExtensions);
 
     bool swapChainAdequate = false;
     if (extensionsSupported)
     {
-        SwapChainSupportDetails swapChainSupport = QuerySwapChainSupport(device);
+        SwapChainSupportDetails swapChainSupport = querySwapChainSupport(device);
         swapChainAdequate = !swapChainSupport.formats.empty() && !swapChainSupport.presentModes.empty();
     }
 

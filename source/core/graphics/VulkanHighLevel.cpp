@@ -6,30 +6,30 @@ using namespace Engine::Core;
 using namespace Engine::Core::Window;
 
 template<>
-std::unique_ptr<VulkanHighLevel> utl::singleton<VulkanHighLevel>::_instance{nullptr};
+std::unique_ptr<CVulkanHighLevel> utl::singleton<CVulkanHighLevel>::_instance{nullptr};
 
-VulkanHighLevel::~VulkanHighLevel()
+CVulkanHighLevel::~CVulkanHighLevel()
 {
     m_pDevice->GPUWait();
-    UDevice->Destroy(m_pipelineCache);
+    UDevice->destroy(m_pipelineCache);
 }
 
-void VulkanHighLevel::Create(FEngineCreateInfo createInfo)
+void CVulkanHighLevel::create(FEngineCreateInfo createInfo)
 {
-    m_pWinHandle = std::make_shared<WindowHandle>();
-    m_pDevice = std::make_shared<Device>();
-    m_pSwapChain = std::make_shared<SwapChain>();
-    m_pRenderer = std::make_shared<RenderSystem>();
+    m_pWinHandle = std::make_shared<CWindowHandle>();
+    m_pDevice = std::make_shared<CDevice>();
+    m_pSwapChain = std::make_shared<CSwapChain>();
+    m_pRenderer = std::make_shared<CRenderSystem>();
     m_pVertexBufferObject = std::make_shared<CVulkanVBO>();
-    m_pOverlay = std::make_shared<ImguiOverlay>();
+    m_pOverlay = std::make_shared<CImguiOverlay>();
 
-    m_pWinHandle->Create(createInfo.window);
+    m_pWinHandle->create(createInfo.window);
 
-    m_pDevice->Create(createInfo.device);
+    m_pDevice->create(createInfo.device);
 
-    CreatePipelineCache();
+    createPipelineCache();
 
-    m_pSwapChain->Create();
+    m_pSwapChain->create();
 
     m_pThreadPool = std::make_unique<utl::threadpool>();
 
@@ -37,36 +37,36 @@ void VulkanHighLevel::Create(FEngineCreateInfo createInfo)
 		throw std::runtime_error("Failed to initialize glslang processor.");
 }
 
-void VulkanHighLevel::CreatePipelineCache()
+void CVulkanHighLevel::createPipelineCache()
 {
     vk::PipelineCacheCreateInfo pipelineCacheCreateInfo = {};
-    m_pipelineCache = UDevice->GetLogical().createPipelineCache(pipelineCacheCreateInfo);
+    m_pipelineCache = UDevice->getLogical().createPipelineCache(pipelineCacheCreateInfo);
 }
 
-void VulkanHighLevel::RecreateSwapChain()
+void CVulkanHighLevel::recreateSwapChain()
 {
-    m_pWinHandle->Wait();
+    m_pWinHandle->wait();
     m_pDevice->GPUWait();
 
-    CleanupSwapChain();
-    m_pSwapChain->ReCreate();
+    cleanupSwapChain();
+    m_pSwapChain->reCreate();
 
     m_pRenderer->reCreate();
-    m_pOverlay->ReCreate();
+    m_pOverlay->reCreate();
 }
 
-void VulkanHighLevel::CleanupSwapChain()
+void CVulkanHighLevel::cleanupSwapChain()
 {
-    m_pSwapChain->Cleanup();
+    m_pSwapChain->cleanup();
     m_pRenderer->cleanup();
 }
 
-void VulkanHighLevel::Cleanup()
+void CVulkanHighLevel::cleanup()
 {
     m_pDevice->GPUWait();
 
-    CleanupSwapChain();
-    m_pOverlay->Cleanup();
+    cleanupSwapChain();
+    m_pOverlay->cleanup();
 }
 
 namespace Engine

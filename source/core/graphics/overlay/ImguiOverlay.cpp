@@ -28,7 +28,7 @@ using namespace Engine::Resources;
 ;
 using namespace Engine::Resources::Material;
 
-ImguiOverlay::~ImguiOverlay()
+CImguiOverlay::~CImguiOverlay()
 {
     ImGui_ImplGlfw_Shutdown();
     ImGui::DestroyContext();
@@ -36,7 +36,7 @@ ImguiOverlay::~ImguiOverlay()
     m_pUniformHandle->cleanup();
 }
 
-void ImguiOverlay::Create(std::shared_ptr<Scene::Objects::RenderObject> pRoot, vk::RenderPass& renderPass, uint32_t subpass)
+void CImguiOverlay::create(std::shared_ptr<Scene::CRenderObject> pRoot, vk::RenderPass& renderPass, uint32_t subpass)
 {
     fontTexture = std::make_shared<CImage>();
     fontMaterial = std::make_shared<CMaterialUI>();
@@ -45,8 +45,8 @@ void ImguiOverlay::Create(std::shared_ptr<Scene::Objects::RenderObject> pRoot, v
     m_pUniformHandle = std::make_shared<CUniformHandler>();
 
     ImGui::CreateContext();
-    BaseInitialize();
-    CreateFontResources(renderPass, subpass);
+    baseInitialize();
+    createFontResources(renderPass, subpass);
 
     auto uniformBlock = fontMaterial->getPipeline()->getShader()->getUniformBlock("FUniformDataUI");
     if(uniformBlock)
@@ -54,28 +54,28 @@ void ImguiOverlay::Create(std::shared_ptr<Scene::Objects::RenderObject> pRoot, v
     else
         throw std::runtime_error("Cannot create uniform block!");
 
-    m_vOverlays.emplace_back(std::make_shared<Overlay::OverlayDebug>("Debug info"));
+    m_vOverlays.emplace_back(std::make_shared<Overlay::COverlayDebug>("Debug info"));
     //m_vOverlays.emplace_back(std::make_shared<Overlay::OverlayConsole>("Console"));
     //m_vOverlays.emplace_back(std::make_shared<Overlay::OverlayLog>("Log"));
-    m_vOverlays.emplace_back(std::make_shared<Overlay::OverlaySceneGraph>("Scene", pRoot));
-    m_vOverlays.emplace_back(std::make_shared<Overlay::OverlayPropertyEditor>("Property editor"));
+    m_vOverlays.emplace_back(std::make_shared<Overlay::COverlaySceneGraph>("Scene", pRoot));
+    m_vOverlays.emplace_back(std::make_shared<Overlay::COverlayPropertyEditor>("Property editor"));
 
-    ImGui_ImplGlfw_InitForVulkan(UWinHandle->GetWindowInstance(), true);
+    ImGui_ImplGlfw_InitForVulkan(UWinHandle->getWindowInstance(), true);
 }
 
-void ImguiOverlay::ReCreate()
+void CImguiOverlay::reCreate()
 {
     fontMaterial->reCreate();
     m_pUniformHandle->reCreate();
 }
 
-void ImguiOverlay::Cleanup()
+void CImguiOverlay::cleanup()
 {
     fontMaterial->cleanup();
     m_pUniformHandle->cleanup();
 }
 
-void ImguiOverlay::BaseInitialize()
+void CImguiOverlay::baseInitialize()
 {
     // Color scheme
     ImGuiStyle &style = ImGui::GetStyle();
@@ -100,11 +100,11 @@ void ImguiOverlay::BaseInitialize()
     // Dimensions
     ImGuiIO &io = ImGui::GetIO();
     io.ConfigFlags |= ImGuiConfigFlags_DockingEnable | ImGuiConfigFlags_ViewportsEnable;
-    io.DisplaySize = ImVec2(WindowHandle::m_iWidth, WindowHandle::m_iHeight);
+    io.DisplaySize = ImVec2(CWindowHandle::m_iWidth, CWindowHandle::m_iHeight);
     io.DisplayFramebufferScale = ImVec2(1.0f, 1.0f);
 }
 
-void ImguiOverlay::CreateFontResources(vk::RenderPass& renderPass, uint32_t subpass)
+void CImguiOverlay::createFontResources(vk::RenderPass& renderPass, uint32_t subpass)
 {
     ImGuiIO &io = ImGui::GetIO();
 
@@ -125,7 +125,7 @@ void ImguiOverlay::CreateFontResources(vk::RenderPass& renderPass, uint32_t subp
     Loaders::CImageLoader::close(&texture);
 }
 
-void ImguiOverlay::NewFrame()
+void CImguiOverlay::newFrame()
 {
     if (bEnabled)
     {
@@ -137,14 +137,14 @@ void ImguiOverlay::NewFrame()
         //ImGui::ShowDemoWindow();
         for (auto &overlay : m_vOverlays)
         {
-            overlay->Draw();
+            overlay->draw();
         }
 
         ImGui::Render();
     }
 }
 
-void ImguiOverlay::Update(float deltaTime)
+void CImguiOverlay::update(float deltaTime)
 {
     if (bEnabled)
     {
@@ -158,7 +158,7 @@ void ImguiOverlay::Update(float deltaTime)
         }
 
         // Update buffers only if vertex or index count has been changed compared to current buffer size
-        auto physProps = UDevice->GetPhysical().getProperties();
+        auto physProps = UDevice->getPhysical().getProperties();
         auto minOffsetAllignment = std::lcm(physProps.limits.minUniformBufferOffsetAlignment, physProps.limits.nonCoherentAtomSize);
         // Vertex buffer
         if (!vertexBuffer->getBuffer() /*|| vertexCount != drawdata->TotalVtxCount*/)
@@ -199,7 +199,7 @@ void ImguiOverlay::Update(float deltaTime)
     }
 }
 
-void ImguiOverlay::DrawFrame(vk::CommandBuffer commandBuffer, uint32_t index)
+void CImguiOverlay::drawFrame(vk::CommandBuffer commandBuffer, uint32_t index)
 {
     if (bEnabled)
     {
@@ -252,28 +252,28 @@ void ImguiOverlay::DrawFrame(vk::CommandBuffer commandBuffer, uint32_t index)
     }
 }
 
-std::unique_ptr<CVulkanBuffer> &ImguiOverlay::GetBuffer(uint32_t index)
+std::unique_ptr<CVulkanBuffer> &CImguiOverlay::getBuffer(uint32_t index)
 {
     return m_pUniformHandle->getUniformBuffer(index);
 }
 
-void ImguiOverlay::OnFocusChange(int focused)
+void CImguiOverlay::onFocusChange(int focused)
 {
     ImGuiIO &io = ImGui::GetIO();
     io.AddFocusEvent(focused != 0);
 }
 
-void ImguiOverlay::OnCursorEnter(int enter)
+void CImguiOverlay::onCursorEnter(int enter)
 {
 }
 
-void ImguiOverlay::OnMouseButtonDown(int button, int action, int mods)
+void CImguiOverlay::onMouseButtonDown(int button, int action, int mods)
 {
     ImGuiIO &io = ImGui::GetIO();
     io.MouseDown[button] = (action == 1);
 }
 
-void ImguiOverlay::OnMousePositionUpdate(float xpos, float ypos)
+void CImguiOverlay::onMousePositionUpdate(float xpos, float ypos)
 {
     ImGuiIO &io = ImGui::GetIO();
     if (io.WantCaptureMouse)
@@ -282,14 +282,14 @@ void ImguiOverlay::OnMousePositionUpdate(float xpos, float ypos)
     }
 }
 
-void ImguiOverlay::OnMouseScroll(float xpos, float ypos)
+void CImguiOverlay::onMouseScroll(float xpos, float ypos)
 {
     ImGuiIO &io = ImGui::GetIO();
     io.MouseWheelH += xpos;
     io.MouseWheel += ypos;
 }
 
-void ImguiOverlay::OnKeyboardInput(int key, int scancode, int action, int mods)
+void CImguiOverlay::onKeyboardInput(int key, int scancode, int action, int mods)
 {
     ImGuiIO &io = ImGui::GetIO();
     if (key >= 0 && key < IM_ARRAYSIZE(io.KeysDown))
@@ -315,12 +315,12 @@ void ImguiOverlay::OnKeyboardInput(int key, int scancode, int action, int mods)
 #endif
 }
 
-void ImguiOverlay::OnInputChar(unsigned int c)
+void CImguiOverlay::onInputChar(unsigned int c)
 {
     ImGuiIO &io = ImGui::GetIO();
     io.AddInputCharacter(c);
 }
 
-void ImguiOverlay::OnMonitorEvent(int monitor)
+void CImguiOverlay::onMonitorEvent(int monitor)
 {
 }

@@ -217,7 +217,7 @@ void CShader::addStage(const std::filesystem::path &moduleName, const std::strin
         auto defaultVersion = glslang::EShTargetVulkan_1_1;
         shader.setEnvInput(glslang::EShSourceGlsl, language, glslang::EShClientVulkan, 110);
         shader.setEnvClient(glslang::EShClientVulkan, defaultVersion);
-        shader.setEnvTarget(glslang::EShTargetSpv, UDevice->GetVulkanVersion() >= VK_API_VERSION_1_1 ? glslang::EShTargetSpv_1_3 : glslang::EShTargetSpv_1_0);
+        shader.setEnvTarget(glslang::EShTargetSpv, UDevice->getVulkanVersion() >= VK_API_VERSION_1_1 ? glslang::EShTargetSpv_1_3 : glslang::EShTargetSpv_1_0);
 
         CShaderIncluder includer;
 
@@ -305,7 +305,7 @@ void CShader::addStage(const std::filesystem::path &moduleName, const std::strin
 
     try
     {
-        auto shaderModule = UDevice->Make<vk::ShaderModule, vk::ShaderModuleCreateInfo>
+        auto shaderModule = UDevice->make<vk::ShaderModule, vk::ShaderModuleCreateInfo>
         (
             vk::ShaderModuleCreateInfo
             {
@@ -335,7 +335,7 @@ void CShader::addStage(const std::filesystem::path &moduleName, const std::strin
 void CShader::clear()
 {
     for(auto& stage : vShaderModules)
-        UDevice->Destroy(stage.module);
+        UDevice->destroy(stage.module);
 
     vShaderModules.clear();
     vShaderStage.clear();
@@ -448,7 +448,7 @@ std::optional<uint32_t> CShader::getDescriptorLocation(const std::string &name) 
 	return std::nullopt;
 }
 
-std::optional<uint32_t> CShader::getDescriptorSize(const std::string &name) const
+std::optional<uint64_t> CShader::getDescriptorSize(const std::string &name) const
 {
     if (auto it = mDescriptorSizes.find(name); it != mDescriptorSizes.end())
 		return it->second;

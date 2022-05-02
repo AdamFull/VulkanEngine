@@ -2,7 +2,7 @@
 
 using namespace Engine::Core::Overlay;
 
-void OverlayLog::Draw()
+void COverlayLog::draw()
 {
     if (bOverlayState)
     {
@@ -23,7 +23,7 @@ void OverlayLog::Draw()
         if (ImGui::Button("Options"))
             ImGui::OpenPopup("Options");
         ImGui::SameLine();
-        bool clear = ImGui::Button("Clear");
+        bool _clear = ImGui::Button("Clear");
         ImGui::SameLine();
         bool copy = ImGui::Button("Copy");
         ImGui::SameLine();
@@ -32,8 +32,8 @@ void OverlayLog::Draw()
         ImGui::Separator();
         ImGui::BeginChild("scrolling", ImVec2(0, 0), false, ImGuiWindowFlags_HorizontalScrollbar);
 
-        if (clear)
-            Clear();
+        if (_clear)
+            clear();
         if (copy)
             ImGui::LogToClipboard();
 
@@ -75,7 +75,7 @@ void OverlayLog::Draw()
     }
 }
 
-void OverlayLog::Clear()
+void COverlayLog::clear()
 {
     Buf.clear();
     LineOffsets.clear();

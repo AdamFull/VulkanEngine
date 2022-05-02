@@ -11,11 +11,11 @@ namespace Engine
 
     namespace Controllers
     {
-        class CameraController
+        class CCameraController
         {
         public:
-            virtual void Create();
-            virtual void Update(float fDeltaTime);
+            virtual void create();
+            virtual void update(float fDeltaTime);
 
             // Getters
         protected:

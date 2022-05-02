@@ -20,7 +20,7 @@ CFramebuffer::~CFramebuffer()
 void CFramebuffer::create(vk::RenderPass& renderPass, vk::Extent2D extent)
 {
     imagesExtent = extent;
-    auto framesInFlight = USwapChain->GetFramesInFlight();
+    auto framesInFlight = USwapChain->getFramesInFlight();
     for(size_t frame = 0; frame < framesInFlight; frame++)
     {
         std::vector<vk::ImageView> imageViews{};
@@ -33,9 +33,9 @@ void CFramebuffer::create(vk::RenderPass& renderPass, vk::Extent2D extent)
             }
             else
             {
-                if(attachment.format == USwapChain->GetImageFormat())
+                if(attachment.format == USwapChain->getImageFormat())
                 {
-                    imageViews.push_back(USwapChain->GetImageViews()[frame]);
+                    imageViews.push_back(USwapChain->getImageViews()[frame]);
                 }
                 else
                 {
@@ -57,7 +57,7 @@ void CFramebuffer::create(vk::RenderPass& renderPass, vk::Extent2D extent)
         framebufferCI.height = extent.height;
         framebufferCI.layers = 1;
 
-        vFramebuffers.emplace_back(UDevice->Make<vk::Framebuffer, vk::FramebufferCreateInfo>(framebufferCI));
+        vFramebuffers.emplace_back(UDevice->make<vk::Framebuffer, vk::FramebufferCreateInfo>(framebufferCI));
     }
 }
 
@@ -72,7 +72,7 @@ void CFramebuffer::cleanup()
 {
     mImages.clear();
     for(auto& fb : vFramebuffers)
-        UDevice->Destroy(fb);
+        UDevice->destroy(fb);
 }
 
 void CFramebuffer::addImage(const std::string& name, vk::Format format, vk::ImageUsageFlags usageFlags)

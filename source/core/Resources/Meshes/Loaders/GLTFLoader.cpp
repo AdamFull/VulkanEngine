@@ -76,7 +76,7 @@ void GLTFLoader::load(std::string srPath, std::string srName, std::shared_ptr<Re
         {
             if(node->m_pMesh)
             {
-                node->m_pMesh->setLocalMatrix(node->getTransform().GetModel());
+                node->m_pMesh->setLocalMatrix(node->getTransform().getModel());
                 m_pMesh->addFragment(node->m_pMesh);
             }
         }

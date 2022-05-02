@@ -24,37 +24,37 @@ namespace Engine
             float fMouseY{0.f};
         };
 
-        class ImguiOverlay
+        class CImguiOverlay
         {
         public:
-            ImguiOverlay() = default;
-            ~ImguiOverlay();
+            CImguiOverlay() = default;
+            ~CImguiOverlay();
 
-            void Create(std::shared_ptr<Scene::Objects::RenderObject> pRoot, vk::RenderPass& renderPass, uint32_t subpass);
-            void ReCreate();
-            void Cleanup();
+            void create(std::shared_ptr<Scene::CRenderObject> pRoot, vk::RenderPass& renderPass, uint32_t subpass);
+            void reCreate();
+            void cleanup();
 
-            void NewFrame();
+            void newFrame();
 
-            void Update(float deltaTime);
-            void DrawFrame(vk::CommandBuffer commandBuffer, uint32_t index);
+            void update(float deltaTime);
+            void drawFrame(vk::CommandBuffer commandBuffer, uint32_t index);
 
-            std::unique_ptr<CVulkanBuffer> &GetBuffer(uint32_t index);
+            std::unique_ptr<CVulkanBuffer> &getBuffer(uint32_t index);
 
         private:
-            void BaseInitialize();
-            void CreateFontResources(vk::RenderPass& renderPass, uint32_t subpass);
+            void baseInitialize();
+            void createFontResources(vk::RenderPass& renderPass, uint32_t subpass);
 
-            void InitializeWindowBackend();
+            void initializeWindowBackend();
 
-            void OnFocusChange(int focused);
-            void OnCursorEnter(int enter);
-            void OnMouseButtonDown(int button, int action, int mods);
-            void OnMousePositionUpdate(float xpos, float ypos);
-            void OnMouseScroll(float xpos, float ypos);
-            void OnKeyboardInput(int key, int scancode, int action, int mods);
-            void OnInputChar(unsigned int c);
-            void OnMonitorEvent(int monitor);
+            void onFocusChange(int focused);
+            void onCursorEnter(int enter);
+            void onMouseButtonDown(int button, int action, int mods);
+            void onMousePositionUpdate(float xpos, float ypos);
+            void onMouseScroll(float xpos, float ypos);
+            void onKeyboardInput(int key, int scancode, int action, int mods);
+            void onInputChar(unsigned int c);
+            void onMonitorEvent(int monitor);
 
             std::shared_ptr<CUniformHandler> m_pUniformHandle;
             std::shared_ptr<CImage> fontTexture;
@@ -64,7 +64,7 @@ namespace Engine
             int vertexCount{0};
             int indexCount{0};
 
-            std::vector<std::shared_ptr<Overlay::OverlayBase>> m_vOverlays;
+            std::vector<std::shared_ptr<Overlay::COverlayBase>> m_vOverlays;
             bool bEnabled = true;
             FGUIControls controls;
         };

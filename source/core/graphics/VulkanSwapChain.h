@@ -9,57 +9,52 @@ namespace Engine
     }
     namespace Core
     {
-        class SwapChain
+        class CSwapChain : public utl::non_copy_movable
         {
         public:
-            SwapChain() = default;
-            ~SwapChain();
+            CSwapChain() = default;
+            ~CSwapChain();
 
-            SwapChain(const SwapChain &) = delete;
-            void operator=(const SwapChain &) = delete;
-            SwapChain(SwapChain &&) = delete;
-            SwapChain &operator=(SwapChain &&) = delete;
+            void create();
 
-            void Create();
+            vk::Result acquireNextImage(uint32_t *imageIndex);
+            vk::Result submitCommandBuffers(const vk::CommandBuffer *commandBuffer, uint32_t *imageIndex, vk::QueueFlagBits queueBit);
 
-            vk::Result AcquireNextImage(uint32_t *imageIndex);
-            vk::Result SubmitCommandBuffers(const vk::CommandBuffer *commandBuffer, uint32_t *imageIndex, vk::QueueFlagBits queueBit);
+            void cleanup();
+            void reCreate();
 
-            void Cleanup();
-            void ReCreate();
+            inline void setFramesInFlight(uint32_t iValue) { m_iFramesInFlight = iValue; }
 
-            inline void SetFramesInFlight(uint32_t iValue) { m_iFramesInFlight = iValue; }
-
-            inline float GetAspectRatio()
+            inline float getAspectRatio()
             {
                 return static_cast<float>(m_extent.width) / static_cast<float>(m_extent.height);
             }
 
             // Getters
-            inline vk::Format GetImageFormat() { return m_imageFormat; };
-            inline vk::Extent2D GetExtent() { return m_extent; }
+            inline vk::Format getImageFormat() { return m_imageFormat; };
+            inline vk::Extent2D getExtent() { return m_extent; }
 
-            void UpdateCompositionMaterial(vk::CommandBuffer& commandBuffer);
+            void updateCompositionMaterial(vk::CommandBuffer& commandBuffer);
 
-            inline std::vector<vk::Image> &GetImages() { return m_vImages; }
-            inline std::vector<vk::ImageView> &GetImageViews() { return m_vImageViews; }
+            inline std::vector<vk::Image> &getImages() { return m_vImages; }
+            inline std::vector<vk::ImageView> &getImageViews() { return m_vImageViews; }
 
-            inline vk::Extent2D GetWindowExtent() { return m_windowExtent; }
+            inline vk::Extent2D getWindowExtent() { return m_windowExtent; }
 
             inline vk::SwapchainKHR &GetSwapChain() { return m_swapChain; }
 
-            inline std::vector<vk::Semaphore> &GetImageAvailableSemaphores() { return m_vImageAvailableSemaphores; }
-            inline std::vector<vk::Semaphore> &GetRenderFinishedSemaphores() { return m_vRenderFinishedSemaphores; }
-            inline std::vector<vk::Fence> &GetInFlightFences() { return m_vInFlightFences; }
-            inline size_t GetCurrentFrame() { return m_currentFrame; }
-            inline uint32_t GetFramesInFlight() { return m_iFramesInFlight; }
+            inline std::vector<vk::Semaphore> &getImageAvailableSemaphores() { return m_vImageAvailableSemaphores; }
+            inline std::vector<vk::Semaphore> &getRenderFinishedSemaphores() { return m_vRenderFinishedSemaphores; }
+            inline std::vector<vk::Fence> &getInFlightFences() { return m_vInFlightFences; }
+            inline size_t getCurrentFrame() { return m_currentFrame; }
+            inline uint32_t getFramesInFlight() { return m_iFramesInFlight; }
 
         private:
-            void CreateSwapChain();
-            void CreateSwapChainImageViews();
-            void CreateSyncObjects();
+            void createSwapChain();
+            void createSwapChainImageViews();
+            void createSyncObjects();
 
-            vk::Extent2D ChooseSwapExtent(const vk::SurfaceCapabilitiesKHR &);
+            vk::Extent2D chooseSwapExtent(const vk::SurfaceCapabilitiesKHR &);
 
         private:
             vk::Format m_imageFormat;

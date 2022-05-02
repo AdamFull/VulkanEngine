@@ -2,7 +2,7 @@
 
 using namespace Engine::Core::Overlay;
 
-void OverlayPropertyEditor::Draw()
+void COverlayPropertyEditor::draw()
 {
     if (bOverlayState)
     {

@@ -7,16 +7,16 @@ namespace Engine
     {
         namespace Overlay
         {
-            class OverlayPropertyEditor : public OverlayBase
+            class COverlayPropertyEditor : public COverlayBase
             {
             public:
-                OverlayPropertyEditor() = default;
-                OverlayPropertyEditor(std::string srName)
+                COverlayPropertyEditor() = default;
+                COverlayPropertyEditor(std::string srName)
                 {
                     srOverlayName = srName;
                     bOverlayState = true;
                 }
-                void Draw() override;
+                void draw() override;
             };
         }
     }

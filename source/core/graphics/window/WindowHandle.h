@@ -18,34 +18,29 @@ namespace Engine
                 std::string backend;
             };
 
-            class WindowHandle
+            class CWindowHandle : public utl::non_copy_movable
             {
             public:
-                WindowHandle();
-                ~WindowHandle();
+                CWindowHandle();
+                ~CWindowHandle();
 
-                WindowHandle(const WindowHandle &) = delete;
-                void operator=(const WindowHandle &) = delete;
-                WindowHandle(WindowHandle &&) = delete;
-                WindowHandle &operator=(WindowHandle &&) = delete;
+                void create(FWindowCreateInfo createInfo);
+                void wait();
+                void close();
 
-                void Create(FWindowCreateInfo createInfo);
-                void Wait();
-                void Close();
+                void resizeWindow(int width, int height);
 
-                void ResizeWindow(int width, int height);
+                inline void pollEvents() { glfwPollEvents(); }
 
-                inline void PollEvents() { glfwPollEvents(); }
+                inline bool isShouldClose() { return glfwWindowShouldClose(m_pWindow); }
 
-                inline bool IsShouldClose() { return glfwWindowShouldClose(m_pWindow); }
+                inline void frameBufferUpdated() { m_bWasResized = false; }
 
-                inline void FrameBufferUpdated() { m_bWasResized = false; }
+                void createWindowSurface(vk::Instance &instance, vk::SurfaceKHR &surface);
 
-                void CreateWindowSurface(vk::Instance &instance, vk::SurfaceKHR &surface);
+                inline std::pair<int32_t, int32_t> getSize() { return std::make_pair(m_iWidth, m_iHeight); }
 
-                inline std::pair<int32_t, int32_t> GetSize() { return std::make_pair(m_iWidth, m_iHeight); }
-
-                inline GLFWwindow *GetWindowInstance()
+                inline GLFWwindow *getWindowInstance()
                 {
                     return m_pWindow;
                 }

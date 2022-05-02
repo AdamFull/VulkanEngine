@@ -32,7 +32,7 @@ void CUniformBuffer::createUniformBuffers(uint32_t inFlightFrames)
 {
     vBuffers.resize(inFlightFrames);
 
-    auto physProps = UDevice->GetPhysical().getProperties();
+    auto physProps = UDevice->getPhysical().getProperties();
     auto minOffsetAllignment = std::lcm(physProps.limits.minUniformBufferOffsetAlignment, physProps.limits.nonCoherentAtomSize);
     for (size_t i = 0; i < inFlightFrames; i++)
     {

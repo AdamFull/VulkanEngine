@@ -9,29 +9,27 @@
 using namespace Engine;
 using namespace Engine::Core;
 using namespace Engine::Core::Scene;
-using namespace Engine::Core::Scene::Objects::Components;
 using namespace Engine::Resources;
 
-RenderScene::~RenderScene()
+CRenderScene::~CRenderScene()
 {
-    Destroy();
+    destroy();
 }
 
-void RenderScene::Create()
+void CRenderScene::create()
 {
-    m_pRoot = std::make_shared<Core::Scene::Objects::Components::SceneRootComponent>();
+    m_pRoot = std::make_shared<Core::Scene::CSceneRootComponent>();
     m_pResourceManager = std::make_shared<Resources::CResourceManager>();
     m_pResourceManager->create();
 }
 
-void RenderScene::ReCreate()
+void CRenderScene::reCreate()
 {
-    m_pRoot->Cleanup();
-
-    m_pRoot->ReCreate();
+    m_pRoot->cleanup();
+    m_pRoot->reCreate();
 }
 
-void RenderScene::Destroy()
+void CRenderScene::destroy()
 {
     UDevice->GPUWait();
     /*if (URenderer->GetFrameStartFlag())
@@ -41,23 +39,23 @@ void RenderScene::Destroy()
         UHLInstance->EndFrame(commandBuffer, &bResult);
     }*/
 
-    m_pRoot->Destroy();
+    m_pRoot->destroy();
 }
 
-void RenderScene::AttachObject(std::shared_ptr<Core::Scene::Objects::RenderObject> object)
+void CRenderScene::attachObject(std::shared_ptr<Core::Scene::CRenderObject> object)
 {
-    object->SetParent(m_pRoot);
+    object->setParent(m_pRoot);
 }
 
-void RenderScene::CreateObjects()
+void CRenderScene::createObjects()
 {
     UVBO->create();
     URenderer->create(m_pResourceManager, m_pRoot);
 }
 
-void RenderScene::Render(float fDeltaTime)
+void CRenderScene::render(float fDeltaTime)
 {
-    m_pRoot->Update(fDeltaTime);
+    m_pRoot->update(fDeltaTime);
 
     //UOverlay->NewFrame();
     //UOverlay->Update(fDeltaTime);

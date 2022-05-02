@@ -12,7 +12,7 @@ CMaterialBase::~CMaterialBase()
 
 void CMaterialBase::create(vk::RenderPass& renderPass, uint32_t subpass)
 {
-    uint32_t images = USwapChain->GetImages().size();
+    uint32_t images = USwapChain->getFramesInFlight();
     m_pDescriptorSet = std::make_unique<CDescriptorHandler>();
     m_pDescriptorSet->create(m_pPipeline);
 }

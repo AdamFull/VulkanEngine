@@ -20,22 +20,19 @@ using namespace Engine::Core::Render;
 using namespace Engine::Resources;
 using namespace Engine::Resources::Material;
 using namespace Engine::Core::Scene;
-using namespace Engine::Core::Scene::Objects;
-using namespace Engine::Core::Scene::Objects::Components;
-using namespace Engine::Core::Scene::Objects::Components::Light;
 
 
 void CPBRCompositionPass::create(std::unique_ptr<FRenderCreateInfo>& createInfo)
 {
-    auto framesInFlight = USwapChain->GetFramesInFlight();
+    auto framesInFlight = USwapChain->getFramesInFlight();
     pUniform = std::make_shared<CUniformBuffer>();
     pUniform->create(framesInFlight, sizeof(FLightningData));
 
     m_pSkybox = createInfo->resourceManager->Get<CImage>("skybox_cubemap_tex");
 
-    brdf = UHLInstance->GetThreadPool()->submit(&CPBRCompositionPass::ComputeBRDFLUT, 512);
-    irradiance = UHLInstance->GetThreadPool()->submit(&CPBRCompositionPass::ComputeIrradiance, m_pSkybox, 64);
-    prefiltered = UHLInstance->GetThreadPool()->submit(&CPBRCompositionPass::ComputePrefiltered, m_pSkybox, 512);
+    brdf = UHLInstance->getThreadPool()->submit(&CPBRCompositionPass::ComputeBRDFLUT, 512);
+    irradiance = UHLInstance->getThreadPool()->submit(&CPBRCompositionPass::ComputeIrradiance, m_pSkybox, 64);
+    prefiltered = UHLInstance->getThreadPool()->submit(&CPBRCompositionPass::ComputePrefiltered, m_pSkybox, 512);
 
     pMaterial = std::make_shared<CMaterialDeferred>();
     pMaterial->create(createInfo->renderPass, createInfo->subpass);
@@ -54,12 +51,12 @@ void CPBRCompositionPass::render(std::unique_ptr<FRenderProcessInfo>& renderData
     pMaterial->addTexture("emission_tex", renderData->images["emission_tex"]);
     pMaterial->addTexture("mrah_tex", renderData->images["mrah_tex"]);
 
-    auto imageIndex = USwapChain->GetCurrentFrame();
+    auto imageIndex = USwapChain->getCurrentFrame();
 
     //May be move to CompositionObject
     FLightningData ubo;
-    auto camera = CameraManager::getInstance()->GetCurrentCamera();
-    auto vLights = LightSourceManager::getInstance()->GetSources();
+    auto camera = CCameraManager::getInstance()->getCurrentCamera();
+    auto vLights = CLightSourceManager::getInstance()->getSources();
     for(std::size_t i = 0; i < vLights.size(); i++)
         ubo.lights[i] = vLights.at(i);
 
@@ -209,7 +206,7 @@ std::shared_ptr<CImage> CPBRCompositionPass::ComputePrefiltered(const std::share
         descriptor.set("outColour", descriptorWrite);
         descriptor.set("samplerColour", source->getDescriptor());
         descriptor.update(0);
-        descriptor.bind(commandBuffer, USwapChain->GetCurrentFrame());
+        descriptor.bind(commandBuffer, USwapChain->getCurrentFrame());
         push.flush(commandBuffer, computePipeline);
 
         auto groupCountX = static_cast<uint32_t>(std::ceil(static_cast<float>(size) / static_cast<float>(*computePipeline->getShader()->getLocalSizes()[0])));
@@ -217,7 +214,7 @@ std::shared_ptr<CImage> CPBRCompositionPass::ComputePrefiltered(const std::share
         commandBuffer.dispatch(groupCountX, groupCountY, 1);
         cmdBuf.submitIdle();
 
-        UDevice->Destroy(levelView);
+        UDevice->destroy(levelView);
     }
 
     Loaders::CImageLoader::close(&offscreen);

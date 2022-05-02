@@ -9,17 +9,17 @@ namespace Engine
     {
         namespace Scene
         {
-            class LightSourceManager : public utl::singleton<LightSourceManager>
+            class CLightSourceManager : public utl::singleton<CLightSourceManager>
             {
             public:
-                std::shared_ptr<Scene::Objects::Components::Light::LightComponent> CreateSource(Resources::ELightSourceType eType, glm::vec3 position);
-                std::shared_ptr<Scene::Objects::Components::Light::LightComponent> CreateSource(Resources::ELightSourceType eType, glm::vec3 position, glm::vec3 color);
-                std::shared_ptr<Scene::Objects::Components::Light::LightComponent> CreateSource(Resources::ELightSourceType eType, glm::vec3 position, glm::vec3 color, float attenuation_radius);
-                std::shared_ptr<Scene::Objects::Components::Light::LightComponent> CreateSource(Resources::ELightSourceType eType, FTransform transform, glm::vec3 color, float attenuation_radius);
+                std::shared_ptr<Scene::CLightComponent> createSource(Resources::ELightSourceType eType, glm::vec3 position);
+                std::shared_ptr<Scene::CLightComponent> createSource(Resources::ELightSourceType eType, glm::vec3 position, glm::vec3 color);
+                std::shared_ptr<Scene::CLightComponent> createSource(Resources::ELightSourceType eType, glm::vec3 position, glm::vec3 color, float attenuation_radius);
+                std::shared_ptr<Scene::CLightComponent> createSource(Resources::ELightSourceType eType, FTransform transform, glm::vec3 color, float attenuation_radius);
 
-                std::vector<Core::FLight> GetSources();
+                std::vector<Core::FLight> getSources();
             private:
-                std::vector<std::shared_ptr<Scene::Objects::Components::Light::LightComponent>> m_vLights;
+                std::vector<std::shared_ptr<Scene::CLightComponent>> m_vLights;
             };            
         }
     }

@@ -36,22 +36,22 @@ namespace Engine
 }
 
 
-int32_t WindowHandle::m_iWidth{800};
-int32_t WindowHandle::m_iHeight{600};
-bool WindowHandle::m_bWasResized{false};
+int32_t CWindowHandle::m_iWidth{800};
+int32_t CWindowHandle::m_iHeight{600};
+bool CWindowHandle::m_bWasResized{false};
 
-WindowHandle::WindowHandle()
+CWindowHandle::CWindowHandle()
 {
     glfwInit();
     glfwWindowHint(GLFW_CLIENT_API, GLFW_NO_API);
 }
 
-WindowHandle::~WindowHandle()
+CWindowHandle::~CWindowHandle()
 {
-    Close();
+    close();
 }
 
-void WindowHandle::Create(FWindowCreateInfo createInfo)
+void CWindowHandle::create(FWindowCreateInfo createInfo)
 {
     auto* pPrimaryMonitor = glfwGetPrimaryMonitor();
     const GLFWvidmode* mode = glfwGetVideoMode(pPrimaryMonitor);
@@ -61,8 +61,8 @@ void WindowHandle::Create(FWindowCreateInfo createInfo)
         createInfo.height = mode->height;
     }
 
-    ResizeWindow(createInfo.width, createInfo.height);
-    FrameBufferUpdated();
+    resizeWindow(createInfo.width, createInfo.height);
+    frameBufferUpdated();
 
     glfwWindowHint(GLFW_RESIZABLE, GLFW_TRUE);
     glfwWindowHint(GLFW_MAXIMIZED, GLFW_TRUE);
@@ -89,10 +89,10 @@ void WindowHandle::Create(FWindowCreateInfo createInfo)
     glfwSetCharCallback(m_pWindow, &WinCallbacks::WinInputCharCallback);
     glfwSetMonitorCallback(&WinCallbacks::WinInputMonitorCallback);
 
-    WinCallbacks::SubscribeSizeChange(this, &WindowHandle::ResizeWindow);
+    WinCallbacks::SubscribeSizeChange(this, &CWindowHandle::resizeWindow);
 }
 
-void WindowHandle::CreateWindowSurface(vk::Instance &instance, vk::SurfaceKHR &surface)
+void CWindowHandle::createWindowSurface(vk::Instance &instance, vk::SurfaceKHR &surface)
 {
     VkSurfaceKHR rawSurface;
     if (glfwCreateWindowSurface(instance, m_pWindow, nullptr, &rawSurface) != VK_SUCCESS)
@@ -103,7 +103,7 @@ void WindowHandle::CreateWindowSurface(vk::Instance &instance, vk::SurfaceKHR &s
     surface = rawSurface;
 }
 
-void WindowHandle::Wait()
+void CWindowHandle::wait()
 {
     while (m_iWidth == 0 || m_iHeight == 0)
     {
@@ -112,14 +112,14 @@ void WindowHandle::Wait()
     }
 }
 
-void WindowHandle::ResizeWindow(int iWidth, int iHeight)
+void CWindowHandle::resizeWindow(int iWidth, int iHeight)
 {
     m_iWidth = iWidth;
     m_iHeight = iHeight;
     m_bWasResized = true;
 }
 
-void WindowHandle::Close()
+void CWindowHandle::close()
 {
     glfwDestroyWindow(m_pWindow);
     glfwTerminate();

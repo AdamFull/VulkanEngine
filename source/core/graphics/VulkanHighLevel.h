@@ -14,14 +14,14 @@
 #include "pipeline/GraphicsPipeline.h"
 #include "pipeline/ComputePipeline.h"
 
-#define UHLInstance Engine::Core::VulkanHighLevel::getInstance()
-#define UWinHandle UHLInstance->GetWinHandle()
-#define UDevice UHLInstance->GetDevice()
-#define USwapChain UHLInstance->GetSwapChain()
-#define UOverlay UHLInstance->GetOverlay()
-#define URenderer UHLInstance->GetRenderer()
-#define UVBO UHLInstance->GetVBO()
-#define UThreadPool UHLInstance->GetThreadPool()
+#define UHLInstance Engine::Core::CVulkanHighLevel::getInstance()
+#define UWinHandle UHLInstance->getWinHandle()
+#define UDevice UHLInstance->getDevice()
+#define USwapChain UHLInstance->getSwapChain()
+#define UOverlay UHLInstance->getOverlay()
+#define URenderer UHLInstance->getRenderer()
+#define UVBO UHLInstance->getVBO()
+#define UThreadPool UHLInstance->getThreadPool()
 
 namespace Engine
 {
@@ -33,48 +33,44 @@ namespace Engine
             FDeviceCreateInfo device;
         };
 
-        class VulkanHighLevel : public utl::singleton<VulkanHighLevel>
+        class CVulkanHighLevel : public utl::singleton<CVulkanHighLevel>
         {
         public:
-            ~VulkanHighLevel();
+            ~CVulkanHighLevel();
 
-            void Create(FEngineCreateInfo createInfo);
+            void create(FEngineCreateInfo createInfo);
 
             // TODO: Dont forget about clean textures
-            void Cleanup();
+            void cleanup();
 
             // Getters
 
-            inline std::shared_ptr<Window::WindowHandle> GetWinHandle() { return m_pWinHandle; }
-            inline std::shared_ptr<Device> GetDevice() { return m_pDevice; }
-            inline std::shared_ptr<SwapChain> GetSwapChain() { return m_pSwapChain; }
-            inline std::shared_ptr<ImguiOverlay> GetOverlay() { return m_pOverlay; }
-            inline std::shared_ptr<RenderSystem> GetRenderer() { return m_pRenderer; }
-            inline std::shared_ptr<CVulkanVBO> GetVBO() { return m_pVertexBufferObject; }
-            inline std::unique_ptr<utl::threadpool>& GetThreadPool() { return m_pThreadPool; }
+            inline std::shared_ptr<Window::CWindowHandle> getWinHandle() { return m_pWinHandle; }
+            inline std::shared_ptr<CDevice> getDevice() { return m_pDevice; }
+            inline std::shared_ptr<CSwapChain> getSwapChain() { return m_pSwapChain; }
+            inline std::shared_ptr<CImguiOverlay> getOverlay() { return m_pOverlay; }
+            inline std::shared_ptr<CRenderSystem> getRenderer() { return m_pRenderer; }
+            inline std::shared_ptr<CVulkanVBO> getVBO() { return m_pVertexBufferObject; }
+            inline std::unique_ptr<utl::threadpool>& getThreadPool() { return m_pThreadPool; }
 
-            inline vk::PipelineCache& GetPipelineCache() { return m_pipelineCache; }
-            void RecreateSwapChain();
+            inline vk::PipelineCache& getPipelineCache() { return m_pipelineCache; }
+            void recreateSwapChain();
 
         private:
-            void CreatePipelineCache();
-            void CleanupSwapChain();
+            void createPipelineCache();
+            void cleanupSwapChain();
 
             std::unique_ptr<utl::threadpool> m_pThreadPool;
 
             // Window
-            std::shared_ptr<Window::WindowHandle> m_pWinHandle;
+            std::shared_ptr<Window::CWindowHandle> m_pWinHandle;
             // Device
-            std::shared_ptr<Device> m_pDevice;
+            std::shared_ptr<CDevice> m_pDevice;
             // SwapChain
-            std::shared_ptr<SwapChain> m_pSwapChain;
-
-            std::shared_ptr<ImguiOverlay> m_pOverlay;
-
-            std::shared_ptr<RenderSystem> m_pRenderer;
-
+            std::shared_ptr<CSwapChain> m_pSwapChain;
+            std::shared_ptr<CImguiOverlay> m_pOverlay;
+            std::shared_ptr<CRenderSystem> m_pRenderer;
             std::shared_ptr<CVulkanVBO> m_pVertexBufferObject;
-
             vk::PipelineCache m_pipelineCache;
         };
 

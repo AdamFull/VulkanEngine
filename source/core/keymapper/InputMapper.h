@@ -14,14 +14,14 @@ namespace Engine
         std::vector<utl::function<void(float, float)>> vListeners;
     };
 
-    class InputMapper : public utl::singleton<InputMapper>
+    class CInputMapper : public utl::singleton<CInputMapper>
     {
     public:
-        InputMapper();
-        ~InputMapper();
+        CInputMapper();
+        ~CInputMapper();
 
         template<class ...Args>
-        void CreateAction(std::string srActionName, Args &&...args)
+        void createAction(std::string srActionName, Args &&...args)
         {
             //static_assert(std::is_same_v<Args, EActionKey>&&..., "Type that you send to CreateAction is not supported.");
             std::array<EActionKey, sizeof...(Args)> aKeys = { { args... } };
@@ -32,7 +32,7 @@ namespace Engine
         }
 
         template<class ...Args>
-        void BindAction(std::string srActionName, EKeyState eState, Args &&...args)
+        void bindAction(std::string srActionName, EKeyState eState, Args &&...args)
         {
             auto it = m_mInputActions.find(srActionName);
             if(it != m_mInputActions.end())
@@ -47,11 +47,11 @@ namespace Engine
                     }
                 }
             }
-            m_mInputActions.emplace(srActionName, MakeBindAction(eState, utl::function<void(EActionKey, EKeyState)>(std::forward<Args>(args)...)));
+            m_mInputActions.emplace(srActionName, makeBindAction(eState, utl::function<void(EActionKey, EKeyState)>(std::forward<Args>(args)...)));
         }
 
         template<class ...Args>
-        void BindAxis(std::string srAxisName, Args &&...args)
+        void bindAxis(std::string srAxisName, Args &&...args)
         {
             auto it = m_mInputAxis.find(srAxisName);
             if(it != m_mInputAxis.end())
@@ -62,21 +62,21 @@ namespace Engine
                     range_it->second.vListeners.emplace_back(utl::function<void(float, float)>(std::forward<Args>(args)...));
                 }
             }
-            m_mInputAxis.emplace(srAxisName, MakeBindAxis(utl::function<void(float, float)>(std::forward<Args>(args)...)));
+            m_mInputAxis.emplace(srAxisName, makeBindAxis(utl::function<void(float, float)>(std::forward<Args>(args)...)));
         }
 
-        void Update(float fDeltaTime);
+        void update(float fDeltaTime);
     private:
-        void KeyBoardInput(int key, int scancode, int action, int mods);
-        void MouseButtonInput(int button, int action, int mods);
-        void MouseMovementInput(float xpos, float ypos);
-        void MouseWheelInput(float xpos, float ypos);
+        void keyBoardInput(int key, int scancode, int action, int mods);
+        void mouseButtonInput(int button, int action, int mods);
+        void mouseMovementInput(float xpos, float ypos);
+        void mouseWheelInput(float xpos, float ypos);
 
-        void HandleActions(std::string srActionName, EActionKey eKey, const EKeyState& eKeyState);
-        void HandleAxis(std::string srAxisName,  glm::vec2 fValue);
+        void handleActions(std::string srActionName, EActionKey eKey, const EKeyState& eKeyState);
+        void handleAxis(std::string srAxisName,  glm::vec2 fValue);
 
-        FInputAction MakeBindAction(EKeyState eState, utl::function<void(EActionKey, EKeyState)>&& dCallback);
-        FInputAxis MakeBindAxis(utl::function<void(float, float)>&& dCallback);
+        FInputAction makeBindAction(EKeyState eState, utl::function<void(EActionKey, EKeyState)>&& dCallback);
+        FInputAxis makeBindAxis(utl::function<void(float, float)>&& dCallback);
 
         std::multimap<EActionKey, std::string> m_mInputDescriptor;
 

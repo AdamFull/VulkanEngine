@@ -5,24 +5,20 @@ namespace Engine
 {
     namespace Core
     {
-        namespace Scene
-        {
-            namespace Objects { class RenderObject; }
-        }
-        
+        namespace Scene { class CRenderObject; }
         namespace Overlay
         {
-            class OverlayBase
+            class COverlayBase
             {
             public:
-                virtual ~OverlayBase() {}
-                OverlayBase() = default;
-                OverlayBase(std::string)
+                virtual ~COverlayBase() {}
+                COverlayBase() = default;
+                COverlayBase(std::string)
                 {
                 }
 
-                virtual void SetState(bool bState) { bOverlayState = bState; }
-                virtual void Draw();
+                virtual void setState(bool bState) { bOverlayState = bState; }
+                virtual void draw();
 
             protected:
                 std::string srOverlayName;

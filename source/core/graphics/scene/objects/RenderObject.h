@@ -13,62 +13,59 @@ namespace Engine
     {
         namespace Scene
         {
-            namespace Objects
+            class CRenderObject : public std::enable_shared_from_this<CRenderObject>
             {
-                class RenderObject : public std::enable_shared_from_this<RenderObject>
-                {
-                public:
-                    RenderObject();
-                    RenderObject(std::string srName);
+            public:
+                CRenderObject();
+                CRenderObject(std::string srName);
 
-                    // Create render object
-                    virtual void Create(vk::RenderPass& renderPass, uint32_t subpass);
-                    // Recreate render object
-                    virtual void ReCreate();
-                    // Do render things
-                    virtual void Render(vk::CommandBuffer &commandBuffer, uint32_t imageIndex);
-                    // Update object
-                    virtual void Update(float fDeltaTime);
-                    // Cleanup object( not deleting)
-                    virtual void Cleanup();
-                    // Destroy objects( deleting );
-                    virtual void Destroy();
+                // Create render object
+                virtual void create(vk::RenderPass &renderPass, uint32_t subpass);
+                // Recreate render object
+                virtual void reCreate();
+                // Do render things
+                virtual void render(vk::CommandBuffer &commandBuffer, uint32_t imageIndex);
+                // Update object
+                virtual void update(float fDeltaTime);
+                // Cleanup object( not deleting)
+                virtual void cleanup();
+                // Destroy objects( deleting );
+                virtual void destroy();
 
-                    // Deep search
-                    std::shared_ptr<RenderObject> Find(std::string srName);
-                    void AddChild(std::shared_ptr<RenderObject> child);
-                    void SetParent(std::shared_ptr<RenderObject> parent);
-                    void Attach(std::shared_ptr<RenderObject> child);
-                    void Detach(std::shared_ptr<RenderObject> child);
+                // Deep search
+                std::shared_ptr<CRenderObject> find(std::string srName);
+                void addChild(std::shared_ptr<CRenderObject> child);
+                void setParent(std::shared_ptr<CRenderObject> parent);
+                void attach(std::shared_ptr<CRenderObject> child);
+                void detach(std::shared_ptr<CRenderObject> child);
 
-                    std::string &GetName();
-                    //std::string &GetUUID();
-                    std::shared_ptr<RenderObject> &GetParent();
-                    std::unordered_map<std::string, std::shared_ptr<RenderObject>> &GetChilds();
+                std::string &getName();
+                // std::string &GetUUID();
+                std::shared_ptr<CRenderObject> &getParent();
+                std::unordered_map<std::string, std::shared_ptr<CRenderObject>> &getChilds();
 
-                    FTransform GetTransform();
-                    const glm::vec3 GetPosition() const;
-                    const glm::vec3 GetRotation() const;
-                    const glm::vec3 GetScale() const;
+                FTransform getTransform();
+                const glm::vec3 getPosition() const;
+                const glm::vec3 getRotation() const;
+                const glm::vec3 getScale() const;
 
-                    void SetName(std::string srName);
+                void setName(std::string srName);
 
-                    void SetTransform(FTransform transformNew);
-                    void SetPosition(glm::vec3 position);
-                    void SetRotation(glm::vec3 rotation);
-                    void SetScale(glm::vec3 scale);
+                void setTransform(FTransform transformNew);
+                void setPosition(glm::vec3 position);
+                void setRotation(glm::vec3 rotation);
+                void setScale(glm::vec3 scale);
 
-                protected:
-                    std::string m_srName;
-                    //std::string m_srUUID;
-                    FTransform m_transform;
+            protected:
+                std::string m_srName;
+                // std::string m_srUUID;
+                FTransform m_transform;
 
-                    std::shared_ptr<RenderObject> m_pParent;
-                    std::shared_ptr<RenderObject> m_pParentOld;
-                    std::unordered_map<std::string, std::shared_ptr<RenderObject>> m_mChilds;
-                    //std::unordered_map<std::string, std::string> m_mUUID;
-                };
-            }
+                std::shared_ptr<CRenderObject> m_pParent;
+                std::shared_ptr<CRenderObject> m_pParentOld;
+                std::unordered_map<std::string, std::shared_ptr<CRenderObject>> m_mChilds;
+                // std::unordered_map<std::string, std::string> m_mUUID;
+            };
         }
     }
 }

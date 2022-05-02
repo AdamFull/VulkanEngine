@@ -3,8 +3,8 @@
 
 int main()
 {
-    Engine::Application app;
-    app.Create();
+    Engine::CApplication app;
+    app.create();
 
     try
     {

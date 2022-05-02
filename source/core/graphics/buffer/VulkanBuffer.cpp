@@ -14,7 +14,7 @@ void CVulkanBuffer::create(vk::DeviceSize instanceSize, uint32_t instanceCount,
 {
     alignmentSize = getAlignment(instanceSize, minOffsetAlignment);
     bufferSize = alignmentSize * instanceCount;
-    UDevice->CreateOnDeviceBuffer(bufferSize, usageFlags, memoryPropertyFlags, buffer, deviceMemory);
+    UDevice->createOnDeviceBuffer(bufferSize, usageFlags, memoryPropertyFlags, buffer, deviceMemory);
 }
 
 void CVulkanBuffer::reCreate(vk::DeviceSize instanceSize, uint32_t instanceCount,
@@ -27,8 +27,8 @@ void CVulkanBuffer::reCreate(vk::DeviceSize instanceSize, uint32_t instanceCount
 void CVulkanBuffer::clean()
 {
     unmapMem();
-    UDevice->Destroy(buffer);
-    UDevice->Destroy(deviceMemory);
+    UDevice->destroy(buffer);
+    UDevice->destroy(deviceMemory);
 }
 
 vk::DescriptorBufferInfo CVulkanBuffer::getDscriptor(vk::DeviceSize size, vk::DeviceSize offset)
@@ -46,16 +46,16 @@ vk::Result CVulkanBuffer::mapMem(vk::DeviceSize size, vk::DeviceSize offset)
     assert(UDevice && buffer && deviceMemory && "Called map on buffer before create");
     if (size == VK_WHOLE_SIZE)
     {
-        return UDevice->GetLogical().mapMemory(deviceMemory, 0, bufferSize, vk::MemoryMapFlags{}, &mappedMemory);
+        return UDevice->getLogical().mapMemory(deviceMemory, 0, bufferSize, vk::MemoryMapFlags{}, &mappedMemory);
     }
-    return UDevice->GetLogical().mapMemory(deviceMemory, offset, size, vk::MemoryMapFlags{}, &mappedMemory);
+    return UDevice->getLogical().mapMemory(deviceMemory, offset, size, vk::MemoryMapFlags{}, &mappedMemory);
 }
 
 void CVulkanBuffer::unmapMem()
 {
     if (mappedMemory)
     {
-        UDevice->GetLogical().unmapMemory(deviceMemory);
+        UDevice->getLogical().unmapMemory(deviceMemory);
         mappedMemory = nullptr;
     }
 }
@@ -82,7 +82,7 @@ vk::Result CVulkanBuffer::flush(vk::DeviceSize size, vk::DeviceSize offset)
     mappedRange.memory = deviceMemory;
     mappedRange.offset = offset;
     mappedRange.size = size;
-    return UDevice->GetLogical().flushMappedMemoryRanges(1, &mappedRange);
+    return UDevice->getLogical().flushMappedMemoryRanges(1, &mappedRange);
 }
 
 vk::DescriptorBufferInfo CVulkanBuffer::descriptorInfo(vk::DeviceSize size, vk::DeviceSize offset)
@@ -97,7 +97,7 @@ vk::Result CVulkanBuffer::invalidate(vk::DeviceSize size, vk::DeviceSize offset)
     mappedRange.offset = offset;
     mappedRange.size = size;
 
-    return UDevice->GetLogical().invalidateMappedMemoryRanges(1, &mappedRange);
+    return UDevice->getLogical().invalidateMappedMemoryRanges(1, &mappedRange);
 }
 
 void CVulkanBuffer::writeToIndex(void *idata, int index)

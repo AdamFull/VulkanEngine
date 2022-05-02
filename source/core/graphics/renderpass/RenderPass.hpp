@@ -7,7 +7,7 @@ namespace Engine
     namespace Core
     {
         class CImage;
-        namespace Scene {namespace Objects { class RenderObject; }}
+        namespace Scene { class CRenderObject; }
         namespace Render
         {
             class CSubpass;

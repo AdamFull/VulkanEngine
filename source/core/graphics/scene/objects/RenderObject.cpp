@@ -1,141 +1,107 @@
 #include "RenderObject.h"
 #include "graphics/VulkanDevice.hpp"
 
-using namespace Engine::Core::Scene::Objects;
+using namespace Engine::Core::Scene;
 using namespace Engine::Resources;
 
-RenderObject::RenderObject()
+CRenderObject::CRenderObject()
 {
-    //m_srUUID = uuid::generate();
 }
 
-RenderObject::RenderObject(std::string srName)
+CRenderObject::CRenderObject(std::string srName)
 {
-    m_srName = srName;
-    //m_srUUID = uuid::generate();
-}
-
-void RenderObject::Create(vk::RenderPass& renderPass, uint32_t subpass)
-{
-    for (auto &[name, child] : m_mChilds)
-        child->Create(renderPass, subpass);
-}
-
-void RenderObject::ReCreate()
-{
-    for (auto &[name, child] : m_mChilds)
-        child->ReCreate();
-}
-
-void RenderObject::Render(vk::CommandBuffer &commandBuffer, uint32_t imageIndex)
-{
-    for (auto &[name, child] : m_mChilds)
-        child->Render(commandBuffer, imageIndex);
-}
-
-void RenderObject::Update(float fDeltaTime)
-{
-    for (auto &[name, child] : m_mChilds)
-        child->Update(fDeltaTime);
-}
-
-void RenderObject::Cleanup()
-{
-    for (auto &[name, child] : m_mChilds)
-        child->Cleanup();
-}
-
-void RenderObject::Destroy()
-{
-    for (auto &[name, child] : m_mChilds)
-        child->Destroy();
-}
-
-void RenderObject::SetName(std::string srName)
-{
-    /*if (m_pParent)
-    {
-        auto pParent = shared_from_this();
-        auto namePair = pParent->m_mUUID.find(m_srName);
-        if (namePair != pParent->m_mUUID.end())
-        {
-            auto newPair = std::make_pair(srName, namePair->second);
-            pParent->m_mUUID.erase(namePair);
-            pParent->m_mUUID.emplace(newPair);
-        }
-    }*/
     m_srName = srName;
 }
 
-std::string &RenderObject::GetName()
+void CRenderObject::create(vk::RenderPass& renderPass, uint32_t subpass)
+{
+    for (auto &[name, child] : m_mChilds)
+        child->create(renderPass, subpass);
+}
+
+void CRenderObject::reCreate()
+{
+    for (auto &[name, child] : m_mChilds)
+        child->reCreate();
+}
+
+void CRenderObject::render(vk::CommandBuffer &commandBuffer, uint32_t imageIndex)
+{
+    for (auto &[name, child] : m_mChilds)
+        child->render(commandBuffer, imageIndex);
+}
+
+void CRenderObject::update(float fDeltaTime)
+{
+    for (auto &[name, child] : m_mChilds)
+        child->update(fDeltaTime);
+}
+
+void CRenderObject::cleanup()
+{
+    for (auto &[name, child] : m_mChilds)
+        child->cleanup();
+}
+
+void CRenderObject::destroy()
+{
+    for (auto &[name, child] : m_mChilds)
+        child->destroy();
+}
+
+void CRenderObject::setName(std::string srName)
+{
+    m_srName = srName;
+}
+
+std::string &CRenderObject::getName()
 {
     return m_srName;
 }
 
-/*std::string &RenderObject::GetUUID()
-{
-    return m_srUUID;
-}*/
-
-std::shared_ptr<RenderObject> &RenderObject::GetParent()
+std::shared_ptr<CRenderObject> &CRenderObject::getParent()
 {
     return m_pParent;
 }
 
-std::unordered_map<std::string, std::shared_ptr<RenderObject>> &RenderObject::GetChilds()
+std::unordered_map<std::string, std::shared_ptr<CRenderObject>> &CRenderObject::getChilds()
 {
     return m_mChilds;
 }
 
 // Deep search
-std::shared_ptr<RenderObject> RenderObject::Find(std::string srName)
+std::shared_ptr<CRenderObject> CRenderObject::find(std::string srName)
 {
-    /*auto it_id = m_mUUID.find(srName);
-    if (it_id != m_mUUID.end())
-    {
-        auto it = m_mChilds.find(it_id->second);
-        if (it != m_mChilds.end())
-            return it->second;
-    }*/
     auto it = m_mChilds.find(srName);
     if (it != m_mChilds.end())
         return it->second;
 
     for (auto &[name, child] : m_mChilds)
-        child->Find(srName);
+        child->find(srName);
     return nullptr;
 }
 
-void RenderObject::AddChild(std::shared_ptr<RenderObject> child)
+void CRenderObject::addChild(std::shared_ptr<CRenderObject> child)
 {
     m_mChilds.emplace(child->m_srName, child);
-    //m_mUUID.emplace(child->m_srName, child->m_srUUID);
-    child->SetParent(shared_from_this());
+    child->setParent(shared_from_this());
 }
 
-void RenderObject::SetParent(std::shared_ptr<RenderObject> parent)
+void CRenderObject::setParent(std::shared_ptr<CRenderObject> parent)
 {
     m_pParentOld = m_pParent;
     m_pParent = parent;
     // If you set parent for this, you should attach self to parent's child's
     if (m_pParentOld)
-        m_pParentOld->Detach(shared_from_this());
+        m_pParentOld->detach(shared_from_this());
 }
-void RenderObject::Attach(std::shared_ptr<RenderObject> child)
+void CRenderObject::attach(std::shared_ptr<CRenderObject> child)
 {
-    AddChild(child);
+    addChild(child);
 }
 
-void RenderObject::Detach(std::shared_ptr<RenderObject> child)
+void CRenderObject::detach(std::shared_ptr<CRenderObject> child)
 {
-    /*auto it = m_mChilds.find(child->m_srUUID);
-    if (it != m_mChilds.end())
-    {
-        auto it_id = m_mUUID.find(child->m_srName);
-        if (it_id != m_mUUID.end())
-            m_mUUID.erase(it_id);
-        m_mChilds.erase(it);
-    }*/
     auto it = m_mChilds.find(child->m_srName);
     if (it != m_mChilds.end())
     {
@@ -143,54 +109,54 @@ void RenderObject::Detach(std::shared_ptr<RenderObject> child)
     }
 }
 
-FTransform RenderObject::GetTransform()
+FTransform CRenderObject::getTransform()
 {
     FTransform transform = m_transform;
     if (m_pParent)
-        transform += m_pParent->GetTransform();
+        transform += m_pParent->getTransform();
     return transform;
 }
 
-const glm::vec3 RenderObject::GetPosition() const
+const glm::vec3 CRenderObject::getPosition() const
 {
     glm::vec3 position = m_transform.pos;
     if (m_pParent)
-        position += m_pParent->GetPosition();
+        position += m_pParent->getPosition();
     return position;
 }
 
-const glm::vec3 RenderObject::GetRotation() const
+const glm::vec3 CRenderObject::getRotation() const
 {
     glm::vec3 rotation = m_transform.rot;
     if (m_pParent)
-        rotation += m_pParent->GetRotation();
+        rotation += m_pParent->getRotation();
     return rotation;
 }
 
-const glm::vec3 RenderObject::GetScale() const
+const glm::vec3 CRenderObject::getScale() const
 {
     glm::vec3 scale = m_transform.scale;
     if (m_pParent)
-        scale *= m_pParent->GetScale();
+        scale *= m_pParent->getScale();
     return scale;
 }
 
-void RenderObject::SetTransform(FTransform transformNew)
+void CRenderObject::setTransform(FTransform transformNew)
 {
     m_transform = transformNew;
 }
 
-void RenderObject::SetPosition(glm::vec3 position)
+void CRenderObject::setPosition(glm::vec3 position)
 {
     m_transform.pos = position;
 }
 
-void RenderObject::SetRotation(glm::vec3 rotation)
+void CRenderObject::setRotation(glm::vec3 rotation)
 {
     m_transform.rot = rotation;
 }
 
-void RenderObject::SetScale(glm::vec3 scale)
+void CRenderObject::setScale(glm::vec3 scale)
 {
     m_transform.scale = scale;
 }

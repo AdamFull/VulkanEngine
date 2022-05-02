@@ -15,7 +15,7 @@ struct FTransform
         return *this;
     }
 
-    const glm::vec3 GetForwardVector() const
+    const glm::vec3 getForwardVector() const
     {
         glm::vec3 camFront;
 		camFront.x = -cos(glm::radians(rot.x)) * sin(glm::radians(rot.y));
@@ -25,18 +25,18 @@ struct FTransform
         return camFront;
     }
 
-    const glm::vec3 GetRightVector() const
+    const glm::vec3 getRightVector() const
     {
-        auto camFront = GetForwardVector();
+        auto camFront = getForwardVector();
         return glm::normalize(glm::cross(camFront, glm::vec3(0.0f, 1.0f, 0.0f)));
     }
 
-    const glm::vec3 GetUpVector() const
+    const glm::vec3 getUpVector() const
     {
         return glm::vec3{0.f, 1.f, 0.f};
     }
 
-    inline glm::mat4 GetModel()
+    inline glm::mat4 getModel()
     {
         glm::mat4 translation{1.0};
         translation = glm::translate(translation, pos);
@@ -53,9 +53,9 @@ struct FTransform
         return translation;
     }
 
-    inline glm::mat4 GetNormal()
+    inline glm::mat4 getNormal()
     {
-        return glm::transpose(GetModel());
+        return glm::transpose(getModel());
     }
 };
 

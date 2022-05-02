@@ -2,32 +2,32 @@
 
 using namespace Engine::Resources;
 using namespace Engine::Core;
-using namespace Engine::Core::Scene::Objects::Components::Light;
+using namespace Engine::Core::Scene;
 
-void LightComponent::Create(vk::RenderPass& renderPass, uint32_t subpass)
+void CLightComponent::create(vk::RenderPass& renderPass, uint32_t subpass)
 {
-    ComponentBase::Create(renderPass, subpass);
+    CComponentBase::create(renderPass, subpass);
 }
 
-void LightComponent::ReCreate()
+void CLightComponent::reCreate()
 {
-    ComponentBase::ReCreate();
+    CComponentBase::reCreate();
 }
 
-void LightComponent::Update(float fDeltaTime)
+void CLightComponent::update(float fDeltaTime)
 {
-    ComponentBase::Update(fDeltaTime);
+    CComponentBase::update(fDeltaTime);
 }
 
-void LightComponent::Render(vk::CommandBuffer &commandBuffer, uint32_t imageIndex)
+void CLightComponent::render(vk::CommandBuffer &commandBuffer, uint32_t imageIndex)
 {
-    ComponentBase::Render(commandBuffer, imageIndex);
+    CComponentBase::render(commandBuffer, imageIndex);
 }
 
-FLight LightComponent::GetLight()
+FLight CLightComponent::getLight()
 {
     FLight light{};
-    light.position = GetPosition();
+    light.position = getPosition();
     light.color = m_vColor;
     light.radius = m_fAttenuation;
     return light;

@@ -6,23 +6,23 @@ namespace Engine
 {
     namespace Resources { class CResourceManager; }
     
-    class RenderScene
+    class CRenderScene
     {
     public:
-        RenderScene() = default;
-        ~RenderScene();
+        CRenderScene() = default;
+        ~CRenderScene();
         
-        void Create();
-        void ReCreate();
-        void Destroy();
-        void AttachObject(std::shared_ptr<Core::Scene::Objects::RenderObject> object);
-        inline std::shared_ptr<Core::Scene::Objects::RenderObject>& GetRoot() { return m_pRoot; }
-        void CreateObjects();
-        void Render(float fDeltaTime);
+        void create();
+        void reCreate();
+        void destroy();
+        void attachObject(std::shared_ptr<Core::Scene::CRenderObject> object);
+        inline std::shared_ptr<Core::Scene::CRenderObject>& getRoot() { return m_pRoot; }
+        void createObjects();
+        void render(float fDeltaTime);
 
-        std::shared_ptr<Resources::CResourceManager> GetResourceManager() { return m_pResourceManager; }
+        std::shared_ptr<Resources::CResourceManager> getResourceManager() { return m_pResourceManager; }
     private:
-        std::shared_ptr<Core::Scene::Objects::RenderObject> m_pRoot;
+        std::shared_ptr<Core::Scene::CRenderObject> m_pRoot;
         std::shared_ptr<Resources::CResourceManager> m_pResourceManager;
     };
 }

@@ -2,7 +2,7 @@
 
 using namespace Engine::Core::Overlay;
 
-OverlayConsole::OverlayConsole(std::string srName)
+COverlayConsole::COverlayConsole(std::string srName)
 {
     srOverlayName = srName;
     Commands.push_back("help");
@@ -11,11 +11,11 @@ OverlayConsole::OverlayConsole(std::string srName)
     bOverlayState = false;
 }
 
-OverlayConsole::~OverlayConsole()
+COverlayConsole::~COverlayConsole()
 {
 }
 
-void OverlayConsole::Draw()
+void COverlayConsole::draw()
 {
     if (bOverlayState)
     {
@@ -42,21 +42,21 @@ void OverlayConsole::Draw()
 
         if (ImGui::SmallButton("Add Debug Text"))
         {
-            AddLog("%d some text", Items.Size);
-            AddLog("some more text");
-            AddLog("display very important message here!");
+            addLog("%d some text", Items.Size);
+            addLog("some more text");
+            addLog("display very important message here!");
         }
 
         ImGui::SameLine();
         if (ImGui::SmallButton("Add Debug Error"))
         {
-            AddLog("[error] something went wrong");
+            addLog("[error] something went wrong");
         }
 
         ImGui::SameLine();
         if (ImGui::SmallButton("Clear"))
         {
-            ClearLog();
+            clearLog();
         }
         ImGui::SameLine();
         bool copy_to_clipboard = ImGui::SmallButton("Copy");
@@ -84,7 +84,7 @@ void OverlayConsole::Draw()
         if (ImGui::BeginPopupContextWindow())
         {
             if (ImGui::Selectable("Clear"))
-                ClearLog();
+                clearLog();
             ImGui::EndPopup();
         }
 
@@ -131,12 +131,12 @@ void OverlayConsole::Draw()
         // Command-line
         bool reclaim_focus = false;
         ImGuiInputTextFlags input_text_flags = ImGuiInputTextFlags_EnterReturnsTrue | ImGuiInputTextFlags_CallbackCompletion | ImGuiInputTextFlags_CallbackHistory;
-        if (ImGui::InputText("Input", InputBuf, IM_ARRAYSIZE(InputBuf), input_text_flags, &TextEditCallbackStub, (void *)this))
+        if (ImGui::InputText("Input", InputBuf, IM_ARRAYSIZE(InputBuf), input_text_flags, &textEditCallbackStub, (void *)this))
         {
             char *s = InputBuf;
-            Strtrim(s);
+            strtrim(s);
             if (s[0])
-                ExecCommand(s);
+                execCommand(s);
             std::strcpy(s, "");
             reclaim_focus = true;
         }
@@ -150,62 +150,62 @@ void OverlayConsole::Draw()
     }
 }
 
-void OverlayConsole::ClearLog()
+void COverlayConsole::clearLog()
 {
     for (int i = 0; i < Items.Size; i++)
         free(Items[i]);
     Items.clear();
 }
 
-void OverlayConsole::ExecCommand(const char *command_line)
+void COverlayConsole::execCommand(const char *command_line)
 {
-    AddLog("# %s\n", command_line);
+    addLog("# %s\n", command_line);
 
     // Insert into history. First find match and delete it so it can be pushed to the back.
     // This isn't trying to be smart or optimal.
     HistoryPos = -1;
     for (int i = History.Size - 1; i >= 0; i--)
-        if (Stricmp(History[i], command_line) == 0)
+        if (stricmp(History[i], command_line) == 0)
         {
             free(History[i]);
             History.erase(History.begin() + i);
             break;
         }
-    History.push_back(Strdup(command_line));
+    History.push_back(strdup(command_line));
 
     // Process command
-    if (Stricmp(command_line, "CLEAR") == 0)
+    if (stricmp(command_line, "CLEAR") == 0)
     {
-        ClearLog();
+        clearLog();
     }
-    else if (Stricmp(command_line, "HELP") == 0)
+    else if (stricmp(command_line, "HELP") == 0)
     {
-        AddLog("Commands:");
+        addLog("Commands:");
         for (int i = 0; i < Commands.Size; i++)
-            AddLog("- %s", Commands[i]);
+            addLog("- %s", Commands[i]);
     }
-    else if (Stricmp(command_line, "HISTORY") == 0)
+    else if (stricmp(command_line, "HISTORY") == 0)
     {
         int first = History.Size - 10;
         for (int i = first > 0 ? first : 0; i < History.Size; i++)
-            AddLog("%3d: %s\n", i, History[i]);
+            addLog("%3d: %s\n", i, History[i]);
     }
     else
     {
-        AddLog("Unknown command: '%s'\n", command_line);
+        addLog("Unknown command: '%s'\n", command_line);
     }
 
     // On command input, we scroll to bottom even if AutoScroll==false
     ScrollToBottom = true;
 }
 
-int OverlayConsole::TextEditCallbackStub(ImGuiInputTextCallbackData *data)
+int COverlayConsole::textEditCallbackStub(ImGuiInputTextCallbackData *data)
 {
-    OverlayConsole *console = (OverlayConsole *)data->UserData;
-    return console->TextEditCallback(data);
+    COverlayConsole *console = (COverlayConsole *)data->UserData;
+    return console->textEditCallback(data);
 }
 
-int OverlayConsole::TextEditCallback(ImGuiInputTextCallbackData *data)
+int COverlayConsole::textEditCallback(ImGuiInputTextCallbackData *data)
 {
     // AddLog("cursor: %d, selection: %d-%d", data->CursorPos, data->SelectionStart, data->SelectionEnd);
     switch (data->EventFlag)
@@ -228,13 +228,13 @@ int OverlayConsole::TextEditCallback(ImGuiInputTextCallbackData *data)
         // Build a list of candidates
         ImVector<const char *> candidates;
         for (int i = 0; i < Commands.Size; i++)
-            if (Strnicmp(Commands[i], word_start, (int)(word_end - word_start)) == 0)
+            if (strnicmp(Commands[i], word_start, (int)(word_end - word_start)) == 0)
                 candidates.push_back(Commands[i]);
 
         if (candidates.Size == 0)
         {
             // No match
-            AddLog("No match for \"%.*s\"!\n", (int)(word_end - word_start), word_start);
+            addLog("No match for \"%.*s\"!\n", (int)(word_end - word_start), word_start);
         }
         else if (candidates.Size == 1)
         {
@@ -269,9 +269,9 @@ int OverlayConsole::TextEditCallback(ImGuiInputTextCallbackData *data)
             }
 
             // List matches
-            AddLog("Possible matches:\n");
+            addLog("Possible matches:\n");
             for (int i = 0; i < candidates.Size; i++)
-                AddLog("- %s\n", candidates[i]);
+                addLog("- %s\n", candidates[i]);
         }
 
         break;
@@ -306,7 +306,7 @@ int OverlayConsole::TextEditCallback(ImGuiInputTextCallbackData *data)
     return 0;
 }
 
-void OverlayConsole::AddLog(const char *fmt, ...) IM_FMTARGS(2)
+void COverlayConsole::addLog(const char *fmt, ...) IM_FMTARGS(2)
 {
     // FIXME-OPT
     char buf[1024];
@@ -315,10 +315,10 @@ void OverlayConsole::AddLog(const char *fmt, ...) IM_FMTARGS(2)
     vsnprintf(buf, IM_ARRAYSIZE(buf), fmt, args);
     buf[IM_ARRAYSIZE(buf) - 1] = 0;
     va_end(args);
-    Items.push_back(Strdup(buf));
+    Items.push_back(strdup(buf));
 }
 
-int OverlayConsole::Stricmp(const char *s1, const char *s2)
+int COverlayConsole::stricmp(const char *s1, const char *s2)
 {
     int d;
     while ((d = toupper(*s2) - toupper(*s1)) == 0 && *s1)
@@ -329,7 +329,7 @@ int OverlayConsole::Stricmp(const char *s1, const char *s2)
     return d;
 }
 
-int OverlayConsole::Strnicmp(const char *s1, const char *s2, int n)
+int COverlayConsole::strnicmp(const char *s1, const char *s2, int n)
 {
     int d = 0;
     while (n > 0 && (d = toupper(*s2) - toupper(*s1)) == 0 && *s1)
@@ -341,7 +341,7 @@ int OverlayConsole::Strnicmp(const char *s1, const char *s2, int n)
     return d;
 }
 
-char *OverlayConsole::Strdup(const char *s)
+char *COverlayConsole::strdup(const char *s)
 {
     IM_ASSERT(s);
     size_t len = strlen(s) + 1;
@@ -350,7 +350,7 @@ char *OverlayConsole::Strdup(const char *s)
     return (char *)memcpy(buf, (const void *)s, len);
 }
 
-void OverlayConsole::Strtrim(char *s)
+void COverlayConsole::strtrim(char *s)
 {
     char *str_end = s + strlen(s);
     while (str_end > s && str_end[-1] == ' ')

@@ -8,32 +8,23 @@ namespace Engine
     {
         namespace Scene
         {
-            namespace Objects
+            class CLightComponent : public CComponentBase
             {
-                namespace Components
-                {
-                    namespace Light
-                    {
-                        class LightComponent : public ComponentBase
-                        {
-                        public:
-                            void Create(vk::RenderPass& renderPass, uint32_t subpass) override;
-                            void ReCreate() override;
-                            void Update(float fDeltaTime) override;
-                            void Render(vk::CommandBuffer &commandBuffer, uint32_t imageIndex) override;
+            public:
+                void create(vk::RenderPass &renderPass, uint32_t subpass) override;
+                void reCreate() override;
+                void update(float fDeltaTime) override;
+                void render(vk::CommandBuffer &commandBuffer, uint32_t imageIndex) override;
 
-                            inline void SetColor(glm::vec3 color) { m_vColor = color; }
-                            inline void SetAttenuation(float attenuation) { m_fAttenuation = attenuation; }
+                inline void setColor(glm::vec3 color) { m_vColor = color; }
+                inline void setAttenuation(float attenuation) { m_fAttenuation = attenuation; }
 
-                            FLight GetLight();
+                FLight getLight();
 
-                        protected:
-                            glm::vec3 m_vColor{};
-                            float m_fAttenuation;
-                        };
-                    }
-                }
-            }
+            protected:
+                glm::vec3 m_vColor{};
+                float m_fAttenuation;
+            };
         }
     }
 }

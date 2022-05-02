@@ -36,7 +36,7 @@ void CGraphicsPipeline::createPipeline()
 	specializationEntry.offset = 0;
 	specializationEntry.size = sizeof(uint32_t);
 
-    uint32_t specializationData = static_cast<uint32_t>(UDevice->GetSamples());
+    uint32_t specializationData = static_cast<uint32_t>(UDevice->getSamples());
 	vk::SpecializationInfo specializationInfo;
 	specializationInfo.mapEntryCount = 1;
 	specializationInfo.pMapEntries = &specializationEntry;
@@ -92,7 +92,7 @@ void CGraphicsPipeline::createPipeline()
     pipelineInfo.basePipelineHandle = nullptr;
     pipelineInfo.pDynamicState = &dynamicStateInfo;
 
-    auto result = UDevice->GetLogical().createGraphicsPipelines(UHLInstance->GetPipelineCache(), 1, &pipelineInfo, nullptr, &m_pipeline);
+    auto result = UDevice->getLogical().createGraphicsPipelines(UHLInstance->getPipelineCache(), 1, &pipelineInfo, nullptr, &m_pipeline);
     assert(m_pipeline && "Failed creating pipeline.");
 }
 

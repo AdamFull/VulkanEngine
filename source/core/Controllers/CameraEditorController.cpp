@@ -3,51 +3,51 @@
 #include "graphics/scene/objects/components/camera/CameraManager.h"
 
 using namespace Engine::Controllers;
-using namespace Engine::Core::Scene::Objects;
+using namespace Engine::Core::Scene;
 
-void CameraEditorController::Create()
+void CCameraEditorController::create()
 {
 
-    InputMapper::getInstance()->CreateAction("CameraMovement", EActionKey::eW, EActionKey::eS, EActionKey::eA,
+    CInputMapper::getInstance()->createAction("CameraMovement", EActionKey::eW, EActionKey::eS, EActionKey::eA,
                                              EActionKey::eD, EActionKey::eSpace, EActionKey::eLeftControl, EActionKey::eMouseLeft);
-    InputMapper::getInstance()->CreateAction("CameraRotation", EActionKey::eCursorDelta);
-    InputMapper::getInstance()->CreateAction("CameraMovementToPoint", EActionKey::eScrol);
+    CInputMapper::getInstance()->createAction("CameraRotation", EActionKey::eCursorDelta);
+    CInputMapper::getInstance()->createAction("CameraMovementToPoint", EActionKey::eScrol);
 
-    InputMapper::getInstance()->BindAction("CameraMovement", EKeyState::ePressed, this, &CameraEditorController::CameraMovement);
-    InputMapper::getInstance()->BindAxis("CameraRotation", this, &CameraEditorController::MouseRotation);
-    InputMapper::getInstance()->BindAxis("CameraMovementToPoint", this, &CameraEditorController::CameraToPoint);
+    CInputMapper::getInstance()->bindAction("CameraMovement", EKeyState::ePressed, this, &CCameraEditorController::cameraMovement);
+    CInputMapper::getInstance()->bindAxis("CameraRotation", this, &CCameraEditorController::mouseRotation);
+    CInputMapper::getInstance()->bindAxis("CameraMovementToPoint", this, &CCameraEditorController::cameraToPoint);
 }
 
-void CameraEditorController::Update(float fDeltaTime)
+void CCameraEditorController::update(float fDeltaTime)
 {
-    CameraController::Update(fDeltaTime);
+    CCameraController::update(fDeltaTime);
 }
 
-void CameraEditorController::CameraMovement(EActionKey eKey, EKeyState eState)
+void CCameraEditorController::cameraMovement(EActionKey eKey, EKeyState eState)
 {
-    auto camera = Components::CameraManager::getInstance()->GetCurrentCamera();
-    FTransform transform = camera->GetTransform();
+    auto camera = CCameraManager::getInstance()->getCurrentCamera();
+    FTransform transform = camera->getTransform();
 
     glm::vec3 direction{0.f};
     switch (eKey)
     {
     case EActionKey::eW:
-        direction += transform.GetForwardVector();
+        direction += transform.getForwardVector();
         break;
     case EActionKey::eS:
-        direction -= transform.GetForwardVector();
+        direction -= transform.getForwardVector();
         break;
     case EActionKey::eA:
-        direction -= transform.GetRightVector();
+        direction -= transform.getRightVector();
         break;
     case EActionKey::eD:
-        direction += transform.GetRightVector();
+        direction += transform.getRightVector();
         break;
     case EActionKey::eSpace:
-        direction += transform.GetUpVector();
+        direction += transform.getUpVector();
         break;
     case EActionKey::eLeftControl:
-        direction -= transform.GetUpVector();
+        direction -= transform.getUpVector();
         break;
     case EActionKey::eMouseLeft:
         m_bRotatePass = true;
@@ -60,40 +60,36 @@ void CameraEditorController::CameraMovement(EActionKey eKey, EKeyState eState)
     if (glm::dot(direction, direction) > std::numeric_limits<float>::epsilon())
     {
         transform.pos += m_fMoveSpeed * m_fDeltaTime * direction;
-        camera->SetTransform(transform);
+        camera->setTransform(transform);
     }
 }
 
-void CameraEditorController::MouseRotation(float fX, float fY)
+void CCameraEditorController::mouseRotation(float fX, float fY)
 {
     if (!m_bRotatePass)
         return;
 
-    auto camera = Components::CameraManager::getInstance()->GetCurrentCamera();
-    FTransform transform = camera->GetTransform();
+    auto camera = CCameraManager::getInstance()->getCurrentCamera();
+    FTransform transform = camera->getTransform();
     glm::vec3 rotate = glm::vec3{fY * m_fLookSpeed * -1.f, fX * m_fLookSpeed, 0.f};
 
     if (glm::dot(rotate, rotate) > std::numeric_limits<float>::epsilon())
     {
         transform.rot += rotate * 20.0f;
-
-        /*transform.rot.x = glm::clamp(transform.rot.x, -1.5f, 1.5f);
-        transform.rot.y = glm::mod(transform.rot.y, glm::two_pi<float>());*/
-
-        camera->SetTransform(transform);
+        camera->setTransform(transform);
     }
     m_bRotatePass = false;
 }
 
-void CameraEditorController::CameraToPoint(float fX, float fY)
+void CCameraEditorController::cameraToPoint(float fX, float fY)
 {
-    auto camera = Components::CameraManager::getInstance()->GetCurrentCamera();
-    FTransform transform = camera->GetTransform();
-    glm::vec3 direction = transform.GetForwardVector() * fY;
+    auto camera = CCameraManager::getInstance()->getCurrentCamera();
+    FTransform transform = camera->getTransform();
+    glm::vec3 direction = transform.getForwardVector() * fY;
 
     if (glm::dot(direction, direction) > std::numeric_limits<float>::epsilon())
     {
         transform.pos += m_fScrollSpeed * direction;
-        camera->SetTransform(transform);
+        camera->setTransform(transform);
     }
 }

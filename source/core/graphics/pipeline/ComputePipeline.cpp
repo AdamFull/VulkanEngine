@@ -28,6 +28,6 @@ void CComputePipeline::createPipeline()
     pipelineInfo.basePipelineHandle = nullptr;
     pipelineInfo.basePipelineIndex = -1;
 
-    auto result = UDevice->GetLogical().createComputePipelines(UHLInstance->GetPipelineCache(), 1, &pipelineInfo, nullptr, &m_pipeline);
+    auto result = UDevice->getLogical().createComputePipelines(UHLInstance->getPipelineCache(), 1, &pipelineInfo, nullptr, &m_pipeline);
     assert(m_pipeline && "Failed creating pipeline.");
 }

@@ -7,24 +7,18 @@ namespace Engine
     {
         namespace Scene
         {
-            namespace Objects
+            class CSceneRootComponent : public CRenderObject
             {
-                namespace Components
+            public:
+                explicit CSceneRootComponent(std::string srName = "SceneRoot")
                 {
-                    class SceneRootComponent : public RenderObject
-                    {
-                    public:
-                        explicit SceneRootComponent(std::string srName = "SceneRoot")
-                        {
-                            m_srName = srName;
-                        }
-
-                        void Create(vk::RenderPass& renderPass, uint32_t subpass) override;
-                        void Render(vk::CommandBuffer &commandBuffer, uint32_t imageIndex) override;
-                        void Update(float fDeltaTime) override;
-                    };
+                    m_srName = srName;
                 }
-            }
+
+                void create(vk::RenderPass &renderPass, uint32_t subpass) override;
+                void render(vk::CommandBuffer &commandBuffer, uint32_t imageIndex) override;
+                void update(float fDeltaTime) override;
+            };
         }
     }
 }

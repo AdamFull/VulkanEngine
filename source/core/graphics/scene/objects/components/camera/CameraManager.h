@@ -7,23 +7,17 @@ namespace Engine
     {
         namespace Scene
         {
-            namespace Objects
+            class CCameraManager : public utl::singleton<CCameraManager>
             {
-                namespace Components
-                {
-                    class CameraManager : public utl::singleton<CameraManager>
-                    {
-                    public:
-                        std::shared_ptr<CameraComponent> GetCurrentCamera();
-                        void SetCurrentCameraIndex(size_t index);
-                        void Attach(std::shared_ptr<CameraComponent> newCamera);
+            public:
+                std::shared_ptr<CCameraComponent> getCurrentCamera();
+                void setCurrentCameraIndex(size_t index);
+                void attach(std::shared_ptr<CCameraComponent> newCamera);
 
-                    private:
-                        std::vector<std::shared_ptr<CameraComponent>> m_vCameras;
-                        size_t m_iCameraIndex{0};
-                    };
-                }
-            }
+            private:
+                std::vector<std::shared_ptr<CCameraComponent>> m_vCameras;
+                size_t m_iCameraIndex{0};
+            };
         }
     }
 }

@@ -2,11 +2,11 @@
 
 using namespace Engine::Controllers;
 
-void CameraController::Create()
+void CCameraController::create()
 {
 }
 
-void CameraController::Update(float fDeltaTime)
+void CCameraController::update(float fDeltaTime)
 {
     m_fDeltaTime = fDeltaTime;
 }

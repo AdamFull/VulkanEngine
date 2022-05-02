@@ -149,7 +149,7 @@ namespace Engine
                 static vk::ShaderStageFlagBits getShaderStage(const std::filesystem::path &moduleName);
 
                 std::optional<uint32_t> getDescriptorLocation(const std::string &name) const;
-                std::optional<uint32_t> getDescriptorSize(const std::string &name) const;
+                std::optional<uint64_t> getDescriptorSize(const std::string &name) const;
                 std::optional<CUniform> getUniform(const std::string &name) const;
                 std::optional<CUniformBlock> getUniformBlock(const std::string &name) const;
                 std::optional<CPushConstBlock> getPushBlock(const std::string &name) const;
@@ -183,7 +183,7 @@ namespace Engine
                 std::array<std::optional<uint32_t>, 3> localSizes;
 
                 std::unordered_map<std::string, uint32_t> mDescriptorLocations;
-	            std::unordered_map<std::string, uint32_t> mDescriptorSizes;
+	            std::unordered_map<std::string, uint64_t> mDescriptorSizes;
 
                 std::unordered_map<std::string, CUniform> mUniforms;
                 std::unordered_map<std::string, CUniformBlock> mUniformBlocks;

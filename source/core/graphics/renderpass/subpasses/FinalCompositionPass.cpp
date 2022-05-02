@@ -8,13 +8,13 @@
 #include "GlobalVariables.h"
 
 using namespace Engine::Core::Render;
-using namespace Engine::Core::Scene::Objects;
+using namespace Engine::Core::Scene;
 using namespace Engine::Resources;
 using namespace Engine::Resources::Material;
 
 void CFinalCompositionPass::create(std::unique_ptr<FRenderCreateInfo>& createInfo)
 {
-    auto framesInFlight = USwapChain->GetFramesInFlight();
+    auto framesInFlight = USwapChain->getFramesInFlight();
     pUniform = std::make_shared<CUniformBuffer>();
     pUniform->create(framesInFlight, sizeof(FPostProcess));
 
@@ -25,7 +25,7 @@ void CFinalCompositionPass::create(std::unique_ptr<FRenderCreateInfo>& createInf
 
 void CFinalCompositionPass::render(std::unique_ptr<FRenderProcessInfo>& renderData)
 {
-    auto imageIndex = USwapChain->GetCurrentFrame();
+    auto imageIndex = USwapChain->getCurrentFrame();
     //May be move to CompositionObject
     FPostProcess ubo;
     //HDR

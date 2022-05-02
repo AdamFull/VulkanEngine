@@ -6,24 +6,24 @@
 using namespace Engine;
 
     template<>
-    std::unique_ptr<InputMapper> utl::singleton<InputMapper>::_instance{nullptr};
+    std::unique_ptr<CInputMapper> utl::singleton<CInputMapper>::_instance{nullptr};
 
-    InputMapper::InputMapper()
+    CInputMapper::CInputMapper()
     {
-        Core::Window::WinCallbacks::SubscribeKeyInput(this, &InputMapper::KeyBoardInput);
-        Core::Window::WinCallbacks::SubscribeMousePosition(this, &InputMapper::MouseMovementInput);
-        Core::Window::WinCallbacks::SubscribeMouseScroll(this, &InputMapper::MouseWheelInput);
-        Core::Window::WinCallbacks::SubscribeMouseButton(this, &InputMapper::MouseButtonInput);
+        Core::Window::WinCallbacks::SubscribeKeyInput(this, &CInputMapper::keyBoardInput);
+        Core::Window::WinCallbacks::SubscribeMousePosition(this, &CInputMapper::mouseMovementInput);
+        Core::Window::WinCallbacks::SubscribeMouseScroll(this, &CInputMapper::mouseWheelInput);
+        Core::Window::WinCallbacks::SubscribeMouseButton(this, &CInputMapper::mouseButtonInput);
     }
 
-    InputMapper::~InputMapper()
+    CInputMapper::~CInputMapper()
     {
         /*WindowHandle::KeyCodeCallback.detach();
         WindowHandle::MousePositionCallback.detach();
         WindowHandle::MouseWheelCallback.detach();*/
     }
 
-    void InputMapper::KeyBoardInput(int key, int scancode, int action, int mods)
+    void CInputMapper::keyBoardInput(int key, int scancode, int action, int mods)
     {
         switch (action)
         {
@@ -38,15 +38,15 @@ using namespace Engine;
         }
     }
 
-    void InputMapper::MouseButtonInput(int button, int action, int mods)
+    void CInputMapper::mouseButtonInput(int button, int action, int mods)
     {
-        KeyBoardInput(button, 0, action, mods);
+        keyBoardInput(button, 0, action, mods);
     }
 
-    void InputMapper::MouseMovementInput(float xpos, float ypos)
+    void CInputMapper::mouseMovementInput(float xpos, float ypos)
     {
-        float xmax = static_cast<float>(Core::Window::WindowHandle::m_iWidth);
-        float ymax = static_cast<float>(Core::Window::WindowHandle::m_iHeight);
+        float xmax = static_cast<float>(Core::Window::CWindowHandle::m_iWidth);
+        float ymax = static_cast<float>(Core::Window::CWindowHandle::m_iHeight);
 
         m_mAxisStates[EActionKey::eCursorOriginal] = {xpos, ypos};
         //Calculate on screen position
@@ -61,12 +61,12 @@ using namespace Engine;
         m_mAxisStates[EActionKey::eCursorDelta] = (m_mAxisStates[EActionKey::eCursorPos] - fPosOld)*m_fDeltaTime;
     }
 
-    void InputMapper::MouseWheelInput(float xpos, float ypos)
+    void CInputMapper::mouseWheelInput(float xpos, float ypos)
     {
         m_mAxisStates[EActionKey::eScrol] = glm::vec2{xpos * m_fDeltaTime, ypos * m_fDeltaTime};
     }
 
-    void InputMapper::Update(float fDeltaTime)
+    void CInputMapper::update(float fDeltaTime)
     {
         m_fDeltaTime = fDeltaTime;
 
@@ -79,7 +79,7 @@ using namespace Engine;
                 auto range = m_mInputDescriptor.equal_range(key);
                 for(auto range_it = range.first; range_it != range.second; ++range_it)
                 {
-                    HandleActions(range_it->second, key, keyState->second);
+                    handleActions(range_it->second, key, keyState->second);
                 }
 
                 if(keyState->second == EKeyState::ePress)
@@ -95,7 +95,7 @@ using namespace Engine;
                 auto range = m_mInputDescriptor.equal_range(key);
                 for(auto range_it = range.first; range_it != range.second; ++range_it)
                 {
-                    HandleAxis(range_it->second, keyAxis->second);
+                    handleAxis(range_it->second, keyAxis->second);
                 }
 
                 if(key != EActionKey::eCursorOriginal)
@@ -104,7 +104,7 @@ using namespace Engine;
         }
     }
 
-    void InputMapper::HandleActions(std::string srActionName, EActionKey eKey, const EKeyState& eKeyState)
+    void CInputMapper::handleActions(std::string srActionName, EActionKey eKey, const EKeyState& eKeyState)
     {
         auto it = m_mInputActions.find(srActionName);
         if(it != m_mInputActions.end())
@@ -124,7 +124,7 @@ using namespace Engine;
         }
     }
 
-    void InputMapper::HandleAxis(std::string srActionName, glm::vec2 fValue)
+    void CInputMapper::handleAxis(std::string srActionName, glm::vec2 fValue)
     {
         auto it = m_mInputAxis.find(srActionName);
         if (it != m_mInputAxis.end())
@@ -141,7 +141,7 @@ using namespace Engine;
         }
     }
 
-    FInputAction InputMapper::MakeBindAction(EKeyState eState, utl::function<void(EActionKey, EKeyState)>&& dCallback)
+    FInputAction CInputMapper::makeBindAction(EKeyState eState, utl::function<void(EActionKey, EKeyState)>&& dCallback)
     {
         FInputAction newAction;
         newAction.eState = eState;
@@ -149,7 +149,7 @@ using namespace Engine;
         return newAction;
     }
 
-    FInputAxis InputMapper::MakeBindAxis(utl::function<void(float, float)>&& dCallback)
+    FInputAxis CInputMapper::makeBindAxis(utl::function<void(float, float)>&& dCallback)
     {
         FInputAxis newAxis;
         newAxis.vListeners.emplace_back(std::move(dCallback));

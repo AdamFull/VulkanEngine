@@ -39,7 +39,6 @@ void CFinalCompositionPass::render(std::unique_ptr<FRenderProcessInfo>& renderDa
     pMaterial->bind(renderData->commandBuffer, imageIndex);
 
     renderData->commandBuffer.draw(3, 1, 0, 0);
-    //UOverlay->DrawFrame(renderData.commandBuffer, imageIndex);
 }
 
 void CFinalCompositionPass::cleanup()

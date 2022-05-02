@@ -12,6 +12,7 @@ void CMaterialUI::create(vk::RenderPass& renderPass, uint32_t subpass)
 {
     m_pPipeline = CPipelineBase::Builder().
     setVertexInput(CVertexInput(VertexUI::getBindingDescription(), VertexUI::getAttributeDescriptions())).
+    setColorAttachments(2).
     addShaderStage("../../assets/shaders/main/ui.vert").
     addShaderStage("../../assets/shaders/main/ui.frag").
     build(renderPass, subpass);

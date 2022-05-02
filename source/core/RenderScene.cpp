@@ -57,8 +57,8 @@ void CRenderScene::render(float fDeltaTime)
 {
     m_pRoot->update(fDeltaTime);
 
-    //UOverlay->NewFrame();
-    //UOverlay->Update(fDeltaTime);
+    UOverlay->newFrame();
+    UOverlay->update(fDeltaTime);
 
     URenderer->render(m_pRoot);
 }

@@ -15,8 +15,6 @@ void CRenderSystem::create(std::shared_ptr<Resources::CResourceManager> resource
     screenExtent = USwapChain->getExtent();
     commandBuffers = std::make_shared<CCommandBuffer>(false, vk::QueueFlagBits::eGraphics, vk::CommandBufferLevel::ePrimary, USwapChain->getFramesInFlight());
 
-    //UOverlay->Create(root, renderPass->get(), renderPass->getSubpassCount() - 1);
-
     creationBuffer = std::make_unique<Render::FRenderCreateInfo>();
     renderData = std::make_unique<Render::FRenderProcessInfo>();
     creationBuffer->resourceManager = resourceManager;

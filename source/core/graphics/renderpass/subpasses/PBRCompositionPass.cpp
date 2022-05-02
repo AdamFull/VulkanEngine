@@ -36,6 +36,8 @@ void CPBRCompositionPass::create(std::unique_ptr<FRenderCreateInfo>& createInfo)
 
     pMaterial = std::make_shared<CMaterialDeferred>();
     pMaterial->create(createInfo->renderPass, createInfo->subpass);
+
+    UOverlay->create(createInfo->root, createInfo->renderPass, createInfo->subpass);
     CSubpass::create(createInfo);
 }
 
@@ -71,6 +73,8 @@ void CPBRCompositionPass::render(std::unique_ptr<FRenderProcessInfo>& renderData
     pMaterial->bind(renderData->commandBuffer, imageIndex);
 
     renderData->commandBuffer.draw(3, 1, 0, 0);
+
+    UOverlay->drawFrame(renderData->commandBuffer, imageIndex);
 }
 
 void CPBRCompositionPass::cleanup()

@@ -85,8 +85,6 @@ void CDeferredStage::create(std::unique_ptr<FRenderCreateInfo>& createInfo)
     pFramebuffer->addImage("brightness_buffer", vk::Format::eR16G16B16A16Sfloat, vk::ImageUsageFlagBits::eColorAttachment | vk::ImageUsageFlagBits::eInputAttachment);
     pFramebuffer->addImage("depth_image", CImage::getDepthFormat(), vk::ImageUsageFlagBits::eDepthStencilAttachment | vk::ImageUsageFlagBits::eInputAttachment);
 
-    //UOverlay->Create(root, renderPass->get(), renderPass->getSubpassCount() - 1);
-
     pRenderPass->setRenderArea(vk::Offset2D{0, 0}, screenExtent);
     pFramebuffer->create(pRenderPass->get(), screenExtent);
     createInfo->renderPass = pRenderPass->get();

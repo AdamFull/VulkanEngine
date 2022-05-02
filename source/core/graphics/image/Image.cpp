@@ -4,24 +4,24 @@
 using namespace Engine::Core;
 using namespace Engine::Core::Loaders;
 
-Image::~Image()
+CImage::~CImage()
 {
-    UDevice->Destroy(m_image);
-    UDevice->Destroy(m_view);
-    UDevice->Destroy(m_deviceMemory);
+    UDevice->Destroy(_image);
+    UDevice->Destroy(_view);
+    UDevice->Destroy(_deviceMemory);
 
-    if(!m_bUsingInternalSampler)
-        UDevice->Destroy(m_sampler);
+    if(!_bUsingInternalSampler)
+        UDevice->Destroy(_sampler);
 }
 
-void Image::UpdateDescriptor()
+void CImage::updateDescriptor()
 {
-    m_descriptor.sampler = m_sampler;
-    m_descriptor.imageView = m_view;
-    m_descriptor.imageLayout = m_imageLayout;
+    _descriptor.sampler = _sampler;
+    _descriptor.imageView = _view;
+    _descriptor.imageLayout = _imageLayout;
 }
 
-void Image::GenerateMipmaps(vk::Image &image, uint32_t mipLevels, vk::Format format, uint32_t width, uint32_t height, vk::ImageAspectFlags aspectFlags)
+void CImage::generateMipmaps(vk::Image &image, uint32_t mipLevels, vk::Format format, uint32_t width, uint32_t height, vk::ImageAspectFlags aspectFlags)
 {
     vk::FormatProperties formatProperties;
     UDevice->GetPhysical().getFormatProperties(format, &formatProperties);
@@ -39,9 +39,9 @@ void Image::GenerateMipmaps(vk::Image &image, uint32_t mipLevels, vk::Format for
 
     for (uint32_t i = 1; i < mipLevels; i++)
     {
-        TransitionImageLayout(commandBuffer, vk::ImageLayout::eTransferDstOptimal, vk::ImageLayout::eTransferSrcOptimal, aspectFlags, false, i - 1);
-        BlitImage(commandBuffer, vk::ImageLayout::eTransferDstOptimal, aspectFlags, i, mipWidth, mipHeight);
-        TransitionImageLayout(commandBuffer, vk::ImageLayout::eTransferSrcOptimal, vk::ImageLayout::eShaderReadOnlyOptimal, aspectFlags, false, i - 1);
+        transitionImageLayout(commandBuffer, vk::ImageLayout::eTransferDstOptimal, vk::ImageLayout::eTransferSrcOptimal, aspectFlags, false, i - 1);
+        blitImage(commandBuffer, vk::ImageLayout::eTransferDstOptimal, aspectFlags, i, mipWidth, mipHeight);
+        transitionImageLayout(commandBuffer, vk::ImageLayout::eTransferSrcOptimal, vk::ImageLayout::eShaderReadOnlyOptimal, aspectFlags, false, i - 1);
 
         if (mipWidth > 1)
             mipWidth /= 2;
@@ -49,12 +49,12 @@ void Image::GenerateMipmaps(vk::Image &image, uint32_t mipLevels, vk::Format for
             mipHeight /= 2;
     }
 
-    TransitionImageLayout(commandBuffer, vk::ImageLayout::eTransferDstOptimal, vk::ImageLayout::eShaderReadOnlyOptimal, aspectFlags, false, mipLevels - 1);
+    transitionImageLayout(commandBuffer, vk::ImageLayout::eTransferDstOptimal, vk::ImageLayout::eShaderReadOnlyOptimal, aspectFlags, false, mipLevels - 1);
 
     cmdBuf.submitIdle();
 }
 
-vk::ImageType Image::TypeFromKtx(uint32_t type)
+vk::ImageType CImage::typeFromKtx(uint32_t type)
 {
     switch (type)
     {
@@ -71,63 +71,63 @@ vk::ImageType Image::TypeFromKtx(uint32_t type)
     return vk::ImageType{};
 }
 
-void Image::LoadFromFile(std::string srPath)
+void CImage::loadFromFile(std::string srPath)
 {
     ktxTexture *texture;
     vk::Format format;
-    ImageLoader::Load(srPath.c_str(), &texture, &format);
+    CImageLoader::load(srPath.c_str(), &texture, &format);
 
-    LoadFromMemory(texture, format);
+    loadFromMemory(texture, format);
 
-    ImageLoader::Close(&texture);
+    CImageLoader::close(&texture);
 }
 
-void Image::SetSampler(vk::Sampler& internalSampler)
+void CImage::setSampler(vk::Sampler& internalSampler)
 {
-    m_bUsingInternalSampler = true;
-    m_sampler = internalSampler;
+    _bUsingInternalSampler = true;
+    _sampler = internalSampler;
 }
 
-void Image::CreateEmptyTexture(uint32_t width, uint32_t height, uint32_t depth, uint32_t dims, uint32_t internalFormat, bool allocate_mem)
+void CImage::createEmptyTexture(uint32_t width, uint32_t height, uint32_t depth, uint32_t dims, uint32_t internalFormat, bool allocate_mem)
 {
     vk::Format format;
     ktxTexture *texture;
-    ImageLoader::AllocateRawDataAsKTXTexture(&texture, &format, width, height, depth, dims, internalFormat);
+    CImageLoader::allocateRawDataAsKTXTexture(&texture, &format, width, height, depth, dims, internalFormat);
 
-    InitializeTexture(texture, format);
+    initializeTexture(texture, format);
 
     if(allocate_mem)
     {
         texture->pData = static_cast<uint8_t*>(calloc(texture->dataSize, sizeof(uint8_t)));
-        WriteImageData(texture, format);
+        writeImageData(texture, format);
     }
     
-    UpdateDescriptor();
+    updateDescriptor();
 
-    ImageLoader::Close(&texture);
+    CImageLoader::close(&texture);
 }
 
-void Image::InitializeTexture(ktxTexture *info, vk::Format format, vk::ImageUsageFlags flags, vk::ImageAspectFlags aspect)
+void CImage::initializeTexture(ktxTexture *info, vk::Format format, vk::ImageUsageFlags flags, vk::ImageAspectFlags aspect)
 {
-    m_format = format;
+    _format = format;
 
     //TODO: Add checking for texture type here
-    if(!IsSupportedDimension(info))
+    if(!isSupportedDimension(info))
         throw std::runtime_error("Unsupported texture dimension.");
 
-    m_extent = vk::Extent3D{info->baseWidth, info->baseHeight, info->baseDepth};
-    m_mipLevels = info->numLevels;
-    m_layerCount = info->numLayers;
+    _extent = vk::Extent3D{info->baseWidth, info->baseHeight, info->baseDepth};
+    _mipLevels = info->numLevels;
+    _layerCount = info->numLayers;
 
     vk::ImageCreateInfo imageInfo{};
     // Select image type
     if (info->baseDepth > 1)
         imageInfo.imageType = vk::ImageType::e3D;
     else
-        imageInfo.imageType = TypeFromKtx(info->numDimensions);
+        imageInfo.imageType = typeFromKtx(info->numDimensions);
 
-    imageInfo.extent = m_extent;
-    imageInfo.mipLevels = m_mipLevels;
+    imageInfo.extent = _extent;
+    imageInfo.mipLevels = _mipLevels;
 
     if (info->isArray)
         imageInfo.arrayLayers = info->numLayers;
@@ -136,11 +136,11 @@ void Image::InitializeTexture(ktxTexture *info, vk::Format format, vk::ImageUsag
     else
         imageInfo.arrayLayers = 1;
 
-    m_instCount = imageInfo.arrayLayers;
+    _instCount = imageInfo.arrayLayers;
 
-    imageInfo.format = m_format;
+    imageInfo.format = _format;
     imageInfo.tiling = vk::ImageTiling::eOptimal;
-    imageInfo.initialLayout = m_imageLayout;
+    imageInfo.initialLayout = _imageLayout;
     imageInfo.usage = flags;
     imageInfo.sharingMode = vk::SharingMode::eExclusive;
 
@@ -153,7 +153,7 @@ void Image::InitializeTexture(ktxTexture *info, vk::Format format, vk::ImageUsag
 
     imageInfo.samples = UDevice->GetSamples();
 
-    CreateImage(m_image, m_deviceMemory, imageInfo, vk::MemoryPropertyFlagBits::eDeviceLocal);
+    createImage(_image, _deviceMemory, imageInfo, vk::MemoryPropertyFlagBits::eDeviceLocal);
 
     vk::ImageViewCreateInfo viewInfo{};
     if (info->isArray)
@@ -169,21 +169,21 @@ void Image::InitializeTexture(ktxTexture *info, vk::Format format, vk::ImageUsag
     viewInfo.components = {vk::ComponentSwizzle::eR, vk::ComponentSwizzle::eG, vk::ComponentSwizzle::eB, vk::ComponentSwizzle::eA};
     viewInfo.subresourceRange.aspectMask = aspect;
     viewInfo.subresourceRange.baseMipLevel = 0;
-    viewInfo.subresourceRange.levelCount = m_mipLevels;
+    viewInfo.subresourceRange.levelCount = _mipLevels;
     viewInfo.subresourceRange.baseArrayLayer = 0;
-    viewInfo.subresourceRange.layerCount = m_instCount;
+    viewInfo.subresourceRange.layerCount = _instCount;
 
-    m_view = CreateImageView(m_image, viewInfo);
+    _view = createImageView(_image, viewInfo);
 
-    if(!m_sampler)
+    if(!_sampler)
     {
-        m_addressMode = info->isArray || info->isCubemap || info->baseDepth > 1 ? vk::SamplerAddressMode::eClampToEdge : vk::SamplerAddressMode::eRepeat;
-        CreateSampler(m_sampler, m_mipLevels, m_addressMode, m_filter);
+        _addressMode = info->isArray || info->isCubemap || info->baseDepth > 1 ? vk::SamplerAddressMode::eClampToEdge : vk::SamplerAddressMode::eRepeat;
+        createSampler(_sampler, _mipLevels, _addressMode, _filter);
     }
     //imageLayout = vk::ImageLayout::eShaderReadOnlyOptimal;
 }
 
-vk::Format Image::FindSupportedFormat(const std::vector<vk::Format> &candidates, vk::ImageTiling tiling, vk::FormatFeatureFlags features)
+vk::Format CImage::findSupportedFormat(const std::vector<vk::Format> &candidates, vk::ImageTiling tiling, vk::FormatFeatureFlags features)
 {
     for (vk::Format format : candidates)
     {
@@ -204,9 +204,9 @@ vk::Format Image::FindSupportedFormat(const std::vector<vk::Format> &candidates,
     throw std::runtime_error("Failed to find supported format!");
 }
 
-vk::Format Image::GetDepthFormat()
+vk::Format CImage::getDepthFormat()
 {
-    return FindSupportedFormat
+    return findSupportedFormat
     (
         {
             vk::Format::eD32Sfloat, 
@@ -218,7 +218,7 @@ vk::Format Image::GetDepthFormat()
     );
 }
 
-void Image::CreateImage(vk::Image &image, vk::DeviceMemory &memory, vk::ImageCreateInfo createInfo, vk::MemoryPropertyFlags properties)
+void CImage::createImage(vk::Image &image, vk::DeviceMemory &memory, vk::ImageCreateInfo createInfo, vk::MemoryPropertyFlags properties)
 {
     assert(UDevice && "Cannot create image, cause logical device is not valid.");
 
@@ -238,17 +238,17 @@ void Image::CreateImage(vk::Image &image, vk::DeviceMemory &memory, vk::ImageCre
     UDevice->GetLogical().bindImageMemory(image, memory, 0);
 }
 
-void Image::TransitionImageLayout(vk::Image &image, std::vector<vk::ImageMemoryBarrier>& vBarriers, vk::ImageLayout oldLayout, vk::ImageLayout newLayout)
+void CImage::transitionImageLayout(vk::Image &image, std::vector<vk::ImageMemoryBarrier>& vBarriers, vk::ImageLayout oldLayout, vk::ImageLayout newLayout)
 {
     auto cmdBuf = CommandBuffer(true, vk::QueueFlagBits::eTransfer);
     auto commandBuffer = cmdBuf.GetCommandBuffer();
 
-    TransitionImageLayout(commandBuffer, image, vBarriers, oldLayout, newLayout);
+    transitionImageLayout(commandBuffer, image, vBarriers, oldLayout, newLayout);
 
     cmdBuf.submitIdle();
 }
 
-void Image::TransitionImageLayout(vk::CommandBuffer& internalBuffer, vk::Image &image, std::vector<vk::ImageMemoryBarrier>& vBarriers, vk::ImageLayout oldLayout, vk::ImageLayout newLayout)
+void CImage::transitionImageLayout(vk::CommandBuffer& internalBuffer, vk::Image &image, std::vector<vk::ImageMemoryBarrier>& vBarriers, vk::ImageLayout oldLayout, vk::ImageLayout newLayout)
 {
     vk::PipelineStageFlags sourceStage;
     vk::PipelineStageFlags destinationStage;
@@ -345,7 +345,7 @@ void Image::TransitionImageLayout(vk::CommandBuffer& internalBuffer, vk::Image &
         static_cast<uint32_t>(vBarriers.size()), vBarriers.data());
 }
 
-void Image::CopyBufferToImage(vk::Buffer &buffer, vk::Image &image, std::vector<vk::BufferImageCopy> vRegions)
+void CImage::copyBufferToImage(vk::Buffer &buffer, vk::Image &image, std::vector<vk::BufferImageCopy> vRegions)
 {
     auto cmdBuf = CommandBuffer(true, vk::QueueFlagBits::eTransfer);
     auto commandBuffer = cmdBuf.GetCommandBuffer();
@@ -353,12 +353,12 @@ void Image::CopyBufferToImage(vk::Buffer &buffer, vk::Image &image, std::vector<
     cmdBuf.submitIdle();
 }
 
-void Image::CopyTo(vk::CommandBuffer& commandBuffer, vk::Image& src, vk::Image& dst, vk::ImageLayout srcLayout, vk::ImageLayout dstLayout, vk::ImageCopy& region)
+void CImage::copyTo(vk::CommandBuffer& commandBuffer, vk::Image& src, vk::Image& dst, vk::ImageLayout srcLayout, vk::ImageLayout dstLayout, vk::ImageCopy& region)
 {
     commandBuffer.copyImage(src, srcLayout, dst, dstLayout, 1, &region);
 }
 
-vk::ImageView Image::CreateImageView(vk::Image &pImage, vk::ImageViewCreateInfo viewInfo)
+vk::ImageView CImage::createImageView(vk::Image &pImage, vk::ImageViewCreateInfo viewInfo)
 {
     assert(UDevice && "Cannot create image view, cause logical device is not valid.");
     viewInfo.image = pImage;
@@ -371,7 +371,7 @@ vk::ImageView Image::CreateImageView(vk::Image &pImage, vk::ImageViewCreateInfo 
     return imageView;
 }
 
-void Image::CreateSampler(vk::Sampler &sampler, uint32_t mip_levels, vk::SamplerAddressMode eAddressMode, vk::Filter magFilter)
+void CImage::createSampler(vk::Sampler &sampler, uint32_t mip_levels, vk::SamplerAddressMode eAddressMode, vk::Filter magFilter)
 {
     assert(UDevice && "Cannot create sampler, cause logical device is not valid.");
     vk::SamplerCreateInfo samplerInfo{};
@@ -401,7 +401,7 @@ void Image::CreateSampler(vk::Sampler &sampler, uint32_t mip_levels, vk::Sampler
     assert(sampler && "Texture sampler was not created");
 }
 
-bool Image::IsSupportedDimension(ktxTexture *info)
+bool CImage::isSupportedDimension(ktxTexture *info)
 {
     vk::PhysicalDeviceProperties devprops;
     UDevice->GetPhysical().getProperties(&devprops);
@@ -443,20 +443,20 @@ bool Image::IsSupportedDimension(ktxTexture *info)
     return true;
 }
 
-void Image::TransitionImageLayout(vk::ImageLayout newLayout, vk::ImageAspectFlags aspectFlags, bool use_mips)
+void CImage::transitionImageLayout(vk::ImageLayout newLayout, vk::ImageAspectFlags aspectFlags, bool use_mips)
 {
     auto cmdBuf = CommandBuffer(true, vk::QueueFlagBits::eTransfer);
     auto commandBuffer = cmdBuf.GetCommandBuffer();
-    TransitionImageLayout(commandBuffer, m_imageLayout, newLayout, aspectFlags, use_mips);
+    transitionImageLayout(commandBuffer, _imageLayout, newLayout, aspectFlags, use_mips);
     cmdBuf.submitIdle();
 }
 
-void Image::TransitionImageLayout(vk::CommandBuffer& commandBuffer, vk::ImageLayout newLayout, vk::ImageAspectFlags aspectFlags, bool use_mips, uint32_t base_mip)
+void CImage::transitionImageLayout(vk::CommandBuffer& commandBuffer, vk::ImageLayout newLayout, vk::ImageAspectFlags aspectFlags, bool use_mips, uint32_t base_mip)
 {
-    TransitionImageLayout(commandBuffer, m_imageLayout, newLayout, aspectFlags, use_mips, base_mip);
+    transitionImageLayout(commandBuffer, _imageLayout, newLayout, aspectFlags, use_mips, base_mip);
 }
 
-void Image::TransitionImageLayout(vk::CommandBuffer& commandBuffer, vk::ImageLayout oldLayout, vk::ImageLayout newLayout, vk::ImageAspectFlags aspectFlags, bool use_mips, uint32_t base_mip)
+void CImage::transitionImageLayout(vk::CommandBuffer& commandBuffer, vk::ImageLayout oldLayout, vk::ImageLayout newLayout, vk::ImageAspectFlags aspectFlags, bool use_mips, uint32_t base_mip)
 {
     std::vector<vk::ImageMemoryBarrier> vBarriers;
     vk::ImageMemoryBarrier barrier{};
@@ -464,16 +464,16 @@ void Image::TransitionImageLayout(vk::CommandBuffer& commandBuffer, vk::ImageLay
     barrier.dstQueueFamilyIndex = VK_QUEUE_FAMILY_IGNORED;
     barrier.subresourceRange.aspectMask = aspectFlags;
     barrier.subresourceRange.baseMipLevel = base_mip;
-    barrier.subresourceRange.levelCount = use_mips ? m_mipLevels : 1;
+    barrier.subresourceRange.levelCount = use_mips ? _mipLevels : 1;
     barrier.subresourceRange.baseArrayLayer = 0;
-    barrier.subresourceRange.layerCount = m_instCount;
+    barrier.subresourceRange.layerCount = _instCount;
     vBarriers.push_back(barrier);
     
-    TransitionImageLayout(commandBuffer, m_image, vBarriers, oldLayout, newLayout);
-    m_imageLayout = newLayout;
+    transitionImageLayout(commandBuffer, _image, vBarriers, oldLayout, newLayout);
+    _imageLayout = newLayout;
 }
 
-void Image::BlitImage(vk::CommandBuffer& commandBuffer, vk::ImageLayout dstLayout, vk::ImageAspectFlags aspectFlags, uint32_t level, int32_t mipWidth, int32_t mipHeight)
+void CImage::blitImage(vk::CommandBuffer& commandBuffer, vk::ImageLayout dstLayout, vk::ImageAspectFlags aspectFlags, uint32_t level, int32_t mipWidth, int32_t mipHeight)
 {
     vk::ImageBlit blit{};
     blit.srcOffsets[0] = vk::Offset3D{0, 0, 0};
@@ -489,15 +489,15 @@ void Image::BlitImage(vk::CommandBuffer& commandBuffer, vk::ImageLayout dstLayou
     blit.dstSubresource.baseArrayLayer = 0;
     blit.dstSubresource.layerCount = 1;
 
-    commandBuffer.blitImage(m_image, m_imageLayout, m_image, dstLayout, 1, &blit, vk::Filter::eLinear);
+    commandBuffer.blitImage(_image, _imageLayout, _image, dstLayout, 1, &blit, vk::Filter::eLinear);
 }
 
-void Image::CopyImageToDst(vk::CommandBuffer& commandBuffer, std::shared_ptr<Image> m_pDst, vk::ImageCopy& region, vk::ImageLayout dstLayout)
+void CImage::copyImageToDst(vk::CommandBuffer& commandBuffer, std::shared_ptr<CImage> m_pDst, vk::ImageCopy& region, vk::ImageLayout dstLayout)
 {
-    CopyTo(commandBuffer, m_image, m_pDst->m_image, m_imageLayout, dstLayout, region);
+    copyTo(commandBuffer, _image, m_pDst->_image, _imageLayout, dstLayout, region);
 }
 
-void Image::WriteImageData(ktxTexture *info, vk::Format format, vk::ImageAspectFlags aspect)
+void CImage::writeImageData(ktxTexture *info, vk::Format format, vk::ImageAspectFlags aspect)
 {
     vk::DeviceSize imgSize = info->dataSize;
 
@@ -506,7 +506,7 @@ void Image::WriteImageData(ktxTexture *info, vk::Format format, vk::ImageAspectF
     auto result = stagingBuffer.MapMem();
     stagingBuffer.Write((void *)info->pData);
 
-    TransitionImageLayout(vk::ImageLayout::eTransferDstOptimal, aspect);
+    transitionImageLayout(vk::ImageLayout::eTransferDstOptimal, aspect);
 
     if (info->generateMipmaps)
     {
@@ -515,7 +515,7 @@ void Image::WriteImageData(ktxTexture *info, vk::Format format, vk::ImageAspectF
         region.imageSubresource.aspectMask = aspect;
         region.imageSubresource.mipLevel = 0;
         region.imageSubresource.baseArrayLayer = 0;
-        region.imageSubresource.layerCount = m_instCount;
+        region.imageSubresource.layerCount = _instCount;
         region.imageExtent.width = info->baseWidth;
         region.imageExtent.height = info->baseHeight;
         region.imageExtent.depth = info->baseDepth;
@@ -523,15 +523,15 @@ void Image::WriteImageData(ktxTexture *info, vk::Format format, vk::ImageAspectF
         vRegions.push_back(region);
 
         auto buffer = stagingBuffer.GetBuffer();
-        CopyBufferToImage(buffer, m_image, vRegions);
-        GenerateMipmaps(m_image, m_mipLevels, format, m_extent.width, m_extent.height, aspect);
+        copyBufferToImage(buffer, _image, vRegions);
+        generateMipmaps(_image, _mipLevels, format, _extent.width, _extent.height, aspect);
     }
     else
     {
         std::vector<vk::BufferImageCopy> vRegions;
-        for (uint32_t layer = 0; layer < m_instCount; layer++)
+        for (uint32_t layer = 0; layer < _instCount; layer++)
         {
-            for (uint32_t level = 0; level < m_mipLevels; level++)
+            for (uint32_t level = 0; level < _mipLevels; level++)
             {
                 ktx_size_t offset;
                 KTX_error_code ret = ktxTexture_GetImageOffset(info, level, 0, layer, &offset);
@@ -540,7 +540,7 @@ void Image::WriteImageData(ktxTexture *info, vk::Format format, vk::ImageAspectF
                 region.imageSubresource.aspectMask = aspect;
                 region.imageSubresource.mipLevel = level;
                 region.imageSubresource.baseArrayLayer = layer;
-                region.imageSubresource.layerCount = m_layerCount;
+                region.imageSubresource.layerCount = _layerCount;
                 region.imageExtent.width = info->baseWidth >> level;
                 region.imageExtent.height = info->baseHeight >> level;
                 region.imageExtent.depth = info->baseDepth;
@@ -549,20 +549,20 @@ void Image::WriteImageData(ktxTexture *info, vk::Format format, vk::ImageAspectF
             }
         }
         auto buffer = stagingBuffer.GetBuffer();
-        CopyBufferToImage(buffer, m_image, vRegions);
+        copyBufferToImage(buffer, _image, vRegions);
 
-        TransitionImageLayout(vk::ImageLayout::eShaderReadOnlyOptimal, aspect);
+        transitionImageLayout(vk::ImageLayout::eShaderReadOnlyOptimal, aspect);
     }
 }
 
-void Image::LoadFromMemory(ktxTexture *info, vk::Format format)
+void CImage::loadFromMemory(ktxTexture *info, vk::Format format)
 {
-    InitializeTexture(info, format);
-    WriteImageData(info, format);
-    UpdateDescriptor();
+    initializeTexture(info, format);
+    writeImageData(info, format);
+    updateDescriptor();
 }
 
-void Image::SetImageLayout(vk::ImageLayout layout)
+void CImage::setImageLayout(vk::ImageLayout layout)
 {
-    m_imageLayout = layout;
+    _imageLayout = layout;
 }

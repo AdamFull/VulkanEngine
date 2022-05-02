@@ -18,7 +18,7 @@ namespace Engine
             {
                 FRenderCreateInfo() {}
                 std::shared_ptr<Resources::ResourceManager> resourceManager;
-                std::unordered_map<std::string, std::shared_ptr<Image>> images;
+                std::unordered_map<std::string, std::shared_ptr<CImage>> images;
                 std::shared_ptr<Scene::Objects::RenderObject> root;
                 vk::RenderPass renderPass;
                 uint32_t subpass;
@@ -28,7 +28,7 @@ namespace Engine
             {
                 FRenderProcessInfo() {}
                 vk::CommandBuffer commandBuffer;
-                std::unordered_map<std::string, std::shared_ptr<Image>> images;
+                std::unordered_map<std::string, std::shared_ptr<CImage>> images;
                 std::shared_ptr<Scene::Objects::RenderObject> root;
             };
 

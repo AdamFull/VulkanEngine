@@ -5,26 +5,26 @@
 
 using namespace Engine::Core::Loaders;
 
-bool ImageLoader::Load(char const *filename, ktxTexture **target, vk::Format *format)
+bool CImageLoader::load(char const *filename, ktxTexture **target, vk::Format *format)
 {
     fs::path filepath{filename};
 
     if (filepath.extension() == ".ktx")
-        return LoadKTX(filename, target, format);
+        return loadKTX(filename, target, format);
     else
-        return LoadSTB(filename, target, format);
+        return loadSTB(filename, target, format);
 
     return false;
 }
 
-void ImageLoader::Close(ktxTexture **target)
+void CImageLoader::close(ktxTexture **target)
 {
     ktxTexture_Destroy((*target));
 }
 
-bool ImageLoader::AllocateRawDataAsKTXTexture(unsigned char *data, ktxTexture **target, vk::Format *format, uint32_t width, uint32_t height, uint32_t depth, uint32_t dims, uint32_t overrideFormat, bool calcMips)
+bool CImageLoader::allocateRawDataAsKTXTexture(unsigned char *data, ktxTexture **target, vk::Format *format, uint32_t width, uint32_t height, uint32_t depth, uint32_t dims, uint32_t overrideFormat, bool calcMips)
 {
-    bool result = AllocateRawDataAsKTXTexture(target, format, width, height, depth, dims, overrideFormat, calcMips);
+    bool result = allocateRawDataAsKTXTexture(target, format, width, height, depth, dims, overrideFormat, calcMips);
 
     (*target)->dataSize = width * height * 4;
     (*target)->pData = static_cast<unsigned char *>(calloc((*target)->dataSize, sizeof(unsigned char)));
@@ -33,7 +33,7 @@ bool ImageLoader::AllocateRawDataAsKTXTexture(unsigned char *data, ktxTexture **
     return result;
 }
 
-bool ImageLoader::AllocateRawDataAsKTXTexture(ktxTexture **target, vk::Format *format, uint32_t width, uint32_t height, uint32_t depth, uint32_t dims, uint32_t overrideFormat, bool calcMips)
+bool CImageLoader::allocateRawDataAsKTXTexture(ktxTexture **target, vk::Format *format, uint32_t width, uint32_t height, uint32_t depth, uint32_t dims, uint32_t overrideFormat, bool calcMips)
 {
     ktxTextureCreateInfo info;
     info.glInternalformat = overrideFormat;
@@ -58,7 +58,7 @@ bool ImageLoader::AllocateRawDataAsKTXTexture(ktxTexture **target, vk::Format *f
     return result == KTX_SUCCESS;
 }
 
-bool ImageLoader::AllocateRawDataAsKTXTextureCubemap(ktxTexture **target, vk::Format *format, uint32_t width, uint32_t height, uint32_t depth, uint32_t dims, uint32_t overrideFormat, bool calcMips)
+bool CImageLoader::allocateRawDataAsKTXTextureCubemap(ktxTexture **target, vk::Format *format, uint32_t width, uint32_t height, uint32_t depth, uint32_t dims, uint32_t overrideFormat, bool calcMips)
 {
     ktxTextureCreateInfo info;
     info.glInternalformat = overrideFormat;
@@ -83,18 +83,18 @@ bool ImageLoader::AllocateRawDataAsKTXTextureCubemap(ktxTexture **target, vk::Fo
     return result == KTX_SUCCESS;
 }
 
-bool ImageLoader::LoadSTB(char const *filename, ktxTexture **target, vk::Format *format)
+bool CImageLoader::loadSTB(char const *filename, ktxTexture **target, vk::Format *format)
 {
     int w, h, c;
     unsigned char *data = stbi_load(filename, &w, &h, &c, STBI_rgb_alpha);
 
-    bool result = AllocateRawDataAsKTXTexture(data, target, format, w, h, 1, 2, GL_SRGB8_ALPHA8, true);
+    bool result = allocateRawDataAsKTXTexture(data, target, format, w, h, 1, 2, GL_SRGB8_ALPHA8, true);
     *format = vk::Format::eR8G8B8A8Srgb;
 
     return result;
 }
 
-bool ImageLoader::LoadKTX(char const *filename, ktxTexture **target, vk::Format *format)
+bool CImageLoader::loadKTX(char const *filename, ktxTexture **target, vk::Format *format)
 {
     auto result = ktxTexture_CreateFromNamedFile(filename, KTX_TEXTURE_CREATE_LOAD_IMAGE_DATA_BIT, target);
 

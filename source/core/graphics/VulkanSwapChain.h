@@ -9,7 +9,6 @@ namespace Engine
     }
     namespace Core
     {
-        class Image;
         class SwapChain
         {
         public:

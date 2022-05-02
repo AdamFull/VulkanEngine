@@ -55,7 +55,7 @@ void CDeferredStage::create(std::unique_ptr<FRenderCreateInfo>& createInfo)
     addAttachmentDescription(vk::Format::eR8G8B8A8Snorm). //Emissive buffer
     addAttachmentDescription(vk::Format::eR8G8B8A8Snorm). //Metal, roughness, AmbientOcclusion, Height maps buffer
     addAttachmentDescription(vk::Format::eR16G16B16A16Sfloat). //Temporary image buffer
-    addAttachmentDescription(Image::GetDepthFormat(), vk::SampleCountFlagBits::e1, vk::AttachmentLoadOp::eClear, vk::AttachmentStoreOp::eDontCare, 
+    addAttachmentDescription(CImage::getDepthFormat(), vk::SampleCountFlagBits::e1, vk::AttachmentLoadOp::eClear, vk::AttachmentStoreOp::eDontCare, 
     vk::AttachmentLoadOp::eDontCare, vk::AttachmentStoreOp::eDontCare, vk::ImageLayout::eUndefined, vk::ImageLayout::eDepthStencilAttachmentOptimal). //Depth stencil
     //GBuffer description
     addSubpassDescription(vk::PipelineBindPoint::eGraphics, vReferences_0, &depthReference).
@@ -83,7 +83,7 @@ void CDeferredStage::create(std::unique_ptr<FRenderCreateInfo>& createInfo)
     pFramebuffer->addImage("emission_tex", vk::Format::eR8G8B8A8Snorm, vk::ImageUsageFlagBits::eColorAttachment | vk::ImageUsageFlagBits::eInputAttachment);
     pFramebuffer->addImage("mrah_tex", vk::Format::eR8G8B8A8Snorm, vk::ImageUsageFlagBits::eColorAttachment | vk::ImageUsageFlagBits::eInputAttachment);
     pFramebuffer->addImage("brightness_buffer", vk::Format::eR16G16B16A16Sfloat, vk::ImageUsageFlagBits::eColorAttachment | vk::ImageUsageFlagBits::eInputAttachment);
-    pFramebuffer->addImage("depth_image", Image::GetDepthFormat(), vk::ImageUsageFlagBits::eDepthStencilAttachment | vk::ImageUsageFlagBits::eInputAttachment);
+    pFramebuffer->addImage("depth_image", CImage::getDepthFormat(), vk::ImageUsageFlagBits::eDepthStencilAttachment | vk::ImageUsageFlagBits::eInputAttachment);
 
     //UOverlay->Create(root, renderPass->get(), renderPass->getSubpassCount() - 1);
 

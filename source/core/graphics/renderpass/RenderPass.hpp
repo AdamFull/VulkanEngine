@@ -6,7 +6,7 @@ namespace Engine
     namespace Resources { class ResourceManager; }
     namespace Core
     {
-        class Image;
+        class CImage;
         namespace Scene {namespace Objects { class RenderObject; }}
         namespace Render
         {

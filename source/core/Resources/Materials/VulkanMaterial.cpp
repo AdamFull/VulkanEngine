@@ -22,9 +22,9 @@ void MaterialBase::AddTexture(const std::string& attachment, vk::DescriptorImage
     m_mTextures[attachment] = descriptor;
 }
 
-void MaterialBase::AddTexture(const std::string& attachment, std::shared_ptr<Core::Image> pTexture)
+void MaterialBase::AddTexture(const std::string& attachment, std::shared_ptr<Core::CImage> pTexture)
 {
-    m_mTextures[attachment] = pTexture->GetDescriptor();
+    m_mTextures[attachment] = pTexture->getDescriptor();
 }
 
 vk::DescriptorImageInfo& MaterialBase::GetTexture(const std::string& attachment)

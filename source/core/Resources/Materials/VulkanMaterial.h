@@ -42,7 +42,7 @@ namespace Engine
 
                 virtual void Create(vk::RenderPass& renderPass, uint32_t subpass);
                 void AddTexture(const std::string& attachment, vk::DescriptorImageInfo& descriptor);
-                void AddTexture(const std::string& attachment, std::shared_ptr<Core::Image> pTexture);
+                void AddTexture(const std::string& attachment, std::shared_ptr<Core::CImage> pTexture);
                 vk::DescriptorImageInfo& GetTexture(const std::string& attachment);
                 virtual void ReCreate();
                 virtual void Update(vk::DescriptorBufferInfo& uboDesc, uint32_t imageIndex);

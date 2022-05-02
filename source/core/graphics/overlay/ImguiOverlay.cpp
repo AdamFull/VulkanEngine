@@ -38,7 +38,7 @@ ImguiOverlay::~ImguiOverlay()
 
 void ImguiOverlay::Create(std::shared_ptr<Scene::Objects::RenderObject> pRoot, vk::RenderPass& renderPass, uint32_t subpass)
 {
-    fontTexture = std::make_shared<Image>();
+    fontTexture = std::make_shared<CImage>();
     fontMaterial = std::make_shared<MaterialUI>();
     vertexBuffer = std::make_shared<VulkanBuffer>();
     indexBuffer = std::make_shared<VulkanBuffer>();
@@ -115,14 +115,14 @@ void ImguiOverlay::CreateFontResources(vk::RenderPass& renderPass, uint32_t subp
 
     vk::Format format;
     ktxTexture *texture;
-    bool result = Loaders::ImageLoader::AllocateRawDataAsKTXTexture(fontData, &texture, &format, texWidth, texHeight, 1, 2);
+    bool result = Loaders::CImageLoader::allocateRawDataAsKTXTexture(fontData, &texture, &format, texWidth, texHeight, 1, 2);
 
-    fontTexture->InitializeTexture(texture, format);
-    fontTexture->LoadFromMemory(texture, format);
+    fontTexture->initializeTexture(texture, format);
+    fontTexture->loadFromMemory(texture, format);
     fontMaterial->AddTexture("fontSampler", fontTexture);
     fontMaterial->Create(renderPass, subpass);
 
-    Loaders::ImageLoader::Close(&texture);
+    Loaders::CImageLoader::close(&texture);
 }
 
 void ImguiOverlay::NewFrame()

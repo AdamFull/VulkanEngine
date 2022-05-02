@@ -6,7 +6,6 @@
 #include "meshes/MeshFragment.h"
 #include "meshes/MeshFactory.h"
 //Old code in this includer, remove
-#include "graphics/image/TextureFactory.h"
 #include "materials/MaterialFactory.h"
 
 namespace Engine
@@ -41,7 +40,7 @@ namespace Engine
 
             /*******************************For texture****************************/
             template <>
-            void AddExisting<Core::Image>(std::string srResourceName, std::shared_ptr<Core::Image> pResource)
+            void AddExisting<Core::CImage>(std::string srResourceName, std::shared_ptr<Core::CImage> pResource)
             {
                 auto it = m_mTextures.find(srResourceName);
                 if (it != m_mTextures.end())
@@ -50,15 +49,16 @@ namespace Engine
             }
 
             template <>
-            std::shared_ptr<Core::Image> Add(FTextureCreateInfo info)
+            std::shared_ptr<Core::CImage> Add(FTextureCreateInfo info)
             {
-                std::shared_ptr<Core::Image> texture = Core::TextureFactory::Create(shared_from_this(), info);
+                std::shared_ptr<Core::CImage> texture = std::make_unique<Core::CImage>();
+                texture->loadFromFile(info.srSrc);
                 AddExisting(info.srName, texture);
                 return nullptr;
             }
 
             template <>
-            std::shared_ptr<Core::Image> Get(std::string srResourceName)
+            std::shared_ptr<Core::CImage> Get(std::string srResourceName)
             {
                 auto it = m_mTextures.find(srResourceName);
                 if (it != m_mTextures.end())
@@ -121,7 +121,7 @@ namespace Engine
             }
 
         private:
-            std::map<std::string, std::shared_ptr<Core::Image>> m_mTextures;
+            std::map<std::string, std::shared_ptr<Core::CImage>> m_mTextures;
             std::map<std::string, std::shared_ptr<Material::MaterialBase>> m_mMaterials;
             std::map<std::string, std::shared_ptr<Mesh::MeshFragment>> m_mMeshes;
         };

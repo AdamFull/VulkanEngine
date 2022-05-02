@@ -4,7 +4,6 @@
 #include "resources/meshes/MeshFactory.h"
 #include "resources/materials/MaterialFactory.h"
 #include "resources/meshes/loaders/GLTFLoader.h"
-#include "graphics/image/TextureFactory.h"
 
 #include "graphics/scene/objects/components/camera/CameraManager.h"
 #include "graphics/scene/objects/components/MeshComponentBase.h"

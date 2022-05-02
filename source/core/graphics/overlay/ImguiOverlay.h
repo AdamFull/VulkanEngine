@@ -12,7 +12,7 @@ namespace Engine
 
     namespace Core
     {
-        class Image;
+        class CImage;
         class VulkanBuffer;
         class UniformHandler;
 
@@ -57,7 +57,7 @@ namespace Engine
             void OnMonitorEvent(int monitor);
 
             std::shared_ptr<UniformHandler> m_pUniformHandle;
-            std::shared_ptr<Image> fontTexture;
+            std::shared_ptr<CImage> fontTexture;
             std::shared_ptr<Resources::Material::MaterialUI> fontMaterial;
             std::shared_ptr<VulkanBuffer> vertexBuffer;
             std::shared_ptr<VulkanBuffer> indexBuffer;

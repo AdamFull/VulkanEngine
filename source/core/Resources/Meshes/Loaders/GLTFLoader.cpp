@@ -481,7 +481,7 @@ void GLTFLoader::LoadMaterials(std::shared_ptr<Resources::ResourceManager> pResM
             return vTextures.at(index);
         }
         
-        return pResMgr->Get<Core::Image>("no_texture");
+        return pResMgr->Get<Core::CImage>("no_texture");
     };
 
     uint32_t material_index{0};
@@ -498,10 +498,6 @@ void GLTFLoader::LoadMaterials(std::shared_ptr<Resources::ResourceManager> pResM
         FMaterialParams params;
         std::shared_ptr<MaterialBase> nativeMaterial = std::make_shared<MaterialDiffuse>();
         nativeMaterial->SetName(ss.str());
-
-        //nativeMaterial->AddTexture(ETextureAttachmentType::eBRDFLUT, pResMgr->Get<Core::Image>(srVolumeName + "_brdf"));
-        //nativeMaterial->AddTexture(ETextureAttachmentType::eIrradiance, pResMgr->Get<Core::Image>(srVolumeName + "_irradiate_cube"));
-        //nativeMaterial->AddTexture(ETextureAttachmentType::ePrefiltred, pResMgr->Get<Core::Image>(srVolumeName + "_prefiltred_cube"));
 
         nativeMaterial->AddTexture("color_tex", get_texture(mat.values, "baseColorTexture"));
         nativeMaterial->AddTexture("metalRough_tex", get_texture(mat.values, "metallicRoughnessTexture"));
@@ -565,7 +561,7 @@ void GLTFLoader::LoadTextures(std::shared_ptr<ResourceManager> pResMgr, const ti
     }
 }
 
-std::shared_ptr<Image> GLTFLoader::LoadTexture(const tinygltf::Image &image, std::string path)
+std::shared_ptr<CImage> GLTFLoader::LoadTexture(const tinygltf::Image &image, std::string path)
 {
     bool isKtx = false;
     // Image points to an external ktx file
@@ -577,14 +573,14 @@ std::shared_ptr<Image> GLTFLoader::LoadTexture(const tinygltf::Image &image, std
 
     vk::Format format;
     ktxTexture *texture;
-    auto nativeTexture = std::make_shared<Image>();
+    auto nativeTexture = std::make_shared<CImage>();
     //nativeTexture->SetName(image.name);
     // nativeTexture->LoadFromMemory();
 
     if (!isKtx)
     {
         auto isAlbedo = image.name.find("albedo") != std::string::npos;
-        ImageLoader::AllocateRawDataAsKTXTexture(&texture, &format, image.width, image.height, 1, 2, isAlbedo ? GL_SRGB8_ALPHA8 : GL_RGBA8, true);
+        CImageLoader::allocateRawDataAsKTXTexture(&texture, &format, image.width, image.height, 1, 2, isAlbedo ? GL_SRGB8_ALPHA8 : GL_RGBA8, true);
         vk::DeviceSize bufferSize = 0;
         bool deleteBuffer = false;
         if (image.component == 3)
@@ -619,10 +615,10 @@ std::shared_ptr<Image> GLTFLoader::LoadTexture(const tinygltf::Image &image, std
     else
     {
         std::string srTexturePath = path + "/" + image.uri;
-        ImageLoader::Load(srTexturePath.c_str(), &texture, &format);
+        CImageLoader::load(srTexturePath.c_str(), &texture, &format);
     }
-    nativeTexture->LoadFromMemory(texture, format);
-    ImageLoader::Close(&texture);
+    nativeTexture->loadFromMemory(texture, format);
+    CImageLoader::close(&texture);
 
     return nativeTexture;
 }

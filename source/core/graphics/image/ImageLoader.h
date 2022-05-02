@@ -8,18 +8,18 @@ namespace Engine
     {
         namespace Loaders
         {
-            struct ImageLoader
+            struct CImageLoader
             {
             public:
-                static bool Load(char const *filename, ktxTexture **target, vk::Format *format);
-                static void Close(ktxTexture **target);
-                static bool AllocateRawDataAsKTXTexture(unsigned char *data, ktxTexture **target, vk::Format *format, uint32_t width, uint32_t height, uint32_t depth, uint32_t dims, uint32_t overrideFormat = GL_SRGB8_ALPHA8, bool calcMips = false);
-                static bool AllocateRawDataAsKTXTextureCubemap(ktxTexture **target, vk::Format *format, uint32_t width, uint32_t height, uint32_t depth, uint32_t dims, uint32_t overrideFormat = GL_SRGB8_ALPHA8, bool calcMips = false);
-                static bool AllocateRawDataAsKTXTexture(ktxTexture **target, vk::Format *format, uint32_t width, uint32_t height, uint32_t depth, uint32_t dims, uint32_t overrideFormat = GL_SRGB8_ALPHA8, bool calcMips = false);
+                static bool load(char const *filename, ktxTexture **target, vk::Format *format);
+                static void close(ktxTexture **target);
+                static bool allocateRawDataAsKTXTexture(unsigned char *data, ktxTexture **target, vk::Format *format, uint32_t width, uint32_t height, uint32_t depth, uint32_t dims, uint32_t overrideFormat = GL_SRGB8_ALPHA8, bool calcMips = false);
+                static bool allocateRawDataAsKTXTextureCubemap(ktxTexture **target, vk::Format *format, uint32_t width, uint32_t height, uint32_t depth, uint32_t dims, uint32_t overrideFormat = GL_SRGB8_ALPHA8, bool calcMips = false);
+                static bool allocateRawDataAsKTXTexture(ktxTexture **target, vk::Format *format, uint32_t width, uint32_t height, uint32_t depth, uint32_t dims, uint32_t overrideFormat = GL_SRGB8_ALPHA8, bool calcMips = false);
 
             private:
-                static bool LoadSTB(char const *filename, ktxTexture **target, vk::Format *format);
-                static bool LoadKTX(char const *filename, ktxTexture **target, vk::Format *format);
+                static bool loadSTB(char const *filename, ktxTexture **target, vk::Format *format);
+                static bool loadKTX(char const *filename, ktxTexture **target, vk::Format *format);
             };
         }
     }

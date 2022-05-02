@@ -41,12 +41,12 @@ void CFramebuffer::create(vk::RenderPass& renderPass, vk::Extent2D extent)
                 {
                     auto image = createImage(attachment.format, attachment.usageFlags, extent);
                     mImages[frame].emplace(attachment.name, image);
-                    imageViews.push_back(image->GetDescriptor().imageView);
+                    imageViews.push_back(image->getDescriptor().imageView);
                 }
             }
         }
 
-        imageViews.push_back(pDepth->GetDescriptor().imageView);
+        imageViews.push_back(pDepth->getDescriptor().imageView);
 
         vk::FramebufferCreateInfo framebufferCI = {};
         framebufferCI.pNext = nullptr;
@@ -80,12 +80,12 @@ void CFramebuffer::addImage(const std::string& name, vk::Format format, vk::Imag
     attachments.emplace_back(FTextureAttachmentInfo{name, format, usageFlags});
 }
 
-std::shared_ptr<Image> CFramebuffer::createImage(vk::Format format, vk::ImageUsageFlags usageFlags, vk::Extent2D extent)
+std::shared_ptr<CImage> CFramebuffer::createImage(vk::Format format, vk::ImageUsageFlags usageFlags, vk::Extent2D extent)
 {
-    auto texture = std::make_shared<Image>();
+    auto texture = std::make_shared<CImage>();
     ktxTexture *offscreen;
     vk::Format imageFormat;
-    Loaders::ImageLoader::AllocateRawDataAsKTXTexture(&offscreen, &imageFormat, extent.width, extent.height, 1, 2, VulkanStaticHelper::VkFormatToGLFormat(format));
+    Loaders::CImageLoader::allocateRawDataAsKTXTexture(&offscreen, &imageFormat, extent.width, extent.height, 1, 2, VulkanStaticHelper::VkFormatToGLFormat(format));
 
     vk::ImageAspectFlags aspectMask{};
     vk::ImageLayout imageLayout{};
@@ -101,12 +101,13 @@ std::shared_ptr<Image> CFramebuffer::createImage(vk::Format format, vk::ImageUsa
         imageLayout = vk::ImageLayout::eDepthStencilAttachmentOptimal;
     }
 
-    texture->InitializeTexture(offscreen, imageFormat, usageFlags, aspectMask);
+    texture->initializeTexture(offscreen, imageFormat, usageFlags, aspectMask);
+    Loaders::CImageLoader::close(&offscreen);
     /*if(usageFlags & vk::ImageUsageFlagBits::eDepthStencilAttachment)
         texture->TransitionImageLayout(imageLayout, aspectMask, false);
     else*/
-        texture->SetImageLayout(imageLayout);
+        texture->setImageLayout(imageLayout);
 
-    texture->UpdateDescriptor();
+    texture->updateDescriptor();
     return texture;
 }

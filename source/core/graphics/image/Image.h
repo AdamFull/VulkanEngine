@@ -7,96 +7,96 @@ namespace Engine
 {
     namespace Core
     {
-        class Image
+        class CImage
         {
         public:
-            Image() = default;
-            virtual ~Image();
+            CImage() = default;
+            virtual ~CImage();
 
-            void UpdateDescriptor();
-            void SetSampler(vk::Sampler& internalSampler);
+            void updateDescriptor();
+            void setSampler(vk::Sampler& internalSampler);
 
-            void SetImage(vk::Image& image);
-            void SetView(vk::ImageView& view);
+            void setImage(vk::Image& image);
+            void setView(vk::ImageView& view);
 
-            void CreateEmptyTexture(uint32_t width, uint32_t height, uint32_t depth, uint32_t dims, uint32_t internalFormat, bool allocate_mem = true);
-            void InitializeTexture(ktxTexture *info, vk::Format format, 
+            void createEmptyTexture(uint32_t width, uint32_t height, uint32_t depth, uint32_t dims, uint32_t internalFormat, bool allocate_mem = true);
+            void initializeTexture(ktxTexture *info, vk::Format format, 
             vk::ImageUsageFlags flags = vk::ImageUsageFlagBits::eTransferSrc | vk::ImageUsageFlagBits::eTransferDst | vk::ImageUsageFlagBits::eSampled, 
             vk::ImageAspectFlags aspect = vk::ImageAspectFlagBits::eColor);
 
-            static vk::Format FindSupportedFormat(const std::vector<vk::Format> &candidates, vk::ImageTiling tiling, vk::FormatFeatureFlags features);
-            static vk::Format GetDepthFormat();
+            static vk::Format findSupportedFormat(const std::vector<vk::Format> &candidates, vk::ImageTiling tiling, vk::FormatFeatureFlags features);
+            static vk::Format getDepthFormat();
 
-            static void CreateImage(vk::Image &image, vk::DeviceMemory &memory, vk::ImageCreateInfo createInfo, vk::MemoryPropertyFlags properties);
-            static void TransitionImageLayout(vk::Image &image, std::vector<vk::ImageMemoryBarrier>& vBarriers, vk::ImageLayout oldLayout, vk::ImageLayout newLayout);
-            static void TransitionImageLayout(vk::CommandBuffer& internalBuffer, vk::Image &image, std::vector<vk::ImageMemoryBarrier>& vBarriers, vk::ImageLayout oldLayout, vk::ImageLayout newLayout);
-            static void CopyBufferToImage(vk::Buffer &buffer, vk::Image &image, std::vector<vk::BufferImageCopy> vRegions);
-            static void CopyTo(vk::CommandBuffer& commandBuffer, vk::Image& src, vk::Image& dst, vk::ImageLayout srcLayout, vk::ImageLayout dstLayout, vk::ImageCopy& region);
-            static vk::ImageView CreateImageView(vk::Image &pImage, vk::ImageViewCreateInfo viewInfo);
-            static void CreateSampler(vk::Sampler &sampler, uint32_t mip_levels, vk::SamplerAddressMode eAddressMode, vk::Filter magFilter = vk::Filter::eLinear);
+            static void createImage(vk::Image &image, vk::DeviceMemory &memory, vk::ImageCreateInfo createInfo, vk::MemoryPropertyFlags properties);
+            static void transitionImageLayout(vk::Image &image, std::vector<vk::ImageMemoryBarrier>& vBarriers, vk::ImageLayout oldLayout, vk::ImageLayout newLayout);
+            static void transitionImageLayout(vk::CommandBuffer& internalBuffer, vk::Image &image, std::vector<vk::ImageMemoryBarrier>& vBarriers, vk::ImageLayout oldLayout, vk::ImageLayout newLayout);
+            static void copyBufferToImage(vk::Buffer &buffer, vk::Image &image, std::vector<vk::BufferImageCopy> vRegions);
+            static void copyTo(vk::CommandBuffer& commandBuffer, vk::Image& src, vk::Image& dst, vk::ImageLayout srcLayout, vk::ImageLayout dstLayout, vk::ImageCopy& region);
+            static vk::ImageView createImageView(vk::Image &pImage, vk::ImageViewCreateInfo viewInfo);
+            static void createSampler(vk::Sampler &sampler, uint32_t mip_levels, vk::SamplerAddressMode eAddressMode, vk::Filter magFilter = vk::Filter::eLinear);
 
-            static bool IsSupportedDimension(ktxTexture *info);
+            static bool isSupportedDimension(ktxTexture *info);
 
-            void TransitionImageLayout(vk::ImageLayout newLayout, vk::ImageAspectFlags aspectFlags, bool use_mips = true);
-            void TransitionImageLayout(vk::CommandBuffer& commandBuffer, vk::ImageLayout newLayout, vk::ImageAspectFlags aspectFlags, bool use_mips = true, uint32_t base_mip = 0);
-            void TransitionImageLayout(vk::CommandBuffer& commandBuffer, vk::ImageLayout oldLayout, vk::ImageLayout newLayout, vk::ImageAspectFlags aspectFlags, bool use_mips = true, uint32_t base_mip = 0);
-            void BlitImage(vk::CommandBuffer& commandBuffer, vk::ImageLayout dstLayout, vk::ImageAspectFlags aspectFlags, uint32_t level, int32_t mipWidth, int32_t mipHeight);
-            void CopyImageToDst(vk::CommandBuffer& commandBuffer, std::shared_ptr<Image> m_pDst, vk::ImageCopy& region, vk::ImageLayout dstLayout);
+            void transitionImageLayout(vk::ImageLayout newLayout, vk::ImageAspectFlags aspectFlags, bool use_mips = true);
+            void transitionImageLayout(vk::CommandBuffer& commandBuffer, vk::ImageLayout newLayout, vk::ImageAspectFlags aspectFlags, bool use_mips = true, uint32_t base_mip = 0);
+            void transitionImageLayout(vk::CommandBuffer& commandBuffer, vk::ImageLayout oldLayout, vk::ImageLayout newLayout, vk::ImageAspectFlags aspectFlags, bool use_mips = true, uint32_t base_mip = 0);
+            void blitImage(vk::CommandBuffer& commandBuffer, vk::ImageLayout dstLayout, vk::ImageAspectFlags aspectFlags, uint32_t level, int32_t mipWidth, int32_t mipHeight);
+            void copyImageToDst(vk::CommandBuffer& commandBuffer, std::shared_ptr<CImage> m_pDst, vk::ImageCopy& region, vk::ImageLayout dstLayout);
 
 
-            void WriteImageData(ktxTexture *info, vk::Format format, vk::ImageAspectFlags aspect = vk::ImageAspectFlagBits::eColor);
-            void LoadFromFile(std::string srPath);
-            void LoadFromMemory(ktxTexture *info, vk::Format format);
+            void writeImageData(ktxTexture *info, vk::Format format, vk::ImageAspectFlags aspect = vk::ImageAspectFlagBits::eColor);
+            void loadFromFile(std::string srPath);
+            void loadFromMemory(ktxTexture *info, vk::Format format);
 
-            void SetImageLayout(vk::ImageLayout m_layout);
+            void setImageLayout(vk::ImageLayout layout);
 
-            vk::Image& GetImage() { return m_image; }
-            const vk::DeviceMemory& GetMemory() const { return m_deviceMemory; }
-            const vk::ImageView& GetView() const { return m_view; }
-            const vk::Sampler& GetSampler() const { return m_sampler; }
+            vk::Image& getImage() { return _image; }
+            const vk::DeviceMemory& getMemory() const { return _deviceMemory; }
+            const vk::ImageView& getView() const { return _view; }
+            const vk::Sampler& getSampler() const { return _sampler; }
 
-            vk::DescriptorImageInfo &GetDescriptor() { return m_descriptor; }
+            vk::DescriptorImageInfo &getDescriptor() { return _descriptor; }
 
-            const vk::Extent3D& GetExtent() const { return m_extent; }
-            vk::SampleCountFlagBits GetSamples() const { return m_samples; }
-            vk::ImageUsageFlags GetUsage() const { return m_usage; }
-            uint32_t GetMipLevels() const { return m_mipLevels; }
-            uint32_t GetInstanceCount() const { return m_instCount; }
-            uint32_t GetLayerCount() const { return m_layerCount; }
-            vk::Format GetFormat() const { return m_format; }
+            const vk::Extent3D& getExtent() const { return _extent; }
+            vk::SampleCountFlagBits getSamples() const { return _samples; }
+            vk::ImageUsageFlags getUsage() const { return _usage; }
+            uint32_t getMipLevels() const { return _mipLevels; }
+            uint32_t getInstanceCount() const { return _instCount; }
+            uint32_t getLayerCount() const { return _layerCount; }
+            vk::Format getFormat() const { return _format; }
 
-            vk::Filter GetFilter() const { return m_filter; }
-            vk::SamplerAddressMode GetAddressMode() const { return m_addressMode; }
-            vk::ImageLayout GetImageLayout() const { return m_imageLayout; }
+            vk::Filter getFilter() const { return _filter; }
+            vk::SamplerAddressMode getAddressMode() const { return _addressMode; }
+            vk::ImageLayout getImageLayout() const { return _imageLayout; }
 
 
         protected:
-            virtual void GenerateMipmaps(vk::Image &image, uint32_t mipLevels, vk::Format format, uint32_t width, uint32_t height, vk::ImageAspectFlags aspectFlags);
-            static vk::ImageType TypeFromKtx(uint32_t type);
+            virtual void generateMipmaps(vk::Image &image, uint32_t mipLevels, vk::Format format, uint32_t width, uint32_t height, vk::ImageAspectFlags aspectFlags);
+            static vk::ImageType typeFromKtx(uint32_t type);
 
-            vk::Image m_image{VK_NULL_HANDLE};
-            vk::DeviceMemory m_deviceMemory{VK_NULL_HANDLE};
-            vk::ImageView m_view{VK_NULL_HANDLE};
-            vk::Sampler m_sampler{VK_NULL_HANDLE};
+            vk::Image _image{VK_NULL_HANDLE};
+            vk::DeviceMemory _deviceMemory{VK_NULL_HANDLE};
+            vk::ImageView _view{VK_NULL_HANDLE};
+            vk::Sampler _sampler{VK_NULL_HANDLE};
 
-            vk::DescriptorImageInfo m_descriptor;
-            bool m_bUsingInternalSampler{false};
+            vk::DescriptorImageInfo _descriptor;
+            bool _bUsingInternalSampler{false};
 
-            vk::Extent3D m_extent;
-            vk::SampleCountFlagBits m_samples;
-	        vk::ImageUsageFlags m_usage;
-            uint32_t m_mipLevels;
-            uint32_t m_instCount;
-            uint32_t m_layerCount;
-            vk::Format m_format;
+            vk::Extent3D _extent;
+            vk::SampleCountFlagBits _samples;
+	        vk::ImageUsageFlags _usage;
+            uint32_t _mipLevels;
+            uint32_t _instCount;
+            uint32_t _layerCount;
+            vk::Format _format;
 
-            vk::Filter m_filter{vk::Filter::eLinear};
-	        vk::SamplerAddressMode m_addressMode;
-            vk::ImageLayout m_imageLayout{vk::ImageLayout::eUndefined};
+            vk::Filter _filter{vk::Filter::eLinear};
+	        vk::SamplerAddressMode _addressMode;
+            vk::ImageLayout _imageLayout{vk::ImageLayout::eUndefined};
         };
 
-        using Image2D = Image;
-        using Image2DArray = Image;
-        using ImageCubemap = Image;
+        using CImage2D = CImage;
+        using CImage2DArray = CImage;
+        using CImageCubemap = CImage;
     }
 }

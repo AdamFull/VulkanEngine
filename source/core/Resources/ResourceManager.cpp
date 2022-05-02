@@ -11,8 +11,8 @@ namespace Engine
     {
         void ResourceManager::Create()
         {
-            std::shared_ptr<Image> pEmptyTexture = std::make_shared<Image>();
-            pEmptyTexture->CreateEmptyTexture(512, 512, 1, 2, 0x8C43);
+            std::shared_ptr<CImage> pEmptyTexture = std::make_shared<CImage>();
+            pEmptyTexture->createEmptyTexture(512, 512, 1, 2, 0x8C43);
             AddExisting("no_texture", pEmptyTexture);
         }
 
@@ -30,7 +30,7 @@ namespace Engine
             res_json.at("meshes").get_to(vMeshes);
 
             for (auto texture : vTextures)
-                Add<Image>(texture);
+                Add<CImage>(texture);
 
             for (auto material : vMaterials)
                 Add<MaterialBase>(material);

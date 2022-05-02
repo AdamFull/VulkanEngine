@@ -180,7 +180,7 @@ void SwapChain::CreateSwapChainImageViews()
         viewInfo.subresourceRange.baseArrayLayer = 0;
         viewInfo.subresourceRange.layerCount = 1;
 
-        m_vImageViews[i] = Image::CreateImageView(m_vImages[i], viewInfo);
+        m_vImageViews[i] = CImage::createImageView(m_vImages[i], viewInfo);
     }
 }
 

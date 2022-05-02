@@ -1,0 +1,77 @@
+{
+    "materials":
+    {
+        "default":
+        {
+            "culling": "back",
+            "frontface": "counterClockwise",
+            "depth": true,
+            "dynamicStates": ["viewport", "scissor"],
+            "stages": [
+                "assets/shaders/main/diffuse.vert", 
+                "assets/shaders/main/diffuse.frag"
+            ],
+            "defines": []
+        },
+        "pbr_composition": 
+        {
+            "culling": "front",
+            "frontface": "counterClockwise",
+            "depth": false,
+            "dynamicStates": ["viewport", "scissor"],
+            "stages": [
+                "assets/shaders/main/screenspace.vert", 
+                "assets/shaders/main/deferred.frag"
+            ],
+            "defines": []
+        },
+        "gaussian_blir": 
+        {
+            "culling": "front",
+            "frontface": "counterClockwise",
+            "depth": false,
+            "dynamicStates": ["viewport", "scissor"],
+            "stages": [
+                "assets/shaders/main/screenspace.vert", 
+                "assets/shaders/postprocess/gaussianblur.frag"
+            ],
+            "defines": []
+        },
+        "skybox": 
+        {
+            "culling": "front",
+            "frontface": "counterClockwise",
+            "depth": false,
+            "dynamicStates": ["viewport", "scissor"],
+            "stages": [
+                "assets/shaders/main/skybox.vert", 
+                "assets/shaders/main/skybox.frag"
+            ],
+            "defines": []
+        },
+        "post_process": 
+        {
+            "culling": "front",
+            "frontface": "counterClockwise",
+            "depth": false,
+            "dynamicStates": ["viewport", "scissor"],
+            "stages": [
+                "assets/shaders/main/screenspace.vert", 
+                "assets/shaders/postprocess/bloomcompose.frag"
+            ],
+            "defines": []
+        },
+        "imguiui": 
+        {
+            "culling": "none",
+            "frontface": "counterClockwise",
+            "depth": false,
+            "dynamicStates": ["viewport", "scissor"],
+            "stages": [
+                "assets/shaders/main/ui.vert", 
+                "assets/shaders/main/ui.frag"
+            ],
+            "defines": []
+        }
+    }
+}

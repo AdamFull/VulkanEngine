@@ -13,8 +13,8 @@ MaterialBase::~MaterialBase()
 void MaterialBase::Create(vk::RenderPass& renderPass, uint32_t subpass)
 {
     uint32_t images = USwapChain->GetImages().size();
-    m_pDescriptorSet = std::make_unique<DescriptorHandler>();
-    m_pDescriptorSet->Create(m_pPipeline);
+    m_pDescriptorSet = std::make_unique<CDescriptorHandler>();
+    m_pDescriptorSet->create(m_pPipeline);
 }
 
 void MaterialBase::AddTexture(const std::string& attachment, vk::DescriptorImageInfo& descriptor)
@@ -39,12 +39,12 @@ void MaterialBase::ReCreate()
 
 void MaterialBase::Update(vk::DescriptorBufferInfo& uboDesc, uint32_t imageIndex)
 {
-    m_pDescriptorSet->Update(imageIndex);
+    m_pDescriptorSet->update(imageIndex);
 }
 
 void MaterialBase::Bind(vk::CommandBuffer commandBuffer, uint32_t imageIndex)
 {
-    m_pDescriptorSet->Bind(commandBuffer, imageIndex);
+    m_pDescriptorSet->bind(commandBuffer, imageIndex);
     m_pPipeline->bind(commandBuffer);
 }
 

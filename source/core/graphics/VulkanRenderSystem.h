@@ -24,7 +24,7 @@ namespace Engine
             vk::CommandBuffer& beginFrame();
             vk::Result endFrame();
 
-            std::shared_ptr<CommandBuffer> commandBuffers;
+            std::shared_ptr<CCommandBuffer> commandBuffers;
             uint32_t imageIndex{0};
             bool frameStarted{false};
             vk::Extent2D screenExtent{};

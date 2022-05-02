@@ -5,11 +5,11 @@ namespace Engine
 {
     namespace Core
     {
-        class CommandBuffer
+        class CCommandBuffer
         {
         public:
-            explicit CommandBuffer(bool _begin = true, vk::QueueFlagBits queueType = vk::QueueFlagBits::eGraphics, vk::CommandBufferLevel bufferLevel = vk::CommandBufferLevel::ePrimary, uint32_t count = 1);
-            ~CommandBuffer();
+            explicit CCommandBuffer(bool _begin = true, vk::QueueFlagBits queueType = vk::QueueFlagBits::eGraphics, vk::CommandBufferLevel bufferLevel = vk::CommandBufferLevel::ePrimary, uint32_t count = 1);
+            ~CCommandBuffer();
 
             void begin(vk::CommandBufferUsageFlags usage = vk::CommandBufferUsageFlagBits::eOneTimeSubmit, uint32_t index = 0);
             void end();
@@ -20,13 +20,13 @@ namespace Engine
 
             operator const vk::CommandBuffer &() const { return vCommandBuffers.at(frameIndex); }
 
-            vk::CommandBuffer &GetCommandBuffer() { return vCommandBuffers.at(frameIndex); }
-            bool IsRunning() const { return running; }
+            vk::CommandBuffer &getCommandBuffer() { return vCommandBuffers.at(frameIndex); }
+            bool isRunning() const { return running; }
         private:
-            vk::Queue GetQueue() const;
+            vk::Queue getQueue() const;
             uint32_t frameIndex{0};
 
-            std::shared_ptr<CommandPool> commandPool;
+            std::shared_ptr<CCommandPool> commandPool;
 
             vk::QueueFlagBits queueType;
             std::vector<vk::CommandBuffer, std::allocator<vk::CommandBuffer>> vCommandBuffers;

@@ -11,7 +11,7 @@ namespace Engine
     }
     namespace Core
     {
-        class UniformBuffer;
+        class CUniformBuffer;
         namespace Render
         {
             struct FRenderCreateInfo
@@ -40,7 +40,9 @@ namespace Engine
                 virtual void create(std::unique_ptr<FRenderCreateInfo>& createInfo) {}
                 virtual void render(std::unique_ptr<FRenderProcessInfo>& renderData) {}
                 virtual void cleanup() {}
-            private:
+            protected:
+                std::shared_ptr<CUniformBuffer> pUniform;
+                std::shared_ptr<Resources::Material::MaterialBase> pMaterial;
             };
         }
     }

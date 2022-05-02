@@ -27,10 +27,10 @@ void MaterialDeferred::ReCreate()
 
 void MaterialDeferred::Update(vk::DescriptorBufferInfo& uboDesc, uint32_t imageIndex)
 {
-    m_pDescriptorSet->Clear();
-    m_pDescriptorSet->Set("UBOLightning", uboDesc);
+    m_pDescriptorSet->clear();
+    m_pDescriptorSet->set("UBOLightning", uboDesc);
     for(auto& [key, texture] : m_mTextures)
-        m_pDescriptorSet->Set(key, texture); //"brdflut_tex", "irradiance_tex", "prefiltred_tex", "position_tex", "lightning_mask_tex", "normal_tex", "albedo_tex", "emission_tex", "mrah_tex"
+        m_pDescriptorSet->set(key, texture); //"brdflut_tex", "irradiance_tex", "prefiltred_tex", "position_tex", "lightning_mask_tex", "normal_tex", "albedo_tex", "emission_tex", "mrah_tex"
     MaterialBase::Update(uboDesc, imageIndex);
 }
 

@@ -2,55 +2,55 @@
 
 using namespace Engine::Core;
 
-UniformBuffer::~UniformBuffer()
+CUniformBuffer::~CUniformBuffer()
 {
 
 }
 
-void UniformBuffer::Create(uint32_t inFlightFrames, size_t uniform_size)
+void CUniformBuffer::create(uint32_t inFlightFrames, size_t uniform_size)
 {
-    m_iUniformSize = uniform_size;
-    CreateUniformBuffers(inFlightFrames);
+    iUniformSize = uniform_size;
+    createUniformBuffers(inFlightFrames);
 }
 
-void UniformBuffer::ReCreate(uint32_t inFlightFrames)
+void CUniformBuffer::reCreate(uint32_t inFlightFrames)
 {
-    Create(inFlightFrames, m_iUniformSize);
+    create(inFlightFrames, iUniformSize);
 }
 
-void UniformBuffer::Cleanup()
+void CUniformBuffer::cleanup()
 {
-    m_pBuffers.clear();
+    vBuffers.clear();
 }
-void UniformBuffer::UpdateUniformBuffer(uint32_t index, void *ubo)
+void CUniformBuffer::updateUniformBuffer(uint32_t index, void *ubo)
 {
-    m_pBuffers[index]->Write(ubo);
-    m_pBuffers[index]->Flush();
+    vBuffers[index]->Write(ubo);
+    vBuffers[index]->Flush();
 }
 
-void UniformBuffer::CreateUniformBuffers(uint32_t inFlightFrames)
+void CUniformBuffer::createUniformBuffers(uint32_t inFlightFrames)
 {
-    m_pBuffers.resize(inFlightFrames);
+    vBuffers.resize(inFlightFrames);
 
     auto physProps = UDevice->GetPhysical().getProperties();
     auto minOffsetAllignment = std::lcm(physProps.limits.minUniformBufferOffsetAlignment, physProps.limits.nonCoherentAtomSize);
     for (size_t i = 0; i < inFlightFrames; i++)
     {
         auto uniform = std::make_unique<VulkanBuffer>();
-        uniform->Create(m_iUniformSize, 1, vk::BufferUsageFlagBits::eUniformBuffer,
+        uniform->Create(iUniformSize, 1, vk::BufferUsageFlagBits::eUniformBuffer,
                         vk::MemoryPropertyFlagBits::eHostVisible | vk::MemoryPropertyFlagBits::eHostCoherent, minOffsetAllignment);
         uniform->MapMem();
 
-        m_pBuffers[i] = std::move(uniform);
+        vBuffers[i] = std::move(uniform);
     }
 }
 
-std::vector<std::unique_ptr<VulkanBuffer>> &UniformBuffer::GetUniformBuffers()
+std::vector<std::unique_ptr<VulkanBuffer>> &CUniformBuffer::getUniformBuffers()
 {
-    return m_pBuffers;
+    return vBuffers;
 }
 
-std::unique_ptr<VulkanBuffer> &UniformBuffer::GetUniformBuffer(uint32_t index)
+std::unique_ptr<VulkanBuffer> &CUniformBuffer::getUniformBuffer(uint32_t index)
 {
-    return m_pBuffers[index];
+    return vBuffers[index];
 }

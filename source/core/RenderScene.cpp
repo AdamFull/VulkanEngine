@@ -51,7 +51,7 @@ void RenderScene::AttachObject(std::shared_ptr<Core::Scene::Objects::RenderObjec
 
 void RenderScene::CreateObjects()
 {
-    UVBO->Create();
+    UVBO->create();
     URenderer->create(m_pResourceManager, m_pRoot);
 }
 

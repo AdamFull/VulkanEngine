@@ -12,15 +12,15 @@ using namespace Engine::Resources::Material;
 
 void CShadowPass::create(std::unique_ptr<FRenderCreateInfo>& createInfo)
 {
-    m_pMaterial = std::make_shared<MaterialShadow>();
+    pMaterial = std::make_shared<MaterialShadow>();
     CSubpass::create(createInfo);
 }
 
 void CShadowPass::render(std::unique_ptr<FRenderProcessInfo>& renderData)
 {
     auto imageIndex = USwapChain->GetCurrentFrame();
-    UVBO->Bind(renderData->commandBuffer);
-    m_pMaterial->Bind(renderData->commandBuffer, imageIndex);
+    UVBO->bind(renderData->commandBuffer);
+    pMaterial->Bind(renderData->commandBuffer, imageIndex);
     renderData->root->Render(renderData->commandBuffer, imageIndex);
 }
 

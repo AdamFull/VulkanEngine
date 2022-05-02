@@ -54,9 +54,9 @@ void OverlayDebug::Draw()
         ImGui::DragFloat("blur_strength", &GlobalVariables::blurStrength, 0.001, 0.1, 1.0);
 
         ImGui::Text("VBO");
-        int vertices = UVBO->GetLastVertex();
+        int vertices = UVBO->getLastVertex();
         ImGui::InputInt("Vertices", &vertices);
-        int indices = UVBO->GetLastIndex();
+        int indices = UVBO->getLastIndex();
         ImGui::InputInt("Indices", &indices);
 
         ImGui::End();

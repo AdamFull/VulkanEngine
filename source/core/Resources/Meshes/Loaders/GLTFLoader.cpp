@@ -136,8 +136,8 @@ void GLTFLoader::LoadMeshFragment(std::shared_ptr<Resources::ResourceManager> pR
         if (primitive.indices < 0)
             continue;
 
-        uint32_t indexStart = UVBO->GetLastIndex();
-        uint32_t vertexStart = UVBO->GetLastVertex();
+        uint32_t indexStart = UVBO->getLastIndex();
+        uint32_t vertexStart = UVBO->getLastVertex();
         uint32_t indexCount = 0;
         uint32_t vertexCount = 0;
         glm::vec3 posMin{};
@@ -319,7 +319,7 @@ void GLTFLoader::LoadMeshFragment(std::shared_ptr<Resources::ResourceManager> pR
 
         nativeMesh->AddPrimitive(std::move(modelPrim));
 
-        UVBO->AddMeshData(std::move(vertexBuffer), std::move(indexBuffer));
+        UVBO->addMeshData(std::move(vertexBuffer), std::move(indexBuffer));
     }
     sceneNode->m_pMesh = nativeMesh;
     pResMgr->AddExisting(nativeMesh->GetName(), nativeMesh);

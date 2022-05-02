@@ -29,10 +29,10 @@ void MaterialDiffuse::ReCreate()
 
 void MaterialDiffuse::Update(vk::DescriptorBufferInfo& uboDesc, uint32_t imageIndex)
 {
-    m_pDescriptorSet->Clear();
-    m_pDescriptorSet->Set("FUniformData", uboDesc);
+    m_pDescriptorSet->clear();
+    m_pDescriptorSet->set("FUniformData", uboDesc);
     for(auto& [key, texture] : m_mTextures)
-        m_pDescriptorSet->Set(key, texture); // "color_tex", "metalRough_tex", "emissive_tex", "normal_tex", "height_tex", "ao_tex"
+        m_pDescriptorSet->set(key, texture); // "color_tex", "metalRough_tex", "emissive_tex", "normal_tex", "height_tex", "ao_tex"
     MaterialBase::Update(uboDesc, imageIndex);
 }
 

@@ -28,8 +28,8 @@ using namespace Engine::Core::Scene::Objects::Components::Light;
 void CPBRCompositionPass::create(std::unique_ptr<FRenderCreateInfo>& createInfo)
 {
     auto framesInFlight = USwapChain->GetFramesInFlight();
-    m_pUniform = std::make_shared<UniformBuffer>();
-    m_pUniform->Create(framesInFlight, sizeof(FLightningData));
+    pUniform = std::make_shared<CUniformBuffer>();
+    pUniform->create(framesInFlight, sizeof(FLightningData));
 
     m_pSkybox = createInfo->resourceManager->Get<CImage>("skybox_cubemap_tex");
 
@@ -37,22 +37,22 @@ void CPBRCompositionPass::create(std::unique_ptr<FRenderCreateInfo>& createInfo)
     irradiance = UHLInstance->GetThreadPool()->submit(&CPBRCompositionPass::ComputeIrradiance, m_pSkybox, 64);
     prefiltered = UHLInstance->GetThreadPool()->submit(&CPBRCompositionPass::ComputePrefiltered, m_pSkybox, 512);
 
-    m_pMaterial = std::make_shared<MaterialDeferred>();
-    m_pMaterial->Create(createInfo->renderPass, createInfo->subpass);
+    pMaterial = std::make_shared<MaterialDeferred>();
+    pMaterial->Create(createInfo->renderPass, createInfo->subpass);
     CSubpass::create(createInfo);
 }
 
 void CPBRCompositionPass::render(std::unique_ptr<FRenderProcessInfo>& renderData)
 {
-    m_pMaterial->AddTexture("brdflut_tex", *brdf);
-    m_pMaterial->AddTexture("irradiance_tex", *irradiance);
-    m_pMaterial->AddTexture("prefiltred_tex", *prefiltered);
-    m_pMaterial->AddTexture("position_tex", renderData->images["position_tex"]);
-    m_pMaterial->AddTexture("lightning_mask_tex", renderData->images["lightning_mask_tex"]);
-    m_pMaterial->AddTexture("normal_tex", renderData->images["normal_tex"]);
-    m_pMaterial->AddTexture("albedo_tex", renderData->images["albedo_tex"]);
-    m_pMaterial->AddTexture("emission_tex", renderData->images["emission_tex"]);
-    m_pMaterial->AddTexture("mrah_tex", renderData->images["mrah_tex"]);
+    pMaterial->AddTexture("brdflut_tex", *brdf);
+    pMaterial->AddTexture("irradiance_tex", *irradiance);
+    pMaterial->AddTexture("prefiltred_tex", *prefiltered);
+    pMaterial->AddTexture("position_tex", renderData->images["position_tex"]);
+    pMaterial->AddTexture("lightning_mask_tex", renderData->images["lightning_mask_tex"]);
+    pMaterial->AddTexture("normal_tex", renderData->images["normal_tex"]);
+    pMaterial->AddTexture("albedo_tex", renderData->images["albedo_tex"]);
+    pMaterial->AddTexture("emission_tex", renderData->images["emission_tex"]);
+    pMaterial->AddTexture("mrah_tex", renderData->images["mrah_tex"]);
 
     auto imageIndex = USwapChain->GetCurrentFrame();
 
@@ -67,11 +67,11 @@ void CPBRCompositionPass::render(std::unique_ptr<FRenderProcessInfo>& renderData
     ubo.viewPos = camera->viewPos; //camera->viewPos
     ubo.bloomThreshold = GlobalVariables::bloomThreshold;
     
-    m_pUniform->UpdateUniformBuffer(imageIndex, &ubo);
-    auto& buffer = m_pUniform->GetUniformBuffer(imageIndex);
+    pUniform->updateUniformBuffer(imageIndex, &ubo);
+    auto& buffer = pUniform->getUniformBuffer(imageIndex);
     auto descriptor = buffer->GetDscriptor();
-    m_pMaterial->Update(descriptor, imageIndex);
-    m_pMaterial->Bind(renderData->commandBuffer, imageIndex);
+    pMaterial->Update(descriptor, imageIndex);
+    pMaterial->Bind(renderData->commandBuffer, imageIndex);
 
     renderData->commandBuffer.draw(3, 1, 0, 0);
 }
@@ -91,9 +91,9 @@ std::shared_ptr<CImage> CPBRCompositionPass::ComputeBRDFLUT(uint32_t size)
     brdfImage->transitionImageLayout(vk::ImageLayout::eGeneral, vk::ImageAspectFlagBits::eColor);
     brdfImage->updateDescriptor();
 
-    auto cmdBuf = CommandBuffer(true, vk::QueueFlagBits::eCompute);
-    auto commandBuffer = cmdBuf.GetCommandBuffer();
-    auto descriptor = Descriptor::DescriptorHandler();
+    auto cmdBuf = CCommandBuffer(true, vk::QueueFlagBits::eCompute);
+    auto commandBuffer = cmdBuf.getCommandBuffer();
+    auto descriptor = Descriptor::CDescriptorHandler();
 
     std::shared_ptr<Pipeline::CPipelineBase> computePipeline = Pipeline::CPipelineBase::Builder().
     addShaderStage("../../assets/shaders/generators/brdflut.comp").
@@ -101,10 +101,10 @@ std::shared_ptr<CImage> CPBRCompositionPass::ComputeBRDFLUT(uint32_t size)
 
     computePipeline->bind(commandBuffer);
 
-    descriptor.Create(computePipeline);
-    descriptor.Set("outColour", brdfImage->getDescriptor());
-    descriptor.Update(0);
-    descriptor.Bind(commandBuffer, 0);
+    descriptor.create(computePipeline);
+    descriptor.set("outColour", brdfImage->getDescriptor());
+    descriptor.update(0);
+    descriptor.bind(commandBuffer, 0);
     
     auto groupCountX = static_cast<uint32_t>(std::ceil(static_cast<float>(size) / static_cast<float>(*computePipeline->getShader()->getLocalSizes()[0])));
 	auto groupCountY = static_cast<uint32_t>(std::ceil(static_cast<float>(size) / static_cast<float>(*computePipeline->getShader()->getLocalSizes()[1])));
@@ -128,9 +128,9 @@ std::shared_ptr<CImage> CPBRCompositionPass::ComputeIrradiance(const std::shared
     irradianceCubemap->transitionImageLayout(vk::ImageLayout::eGeneral, vk::ImageAspectFlagBits::eColor);
     irradianceCubemap->updateDescriptor();
 
-    auto cmdBuf = CommandBuffer(true, vk::QueueFlagBits::eCompute);
-    auto commandBuffer = cmdBuf.GetCommandBuffer();
-    auto descriptor = Descriptor::DescriptorHandler();
+    auto cmdBuf = CCommandBuffer(true, vk::QueueFlagBits::eCompute);
+    auto commandBuffer = cmdBuf.getCommandBuffer();
+    auto descriptor = Descriptor::CDescriptorHandler();
     
     std::shared_ptr<Pipeline::CPipelineBase> computePipeline = Pipeline::CPipelineBase::Builder().
     addShaderStage("../../assets/shaders/generators/irradiancecube.comp").
@@ -138,11 +138,11 @@ std::shared_ptr<CImage> CPBRCompositionPass::ComputeIrradiance(const std::shared
 
     computePipeline->bind(commandBuffer);
 
-    descriptor.Create(computePipeline);
-    descriptor.Set("outColour", irradianceCubemap->getDescriptor());
-    descriptor.Set("samplerColour", source->getDescriptor());
-    descriptor.Update(0);
-    descriptor.Bind(commandBuffer, 0);
+    descriptor.create(computePipeline);
+    descriptor.set("outColour", irradianceCubemap->getDescriptor());
+    descriptor.set("samplerColour", source->getDescriptor());
+    descriptor.update(0);
+    descriptor.bind(commandBuffer, 0);
 
     auto groupCountX = static_cast<uint32_t>(std::ceil(static_cast<float>(size) / static_cast<float>(*computePipeline->getShader()->getLocalSizes()[0])));
 	auto groupCountY = static_cast<uint32_t>(std::ceil(static_cast<float>(size) / static_cast<float>(*computePipeline->getShader()->getLocalSizes()[1])));
@@ -166,8 +166,8 @@ std::shared_ptr<CImage> CPBRCompositionPass::ComputePrefiltered(const std::share
     prefilteredCubemap->transitionImageLayout(vk::ImageLayout::eGeneral, vk::ImageAspectFlagBits::eColor);
     prefilteredCubemap->updateDescriptor();
 
-    auto cmdBuf = CommandBuffer(true, vk::QueueFlagBits::eCompute);
-    auto descriptor = Descriptor::DescriptorHandler();
+    auto cmdBuf = CCommandBuffer(true, vk::QueueFlagBits::eCompute);
+    auto descriptor = Descriptor::CDescriptorHandler();
     auto push = PushHandler();
     
     std::shared_ptr<Pipeline::CPipelineBase> computePipeline = Pipeline::CPipelineBase::Builder().
@@ -189,7 +189,7 @@ std::shared_ptr<CImage> CPBRCompositionPass::ComputePrefiltered(const std::share
 		levelView = CImage::createImageView(prefilteredCubemap->getImage(), viewInfo);
 
         cmdBuf.begin();
-        auto commandBuffer = cmdBuf.GetCommandBuffer();
+        auto commandBuffer = cmdBuf.getCommandBuffer();
         computePipeline->bind(commandBuffer);
 
         auto imageInfo = prefilteredCubemap->getDescriptor();
@@ -205,11 +205,11 @@ std::shared_ptr<CImage> CPBRCompositionPass::ComputePrefiltered(const std::share
 
         push.Set("roughness", static_cast<float>(i) / static_cast<float>(prefilteredCubemap->getMipLevels() - 1), 0);
 
-        descriptor.Create(computePipeline);
-        descriptor.Set("outColour", descriptorWrite);
-        descriptor.Set("samplerColour", source->getDescriptor());
-        descriptor.Update(0);
-        descriptor.Bind(commandBuffer, USwapChain->GetCurrentFrame());
+        descriptor.create(computePipeline);
+        descriptor.set("outColour", descriptorWrite);
+        descriptor.set("samplerColour", source->getDescriptor());
+        descriptor.update(0);
+        descriptor.bind(commandBuffer, USwapChain->GetCurrentFrame());
         push.Flush(commandBuffer, computePipeline);
 
         auto groupCountX = static_cast<uint32_t>(std::ceil(static_cast<float>(size) / static_cast<float>(*computePipeline->getShader()->getLocalSizes()[0])));

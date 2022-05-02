@@ -72,7 +72,7 @@ namespace Engine
             /**************************************************Getters********************************************/
             inline vk::Instance &GetVkInstance() { return m_vkInstance; }
             inline vk::SurfaceKHR &GetSurface() { return m_surface; }
-            inline std::shared_ptr<CommandPool> GetCommandPool() { return m_pCommandPool; }
+            inline std::shared_ptr<CCommandPool> GetCommandPool() { return m_pCommandPool; }
 
             inline vk::PhysicalDevice GetPhysical() { return m_physical; }
             inline vk::Device &GetLogical() { return m_logical; }
@@ -280,7 +280,7 @@ namespace Engine
             vk::Instance m_vkInstance; // Main vulkan instance
             VkDebugUtilsMessengerEXT m_vkDebugUtils;
             vk::SurfaceKHR m_surface; // Vulkan's drawing surface
-            std::shared_ptr<CommandPool> m_pCommandPool{};
+            std::shared_ptr<CCommandPool> m_pCommandPool{};
 
             vk::PhysicalDevice m_physical;
             vk::Device m_logical;

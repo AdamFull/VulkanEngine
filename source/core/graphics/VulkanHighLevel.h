@@ -50,7 +50,7 @@ namespace Engine
             inline std::shared_ptr<SwapChain> GetSwapChain() { return m_pSwapChain; }
             inline std::shared_ptr<ImguiOverlay> GetOverlay() { return m_pOverlay; }
             inline std::shared_ptr<RenderSystem> GetRenderer() { return m_pRenderer; }
-            inline std::shared_ptr<VulkanVBO> GetVBO() { return m_pVertexBufferObject; }
+            inline std::shared_ptr<CVulkanVBO> GetVBO() { return m_pVertexBufferObject; }
             inline std::unique_ptr<utl::threadpool>& GetThreadPool() { return m_pThreadPool; }
 
             inline vk::PipelineCache& GetPipelineCache() { return m_pipelineCache; }
@@ -73,7 +73,7 @@ namespace Engine
 
             std::shared_ptr<RenderSystem> m_pRenderer;
 
-            std::shared_ptr<VulkanVBO> m_pVertexBufferObject;
+            std::shared_ptr<CVulkanVBO> m_pVertexBufferObject;
 
             vk::PipelineCache m_pipelineCache;
         };

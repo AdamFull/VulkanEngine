@@ -55,7 +55,7 @@ namespace Engine
             protected:
                 std::vector<std::shared_ptr<MeshFragment>> m_vFragments;
                 std::vector<FAnimation> m_vAnimations;
-                std::shared_ptr<Core::UniformBuffer> m_pUniformBuffer;
+                std::shared_ptr<Core::CUniformBuffer> m_pUniformBuffer;
                 std::string m_srName;
                 float fRepeat;
             };

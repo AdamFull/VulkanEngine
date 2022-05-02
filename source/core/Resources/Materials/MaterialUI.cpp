@@ -26,10 +26,10 @@ void MaterialUI::ReCreate()
 
 void MaterialUI::Update(vk::DescriptorBufferInfo& uboDesc, uint32_t imageIndex)
 {
-    m_pDescriptorSet->Clear();
-    m_pDescriptorSet->Set("FUniformDataUI", uboDesc);
+    m_pDescriptorSet->clear();
+    m_pDescriptorSet->set("FUniformDataUI", uboDesc);
     for(auto& [key, texture] : m_mTextures)
-        m_pDescriptorSet->Set(key, texture); //"fontSampler"
+        m_pDescriptorSet->set(key, texture); //"fontSampler"
     MaterialBase::Update(uboDesc, imageIndex);
 }
 

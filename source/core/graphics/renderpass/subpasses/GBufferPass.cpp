@@ -17,7 +17,7 @@ void CGBufferPass::create(std::unique_ptr<FRenderCreateInfo>& createInfo)
 void CGBufferPass::render(std::unique_ptr<FRenderProcessInfo>& renderData)
 {
     auto imageIndex = USwapChain->GetCurrentFrame();
-    UVBO->Bind(renderData->commandBuffer);
+    UVBO->bind(renderData->commandBuffer);
     renderData->root->Render(renderData->commandBuffer, imageIndex);
 }
 

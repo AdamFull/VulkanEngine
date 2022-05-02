@@ -79,7 +79,7 @@ void Device::Create(const FDeviceCreateInfo& deviceCI)
     CreateDebugCallback(deviceCI);
     CreateSurface();
     CreateDevice(deviceCI);
-    m_pCommandPool = std::make_unique<CommandPool>();
+    m_pCommandPool = std::make_unique<CCommandPool>();
 }
 
 uint32_t Device::GetVulkanVersion()
@@ -326,8 +326,8 @@ void Device::CreateOnDeviceBuffer(vk::DeviceSize size, vk::BufferUsageFlags usag
 
 void Device::CopyOnDeviceBuffer(vk::Buffer srcBuffer, vk::Buffer dstBuffer, vk::DeviceSize size)
 {
-    auto cmdBuf = CommandBuffer(true, vk::QueueFlagBits::eTransfer);
-    auto commandBuffer = cmdBuf.GetCommandBuffer();
+    auto cmdBuf = CCommandBuffer(true, vk::QueueFlagBits::eTransfer);
+    auto commandBuffer = cmdBuf.getCommandBuffer();
 
     vk::BufferCopy copyRegion = {};
     copyRegion.srcOffset = 0; // Optional

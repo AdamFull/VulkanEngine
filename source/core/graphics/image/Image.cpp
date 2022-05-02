@@ -31,8 +31,8 @@ void CImage::generateMipmaps(vk::Image &image, uint32_t mipLevels, vk::Format fo
         throw std::runtime_error("Texture image format does not support linear blitting!");
     }
 
-    auto cmdBuf = CommandBuffer(true, vk::QueueFlagBits::eTransfer);
-    auto commandBuffer = cmdBuf.GetCommandBuffer();
+    auto cmdBuf = CCommandBuffer(true, vk::QueueFlagBits::eTransfer);
+    auto commandBuffer = cmdBuf.getCommandBuffer();
 
     int32_t mipWidth = width;
     int32_t mipHeight = height;
@@ -240,8 +240,8 @@ void CImage::createImage(vk::Image &image, vk::DeviceMemory &memory, vk::ImageCr
 
 void CImage::transitionImageLayout(vk::Image &image, std::vector<vk::ImageMemoryBarrier>& vBarriers, vk::ImageLayout oldLayout, vk::ImageLayout newLayout)
 {
-    auto cmdBuf = CommandBuffer(true, vk::QueueFlagBits::eTransfer);
-    auto commandBuffer = cmdBuf.GetCommandBuffer();
+    auto cmdBuf = CCommandBuffer(true, vk::QueueFlagBits::eTransfer);
+    auto commandBuffer = cmdBuf.getCommandBuffer();
 
     transitionImageLayout(commandBuffer, image, vBarriers, oldLayout, newLayout);
 
@@ -347,8 +347,8 @@ void CImage::transitionImageLayout(vk::CommandBuffer& internalBuffer, vk::Image 
 
 void CImage::copyBufferToImage(vk::Buffer &buffer, vk::Image &image, std::vector<vk::BufferImageCopy> vRegions)
 {
-    auto cmdBuf = CommandBuffer(true, vk::QueueFlagBits::eTransfer);
-    auto commandBuffer = cmdBuf.GetCommandBuffer();
+    auto cmdBuf = CCommandBuffer(true, vk::QueueFlagBits::eTransfer);
+    auto commandBuffer = cmdBuf.getCommandBuffer();
     commandBuffer.copyBufferToImage(buffer, image, vk::ImageLayout::eTransferDstOptimal, static_cast<uint32_t>(vRegions.size()), vRegions.data());
     cmdBuf.submitIdle();
 }
@@ -445,8 +445,8 @@ bool CImage::isSupportedDimension(ktxTexture *info)
 
 void CImage::transitionImageLayout(vk::ImageLayout newLayout, vk::ImageAspectFlags aspectFlags, bool use_mips)
 {
-    auto cmdBuf = CommandBuffer(true, vk::QueueFlagBits::eTransfer);
-    auto commandBuffer = cmdBuf.GetCommandBuffer();
+    auto cmdBuf = CCommandBuffer(true, vk::QueueFlagBits::eTransfer);
+    auto commandBuffer = cmdBuf.getCommandBuffer();
     transitionImageLayout(commandBuffer, _imageLayout, newLayout, aspectFlags, use_mips);
     cmdBuf.submitIdle();
 }

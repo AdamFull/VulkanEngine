@@ -13,7 +13,7 @@ RenderSystem::~RenderSystem()
 void RenderSystem::create(std::shared_ptr<Resources::ResourceManager> resourceManager, std::shared_ptr<Scene::Objects::RenderObject> root)
 {
     screenExtent = USwapChain->GetExtent();
-    commandBuffers = std::make_shared<CommandBuffer>(false, vk::QueueFlagBits::eGraphics, vk::CommandBufferLevel::ePrimary, USwapChain->GetFramesInFlight());
+    commandBuffers = std::make_shared<CCommandBuffer>(false, vk::QueueFlagBits::eGraphics, vk::CommandBufferLevel::ePrimary, USwapChain->GetFramesInFlight());
 
     //UOverlay->Create(root, renderPass->get(), renderPass->getSubpassCount() - 1);
 
@@ -31,7 +31,7 @@ void RenderSystem::create(std::shared_ptr<Resources::ResourceManager> resourceMa
 void RenderSystem::reCreate()
 {
     screenExtent = USwapChain->GetExtent();
-    commandBuffers = std::make_shared<CommandBuffer>(false, vk::QueueFlagBits::eGraphics, vk::CommandBufferLevel::ePrimary, USwapChain->GetFramesInFlight());
+    commandBuffers = std::make_shared<CCommandBuffer>(false, vk::QueueFlagBits::eGraphics, vk::CommandBufferLevel::ePrimary, USwapChain->GetFramesInFlight());
 }
 
 void RenderSystem::render(std::shared_ptr<Scene::Objects::RenderObject> root)
@@ -67,7 +67,7 @@ void RenderSystem::cleanup()
 
 vk::CommandBuffer& RenderSystem::getCurrentCommandBuffer()
 {
-    return commandBuffers->GetCommandBuffer();
+    return commandBuffers->getCommandBuffer();
 }
 
 vk::CommandBuffer& RenderSystem::beginFrame()
@@ -77,7 +77,7 @@ vk::CommandBuffer& RenderSystem::beginFrame()
     frameStarted = true;
 
     commandBuffers->begin(vk::CommandBufferUsageFlagBits::eSimultaneousUse, imageIndex);
-    return commandBuffers->GetCommandBuffer();
+    return commandBuffers->getCommandBuffer();
 }
 
 vk::Result RenderSystem::endFrame()

@@ -5,17 +5,17 @@ namespace Engine
 {
     namespace Core
     {
-        class CommandPool
+        class CCommandPool
         {
         public:
-            explicit CommandPool(const std::thread::id &threadId = std::this_thread::get_id());
+            explicit CCommandPool(const std::thread::id &threadId = std::this_thread::get_id());
 
-            ~CommandPool();
+            ~CCommandPool();
 
             operator const vk::CommandPool &() const { return commandPool; }
 
-            const vk::CommandPool &GetCommandPool() const { return commandPool; }
-            const std::thread::id &GetThreadId() const { return threadId; }
+            const vk::CommandPool &getCommandPool() const { return commandPool; }
+            const std::thread::id &getThreadId() const { return threadId; }
         private:
             vk::CommandPool commandPool = VK_NULL_HANDLE;
 	        std::thread::id threadId;

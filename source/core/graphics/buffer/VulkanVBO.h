@@ -7,27 +7,27 @@ namespace Engine
     {
         class VulkanBuffer;
         
-        class VulkanVBO : public utl::non_copy_movable
+        class CVulkanVBO : public utl::non_copy_movable
         {
         public:
-            VulkanVBO() = default;
-            ~VulkanVBO();
+            CVulkanVBO() = default;
+            ~CVulkanVBO();
 
-            void Create();
-            void Bind(vk::CommandBuffer commandBuffer);
-            void AddMeshData(std::vector<Vertex> &&vertices, std::vector<uint32_t> &&indices);
-            inline uint64_t GetLastIndex() { return m_vIndices.size(); }
-            inline uint64_t GetLastVertex() { return m_vVertices.size(); }
+            void create();
+            void bind(vk::CommandBuffer commandBuffer);
+            void addMeshData(std::vector<Vertex> &&vertices, std::vector<uint32_t> &&indices);
+            inline uint64_t getLastIndex() { return vIndices.size(); }
+            inline uint64_t getLastVertex() { return vVertices.size(); }
 
         private:
-            void CreateVertexBuffer();
-            void CreateIndexBuffer();
-            bool m_bBuffersCreated{false};
+            void createVertexBuffer();
+            void createIndexBuffer();
+            bool bBuffersCreated{false};
 
-            std::vector<Vertex> m_vVertices;
+            std::vector<Vertex> vVertices;
             std::unique_ptr<VulkanBuffer> vertexBuffer;
 
-            std::vector<uint32_t> m_vIndices;
+            std::vector<uint32_t> vIndices;
             std::unique_ptr<VulkanBuffer> indexBuffer;
         };
     }

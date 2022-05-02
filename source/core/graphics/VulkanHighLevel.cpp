@@ -20,7 +20,7 @@ void VulkanHighLevel::Create(FEngineCreateInfo createInfo)
     m_pDevice = std::make_shared<Device>();
     m_pSwapChain = std::make_shared<SwapChain>();
     m_pRenderer = std::make_shared<RenderSystem>();
-    m_pVertexBufferObject = std::make_shared<VulkanVBO>();
+    m_pVertexBufferObject = std::make_shared<CVulkanVBO>();
     m_pOverlay = std::make_shared<ImguiOverlay>();
 
     m_pWinHandle->Create(createInfo.window);

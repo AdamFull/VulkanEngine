@@ -59,7 +59,7 @@ namespace Engine
                 FMaterialParams m_fMatParams{};
                 std::string m_srName;
 
-                std::unique_ptr<Core::Descriptor::DescriptorHandler> m_pDescriptorSet;
+                std::unique_ptr<Core::Descriptor::CDescriptorHandler> m_pDescriptorSet;
                 std::vector<std::shared_ptr<Core::UniformHandler>> m_vUniformBuffers;
                 std::vector<std::shared_ptr<Core::PushHandler>> m_vPushConstants;
                 std::shared_ptr<Core::Pipeline::CPipelineBase> m_pPipeline;

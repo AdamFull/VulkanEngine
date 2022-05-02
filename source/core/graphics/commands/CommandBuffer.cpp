@@ -3,11 +3,11 @@
 
 using namespace Engine::Core;
 
-CommandBuffer::CommandBuffer(bool _begin, vk::QueueFlagBits queueType, vk::CommandBufferLevel bufferLevel, uint32_t count) :
+CCommandBuffer::CCommandBuffer(bool _begin, vk::QueueFlagBits queueType, vk::CommandBufferLevel bufferLevel, uint32_t count) :
 commandPool(UDevice->GetCommandPool()), queueType(queueType)
 {
     vk::CommandBufferAllocateInfo allocInfo = {};
-    allocInfo.commandPool = commandPool->GetCommandPool();
+    allocInfo.commandPool = commandPool->getCommandPool();
     allocInfo.level = bufferLevel;
     allocInfo.commandBufferCount = count;
 
@@ -18,14 +18,14 @@ commandPool(UDevice->GetCommandPool()), queueType(queueType)
         begin();
 }
 
-CommandBuffer::~CommandBuffer()
+CCommandBuffer::~CCommandBuffer()
 {
-    UDevice->GetLogical().freeCommandBuffers(commandPool->GetCommandPool(), vCommandBuffers);
+    UDevice->GetLogical().freeCommandBuffers(commandPool->getCommandPool(), vCommandBuffers);
     vCommandBuffers.clear();
 }
 
 
-void CommandBuffer::begin(vk::CommandBufferUsageFlags usage, uint32_t index)
+void CCommandBuffer::begin(vk::CommandBufferUsageFlags usage, uint32_t index)
 {
     if (running)
 		return;
@@ -33,23 +33,23 @@ void CommandBuffer::begin(vk::CommandBufferUsageFlags usage, uint32_t index)
     frameIndex = index;
     vk::CommandBufferBeginInfo beginInfo = {};
 	beginInfo.flags = usage;
-    auto commandBuffer = GetCommandBuffer();
+    auto commandBuffer = getCommandBuffer();
 	commandBuffer.begin(beginInfo);
 	running = true;
 }
 
-void CommandBuffer::end()
+void CCommandBuffer::end()
 {
     if (!running) return;
 
-    auto commandBuffer = GetCommandBuffer();
+    auto commandBuffer = getCommandBuffer();
     commandBuffer.end();
 
     running = false;
 }
 
 
-void CommandBuffer::submitIdle()
+void CCommandBuffer::submitIdle()
 {
     if (running)
 		end();
@@ -76,11 +76,11 @@ void CommandBuffer::submitIdle()
     queue.waitIdle();
 }
 
-vk::Result CommandBuffer::submit(uint32_t& imageIndex)
+vk::Result CCommandBuffer::submit(uint32_t& imageIndex)
 {
     if (running)
 		end();
 
-    auto commandBuffer = GetCommandBuffer();
+    auto commandBuffer = getCommandBuffer();
     return USwapChain->SubmitCommandBuffers(&commandBuffer, &imageIndex, queueType);
 }

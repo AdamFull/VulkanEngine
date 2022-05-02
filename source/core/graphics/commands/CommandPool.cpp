@@ -3,7 +3,7 @@
 
 using namespace Engine::Core;
 
-CommandPool::CommandPool(const std::thread::id &threadId) : threadId(threadId) 
+CCommandPool::CCommandPool(const std::thread::id &threadId) : threadId(threadId) 
 {
     auto& logical = UDevice->GetLogical();
 	QueueFamilyIndices queueFamilyIndices = UDevice->FindQueueFamilies(UDevice->GetPhysical());
@@ -15,7 +15,7 @@ CommandPool::CommandPool(const std::thread::id &threadId) : threadId(threadId)
     commandPool = logical.createCommandPool(poolInfo);
 }
 
-CommandPool::~CommandPool() 
+CCommandPool::~CCommandPool() 
 {
 	UDevice->Destroy(commandPool);
 }

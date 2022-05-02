@@ -4,39 +4,39 @@
 using namespace Engine::Core;
 using namespace Engine::Core::Descriptor;
 
-DescriptorSet::~DescriptorSet()
+CDescriptorSet::~CDescriptorSet()
 {
-    UDevice->GetLogical().freeDescriptorSets(m_descriptorPool, m_vDescriptorSets);
+    UDevice->GetLogical().freeDescriptorSets(descriptorPool, vDescriptorSets);
 }
 
-void DescriptorSet::Create(std::shared_ptr<Pipeline::CPipelineBase> pPipeline, uint32_t images)
+void CDescriptorSet::create(std::shared_ptr<Pipeline::CPipelineBase> pPipeline, uint32_t images)
 {
-    m_pipelineBindPoint = pPipeline->getBindPoint();
-    m_pipelineLayout = pPipeline->getPipelineLayout();
-    m_descriptorPool = pPipeline->getDescriptorPool();
+    pipelineBindPoint = pPipeline->getBindPoint();
+    pipelineLayout = pPipeline->getPipelineLayout();
+    descriptorPool = pPipeline->getDescriptorPool();
 
     std::vector<vk::DescriptorSetLayout> vSetLayouts(images, pPipeline->getDescriptorSetLayout());
     vk::DescriptorSetAllocateInfo allocInfo{};
-    allocInfo.descriptorPool = m_descriptorPool;
+    allocInfo.descriptorPool = descriptorPool;
     allocInfo.descriptorSetCount = images;
     allocInfo.pSetLayouts = vSetLayouts.data();
-    m_vDescriptorSets.resize(images);
+    vDescriptorSets.resize(images);
 
-    if (UDevice->GetLogical().allocateDescriptorSets(&allocInfo, m_vDescriptorSets.data()) != vk::Result::eSuccess)
+    if (UDevice->GetLogical().allocateDescriptorSets(&allocInfo, vDescriptorSets.data()) != vk::Result::eSuccess)
     {
         throw std::runtime_error("failed to create descriptor set!");
     }
 }
 
-void DescriptorSet::Update(std::vector<vk::WriteDescriptorSet> &vWrites, uint32_t index)
+void CDescriptorSet::update(std::vector<vk::WriteDescriptorSet> &vWrites, uint32_t index)
 {
     for (auto &write : vWrites)
-        write.dstSet = m_vDescriptorSets.at(index);
+        write.dstSet = vDescriptorSets.at(index);
 
     UDevice->GetLogical().updateDescriptorSets(static_cast<uint32_t>(vWrites.size()), vWrites.data(), 0, nullptr);
 }
 
-void DescriptorSet::Bind(const vk::CommandBuffer &commandBuffer, uint32_t index) const
+void CDescriptorSet::bind(const vk::CommandBuffer &commandBuffer, uint32_t index) const
 {
-    commandBuffer.bindDescriptorSets(m_pipelineBindPoint, m_pipelineLayout, 0, 1, &m_vDescriptorSets.at(index), 0, nullptr);
+    commandBuffer.bindDescriptorSets(pipelineBindPoint, pipelineLayout, 0, 1, &vDescriptorSets.at(index), 0, nullptr);
 }

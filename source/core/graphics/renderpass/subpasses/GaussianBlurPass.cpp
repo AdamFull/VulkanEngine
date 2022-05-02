@@ -14,11 +14,11 @@ using namespace Engine::Resources::Material;
 void CGaussianBlurPass::create(std::unique_ptr<FRenderCreateInfo>& createInfo)
 {
     auto framesInFlight = USwapChain->GetFramesInFlight();
-    m_pUniform = std::make_shared<UniformBuffer>();
-    m_pUniform->Create(framesInFlight, sizeof(FBlurData));
+    pUniform = std::make_shared<CUniformBuffer>();
+    pUniform->create(framesInFlight, sizeof(FBlurData));
 
-    m_pMaterial = std::make_shared<MaterialBlur>();
-    m_pMaterial->Create(createInfo->renderPass, createInfo->subpass);
+    pMaterial = std::make_shared<MaterialBlur>();
+    pMaterial->Create(createInfo->renderPass, createInfo->subpass);
     CSubpass::create(createInfo);
 }
 
@@ -30,11 +30,11 @@ void CGaussianBlurPass::render(std::unique_ptr<FRenderProcessInfo>& renderData)
     uniform.blurStrength = GlobalVariables::blurStrength;
     uniform.direction = direction;
 
-    m_pUniform->UpdateUniformBuffer(imageIndex, &uniform);
-    auto& buffer = m_pUniform->GetUniformBuffer(imageIndex);
+    pUniform->updateUniformBuffer(imageIndex, &uniform);
+    auto& buffer = pUniform->getUniformBuffer(imageIndex);
     auto descriptor = buffer->GetDscriptor();
-    m_pMaterial->Update(descriptor, imageIndex);
-    m_pMaterial->Bind(renderData->commandBuffer, imageIndex);
+    pMaterial->Update(descriptor, imageIndex);
+    pMaterial->Bind(renderData->commandBuffer, imageIndex);
     renderData->commandBuffer.draw(3, 1, 0, 0);
 }
 

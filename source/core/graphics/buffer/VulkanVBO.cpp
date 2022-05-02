@@ -2,61 +2,61 @@
 
 using namespace Engine::Core;
 
-VulkanVBO::~VulkanVBO()
+CVulkanVBO::~CVulkanVBO()
 {
 
 }
 
-void VulkanVBO::Create()
+void CVulkanVBO::create()
 {
-    CreateVertexBuffer();
-    CreateIndexBuffer();
-    m_bBuffersCreated = true;
+    createVertexBuffer();
+    createIndexBuffer();
+    bBuffersCreated = true;
 }
 
-void VulkanVBO::Bind(vk::CommandBuffer commandBuffer)
+void CVulkanVBO::bind(vk::CommandBuffer commandBuffer)
 {
-    assert(m_bBuffersCreated && "Vertex and index buffers are not created!");
+    assert(bBuffersCreated && "Vertex and index buffers are not created!");
     vk::DeviceSize offsets[] = {0};
     auto buffer = vertexBuffer->GetBuffer();
     commandBuffer.bindVertexBuffers(0, 1, &buffer, offsets);
     commandBuffer.bindIndexBuffer(indexBuffer->GetBuffer(), 0, vk::IndexType::eUint32);
 }
 
-void VulkanVBO::AddMeshData(std::vector<Vertex> &&vertices, std::vector<uint32_t> &&indices)
+void CVulkanVBO::addMeshData(std::vector<Vertex> &&vertices, std::vector<uint32_t> &&indices)
 {
-    m_vVertices.insert(m_vVertices.end(), vertices.begin(), vertices.end());
-    m_vIndices.insert(m_vIndices.end(), indices.begin(), indices.end());
+    vVertices.insert(vVertices.end(), vertices.begin(), vertices.end());
+    vIndices.insert(vIndices.end(), indices.begin(), indices.end());
 }
 
-void VulkanVBO::CreateVertexBuffer()
+void CVulkanVBO::createVertexBuffer()
 {
-    vk::DeviceSize bufferSize = sizeof(m_vVertices[0]) * m_vVertices.size();
-    uint32_t vertexSize = sizeof(m_vVertices[0]);
+    vk::DeviceSize bufferSize = sizeof(vVertices[0]) * vVertices.size();
+    uint32_t vertexSize = sizeof(vVertices[0]);
 
     VulkanBuffer stagingBuffer;
-    stagingBuffer.Create(vertexSize, m_vVertices.size(), vk::BufferUsageFlagBits::eTransferSrc, vk::MemoryPropertyFlagBits::eHostVisible | vk::MemoryPropertyFlagBits::eHostCoherent);
+    stagingBuffer.Create(vertexSize, vVertices.size(), vk::BufferUsageFlagBits::eTransferSrc, vk::MemoryPropertyFlagBits::eHostVisible | vk::MemoryPropertyFlagBits::eHostCoherent);
     stagingBuffer.MapMem();
-    stagingBuffer.Write((void *)m_vVertices.data());
+    stagingBuffer.Write((void *)vVertices.data());
 
     vertexBuffer = std::make_unique<VulkanBuffer>();
-    vertexBuffer->Create(vertexSize, m_vVertices.size(), vk::BufferUsageFlagBits::eTransferDst | vk::BufferUsageFlagBits::eVertexBuffer, vk::MemoryPropertyFlagBits::eDeviceLocal);
+    vertexBuffer->Create(vertexSize, vVertices.size(), vk::BufferUsageFlagBits::eTransferDst | vk::BufferUsageFlagBits::eVertexBuffer, vk::MemoryPropertyFlagBits::eDeviceLocal);
     UDevice->CopyOnDeviceBuffer(stagingBuffer.GetBuffer(), vertexBuffer->GetBuffer(), bufferSize);
     // m_vVertices.clear();
 }
 
-void VulkanVBO::CreateIndexBuffer()
+void CVulkanVBO::createIndexBuffer()
 {
-    vk::DeviceSize bufferSize = sizeof(m_vIndices[0]) * m_vIndices.size();
-    uint32_t indexSize = sizeof(m_vIndices[0]);
+    vk::DeviceSize bufferSize = sizeof(vIndices[0]) * vIndices.size();
+    uint32_t indexSize = sizeof(vIndices[0]);
 
     VulkanBuffer stagingBuffer;
-    stagingBuffer.Create(indexSize, m_vIndices.size(), vk::BufferUsageFlagBits::eTransferSrc, vk::MemoryPropertyFlagBits::eHostVisible | vk::MemoryPropertyFlagBits::eHostCoherent);
+    stagingBuffer.Create(indexSize, vIndices.size(), vk::BufferUsageFlagBits::eTransferSrc, vk::MemoryPropertyFlagBits::eHostVisible | vk::MemoryPropertyFlagBits::eHostCoherent);
     stagingBuffer.MapMem();
-    stagingBuffer.Write((void *)m_vIndices.data());
+    stagingBuffer.Write((void *)vIndices.data());
 
     indexBuffer = std::make_unique<VulkanBuffer>();
-    indexBuffer->Create(indexSize, m_vIndices.size(), vk::BufferUsageFlagBits::eTransferDst | vk::BufferUsageFlagBits::eIndexBuffer, vk::MemoryPropertyFlagBits::eDeviceLocal);
+    indexBuffer->Create(indexSize, vIndices.size(), vk::BufferUsageFlagBits::eTransferDst | vk::BufferUsageFlagBits::eIndexBuffer, vk::MemoryPropertyFlagBits::eDeviceLocal);
     UDevice->CopyOnDeviceBuffer(stagingBuffer.GetBuffer(), indexBuffer->GetBuffer(), bufferSize);
     // m_vIndices.clear();
 }

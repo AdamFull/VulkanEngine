@@ -25,10 +25,10 @@ void MaterialPostProcess::ReCreate()
 
 void MaterialPostProcess::Update(vk::DescriptorBufferInfo& uboDesc, uint32_t imageIndex)
 {
-    m_pDescriptorSet->Clear();
-    m_pDescriptorSet->Set("FBloomUbo", uboDesc);
+    m_pDescriptorSet->clear();
+    m_pDescriptorSet->set("FBloomUbo", uboDesc);
     for(auto& [key, texture] : m_mTextures)
-        m_pDescriptorSet->Set(key, texture); //"samplerColor", "samplerBrightness"
+        m_pDescriptorSet->set(key, texture); //"samplerColor", "samplerBrightness"
     MaterialBase::Update(uboDesc, imageIndex);
 }
 

@@ -5,9 +5,9 @@
 #include "GLTFLoader.h"
 #include "resources/ResourceManager.h"
 #include "resources/meshes/MeshFragment.h"
-#include "resources/materials/MaterialDiffuse.h"
+#include "resources/materials/MaterialLoader.h"
 #include "graphics/image/ImageLoader.h"
-
+#include "filesystem/FilesystemHelper.h"
 #include "graphics/VulkanHighLevel.h"
 #include "GLTFSceneNode.h"
 
@@ -47,7 +47,8 @@ void GLTFLoader::load(std::string srPath, std::string srName, std::shared_ptr<Re
     tinygltf::TinyGLTF gltfContext;
     std::string error, warning;
     gltfContext.SetImageLoader(loadImageDataFuncEmpty, nullptr);
-    bool fileLoaded = gltfContext.LoadASCIIFromFile(&gltfModel, &error, &warning, srPath);
+    auto fpath = FilesystemHelper::getWorkDir() / srPath;
+    bool fileLoaded = gltfContext.LoadASCIIFromFile(&gltfModel, &error, &warning, fpath.string());
     current_primitive = 0;
 
     m_pMesh = std::make_shared<CMeshBase>();
@@ -130,7 +131,7 @@ void GLTFLoader::loadMeshFragment(std::shared_ptr<Resources::CResourceManager> p
     for (size_t j = 0; j < mesh.primitives.size(); j++)
     {
         std::vector<uint32_t> indexBuffer;
-        std::vector<Core::Vertex> vertexBuffer;
+        std::vector<Core::FVertex> vertexBuffer;
 
         const tinygltf::Primitive &primitive = mesh.primitives[j];
         if (primitive.indices < 0)
@@ -219,7 +220,7 @@ void GLTFLoader::loadMeshFragment(std::shared_ptr<Resources::CResourceManager> p
 
             for (size_t v = 0; v < posAccessor.count; v++)
             {
-                Core::Vertex vert{};
+                Core::FVertex vert{};
                 vert.pos = glm::vec4(glm::make_vec3(&bufferPos[v * 3]), 1.0f);
                 vert.normal = glm::normalize(glm::vec3(bufferNormals ? glm::make_vec3(&bufferNormals[v * 3]) : glm::vec3(0.0f)));
                 //vert.normal = glm::vec3(0.f);
@@ -241,8 +242,8 @@ void GLTFLoader::loadMeshFragment(std::shared_ptr<Resources::CResourceManager> p
                 vert.tangent = bufferTangents ? glm::vec4(glm::make_vec4(&bufferTangents[v * 4])) : glm::vec4(0.0f);
                 //vert.tangent = glm::vec4(0.f);
                 // TODO: Add skinning
-                vert.joint0 = hasSkin ? glm::vec4(glm::make_vec4(&bufferJoints[v * 4])) : glm::vec4(0.0f);
-                vert.weight0 = hasSkin ? glm::make_vec4(&bufferWeights[v * 4]) : glm::vec4(0.0f);
+                //vert.joint0 = hasSkin ? glm::vec4(glm::make_vec4(&bufferJoints[v * 4])) : glm::vec4(0.0f);
+                //vert.weight0 = hasSkin ? glm::make_vec4(&bufferWeights[v * 4]) : glm::vec4(0.0f);
                 vertexBuffer.push_back(vert);
             }
         }
@@ -325,7 +326,7 @@ void GLTFLoader::loadMeshFragment(std::shared_ptr<Resources::CResourceManager> p
     pResMgr->addExisting(nativeMesh->getName(), nativeMesh);
 }
 
-void GLTFLoader::recalculateTangents(std::vector<Core::Vertex>& vertices, std::vector<uint32_t>& indices, uint64_t startIndex)
+void GLTFLoader::recalculateTangents(std::vector<Core::FVertex>& vertices, std::vector<uint32_t>& indices, uint64_t startIndex)
 {
     for(auto index = 0; index < indices.size(); index+=3)
     {
@@ -496,7 +497,7 @@ void GLTFLoader::loadMaterials(std::shared_ptr<Resources::CResourceManager> pRes
         ss << material_index;
 
         FMaterialParams params;
-        std::shared_ptr<CMaterialBase> nativeMaterial = std::make_shared<CMaterialDiffuse>();
+        std::shared_ptr<CMaterialBase> nativeMaterial = CMaterialLoader::getInstance()->create("default");
         nativeMaterial->setName(ss.str());
 
         nativeMaterial->addTexture("color_tex", get_texture(mat.values, "baseColorTexture"));
@@ -574,9 +575,6 @@ std::shared_ptr<CImage> GLTFLoader::loadTexture(const tinygltf::Image &image, st
     vk::Format format;
     ktxTexture *texture;
     auto nativeTexture = std::make_shared<CImage>();
-    //nativeTexture->SetName(image.name);
-    // nativeTexture->LoadFromMemory();
-
     if (!isKtx)
     {
         auto isAlbedo = image.name.find("albedo") != std::string::npos;

@@ -4,9 +4,9 @@
 
 using namespace Engine::Core::Pipeline;
 
-void CGraphicsPipeline::create()
+void CGraphicsPipeline::create(vk::RenderPass& renderPass, uint32_t subpass)
 {
-    CPipelineBase::create();
+    CPipelineBase::create(renderPass, subpass);
     createPipeline();
 }
 
@@ -43,8 +43,10 @@ void CGraphicsPipeline::createPipeline()
 	specializationInfo.dataSize = sizeof(specializationData);
 	specializationInfo.pData = &specializationData;
 
+    
+    auto attachmentCount = URenderer->getCurrentStage()->getRenderPass()->getCurrentDescription().colorAttachmentCount;
     std::vector<vk::PipelineColorBlendAttachmentState> colorBlendAttachments;
-    for(uint32_t i = 0; i < m_colorAttachments; i++)
+    for(uint32_t i = 0; i < attachmentCount; i++)
     {
         vk::PipelineColorBlendAttachmentState colorBlendAttachment =
         Initializers::PipelineColorBlendAttachmentState(vk::ColorComponentFlagBits::eR | vk::ColorComponentFlagBits::eG | vk::ColorComponentFlagBits::eB | vk::ColorComponentFlagBits::eA, VK_TRUE);

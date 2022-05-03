@@ -33,7 +33,7 @@ namespace Engine
                 void loadNode(std::shared_ptr<Resources::CResourceManager> pResMgr, std::shared_ptr<GLTFSceneNode> pParent, const tinygltf::Node &node, uint32_t nodeIndex, const tinygltf::Model &model, float globalscale);
 
                 void loadMeshFragment(std::shared_ptr<Resources::CResourceManager> pResMgr, std::shared_ptr<GLTFSceneNode> sceneNode, const tinygltf::Node &node, const tinygltf::Model &model);
-                void recalculateTangents(std::vector<Core::Vertex>& vertices, std::vector<uint32_t>& indices, uint64_t startIndex);
+                void recalculateTangents(std::vector<Core::FVertex>& vertices, std::vector<uint32_t>& indices, uint64_t startIndex);
 
                 void loadAnimations(const tinygltf::Model &model);
 

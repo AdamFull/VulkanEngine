@@ -1,4 +1,5 @@
 #include "ImageLoader.h"
+#include "filesystem/FilesystemHelper.h"
 
 #define STB_IMAGE_IMPLEMENTATION
 #include "external/tinygltf/stb_image.h"
@@ -96,7 +97,8 @@ bool CImageLoader::loadSTB(char const *filename, ktxTexture **target, vk::Format
 
 bool CImageLoader::loadKTX(char const *filename, ktxTexture **target, vk::Format *format)
 {
-    auto result = ktxTexture_CreateFromNamedFile(filename, KTX_TEXTURE_CREATE_LOAD_IMAGE_DATA_BIT, target);
+    auto fpath = FilesystemHelper::getWorkDir() / filename;
+    auto result = ktxTexture_CreateFromNamedFile(fpath.string().c_str(), KTX_TEXTURE_CREATE_LOAD_IMAGE_DATA_BIT, target);
 
     VkFormat raw_format = vkGetFormatFromOpenGLInternalFormat((*target)->glInternalformat);
     *format = static_cast<vk::Format>(raw_format);

@@ -3,73 +3,82 @@
     {
         "default":
         {
+            "vertexType": "default",
+            "bindPoint": "graphics",
             "culling": "back",
             "frontface": "counterClockwise",
             "depth": true,
             "dynamicStates": ["viewport", "scissor"],
             "stages": [
-                "assets/shaders/main/diffuse.vert", 
-                "assets/shaders/main/diffuse.frag"
+                "shaders/main/diffuse.vert", 
+                "shaders/main/diffuse.frag"
             ],
             "defines": []
         },
         "pbr_composition": 
         {
+            "bindPoint": "graphics",
             "culling": "front",
             "frontface": "counterClockwise",
             "depth": false,
             "dynamicStates": ["viewport", "scissor"],
             "stages": [
-                "assets/shaders/main/screenspace.vert", 
-                "assets/shaders/main/deferred.frag"
+                "shaders/main/screenspace.vert", 
+                "shaders/main/deferred.frag"
             ],
             "defines": []
         },
-        "gaussian_blir": 
+        "gaussian_blur": 
         {
+            "bindPoint": "graphics",
             "culling": "front",
             "frontface": "counterClockwise",
             "depth": false,
             "dynamicStates": ["viewport", "scissor"],
             "stages": [
-                "assets/shaders/main/screenspace.vert", 
-                "assets/shaders/postprocess/gaussianblur.frag"
+                "shaders/main/screenspace.vert", 
+                "shaders/postprocess/gaussianblur.frag"
             ],
             "defines": []
         },
         "skybox": 
         {
+            "vertexType": "default",
+            "bindPoint": "graphics",
             "culling": "front",
             "frontface": "counterClockwise",
             "depth": false,
             "dynamicStates": ["viewport", "scissor"],
             "stages": [
-                "assets/shaders/main/skybox.vert", 
-                "assets/shaders/main/skybox.frag"
+                "shaders/main/skybox.vert", 
+                "shaders/main/skybox.frag"
             ],
             "defines": []
         },
         "post_process": 
         {
+            "bindPoint": "graphics",
             "culling": "front",
             "frontface": "counterClockwise",
             "depth": false,
             "dynamicStates": ["viewport", "scissor"],
             "stages": [
-                "assets/shaders/main/screenspace.vert", 
-                "assets/shaders/postprocess/bloomcompose.frag"
+                "shaders/main/screenspace.vert", 
+                "shaders/postprocess/bloomcompose.frag"
             ],
             "defines": []
         },
         "imguiui": 
         {
+            "vertexType": "imgui",
+            "bindPoint": "graphics",
             "culling": "none",
             "frontface": "counterClockwise",
             "depth": false,
             "dynamicStates": ["viewport", "scissor"],
             "stages": [
-                "assets/shaders/main/ui.vert", 
-                "assets/shaders/main/ui.frag"
+                "shaders/main/ui.vert", 
+                "shaders/main/ui.frag"
             ],
             "defines": []
         }

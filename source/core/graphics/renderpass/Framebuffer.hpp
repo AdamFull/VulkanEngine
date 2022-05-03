@@ -28,7 +28,10 @@ namespace Engine
                 void addImage(const std::string& name, vk::Format format, vk::ImageUsageFlags usageFlags);
 
                 std::vector<vk::Framebuffer>& get() { return vFramebuffers; }
+                vk::Framebuffer& getFramebuffer(uint32_t index) { return vFramebuffers[index]; }
+                vk::Framebuffer& getCurrentFramebuffer();
                 std::unordered_map<std::string, std::shared_ptr<CImage>>& getImages(uint32_t index) { return mImages[index]; }
+                std::unordered_map<std::string, std::shared_ptr<CImage>>& getCurrentImages();
 
             private:
                 std::shared_ptr<CImage> createImage(vk::Format format, vk::ImageUsageFlags usageFlags, vk::Extent2D extent);

@@ -15,8 +15,8 @@ namespace Engine
                 static bool load(std::string srPath, std::shared_ptr<Resources::CResourceManager> pResourceManager, std::shared_ptr<Mesh::CMeshFragment> pMesh, bool bLoadMaterial = false);
 
             private:
-                static void calculateTangents(std::vector<Core::Vertex> &vertices, std::vector<uint32_t> indices);
-                static glm::vec4 generateNormals(std::vector<Core::Vertex> &vertices, std::vector<uint32_t> indices);
+                static void calculateTangents(std::vector<Core::FVertex> &vertices, std::vector<uint32_t> indices);
+                static glm::vec4 generateNormals(std::vector<Core::FVertex> &vertices, std::vector<uint32_t> indices);
             };
         }
     }

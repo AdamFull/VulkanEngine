@@ -54,10 +54,10 @@ namespace Engine
                 void reCreate();
                 void cleanup();
 
-                void begin(vk::CommandBuffer &commandBuffer, std::vector<vk::Framebuffer>& framebuffer);
+                void begin(vk::CommandBuffer &commandBuffer);
                 void end(vk::CommandBuffer &commandBuffer);
 
-                void render(vk::CommandBuffer& commandBuffer, std::unordered_map<std::string, std::shared_ptr<CImage>>& images, std::shared_ptr<Scene::CRenderObject>& root);
+                void render(vk::CommandBuffer& commandBuffer, std::shared_ptr<Scene::CRenderObject>& root);
 
                 void setRenderArea(int32_t offset_x, int32_t offset_y, uint32_t width, uint32_t height);
                 void setRenderArea(vk::Offset2D offset, vk::Extent2D extent);
@@ -69,10 +69,13 @@ namespace Engine
                 operator const vk::RenderPass &() const { return renderPass; }
 
                 vk::RenderPass &get() { return renderPass; }
+                vk::SubpassDescription& getCurrentDescription() { return vSubpassDesc.at(currentSubpassIndex); }
+                uint32_t getCurrentSubpass() { return currentSubpassIndex; }
 
             private:
                 vk::RenderPass createRenderPass();
                 std::vector<std::shared_ptr<CSubpass>> vSubpasses;
+                uint32_t currentSubpassIndex{0};
 
                 //ReCreate data
                 std::vector<vk::AttachmentDescription> vAttachDesc;

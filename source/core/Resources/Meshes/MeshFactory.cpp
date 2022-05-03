@@ -1,8 +1,8 @@
 #include "MeshFactory.h"
-#include "Resources/ResourceManager.h"
-#include "Resources/Materials/MaterialFactory.h"
-#include "Resources/Materials/VulkanMaterial.h"
-#include "Resources/Meshes/MeshFragment.h"
+#include "resources/ResourceManager.h"
+#include "resources/meshes/MeshFragment.h"
+#include "resources/materials/MaterialFactory.h"
+#include "resources/materials/VulkanMaterial.h"
 #include "MeshLoader.h"
 
 using namespace Engine::Resources;

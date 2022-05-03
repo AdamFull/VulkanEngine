@@ -80,6 +80,16 @@ void CFramebuffer::addImage(const std::string& name, vk::Format format, vk::Imag
     attachments.emplace_back(FTextureAttachmentInfo{name, format, usageFlags});
 }
 
+vk::Framebuffer& CFramebuffer::getCurrentFramebuffer()
+{
+    return getFramebuffer(USwapChain->getCurrentFrame());
+}
+
+std::unordered_map<std::string, std::shared_ptr<CImage>>& CFramebuffer::getCurrentImages()
+{
+    return getImages(USwapChain->getCurrentFrame());
+}
+
 std::shared_ptr<CImage> CFramebuffer::createImage(vk::Format format, vk::ImageUsageFlags usageFlags, vk::Extent2D extent)
 {
     auto texture = std::make_shared<CImage>();

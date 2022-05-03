@@ -36,10 +36,12 @@ namespace Engine
                     inline Builder& setFontFace(vk::FrontFace fontface) { m_fontface = fontface; return *this; }
                     inline Builder& setDepthEnabled(vk::Bool32 enableDepth) { m_enableDepth = enableDepth; return *this; }
                     inline Builder& addDynamicState(vk::DynamicState state) { m_vDynamicStateEnables.emplace_back(state); return *this; }
+                    inline Builder& setDynamicStates(const std::vector<vk::DynamicState>& states) { m_vDynamicStateEnables = states; return *this; }
                     inline Builder& addShaderStage(const std::string& stage) { m_vStages.emplace_back(stage); return *this; }
+                    inline Builder& setShaderStages(const std::vector<std::string>& stages) { m_vStages = stages; return *this; }
                     inline Builder& addDefine(const std::string& name, const std::string& value) { m_vDefines.emplace_back(std::make_pair(name, value)); return *this; }
-                    std::unique_ptr<CPipelineBase> build(vk::RenderPass& renderPass, uint32_t subpass);
-                    std::unique_ptr<CPipelineBase> build();
+                    inline Builder& setDefines(const std::vector<CShader::Define>& defines) { m_vDefines = defines; return *this; }
+                    std::unique_ptr<CPipelineBase> build(vk::PipelineBindPoint bindPoint);
                 private:
                     CVertexInput m_vertexInput;
                     uint32_t m_colorAttachments{1};
@@ -53,6 +55,7 @@ namespace Engine
                 CPipelineBase() = default;
                 virtual ~CPipelineBase();
 
+                virtual void create(vk::RenderPass& renderPass, uint32_t subpass);
                 virtual void create();
 
                 void bind(vk::CommandBuffer &commandBuffer);

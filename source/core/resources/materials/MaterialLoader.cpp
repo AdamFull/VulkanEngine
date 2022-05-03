@@ -1,4 +1,6 @@
 #include "MaterialLoader.h"
+#include "filesystem/FilesystemHelper.h"
+#include "graphics/data_types/VulkanVertex.hpp"
 
 namespace vk
 {
@@ -64,51 +66,83 @@ namespace vk
             {DynamicState::eViewportWScalingNV, "viewportWScalingNV"}
         }
     )
+
+    NLOHMANN_JSON_SERIALIZE_ENUM
+    (
+        PipelineBindPoint,
+        {
+            {PipelineBindPoint::eCompute, "compute"},
+            {PipelineBindPoint::eGraphics, "graphics"},
+            {PipelineBindPoint::eRayTracingKHR, "raytracingKHR"},
+            {PipelineBindPoint::eRayTracingNV, "raytracingNV"},
+            {PipelineBindPoint::eSubpassShadingHUAWEI, "subpassShadingHuawei"}
+        }
+    )
 }
 
 namespace Engine
 {
     namespace Resources
     {
-        void to_json(nlohmann::json &json, const FMaterialInfo::FCreationInfo &type)
+        namespace Material
         {
-            json = nlohmann::json
+            NLOHMANN_JSON_SERIALIZE_ENUM
+            (
+                FMaterialInfo::EVertexType,
+                {
+                    {FMaterialInfo::EVertexType::eNone, "none"},
+                    {FMaterialInfo::EVertexType::eDefault, "default"},
+                    {FMaterialInfo::EVertexType::eImgui, "imgui"}
+                }
+            )
+
+            void to_json(nlohmann::json &json, const FMaterialInfo::FCreationInfo &type)
             {
-                {"culling", type.culling},
-                {"frontface", type.frontface},
-                {"depth", type.enableDepth},
-                {"dynamicStates", type.dynamicStateEnables},
-                {"stages", type.stages},
-                {"defines", type.defines},
-            };
-        }
+                json = nlohmann::json
+                {
+                    {"vertexType", type.vertexType},
+                    {"bindPoint", type.bindPoint},
+                    {"culling", type.culling},
+                    {"frontface", type.frontface},
+                    {"depth", type.enableDepth},
+                    {"dynamicStates", type.dynamicStateEnables},
+                    {"stages", type.stages},
+                    {"defines", type.defines},
+                };
+            }
 
-        void from_json(const nlohmann::json &json, FMaterialInfo::FCreationInfo &type)
-        {
-            ParseArgument(json, type.culling, "culling", true);
-            ParseArgument(json, type.frontface, "frontface", true);
-            ParseArgument(json, type.enableDepth, "depth", true);
-            ParseArgument(json, type.dynamicStateEnables, "dynamicStates", true);
-            ParseArgument(json, type.stages, "stages", true);
-            ParseArgument(json, type.defines, "defines", true);
-        }
-
-        void to_json(nlohmann::json &json, const FMaterialInfo &type)
-        {
-            json = nlohmann::json
+            void from_json(const nlohmann::json &json, FMaterialInfo::FCreationInfo &type)
             {
-                {"materials", type.creationInfo}
-            };
-        }
+                ParseArgument(json, type.vertexType, "vertexType", false);
+                ParseArgument(json, type.bindPoint, "bindPoint", true);
+                ParseArgument(json, type.culling, "culling", false);
+                ParseArgument(json, type.frontface, "frontface", false);
+                ParseArgument(json, type.enableDepth, "depth", false);
+                ParseArgument(json, type.dynamicStateEnables, "dynamicStates", false);
+                ParseArgument(json, type.stages, "stages", true);
+                ParseArgument(json, type.defines, "defines", false);
+            }
 
-        void from_json(const nlohmann::json &json, FMaterialInfo &type)
-        {
-            ParseArgument(json, type.creationInfo, "materials", true);
+            void to_json(nlohmann::json &json, const FMaterialInfo &type)
+            {
+                json = nlohmann::json
+                {
+                    {"materials", type.creationInfo}
+                };
+            }
+
+            void from_json(const nlohmann::json &json, FMaterialInfo &type)
+            {
+                ParseArgument(json, type.creationInfo, "materials", true);
+            }
         }
     }
 }
 
 using namespace Engine::Resources;
+using namespace Engine::Resources::Material;
+using namespace Engine::Core;
+using namespace Engine::Core::Pipeline;
 
 template<>
 std::unique_ptr<CMaterialLoader> utl::singleton<CMaterialLoader>::_instance{nullptr};
@@ -123,23 +157,51 @@ CMaterialLoader::~CMaterialLoader()
     //save();
 }
 
+std::shared_ptr<CMaterialBase> CMaterialLoader::create(const std::string& name)
+{
+    auto it = data.creationInfo.find(name);
+    if(it != data.creationInfo.end())
+    {
+        auto& ci = it->second;
+        CVertexInput vertexInput{};
+        switch(ci.vertexType)
+        {
+            case FMaterialInfo::EVertexType::eNone: break;
+            case FMaterialInfo::EVertexType::eDefault: vertexInput = CVertexInput(FVertex::getBindingDescription(), FVertex::getAttributeDescriptions()); break;
+            case FMaterialInfo::EVertexType::eImgui: vertexInput = CVertexInput(FVertexUI::getBindingDescription(), FVertexUI::getAttributeDescriptions()); break;
+        }
+
+        std::shared_ptr<CMaterialBase> material = std::make_unique<CMaterialBase>();
+        material->m_pPipeline = CPipelineBase::Builder().
+        setVertexInput(std::move(vertexInput)).
+        setCulling(ci.culling).
+        setFontFace(ci.frontface).
+        setDepthEnabled(ci.enableDepth).
+        setDynamicStates(ci.dynamicStateEnables).
+        setShaderStages(ci.stages).
+        setDefines(ci.defines).
+        build(ci.bindPoint);
+        return material;
+    }
+    
+    return nullptr;
+}
+
+//i can load number of attachments from stage or from shader but from shader is harder
+//Create buffer of stage attachments
+//Create method to access for render stage from subpasses
 void CMaterialLoader::load()
 {
-    std::ifstream infile("../../assets/materials.json", std::ios::in | std::ios::binary);
-    infile.rdbuf()->pubsetbuf(0, 0);
-    auto tmp = std::string(std::istreambuf_iterator<char>(infile), std::istreambuf_iterator<char>());
+    auto tmp = FilesystemHelper::readFile("materials.json");
     if(!tmp.empty())
     {
         auto bson = nlohmann::json::parse(tmp);
         bson.get_to(data);
     }
-    infile.close();
 }
 
 void CMaterialLoader::save()
 {
-    std::ofstream outfile("../../assets/materials.json", std::ios::out | std::ios::binary);
-    auto json = nlohmann::json(data);
-    outfile << json;
-    outfile.close();
+    auto json = nlohmann::json(data).dump();
+    FilesystemHelper::writeFile("materials.json", json);
 }

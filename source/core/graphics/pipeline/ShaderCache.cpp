@@ -1,4 +1,5 @@
 #include "ShaderCache.h"
+#include "filesystem/FilesystemHelper.h"
 
 namespace vk
 {
@@ -129,21 +130,16 @@ std::optional<FShaderCache::FCachedShader> CShaderCache::get(const std::string& 
 
 void CShaderCache::load()
 {
-    std::ifstream infile("spirv.cache", std::ios::in | std::ios::binary);
-    infile.rdbuf()->pubsetbuf(0, 0);
-    auto tmp = std::string(std::istreambuf_iterator<char>(infile), std::istreambuf_iterator<char>());
+    auto tmp = FilesystemHelper::readFile("spirv.cache");
     if(!tmp.empty())
     {
         auto bson = nlohmann::json::from_bson(tmp);
         bson.get_to(cacheDTO);
     }
-    infile.close();
 }
 
 void CShaderCache::save()
 {
-    std::ofstream outfile("spirv.cache", std::ios::out | std::ios::binary);
     auto binary = nlohmann::json::to_bson(cacheDTO);
-    outfile.write((char*)&binary[0], binary.size() * sizeof(binary[0]));
-    outfile.close();
+    FilesystemHelper::writeFile("spirv.cache", binary);
 }

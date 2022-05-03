@@ -37,17 +37,6 @@ namespace Engine
 
         NLOHMANN_JSON_SERIALIZE_ENUM
         (
-            EMaterialType, 
-            {
-                {EMaterialType::eUI, "ui"},
-                {EMaterialType::eDiffuse, "diffuse"},
-                {EMaterialType::eSkybox, "skybox"},
-                {EMaterialType::ePBR, "pbr"}
-            }
-        )
-
-        NLOHMANN_JSON_SERIALIZE_ENUM
-        (
             EMeshType, 
             {
                 {EMeshType::eStatic, "static"},
@@ -120,9 +109,6 @@ namespace Engine
         {
             json = nlohmann::json{
                 {"name", type.srName},
-                {"primitive", type.srPrimitive},
-                {"type", type.eType},
-                {"attachments", type.srAttachments},
                 {"textures", {type.vTextures}},
                 {"params", type.fParams}};
         }
@@ -130,9 +116,6 @@ namespace Engine
         void from_json(const nlohmann::json &json, FMaterialCreateInfo &type)
         {
             ParseArgument(json, type.srName, "name", true);
-            ParseArgument(json, type.srPrimitive, "primitive", true);
-            ParseArgument(json, type.eType, "type", true);
-            ParseArgument(json, type.srAttachments, "attachments");
             ParseArgument(json, type.vTextures, "textures");
             ParseArgument(json, type.fParams, "params");
         }

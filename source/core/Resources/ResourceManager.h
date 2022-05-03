@@ -6,7 +6,6 @@
 #include "meshes/MeshFragment.h"
 #include "meshes/MeshFactory.h"
 //Old code in this includer, remove
-#include "materials/MaterialFactory.h"
 
 namespace Engine
 {
@@ -79,8 +78,8 @@ namespace Engine
             template <>
             std::shared_ptr<Material::CMaterialBase> Add(FMaterialCreateInfo info)
             {
-                std::shared_ptr<Material::CMaterialBase> material = Material::CMaterialFactory::create(shared_from_this(), info);
-                addExisting(info.srName, material);
+                //std::shared_ptr<Material::CMaterialBase> material = Material::CMaterialFactory::create(shared_from_this(), info);
+                //addExisting(info.srName, material);
                 return nullptr;
             }
 

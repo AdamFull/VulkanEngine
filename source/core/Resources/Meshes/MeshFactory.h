@@ -9,7 +9,6 @@ namespace Engine
         namespace Mesh
         {
             class CMeshFragment;
-
             struct CMeshFactory
             {
             public:

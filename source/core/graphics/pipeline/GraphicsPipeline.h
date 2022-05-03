@@ -12,7 +12,7 @@ namespace Engine
             public:
                 CGraphicsPipeline() = default;
 
-                void create() override;
+                void create(vk::RenderPass& renderPass, uint32_t subpass) override;
                 void recreatePipeline() override;
 
             protected:

@@ -20,7 +20,7 @@ bool CMeshLoader::load(std::string srPath, std::shared_ptr<Resources::CResourceM
     return false;
 }
 
-void CMeshLoader::calculateTangents(std::vector<Core::Vertex> &vertices, std::vector<uint32_t> indices)
+void CMeshLoader::calculateTangents(std::vector<Core::FVertex> &vertices, std::vector<uint32_t> indices)
 {
 #pragma omp parallel for
     for (int i = 0; i < vertices.size(); i++)
@@ -35,7 +35,7 @@ void CMeshLoader::calculateTangents(std::vector<Core::Vertex> &vertices, std::ve
     }
 }
 
-glm::vec4 CMeshLoader::generateNormals(std::vector<Core::Vertex> &vertices, std::vector<uint32_t> indices)
+glm::vec4 CMeshLoader::generateNormals(std::vector<Core::FVertex> &vertices, std::vector<uint32_t> indices)
 {
     return glm::vec4{};
 }

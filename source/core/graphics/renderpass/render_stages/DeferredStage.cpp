@@ -97,16 +97,3 @@ void CDeferredStage::reCreate()
     pRenderPass->reCreate();
     pFramebuffer->reCreate(pRenderPass->get());
 }
-
-void CDeferredStage::render(vk::CommandBuffer& commandBuffer, std::shared_ptr<Scene::CRenderObject>& root)
-{
-    pRenderPass->begin(commandBuffer, pFramebuffer->get());
-    pRenderPass->render(commandBuffer, pFramebuffer->getImages(USwapChain->getCurrentFrame()), root);
-    pRenderPass->end(commandBuffer);
-}
-
-void CDeferredStage::cleanup()
-{
-    pRenderPass->cleanup();
-    pFramebuffer->cleanup();
-}

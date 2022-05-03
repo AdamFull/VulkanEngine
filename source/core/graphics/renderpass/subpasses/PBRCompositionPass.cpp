@@ -1,5 +1,5 @@
 #include "PBRCompositionPass.h"
-#include "resources/materials/MaterialDeferred.h"
+#include "resources/materials/MaterialLoader.h"
 #include "resources/ResourceManager.h"
 #include "graphics/scene/objects/RenderObject.h"
 #include "graphics/scene/objects/components/camera/CameraManager.h"
@@ -22,7 +22,7 @@ using namespace Engine::Resources::Material;
 using namespace Engine::Core::Scene;
 
 
-void CPBRCompositionPass::create(std::shared_ptr<Resources::CResourceManager>& resourceManager, std::shared_ptr<Scene::CRenderObject>& root, vk::RenderPass& renderPass, uint32_t subpass)
+void CPBRCompositionPass::create(std::shared_ptr<Resources::CResourceManager>& resourceManager, std::shared_ptr<Scene::CRenderObject>& root)
 {
     auto framesInFlight = USwapChain->getFramesInFlight();
     pUniform = std::make_shared<CUniformBuffer>();
@@ -34,15 +34,19 @@ void CPBRCompositionPass::create(std::shared_ptr<Resources::CResourceManager>& r
     irradiance = UHLInstance->getThreadPool()->submit(&CPBRCompositionPass::ComputeIrradiance, m_pSkybox, 64);
     prefiltered = UHLInstance->getThreadPool()->submit(&CPBRCompositionPass::ComputePrefiltered, m_pSkybox, 512);
 
-    pMaterial = std::make_shared<CMaterialDeferred>();
+    auto& renderPass = URenderer->getCurrentStage()->getRenderPass()->get();
+    auto subpass = URenderer->getCurrentStage()->getRenderPass()->getCurrentSubpass();
+
+    pMaterial = CMaterialLoader::getInstance()->create("pbr_composition");
     pMaterial->create(renderPass, subpass);
 
     UOverlay->create(root, renderPass, subpass);
-    CSubpass::create(resourceManager, root, renderPass, subpass);
+    CSubpass::create(resourceManager, root);
 }
 
-void CPBRCompositionPass::render(vk::CommandBuffer& commandBuffer, std::unordered_map<std::string, std::shared_ptr<CImage>>& images, std::shared_ptr<Scene::CRenderObject>& root)
+void CPBRCompositionPass::render(vk::CommandBuffer& commandBuffer, std::shared_ptr<Scene::CRenderObject>& root)
 {
+    auto& images = URenderer->getCurrentStage()->getFramebuffer()->getCurrentImages();
     pMaterial->addTexture("brdflut_tex", *brdf);
     pMaterial->addTexture("irradiance_tex", *irradiance);
     pMaterial->addTexture("prefiltred_tex", *prefiltered);
@@ -69,7 +73,8 @@ void CPBRCompositionPass::render(vk::CommandBuffer& commandBuffer, std::unordere
     pUniform->updateUniformBuffer(imageIndex, &ubo);
     auto& buffer = pUniform->getUniformBuffer(imageIndex);
     auto descriptor = buffer->getDscriptor();
-    pMaterial->update(descriptor, imageIndex);
+    pMaterial->addBuffer("UBOLightning", descriptor);
+    pMaterial->update(imageIndex);
     pMaterial->bind(commandBuffer, imageIndex);
 
     commandBuffer.draw(3, 1, 0, 0);
@@ -97,9 +102,9 @@ std::shared_ptr<CImage> CPBRCompositionPass::ComputeBRDFLUT(uint32_t size)
     auto descriptor = Descriptor::CDescriptorHandler();
 
     std::shared_ptr<Pipeline::CPipelineBase> computePipeline = Pipeline::CPipelineBase::Builder().
-    addShaderStage("../../assets/shaders/generators/brdflut.comp").
-    build();
-
+    addShaderStage("shaders/generators/brdflut.comp").
+    build(vk::PipelineBindPoint::eCompute);
+    computePipeline->create();
     computePipeline->bind(commandBuffer);
 
     descriptor.create(computePipeline);
@@ -134,9 +139,9 @@ std::shared_ptr<CImage> CPBRCompositionPass::ComputeIrradiance(const std::shared
     auto descriptor = Descriptor::CDescriptorHandler();
     
     std::shared_ptr<Pipeline::CPipelineBase> computePipeline = Pipeline::CPipelineBase::Builder().
-    addShaderStage("../../assets/shaders/generators/irradiancecube.comp").
-    build();
-
+    addShaderStage("shaders/generators/irradiancecube.comp").
+    build(vk::PipelineBindPoint::eCompute);
+    computePipeline->create();
     computePipeline->bind(commandBuffer);
 
     descriptor.create(computePipeline);
@@ -172,8 +177,9 @@ std::shared_ptr<CImage> CPBRCompositionPass::ComputePrefiltered(const std::share
     auto push = CPushHandler();
     
     std::shared_ptr<Pipeline::CPipelineBase> computePipeline = Pipeline::CPipelineBase::Builder().
-    addShaderStage("../../assets/shaders/generators/prefilteredmap.comp").
-    build();
+    addShaderStage("shaders/generators/prefilteredmap.comp").
+    build(vk::PipelineBindPoint::eCompute);
+    computePipeline->create();
     push.create(*computePipeline->getShader()->getPushBlock("object"));
 
     for (uint32_t i = 0; i < prefilteredCubemap->getMipLevels(); i++)
@@ -192,16 +198,17 @@ std::shared_ptr<CImage> CPBRCompositionPass::ComputePrefiltered(const std::share
         cmdBuf.begin();
         auto commandBuffer = cmdBuf.getCommandBuffer();
         computePipeline->bind(commandBuffer);
+        auto outColor = computePipeline->getShader()->getUniform("outColour");
 
         auto imageInfo = prefilteredCubemap->getDescriptor();
 		imageInfo.imageView = levelView;
 
         vk::WriteDescriptorSet descriptorWrite = {};
 		descriptorWrite.dstSet = VK_NULL_HANDLE; // Will be set in the descriptor handler.
-		descriptorWrite.dstBinding = *computePipeline->getShader()->getDescriptorLocation("outColour");
+		descriptorWrite.dstBinding = outColor->getBinding();
 		descriptorWrite.dstArrayElement = 0;
 		descriptorWrite.descriptorCount = 1;
-		descriptorWrite.descriptorType = *computePipeline->getShader()->getDescriptorType(descriptorWrite.dstBinding);
+		descriptorWrite.descriptorType = outColor->getDescriptorType();
 		descriptorWrite.pImageInfo = &imageInfo;
 
         push.set("roughness", static_cast<float>(i) / static_cast<float>(prefilteredCubemap->getMipLevels() - 1), 0);

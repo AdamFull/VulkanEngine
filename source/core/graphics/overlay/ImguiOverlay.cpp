@@ -8,7 +8,7 @@
 #include "graphics/buffer/UniformHandler.hpp"
 #include "resources/ResourceManager.h"
 #include "graphics/image/Image.h"
-#include "resources/materials/MaterialUI.h"
+#include "resources/materials/MaterialLoader.h"
 #include "graphics/VulkanSwapChain.h"
 #include "graphics/VulkanInitializers.h"
 
@@ -25,7 +25,6 @@
 using namespace Engine::Core;
 using namespace Engine::Core::Window;
 using namespace Engine::Resources;
-;
 using namespace Engine::Resources::Material;
 
 CImguiOverlay::~CImguiOverlay()
@@ -39,7 +38,8 @@ CImguiOverlay::~CImguiOverlay()
 void CImguiOverlay::create(std::shared_ptr<Scene::CRenderObject> pRoot, vk::RenderPass& renderPass, uint32_t subpass)
 {
     fontTexture = std::make_shared<CImage>();
-    fontMaterial = std::make_shared<CMaterialUI>();
+    fontMaterial = CMaterialLoader::getInstance()->create("imguiui");
+    fontMaterial->create(renderPass, subpass);
     vertexBuffer = std::make_shared<CVulkanBuffer>();
     indexBuffer = std::make_shared<CVulkanBuffer>();
     m_pUniformHandle = std::make_shared<CUniformHandler>();
@@ -208,7 +208,8 @@ void CImguiOverlay::drawFrame(vk::CommandBuffer commandBuffer, uint32_t index)
         auto& buffer = m_pUniformHandle->getUniformBuffer(index);
         auto pipeline = fontMaterial->getPipeline();
         auto descriptor = buffer->getDscriptor();
-        fontMaterial->update(descriptor, index);
+        fontMaterial->addBuffer("FUniformDataUI", descriptor);
+        fontMaterial->update(index);
         fontMaterial->bind(commandBuffer, index);
 
         vk::Viewport viewport = Initializers::Viewport(ImGui::GetIO().DisplaySize.x, ImGui::GetIO().DisplaySize.y);

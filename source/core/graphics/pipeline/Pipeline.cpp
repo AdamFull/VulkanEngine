@@ -4,39 +4,45 @@
 
 using namespace Engine::Core::Pipeline;
 
-std::unique_ptr<CPipelineBase> CPipelineBase::Builder::build(vk::RenderPass& renderPass, uint32_t subpass)
+std::unique_ptr<CPipelineBase> CPipelineBase::Builder::build(vk::PipelineBindPoint bindPoint)
 {
-    std::unique_ptr<CPipelineBase> pPipeline = std::make_unique<CGraphicsPipeline>();
+    std::unique_ptr<CPipelineBase> pPipeline;
+    
+    switch (bindPoint)
+    {
+    case vk::PipelineBindPoint::eCompute: pPipeline = std::make_unique<CComputePipeline>(); break;
+    case vk::PipelineBindPoint::eGraphics: pPipeline = std::make_unique<CGraphicsPipeline>(); break;
+    case vk::PipelineBindPoint::eRayTracingKHR: pPipeline = std::make_unique<CComputePipeline>(); break;
+    case vk::PipelineBindPoint::eSubpassShadingHUAWEI: pPipeline = std::make_unique<CComputePipeline>(); break;
+    }
 
-    pPipeline->m_vertexInput = std::move(m_vertexInput);
-    pPipeline->m_renderPass = renderPass;
-    pPipeline->subpass = subpass;
-    pPipeline->m_bindPoint = vk::PipelineBindPoint::eGraphics;
-    pPipeline->m_colorAttachments = m_colorAttachments;
-    pPipeline->m_culling = m_culling;
-    pPipeline->m_fontface = m_fontface;
-    pPipeline->m_enableDepth = m_enableDepth;
-    pPipeline->m_vDynamicStateEnables = m_vDynamicStateEnables;
+    pPipeline->m_bindPoint = bindPoint;
     pPipeline->m_vDefines = std::move(m_vDefines);
     pPipeline->m_vStages = std::move(m_vStages);
-    pPipeline->create();
+
+    if(bindPoint == vk::PipelineBindPoint::eGraphics)
+    {
+        pPipeline->m_vertexInput = std::move(m_vertexInput);
+        pPipeline->m_colorAttachments = m_colorAttachments;
+        pPipeline->m_culling = m_culling;
+        pPipeline->m_fontface = m_fontface;
+        pPipeline->m_enableDepth = m_enableDepth;
+        pPipeline->m_vDynamicStateEnables = m_vDynamicStateEnables;
+    }    
+    
     return pPipeline;
 }
-
-std::unique_ptr<CPipelineBase> CPipelineBase::Builder::build()
-{
-    std::unique_ptr<CPipelineBase> pPipeline = std::make_unique<CComputePipeline>();
-    pPipeline->m_bindPoint = vk::PipelineBindPoint::eCompute;
-    pPipeline->m_vDefines = std::move(m_vDefines);
-    pPipeline->m_vStages = std::move(m_vStages);
-    pPipeline->create();
-    return pPipeline;
-}
-
 
 CPipelineBase::~CPipelineBase()
 {
     cleanup();
+}
+
+void CPipelineBase::create(vk::RenderPass& renderPass, uint32_t _subpass)
+{
+    m_renderPass = renderPass;
+    subpass = _subpass;
+    create();
 }
 
 void CPipelineBase::create()

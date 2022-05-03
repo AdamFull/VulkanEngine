@@ -59,14 +59,6 @@ namespace Engine
             FNoiseParam noise{};
         };
 
-        enum class EMaterialType
-        {
-            eUI,
-            eDiffuse,
-            eSkybox,
-            ePBR
-        };
-
         struct FMaterialParamsInfo
         {
             // glm::vec4 albedo{1.f};
@@ -78,9 +70,6 @@ namespace Engine
         struct FMaterialCreateInfo
         {
             std::string srName{};
-            std::string srPrimitive{};
-            EMaterialType eType{};
-            std::vector<std::string> srAttachments{};
             std::vector<FTextureCreateInfo> vTextures{};
             FMaterialParamsInfo fParams{};
         };

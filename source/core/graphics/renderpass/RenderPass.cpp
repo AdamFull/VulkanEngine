@@ -91,11 +91,11 @@ CRenderPass::~CRenderPass()
 void CRenderPass::create(std::shared_ptr<Resources::CResourceManager>& resourceManager, std::shared_ptr<Scene::CRenderObject>& root)
 {
     //Creating subpasses (render stages)
-    uint32_t subpassNum{0};
+    currentSubpassIndex = 0;
     for(auto& subpass : vSubpasses)
     {
-        subpass->create(resourceManager, root, renderPass, subpassNum);
-        subpassNum++;
+        subpass->create(resourceManager, root);
+        currentSubpassIndex++;
     }
 }
 
@@ -112,14 +112,12 @@ void CRenderPass::cleanup()
     //TODO: cleanup
 }
 
-void CRenderPass::begin(vk::CommandBuffer& commandBuffer, std::vector<vk::Framebuffer>& framebuffer)
+void CRenderPass::begin(vk::CommandBuffer& commandBuffer)
 {
     //Begins render pass for start rendering
-    auto imageIndex = USwapChain->getCurrentFrame();
-
     vk::RenderPassBeginInfo renderPassBeginInfo{};
     renderPassBeginInfo.renderPass = renderPass;
-    renderPassBeginInfo.framebuffer = framebuffer.at(imageIndex);
+    renderPassBeginInfo.framebuffer = URenderer->getCurrentStage()->getFramebuffer()->getCurrentFramebuffer();
     renderPassBeginInfo.renderArea = renderArea;
     renderPassBeginInfo.clearValueCount = static_cast<uint32_t>(vClearValues.size());
     renderPassBeginInfo.pClearValues = vClearValues.data();
@@ -137,17 +135,19 @@ void CRenderPass::end(vk::CommandBuffer& commandBuffer)
     commandBuffer.endRenderPass();
 }
 
-void CRenderPass::render(vk::CommandBuffer& commandBuffer, std::unordered_map<std::string, std::shared_ptr<CImage>>& images, std::shared_ptr<Scene::CRenderObject>& root)
+void CRenderPass::render(vk::CommandBuffer& commandBuffer, std::shared_ptr<Scene::CRenderObject>& root)
 {
+    begin(commandBuffer);
     //Render each stage
     uint32_t subpass_id{0};
     for(auto& subpass : vSubpasses)
     {
-        subpass->render(commandBuffer, images, root);
+        subpass->render(commandBuffer, root);
         if((vSubpasses.size() - 1) > subpass_id)
             commandBuffer.nextSubpass(vk::SubpassContents::eInline);
         subpass_id++;
     }
+    end(commandBuffer);
 }
 
 void CRenderPass::setRenderArea(int32_t offset_x, int32_t offset_y, uint32_t width, uint32_t height)

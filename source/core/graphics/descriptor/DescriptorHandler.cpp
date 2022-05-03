@@ -39,10 +39,10 @@ void CDescriptorHandler::clear()
 void CDescriptorHandler::set(const std::string& srUniformName, vk::DescriptorBufferInfo& bufferInfo)
 {
     auto uniformBlock = pPipeline->getShader()->getUniformBlock(srUniformName);
-    auto descriptorType = pPipeline->getShader()->getDescriptorType(uniformBlock->getBinding());
+    auto descriptorType = uniformBlock->getDescriptorType();
 
     vk::WriteDescriptorSet write{};
-    write.descriptorType = descriptorType.value();
+    write.descriptorType = descriptorType;
     write.dstBinding = uniformBlock->getBinding();
     write.pBufferInfo = &bufferInfo;
     write.descriptorCount = 1;
@@ -52,10 +52,10 @@ void CDescriptorHandler::set(const std::string& srUniformName, vk::DescriptorBuf
 void CDescriptorHandler::set(const std::string& srUniformName, vk::DescriptorImageInfo& imageInfo)
 {
     auto uniform = pPipeline->getShader()->getUniform(srUniformName);
-    auto descriptorType = pPipeline->getShader()->getDescriptorType(uniform->getBinding());
+    auto descriptorType = uniform->getDescriptorType();
 
     vk::WriteDescriptorSet write{};
-    write.descriptorType = descriptorType.value();
+    write.descriptorType = descriptorType;
     write.dstBinding = uniform->getBinding();
     write.pImageInfo = &imageInfo;
     write.descriptorCount = 1;

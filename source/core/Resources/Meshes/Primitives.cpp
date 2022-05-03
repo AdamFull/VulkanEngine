@@ -3,7 +3,7 @@
 using namespace Engine::Core;
 using namespace Engine::Resources;
 
-std::vector<Vertex> FPlane::m_vVertices
+std::vector<FVertex> FPlane::m_vVertices
 {
     {{-1.0f, -1.0f, 0.0f}, {0.0f, 1.0f, 0.0f}, {0.0f, 0.0f}},
     {{1.0f, -1.0f, 0.0f}, {0.0f, 1.0f, 0.0f}, {1.0f, 0.0f}},
@@ -16,7 +16,7 @@ std::vector<uint32_t> FPlane::m_vIndices
     0, 1, 2, 2, 3, 0
 };
 
-std::vector<Vertex> FCube::m_vVertices
+std::vector<FVertex> FCube::m_vVertices
 {
     {{-5.f, -5.f, 5.f}, {0.f, -1.f, 0.f}, {1.f, 1.f}},
     {{-5.f, -5.f, -5.f}, {0.f, -1.f, 0.f}, {1.f, 0.f}},
@@ -56,7 +56,7 @@ std::vector<uint32_t> FCube::m_vIndices
     19,16,20,21,22,22,23,20
 };
 
-std::vector<Vertex> FSphere::m_vVertices
+std::vector<FVertex> FSphere::m_vVertices
 {
 
 };

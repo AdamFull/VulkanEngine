@@ -349,8 +349,6 @@ void CShader::clear()
     //Destroy before clear
     vDescriptorSetLayouts.clear();
     vDescriptorPools.clear();
-    mDescriptorTypes.clear();
-    vAttributeDescriptions.clear();
     lastDescriptorBinding = 0;
 }
 
@@ -415,30 +413,6 @@ void CShader::finalizeReflection()
     // Gets the last descriptors binding.
 	if (!vDescriptorSetLayouts.empty())
 		lastDescriptorBinding = vDescriptorSetLayouts.back().binding;
-
-    // Gets the descriptor type for each descriptor.
-	for (const auto &descriptor : vDescriptorSetLayouts)
-		mDescriptorTypes.emplace(descriptor.binding, descriptor.descriptorType);
-}
-
-vk::ShaderStageFlagBits CShader::getShaderStage(const std::filesystem::path &moduleName)
-{
-    auto fileExt = moduleName.extension().string();
-	std::transform(fileExt.begin(), fileExt.end(), fileExt.begin(), ::tolower);
-
-	if (fileExt == ".comp")
-		return vk::ShaderStageFlagBits::eCompute;
-	if (fileExt == ".vert")
-		return vk::ShaderStageFlagBits::eVertex;
-	if (fileExt == ".tesc")
-		return vk::ShaderStageFlagBits::eTessellationControl;
-	if (fileExt == ".tese")
-		return vk::ShaderStageFlagBits::eTessellationEvaluation;
-	if (fileExt == ".geom")
-		return vk::ShaderStageFlagBits::eGeometry;
-	if (fileExt == ".frag")
-		return vk::ShaderStageFlagBits::eFragment;
-	return vk::ShaderStageFlagBits::eAll;
 }
 
 std::optional<uint32_t> CShader::getDescriptorLocation(const std::string &name) const
@@ -476,17 +450,23 @@ std::optional<CPushConstBlock> CShader::getPushBlock(const std::string &name) co
 	return std::nullopt;
 }
 
-std::optional<CAttribute> CShader::getInputAttribute(const std::string &name) const
+std::optional<CAttribute> CShader::getInputAttribute(const std::string &name, vk::ShaderStageFlagBits stage) const
 {
-    if (auto it = mInputAttributes.find(name); it != mInputAttributes.end())
-		return it->second;
+    if (auto it = mInputAttributes.find(stage); it != mInputAttributes.end())
+    {
+        if(auto _it = it->second.find(name); _it != it->second.end())
+            return _it->second;
+    }
 	return std::nullopt;
 }
 
-std::optional<CAttribute> CShader::getOutputAttribute(const std::string &name) const
+std::optional<CAttribute> CShader::getOutputAttribute(const std::string &name, vk::ShaderStageFlagBits stage) const
 {
-    if (auto it = mOutputAttributes.find(name); it != mOutputAttributes.end())
-		return it->second;
+	if (auto it = mOutputAttributes.find(stage); it != mOutputAttributes.end())
+    {
+        if(auto _it = it->second.find(name); _it != it->second.end())
+            return _it->second;
+    }
 	return std::nullopt;
 }
 
@@ -507,12 +487,51 @@ std::vector<vk::PushConstantRange> CShader::getPushConstantRanges() const
 	return pushConstantRanges;
 }
 
-std::optional<vk::DescriptorType> CShader::getDescriptorType(uint32_t location) const
+const std::optional<std::unordered_map<std::string, CAttribute>> CShader::getInputAttributes(vk::ShaderStageFlagBits stage) const
 {
-    if (auto it = mDescriptorTypes.find(location); it != mDescriptorTypes.end())
-		return it->second;
-	return std::nullopt;
+    if (auto it = mInputAttributes.find(stage); it != mInputAttributes.end())
+        return it->second;
+    return std::nullopt;
 }
+
+const std::optional<std::unordered_map<std::string, CAttribute>> CShader::getOutputAttributes(vk::ShaderStageFlagBits stage) const
+{
+    if (auto it = mOutputAttributes.find(stage); it != mOutputAttributes.end())
+        return it->second;
+    return std::nullopt;
+}
+
+const std::vector<vk::VertexInputAttributeDescription> CShader::getAttributeDescriptions(vk::ShaderStageFlagBits stage) const
+{
+    std::vector<vk::VertexInputAttributeDescription> attributes{};
+    if (auto it = mInputAttributes.find(stage); it != mInputAttributes.end())
+    {
+        for(auto& [name, attribute] : it->second)
+        {
+            vk::VertexInputAttributeDescription desc{};
+            desc.binding = attribute.set;
+            desc.location = attribute.location;
+            desc.offset = attribute.offset;
+            desc.format = attribute.type;
+            attributes.emplace_back(desc);
+        }
+    }
+    return attributes;
+}
+
+const vk::VertexInputBindingDescription CShader::getBindingDescription(vk::ShaderStageFlagBits stage) const
+{
+    size_t size{0};
+    vk::VertexInputBindingDescription desc{};
+    desc.binding = 0;
+    desc.inputRate = stage == vk::ShaderStageFlagBits::eVertex ? vk::VertexInputRate::eVertex : vk::VertexInputRate::eInstance;
+    if (auto it = mInputAttributes.find(stage); it != mInputAttributes.end())
+        for(auto& [name, attribute] : it->second)
+            size += attribute.offset;
+    desc.stride = size;
+    return desc;
+}
+
 
 void CShader::buildReflection(std::vector<uint32_t>& spirv, vk::ShaderStageFlagBits stageFlag)
 {
@@ -596,17 +615,19 @@ void CShader::buildReflection(std::vector<uint32_t>& spirv, vk::ShaderStageFlagB
             mUniforms.emplace(res.name, buildUnifrom(&compiler, res, stageFlag, vk::DescriptorType::eInputAttachment));
     }
 
+    auto constants = compiler.get_specialization_constants();
+    for(const auto& constant : constants)
+        break;
+
     uint32_t input_offset = 0;
     for(const auto& res : resources.stage_inputs)
-    {
-        mInputAttributes.emplace(res.name, buildAttribute(&compiler, res, input_offset));
-    }
+        mInputAttributes[stageFlag].emplace(res.name, buildAttribute(&compiler, res, input_offset));
 
     input_offset = 0;
     for(const auto& res : resources.stage_outputs)
-    {
-        mOutputAttributes.emplace(res.name, buildAttribute(&compiler, res, input_offset));
-    }
+        mOutputAttributes[stageFlag].emplace(res.name, buildAttribute(&compiler, res, input_offset));
+
+    getBindingDescription(vk::ShaderStageFlagBits::eVertex);
 }
 
 CUniformBlock CShader::buildUniformBlock(spirv_cross::Compiler* compiler, const spirv_cross::Resource &res, vk::ShaderStageFlagBits stageFlag, vk::DescriptorType descriptorType)
@@ -675,10 +696,142 @@ CAttribute CShader::buildAttribute(spirv_cross::Compiler* compiler, const spirv_
     const auto& type = compiler->get_type(res.type_id);
     attribute.set = compiler->get_decoration(res.id, spv::DecorationDescriptorSet);
     attribute.location = compiler->get_decoration(res.id, spv::DecorationLocation);
-    attribute.size = (type.width/8) * type.vecsize;
+    attribute.size = parseSize(type);
     attribute.offset = offset;
     offset += attribute.size;
-    attribute.type = static_cast<uint32_t>(type.basetype);
-
+    attribute.type = parseVkFormat(type);
     return attribute;
+}
+
+vk::ShaderStageFlagBits CShader::getShaderStage(const std::filesystem::path &moduleName)
+{
+    auto fileExt = moduleName.extension().string();
+	std::transform(fileExt.begin(), fileExt.end(), fileExt.begin(), ::tolower);
+
+	if (fileExt == ".comp")
+		return vk::ShaderStageFlagBits::eCompute;
+	if (fileExt == ".vert")
+		return vk::ShaderStageFlagBits::eVertex;
+	if (fileExt == ".tesc")
+		return vk::ShaderStageFlagBits::eTessellationControl;
+	if (fileExt == ".tese")
+		return vk::ShaderStageFlagBits::eTessellationEvaluation;
+	if (fileExt == ".geom")
+		return vk::ShaderStageFlagBits::eGeometry;
+	if (fileExt == ".frag")
+		return vk::ShaderStageFlagBits::eFragment;
+	return vk::ShaderStageFlagBits::eAll;
+}
+
+vk::Format CShader::parseVkFormat(const spirv_cross::SPIRType& type)
+{
+    switch (type.basetype)
+    {
+        case spirv_cross::SPIRType::SByte:
+        {
+            switch(type.vecsize)
+            {
+                case 1: { return vk::Format::eR8Sint; } break;
+                case 2: { return vk::Format::eR8G8Sint; } break;
+                case 3: { return vk::Format::eR8G8B8Sint; } break;
+                case 4: { return vk::Format::eR8G8B8A8Sint; } break;
+            }
+        } break;
+        case spirv_cross::SPIRType::UByte:
+        {
+            switch(type.vecsize)
+            {
+                case 1: { return vk::Format::eR8Uint; } break;
+                case 2: { return vk::Format::eR8G8Uint; } break;
+                case 3: { return vk::Format::eR8G8B8Uint; } break;
+                case 4: { return vk::Format::eR8G8B8A8Uint; } break;
+            }
+        } break;
+        case spirv_cross::SPIRType::Short:
+        {
+            switch(type.vecsize)
+            {
+                case 1: { return vk::Format::eR16Sint; } break;
+                case 2: { return vk::Format::eR16G16Sint; } break;
+                case 3: { return vk::Format::eR16G16B16Sint; } break;
+                case 4: { return vk::Format::eR16G16B16A16Sint; } break;
+            }
+        } break;
+        case spirv_cross::SPIRType::UShort:
+        {
+            switch(type.vecsize)
+            {
+                case 1: { return vk::Format::eR16Uint; } break;
+                case 2: { return vk::Format::eR16G16Uint; } break;
+                case 3: { return vk::Format::eR16G16B16Uint; } break;
+                case 4: { return vk::Format::eR16G16B16A16Uint; } break;
+            }
+        } break;
+        case spirv_cross::SPIRType::Half:
+        {
+            switch(type.vecsize)
+            {
+                case 1: { return vk::Format::eR16Sfloat; } break;
+                case 2: { return vk::Format::eR16G16Sfloat; } break;
+                case 3: { return vk::Format::eR16G16B16Sfloat; } break;
+                case 4: { return vk::Format::eR16G16B16A16Sfloat; } break;
+            }
+        } break;
+        case spirv_cross::SPIRType::Int:
+        {
+            switch(type.vecsize)
+            {
+                case 1: { return vk::Format::eR32Sint; } break;
+                case 2: { return vk::Format::eR32G32Sint; } break;
+                case 3: { return vk::Format::eR32G32B32Sint; } break;
+                case 4: { return vk::Format::eR32G32B32A32Sint; } break;
+            }
+        } break;
+        case spirv_cross::SPIRType::UInt:
+        {
+            switch(type.vecsize)
+            {
+                case 1: { return vk::Format::eR32Uint; } break;
+                case 2: { return vk::Format::eR32G32Uint; } break;
+                case 3: { return vk::Format::eR32G32B32Uint; } break;
+                case 4: { return vk::Format::eR32G32B32A32Uint; } break;
+            }
+        } break;
+        case spirv_cross::SPIRType::Float:
+        {
+            switch(type.vecsize)
+            {
+                case 1: { return vk::Format::eR32Sfloat; } break;
+                case 2: { return vk::Format::eR32G32Sfloat; } break;
+                case 3: { return vk::Format::eR32G32B32Sfloat; } break;
+                case 4: { return vk::Format::eR32G32B32A32Sfloat; } break;
+            }
+        } break;
+    }
+    return vk::Format::eUndefined;
+}
+
+size_t CShader::parseSize(const spirv_cross::SPIRType& type)
+{
+    switch (type.basetype)
+    {
+        case spirv_cross::SPIRType::SByte:
+        case spirv_cross::SPIRType::UByte:
+        {
+            return type.vecsize;
+        } break;
+        case spirv_cross::SPIRType::Short:
+        case spirv_cross::SPIRType::UShort:
+        case spirv_cross::SPIRType::Half:
+        {
+            return 2 * type.vecsize;
+        } break;
+        case spirv_cross::SPIRType::Int:
+        case spirv_cross::SPIRType::UInt:
+        case spirv_cross::SPIRType::Float:
+        {
+            return 4 * type.vecsize;
+        } break;
+    }
+    return std::numeric_limits<size_t>::max();
 }

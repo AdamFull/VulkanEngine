@@ -37,15 +37,17 @@ namespace Engine
             class CMaterialBase 
             {
             public:
+                friend class CMaterialLoader;
                 CMaterialBase() = default;
                 virtual ~CMaterialBase();
 
                 virtual void create(vk::RenderPass& renderPass, uint32_t subpass);
                 void addTexture(const std::string& attachment, vk::DescriptorImageInfo& descriptor);
                 void addTexture(const std::string& attachment, std::shared_ptr<Core::CImage> pTexture);
+                void addBuffer(const std::string& attachment, vk::DescriptorBufferInfo& descriptor);
                 vk::DescriptorImageInfo& getTexture(const std::string& attachment);
                 virtual void reCreate();
-                virtual void update(vk::DescriptorBufferInfo& uboDesc, uint32_t imageIndex);
+                virtual void update(uint32_t imageIndex);
                 virtual void bind(vk::CommandBuffer commandBuffer, uint32_t imageIndex);
                 virtual void cleanup();
 
@@ -64,6 +66,7 @@ namespace Engine
                 std::vector<std::shared_ptr<Core::CPushHandler>> m_vPushConstants;
                 std::shared_ptr<Core::Pipeline::CPipelineBase> m_pPipeline;
                 std::map<std::string, vk::DescriptorImageInfo> m_mTextures;
+                std::map<std::string, vk::DescriptorBufferInfo> m_mBuffers;
             };
         }
     }

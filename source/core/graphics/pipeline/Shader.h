@@ -11,6 +11,7 @@ namespace spirv_cross
 {
     class Compiler;
     class Resource;
+    struct SPIRType;
 }
 
 namespace Engine
@@ -108,14 +109,14 @@ namespace Engine
                 uint32_t getLocation() const { return location; }
                 size_t getSize() const { return size; }
                 size_t getOffset() const { return offset; }
-                uint32_t getType() const { return type; }
+                vk::Format getType() const { return type; }
 
             private:
                 uint32_t set{0};
                 uint32_t location{0};
                 size_t size{0};
                 size_t offset{0};
-                uint32_t type{0};
+                vk::Format type{};
             };
 
             class CConstant 
@@ -146,31 +147,28 @@ namespace Engine
                 void addStage(const std::filesystem::path &moduleName, const std::string& moduleCode, const std::string &preamble);
                 void clear();
                 void finalizeReflection();
-                static vk::ShaderStageFlagBits getShaderStage(const std::filesystem::path &moduleName);
 
                 std::optional<uint32_t> getDescriptorLocation(const std::string &name) const;
                 std::optional<uint64_t> getDescriptorSize(const std::string &name) const;
                 std::optional<CUniform> getUniform(const std::string &name) const;
                 std::optional<CUniformBlock> getUniformBlock(const std::string &name) const;
                 std::optional<CPushConstBlock> getPushBlock(const std::string &name) const;
-                std::optional<CAttribute> getInputAttribute(const std::string &name) const;
-                std::optional<CAttribute> getOutputAttribute(const std::string &name) const;
+                std::optional<CAttribute> getInputAttribute(const std::string &name, vk::ShaderStageFlagBits stage) const;
+                std::optional<CAttribute> getOutputAttribute(const std::string &name, vk::ShaderStageFlagBits stage) const;
                 std::vector<vk::PushConstantRange> getPushConstantRanges() const;
-
-                std::optional<vk::DescriptorType> getDescriptorType(uint32_t location) const;
 
                 const std::array<std::optional<uint32_t>, 3>& getLocalSizes() const { return localSizes; }
                 const std::unordered_map<std::string, CUniform>& getUniforms() const { return mUniforms; }
                 const std::unordered_map<std::string, CUniformBlock>& getUniformBlocks() const { return mUniformBlocks; }
                 const std::unordered_map<std::string, CPushConstBlock>& getPushBlocks() const { return mPushBlocks; }
-                const std::unordered_map<std::string, CAttribute>& getInputAttributes() const { return mInputAttributes; }
-                const std::unordered_map<std::string, CAttribute>& getOutputAttributes() const { return mOutputAttributes; }
+                const std::optional<std::unordered_map<std::string, CAttribute>> getInputAttributes(vk::ShaderStageFlagBits stage) const;
+                const std::optional<std::unordered_map<std::string, CAttribute>> getOutputAttributes(vk::ShaderStageFlagBits stage) const;
                 const std::unordered_map<std::string, CConstant>& getConstants() const { return mConstants; }
 
                 const std::vector<vk::DescriptorSetLayoutBinding> &getDescriptorSetLayouts() const { return vDescriptorSetLayouts; }
 	            const std::vector<vk::DescriptorPoolSize> &getDescriptorPools() const { return vDescriptorPools; }
-	            const std::vector<vk::VertexInputAttributeDescription> &getAttributeDescriptions() const { return vAttributeDescriptions; }
-	            const vk::VertexInputBindingDescription &getBindingDescription() const { return bindingDescriptions; }
+	            const std::vector<vk::VertexInputAttributeDescription> getAttributeDescriptions(vk::ShaderStageFlagBits stage) const;
+	            const vk::VertexInputBindingDescription getBindingDescription(vk::ShaderStageFlagBits stage) const;
 
                 const std::vector<vk::PipelineShaderStageCreateInfo>& getStageCreateInfo() const { return vShaderModules; }
             private:
@@ -180,6 +178,10 @@ namespace Engine
                 CUniform buildUnifrom(spirv_cross::Compiler* compiler, const spirv_cross::Resource &res, vk::ShaderStageFlagBits stageFlag, vk::DescriptorType descriptorType);
                 CAttribute buildAttribute(spirv_cross::Compiler* compiler, const spirv_cross::Resource &res, uint32_t& offset);
 
+                static vk::ShaderStageFlagBits getShaderStage(const std::filesystem::path &moduleName);
+                static vk::Format parseVkFormat(const spirv_cross::SPIRType& type);
+                static size_t parseSize(const spirv_cross::SPIRType& type);
+
                 std::array<std::optional<uint32_t>, 3> localSizes;
 
                 std::unordered_map<std::string, uint32_t> mDescriptorLocations;
@@ -188,16 +190,13 @@ namespace Engine
                 std::unordered_map<std::string, CUniform> mUniforms;
                 std::unordered_map<std::string, CUniformBlock> mUniformBlocks;
                 std::unordered_map<std::string, CPushConstBlock> mPushBlocks;
-                std::unordered_map<std::string, CAttribute> mInputAttributes;
-                std::unordered_map<std::string, CAttribute> mOutputAttributes;
+                std::map<vk::ShaderStageFlagBits, std::unordered_map<std::string, CAttribute>> mInputAttributes;
+                std::map<vk::ShaderStageFlagBits, std::unordered_map<std::string, CAttribute>> mOutputAttributes;
                 std::unordered_map<std::string, CConstant> mConstants;
 
                 std::vector<vk::DescriptorSetLayoutBinding> vDescriptorSetLayouts;
                 uint32_t lastDescriptorBinding = 0;
                 std::vector<vk::DescriptorPoolSize> vDescriptorPools;
-                std::unordered_map<uint32_t, vk::DescriptorType> mDescriptorTypes;
-                std::vector<vk::VertexInputAttributeDescription> vAttributeDescriptions;
-                vk::VertexInputBindingDescription bindingDescriptions;
 
                 std::vector<vk::PipelineShaderStageCreateInfo> vShaderModules;
                 std::vector<vk::ShaderStageFlagBits> vShaderStage;

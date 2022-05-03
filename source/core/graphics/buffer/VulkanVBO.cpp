@@ -23,7 +23,7 @@ void CVulkanVBO::bind(vk::CommandBuffer commandBuffer)
     commandBuffer.bindIndexBuffer(indexBuffer->getBuffer(), 0, vk::IndexType::eUint32);
 }
 
-void CVulkanVBO::addMeshData(std::vector<Vertex> &&vertices, std::vector<uint32_t> &&indices)
+void CVulkanVBO::addMeshData(std::vector<FVertex> &&vertices, std::vector<uint32_t> &&indices)
 {
     vVertices.insert(vVertices.end(), vertices.begin(), vertices.end());
     vIndices.insert(vIndices.end(), indices.begin(), indices.end());

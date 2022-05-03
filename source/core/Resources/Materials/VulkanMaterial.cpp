@@ -13,6 +13,7 @@ CMaterialBase::~CMaterialBase()
 void CMaterialBase::create(vk::RenderPass& renderPass, uint32_t subpass)
 {
     uint32_t images = USwapChain->getFramesInFlight();
+    m_pPipeline->create(renderPass, subpass);
     m_pDescriptorSet = std::make_unique<CDescriptorHandler>();
     m_pDescriptorSet->create(m_pPipeline);
 }
@@ -27,6 +28,11 @@ void CMaterialBase::addTexture(const std::string& attachment, std::shared_ptr<Co
     m_mTextures[attachment] = pTexture->getDescriptor();
 }
 
+void CMaterialBase::addBuffer(const std::string& attachment, vk::DescriptorBufferInfo& descriptor)
+{
+    m_mBuffers[attachment] = descriptor;
+}
+
 vk::DescriptorImageInfo& CMaterialBase::getTexture(const std::string& attachment)
 {
     return m_mTextures[attachment];
@@ -37,8 +43,13 @@ void CMaterialBase::reCreate()
     m_pPipeline->recreatePipeline();
 }
 
-void CMaterialBase::update(vk::DescriptorBufferInfo& uboDesc, uint32_t imageIndex)
+void CMaterialBase::update(uint32_t imageIndex)
 {
+    m_pDescriptorSet->clear();
+    for(auto& [key, buffer] : m_mBuffers)
+        m_pDescriptorSet->set(key, buffer);
+    for(auto& [key, texture] : m_mTextures)
+        m_pDescriptorSet->set(key, texture);
     m_pDescriptorSet->update(imageIndex);
 }
 

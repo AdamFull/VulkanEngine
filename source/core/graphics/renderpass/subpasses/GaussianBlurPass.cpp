@@ -1,7 +1,7 @@
 #include "GaussianBlurPass.h"
+#include "resources/materials/MaterialLoader.h"
 #include "graphics/VulkanHighLevel.h"
 #include "graphics/scene/objects/RenderObject.h"
-#include "resources/materials/MaterialBlur.h"
 #include "graphics/image/Image.h"
 #include "resources/ResourceManager.h"
 #include "GlobalVariables.h"
@@ -11,18 +11,21 @@ using namespace Engine::Core::Scene;
 using namespace Engine::Resources;
 using namespace Engine::Resources::Material;
 
-void CGaussianBlurPass::create(std::shared_ptr<Resources::CResourceManager>& resourceManager, std::shared_ptr<Scene::CRenderObject>& root, vk::RenderPass& renderPass, uint32_t subpass)
+void CGaussianBlurPass::create(std::shared_ptr<Resources::CResourceManager>& resourceManager, std::shared_ptr<Scene::CRenderObject>& root)
 {
     auto framesInFlight = USwapChain->getFramesInFlight();
     pUniform = std::make_shared<CUniformBuffer>();
     pUniform->create(framesInFlight, sizeof(FBlurData));
 
-    pMaterial = std::make_shared<CMaterialBlur>();
+    auto& renderPass = URenderer->getCurrentStage()->getRenderPass()->get();
+    auto subpass = URenderer->getCurrentStage()->getRenderPass()->getCurrentSubpass();
+
+    pMaterial = CMaterialLoader::getInstance()->create("gaussian_blur");
     pMaterial->create(renderPass, subpass);
-    CSubpass::create(resourceManager, root, renderPass, subpass);
+    CSubpass::create(resourceManager, root);
 }
 
-void CGaussianBlurPass::render(vk::CommandBuffer& commandBuffer, std::unordered_map<std::string, std::shared_ptr<CImage>>& images, std::shared_ptr<Scene::CRenderObject>& root)
+void CGaussianBlurPass::render(vk::CommandBuffer& commandBuffer, std::shared_ptr<Scene::CRenderObject>& root)
 {
     auto imageIndex = USwapChain->getCurrentFrame();
     FBlurData uniform;
@@ -33,7 +36,8 @@ void CGaussianBlurPass::render(vk::CommandBuffer& commandBuffer, std::unordered_
     pUniform->updateUniformBuffer(imageIndex, &uniform);
     auto& buffer = pUniform->getUniformBuffer(imageIndex);
     auto descriptor = buffer->getDscriptor();
-    pMaterial->update(descriptor, imageIndex);
+    pMaterial->addBuffer("FBloomUbo", descriptor);
+    pMaterial->update(imageIndex);
     pMaterial->bind(commandBuffer, imageIndex);
     commandBuffer.draw(3, 1, 0, 0);
 }

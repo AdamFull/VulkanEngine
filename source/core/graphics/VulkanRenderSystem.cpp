@@ -17,8 +17,12 @@ void CRenderSystem::create(std::shared_ptr<Resources::CResourceManager> resource
 
     vStages.emplace_back(std::make_unique<Render::CDeferredStage>());
 
+    currentStageIndex = 0;
     for(auto& stage : vStages)
+    {
         stage->create(resourceManager, root);
+        currentStageIndex++;
+    }
 }
 
 void CRenderSystem::reCreate()
@@ -34,8 +38,12 @@ void CRenderSystem::render(std::shared_ptr<Scene::CRenderObject> root)
     catch (vk::OutOfDateKHRError err) { UHLInstance->recreateSwapChain(); }
     catch (vk::SystemError err) { throw std::runtime_error("Failed to acquire swap chain image!"); }
 
+    currentStageIndex = 0;
     for(auto& stage : vStages)
+    {
         stage->render(commandBuffer, root);
+        currentStageIndex++;
+    }
 
     vk::Result resultPresent;
     try { resultPresent = endFrame(); }

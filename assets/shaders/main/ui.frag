@@ -1,6 +1,4 @@
 #version 450
-
-
 layout (binding = 1) uniform sampler2D fontSampler;
 
 layout (location = 0) in vec2 inUV;

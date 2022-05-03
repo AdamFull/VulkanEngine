@@ -57,7 +57,10 @@ void CMeshFragment::update(vk::DescriptorBufferInfo& uboDesc, uint32_t imageInde
     for (auto &primitive : m_vPrimitives)
     {
         if(primitive.material && primitive.bUseMaterial)
-            primitive.material->update(uboDesc, imageIndex);
+        {
+             primitive.material->addBuffer("FUniformData", uboDesc);
+            primitive.material->update(imageIndex);
+        }
     }
 }
 

@@ -93,7 +93,7 @@ namespace Engine
 
                 attributeDescriptions[2].binding = 0;
                 attributeDescriptions[2].location = 2;
-                attributeDescriptions[2].format = vk::Format::eR8G8B8A8Unorm;
+                attributeDescriptions[2].format = vk::Format::eR32Uint;
                 attributeDescriptions[2].offset = offsetof(ImDrawVert, col);
 
                 return attributeDescriptions;

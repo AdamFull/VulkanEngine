@@ -492,7 +492,7 @@ namespace vk
     }
 
     void from_json(const nlohmann::json &json, PhysicalDeviceFeatures &type)
-    {
+    { 
         ParseArgument(json, type.robustBufferAccess, "robust_buffer_access");
         ParseArgument(json, type.fullDrawIndexUint32, "full_draw_index_uint32");
         ParseArgument(json, type.imageCubeArray, "image_cube_array");

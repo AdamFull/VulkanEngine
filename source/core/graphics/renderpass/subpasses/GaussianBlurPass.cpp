@@ -11,7 +11,7 @@ using namespace Engine::Core::Scene;
 using namespace Engine::Resources;
 using namespace Engine::Resources::Material;
 
-void CGaussianBlurPass::create(std::shared_ptr<Scene::CRenderObject>& root)
+void CGaussianBlurPass::create()
 {
     auto framesInFlight = CSwapChain::getInstance()->getFramesInFlight();
     pUniform = std::make_shared<CUniformBuffer>();
@@ -22,10 +22,10 @@ void CGaussianBlurPass::create(std::shared_ptr<Scene::CRenderObject>& root)
 
     pMaterial = CMaterialLoader::getInstance()->create("gaussian_blur");
     pMaterial->create(renderPass, subpass);
-    CSubpass::create(root);
+    CSubpass::create();
 }
 
-void CGaussianBlurPass::render(vk::CommandBuffer& commandBuffer, std::shared_ptr<Scene::CRenderObject>& root)
+void CGaussianBlurPass::render(vk::CommandBuffer& commandBuffer)
 {
     auto imageIndex = CSwapChain::getInstance()->getCurrentFrame();
     FBlurData uniform;

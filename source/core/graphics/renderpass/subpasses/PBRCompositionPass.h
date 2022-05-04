@@ -11,8 +11,8 @@ namespace Engine
             class CPBRCompositionPass : public CSubpass
             {
             public:
-                void create(std::shared_ptr<Scene::CRenderObject>& root) override;
-                void render(vk::CommandBuffer& commandBuffer, std::shared_ptr<Scene::CRenderObject>& root) override;
+                void create() override;
+                void render(vk::CommandBuffer& commandBuffer) override;
                 void cleanup() override;
 
             protected:

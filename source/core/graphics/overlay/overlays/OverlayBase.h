@@ -5,7 +5,6 @@ namespace Engine
 {
     namespace Core
     {
-        namespace Scene { class CRenderObject; }
         namespace Overlay
         {
             class COverlayBase

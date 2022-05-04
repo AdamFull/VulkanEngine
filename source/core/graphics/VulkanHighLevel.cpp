@@ -17,14 +17,11 @@ CVulkanHighLevel::~CVulkanHighLevel()
 
 void CVulkanHighLevel::create(FEngineCreateInfo createInfo)
 {
+    m_pThreadPool = std::make_unique<utl::threadpool>();
     CWindowHandle::getInstance()->create(createInfo.window);
     CDevice::getInstance()->create(createInfo.device);
-
     createPipelineCache();
-
     CSwapChain::getInstance()->create();
-
-    m_pThreadPool = std::make_unique<utl::threadpool>();
 
     if (!glslang::InitializeProcess())
 		throw std::runtime_error("Failed to initialize glslang processor.");

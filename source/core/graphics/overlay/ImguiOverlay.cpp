@@ -38,7 +38,7 @@ CImguiOverlay::~CImguiOverlay()
     m_pUniformHandle->cleanup();
 }
 
-void CImguiOverlay::create(std::shared_ptr<Scene::CRenderObject> pRoot, vk::RenderPass& renderPass, uint32_t subpass)
+void CImguiOverlay::create(vk::RenderPass& renderPass, uint32_t subpass)
 {
     fontTexture = std::make_shared<CImage>();
     fontMaterial = CMaterialLoader::getInstance()->create("imguiui");
@@ -60,7 +60,7 @@ void CImguiOverlay::create(std::shared_ptr<Scene::CRenderObject> pRoot, vk::Rend
     m_vOverlays.emplace_back(std::make_shared<Overlay::COverlayDebug>("Debug info"));
     //m_vOverlays.emplace_back(std::make_shared<Overlay::OverlayConsole>("Console"));
     //m_vOverlays.emplace_back(std::make_shared<Overlay::OverlayLog>("Log"));
-    m_vOverlays.emplace_back(std::make_shared<Overlay::COverlaySceneGraph>("Scene", pRoot));
+    m_vOverlays.emplace_back(std::make_shared<Overlay::COverlaySceneGraph>("Scene"));
     m_vOverlays.emplace_back(std::make_shared<Overlay::COverlayPropertyEditor>("Property editor"));
 
     ImGui_ImplGlfw_InitForVulkan(CWindowHandle::getInstance()->getWindowInstance(), true);

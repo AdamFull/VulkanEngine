@@ -1,6 +1,8 @@
 #include "OverlaySceneGraph.h"
 #include "graphics/scene/objects/RenderObject.h"
+#include "graphics/scene/SceneManager.h"
 
+using namespace Engine::Core::Scene;
 using namespace Engine::Core::Overlay;
 
 void COverlaySceneGraph::draw()
@@ -13,10 +15,11 @@ void COverlaySceneGraph::draw()
             return;
         }
 
+        auto& pRoot = CSceneManager::getInstance()->getScene()->getRoot();
         ImGui::PushStyleVar(ImGuiStyleVar_FramePadding, ImVec2(2, 2));
         if (ImGui::BeginTable("split", 1, ImGuiTableFlags_BordersOuter | ImGuiTableFlags_Resizable))
         {
-            auto& sceneObjects = m_pRoot->getChilds();
+            auto& sceneObjects = pRoot->getChilds();
             uint32_t objCounter{0};
             for (auto& object : sceneObjects)
             {
@@ -35,7 +38,7 @@ void COverlaySceneGraph::draw()
     }
 }
 
-void COverlaySceneGraph::createObject(std::string name, std::shared_ptr<Scene::CRenderObject> pObject, int id)
+void COverlaySceneGraph::createObject(std::string name, std::shared_ptr<CRenderObject> pObject, int id)
 {
     ImGui::PushID(id);
 

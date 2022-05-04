@@ -19,8 +19,8 @@ namespace Engine
             public:
                 CSubpass() = default;
 
-                virtual void create(std::shared_ptr<Scene::CRenderObject>& root) {}
-                virtual void render(vk::CommandBuffer& commandBuffer, std::shared_ptr<Scene::CRenderObject>& root) {}
+                virtual void create() {}
+                virtual void render(vk::CommandBuffer& commandBuffer) {}
                 virtual void cleanup() {}
             protected:
                 std::shared_ptr<CUniformBuffer> pUniform;

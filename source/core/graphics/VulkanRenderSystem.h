@@ -7,15 +7,14 @@ namespace Engine
 {
     namespace Core
     {
-        namespace Scene { class CRenderObject; }
         class CRenderSystem : public utl::singleton<CRenderSystem>
         {
         public:
             CRenderSystem() = default;
             ~CRenderSystem();
-            void create(std::shared_ptr<Scene::CRenderObject> root);
+            void create();
             void reCreate();
-            void render(std::shared_ptr<Scene::CRenderObject> root);
+            void render();
             void cleanup();
 
             std::unique_ptr<Render::CRenderStage>& getCurrentStage() { return vStages.at(currentStageIndex); }

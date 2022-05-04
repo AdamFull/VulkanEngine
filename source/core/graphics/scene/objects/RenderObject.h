@@ -1,7 +1,7 @@
 #pragma once
 #include "graphics/VulkanSwapChain.h"
 #include "graphics/buffer/VulkanUniform.h"
-#include "SceneConstruct.h"
+#include "graphics/scene/SceneConstruct.h"
 
 namespace Engine
 {

@@ -49,7 +49,6 @@ void CRenderScene::attachObject(std::shared_ptr<Core::Scene::CRenderObject> obje
 void CRenderScene::createObjects()
 {
     CVBO::getInstance()->create();
-    CRenderSystem::getInstance()->create(m_pRoot);
 }
 
 void CRenderScene::render(float fDeltaTime)
@@ -59,5 +58,5 @@ void CRenderScene::render(float fDeltaTime)
     CImguiOverlay::getInstance()->newFrame();
     CImguiOverlay::getInstance()->update(fDeltaTime);
 
-    CRenderSystem::getInstance()->render(m_pRoot);
+    CRenderSystem::getInstance()->render();
 }

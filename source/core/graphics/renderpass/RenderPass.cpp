@@ -88,13 +88,13 @@ CRenderPass::~CRenderPass()
     CDevice::getInstance()->destroy(renderPass);
 }
 
-void CRenderPass::create(std::shared_ptr<Scene::CRenderObject>& root)
+void CRenderPass::create()
 {
     //Creating subpasses (render stages)
     currentSubpassIndex = 0;
     for(auto& subpass : vSubpasses)
     {
-        subpass->create(root);
+        subpass->create();
         currentSubpassIndex++;
     }
 }
@@ -135,14 +135,14 @@ void CRenderPass::end(vk::CommandBuffer& commandBuffer)
     commandBuffer.endRenderPass();
 }
 
-void CRenderPass::render(vk::CommandBuffer& commandBuffer, std::shared_ptr<Scene::CRenderObject>& root)
+void CRenderPass::render(vk::CommandBuffer& commandBuffer)
 {
     begin(commandBuffer);
     //Render each stage
     uint32_t subpass_id{0};
     for(auto& subpass : vSubpasses)
     {
-        subpass->render(commandBuffer, root);
+        subpass->render(commandBuffer);
         if((vSubpasses.size() - 1) > subpass_id)
             commandBuffer.nextSubpass(vk::SubpassContents::eInline);
         subpass_id++;

@@ -11,7 +11,7 @@ namespace Engine
             {
             public:
                 ~CDeferredStage();
-                void create(std::shared_ptr<Scene::CRenderObject>& root) override;
+                void create() override;
                 void reCreate() override;
             private:
             };

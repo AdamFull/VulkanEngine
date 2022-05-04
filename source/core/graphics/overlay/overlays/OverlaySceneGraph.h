@@ -1,5 +1,6 @@
 #pragma once
 #include "OverlayBase.h"
+#include "graphics/scene/objects/RenderObject.h"
 
 namespace Engine
 {
@@ -11,17 +12,15 @@ namespace Engine
             {
             public:
                 COverlaySceneGraph() = default;
-                COverlaySceneGraph(std::string srName, std::shared_ptr<Scene::CRenderObject> pRoot)
+                COverlaySceneGraph(std::string srName)
                 {
                     srOverlayName = srName;
                     bOverlayState = true;
-                    m_pRoot = pRoot;
                 }
                 void draw() override;
 
             private:
                 void createObject(std::string name, std::shared_ptr<Scene::CRenderObject> pObject, int id);
-                std::shared_ptr<Scene::CRenderObject> m_pRoot;
             };
         }
     }

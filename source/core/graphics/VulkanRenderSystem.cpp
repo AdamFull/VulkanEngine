@@ -13,7 +13,7 @@ CRenderSystem::~CRenderSystem()
     cleanup();
 }
 
-void CRenderSystem::create(std::shared_ptr<Scene::CRenderObject> root)
+void CRenderSystem::create()
 {
     screenExtent = CSwapChain::getInstance()->getExtent();
     commandBuffers = std::make_shared<CCommandBuffer>(false, vk::QueueFlagBits::eGraphics, vk::CommandBufferLevel::ePrimary, CSwapChain::getInstance()->getFramesInFlight());
@@ -23,7 +23,7 @@ void CRenderSystem::create(std::shared_ptr<Scene::CRenderObject> root)
     currentStageIndex = 0;
     for(auto& stage : vStages)
     {
-        stage->create(root);
+        stage->create();
         currentStageIndex++;
     }
 }
@@ -34,7 +34,7 @@ void CRenderSystem::reCreate()
     commandBuffers = std::make_shared<CCommandBuffer>(false, vk::QueueFlagBits::eGraphics, vk::CommandBufferLevel::ePrimary, CSwapChain::getInstance()->getFramesInFlight());
 }
 
-void CRenderSystem::render(std::shared_ptr<Scene::CRenderObject> root)
+void CRenderSystem::render()
 {
     vk::CommandBuffer commandBuffer{};
     try { commandBuffer = beginFrame(); }
@@ -44,7 +44,7 @@ void CRenderSystem::render(std::shared_ptr<Scene::CRenderObject> root)
     currentStageIndex = 0;
     for(auto& stage : vStages)
     {
-        stage->render(commandBuffer, root);
+        stage->render(commandBuffer);
         currentStageIndex++;
     }
 

@@ -3,9 +3,9 @@
 using namespace Engine::Core;
 using namespace Engine::Core::Render;
 
-void CRenderStage::render(vk::CommandBuffer& commandBuffer, std::shared_ptr<Scene::CRenderObject>& root)
+void CRenderStage::render(vk::CommandBuffer& commandBuffer)
 {
-    pRenderPass->render(commandBuffer, root);
+    pRenderPass->render(commandBuffer);
 }
 
 void CRenderStage::cleanup()

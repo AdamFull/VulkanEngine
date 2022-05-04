@@ -6,7 +6,6 @@ namespace Engine
     namespace Core
     {
         class CImage;
-        namespace Scene { class CRenderObject; }
         namespace Render
         {
             class CSubpass;
@@ -49,14 +48,14 @@ namespace Engine
                 CRenderPass(vk::RenderPass &&pass);
                 ~CRenderPass();
 
-                void create(std::shared_ptr<Scene::CRenderObject>& root);
+                void create();
                 void reCreate();
                 void cleanup();
 
                 void begin(vk::CommandBuffer &commandBuffer);
                 void end(vk::CommandBuffer &commandBuffer);
 
-                void render(vk::CommandBuffer& commandBuffer, std::shared_ptr<Scene::CRenderObject>& root);
+                void render(vk::CommandBuffer& commandBuffer);
 
                 void setRenderArea(int32_t offset_x, int32_t offset_y, uint32_t width, uint32_t height);
                 void setRenderArea(vk::Offset2D offset, vk::Extent2D extent);

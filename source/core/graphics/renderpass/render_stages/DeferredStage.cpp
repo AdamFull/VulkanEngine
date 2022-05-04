@@ -12,7 +12,7 @@ CDeferredStage::~CDeferredStage()
     cleanup();
 }
 
-void CDeferredStage::create(std::shared_ptr<Scene::CRenderObject>& root)
+void CDeferredStage::create()
 {
     screenExtent = CSwapChain::getInstance()->getExtent();
 
@@ -87,7 +87,7 @@ void CDeferredStage::create(std::shared_ptr<Scene::CRenderObject>& root)
 
     pRenderPass->setRenderArea(vk::Offset2D{0, 0}, screenExtent);
     pFramebuffer->create(pRenderPass->get(), screenExtent);
-    pRenderPass->create(root);
+    pRenderPass->create();
 }
 
 void CDeferredStage::reCreate()

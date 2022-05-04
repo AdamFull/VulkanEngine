@@ -30,7 +30,7 @@ namespace Engine
             CImguiOverlay() = default;
             ~CImguiOverlay();
 
-            void create(std::shared_ptr<Scene::CRenderObject> pRoot, vk::RenderPass& renderPass, uint32_t subpass);
+            void create(vk::RenderPass& renderPass, uint32_t subpass);
             void reCreate();
             void cleanup();
 

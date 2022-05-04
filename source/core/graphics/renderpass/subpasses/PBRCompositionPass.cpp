@@ -22,7 +22,7 @@ using namespace Engine::Resources::Material;
 using namespace Engine::Core::Scene;
 
 
-void CPBRCompositionPass::create(std::shared_ptr<Scene::CRenderObject>& root)
+void CPBRCompositionPass::create()
 {
     auto framesInFlight = CSwapChain::getInstance()->getFramesInFlight();
     pUniform = std::make_shared<CUniformBuffer>();
@@ -40,11 +40,11 @@ void CPBRCompositionPass::create(std::shared_ptr<Scene::CRenderObject>& root)
     pMaterial = CMaterialLoader::getInstance()->create("pbr_composition");
     pMaterial->create(renderPass, subpass);
 
-    CImguiOverlay::getInstance()->create(root, renderPass, subpass);
-    CSubpass::create(root);
+    CImguiOverlay::getInstance()->create(renderPass, subpass);
+    CSubpass::create();
 }
 
-void CPBRCompositionPass::render(vk::CommandBuffer& commandBuffer, std::shared_ptr<Scene::CRenderObject>& root)
+void CPBRCompositionPass::render(vk::CommandBuffer& commandBuffer)
 {
     auto& images = CRenderSystem::getInstance()->getCurrentStage()->getFramebuffer()->getCurrentImages();
     pMaterial->addTexture("brdflut_tex", *brdf);

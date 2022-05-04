@@ -12,7 +12,7 @@ using namespace Engine::Core::Scene;
 using namespace Engine::Resources;
 using namespace Engine::Resources::Material;
 
-void CFinalCompositionPass::create(std::shared_ptr<Scene::CRenderObject>& root)
+void CFinalCompositionPass::create()
 {
     auto framesInFlight = CSwapChain::getInstance()->getFramesInFlight();
     pUniform = std::make_shared<CUniformBuffer>();
@@ -23,10 +23,10 @@ void CFinalCompositionPass::create(std::shared_ptr<Scene::CRenderObject>& root)
 
     pMaterial = CMaterialLoader::getInstance()->create("post_process");
     pMaterial->create(renderPass, subpass);
-    CSubpass::create(root);
+    CSubpass::create();
 }
 
-void CFinalCompositionPass::render(vk::CommandBuffer& commandBuffer, std::shared_ptr<Scene::CRenderObject>& root)
+void CFinalCompositionPass::render(vk::CommandBuffer& commandBuffer)
 {
     auto imageIndex = CSwapChain::getInstance()->getCurrentFrame();
     //May be move to CompositionObject

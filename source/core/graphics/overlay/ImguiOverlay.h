@@ -1,12 +1,12 @@
 #pragma once
 #include <imgui.h>
 #include "overlays/OverlayBase.h"
+#include "util/helpers.hpp"
 
 namespace Engine
 {
     namespace Resources
     {
-        class CResourceManager;
         namespace Material { class CMaterialBase; }
     }
 
@@ -24,7 +24,7 @@ namespace Engine
             float fMouseY{0.f};
         };
 
-        class CImguiOverlay
+        class CImguiOverlay : public utl::singleton<CImguiOverlay>
         {
         public:
             CImguiOverlay() = default;

@@ -1,6 +1,7 @@
 #include "VulkanHighLevel.h"
 #include "VulkanStaticHelper.h"
 #include <glslang/Public/ShaderLang.h>
+#include "VulkanDevice.hpp"
 
 using namespace Engine::Core;
 using namespace Engine::Core::Window;
@@ -10,26 +11,18 @@ std::unique_ptr<CVulkanHighLevel> utl::singleton<CVulkanHighLevel>::_instance{nu
 
 CVulkanHighLevel::~CVulkanHighLevel()
 {
-    m_pDevice->GPUWait();
-    UDevice->destroy(m_pipelineCache);
+    CDevice::getInstance()->GPUWait();
+    CDevice::getInstance()->destroy(m_pipelineCache);
 }
 
 void CVulkanHighLevel::create(FEngineCreateInfo createInfo)
 {
-    m_pWinHandle = std::make_shared<CWindowHandle>();
-    m_pDevice = std::make_shared<CDevice>();
-    m_pSwapChain = std::make_shared<CSwapChain>();
-    m_pRenderer = std::make_shared<CRenderSystem>();
-    m_pVertexBufferObject = std::make_shared<CVulkanVBO>();
-    m_pOverlay = std::make_shared<CImguiOverlay>();
-
-    m_pWinHandle->create(createInfo.window);
-
-    m_pDevice->create(createInfo.device);
+    CWindowHandle::getInstance()->create(createInfo.window);
+    CDevice::getInstance()->create(createInfo.device);
 
     createPipelineCache();
 
-    m_pSwapChain->create();
+    CSwapChain::getInstance()->create();
 
     m_pThreadPool = std::make_unique<utl::threadpool>();
 
@@ -40,33 +33,33 @@ void CVulkanHighLevel::create(FEngineCreateInfo createInfo)
 void CVulkanHighLevel::createPipelineCache()
 {
     vk::PipelineCacheCreateInfo pipelineCacheCreateInfo = {};
-    m_pipelineCache = UDevice->getLogical().createPipelineCache(pipelineCacheCreateInfo);
+    m_pipelineCache = CDevice::getInstance()->getLogical().createPipelineCache(pipelineCacheCreateInfo);
 }
 
 void CVulkanHighLevel::recreateSwapChain()
 {
-    m_pWinHandle->wait();
-    m_pDevice->GPUWait();
+    CWindowHandle::getInstance()->wait();
+    CDevice::getInstance()->GPUWait();
 
     cleanupSwapChain();
-    m_pSwapChain->reCreate();
+    CSwapChain::getInstance()->reCreate();
 
-    m_pRenderer->reCreate();
-    m_pOverlay->reCreate();
+    CRenderSystem::getInstance()->reCreate();
+    CImguiOverlay::getInstance()->reCreate();
 }
 
 void CVulkanHighLevel::cleanupSwapChain()
 {
-    m_pSwapChain->cleanup();
-    m_pRenderer->cleanup();
+    CSwapChain::getInstance()->cleanup();
+    CRenderSystem::getInstance()->cleanup();
 }
 
 void CVulkanHighLevel::cleanup()
 {
-    m_pDevice->GPUWait();
+    CDevice::getInstance()->GPUWait();
 
     cleanupSwapChain();
-    m_pOverlay->cleanup();
+    CImguiOverlay::getInstance()->cleanup();
 }
 
 namespace Engine

@@ -15,7 +15,6 @@ namespace Engine
     }
     namespace Resources
     {
-        class CResourceManager;
         namespace Material
         {
             struct FMaterialParams

@@ -22,31 +22,31 @@ using namespace Engine::Resources::Material;
 using namespace Engine::Core::Scene;
 
 
-void CPBRCompositionPass::create(std::shared_ptr<Resources::CResourceManager>& resourceManager, std::shared_ptr<Scene::CRenderObject>& root)
+void CPBRCompositionPass::create(std::shared_ptr<Scene::CRenderObject>& root)
 {
-    auto framesInFlight = USwapChain->getFramesInFlight();
+    auto framesInFlight = CSwapChain::getInstance()->getFramesInFlight();
     pUniform = std::make_shared<CUniformBuffer>();
     pUniform->create(framesInFlight, sizeof(FLightningData));
 
-    m_pSkybox = resourceManager->Get<CImage>("skybox_cubemap_tex");
+    m_pSkybox =CResourceManager::getInstance()->Get<CImage>("skybox_cubemap_tex");
 
     brdf = UHLInstance->getThreadPool()->submit(&CPBRCompositionPass::ComputeBRDFLUT, 512);
     irradiance = UHLInstance->getThreadPool()->submit(&CPBRCompositionPass::ComputeIrradiance, m_pSkybox, 64);
     prefiltered = UHLInstance->getThreadPool()->submit(&CPBRCompositionPass::ComputePrefiltered, m_pSkybox, 512);
 
-    auto& renderPass = URenderer->getCurrentStage()->getRenderPass()->get();
-    auto subpass = URenderer->getCurrentStage()->getRenderPass()->getCurrentSubpass();
+    auto& renderPass = CRenderSystem::getInstance()->getCurrentStage()->getRenderPass()->get();
+    auto subpass = CRenderSystem::getInstance()->getCurrentStage()->getRenderPass()->getCurrentSubpass();
 
     pMaterial = CMaterialLoader::getInstance()->create("pbr_composition");
     pMaterial->create(renderPass, subpass);
 
-    UOverlay->create(root, renderPass, subpass);
-    CSubpass::create(resourceManager, root);
+    CImguiOverlay::getInstance()->create(root, renderPass, subpass);
+    CSubpass::create(root);
 }
 
 void CPBRCompositionPass::render(vk::CommandBuffer& commandBuffer, std::shared_ptr<Scene::CRenderObject>& root)
 {
-    auto& images = URenderer->getCurrentStage()->getFramebuffer()->getCurrentImages();
+    auto& images = CRenderSystem::getInstance()->getCurrentStage()->getFramebuffer()->getCurrentImages();
     pMaterial->addTexture("brdflut_tex", *brdf);
     pMaterial->addTexture("irradiance_tex", *irradiance);
     pMaterial->addTexture("prefiltred_tex", *prefiltered);
@@ -57,7 +57,7 @@ void CPBRCompositionPass::render(vk::CommandBuffer& commandBuffer, std::shared_p
     pMaterial->addTexture("emission_tex", images["emission_tex"]);
     pMaterial->addTexture("mrah_tex", images["mrah_tex"]);
 
-    auto imageIndex = USwapChain->getCurrentFrame();
+    auto imageIndex = CSwapChain::getInstance()->getCurrentFrame();
 
     //May be move to CompositionObject
     FLightningData ubo;
@@ -79,7 +79,7 @@ void CPBRCompositionPass::render(vk::CommandBuffer& commandBuffer, std::shared_p
 
     commandBuffer.draw(3, 1, 0, 0);
 
-    UOverlay->drawFrame(commandBuffer, imageIndex);
+    CImguiOverlay::getInstance()->drawFrame(commandBuffer, imageIndex);
 }
 
 void CPBRCompositionPass::cleanup()
@@ -217,7 +217,7 @@ std::shared_ptr<CImage> CPBRCompositionPass::ComputePrefiltered(const std::share
         descriptor.set("outColour", descriptorWrite);
         descriptor.set("samplerColour", source->getDescriptor());
         descriptor.update(0);
-        descriptor.bind(commandBuffer, USwapChain->getCurrentFrame());
+        descriptor.bind(commandBuffer, CSwapChain::getInstance()->getCurrentFrame());
         push.flush(commandBuffer, computePipeline);
 
         auto groupCountX = static_cast<uint32_t>(std::ceil(static_cast<float>(size) / static_cast<float>(*computePipeline->getShader()->getLocalSizes()[0])));
@@ -225,7 +225,7 @@ std::shared_ptr<CImage> CPBRCompositionPass::ComputePrefiltered(const std::share
         commandBuffer.dispatch(groupCountX, groupCountY, 1);
         cmdBuf.submitIdle();
 
-        UDevice->destroy(levelView);
+        CDevice::getInstance()->destroy(levelView);
     }
 
     Loaders::CImageLoader::close(&offscreen);

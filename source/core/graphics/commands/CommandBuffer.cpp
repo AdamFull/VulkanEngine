@@ -4,7 +4,7 @@
 using namespace Engine::Core;
 
 CCommandBuffer::CCommandBuffer(bool _begin, vk::QueueFlagBits queueType, vk::CommandBufferLevel bufferLevel, uint32_t count) :
-commandPool(UDevice->getCommandPool()), queueType(queueType)
+commandPool(CDevice::getInstance()->getCommandPool()), queueType(queueType)
 {
     vk::CommandBufferAllocateInfo allocInfo = {};
     allocInfo.commandPool = commandPool->getCommandPool();
@@ -12,7 +12,7 @@ commandPool(UDevice->getCommandPool()), queueType(queueType)
     allocInfo.commandBufferCount = count;
 
     // TODO: Handle error
-    vCommandBuffers = UDevice->getLogical().allocateCommandBuffers(allocInfo);
+    vCommandBuffers = CDevice::getInstance()->getLogical().allocateCommandBuffers(allocInfo);
 
     if(_begin)
         begin();
@@ -20,7 +20,7 @@ commandPool(UDevice->getCommandPool()), queueType(queueType)
 
 CCommandBuffer::~CCommandBuffer()
 {
-    UDevice->getLogical().freeCommandBuffers(commandPool->getCommandPool(), vCommandBuffers);
+    CDevice::getInstance()->getLogical().freeCommandBuffers(commandPool->getCommandPool(), vCommandBuffers);
     vCommandBuffers.clear();
 }
 
@@ -63,13 +63,13 @@ void CCommandBuffer::submitIdle()
     switch (queueType)
     {
     case vk::QueueFlagBits::eGraphics: {
-        queue = UDevice->getGraphicsQueue();
+        queue = CDevice::getInstance()->getGraphicsQueue();
     } break;
     case vk::QueueFlagBits::eCompute: {
-        queue = UDevice->getComputeQueue();
+        queue = CDevice::getInstance()->getComputeQueue();
     } break;
     case vk::QueueFlagBits::eTransfer: {
-        queue = UDevice->getTransferQueue();
+        queue = CDevice::getInstance()->getTransferQueue();
     } break;
     }
     queue.submit(submitInfo, nullptr);
@@ -82,5 +82,5 @@ vk::Result CCommandBuffer::submit(uint32_t& imageIndex)
 		end();
 
     auto commandBuffer = getCommandBuffer();
-    return USwapChain->submitCommandBuffers(&commandBuffer, &imageIndex, queueType);
+    return CSwapChain::getInstance()->submitCommandBuffers(&commandBuffer, &imageIndex, queueType);
 }

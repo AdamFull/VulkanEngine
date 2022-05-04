@@ -11,13 +11,13 @@ namespace Engine
         static std::unique_ptr<CRenderScene> create(std::string srScenePath);
 
     private:
-        static void createComponents(std::shared_ptr<Core::Scene::CRenderObject> pRoot, std::shared_ptr<Resources::CResourceManager> pResMgr, std::vector<FSceneObject> sceneObjects);
-        static std::shared_ptr<Core::Scene::CRenderObject> createComponent(std::shared_ptr<Resources::CResourceManager> pResMgr, FSceneObject info);
+        static void createComponents(std::shared_ptr<Core::Scene::CRenderObject> pRoot, std::vector<FSceneObject> sceneObjects);
+        static std::shared_ptr<Core::Scene::CRenderObject> createComponent(FSceneObject info);
 
-        static std::shared_ptr<Core::Scene::CRenderObject> createCamera(std::shared_ptr<Resources::CResourceManager> pResMgr, FSceneObject info);
-        static std::shared_ptr<Core::Scene::CRenderObject> createStaticMesh(std::shared_ptr<Resources::CResourceManager> pResMgr, FSceneObject info);
-        static std::shared_ptr<Core::Scene::CRenderObject> createSkybox(std::shared_ptr<Resources::CResourceManager> pResMgr, FSceneObject info);
-        static std::shared_ptr<Core::Scene::CRenderObject> createGLTFMesh(std::shared_ptr<Resources::CResourceManager> pResMgr, FSceneObject info);
-        static std::shared_ptr<Core::Scene::CRenderObject> createLightSource(std::shared_ptr<Resources::CResourceManager> pResMgr, FSceneObject info);
+        static std::shared_ptr<Core::Scene::CRenderObject> createCamera(FSceneObject info);
+        static std::shared_ptr<Core::Scene::CRenderObject> createStaticMesh(FSceneObject info);
+        static std::shared_ptr<Core::Scene::CRenderObject> createSkybox(FSceneObject info);
+        static std::shared_ptr<Core::Scene::CRenderObject> createGLTFMesh(FSceneObject info);
+        static std::shared_ptr<Core::Scene::CRenderObject> createLightSource(FSceneObject info);
     };
 }

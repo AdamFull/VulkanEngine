@@ -5,30 +5,33 @@
 
 using namespace Engine::Core;
 
+template<>
+std::unique_ptr<CRenderSystem> utl::singleton<CRenderSystem>::_instance{nullptr};
+
 CRenderSystem::~CRenderSystem()
 {
     cleanup();
 }
 
-void CRenderSystem::create(std::shared_ptr<Resources::CResourceManager> resourceManager, std::shared_ptr<Scene::CRenderObject> root)
+void CRenderSystem::create(std::shared_ptr<Scene::CRenderObject> root)
 {
-    screenExtent = USwapChain->getExtent();
-    commandBuffers = std::make_shared<CCommandBuffer>(false, vk::QueueFlagBits::eGraphics, vk::CommandBufferLevel::ePrimary, USwapChain->getFramesInFlight());
+    screenExtent = CSwapChain::getInstance()->getExtent();
+    commandBuffers = std::make_shared<CCommandBuffer>(false, vk::QueueFlagBits::eGraphics, vk::CommandBufferLevel::ePrimary, CSwapChain::getInstance()->getFramesInFlight());
 
     vStages.emplace_back(std::make_unique<Render::CDeferredStage>());
 
     currentStageIndex = 0;
     for(auto& stage : vStages)
     {
-        stage->create(resourceManager, root);
+        stage->create(root);
         currentStageIndex++;
     }
 }
 
 void CRenderSystem::reCreate()
 {
-    screenExtent = USwapChain->getExtent();
-    commandBuffers = std::make_shared<CCommandBuffer>(false, vk::QueueFlagBits::eGraphics, vk::CommandBufferLevel::ePrimary, USwapChain->getFramesInFlight());
+    screenExtent = CSwapChain::getInstance()->getExtent();
+    commandBuffers = std::make_shared<CCommandBuffer>(false, vk::QueueFlagBits::eGraphics, vk::CommandBufferLevel::ePrimary, CSwapChain::getInstance()->getFramesInFlight());
 }
 
 void CRenderSystem::render(std::shared_ptr<Scene::CRenderObject> root)
@@ -71,7 +74,7 @@ vk::CommandBuffer& CRenderSystem::getCurrentCommandBuffer()
 vk::CommandBuffer& CRenderSystem::beginFrame()
 {
     assert(!frameStarted && "Can't call beginFrame while already in progress");
-    USwapChain->acquireNextImage(&imageIndex);
+    CSwapChain::getInstance()->acquireNextImage(&imageIndex);
     frameStarted = true;
 
     commandBuffers->begin(vk::CommandBufferUsageFlagBits::eSimultaneousUse, imageIndex);

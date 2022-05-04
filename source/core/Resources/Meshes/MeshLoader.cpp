@@ -2,7 +2,7 @@
 
 using namespace Engine::Resources::Loaders;
 
-bool CMeshLoader::load(std::string srPath, std::shared_ptr<Resources::CResourceManager> pResourceManager, std::shared_ptr<Mesh::CMeshFragment> pMesh, bool bLoadMaterial)
+bool CMeshLoader::load(std::string srPath, std::shared_ptr<Mesh::CMeshFragment> pMesh, bool bLoadMaterial)
 {
     fs::path filepath{srPath};
 

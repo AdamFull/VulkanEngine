@@ -11,7 +11,7 @@ namespace Engine
 {
     namespace Resources
     {
-        class CResourceManager : public std::enable_shared_from_this<CResourceManager>
+        class CResourceManager : public utl::singleton<CResourceManager>
         {
         public:
             void create();
@@ -105,7 +105,7 @@ namespace Engine
             template <>
             std::shared_ptr<Mesh::CMeshFragment> Add(FMeshCreateInfo info)
             {
-                std::shared_ptr<Mesh::CMeshFragment> mesh = Mesh::CMeshFactory::create(shared_from_this(), info);
+                std::shared_ptr<Mesh::CMeshFragment> mesh = Mesh::CMeshFactory::create(info);
                 addExisting(info.srName, mesh);
                 return nullptr;
             }

@@ -12,9 +12,9 @@ CDeferredStage::~CDeferredStage()
     cleanup();
 }
 
-void CDeferredStage::create(std::shared_ptr<Resources::CResourceManager>& resourceManager, std::shared_ptr<Scene::CRenderObject>& root)
+void CDeferredStage::create(std::shared_ptr<Scene::CRenderObject>& root)
 {
-    screenExtent = USwapChain->getExtent();
+    screenExtent = CSwapChain::getInstance()->getExtent();
 
     std::vector<vk::AttachmentReference> vReferences_0
     {
@@ -46,7 +46,7 @@ void CDeferredStage::create(std::shared_ptr<Resources::CResourceManager>& resour
 
     pRenderPass = Render::CRenderPass::Builder().
     //KHR color attachment
-    addAttachmentDescription(USwapChain->getImageFormat(), vk::SampleCountFlagBits::e1, vk::AttachmentLoadOp::eClear, vk::AttachmentStoreOp::eStore, 
+    addAttachmentDescription(CSwapChain::getInstance()->getImageFormat(), vk::SampleCountFlagBits::e1, vk::AttachmentLoadOp::eClear, vk::AttachmentStoreOp::eStore, 
     vk::AttachmentLoadOp::eDontCare, vk::AttachmentStoreOp::eDontCare, vk::ImageLayout::eUndefined, vk::ImageLayout::ePresentSrcKHR).
     addAttachmentDescription(vk::Format::eR16G16B16A16Sfloat). //Position buffer
     addAttachmentDescription(vk::Format::eR16G16B16A16Sfloat). //Light mask buffer
@@ -75,7 +75,7 @@ void CDeferredStage::create(std::shared_ptr<Resources::CResourceManager>& resour
     pRenderPass->pushSubpass(std::make_shared<CPBRCompositionPass>());
 
     pFramebuffer = std::make_unique<CFramebuffer>();
-    pFramebuffer->addImage("present_khr", USwapChain->getImageFormat(), vk::ImageUsageFlagBits::eColorAttachment | vk::ImageUsageFlagBits::eInputAttachment);
+    pFramebuffer->addImage("present_khr", CSwapChain::getInstance()->getImageFormat(), vk::ImageUsageFlagBits::eColorAttachment | vk::ImageUsageFlagBits::eInputAttachment);
     pFramebuffer->addImage("position_tex", vk::Format::eR16G16B16A16Sfloat, vk::ImageUsageFlagBits::eColorAttachment | vk::ImageUsageFlagBits::eInputAttachment);
     pFramebuffer->addImage("lightning_mask_tex", vk::Format::eR16G16B16A16Sfloat, vk::ImageUsageFlagBits::eColorAttachment | vk::ImageUsageFlagBits::eInputAttachment);
     pFramebuffer->addImage("normal_tex", vk::Format::eR16G16B16A16Sfloat, vk::ImageUsageFlagBits::eColorAttachment | vk::ImageUsageFlagBits::eInputAttachment);
@@ -87,12 +87,12 @@ void CDeferredStage::create(std::shared_ptr<Resources::CResourceManager>& resour
 
     pRenderPass->setRenderArea(vk::Offset2D{0, 0}, screenExtent);
     pFramebuffer->create(pRenderPass->get(), screenExtent);
-    pRenderPass->create(resourceManager, root);
+    pRenderPass->create(root);
 }
 
 void CDeferredStage::reCreate()
 {
-    screenExtent = USwapChain->getExtent();
+    screenExtent = CSwapChain::getInstance()->getExtent();
     pRenderPass->setRenderArea(vk::Offset2D{0, 0}, screenExtent);
     pRenderPass->reCreate();
     pFramebuffer->reCreate(pRenderPass->get());

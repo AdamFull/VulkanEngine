@@ -26,17 +26,17 @@ std::map<EMeshType, std::function<std::shared_ptr<CMeshFragment>(FMeshCreateInfo
              return mesh;
          }}};
 
-std::shared_ptr<CMeshFragment> CMeshFactory::create(std::shared_ptr<Resources::CResourceManager> resourceMgr, FMeshCreateInfo info)
+std::shared_ptr<CMeshFragment> CMeshFactory::create(FMeshCreateInfo info)
 {
     auto mesh = m_mFactory[info.eType](info);
-    Loaders::CMeshLoader::load(info.srSrc, resourceMgr, mesh, info.bUseIncludedMaterial);
+    Loaders::CMeshLoader::load(info.srSrc, mesh, info.bUseIncludedMaterial);
 
     if (!info.bUseIncludedMaterial)
     {
         for (auto &matInfo : info.vMaterials)
         {
-            std::shared_ptr<Material::CMaterialBase> material = Material::CMaterialFactory::create(resourceMgr, matInfo);
-            resourceMgr->addExisting<Material::CMaterialBase>(matInfo.srName, material);
+            std::shared_ptr<Material::CMaterialBase> material = Material::CMaterialFactory::create(matInfo);
+            CResourceManager::getInstance()->addExisting<Material::CMaterialBase>(matInfo.srName, material);
             mesh->setMaterial(material);
         }
     }

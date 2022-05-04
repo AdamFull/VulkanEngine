@@ -1,5 +1,6 @@
 #pragma once
 #include "graphics/pipeline/Pipeline.h"
+#include <util/helpers.hpp>
 
 namespace Engine
 {

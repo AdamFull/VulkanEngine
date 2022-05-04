@@ -1,16 +1,17 @@
 #pragma once
 #include "graphics/data_types/VulkanVertex.hpp"
+#include "VulkanBuffer.h"
+#include <util/helpers.hpp>
 
 namespace Engine
 {
     namespace Core
     {
-        class CVulkanBuffer;
-        class CVulkanVBO : public utl::non_copy_movable
+        class CVertexBufferObject : public utl::non_copy_movable
         {
         public:
-            CVulkanVBO() = default;
-            ~CVulkanVBO();
+            CVertexBufferObject() = default;
+            ~CVertexBufferObject();
 
             void create();
             void bind(vk::CommandBuffer commandBuffer);

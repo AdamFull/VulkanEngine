@@ -8,18 +8,18 @@ using namespace Engine::Core::Render;
 using namespace Engine::Core::Scene;
 using namespace Engine::Resources;
 
-void CGBufferPass::create(std::shared_ptr<Resources::CResourceManager>& resourceManager, std::shared_ptr<Scene::CRenderObject>& root)
+void CGBufferPass::create(std::shared_ptr<Scene::CRenderObject>& root)
 {
-    auto& renderPass = URenderer->getCurrentStage()->getRenderPass()->get();
-    auto subpass = URenderer->getCurrentStage()->getRenderPass()->getCurrentSubpass();
+    auto& renderPass = CRenderSystem::getInstance()->getCurrentStage()->getRenderPass()->get();
+    auto subpass = CRenderSystem::getInstance()->getCurrentStage()->getRenderPass()->getCurrentSubpass();
     root->create(renderPass, subpass);
-    CSubpass::create(resourceManager, root);
+    CSubpass::create(root);
 }
 
 void CGBufferPass::render(vk::CommandBuffer& commandBuffer, std::shared_ptr<Scene::CRenderObject>& root)
 {
-    auto imageIndex = USwapChain->getCurrentFrame();
-    UVBO->bind(commandBuffer);
+    auto imageIndex = CSwapChain::getInstance()->getCurrentFrame();
+    CVBO::getInstance()->bind(commandBuffer);
     root->render(commandBuffer, imageIndex);
 }
 

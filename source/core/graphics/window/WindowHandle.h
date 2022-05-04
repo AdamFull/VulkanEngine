@@ -1,6 +1,7 @@
 #pragma once
 #include <GLFW/glfw3.h>
 #include "serializer/Serialization.hpp"
+#include <util/helpers.hpp>
 
 namespace Engine
 {
@@ -18,7 +19,7 @@ namespace Engine
                 std::string backend;
             };
 
-            class CWindowHandle : public utl::non_copy_movable
+            class CWindowHandle : public utl::singleton<CWindowHandle>
             {
             public:
                 CWindowHandle();

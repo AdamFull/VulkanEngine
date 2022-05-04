@@ -5,10 +5,6 @@
 
 namespace Engine
 {
-    namespace Resources
-    {
-        class CResourceManager;
-    }
     namespace Core
     {
         namespace Scene

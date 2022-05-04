@@ -38,11 +38,11 @@ namespace Engine
     {
         m_pRenderScene->createObjects();
         float delta_time{0.001f};
-        while(!UWinHandle->isShouldClose())
+        while(!Core::Window::CWindowHandle::getInstance()->isShouldClose())
         {
             auto startTime = std::chrono::high_resolution_clock::now();
 
-            UWinHandle->pollEvents();
+            Core::Window::CWindowHandle::getInstance()->pollEvents();
             m_pCameraController->update(delta_time);
 
             m_pRenderScene->render(delta_time);

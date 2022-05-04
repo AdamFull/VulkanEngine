@@ -1,5 +1,6 @@
 #pragma once
 #include "graphics/scene/objects/components/camera/CameraComponent.h"
+#include <util/helpers.hpp>
 
 namespace Engine
 {

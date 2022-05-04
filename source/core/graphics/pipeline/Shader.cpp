@@ -80,7 +80,7 @@ EShLanguage getEshLanguage(vk::ShaderStageFlagBits stageFlag)
 
 TBuiltInResource getResources() 
 {
-    //auto props = UDevice->GetPhysical().getProperties();
+    //auto props = CDevice::getInstance()->GetPhysical().getProperties();
 	TBuiltInResource resources = {};
 	resources.maxLights                                 = 32;
     resources.maxClipPlanes                             = 6;
@@ -217,7 +217,7 @@ void CShader::addStage(const std::filesystem::path &moduleName, const std::strin
         auto defaultVersion = glslang::EShTargetVulkan_1_1;
         shader.setEnvInput(glslang::EShSourceGlsl, language, glslang::EShClientVulkan, 110);
         shader.setEnvClient(glslang::EShClientVulkan, defaultVersion);
-        shader.setEnvTarget(glslang::EShTargetSpv, UDevice->getVulkanVersion() >= VK_API_VERSION_1_1 ? glslang::EShTargetSpv_1_3 : glslang::EShTargetSpv_1_0);
+        shader.setEnvTarget(glslang::EShTargetSpv, CDevice::getInstance()->getVulkanVersion() >= VK_API_VERSION_1_1 ? glslang::EShTargetSpv_1_3 : glslang::EShTargetSpv_1_0);
 
         CShaderIncluder includer;
 
@@ -305,7 +305,7 @@ void CShader::addStage(const std::filesystem::path &moduleName, const std::strin
 
     try
     {
-        auto shaderModule = UDevice->make<vk::ShaderModule, vk::ShaderModuleCreateInfo>
+        auto shaderModule = CDevice::getInstance()->make<vk::ShaderModule, vk::ShaderModuleCreateInfo>
         (
             vk::ShaderModuleCreateInfo
             {
@@ -335,7 +335,7 @@ void CShader::addStage(const std::filesystem::path &moduleName, const std::strin
 void CShader::clear()
 {
     for(auto& stage : vShaderModules)
-        UDevice->destroy(stage.module);
+        CDevice::getInstance()->destroy(stage.module);
 
     vShaderModules.clear();
     vShaderStage.clear();

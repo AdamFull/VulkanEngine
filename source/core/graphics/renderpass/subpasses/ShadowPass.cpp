@@ -10,19 +10,19 @@ using namespace Engine::Core::Scene;
 using namespace Engine::Resources;
 using namespace Engine::Resources::Material;
 
-void CShadowPass::create(std::shared_ptr<Resources::CResourceManager>& resourceManager, std::shared_ptr<Scene::CRenderObject>& root)
+void CShadowPass::create(std::shared_ptr<Scene::CRenderObject>& root)
 {
     pMaterial = CMaterialLoader::getInstance()->create("pbr_composition");
-    auto& renderPass = URenderer->getCurrentStage()->getRenderPass()->get();
-    auto subpass = URenderer->getCurrentStage()->getRenderPass()->getCurrentSubpass();
+    auto& renderPass = CRenderSystem::getInstance()->getCurrentStage()->getRenderPass()->get();
+    auto subpass = CRenderSystem::getInstance()->getCurrentStage()->getRenderPass()->getCurrentSubpass();
     pMaterial->create(renderPass, subpass);
-    CSubpass::create(resourceManager, root);
+    CSubpass::create(root);
 }
 
 void CShadowPass::render(vk::CommandBuffer& commandBuffer, std::shared_ptr<Scene::CRenderObject>& root)
 {
-    auto imageIndex = USwapChain->getCurrentFrame();
-    UVBO->bind(commandBuffer);
+    auto imageIndex = CSwapChain::getInstance()->getCurrentFrame();
+    CVBO::getInstance()->bind(commandBuffer);
     pMaterial->bind(commandBuffer, imageIndex);
     root->render(commandBuffer, imageIndex);
 }

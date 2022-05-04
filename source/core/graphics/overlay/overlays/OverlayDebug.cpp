@@ -54,9 +54,9 @@ void COverlayDebug::draw()
         ImGui::DragFloat("blur_strength", &GlobalVariables::blurStrength, 0.001, 0.1, 1.0);
 
         ImGui::Text("VBO");
-        int vertices = UVBO->getLastVertex();
+        int vertices = CVBO::getInstance()->getLastVertex();
         ImGui::InputInt("Vertices", &vertices);
-        int indices = UVBO->getLastIndex();
+        int indices = CVBO::getInstance()->getLastIndex();
         ImGui::InputInt("Indices", &indices);
 
         ImGui::End();

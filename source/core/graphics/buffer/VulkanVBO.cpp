@@ -2,19 +2,19 @@
 
 using namespace Engine::Core;
 
-CVulkanVBO::~CVulkanVBO()
+CVertexBufferObject::~CVertexBufferObject()
 {
 
 }
 
-void CVulkanVBO::create()
+void CVertexBufferObject::create()
 {
     createVertexBuffer();
     createIndexBuffer();
     bBuffersCreated = true;
 }
 
-void CVulkanVBO::bind(vk::CommandBuffer commandBuffer)
+void CVertexBufferObject::bind(vk::CommandBuffer commandBuffer)
 {
     assert(bBuffersCreated && "Vertex and index buffers are not created!");
     vk::DeviceSize offsets[] = {0};
@@ -23,13 +23,13 @@ void CVulkanVBO::bind(vk::CommandBuffer commandBuffer)
     commandBuffer.bindIndexBuffer(indexBuffer->getBuffer(), 0, vk::IndexType::eUint32);
 }
 
-void CVulkanVBO::addMeshData(std::vector<FVertex> &&vertices, std::vector<uint32_t> &&indices)
+void CVertexBufferObject::addMeshData(std::vector<FVertex> &&vertices, std::vector<uint32_t> &&indices)
 {
     vVertices.insert(vVertices.end(), vertices.begin(), vertices.end());
     vIndices.insert(vIndices.end(), indices.begin(), indices.end());
 }
 
-void CVulkanVBO::createVertexBuffer()
+void CVertexBufferObject::createVertexBuffer()
 {
     vk::DeviceSize bufferSize = sizeof(vVertices[0]) * vVertices.size();
     uint32_t vertexSize = sizeof(vVertices[0]);
@@ -41,11 +41,11 @@ void CVulkanVBO::createVertexBuffer()
 
     vertexBuffer = std::make_unique<CVulkanBuffer>();
     vertexBuffer->create(vertexSize, vVertices.size(), vk::BufferUsageFlagBits::eTransferDst | vk::BufferUsageFlagBits::eVertexBuffer, vk::MemoryPropertyFlagBits::eDeviceLocal);
-    UDevice->copyOnDeviceBuffer(stagingBuffer.getBuffer(), vertexBuffer->getBuffer(), bufferSize);
+    CDevice::getInstance()->copyOnDeviceBuffer(stagingBuffer.getBuffer(), vertexBuffer->getBuffer(), bufferSize);
     // m_vVertices.clear();
 }
 
-void CVulkanVBO::createIndexBuffer()
+void CVertexBufferObject::createIndexBuffer()
 {
     vk::DeviceSize bufferSize = sizeof(vIndices[0]) * vIndices.size();
     uint32_t indexSize = sizeof(vIndices[0]);
@@ -57,6 +57,6 @@ void CVulkanVBO::createIndexBuffer()
 
     indexBuffer = std::make_unique<CVulkanBuffer>();
     indexBuffer->create(indexSize, vIndices.size(), vk::BufferUsageFlagBits::eTransferDst | vk::BufferUsageFlagBits::eIndexBuffer, vk::MemoryPropertyFlagBits::eDeviceLocal);
-    UDevice->copyOnDeviceBuffer(stagingBuffer.getBuffer(), indexBuffer->getBuffer(), bufferSize);
+    CDevice::getInstance()->copyOnDeviceBuffer(stagingBuffer.getBuffer(), indexBuffer->getBuffer(), bufferSize);
     // m_vIndices.clear();
 }

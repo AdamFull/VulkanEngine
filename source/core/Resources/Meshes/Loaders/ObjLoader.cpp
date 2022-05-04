@@ -13,7 +13,7 @@ void ObjLoader::Load(std::string srPath, std::shared_ptr<Core::Scene::CRenderObj
     std::vector<tinyobj::material_t> materials;
     std::string warn, err;
 
-    // UVBO->GetLastIndex()
+    // CVBO::getInstance()->GetLastIndex()
 
     if (!tinyobj::LoadObj(&attrib, &shapes, &materials, &warn, &err, srPath.c_str()))
     {
@@ -31,8 +31,8 @@ void ObjLoader::Load(std::string srPath, std::shared_ptr<Core::Scene::CRenderObj
         auto &shape = shapes[shape_index];
 
         Primitive primitive;
-        primitive.firstIndex = UVBO->GetLastIndex();
-        primitive.firstVertex = UVBO->GetLastVertex();
+        primitive.firstIndex = CVBO::getInstance()->GetLastIndex();
+        primitive.firstVertex = CVBO::getInstance()->GetLastVertex();
         uint32_t i = 0;
         for (const auto &index : shape.mesh.indices)
         {
@@ -140,7 +140,7 @@ void ObjLoader::Load(std::string srPath, std::shared_ptr<Core::Scene::CRenderObj
             primitive.material = MaterialFactory::Create(pResourceManager, materialInfo);
         }
 
-        UVBO->AddMeshData(std::move(vertices), std::move(indices));
+        CVBO::getInstance()->AddMeshData(std::move(vertices), std::move(indices));
         pMesh->AddPrimitive(shape.name, std::move(primitive));
     }
 

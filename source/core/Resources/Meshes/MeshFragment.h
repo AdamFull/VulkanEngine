@@ -7,8 +7,6 @@ namespace Engine
 {
     namespace Resources
     {
-        class CResourceManager;
-
         namespace Mesh
         {
             struct FPrimitive

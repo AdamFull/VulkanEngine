@@ -19,8 +19,7 @@ CRenderScene::~CRenderScene()
 void CRenderScene::create()
 {
     m_pRoot = std::make_shared<Core::Scene::CSceneRootComponent>();
-    m_pResourceManager = std::make_shared<Resources::CResourceManager>();
-    m_pResourceManager->create();
+    CResourceManager::getInstance()->create();
 }
 
 void CRenderScene::reCreate()
@@ -31,11 +30,11 @@ void CRenderScene::reCreate()
 
 void CRenderScene::destroy()
 {
-    UDevice->GPUWait();
-    /*if (URenderer->GetFrameStartFlag())
+    CDevice::getInstance()->GPUWait();
+    /*if (CRenderSystem::getInstance()->GetFrameStartFlag())
     {
         bool bResult;
-        auto commandBuffer = URenderer->GetCurrentCommandBuffer();
+        auto commandBuffer = CRenderSystem::getInstance()->GetCurrentCommandBuffer();
         UHLInstance->EndFrame(commandBuffer, &bResult);
     }*/
 
@@ -49,16 +48,16 @@ void CRenderScene::attachObject(std::shared_ptr<Core::Scene::CRenderObject> obje
 
 void CRenderScene::createObjects()
 {
-    UVBO->create();
-    URenderer->create(m_pResourceManager, m_pRoot);
+    CVBO::getInstance()->create();
+    CRenderSystem::getInstance()->create(m_pRoot);
 }
 
 void CRenderScene::render(float fDeltaTime)
 {
     m_pRoot->update(fDeltaTime);
 
-    UOverlay->newFrame();
-    UOverlay->update(fDeltaTime);
+    CImguiOverlay::getInstance()->newFrame();
+    CImguiOverlay::getInstance()->update(fDeltaTime);
 
-    URenderer->render(m_pRoot);
+    CRenderSystem::getInstance()->render(m_pRoot);
 }

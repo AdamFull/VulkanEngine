@@ -5,16 +5,15 @@
 
 namespace Engine
 {
-    namespace Resources { class CResourceManager; }
     namespace Core
     {
         namespace Scene { class CRenderObject; }
-        class CRenderSystem
+        class CRenderSystem : public utl::singleton<CRenderSystem>
         {
         public:
             CRenderSystem() = default;
             ~CRenderSystem();
-            void create(std::shared_ptr<Resources::CResourceManager> resourceManager, std::shared_ptr<Scene::CRenderObject> root);
+            void create(std::shared_ptr<Scene::CRenderObject> root);
             void reCreate();
             void render(std::shared_ptr<Scene::CRenderObject> root);
             void cleanup();

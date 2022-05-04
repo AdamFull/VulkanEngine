@@ -9,8 +9,10 @@
 #include "graphics/scene/objects/components/MeshComponentBase.h"
 
 #include "graphics/scene/lightning/LightSourceManager.h"
+#include "resources/ResourceManager.h"
 
 using namespace Engine;
+using namespace Engine::Resources;
 using namespace Engine::Core::Scene;
 
 std::unique_ptr<CRenderScene> CSceneFactory::create(std::string srScenePath)
@@ -20,55 +22,54 @@ std::unique_ptr<CRenderScene> CSceneFactory::create(std::string srScenePath)
     pRenderScene->create();
 
     auto pRoot = pRenderScene->getRoot();
-    auto pResMgr = pRenderScene->getResourceManager();
     // TODO: check is skybox exists
-    pRoot->attach(createComponent(pResMgr, info.skybox));
+    pRoot->attach(createComponent(info.skybox));
 
-    createComponents(pRoot, pResMgr, info.vSceneObjects);
+    createComponents(pRoot, info.vSceneObjects);
 
     return pRenderScene;
 }
 
-void CSceneFactory::createComponents(std::shared_ptr<Core::Scene::CRenderObject> pRoot, std::shared_ptr<Resources::CResourceManager> pResMgr, std::vector<FSceneObject> sceneObjects)
+void CSceneFactory::createComponents(std::shared_ptr<Core::Scene::CRenderObject> pRoot, std::vector<FSceneObject> sceneObjects)
 {
     for (auto &object : sceneObjects)
     {
-        pRoot->attach(createComponent(pResMgr, object));
+        pRoot->attach(createComponent(object));
     }
 }
 
-std::shared_ptr<Core::Scene::CRenderObject> CSceneFactory::createComponent(std::shared_ptr<Resources::CResourceManager> pResMgr, FSceneObject info)
+std::shared_ptr<Core::Scene::CRenderObject> CSceneFactory::createComponent(FSceneObject info)
 {
     std::shared_ptr<Core::Scene::CRenderObject> object;
 
     switch (info.eObjectType)
     {
     case ESceneObjectType::eCamera:
-        object = createCamera(pResMgr, info);
+        object = createCamera(info);
         break;
     case ESceneObjectType::eMeshComponent:
-        object = createStaticMesh(pResMgr, info);
+        object = createStaticMesh(info);
         break;
     case ESceneObjectType::eSkybox:
-        object = createSkybox(pResMgr, info);
+        object = createSkybox(info);
         break;
     case ESceneObjectType::eGltfMesh:
-        object = createGLTFMesh(pResMgr, info);
+        object = createGLTFMesh(info);
         break;
     case ESceneObjectType::eLightSource:
-        object = createLightSource(pResMgr, info);
+        object = createLightSource(info);
         break;
     }
 
     if (!info.vSceneObjects.empty())
-        createComponents(object, pResMgr, info.vSceneObjects);
+        createComponents(object, info.vSceneObjects);
 
     return object;
 }
 
 // Create mesh component factory!!!!!!!!!!!!!
 
-std::shared_ptr<Core::Scene::CRenderObject> CSceneFactory::createCamera(std::shared_ptr<Resources::CResourceManager> pResMgr, FSceneObject info)
+std::shared_ptr<Core::Scene::CRenderObject> CSceneFactory::createCamera(FSceneObject info)
 {
     auto camera = std::make_shared<Core::Scene::CCameraComponent>();
     camera->setTransform(info.fTransform);
@@ -77,13 +78,13 @@ std::shared_ptr<Core::Scene::CRenderObject> CSceneFactory::createCamera(std::sha
     return camera;
 }
 
-std::shared_ptr<Core::Scene::CRenderObject> CSceneFactory::createStaticMesh(std::shared_ptr<Resources::CResourceManager> pResMgr, FSceneObject info)
+std::shared_ptr<Core::Scene::CRenderObject> CSceneFactory::createStaticMesh(FSceneObject info)
 {
     return nullptr;
 }
 
 //Todo: do smth with code reusing
-std::shared_ptr<Core::Scene::CRenderObject> CSceneFactory::createSkybox(std::shared_ptr<Resources::CResourceManager> pResMgr, FSceneObject info)
+std::shared_ptr<Core::Scene::CRenderObject> CSceneFactory::createSkybox(FSceneObject info)
 {
     auto loader = std::make_shared<Resources::Loaders::GLTFLoader>(info.mesh.bUseIncludedMaterial, true, info.srName, info.srUseVolume);
 
@@ -91,14 +92,14 @@ std::shared_ptr<Core::Scene::CRenderObject> CSceneFactory::createSkybox(std::sha
     {
         for (auto &matInfo : info.mesh.vMaterials)
         {
-            auto material = Resources::Material::CMaterialFactory::create(pResMgr, matInfo);
+            auto material = Resources::Material::CMaterialFactory::create(matInfo);
             loader->addMaterial(material);
-            pResMgr->addExisting(material->getName(), material);
+            CResourceManager::getInstance()->addExisting(material->getName(), material);
         }
     }
 
     auto mesh = std::make_shared<Core::Scene::CMeshComponentBase>();
-    loader->load(info.mesh.srSrc, info.srName, pResMgr);
+    loader->load(info.mesh.srSrc, info.srName);
     mesh->setTransform(info.fTransform);
     mesh->setName(info.srName);
     mesh->setMesh(loader->getMesh());
@@ -106,22 +107,22 @@ std::shared_ptr<Core::Scene::CRenderObject> CSceneFactory::createSkybox(std::sha
     return mesh;
 }
 
-std::shared_ptr<Core::Scene::CRenderObject> CSceneFactory::createGLTFMesh(std::shared_ptr<Resources::CResourceManager> pResMgr, FSceneObject info)
+std::shared_ptr<Core::Scene::CRenderObject> CSceneFactory::createGLTFMesh(FSceneObject info)
 {
     auto loader = std::make_shared<Resources::Loaders::GLTFLoader>(info.mesh.bUseIncludedMaterial, true, info.srName, info.srUseVolume);
     if (!info.mesh.bUseIncludedMaterial)
     {
         for (auto &matInfo : info.mesh.vMaterials)
         {
-            auto material = Resources::Material::CMaterialFactory::create(pResMgr, matInfo);
+            auto material = Resources::Material::CMaterialFactory::create(matInfo);
             loader->addMaterial(material);
-            pResMgr->addExisting(material->getName(), material);
+            CResourceManager::getInstance()->addExisting(material->getName(), material);
         }
     }
 
     auto mesh = std::make_shared<Core::Scene::CMeshComponentBase>();
     mesh->setInstances(info.vInstances);
-    loader->load(info.mesh.srSrc, info.srName, pResMgr);
+    loader->load(info.mesh.srSrc, info.srName);
     mesh->setTransform(info.fTransform);
     mesh->setName(info.srName);
     auto& loaded = loader->getMesh();
@@ -131,7 +132,7 @@ std::shared_ptr<Core::Scene::CRenderObject> CSceneFactory::createGLTFMesh(std::s
     return mesh;
 }
 
-std::shared_ptr<Core::Scene::CRenderObject> CSceneFactory::createLightSource(std::shared_ptr<Resources::CResourceManager> pResMgr, FSceneObject info)
+std::shared_ptr<Core::Scene::CRenderObject> CSceneFactory::createLightSource(FSceneObject info)
 {
     auto lightSource = CLightSourceManager::getInstance()->createSource(info.light.eType, info.fTransform, info.light.vColor, info.light.fAttenuation);
     return lightSource;

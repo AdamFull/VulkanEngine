@@ -1,5 +1,6 @@
 #pragma once
 #include "KeycodeConfig.h"
+#include <util/helpers.hpp>
 
 namespace Engine
 {

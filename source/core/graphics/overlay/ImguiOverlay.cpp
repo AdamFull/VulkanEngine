@@ -27,6 +27,9 @@ using namespace Engine::Core::Window;
 using namespace Engine::Resources;
 using namespace Engine::Resources::Material;
 
+template<>
+std::unique_ptr<CImguiOverlay> utl::singleton<CImguiOverlay>::_instance{nullptr};
+
 CImguiOverlay::~CImguiOverlay()
 {
     ImGui_ImplGlfw_Shutdown();
@@ -60,7 +63,7 @@ void CImguiOverlay::create(std::shared_ptr<Scene::CRenderObject> pRoot, vk::Rend
     m_vOverlays.emplace_back(std::make_shared<Overlay::COverlaySceneGraph>("Scene", pRoot));
     m_vOverlays.emplace_back(std::make_shared<Overlay::COverlayPropertyEditor>("Property editor"));
 
-    ImGui_ImplGlfw_InitForVulkan(UWinHandle->getWindowInstance(), true);
+    ImGui_ImplGlfw_InitForVulkan(CWindowHandle::getInstance()->getWindowInstance(), true);
 }
 
 void CImguiOverlay::reCreate()
@@ -158,7 +161,7 @@ void CImguiOverlay::update(float deltaTime)
         }
 
         // Update buffers only if vertex or index count has been changed compared to current buffer size
-        auto physProps = UDevice->getPhysical().getProperties();
+        auto physProps = CDevice::getInstance()->getPhysical().getProperties();
         auto minOffsetAllignment = std::lcm(physProps.limits.minUniformBufferOffsetAlignment, physProps.limits.nonCoherentAtomSize);
         // Vertex buffer
         if (!vertexBuffer->getBuffer() /*|| vertexCount != drawdata->TotalVtxCount*/)

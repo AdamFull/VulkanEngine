@@ -1,6 +1,7 @@
 #pragma once
 #include "graphics/pipeline/Shader.h"
 #include "VulkanMaterial.h"
+#include <util/helpers.hpp>
 
 namespace Engine
 {

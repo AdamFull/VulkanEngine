@@ -3,7 +3,6 @@
 
 namespace Engine
 {
-    namespace Resources { class CResourceManager; }
     namespace Core
     {
         class CImage;
@@ -50,7 +49,7 @@ namespace Engine
                 CRenderPass(vk::RenderPass &&pass);
                 ~CRenderPass();
 
-                void create(std::shared_ptr<Resources::CResourceManager>& resourceManager, std::shared_ptr<Scene::CRenderObject>& root);
+                void create(std::shared_ptr<Scene::CRenderObject>& root);
                 void reCreate();
                 void cleanup();
 

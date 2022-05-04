@@ -11,23 +11,23 @@ using namespace Engine::Core::Scene;
 using namespace Engine::Resources;
 using namespace Engine::Resources::Material;
 
-void CGaussianBlurPass::create(std::shared_ptr<Resources::CResourceManager>& resourceManager, std::shared_ptr<Scene::CRenderObject>& root)
+void CGaussianBlurPass::create(std::shared_ptr<Scene::CRenderObject>& root)
 {
-    auto framesInFlight = USwapChain->getFramesInFlight();
+    auto framesInFlight = CSwapChain::getInstance()->getFramesInFlight();
     pUniform = std::make_shared<CUniformBuffer>();
     pUniform->create(framesInFlight, sizeof(FBlurData));
 
-    auto& renderPass = URenderer->getCurrentStage()->getRenderPass()->get();
-    auto subpass = URenderer->getCurrentStage()->getRenderPass()->getCurrentSubpass();
+    auto& renderPass = CRenderSystem::getInstance()->getCurrentStage()->getRenderPass()->get();
+    auto subpass = CRenderSystem::getInstance()->getCurrentStage()->getRenderPass()->getCurrentSubpass();
 
     pMaterial = CMaterialLoader::getInstance()->create("gaussian_blur");
     pMaterial->create(renderPass, subpass);
-    CSubpass::create(resourceManager, root);
+    CSubpass::create(root);
 }
 
 void CGaussianBlurPass::render(vk::CommandBuffer& commandBuffer, std::shared_ptr<Scene::CRenderObject>& root)
 {
-    auto imageIndex = USwapChain->getCurrentFrame();
+    auto imageIndex = CSwapChain::getInstance()->getCurrentFrame();
     FBlurData uniform;
     uniform.blurScale = GlobalVariables::blurScale;
     uniform.blurStrength = GlobalVariables::blurStrength;

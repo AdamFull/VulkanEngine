@@ -13,7 +13,7 @@ namespace Engine
             public:
                 CRenderStage() = default;
                 virtual ~CRenderStage() {}
-                virtual void create(std::shared_ptr<Resources::CResourceManager>& resourceManager, std::shared_ptr<Scene::CRenderObject>& root) {}
+                virtual void create(std::shared_ptr<Scene::CRenderObject>& root) {}
                 virtual void reCreate() {}
                 virtual void render(vk::CommandBuffer& commandBuffer, std::shared_ptr<Scene::CRenderObject>& root);
                 virtual void cleanup();

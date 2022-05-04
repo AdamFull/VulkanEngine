@@ -7,7 +7,7 @@ using namespace Engine::Core::Pipeline;
 
 void CUniformHandler::create(const CUniformBlock &_uniformBlock)
 {
-    uint32_t images = USwapChain->getFramesInFlight();
+    uint32_t images = CSwapChain::getInstance()->getFramesInFlight();
     vMapped.resize(images);
     iUniformSize = _uniformBlock.getSize();
     uniformBlock = _uniformBlock;
@@ -27,7 +27,7 @@ void CUniformHandler::cleanup()
 
 void CUniformHandler::flush(vk::CommandBuffer& commandBuffer, std::shared_ptr<Pipeline::CPipelineBase> pPipeline)
 {
-    uint32_t index = USwapChain->getCurrentFrame();
+    uint32_t index = CSwapChain::getInstance()->getCurrentFrame();
     if (!vBuffers.empty())
 		return;
     
@@ -43,7 +43,7 @@ void CUniformHandler::createUniformBuffers(uint32_t inFlightFrames)
 {
     vBuffers.resize(inFlightFrames);
 
-    auto physProps = UDevice->getPhysical().getProperties();
+    auto physProps = CDevice::getInstance()->getPhysical().getProperties();
     auto minOffsetAllignment = std::lcm(physProps.limits.minUniformBufferOffsetAlignment, physProps.limits.nonCoherentAtomSize);
     for (size_t i = 0; i < inFlightFrames; i++)
     {

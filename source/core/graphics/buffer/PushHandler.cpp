@@ -7,7 +7,7 @@ using namespace Engine::Core::Pipeline;
 
 void CPushHandler::create(const CPushConstBlock &uniformBlock)
 {
-    uint32_t images = USwapChain->getFramesInFlight();
+    uint32_t images = CSwapChain::getInstance()->getFramesInFlight();
     for(auto i = 0; i < images; i++)
         vData.emplace_back(std::make_unique<char[]>(uniformBlock.getSize()));
     pushBlock = uniformBlock;
@@ -25,7 +25,7 @@ void CPushHandler::cleanup()
 
 void CPushHandler::flush(vk::CommandBuffer& commandBuffer, std::shared_ptr<Pipeline::CPipelineBase> pPipeline)
 {
-    uint32_t index = USwapChain->getCurrentFrame();
+    uint32_t index = CSwapChain::getInstance()->getCurrentFrame();
     
     auto& data = vData.at(index);
     if(data)

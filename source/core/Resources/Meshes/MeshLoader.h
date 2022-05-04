@@ -12,7 +12,7 @@ namespace Engine
             struct CMeshLoader
             {
             public:
-                static bool load(std::string srPath, std::shared_ptr<Resources::CResourceManager> pResourceManager, std::shared_ptr<Mesh::CMeshFragment> pMesh, bool bLoadMaterial = false);
+                static bool load(std::string srPath, std::shared_ptr<Mesh::CMeshFragment> pMesh, bool bLoadMaterial = false);
 
             private:
                 static void calculateTangents(std::vector<Core::FVertex> &vertices, std::vector<uint32_t> indices);

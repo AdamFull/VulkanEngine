@@ -2,6 +2,7 @@
 #include "graphics/VulkanHighLevel.h"
 #include "resources/ResourceManager.h"
 
+using namespace Engine::Core;
 using namespace Engine::Resources::Material;
 using namespace Engine::Core::Descriptor;
 using namespace Engine::Core::Pipeline;
@@ -12,7 +13,7 @@ CMaterialBase::~CMaterialBase()
 
 void CMaterialBase::create(vk::RenderPass& renderPass, uint32_t subpass)
 {
-    uint32_t images = USwapChain->getFramesInFlight();
+    uint32_t images = CSwapChain::getInstance()->getFramesInFlight();
     m_pPipeline->create(renderPass, subpass);
     m_pDescriptorSet = std::make_unique<CDescriptorHandler>();
     m_pDescriptorSet->create(m_pPipeline);

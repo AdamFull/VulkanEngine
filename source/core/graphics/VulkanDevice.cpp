@@ -4,6 +4,9 @@
 using namespace Engine::Core;
 using namespace Engine::Core::Window;
 
+template<>
+std::unique_ptr<CDevice> utl::singleton<CDevice>::_instance{nullptr};
+
 std::vector<const char*> str_vector_to_char_ptr_vector(const std::vector<std::string>& from)
 {
     std::vector<const char*> output{};
@@ -140,7 +143,7 @@ void CDevice::createDebugCallback(const FDeviceCreateInfo& deviceCI)
 void CDevice::createSurface()
 {
     assert(m_vkInstance && "Unable to create surface, cause vulkan instance is not valid");
-    UWinHandle->createWindowSurface(m_vkInstance, m_surface);
+    CWindowHandle::getInstance()->createWindowSurface(m_vkInstance, m_surface);
     assert(m_surface && "Surface creation failed");
 }
 

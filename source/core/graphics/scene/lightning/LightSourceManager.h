@@ -2,6 +2,7 @@
 #include "resources/ResourceCunstruct.h"
 #include "graphics/scene/objects/components/light/LightComponent.h"
 #include "graphics/buffer/VulkanUniform.h"
+#include <util/helpers.hpp>
 
 namespace Engine
 {

@@ -3,6 +3,7 @@
 #include "data_types/VulkanSwapChainSipportDetails.h"
 #include "serializer/Serialization.hpp"
 #include "graphics/commands/CommandBuffer.h"
+#include <util/helpers.hpp>
 
 namespace Engine
 {
@@ -26,7 +27,7 @@ namespace Engine
             FDeviceGraphicsInfo graphics;
         };
 
-        class CDevice : public utl::non_copy_movable
+        class CDevice : public utl::singleton<CDevice>
         {
         public:
             CDevice() = default;

@@ -1,5 +1,6 @@
 #pragma once
 #include "data_types/VulkanSwapChainSipportDetails.h"
+#include <util/helpers.hpp>
 
 namespace Engine
 {
@@ -9,7 +10,7 @@ namespace Engine
     }
     namespace Core
     {
-        class CSwapChain : public utl::non_copy_movable
+        class CSwapChain : public utl::singleton<CSwapChain>
         {
         public:
             CSwapChain() = default;

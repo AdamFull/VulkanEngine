@@ -11,7 +11,6 @@ namespace Engine
     }
     namespace Resources
     {
-        class CResourceManager;
         namespace Material { class CMaterialBase; }
 
         namespace Loaders
@@ -23,22 +22,22 @@ namespace Engine
             public:
                 GLTFLoader(bool loadMaterials, bool useMaterials, const std::string& modelName, const std::string& volumeName);
 
-                void load(std::string srPath, std::string srName, std::shared_ptr<Resources::CResourceManager> pResMgr);
+                void load(std::string srPath, std::string srName);
 
                 inline void addMaterial(std::shared_ptr<Material::CMaterialBase> material) { vMaterials.emplace_back(material); }
 
                 inline const std::shared_ptr<Mesh::CMeshBase> getMesh() const { return m_pMesh; }
 
             private:
-                void loadNode(std::shared_ptr<Resources::CResourceManager> pResMgr, std::shared_ptr<GLTFSceneNode> pParent, const tinygltf::Node &node, uint32_t nodeIndex, const tinygltf::Model &model, float globalscale);
+                void loadNode(std::shared_ptr<GLTFSceneNode> pParent, const tinygltf::Node &node, uint32_t nodeIndex, const tinygltf::Model &model, float globalscale);
 
-                void loadMeshFragment(std::shared_ptr<Resources::CResourceManager> pResMgr, std::shared_ptr<GLTFSceneNode> sceneNode, const tinygltf::Node &node, const tinygltf::Model &model);
+                void loadMeshFragment(std::shared_ptr<GLTFSceneNode> sceneNode, const tinygltf::Node &node, const tinygltf::Model &model);
                 void recalculateTangents(std::vector<Core::FVertex>& vertices, std::vector<uint32_t>& indices, uint64_t startIndex);
 
                 void loadAnimations(const tinygltf::Model &model);
 
-                void loadMaterials(std::shared_ptr<Resources::CResourceManager> pResMgr, const tinygltf::Model &model);
-                void loadTextures(std::shared_ptr<Resources::CResourceManager> pResMgr, const tinygltf::Model &model);
+                void loadMaterials(const tinygltf::Model &model);
+                void loadTextures(const tinygltf::Model &model);
                 std::shared_ptr<Core::CImage> loadTexture(const tinygltf::Image &model, std::string path);
                 void loadSkins(const tinygltf::Model &model);
 

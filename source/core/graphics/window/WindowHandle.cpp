@@ -35,6 +35,8 @@ namespace Engine
     }
 }
 
+template<>
+std::unique_ptr<CWindowHandle> utl::singleton<CWindowHandle>::_instance{nullptr};
 
 int32_t CWindowHandle::m_iWidth{800};
 int32_t CWindowHandle::m_iHeight{600};

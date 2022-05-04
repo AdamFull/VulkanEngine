@@ -19,10 +19,7 @@ namespace Engine
         inline std::shared_ptr<Core::Scene::CRenderObject>& getRoot() { return m_pRoot; }
         void createObjects();
         void render(float fDeltaTime);
-
-        std::shared_ptr<Resources::CResourceManager> getResourceManager() { return m_pResourceManager; }
     private:
         std::shared_ptr<Core::Scene::CRenderObject> m_pRoot;
-        std::shared_ptr<Resources::CResourceManager> m_pResourceManager;
     };
 }

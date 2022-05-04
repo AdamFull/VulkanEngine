@@ -28,7 +28,10 @@ void CRenderObject::reCreate()
 void CRenderObject::render(vk::CommandBuffer &commandBuffer, uint32_t imageIndex)
 {
     for (auto &[name, child] : m_mChilds)
-        child->render(commandBuffer, imageIndex);
+    {
+        if (child->bVisible)
+            child->render(commandBuffer, imageIndex);
+    }
 }
 
 void CRenderObject::update(float fDeltaTime)

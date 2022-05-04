@@ -28,6 +28,12 @@ void CGaussianBlurPass::create()
 void CGaussianBlurPass::render(vk::CommandBuffer& commandBuffer)
 {
     auto imageIndex = CSwapChain::getInstance()->getCurrentFrame();
+
+    if(direction < 0)
+        pMaterial->addTexture("samplerBrightness", CRenderSystem::getInstance()->getPrevStage()->getFramebuffer()->getCurrentImages()[imageReferenceName]);
+    else
+        pMaterial->addTexture("samplerBrightness", CRenderSystem::getInstance()->getPrevStage()->getFramebuffer()->getCurrentImages()[imageReferenceName]);
+
     FBlurData uniform;
     uniform.blurScale = GlobalVariables::blurScale;
     uniform.blurStrength = GlobalVariables::blurStrength;

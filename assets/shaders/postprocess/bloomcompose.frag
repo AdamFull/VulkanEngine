@@ -18,7 +18,8 @@ layout(std140, binding = 2) uniform FBloomUbo
 
 void main() 
 {
-    vec3 fragcolor = texture(samplerColor, inUV).rgb + texture(samplerBrightness, inUV).rgb;
+    vec3 fragcolor = texture(samplerColor, inUV).rgb;
+    vec3 brightness = texture(samplerBrightness, inUV).rgb;
     //Exposure
     fragcolor = vec3(1.0) - exp(-fragcolor * ubo.exposure);
     //Gamma correction

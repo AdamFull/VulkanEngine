@@ -18,13 +18,12 @@ void CDeferredStage::create()
 
     std::vector<vk::AttachmentReference> vReferences_0
     {
-        {0, vk::ImageLayout::eColorAttachmentOptimal},
         {1, vk::ImageLayout::eColorAttachmentOptimal},
         {2, vk::ImageLayout::eColorAttachmentOptimal},
         {3, vk::ImageLayout::eColorAttachmentOptimal},
         {4, vk::ImageLayout::eColorAttachmentOptimal},
         {5, vk::ImageLayout::eColorAttachmentOptimal},
-        {6, vk::ImageLayout::eColorAttachmentOptimal}
+        {6, vk::ImageLayout::eColorAttachmentOptimal},
     };
     vk::AttachmentReference depthReference{8, vk::ImageLayout::eDepthStencilAttachmentOptimal};
 
@@ -41,20 +40,20 @@ void CDeferredStage::create()
         {3, vk::ImageLayout::eShaderReadOnlyOptimal},
         {4, vk::ImageLayout::eShaderReadOnlyOptimal},
         {5, vk::ImageLayout::eShaderReadOnlyOptimal},
-        {6, vk::ImageLayout::eShaderReadOnlyOptimal}
+        {6, vk::ImageLayout::eShaderReadOnlyOptimal},
     };
 
     pRenderPass = Render::CRenderPass::Builder().
-    //KHR color attachment
-    addAttachmentDescription(CSwapChain::getInstance()->getImageFormat(), vk::SampleCountFlagBits::e1, vk::AttachmentLoadOp::eClear, vk::AttachmentStoreOp::eStore, 
-    vk::AttachmentLoadOp::eDontCare, vk::AttachmentStoreOp::eDontCare, vk::ImageLayout::eUndefined, vk::ImageLayout::ePresentSrcKHR).
+    addAttachmentDescription(vk::Format::eR32G32B32A32Sfloat, vk::SampleCountFlagBits::e1, vk::AttachmentLoadOp::eClear, vk::AttachmentStoreOp::eStore, 
+    vk::AttachmentLoadOp::eDontCare, vk::AttachmentStoreOp::eDontCare, vk::ImageLayout::eUndefined, vk::ImageLayout::eShaderReadOnlyOptimal). //Final image
     addAttachmentDescription(vk::Format::eR16G16B16A16Sfloat). //Position buffer
     addAttachmentDescription(vk::Format::eR16G16B16A16Sfloat). //Light mask buffer
     addAttachmentDescription(vk::Format::eR16G16B16A16Sfloat). //Normals buffer
     addAttachmentDescription(vk::Format::eR8G8B8A8Snorm). //Albedo buffer
     addAttachmentDescription(vk::Format::eR8G8B8A8Snorm). //Emissive buffer
     addAttachmentDescription(vk::Format::eR8G8B8A8Snorm). //Metal, roughness, AmbientOcclusion, Height maps buffer
-    addAttachmentDescription(vk::Format::eR16G16B16A16Sfloat). //Temporary image buffer
+    addAttachmentDescription(vk::Format::eR32G32B32A32Sfloat, vk::SampleCountFlagBits::e1, vk::AttachmentLoadOp::eClear, vk::AttachmentStoreOp::eDontCare, 
+    vk::AttachmentLoadOp::eDontCare, vk::AttachmentStoreOp::eDontCare, vk::ImageLayout::eUndefined, vk::ImageLayout::eShaderReadOnlyOptimal). //Temporary image buffer
     addAttachmentDescription(CImage::getDepthFormat(), vk::SampleCountFlagBits::e1, vk::AttachmentLoadOp::eClear, vk::AttachmentStoreOp::eDontCare, 
     vk::AttachmentLoadOp::eDontCare, vk::AttachmentStoreOp::eDontCare, vk::ImageLayout::eUndefined, vk::ImageLayout::eDepthStencilAttachmentOptimal). //Depth stencil
     //GBuffer description
@@ -75,15 +74,15 @@ void CDeferredStage::create()
     pRenderPass->pushSubpass(std::make_shared<CPBRCompositionPass>());
 
     pFramebuffer = std::make_unique<CFramebuffer>();
-    pFramebuffer->addImage("present_khr", CSwapChain::getInstance()->getImageFormat(), vk::ImageUsageFlagBits::eColorAttachment | vk::ImageUsageFlagBits::eInputAttachment);
+    pFramebuffer->addImage("output_color", vk::Format::eR32G32B32A32Sfloat, vk::ImageUsageFlagBits::eColorAttachment | vk::ImageUsageFlagBits::eSampled);
     pFramebuffer->addImage("position_tex", vk::Format::eR16G16B16A16Sfloat, vk::ImageUsageFlagBits::eColorAttachment | vk::ImageUsageFlagBits::eInputAttachment);
     pFramebuffer->addImage("lightning_mask_tex", vk::Format::eR16G16B16A16Sfloat, vk::ImageUsageFlagBits::eColorAttachment | vk::ImageUsageFlagBits::eInputAttachment);
     pFramebuffer->addImage("normal_tex", vk::Format::eR16G16B16A16Sfloat, vk::ImageUsageFlagBits::eColorAttachment | vk::ImageUsageFlagBits::eInputAttachment);
     pFramebuffer->addImage("albedo_tex", vk::Format::eR8G8B8A8Snorm, vk::ImageUsageFlagBits::eColorAttachment | vk::ImageUsageFlagBits::eInputAttachment);
     pFramebuffer->addImage("emission_tex", vk::Format::eR8G8B8A8Snorm, vk::ImageUsageFlagBits::eColorAttachment | vk::ImageUsageFlagBits::eInputAttachment);
     pFramebuffer->addImage("mrah_tex", vk::Format::eR8G8B8A8Snorm, vk::ImageUsageFlagBits::eColorAttachment | vk::ImageUsageFlagBits::eInputAttachment);
-    pFramebuffer->addImage("brightness_buffer", vk::Format::eR16G16B16A16Sfloat, vk::ImageUsageFlagBits::eColorAttachment | vk::ImageUsageFlagBits::eInputAttachment);
-    pFramebuffer->addImage("depth_image", CImage::getDepthFormat(), vk::ImageUsageFlagBits::eDepthStencilAttachment | vk::ImageUsageFlagBits::eInputAttachment);
+    pFramebuffer->addImage("brightness_buffer", vk::Format::eR32G32B32A32Sfloat, vk::ImageUsageFlagBits::eColorAttachment | vk::ImageUsageFlagBits::eSampled);
+    pFramebuffer->addImage("depth_image", CImage::getDepthFormat(), vk::ImageUsageFlagBits::eDepthStencilAttachment);
 
     pRenderPass->setRenderArea(vk::Offset2D{0, 0}, screenExtent);
     pFramebuffer->create(pRenderPass->get(), screenExtent);

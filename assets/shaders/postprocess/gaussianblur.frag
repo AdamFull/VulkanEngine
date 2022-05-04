@@ -3,13 +3,11 @@
 #extension GL_ARB_shading_language_420pack : enable
 #extension GL_GOOGLE_include_directive : require
 
-layout (input_attachment_index = 0, binding = 0) uniform subpassInput samplerColor;
-layout (input_attachment_index = 1, binding = 1) uniform subpassInput samplerBrightness;
+layout (binding = 0) uniform sampler2D samplerBrightness;
 
 layout (location = 0) in vec2 inUV;
 
-layout (location = 0) out vec4 outColor;
-layout (location = 1) out vec4 outBrightness;
+layout (location = 0) out vec4 outBrightness;
 
 layout(std140, binding = 1) uniform FBloomUbo 
 {
@@ -50,6 +48,5 @@ void main()
 		}
 	}
 
-	outColor = subpassLoad(samplerColor, inUV);
 	outBrightness = vec4(result, 1.0);
 }

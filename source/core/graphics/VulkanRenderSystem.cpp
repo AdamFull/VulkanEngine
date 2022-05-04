@@ -2,6 +2,7 @@
 #include "resources/ResourceManager.h"
 #include "graphics/scene/objects/RenderObject.h"
 #include "graphics/renderpass/render_stages/DeferredStage.h"
+#include "graphics/renderpass/render_stages/PostProcessStage.h"
 
 using namespace Engine::Core;
 
@@ -19,6 +20,7 @@ void CRenderSystem::create()
     commandBuffers = std::make_shared<CCommandBuffer>(false, vk::QueueFlagBits::eGraphics, vk::CommandBufferLevel::ePrimary, CSwapChain::getInstance()->getFramesInFlight());
 
     vStages.emplace_back(std::make_unique<Render::CDeferredStage>());
+    vStages.emplace_back(std::make_unique<Render::CPostProcessStage>());
 
     currentStageIndex = 0;
     for(auto& stage : vStages)

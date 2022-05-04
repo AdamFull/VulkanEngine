@@ -40,7 +40,7 @@ void CPBRCompositionPass::create()
     pMaterial = CMaterialLoader::getInstance()->create("pbr_composition");
     pMaterial->create(renderPass, subpass);
 
-    CImguiOverlay::getInstance()->create(renderPass, subpass);
+    
     CSubpass::create();
 }
 
@@ -78,8 +78,6 @@ void CPBRCompositionPass::render(vk::CommandBuffer& commandBuffer)
     pMaterial->bind(commandBuffer, imageIndex);
 
     commandBuffer.draw(3, 1, 0, 0);
-
-    CImguiOverlay::getInstance()->drawFrame(commandBuffer, imageIndex);
 }
 
 void CPBRCompositionPass::cleanup()

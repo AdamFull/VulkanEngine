@@ -56,6 +56,7 @@ namespace Engine
                 std::string m_srName;
                 // std::string m_srUUID;
                 FTransform m_transform;
+                bool bVisible{true};
 
                 std::shared_ptr<CRenderObject> m_pParent;
                 std::shared_ptr<CRenderObject> m_pParentOld;

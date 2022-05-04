@@ -18,6 +18,7 @@ namespace Engine
             void cleanup();
 
             std::unique_ptr<Render::CRenderStage>& getCurrentStage() { return vStages.at(currentStageIndex); }
+            std::unique_ptr<Render::CRenderStage>& getPrevStage() { return vStages.at(currentStageIndex - 1); }
 
             vk::CommandBuffer& getCurrentCommandBuffer();
         private:

@@ -33,7 +33,7 @@ namespace Engine
                     Builder &addSubpassDependency(vk::SubpassDependency &&dep);
                     Builder &addSubpassDependency(uint32_t src, uint32_t dst, vk::PipelineStageFlags srcStageMask = vk::PipelineStageFlagBits::eColorAttachmentOutput, 
                     vk::PipelineStageFlags dstStageMask = vk::PipelineStageFlagBits::eFragmentShader, vk::AccessFlags srcAccessMask = vk::AccessFlagBits::eColorAttachmentWrite, 
-                    vk::AccessFlags dstAccessMask = vk::AccessFlagBits::eShaderRead, vk::DependencyFlags depFlags = vk::DependencyFlagBits::eByRegion);
+                    vk::AccessFlags dstAccessMask = vk::AccessFlagBits::eMemoryRead, vk::DependencyFlags depFlags = vk::DependencyFlagBits::eByRegion);
 
                     std::unique_ptr<CRenderPass> build();
 

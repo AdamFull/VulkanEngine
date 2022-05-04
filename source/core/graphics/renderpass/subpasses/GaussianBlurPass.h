@@ -11,12 +11,13 @@ namespace Engine
             {
             public:
                 CGaussianBlurPass() = default;
-                explicit CGaussianBlurPass(int direction) : direction(direction) {}
+                explicit CGaussianBlurPass(int direction, const std::string& ref_name) : direction(direction), imageReferenceName(ref_name) {}
                 void create() override;
                 void render(vk::CommandBuffer& commandBuffer) override;
                 void cleanup() override;
             private:
                 int direction{-1};
+                std::string imageReferenceName{""};
             };
         }
     }

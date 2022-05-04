@@ -1,23 +1,22 @@
 #pragma once
-#include "Core/DataTypes/VulkanVertex.hpp"
+#include "resources/ResourceManager.h"
+#include "resources/meshes/MeshFragment.h"
+#include "graphics/data_types/VulkanVertex.hpp"
 
 namespace Engine
 {
     namespace Resources
     {
-        class ResourceManager;
-        namespace Mesh { class MeshFragment; }
-        
         namespace Loaders
         {
-            struct MeshLoader
+            struct CMeshLoader
             {
             public:
-                static bool Load(std::string srPath, std::shared_ptr<Resources::ResourceManager> pResourceManager, std::shared_ptr<Mesh::MeshFragment> pMesh, bool bLoadMaterial = false);
+                static bool load(std::string srPath, std::shared_ptr<Mesh::CMeshFragment> pMesh, bool bLoadMaterial = false);
 
             private:
-                static void CalculateTangents(std::vector<Core::Vertex> &vertices, std::vector<uint32_t> indices);
-                static glm::vec4 GenerateNormals(std::vector<Core::Vertex> &vertices, std::vector<uint32_t> indices);
+                static void calculateTangents(std::vector<Core::FVertex> &vertices, std::vector<uint32_t> indices);
+                static glm::vec4 generateNormals(std::vector<Core::FVertex> &vertices, std::vector<uint32_t> indices);
             };
         }
     }

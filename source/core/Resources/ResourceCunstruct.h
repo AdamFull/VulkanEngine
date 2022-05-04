@@ -1,4 +1,5 @@
 #pragma once
+#include "serializer/Serialization.hpp"
 
 namespace Engine
 {
@@ -15,22 +16,24 @@ namespace Engine
         enum class ETextureAttachmentType
         {
             eEmpty,
+            eBRDFLUT,
+            eIrradiance,
+            ePrefiltred,
+            
             ePosition,
             eLightningMask,
             eNormal,
             eDiffuseAlbedo,
-            eDepth,
-            
             eMetalicRoughness,
             eSpecularGlossiness,
             eEmissive,
             eHeight,
             eOcclusion,
-            //Special
-            eCubemap,
-            eIrradiance,
-            eBRDFLUT,
-            ePrefiltred
+            eMRAH,
+            eBrightness,
+            eDepth,
+
+            eCubemap
         };
 
         enum class ENoisePattern
@@ -51,17 +54,9 @@ namespace Engine
         {
             std::string srName{};
             ETextureType eType{};
-            ETextureAttachmentType eAttachment{};
+            std::string attachment{};
             std::string srSrc{};
             FNoiseParam noise{};
-        };
-
-        enum class EMaterialType
-        {
-            eUI,
-            eDiffuse,
-            eSkybox,
-            ePBR
         };
 
         struct FMaterialParamsInfo
@@ -75,9 +70,6 @@ namespace Engine
         struct FMaterialCreateInfo
         {
             std::string srName{};
-            std::string srPrimitive{};
-            EMaterialType eType{};
-            std::vector<std::string> srAttachments{};
             std::vector<FTextureCreateInfo> vTextures{};
             FMaterialParamsInfo fParams{};
         };
@@ -94,8 +86,29 @@ namespace Engine
             std::string srName{};
             EMeshType eType{};
             std::string srSrc{};
+            float fRepeat{1.f};
             bool bUseIncludedMaterial{false};
             std::vector<FMaterialCreateInfo> vMaterials{};
         };
+
+        enum class ELightSourceType
+        {
+            ePoint
+        };
+
+        struct FLightCreateinfo
+        {
+            std::string srName{};
+            ELightSourceType eType{};
+            glm::vec3 vColor{};
+            float fAttenuation{};
+        };
+
+        REGISTER_SERIALIZATION_BLOCK_H(FNoiseParam);
+        REGISTER_SERIALIZATION_BLOCK_H(FTextureCreateInfo);
+        REGISTER_SERIALIZATION_BLOCK_H(FMaterialParamsInfo);
+        REGISTER_SERIALIZATION_BLOCK_H(FMaterialCreateInfo);
+        REGISTER_SERIALIZATION_BLOCK_H(FMeshCreateInfo);
+        REGISTER_SERIALIZATION_BLOCK_H(FLightCreateinfo);
     }
 }

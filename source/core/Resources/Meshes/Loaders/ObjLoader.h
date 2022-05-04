@@ -2,9 +2,9 @@
 
 namespace Engine
 {
-    namespace Objects
+    namespace Core
     {
-        class RenderObject;
+        namespace Scene { class CRenderObject; }
     }
 
     namespace Resources
@@ -14,7 +14,7 @@ namespace Engine
             struct ObjLoader
             {
             public:
-                static void Load(std::string srPath, std::shared_ptr<Objects::RenderObject> pRoot);
+                static void Load(std::string srPath, std::shared_ptr<Core::Scene::CRenderObject> pRoot);
             };
         }
     }

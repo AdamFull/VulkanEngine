@@ -1,6 +1,6 @@
 #pragma once
-#include "Objects/Transform.h"
-#include "Resources/ResourceCunstruct.h"
+#include "resources/ResourceCunstruct.h"
+#include "serializer/Serialization.hpp"
 
 namespace Engine
 {
@@ -10,7 +10,7 @@ namespace Engine
         eSkybox,
         eMeshComponent,
         eGltfMesh,
-        eEnvironment
+        eLightSource
     };
 
     struct FSceneObject
@@ -19,15 +19,20 @@ namespace Engine
         ESceneObjectType eObjectType;
         std::string srUseVolume;
         Resources::FMeshCreateInfo mesh;
+        Resources::FLightCreateinfo light; 
         Resources::FTextureCreateInfo texture;
-        Objects::FTransform fTransform;
+        FTransform fTransform;
+        std::vector<glm::vec4> vInstances;
         std::vector<FSceneObject> vSceneObjects;
     };
 
     struct FSceneCreateInfo
     {
         FSceneObject skybox;
-        FSceneObject environment;
         std::vector<FSceneObject> vSceneObjects;
     };
+
+    /*SCENE*/
+    REGISTER_SERIALIZATION_BLOCK_H(FSceneObject);
+    REGISTER_SERIALIZATION_BLOCK_H(FSceneCreateInfo);
 }

@@ -1,21 +1,21 @@
 #pragma once
-#include "KeyMapping/KeycodeConfig.h"
+#include "keymapper/KeycodeConfig.h"
 
 namespace Engine
 {
     namespace Core
     {
-        class Device;
-        class SwapChain;
+        
+        
     }
 
     namespace Controllers
     {
-        class CameraController
+        class CCameraController
         {
         public:
-            virtual void Create();
-            virtual void Update(float fDeltaTime);
+            virtual void create();
+            virtual void update(float fDeltaTime);
 
             // Getters
         protected:

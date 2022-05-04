@@ -1,11 +1,10 @@
 #pragma once
-#include "Objects/Transform.h"
 
 namespace Engine
 {
     namespace Resources
     {
-        namespace Mesh { class MeshFragment; }
+        namespace Mesh { class CMeshFragment; }
         namespace Loaders
         {
             class GLTFSceneNode;
@@ -17,34 +16,46 @@ namespace Engine
                 std::vector<std::shared_ptr<GLTFSceneNode>> joints;
             };
 
-            class GLTFSceneNode : public std::enable_shared_from_this<GLTFSceneNode>
+            class GLTFSceneNode :public std::enable_shared_from_this<GLTFSceneNode>
             {
             public:
-                Objects::FTransform GetTransform();
-                glm::vec3 GetPosition();
-                glm::vec3 GetRotation();
-                glm::vec3 GetScale();
+                // Deep search
+                std::shared_ptr<GLTFSceneNode> find(std::string srName);
+                void addChild(std::shared_ptr<GLTFSceneNode> child);
+                void setParent(std::shared_ptr<GLTFSceneNode> parent);
+                void attach(std::shared_ptr<GLTFSceneNode> child);
+                void detach(std::shared_ptr<GLTFSceneNode> child);
 
-                void SetParent(std::shared_ptr<GLTFSceneNode> parent);
-                void Attach(std::shared_ptr<GLTFSceneNode> child);
-                void Detach(std::shared_ptr<GLTFSceneNode> child);
+                std::string &getName();
+                std::string &getUUID();
+                std::shared_ptr<GLTFSceneNode> &getParent();
+                std::map<std::string, std::shared_ptr<GLTFSceneNode>> &getChilds();
 
-                std::shared_ptr<GLTFSceneNode> Find(uint32_t index);
+                FTransform getTransform();
+                const glm::vec3 getPosition() const;
+                const glm::vec3 getRotation() const;
+                const glm::vec3 getScale() const;
 
-                inline std::shared_ptr<GLTFSceneNode> GetParent() { return m_pParent; }
-                inline std::map<std::string, std::shared_ptr<GLTFSceneNode>> &GetChilds() { return m_mChilds; }
-                void AddChild(std::shared_ptr<GLTFSceneNode> child);
+                void setName(std::string srName);
 
-                std::string m_srName;
-                Objects::FTransform m_transform;
+                void setTransform(FTransform transformNew);
+                void setPosition(glm::vec3 position);
+                void setRotation(glm::vec3 rotation);
+                void setScale(glm::vec3 scale);
+
                 uint32_t m_index;
 		
-                std::shared_ptr<Mesh::MeshFragment> m_pMesh;
+                std::shared_ptr<Mesh::CMeshFragment> m_pMesh;
                 std::unique_ptr<Skin> m_pSkin;
-            private:
+            protected:
+                std::string m_srName;
+                std::string m_srUUID;
+                FTransform m_transform;
+
                 std::shared_ptr<GLTFSceneNode> m_pParent;
                 std::shared_ptr<GLTFSceneNode> m_pParentOld;
                 std::map<std::string, std::shared_ptr<GLTFSceneNode>> m_mChilds;
+                std::map<std::string, std::string> m_mUUID;
             };
         }
     }

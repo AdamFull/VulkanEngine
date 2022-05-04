@@ -1,43 +1,43 @@
 #include "MeshFactory.h"
-#include "Resources/ResourceManager.h"
-#include "Resources/Materials/MaterialFactory.h"
-#include "Resources/Materials/VulkanMaterial.h"
-#include "Resources/Meshes/MeshFragment.h"
+#include "resources/ResourceManager.h"
+#include "resources/meshes/MeshFragment.h"
+#include "resources/materials/MaterialFactory.h"
+#include "resources/materials/VulkanMaterial.h"
 #include "MeshLoader.h"
 
 using namespace Engine::Resources;
 using namespace Engine::Resources::Mesh;
 
-std::map<EMeshType, std::function<std::shared_ptr<MeshFragment>(FMeshCreateInfo)>>
-    MeshFactory::m_mFactory{
+std::map<EMeshType, std::function<std::shared_ptr<CMeshFragment>(FMeshCreateInfo)>>
+    CMeshFactory::m_mFactory{
         {EMeshType::eStatic, [](FMeshCreateInfo info)
          {
-             auto mesh = std::make_shared<MeshFragment>();
+             auto mesh = std::make_shared<CMeshFragment>();
              return mesh;
          }},
         {EMeshType::eSkeletal, [](FMeshCreateInfo info)
          {
-             auto mesh = std::make_shared<MeshFragment>();
+             auto mesh = std::make_shared<CMeshFragment>();
              return mesh;
          }},
         {EMeshType::eGLTF, [](FMeshCreateInfo info)
          {
-             auto mesh = std::make_shared<MeshFragment>();
+             auto mesh = std::make_shared<CMeshFragment>();
              return mesh;
          }}};
 
-std::shared_ptr<MeshFragment> MeshFactory::Create(std::shared_ptr<Resources::ResourceManager> resourceMgr, FMeshCreateInfo info)
+std::shared_ptr<CMeshFragment> CMeshFactory::create(FMeshCreateInfo info)
 {
     auto mesh = m_mFactory[info.eType](info);
-    Loaders::MeshLoader::Load(info.srSrc, resourceMgr, mesh, info.bUseIncludedMaterial);
+    Loaders::CMeshLoader::load(info.srSrc, mesh, info.bUseIncludedMaterial);
 
     if (!info.bUseIncludedMaterial)
     {
         for (auto &matInfo : info.vMaterials)
         {
-            std::shared_ptr<Material::MaterialBase> material = Material::MaterialFactory::Create(resourceMgr, matInfo);
-            resourceMgr->AddExisting<Material::MaterialBase>(matInfo.srName, material);
-            mesh->SetMaterial(material);
+            std::shared_ptr<Material::CMaterialBase> material = Material::CMaterialFactory::create(matInfo);
+            CResourceManager::getInstance()->addExisting<Material::CMaterialBase>(matInfo.srName, material);
+            mesh->setMaterial(material);
         }
     }
     return mesh;

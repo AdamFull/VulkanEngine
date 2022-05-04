@@ -3,14 +3,14 @@
 #define TINYGLTF_NO_STB_IMAGE_WRITE
 
 #include "GLTFLoader.h"
-#include "Resources/ResourceManager.h"
-#include "Resources/Meshes/MeshFragment.h"
-#include "Resources/Textures/ImageLoader.h"
-
-#include "Core/DataTypes/VulkanVertex.hpp"
-#include "Core/VulkanVBO.h"
-#include "Core/VulkanAllocator.h"
+#include "resources/ResourceManager.h"
+#include "resources/meshes/MeshFragment.h"
+#include "resources/materials/MaterialLoader.h"
+#include "graphics/image/ImageLoader.h"
+#include "filesystem/FilesystemHelper.h"
+#include "graphics/VulkanHighLevel.h"
 #include "GLTFSceneNode.h"
+
 
 // Based on https://github.com/SaschaWillems/Vulkan/blob/master/base/VulkanglTFModel.cpp
 bool loadImageDataFuncEmpty(tinygltf::Image *image, const int imageIndex, std::string *error, std::string *warning, int req_width, int req_height, const unsigned char *bytes, int size, void *userData)
@@ -28,8 +28,9 @@ bool loadImageDataFuncEmpty(tinygltf::Image *image, const int imageIndex, std::s
 }
 
 using namespace Engine;
+using namespace Engine::Core;
+using namespace Engine::Core::Loaders;
 using namespace Engine::Resources;
-using namespace Engine::Resources::Texture;
 using namespace Engine::Resources::Material;
 using namespace Engine::Resources::Mesh;
 using namespace Engine::Resources::Loaders;
@@ -40,80 +41,81 @@ bLoadMaterials(loadMaterials), bUseMaterials(useMaterials), srModelName(modelNam
 
 }
 
-void GLTFLoader::Load(std::string srPath, std::string srName, std::shared_ptr<Resources::ResourceManager> pResMgr)
+void GLTFLoader::load(std::string srPath, std::string srName)
 {
     tinygltf::Model gltfModel;
     tinygltf::TinyGLTF gltfContext;
     std::string error, warning;
     gltfContext.SetImageLoader(loadImageDataFuncEmpty, nullptr);
-    bool fileLoaded = gltfContext.LoadASCIIFromFile(&gltfModel, &error, &warning, srPath);
+    auto fpath = FilesystemHelper::getWorkDir() / srPath;
+    bool fileLoaded = gltfContext.LoadASCIIFromFile(&gltfModel, &error, &warning, fpath.string());
     current_primitive = 0;
 
-    m_pMesh = std::make_shared<MeshBase>();
+    m_pMesh = std::make_shared<CMeshBase>();
     srModelName = srName;
 
     if (fileLoaded)
     {
         if (bLoadMaterials)
         {
-            LoadTextures(pResMgr, gltfModel);
-            LoadMaterials( pResMgr, gltfModel);
+            loadTextures(gltfModel);
+            loadMaterials(gltfModel);
         }
 
         const tinygltf::Scene &scene = gltfModel.scenes[gltfModel.defaultScene > -1 ? gltfModel.defaultScene : 0];
         for (size_t i = 0; i < scene.nodes.size(); i++)
         {
             const tinygltf::Node node = gltfModel.nodes[scene.nodes[i]];
-            LoadNode(pResMgr, nullptr, node, scene.nodes[i], gltfModel, 1.0);
+            loadNode(nullptr, node, scene.nodes[i], gltfModel, 1.0);
         }
 
         if (gltfModel.animations.size() > 0) 
-            LoadAnimations(gltfModel);
-        LoadSkins(gltfModel);
+            loadAnimations(gltfModel);
+        loadSkins(gltfModel);
 
         for(auto& node : m_vLinearNodes)
         {
             if(node->m_pMesh)
             {
-                node->m_pMesh->SetLocalMatrix(node->GetTransform().GetModel());
-                m_pMesh->AddFragment(node->m_pMesh);
+                node->m_pMesh->setLocalMatrix(node->getTransform().getModel());
+                m_pMesh->addFragment(node->m_pMesh);
             }
         }
     }
 }
 
-void GLTFLoader::LoadNode(std::shared_ptr<Resources::ResourceManager> pResMgr, std::shared_ptr<GLTFSceneNode> pParent, const tinygltf::Node &node, uint32_t nodeIndex, const tinygltf::Model &model, float globalscale)
+void GLTFLoader::loadNode(std::shared_ptr<GLTFSceneNode> pParent, const tinygltf::Node &node, uint32_t nodeIndex, const tinygltf::Model &model, float globalscale)
 {
     auto component = std::make_shared<GLTFSceneNode>();
     component->m_index = nodeIndex;
-    component->m_srName = node.name;
+    component->setName(node.name);
     if(pParent)
-        pParent->AddChild(component);
+        pParent->addChild(component);
 
     // Loading position data
     if (node.translation.size() == 3)
-        component->m_transform.pos = glm::make_vec3(node.translation.data());
+        component->getTransform().pos = glm::make_vec3(node.translation.data());
     // Loading rotation data
     if (node.rotation.size() == 4)
     {
-        glm::quat quat = glm::make_vec4(node.rotation.data());
+        glm::quat quat = glm::make_quat(node.rotation.data());
         glm::vec3 rot = glm::eulerAngles(quat) * 3.14159f / 180.f;
-        component->m_transform.rot = rot;
+        component->getTransform().rot = rot;
     }
     // Loading scale data
     if (node.scale.size() == 3)
-        component->m_transform.scale = glm::make_vec3(node.scale.data());
+        component->getTransform().scale = glm::make_vec3(node.scale.data());
 
     // Node with children
     if (node.children.size() > 0)
     {
         for (auto i = 0; i < node.children.size(); i++)
         {
-            LoadNode(pResMgr, component, model.nodes[node.children[i]], node.children[i], model, globalscale);
+            loadNode(component, model.nodes[node.children[i]], node.children[i], model, globalscale);
         }
     }
 
-    if (node.mesh > -1) LoadMeshFragment(pResMgr, component, node, model);
+    if (node.mesh > -1) loadMeshFragment(component, node, model);
     if(node.camera > -1);
 
     if(!pParent)
@@ -121,22 +123,22 @@ void GLTFLoader::LoadNode(std::shared_ptr<Resources::ResourceManager> pResMgr, s
     m_vLinearNodes.push_back(component);
 }
 
-void GLTFLoader::LoadMeshFragment(std::shared_ptr<Resources::ResourceManager> pResMgr, std::shared_ptr<GLTFSceneNode> sceneNode, const tinygltf::Node &node, const tinygltf::Model &model)
+void GLTFLoader::loadMeshFragment(std::shared_ptr<GLTFSceneNode> sceneNode, const tinygltf::Node &node, const tinygltf::Model &model)
 {
     const tinygltf::Mesh mesh = model.meshes[node.mesh];
-    auto nativeMesh = std::make_shared<MeshFragment>();
-    nativeMesh->SetName(srModelName + "_" + mesh.name);
+    auto nativeMesh = std::make_shared<CMeshFragment>();
+    nativeMesh->setName(srModelName + "_" + mesh.name);
     for (size_t j = 0; j < mesh.primitives.size(); j++)
     {
         std::vector<uint32_t> indexBuffer;
-        std::vector<Core::Vertex> vertexBuffer;
+        std::vector<Core::FVertex> vertexBuffer;
 
         const tinygltf::Primitive &primitive = mesh.primitives[j];
         if (primitive.indices < 0)
             continue;
 
-        uint32_t indexStart = UVBO->GetLastIndex();
-        uint32_t vertexStart = UVBO->GetLastVertex();
+        uint32_t indexStart = CVBO::getInstance()->getLastIndex();
+        uint32_t vertexStart = CVBO::getInstance()->getLastVertex();
         uint32_t indexCount = 0;
         uint32_t vertexCount = 0;
         glm::vec3 posMin{};
@@ -218,9 +220,10 @@ void GLTFLoader::LoadMeshFragment(std::shared_ptr<Resources::ResourceManager> pR
 
             for (size_t v = 0; v < posAccessor.count; v++)
             {
-                Core::Vertex vert{};
+                Core::FVertex vert{};
                 vert.pos = glm::vec4(glm::make_vec3(&bufferPos[v * 3]), 1.0f);
                 vert.normal = glm::normalize(glm::vec3(bufferNormals ? glm::make_vec3(&bufferNormals[v * 3]) : glm::vec3(0.0f)));
+                //vert.normal = glm::vec3(0.f);
                 vert.texcoord = bufferTexCoords ? glm::make_vec2(&bufferTexCoords[v * 2]) : glm::vec3(0.0f);
                 if (bufferColors)
                 {
@@ -237,9 +240,10 @@ void GLTFLoader::LoadMeshFragment(std::shared_ptr<Resources::ResourceManager> pR
                     vert.color = glm::vec4(1.0f);
                 }
                 vert.tangent = bufferTangents ? glm::vec4(glm::make_vec4(&bufferTangents[v * 4])) : glm::vec4(0.0f);
+                //vert.tangent = glm::vec4(0.f);
                 // TODO: Add skinning
-                vert.joint0 = hasSkin ? glm::vec4(glm::make_vec4(&bufferJoints[v * 4])) : glm::vec4(0.0f);
-                vert.weight0 = hasSkin ? glm::make_vec4(&bufferWeights[v * 4]) : glm::vec4(0.0f);
+                //vert.joint0 = hasSkin ? glm::vec4(glm::make_vec4(&bufferJoints[v * 4])) : glm::vec4(0.0f);
+                //vert.weight0 = hasSkin ? glm::make_vec4(&bufferWeights[v * 4]) : glm::vec4(0.0f);
                 vertexBuffer.push_back(vert);
             }
         }
@@ -282,13 +286,19 @@ void GLTFLoader::LoadMeshFragment(std::shared_ptr<Resources::ResourceManager> pR
                 break;
             }
             default:
-                std::cerr << "Index component type " << accessor.componentType << " not supported!" << std::endl;
+            {
+                std::stringstream ss;
+                ss << "Index component type " << accessor.componentType << " not supported!";
+                utl::logger::log(utl::ELogLevel::eWarning, ss.str());
                 return;
+            } break;
             }
         }
+        
+        //RecalculateTangents(vertexBuffer, indexBuffer, vertexStart);
 
         // Creating primitive for mesh
-        Primitive modelPrim{};
+        FPrimitive modelPrim{};
         modelPrim.firstIndex = indexStart;
         modelPrim.indexCount = indexCount;
         modelPrim.firstVertex = vertexStart;
@@ -303,26 +313,66 @@ void GLTFLoader::LoadMeshFragment(std::shared_ptr<Resources::ResourceManager> pR
         }
         else
         {
-            modelPrim.material = vMaterials.at(current_primitive);
+            if(!vMaterials.empty())
+                modelPrim.material = vMaterials.at(current_primitive);
             current_primitive++;
         }
 
-        nativeMesh->AddPrimitive(std::move(modelPrim));
+        nativeMesh->addPrimitive(std::move(modelPrim));
 
-        UVBO->AddMeshData(std::move(vertexBuffer), std::move(indexBuffer));
+        CVBO::getInstance()->addMeshData(std::move(vertexBuffer), std::move(indexBuffer));
     }
     sceneNode->m_pMesh = nativeMesh;
-    pResMgr->AddExisting(nativeMesh->GetName(), nativeMesh);
+    CResourceManager::getInstance()->addExisting(nativeMesh->getName(), nativeMesh);
 }
 
-void GLTFLoader::LoadAnimations(const tinygltf::Model &model)
+void GLTFLoader::recalculateTangents(std::vector<Core::FVertex>& vertices, std::vector<uint32_t>& indices, uint64_t startIndex)
+{
+    for(auto index = 0; index < indices.size(); index+=3)
+    {
+        auto& vertex1 = vertices.at(indices.at(index) - startIndex);
+        auto& vertex2 = vertices.at(indices.at(index + 1) - startIndex);
+        auto& vertex3 = vertices.at(indices.at(index + 2) - startIndex);
+
+        auto vec1 = vertex2.pos - vertex1.pos;
+        auto vec2 = vertex3.pos - vertex1.pos;
+        glm::vec3 normal = glm::normalize(glm::cross(vec1,vec2));
+
+        glm::vec2 duv1 = vertex2.texcoord - vertex1.texcoord;
+        glm::vec2 duv2 = vertex3.texcoord - vertex1.texcoord;
+
+        float k = 1 / (duv1.x * duv2.y - duv2.x * duv1.y);
+        glm::mat2x2 UV(duv2.y, -duv1.y, -duv2.x, duv1.x);
+        glm::mat2x3 E(vec1, vec2);
+        glm::mat2x3 TB = k * E * UV;
+
+        vertex1.tangent += glm::vec4(TB[0], 0.f);
+        vertex2.tangent += glm::vec4(TB[0], 0.f);
+        vertex3.tangent += glm::vec4(TB[0], 0.f);
+        vertex1.normal += normal;
+        vertex2.normal += normal;
+        vertex3.normal += normal;
+    }
+
+    for(auto& vertex : vertices)
+    {
+        auto& normal = vertex.normal;
+        normal = glm::normalize(normal);
+        auto& tangent = vertex.tangent;
+        tangent = glm::normalize(tangent);
+        tangent = glm::vec4(glm::normalize(glm::vec3(tangent) - glm::dot(glm::vec3(tangent), normal) * normal), 0.f);
+        //auto w = (glm::dot(glm::cross(normal, tangent), tan2[a]) < 0.0f) ? -1.0f : 1.0f;
+    }
+}
+
+void GLTFLoader::loadAnimations(const tinygltf::Model &model)
 {
     for (auto& anim : model.animations)
     {
         FAnimation animation{};
 		animation.name = anim.name;
 		if (anim.name.empty())
-			animation.name = std::to_string(m_pMesh->GetAnimations().size());
+			animation.name = std::to_string(m_pMesh->getAnimations().size());
 
         for (auto &samp : anim.samplers)
         {
@@ -385,7 +435,7 @@ void GLTFLoader::LoadAnimations(const tinygltf::Model &model)
                     }
                     default: 
                     {
-                        std::cout << "unknown type" << std::endl;
+                        utl::logger::log(utl::ELogLevel::eInfo, "unknown type");
                         break;
                     }
 				}
@@ -407,7 +457,7 @@ void GLTFLoader::LoadAnimations(const tinygltf::Model &model)
 				channel.path = FAnimationChannel::EPathType::SCALE;
 
 			if (source.target_path == "weights") {
-				std::cout << "weights not yet supported, skipping channel" << std::endl;
+                utl::logger::log(utl::ELogLevel::eInfo, "weights not yet supported, skipping channel");
 				continue;
 			}
 			channel.samplerIndex = source.sampler;
@@ -418,11 +468,11 @@ void GLTFLoader::LoadAnimations(const tinygltf::Model &model)
 			animation.channels.push_back(channel);
 		}
 
-		m_pMesh->AddAnimation(std::move(animation));
+		m_pMesh->addAnimation(std::move(animation));
     }
 }
 
-void GLTFLoader::LoadMaterials(std::shared_ptr<Resources::ResourceManager> pResMgr, const tinygltf::Model &model)
+void GLTFLoader::loadMaterials(const tinygltf::Model &model)
 {
     auto get_texture = [&](const tinygltf::ParameterMap& mat, const std::string& srTexture)
     {
@@ -432,7 +482,7 @@ void GLTFLoader::LoadMaterials(std::shared_ptr<Resources::ResourceManager> pResM
             return vTextures.at(index);
         }
         
-        return pResMgr->Get<Texture::TextureBase>("no_texture");
+        return CResourceManager::getInstance()->Get<Core::CImage>("no_texture");
     };
 
     uint32_t material_index{0};
@@ -447,17 +497,13 @@ void GLTFLoader::LoadMaterials(std::shared_ptr<Resources::ResourceManager> pResM
         ss << material_index;
 
         FMaterialParams params;
-        std::shared_ptr<MaterialBase> nativeMaterial = Core::FDefaultAllocator::Allocate<MaterialDiffuse>();
-        nativeMaterial->SetName(ss.str());
+        std::shared_ptr<CMaterialBase> nativeMaterial = CMaterialLoader::getInstance()->create("default");
+        nativeMaterial->setName(ss.str());
 
-        nativeMaterial->AddTexture(ETextureAttachmentType::eBRDFLUT, pResMgr->Get<Texture::TextureBase>(srVolumeName + "_brdf"));
-        nativeMaterial->AddTexture(ETextureAttachmentType::eIrradiance, pResMgr->Get<Texture::TextureBase>(srVolumeName + "_irradiate_cube"));
-        nativeMaterial->AddTexture(ETextureAttachmentType::ePrefiltred, pResMgr->Get<Texture::TextureBase>(srVolumeName + "_prefiltred_cube"));
-
-        nativeMaterial->AddTexture(ETextureAttachmentType::eDiffuseAlbedo, get_texture(mat.values, "baseColorTexture"));
-        nativeMaterial->AddTexture(ETextureAttachmentType::eMetalicRoughness, get_texture(mat.values, "metallicRoughnessTexture"));
-        nativeMaterial->AddTexture(ETextureAttachmentType::eSpecularGlossiness, get_texture(mat.values, "specularGlossinessTexture"));
-        nativeMaterial->AddTexture(ETextureAttachmentType::eHeight, get_texture(mat.values, "displacementGeometryTexture"));
+        nativeMaterial->addTexture("color_tex", get_texture(mat.values, "baseColorTexture"));
+        nativeMaterial->addTexture("metalRough_tex", get_texture(mat.values, "metallicRoughnessTexture"));
+        //nativeMaterial->AddTexture(ETextureAttachmentType::eSpecularGlossiness, get_texture(mat.values, "specularGlossinessTexture"));
+        nativeMaterial->addTexture("height_tex", get_texture(mat.values, "displacementGeometryTexture"));
 
         if (mat.values.find("roughnessFactor") != mat.values.end())
             params.roughnessFactor = static_cast<float>(mat.values.at("roughnessFactor").Factor());
@@ -468,9 +514,9 @@ void GLTFLoader::LoadMaterials(std::shared_ptr<Resources::ResourceManager> pResM
         if (mat.values.find("baseColorFactor") != mat.values.end())
             params.baseColorFactor = glm::make_vec4(mat.values.at("baseColorFactor").ColorFactor().data());
 
-        nativeMaterial->AddTexture(ETextureAttachmentType::eNormal, get_texture(mat.additionalValues, "normalTexture"));
-        nativeMaterial->AddTexture(ETextureAttachmentType::eEmissive, get_texture(mat.additionalValues, "emissiveTexture"));
-        nativeMaterial->AddTexture(ETextureAttachmentType::eOcclusion, get_texture(mat.additionalValues, "occlusionTexture"));
+        nativeMaterial->addTexture("normal_tex", get_texture(mat.additionalValues, "normalTexture"));
+        nativeMaterial->addTexture("emissive_tex", get_texture(mat.additionalValues, "emissiveTexture"));
+        nativeMaterial->addTexture("ao_tex", get_texture(mat.additionalValues, "occlusionTexture"));
 
         if (mat.additionalValues.find("alphaMode") != mat.additionalValues.end())
         {
@@ -486,14 +532,14 @@ void GLTFLoader::LoadMaterials(std::shared_ptr<Resources::ResourceManager> pResM
         if(mat.additionalValues.find("displacementGeometry") != mat.additionalValues.end())
             params.alphaCutoff = static_cast<float>(mat.additionalValues.at("displacementGeometry").Factor());
 
-        nativeMaterial->SetParams(std::move(params));
+        nativeMaterial->setParams(std::move(params));
         vMaterials.emplace_back(nativeMaterial);
-        pResMgr->AddExisting(nativeMaterial->GetName(), nativeMaterial);
+        CResourceManager::getInstance()->addExisting(nativeMaterial->getName(), nativeMaterial);
         material_index++;
     }
 }
 
-void GLTFLoader::LoadTextures(std::shared_ptr<ResourceManager> pResMgr, const tinygltf::Model &model)
+void GLTFLoader::loadTextures(const tinygltf::Model &model)
 {
     uint32_t index{0};
     for (auto &image : model.images)
@@ -508,15 +554,15 @@ void GLTFLoader::LoadTextures(std::shared_ptr<ResourceManager> pResMgr, const ti
         ss << std::to_string(index);
 
         std::string srPath = "";
-        auto texture = LoadTexture(image, srPath);
-        texture->SetName(ss.str());
+        auto texture = loadTexture(image, srPath);
+        //texture->SetName(ss.str());
         vTextures.emplace_back(texture);
-        pResMgr->AddExisting(texture->GetName(), texture);
+        CResourceManager::getInstance()->addExisting(ss.str(), texture);
         index++;
     }
 }
 
-std::shared_ptr<TextureBase> GLTFLoader::LoadTexture(const tinygltf::Image &image, std::string path)
+std::shared_ptr<CImage> GLTFLoader::loadTexture(const tinygltf::Image &image, std::string path)
 {
     bool isKtx = false;
     // Image points to an external ktx file
@@ -528,13 +574,11 @@ std::shared_ptr<TextureBase> GLTFLoader::LoadTexture(const tinygltf::Image &imag
 
     vk::Format format;
     ktxTexture *texture;
-    auto nativeTexture = Core::FDefaultAllocator::Allocate<TextureBase>();
-    nativeTexture->SetName(image.name);
-    // nativeTexture->LoadFromMemory();
-
+    auto nativeTexture = std::make_shared<CImage>();
     if (!isKtx)
     {
-        ImageLoader::AllocateRawDataAsKTXTexture(&texture, &format, image.width, image.height, 1, 2, GL_SRGB8_ALPHA8, true);
+        auto isAlbedo = image.name.find("albedo") != std::string::npos;
+        CImageLoader::allocateRawDataAsKTXTexture(&texture, &format, image.width, image.height, 1, 2, isAlbedo ? GL_SRGB8_ALPHA8 : GL_RGBA8, true);
         vk::DeviceSize bufferSize = 0;
         bool deleteBuffer = false;
         if (image.component == 3)
@@ -569,15 +613,15 @@ std::shared_ptr<TextureBase> GLTFLoader::LoadTexture(const tinygltf::Image &imag
     else
     {
         std::string srTexturePath = path + "/" + image.uri;
-        ImageLoader::Load(srTexturePath.c_str(), &texture, &format);
+        CImageLoader::load(srTexturePath.c_str(), &texture, &format);
     }
-    nativeTexture->LoadFromMemory(texture, format);
-    ImageLoader::Close(&texture);
+    nativeTexture->loadFromMemory(texture, format);
+    CImageLoader::close(&texture);
 
     return nativeTexture;
 }
 
-void GLTFLoader::LoadSkins(const tinygltf::Model &model)
+void GLTFLoader::loadSkins(const tinygltf::Model &model)
 {
     for (auto& source : model.skins)
     {
@@ -585,7 +629,7 @@ void GLTFLoader::LoadSkins(const tinygltf::Model &model)
         pSkin->name = source.name;
 
         // Find skeleton root node
-		if (source.skeleton > -1)
+		/*if (source.skeleton > -1)
 			pSkin->skeletonRoot = m_vNodes.front()->Find(source.skeleton);
 
         // Find joint nodes
@@ -594,7 +638,7 @@ void GLTFLoader::LoadSkins(const tinygltf::Model &model)
 			auto node = m_vNodes.front()->Find(jointIndex);
 			if (node)
 				pSkin->joints.push_back(m_vNodes.front()->Find(jointIndex));
-		}
+		}*/
 
         // Get inverse bind matrices from buffer
 		if (source.inverseBindMatrices > -1) 

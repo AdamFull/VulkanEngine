@@ -5,18 +5,16 @@ namespace Engine
 {
     namespace Resources
     {
-        class ResourceManager;
         namespace Mesh
         {
-            class MeshFragment;
-
-            struct MeshFactory
+            class CMeshFragment;
+            struct CMeshFactory
             {
             public:
-                static std::shared_ptr<MeshFragment> Create(std::shared_ptr<Resources::ResourceManager> resourceMgr, FMeshCreateInfo info);
+                static std::shared_ptr<CMeshFragment> create(FMeshCreateInfo info);
 
             private:
-                static std::map<EMeshType, std::function<std::shared_ptr<MeshFragment>(FMeshCreateInfo)>> m_mFactory;
+                static std::map<EMeshType, std::function<std::shared_ptr<CMeshFragment>(FMeshCreateInfo)>> m_mFactory;
             };
         }
     }

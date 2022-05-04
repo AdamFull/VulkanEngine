@@ -1,16 +1,13 @@
 #pragma once
-#include "Core/VulkanUniform.h"
+#include "graphics/buffer/VulkanUniform.h"
+#include "MeshFragment.h"
 
 namespace Engine
 {
-    namespace Core { class UniformBuffer; }
     namespace Resources
     {
-        class ResourceManager;
         namespace Mesh
         {
-            class MeshFragment;
-
             struct FAnimationChannel 
             {
                 enum class EPathType { TRANSLATION, ROTATION, SCALE };
@@ -36,28 +33,31 @@ namespace Engine
                 float end = std::numeric_limits<float>::min();
             };
 
-            class MeshBase
+            class CMeshBase
             {
             public:
                 
-                virtual void Create(std::shared_ptr<ResourceManager> pResMgr);
-                virtual void ReCreate();
-                virtual void Render(vk::CommandBuffer commandBuffer, uint32_t imageIndex, Core::FUniformData& ubo);
-                virtual void Cleanup();
-                virtual void Destroy();
+                virtual void create(vk::RenderPass& renderPass, uint32_t subpass);
+                virtual void reCreate();
+                virtual void render(vk::CommandBuffer commandBuffer, uint32_t imageIndex, Core::FUniformData& ubo, uint32_t instanceCount = 1);
+                virtual void cleanup();
+                virtual void destroy();
 
-                void AddFragment(std::shared_ptr<MeshFragment> fragment);
-                inline std::vector<FAnimation>& GetAnimations() { return m_vAnimations; }
-                inline void AddAnimation(FAnimation&& animation) { m_vAnimations.emplace_back(animation); }
+                inline void textureRepeat(float repeatTimes) { fRepeat = repeatTimes; }
 
-                inline void SetName(const std::string& srName) { m_srName = srName; }
-                inline std::string GetName() { return m_srName; }
+                void addFragment(std::shared_ptr<CMeshFragment> fragment);
+                inline std::vector<FAnimation>& getAnimations() { return m_vAnimations; }
+                inline void addAnimation(FAnimation&& animation) { m_vAnimations.emplace_back(animation); }
+
+                void setName(const std::string& srName);
+                inline std::string getName() { return m_srName; }
 
             protected:
-                std::vector<std::shared_ptr<MeshFragment>> m_vFragments;
+                std::vector<std::shared_ptr<CMeshFragment>> m_vFragments;
                 std::vector<FAnimation> m_vAnimations;
-                std::shared_ptr<Core::UniformBuffer> m_pUniformBuffer;
+                std::shared_ptr<Core::CUniformBuffer> m_pUniformBuffer;
                 std::string m_srName;
+                float fRepeat;
             };
         }
     }

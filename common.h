@@ -16,16 +16,27 @@
 #define GLM_ENABLE_EXPERIMENTAL
 #include <glm/glm.hpp>
 #include <glm/gtc/matrix_transform.hpp>
+#include <glm/gtx/vector_angle.hpp>
 #include <glm/gtx/hash.hpp>
 #include <glm/gtx/matrix_operation.hpp>
 #include <glm/gtc/type_ptr.hpp>
 
-#include "external/EasyDelegate/EasyDelegateImpl.hpp"
+#include <external/tinygltf/json.hpp>
+
+#include <util/uuid.hpp>
+#include <util/memory.hpp>
+#include <util/function.hpp>
+#include <util/ulog.hpp>
+#include <util/threading.hpp>
+#include <util/DynamicNode.hpp>
+#include <util/StringHelper.h>
 
 #include <cassert>
+#include <memory>
 #include <iostream>
 #include <fstream>
 #include <string>
+#include <array>
 #include <vector>
 #include <map>
 #include <unordered_map>
@@ -33,5 +44,14 @@
 #include <optional>
 #include <numeric>
 #include <random>
+#include <functional>
+#include <sstream>
+#include <random>
 
 #include <chrono>
+
+#include <format>
+#include <source_location>
+
+#include <filesystem>
+namespace fs = std::filesystem;

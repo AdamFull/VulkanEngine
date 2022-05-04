@@ -1,18 +1,23 @@
 #include "FilesystemHelper.h"
-#include <filesystem>
-
-namespace fs = std::filesystem;
+#include <codecvt>
 
 namespace Engine
 {
-    std::vector<char> FilesystemHelper::ReadFile(const std::string& srPath)
+    std::string FilesystemHelper::readFile(const fs::path& srPath)
     {
-        std::ifstream file(srPath, std::ios_base::in | std::ios_base::binary);
-        return std::vector<char>(std::istreambuf_iterator<char>(file), std::istreambuf_iterator<char>());
+        std::ifstream file(getWorkDir() / srPath, std::ios_base::in | std::ios_base::binary);
+        file.rdbuf()->pubsetbuf(0, 0);
+        file.imbue(std::locale(std::locale::empty(), new std::codecvt<char16_t, char, std::mbstate_t>));
+        return std::string(std::istreambuf_iterator<char>(file), std::istreambuf_iterator<char>());
     }
 
-    bool FilesystemHelper::IsFileExist(const std::string& srPath)
+    bool FilesystemHelper::isFileExist(const fs::path& srPath)
     {
         return fs::exists(srPath);
+    }
+
+    fs::path FilesystemHelper::getWorkDir()
+    {
+        return fs::current_path().assign(fs::weakly_canonical("../../assets/"));
     }
 }

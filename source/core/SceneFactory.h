@@ -1,25 +1,23 @@
 #pragma once
 #include "SceneConstruct.h"
-#include "serializer/JsonSerializer.h"
+#include "RenderScene.h"
+#include "graphics/scene/objects/RenderObject.h"
 
 namespace Engine
 {
-    class RenderScene;
-    namespace Resources { class ResourceManager; }
-    namespace Objects { class RenderObject; }
-
-    struct SceneFactory
+    struct CSceneFactory
     {
-        using object_creator_t = std::shared_ptr<Objects::RenderObject>(FSceneObject);
-        static std::unique_ptr<RenderScene> Create(std::string srScenePath);
-    private:
-        static void CreateComponents(std::shared_ptr<Objects::RenderObject> pRoot, std::shared_ptr<Resources::ResourceManager> pResMgr, std::vector<FSceneObject> sceneObjects);
-        static std::shared_ptr<Objects::RenderObject> CreateComponent(std::shared_ptr<Resources::ResourceManager> pResMgr, FSceneObject info);
+        using object_creator_t = std::shared_ptr<Core::Scene::CRenderObject>(FSceneObject);
+        static std::unique_ptr<CRenderScene> create(std::string srScenePath);
 
-        static std::shared_ptr<Objects::RenderObject> CreateCamera(std::shared_ptr<Resources::ResourceManager> pResMgr, FSceneObject info);
-        static std::shared_ptr<Objects::RenderObject> CreateStaticMesh(std::shared_ptr<Resources::ResourceManager> pResMgr, FSceneObject info);
-        static std::shared_ptr<Objects::RenderObject> CreateSkybox(std::shared_ptr<Resources::ResourceManager> pResMgr, FSceneObject info);
-        static std::shared_ptr<Objects::RenderObject> CreateGLTFMesh(std::shared_ptr<Resources::ResourceManager> pResMgr, FSceneObject info);
-        static std::shared_ptr<Objects::RenderObject> CreateEnvironment(std::shared_ptr<Resources::ResourceManager> pResMgr, FSceneObject info);
+    private:
+        static void createComponents(std::shared_ptr<Core::Scene::CRenderObject> pRoot, std::vector<FSceneObject> sceneObjects);
+        static std::shared_ptr<Core::Scene::CRenderObject> createComponent(FSceneObject info);
+
+        static std::shared_ptr<Core::Scene::CRenderObject> createCamera(FSceneObject info);
+        static std::shared_ptr<Core::Scene::CRenderObject> createStaticMesh(FSceneObject info);
+        static std::shared_ptr<Core::Scene::CRenderObject> createSkybox(FSceneObject info);
+        static std::shared_ptr<Core::Scene::CRenderObject> createGLTFMesh(FSceneObject info);
+        static std::shared_ptr<Core::Scene::CRenderObject> createLightSource(FSceneObject info);
     };
 }

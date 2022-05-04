@@ -3,9 +3,8 @@
 
 int main()
 {
-    //Engine::ResourceManager::GetInstance()->Load("../../assets/resources.json");
-    Engine::Application app;
-    app.Create();
+    Engine::CApplication app;
+    app.create();
 
     try
     {
@@ -13,7 +12,7 @@ int main()
     }
     catch (const std::exception &e)
     {
-        std::cerr << e.what() << std::endl;
+        utl::logger::log(utl::ELogLevel::eError, e.what());
         return EXIT_FAILURE;
     }
 

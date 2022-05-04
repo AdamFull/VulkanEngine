@@ -1,26 +1,24 @@
 #pragma once
 #include "ResourceCunstruct.h"
 
-#include "Textures/VulkanTexture.h"
-#include "Materials/VulkanMaterial.h"
-#include "Meshes/MeshFragment.h"
-
-#include "Textures/TextureFactory.h"
-#include "Materials/MaterialFactory.h"
-#include "Meshes/MeshFactory.h"
+#include "graphics/image/Image.h"
+#include "materials/VulkanMaterial.h"
+#include "meshes/MeshFragment.h"
+#include "meshes/MeshFactory.h"
+//Old code in this includer, remove
 
 namespace Engine
 {
     namespace Resources
     {
-        class ResourceManager : public std::enable_shared_from_this<ResourceManager>
+        class CResourceManager : public utl::singleton<CResourceManager>
         {
         public:
-            void Create();
-            void Load(std::string srResourcesPath);
+            void create();
+            void load(std::string srResourcesPath);
 
             template <class ResType>
-            void AddExisting(std::string srResourceName, std::shared_ptr<ResType> pResource)
+            void addExisting(std::string srResourceName, std::shared_ptr<ResType> pResource)
             {
                 assert(false && "Cannot find resource type");
             }
@@ -39,15 +37,9 @@ namespace Engine
                 return nullptr;
             }
 
-            template <class ResType>
-            void Destroy(std::string srResourceName)
-            {
-                assert(false && "Cannot find resource type");
-            }
-
             /*******************************For texture****************************/
             template <>
-            void AddExisting<Texture::TextureBase>(std::string srResourceName, std::shared_ptr<Texture::TextureBase> pResource)
+            void addExisting<Core::CImage>(std::string srResourceName, std::shared_ptr<Core::CImage> pResource)
             {
                 auto it = m_mTextures.find(srResourceName);
                 if (it != m_mTextures.end())
@@ -56,15 +48,16 @@ namespace Engine
             }
 
             template <>
-            std::shared_ptr<Texture::TextureBase> ResourceManager::Add(FTextureCreateInfo info)
+            std::shared_ptr<Core::CImage> Add(FTextureCreateInfo info)
             {
-                std::shared_ptr<Texture::TextureBase> texture = Texture::TextureFactory::Create(shared_from_this(), info);
-                AddExisting(info.srName, texture);
+                std::shared_ptr<Core::CImage> texture = std::make_unique<Core::CImage>();
+                texture->loadFromFile(info.srSrc);
+                addExisting(info.srName, texture);
                 return nullptr;
             }
 
             template <>
-            std::shared_ptr<Texture::TextureBase> Get(std::string srResourceName)
+            std::shared_ptr<Core::CImage> Get(std::string srResourceName)
             {
                 auto it = m_mTextures.find(srResourceName);
                 if (it != m_mTextures.end())
@@ -72,18 +65,9 @@ namespace Engine
                 return m_mTextures.at("no_texture");
             }
 
-            template <>
-            void Destroy<Texture::TextureBase>(std::string srResourceName)
-            {
-                auto it = m_mTextures.find(srResourceName);
-                if (it != m_mTextures.end())
-                    it->second->Destroy();
-                assert(false && "Cannot find resource named: .");
-            }
-
             /*******************************For material****************************/
             template <>
-            void AddExisting<Material::MaterialBase>(std::string srResourceName, std::shared_ptr<Material::MaterialBase> pResource)
+            void addExisting<Material::CMaterialBase>(std::string srResourceName, std::shared_ptr<Material::CMaterialBase> pResource)
             {
                 auto it = m_mMaterials.find(srResourceName);
                 if (it != m_mMaterials.end())
@@ -92,15 +76,15 @@ namespace Engine
             }
 
             template <>
-            std::shared_ptr<Material::MaterialBase> ResourceManager::Add(FMaterialCreateInfo info)
+            std::shared_ptr<Material::CMaterialBase> Add(FMaterialCreateInfo info)
             {
-                std::shared_ptr<Material::MaterialBase> material = Material::MaterialFactory::Create(shared_from_this(), info);
-                AddExisting(info.srName, material);
+                //std::shared_ptr<Material::CMaterialBase> material = Material::CMaterialFactory::create(shared_from_this(), info);
+                //addExisting(info.srName, material);
                 return nullptr;
             }
 
             template <>
-            std::shared_ptr<Material::MaterialBase> Get(std::string srResourceName)
+            std::shared_ptr<Material::CMaterialBase> Get(std::string srResourceName)
             {
                 auto it = m_mMaterials.find(srResourceName);
                 if (it != m_mMaterials.end())
@@ -108,18 +92,9 @@ namespace Engine
                 return nullptr;
             }
 
-            template <>
-            void Destroy<Material::MaterialBase>(std::string srResourceName)
-            {
-                /*auto it = m_mMaterials.find(srResourceName);
-                if (it != m_mMaterials.end())
-                    it->second->Destroy();*/
-                assert(false && "Cannot find resource named: .");
-            }
-
             /*******************************For mesh****************************/
             template <>
-            void AddExisting<Mesh::MeshFragment>(std::string srResourceName, std::shared_ptr<Mesh::MeshFragment> pResource)
+            void addExisting<Mesh::CMeshFragment>(std::string srResourceName, std::shared_ptr<Mesh::CMeshFragment> pResource)
             {
                 auto it = m_mMeshes.find(srResourceName);
                 if (it != m_mMeshes.end())
@@ -128,15 +103,15 @@ namespace Engine
             }
 
             template <>
-            std::shared_ptr<Mesh::MeshFragment> ResourceManager::Add(FMeshCreateInfo info)
+            std::shared_ptr<Mesh::CMeshFragment> Add(FMeshCreateInfo info)
             {
-                std::shared_ptr<Mesh::MeshFragment> mesh = Mesh::MeshFactory::Create(shared_from_this(), info);
-                AddExisting(info.srName, mesh);
+                std::shared_ptr<Mesh::CMeshFragment> mesh = Mesh::CMeshFactory::create(info);
+                addExisting(info.srName, mesh);
                 return nullptr;
             }
 
             template <>
-            std::shared_ptr<Mesh::MeshFragment> Get(std::string srResourceName)
+            std::shared_ptr<Mesh::CMeshFragment> Get(std::string srResourceName)
             {
                 auto it = m_mMeshes.find(srResourceName);
                 if (it != m_mMeshes.end())
@@ -144,21 +119,10 @@ namespace Engine
                 return nullptr;
             }
 
-            template <>
-            void Destroy<Mesh::MeshFragment>(std::string srResourceName)
-            {
-                auto it = m_mMeshes.find(srResourceName);
-                if (it != m_mMeshes.end())
-                    it->second->Destroy();
-                assert(false && "Cannot find resource named: .");
-            }
-
-            void DestroyAll();
-
         private:
-            std::map<std::string, std::shared_ptr<Texture::TextureBase>> m_mTextures;
-            std::map<std::string, std::shared_ptr<Material::MaterialBase>> m_mMaterials;
-            std::map<std::string, std::shared_ptr<Mesh::MeshFragment>> m_mMeshes;
+            std::map<std::string, std::shared_ptr<Core::CImage>> m_mTextures;
+            std::map<std::string, std::shared_ptr<Material::CMaterialBase>> m_mMaterials;
+            std::map<std::string, std::shared_ptr<Mesh::CMeshFragment>> m_mMeshes;
         };
     }
 }

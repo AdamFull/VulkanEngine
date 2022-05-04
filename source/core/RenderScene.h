@@ -1,38 +1,25 @@
 #pragma once
-#include "Objects/Components/SceneRootComponent.h"
-#include "Resources/Lights/LightSourceBase.h"
+#include "Resources/ResourceManager.h"
+#include "graphics/scene/objects/components/SceneRootComponent.h"
 
 namespace Engine
 {
-    namespace Core
-    {
-        namespace Window  { class WindowHandle; }
-    }
+    namespace Resources { class CResourceManager; }
     
-    namespace Resources { class ResourceManager; }
-    
-    class RenderScene
+    class CRenderScene
     {
     public:
-        RenderScene() = default;
-        ~RenderScene();
+        CRenderScene() = default;
+        ~CRenderScene();
         
-        void Create();
-        void ReCreate();
-        void Destroy();
-        void AttachObject(std::shared_ptr<Objects::RenderObject> object);
-        void SetSkybox(std::shared_ptr<Objects::RenderObject> pSkybox);
-        void SetEnvironment(std::shared_ptr<Objects::RenderObject> pEnvironment);
-        inline std::shared_ptr<Objects::RenderObject>& GetRoot() { return m_pRoot; }
-        void CreateObjects();
-        void Render(float fDeltaTime);
-
-        std::shared_ptr<Resources::ResourceManager> GetResourceManager() { return m_pResourceManager; }
+        void create();
+        void reCreate();
+        void destroy();
+        void attachObject(std::shared_ptr<Core::Scene::CRenderObject> object);
+        inline std::shared_ptr<Core::Scene::CRenderObject>& getRoot() { return m_pRoot; }
+        void createObjects();
+        void render(float fDeltaTime);
     private:
-        std::shared_ptr<Objects::RenderObject> m_pSkybox;
-        std::shared_ptr<Objects::RenderObject> m_pEnvironment;
-        std::shared_ptr<Objects::RenderObject> m_pRoot;
-        std::vector<Resources::Light::LightSourceBase> vLights;
-        std::shared_ptr<Resources::ResourceManager> m_pResourceManager;
+        std::shared_ptr<Core::Scene::CRenderObject> m_pRoot;
     };
 }

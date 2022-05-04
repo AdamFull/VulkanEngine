@@ -1,53 +1,60 @@
 #include "VulkanMesh.h"
-#include "MeshFragment.h"
-#include "Core/VulkanAllocator.h"
 
 using namespace Engine::Core;
 using namespace Engine::Resources::Mesh;
 
-void MeshBase::Create(std::shared_ptr<ResourceManager> pResMgr)
+void CMeshBase::create(vk::RenderPass& renderPass, uint32_t subpass)
 {
-    m_pUniformBuffer = FDefaultAllocator::Allocate<UniformBuffer>();
-    m_pUniformBuffer->Create(2, sizeof(FUniformData));
+    m_pUniformBuffer = std::make_shared<CUniformBuffer>();
+    m_pUniformBuffer->create(2, sizeof(FUniformData));
     for (auto& fragment : m_vFragments)
-        fragment->Create(pResMgr);
+        fragment->create(renderPass, subpass);
 }
 
-void MeshBase::ReCreate()
+void CMeshBase::reCreate()
 {
-    m_pUniformBuffer->ReCreate(2);
+    m_pUniformBuffer->reCreate(2);
 
     for (auto& fragment : m_vFragments)
-        fragment->ReCreate();
+        fragment->reCreate();
 }
 
-void MeshBase::Render(vk::CommandBuffer commandBuffer, uint32_t imageIndex, Core::FUniformData& ubo)
+void CMeshBase::render(vk::CommandBuffer commandBuffer, uint32_t imageIndex, Core::FUniformData& ubo, uint32_t instanceCount)
 {
     for (auto& fragment : m_vFragments)
     {
-        ubo.model = ubo.model * fragment->GetLocalMatrix();
-        m_pUniformBuffer->UpdateUniformBuffer(imageIndex, &ubo);
-        auto& buffer = m_pUniformBuffer->GetUniformBuffer(imageIndex);
-        fragment->Update(buffer->GetDscriptor() ,imageIndex);
-        fragment->Bind(commandBuffer, imageIndex);
+        //ubo.repeat = fRepeat;
+        ubo.model = ubo.model * fragment->getLocalMatrix();
+        ubo.normal = glm::transpose(glm::inverse(ubo.model));
+
+        m_pUniformBuffer->updateUniformBuffer(imageIndex, &ubo);
+        auto& buffer = m_pUniformBuffer->getUniformBuffer(imageIndex);
+        auto descriptor = buffer->getDscriptor();
+        fragment->update(descriptor ,imageIndex);
+        fragment->bind(commandBuffer, imageIndex, instanceCount);
     }
 }
 
-void MeshBase::Cleanup()
+void CMeshBase::cleanup()
 {
-    m_pUniformBuffer->Cleanup();
+    m_pUniformBuffer->cleanup();
 
     for (auto& fragment : m_vFragments)
-        fragment->Cleanup();
+        fragment->cleanup();
 }
 
-void MeshBase::Destroy()
+void CMeshBase::destroy()
 {
     for (auto& fragment : m_vFragments)
-        fragment->Destroy();
+        fragment->destroy();
 }
 
-void MeshBase::AddFragment(std::shared_ptr<MeshFragment> fragment)
+void CMeshBase::addFragment(std::shared_ptr<CMeshFragment> fragment)
 {
     m_vFragments.push_back(fragment);
+}
+
+void CMeshBase::setName(const std::string& srName)
+{
+    m_srName = srName + uuid::generate();
 }

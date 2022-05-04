@@ -1,53 +1,41 @@
 #include "ResourceManager.h"
 #include "filesystem/FilesystemHelper.h"
-#include "serializer/JsonSerializer.h"
-#include "Core/VulkanAllocator.h"
+#include "graphics/VulkanHighLevel.h"
 
-using namespace Engine::Resources::Texture;
+using namespace Engine::Core;
+using namespace Engine::Resources;
 using namespace Engine::Resources::Material;
 using namespace Engine::Resources::Mesh;
-namespace Engine
+
+template <>
+std::unique_ptr<CResourceManager> utl::singleton<CResourceManager>::_instance{nullptr};
+
+void CResourceManager::create()
 {
-    namespace Resources
-    {
-        void ResourceManager::Create()
-        {
-            std::shared_ptr<Resources::Texture::TextureBase> pEmptyTexture = Core::FDefaultAllocator::Allocate<Resources::Texture::TextureBase>();
-            pEmptyTexture->CreateEmptyTexture(512, 512, 1, 2, 0x8C43);
-            AddExisting("no_texture", pEmptyTexture);
-        }
+    std::shared_ptr<CImage> pEmptyTexture = std::make_shared<CImage>();
+    pEmptyTexture->createEmptyTexture(512, 512, 1, 2, 0x8C43);
+    addExisting("no_texture", pEmptyTexture);
+}
 
-        void ResourceManager::Load(std::string srResourcesPath)
-        {
-            auto input = FilesystemHelper::ReadFile(srResourcesPath);
-            auto res_json = nlohmann::json::parse(input).front();
+void CResourceManager::load(std::string srResourcesPath)
+{
+    auto input = FilesystemHelper::readFile(srResourcesPath);
+    auto res_json = nlohmann::json::parse(input).front();
 
-            std::vector<FTextureCreateInfo> vTextures;
-            std::vector<FMaterialCreateInfo> vMaterials;
-            std::vector<FMeshCreateInfo> vMeshes;
+    std::vector<FTextureCreateInfo> vTextures;
+    std::vector<FMaterialCreateInfo> vMaterials;
+    std::vector<FMeshCreateInfo> vMeshes;
 
-            res_json.at("textures").get_to(vTextures);
-            res_json.at("materials").get_to(vMaterials);
-            res_json.at("meshes").get_to(vMeshes);
+    res_json.at("textures").get_to(vTextures);
+    res_json.at("materials").get_to(vMaterials);
+    res_json.at("meshes").get_to(vMeshes);
 
-            for (auto texture : vTextures)
-                Add<TextureBase>(texture);
+    for (auto texture : vTextures)
+        Add<CImage>(texture);
 
-            for (auto material : vMaterials)
-                Add<MaterialBase>(material);
+    for (auto material : vMaterials)
+        Add<CMaterialBase>(material);
 
-            for (auto mesh : vMeshes)
-                Add<MeshFragment>(mesh);
-        }
-
-        void ResourceManager::DestroyAll()
-        {
-            for (auto &[key, value] : m_mTextures)
-                value->Destroy();
-            /*for (auto &[key, value] : m_mMaterials)
-                value->Destroy();*/
-            for (auto &[key, value] : m_mMeshes)
-                value->Destroy();
-        }
-    }
+    for (auto mesh : vMeshes)
+        Add<CMeshFragment>(mesh);
 }

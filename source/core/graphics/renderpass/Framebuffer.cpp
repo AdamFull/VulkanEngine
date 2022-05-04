@@ -93,6 +93,7 @@ std::unordered_map<std::string, std::shared_ptr<CImage>>& CFramebuffer::getCurre
 std::shared_ptr<CImage> CFramebuffer::createImage(vk::Format format, vk::ImageUsageFlags usageFlags, vk::Extent2D extent)
 {
     auto texture = std::make_shared<CImage>();
+    bool translate_layout{false};
     ktxTexture *offscreen;
     vk::Format imageFormat;
     Loaders::CImageLoader::allocateRawDataAsKTXTexture(&offscreen, &imageFormat, extent.width, extent.height, 1, 2, VulkanStaticHelper::VkFormatToGLFormat(format));
@@ -110,13 +111,23 @@ std::shared_ptr<CImage> CFramebuffer::createImage(vk::Format format, vk::ImageUs
         aspectMask = vk::ImageAspectFlagBits::eDepth;
         imageLayout = vk::ImageLayout::eDepthStencilAttachmentOptimal;
     }
+    else
+    {
+        aspectMask = vk::ImageAspectFlagBits::eColor;
+        imageLayout = vk::ImageLayout::eGeneral;
+        translate_layout = true;
+    }
 
     texture->initializeTexture(offscreen, imageFormat, usageFlags, aspectMask);
     Loaders::CImageLoader::close(&offscreen);
-    /*if(usageFlags & vk::ImageUsageFlagBits::eDepthStencilAttachment)
-        texture->TransitionImageLayout(imageLayout, aspectMask, false);
-    else*/
+    if(translate_layout)
+    {
+        texture->transitionImageLayout(imageLayout, aspectMask, false);
+    }
+    else
+    {
         texture->setImageLayout(imageLayout);
+    }
 
     texture->updateDescriptor();
     return texture;

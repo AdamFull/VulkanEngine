@@ -27,7 +27,8 @@
             "sample_rate_shading": true,
             "fill_mode_non_solid": true,
             "multi_viewport": true,
-            "geometry_shader": true
+            "geometry_shader": true,
+            "fragment_stores_and_atomics": true
         },
         "graphics":
         {

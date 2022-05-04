@@ -32,9 +32,8 @@ namespace Engine
                 vk::Framebuffer& getCurrentFramebuffer();
                 std::unordered_map<std::string, std::shared_ptr<CImage>>& getImages(uint32_t index) { return mImages[index]; }
                 std::unordered_map<std::string, std::shared_ptr<CImage>>& getCurrentImages();
-
+                static std::shared_ptr<CImage> createImage(vk::Format format, vk::ImageUsageFlags usageFlags, vk::Extent2D extent);
             private:
-                std::shared_ptr<CImage> createImage(vk::Format format, vk::ImageUsageFlags usageFlags, vk::Extent2D extent);
                 std::vector<vk::Framebuffer> vFramebuffers;
                 std::vector<FTextureAttachmentInfo> attachments;
                 vk::Extent2D imagesExtent;

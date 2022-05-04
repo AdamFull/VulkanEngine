@@ -19,6 +19,8 @@ void CGaussianBlurPass::create()
 
     auto& renderPass = CRenderSystem::getInstance()->getCurrentStage()->getRenderPass()->get();
     auto subpass = CRenderSystem::getInstance()->getCurrentStage()->getRenderPass()->getCurrentSubpass();
+//VK_IMAGE_USAGE_TRANSFER_SRC_BIT | VK_IMAGE_USAGE_TRANSFER_DST_BIT | VK_IMAGE_USAGE_SAMPLED_BIT
+    pImage = CFramebuffer::createImage(vk::Format::eR8G8B8A8Unorm, vk::ImageUsageFlagBits::eTransferSrc | vk::ImageUsageFlagBits::eTransferDst | vk::ImageUsageFlagBits::eStorage | vk::ImageUsageFlagBits::eSampled, CSwapChain::getInstance()->getExtent());
 
     pMaterial = CMaterialLoader::getInstance()->create("gaussian_blur");
     pMaterial->create(renderPass, subpass);
@@ -29,10 +31,8 @@ void CGaussianBlurPass::render(vk::CommandBuffer& commandBuffer)
 {
     auto imageIndex = CSwapChain::getInstance()->getCurrentFrame();
 
-    if(direction < 0)
-        pMaterial->addTexture("samplerBrightness", CRenderSystem::getInstance()->getPrevStage()->getFramebuffer()->getCurrentImages()[imageReferenceName]);
-    else
-        pMaterial->addTexture("samplerBrightness", CRenderSystem::getInstance()->getPrevStage()->getFramebuffer()->getCurrentImages()[imageReferenceName]);
+    pMaterial->addTexture("writeColour", pImage);
+    pMaterial->addTexture("samplerBrightness", CRenderSystem::getInstance()->getPrevStage()->getFramebuffer()->getCurrentImages()[imageReferenceName]);
 
     FBlurData uniform;
     uniform.blurScale = GlobalVariables::blurScale;

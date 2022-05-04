@@ -18,6 +18,7 @@ namespace Engine
             private:
                 int direction{-1};
                 std::string imageReferenceName{""};
+                std::shared_ptr<CImage> pImage;
             };
         }
     }

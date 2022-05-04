@@ -28,7 +28,7 @@ namespace Engine
                                                       vk::ImageLayout finalLayout = vk::ImageLayout::eColorAttachmentOptimal);
 
                     Builder &addSubpassDescription(vk::SubpassDescription &&desc);
-                    Builder &addSubpassDescription(vk::PipelineBindPoint bindPoint, const std::vector<vk::AttachmentReference> &attachRef, vk::AttachmentReference *depthAttach = nullptr, const std::vector<vk::AttachmentReference> &inputRef = {});
+                    Builder &addSubpassDescription(vk::PipelineBindPoint bindPoint, const std::vector<vk::AttachmentReference> &attachRef = {}, vk::AttachmentReference *depthAttach = nullptr, const std::vector<vk::AttachmentReference> &inputRef = {});
 
                     Builder &addSubpassDependency(vk::SubpassDependency &&dep);
                     Builder &addSubpassDependency(uint32_t src, uint32_t dst, vk::PipelineStageFlags srcStageMask = vk::PipelineStageFlagBits::eColorAttachmentOutput, 

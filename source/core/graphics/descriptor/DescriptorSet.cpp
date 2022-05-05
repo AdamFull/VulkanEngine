@@ -9,13 +9,13 @@ CDescriptorSet::~CDescriptorSet()
     CDevice::getInstance()->getLogical().freeDescriptorSets(descriptorPool, vDescriptorSets);
 }
 
-void CDescriptorSet::create(std::shared_ptr<Pipeline::CPipelineBase> pPipeline, uint32_t images)
+void CDescriptorSet::create(vk::PipelineBindPoint bindPoint, vk::PipelineLayout layout, vk::DescriptorPool pool, vk::DescriptorSetLayout setLayout, uint32_t images)
 {
-    pipelineBindPoint = pPipeline->getBindPoint();
-    pipelineLayout = pPipeline->getPipelineLayout();
-    descriptorPool = pPipeline->getDescriptorPool();
+    pipelineBindPoint = bindPoint;
+    pipelineLayout = layout;
+    descriptorPool = pool;
 
-    std::vector<vk::DescriptorSetLayout> vSetLayouts(images, pPipeline->getDescriptorSetLayout());
+    std::vector<vk::DescriptorSetLayout> vSetLayouts(images, setLayout);
     vk::DescriptorSetAllocateInfo allocInfo{};
     allocInfo.descriptorPool = descriptorPool;
     allocInfo.descriptorSetCount = images;
@@ -28,12 +28,23 @@ void CDescriptorSet::create(std::shared_ptr<Pipeline::CPipelineBase> pPipeline, 
     }
 }
 
+void CDescriptorSet::create(std::shared_ptr<Pipeline::CPipelineBase> pPipeline, uint32_t images)
+{
+    create(pPipeline->getBindPoint(), pPipeline->getPipelineLayout(), pPipeline->getDescriptorPool(), pPipeline->getDescriptorSetLayout(), images);
+}
+
 void CDescriptorSet::update(std::vector<vk::WriteDescriptorSet> &vWrites, uint32_t index)
 {
     for (auto &write : vWrites)
         write.dstSet = vDescriptorSets.at(index);
 
     CDevice::getInstance()->getLogical().updateDescriptorSets(static_cast<uint32_t>(vWrites.size()), vWrites.data(), 0, nullptr);
+}
+
+void CDescriptorSet::update(vk::WriteDescriptorSet &writes, uint32_t index)
+{
+    writes.dstSet = vDescriptorSets.at(index);
+    CDevice::getInstance()->getLogical().updateDescriptorSets(1, &writes, 0, nullptr);
 }
 
 void CDescriptorSet::bind(const vk::CommandBuffer &commandBuffer, uint32_t index) const

@@ -54,9 +54,5 @@ void CRenderScene::createObjects()
 void CRenderScene::render(float fDeltaTime)
 {
     m_pRoot->update(fDeltaTime);
-
-    CImguiOverlay::getInstance()->newFrame();
-    CImguiOverlay::getInstance()->update(fDeltaTime);
-
     CRenderSystem::getInstance()->render();
 }

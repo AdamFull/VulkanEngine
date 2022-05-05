@@ -21,6 +21,22 @@ void CImage::updateDescriptor()
     _descriptor.imageLayout = _imageLayout;
 }
 
+void CImage::create(const vk::Extent2D& extent, vk::Format format, vk::ImageLayout layout, vk::ImageUsageFlags usage, 
+vk::ImageAspectFlags aspect, vk::Filter filter, vk::SamplerAddressMode addressMode, vk::SampleCountFlagBits samples, 
+bool instantLayoutTransition, bool anisotropic, bool mipmaps)
+{
+    ktxTexture *texture;
+    vk::Format imageFormat;
+    Loaders::CImageLoader::allocateRawDataAsKTXTexture(&texture, &imageFormat, extent.width, extent.height, 1, 2, VulkanStaticHelper::VkFormatToGLFormat(format), mipmaps);
+    initializeTexture(texture, imageFormat, usage, aspect);
+    Loaders::CImageLoader::close(&texture);
+    if(instantLayoutTransition)
+        transitionImageLayout(layout, aspect, mipmaps);
+    else
+        setImageLayout(layout);
+    updateDescriptor();
+}
+
 void CImage::generateMipmaps(vk::Image &image, uint32_t mipLevels, vk::Format format, uint32_t width, uint32_t height, vk::ImageAspectFlags aspectFlags)
 {
     vk::FormatProperties formatProperties;

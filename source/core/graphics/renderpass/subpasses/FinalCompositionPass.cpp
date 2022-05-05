@@ -23,7 +23,6 @@ void CFinalCompositionPass::create()
 
     pMaterial = CMaterialLoader::getInstance()->create("post_process");
     pMaterial->create(renderPass, subpass);
-    CImguiOverlay::getInstance()->create(renderPass, subpass);
     CSubpass::create();
 }
 
@@ -47,7 +46,6 @@ void CFinalCompositionPass::render(vk::CommandBuffer& commandBuffer)
     pMaterial->bind(commandBuffer, imageIndex);
 
     commandBuffer.draw(3, 1, 0, 0);
-    CImguiOverlay::getInstance()->drawFrame(commandBuffer, imageIndex);
 }
 
 void CFinalCompositionPass::cleanup()

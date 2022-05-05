@@ -81,6 +81,19 @@
                 "shaders/main/ui.frag"
             ],
             "defines": []
+        },
+        "through_pass":
+        {
+            "bindPoint": "graphics",
+            "culling": "front",
+            "frontface": "counterClockwise",
+            "depth": false,
+            "dynamicStates": ["viewport", "scissor"],
+            "stages": [
+                "shaders/main/screenspace.vert", 
+                "shaders/postprocess/throughpass.frag"
+            ],
+            "defines": []
         }
     }
 }

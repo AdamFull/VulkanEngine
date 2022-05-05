@@ -7,10 +7,10 @@ namespace Engine
     {
         namespace Render
         {
-            class CPostProcessStage : public CRenderStage
+            class CPresentFinalStage : public CRenderStage
             {
             public:
-                ~CPostProcessStage();
+                ~CPresentFinalStage();
                 void create() override;
                 void reCreate() override;
             private:

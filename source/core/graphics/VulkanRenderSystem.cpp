@@ -3,6 +3,8 @@
 #include "graphics/scene/objects/RenderObject.h"
 #include "graphics/renderpass/render_stages/DeferredStage.h"
 #include "graphics/renderpass/render_stages/PostProcessStage.h"
+#include "graphics/renderpass/render_stages/PresentFinalStage.h"
+#include "graphics/renderpass/render_stages/SandboxFinalStage.h"
 
 using namespace Engine::Core;
 
@@ -21,6 +23,8 @@ void CRenderSystem::create()
 
     vStages.emplace_back(std::make_unique<Render::CDeferredStage>());
     vStages.emplace_back(std::make_unique<Render::CPostProcessStage>());
+    vStages.emplace_back(std::make_unique<Render::CSandboxFinalStage>());
+    //vStages.emplace_back(std::make_unique<Render::CPresentFinalStage>());
 
     currentStageIndex = 0;
     for(auto& stage : vStages)

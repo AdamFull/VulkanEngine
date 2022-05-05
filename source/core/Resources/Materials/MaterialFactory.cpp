@@ -12,8 +12,8 @@ std::shared_ptr<CMaterialBase> CMaterialFactory::create(FMaterialCreateInfo info
     for (auto &texInfo : info.vTextures)
     {
         std::shared_ptr<Core::CImage> texture = std::make_shared<Core::CImage>();
-        texture->loadFromFile(texInfo.srSrc);
-        CResourceManager::getInstance()->addExisting<Core::CImage>(texInfo.srName, texture);
+        texture->create(texInfo.srSrc);
+        CResourceManager::getInstance()->addExisting(texInfo.srName, texture);
         material->addTexture(texInfo.attachment, texture);
     }
 

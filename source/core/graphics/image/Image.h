@@ -13,21 +13,23 @@ namespace Engine
             CImage() = default;
             virtual ~CImage();
 
-            void create(const vk::Extent2D& extent, vk::Format format = vk::Format::eR8G8B8A8Unorm, vk::ImageLayout layout = vk::ImageLayout::eShaderReadOnlyOptimal,
-            vk::ImageUsageFlags usage = vk::ImageUsageFlagBits::eColorAttachment | vk::ImageUsageFlagBits::eSampled, vk::ImageAspectFlags aspect = vk::ImageAspectFlagBits::eColor,
-            vk::Filter filter = vk::Filter::eLinear, vk::SamplerAddressMode addressMode = vk::SamplerAddressMode::eClampToEdge, vk::SampleCountFlagBits samples = vk::SampleCountFlagBits::e1,
-            bool instantLayoutTransition = false, bool anisotropic = false, bool mipmaps = false);
-
             void updateDescriptor();
             void setSampler(vk::Sampler& internalSampler);
 
             void setImage(vk::Image& image);
             void setView(vk::ImageView& view);
 
-            void createEmptyTexture(uint32_t width, uint32_t height, uint32_t depth, uint32_t dims, uint32_t internalFormat, bool allocate_mem = true);
-            void initializeTexture(ktxTexture *info, vk::Format format, 
+            void create(const std::string& srPath, vk::ImageUsageFlags flags = vk::ImageUsageFlagBits::eTransferSrc | vk::ImageUsageFlagBits::eTransferDst | vk::ImageUsageFlagBits::eSampled, 
+            vk::ImageAspectFlags aspect = vk::ImageAspectFlagBits::eColor, vk::SamplerAddressMode addressMode = vk::SamplerAddressMode::eClampToEdge,
+            vk::Filter filter = vk::Filter::eLinear);
+
+            void initializeTexture(ktxTexture *info, vk::Format format, vk::ImageUsageFlags flags, vk::ImageAspectFlags aspect, vk::SamplerAddressMode addressMode, 
+            vk::Filter filter, vk::SampleCountFlagBits samples);
+            void writeImageData(ktxTexture *info, vk::Format format, vk::ImageAspectFlags aspect = vk::ImageAspectFlagBits::eColor);
+            void loadFromMemory(ktxTexture *info, vk::Format format, 
             vk::ImageUsageFlags flags = vk::ImageUsageFlagBits::eTransferSrc | vk::ImageUsageFlagBits::eTransferDst | vk::ImageUsageFlagBits::eSampled, 
-            vk::ImageAspectFlags aspect = vk::ImageAspectFlagBits::eColor);
+            vk::ImageAspectFlags aspect = vk::ImageAspectFlagBits::eColor, vk::SamplerAddressMode addressMode = vk::SamplerAddressMode::eClampToEdge, 
+            vk::Filter filter = vk::Filter::eLinear);
 
             static vk::Format findSupportedFormat(const std::vector<vk::Format> &candidates, vk::ImageTiling tiling, vk::FormatFeatureFlags features);
             static vk::Format getDepthFormat();
@@ -47,11 +49,6 @@ namespace Engine
             void transitionImageLayout(vk::CommandBuffer& commandBuffer, vk::ImageLayout oldLayout, vk::ImageLayout newLayout, vk::ImageAspectFlags aspectFlags, bool use_mips = true, uint32_t base_mip = 0);
             void blitImage(vk::CommandBuffer& commandBuffer, vk::ImageLayout dstLayout, vk::ImageAspectFlags aspectFlags, uint32_t level, int32_t mipWidth, int32_t mipHeight);
             void copyImageToDst(vk::CommandBuffer& commandBuffer, std::shared_ptr<CImage> m_pDst, vk::ImageCopy& region, vk::ImageLayout dstLayout);
-
-
-            void writeImageData(ktxTexture *info, vk::Format format, vk::ImageAspectFlags aspect = vk::ImageAspectFlagBits::eColor);
-            void loadFromFile(std::string srPath);
-            void loadFromMemory(ktxTexture *info, vk::Format format);
 
             void setImageLayout(vk::ImageLayout layout);
 
@@ -99,9 +96,5 @@ namespace Engine
 	        vk::SamplerAddressMode _addressMode;
             vk::ImageLayout _imageLayout{vk::ImageLayout::eUndefined};
         };
-
-        using CImage2D = CImage;
-        using CImage2DArray = CImage;
-        using CImageCubemap = CImage;
     }
 }

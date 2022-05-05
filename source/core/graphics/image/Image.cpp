@@ -21,20 +21,16 @@ void CImage::updateDescriptor()
     _descriptor.imageLayout = _imageLayout;
 }
 
-void CImage::create(const vk::Extent2D& extent, vk::Format format, vk::ImageLayout layout, vk::ImageUsageFlags usage, 
-vk::ImageAspectFlags aspect, vk::Filter filter, vk::SamplerAddressMode addressMode, vk::SampleCountFlagBits samples, 
-bool instantLayoutTransition, bool anisotropic, bool mipmaps)
+void CImage::create(const std::string& srPath, vk::ImageUsageFlags flags, vk::ImageAspectFlags aspect, 
+vk::SamplerAddressMode addressMode, vk::Filter filter)
 {
     ktxTexture *texture;
-    vk::Format imageFormat;
-    Loaders::CImageLoader::allocateRawDataAsKTXTexture(&texture, &imageFormat, extent.width, extent.height, 1, 2, VulkanStaticHelper::VkFormatToGLFormat(format), mipmaps);
-    initializeTexture(texture, imageFormat, usage, aspect);
-    Loaders::CImageLoader::close(&texture);
-    if(instantLayoutTransition)
-        transitionImageLayout(layout, aspect, mipmaps);
-    else
-        setImageLayout(layout);
-    updateDescriptor();
+    vk::Format format;
+    CImageLoader::load(srPath.c_str(), &texture, &format);
+
+    loadFromMemory(texture, format, flags, aspect, addressMode, filter);
+
+    CImageLoader::close(&texture);
 }
 
 void CImage::generateMipmaps(vk::Image &image, uint32_t mipLevels, vk::Format format, uint32_t width, uint32_t height, vk::ImageAspectFlags aspectFlags)
@@ -87,45 +83,19 @@ vk::ImageType CImage::typeFromKtx(uint32_t type)
     return vk::ImageType{};
 }
 
-void CImage::loadFromFile(std::string srPath)
-{
-    ktxTexture *texture;
-    vk::Format format;
-    CImageLoader::load(srPath.c_str(), &texture, &format);
-
-    loadFromMemory(texture, format);
-
-    CImageLoader::close(&texture);
-}
-
 void CImage::setSampler(vk::Sampler& internalSampler)
 {
     _bUsingInternalSampler = true;
     _sampler = internalSampler;
 }
 
-void CImage::createEmptyTexture(uint32_t width, uint32_t height, uint32_t depth, uint32_t dims, uint32_t internalFormat, bool allocate_mem)
-{
-    vk::Format format;
-    ktxTexture *texture;
-    CImageLoader::allocateRawDataAsKTXTexture(&texture, &format, width, height, depth, dims, internalFormat);
-
-    initializeTexture(texture, format);
-
-    if(allocate_mem)
-    {
-        texture->pData = static_cast<uint8_t*>(calloc(texture->dataSize, sizeof(uint8_t)));
-        writeImageData(texture, format);
-    }
-    
-    updateDescriptor();
-
-    CImageLoader::close(&texture);
-}
-
-void CImage::initializeTexture(ktxTexture *info, vk::Format format, vk::ImageUsageFlags flags, vk::ImageAspectFlags aspect)
+void CImage::initializeTexture(ktxTexture *info, vk::Format format, vk::ImageUsageFlags flags, vk::ImageAspectFlags aspect, vk::SamplerAddressMode addressMode, 
+vk::Filter filter, vk::SampleCountFlagBits samples)
 {
     _format = format;
+    _addressMode = addressMode;
+    _filter = filter;
+    _samples = samples;
 
     //TODO: Add checking for texture type here
     if(!isSupportedDimension(info))
@@ -158,6 +128,7 @@ void CImage::initializeTexture(ktxTexture *info, vk::Format format, vk::ImageUsa
     imageInfo.tiling = vk::ImageTiling::eOptimal;
     imageInfo.initialLayout = _imageLayout;
     imageInfo.usage = flags;
+    imageInfo.samples = _samples;
     imageInfo.sharingMode = vk::SharingMode::eExclusive;
 
     if (info->isArray)
@@ -193,10 +164,9 @@ void CImage::initializeTexture(ktxTexture *info, vk::Format format, vk::ImageUsa
 
     if(!_sampler)
     {
-        _addressMode = info->isArray || info->isCubemap || info->baseDepth > 1 ? vk::SamplerAddressMode::eClampToEdge : vk::SamplerAddressMode::eRepeat;
+        //_addressMode = info->isArray || info->isCubemap || info->baseDepth > 1 ? vk::SamplerAddressMode::eClampToEdge : vk::SamplerAddressMode::eRepeat;
         createSampler(_sampler, _mipLevels, _addressMode, _filter);
     }
-    //imageLayout = vk::ImageLayout::eShaderReadOnlyOptimal;
 }
 
 vk::Format CImage::findSupportedFormat(const std::vector<vk::Format> &candidates, vk::ImageTiling tiling, vk::FormatFeatureFlags features)
@@ -345,6 +315,14 @@ void CImage::transitionImageLayout(vk::CommandBuffer& internalBuffer, vk::Image 
             barrier.dstAccessMask = vk::AccessFlagBits::eShaderRead;
 
             sourceStage = vk::PipelineStageFlagBits::eTransfer;
+            destinationStage = vk::PipelineStageFlagBits::eFragmentShader;
+        }
+        else if (oldLayout == vk::ImageLayout::eUndefined && newLayout == vk::ImageLayout::eShaderReadOnlyOptimal)
+        {
+            barrier.srcAccessMask = (vk::AccessFlagBits)0;
+            barrier.dstAccessMask = vk::AccessFlagBits::eShaderRead;
+
+            sourceStage = vk::PipelineStageFlagBits::eTopOfPipe;
             destinationStage = vk::PipelineStageFlagBits::eFragmentShader;
         }
         else
@@ -571,10 +549,11 @@ void CImage::writeImageData(ktxTexture *info, vk::Format format, vk::ImageAspect
     }
 }
 
-void CImage::loadFromMemory(ktxTexture *info, vk::Format format)
+void CImage::loadFromMemory(ktxTexture *info, vk::Format format, vk::ImageUsageFlags flags, vk::ImageAspectFlags aspect, 
+vk::SamplerAddressMode addressMode, vk::Filter filter)
 {
-    initializeTexture(info, format);
-    writeImageData(info, format);
+    initializeTexture(info, format, flags, aspect, addressMode, filter, vk::SampleCountFlagBits::e1);
+    writeImageData(info, format, aspect);
     updateDescriptor();
 }
 

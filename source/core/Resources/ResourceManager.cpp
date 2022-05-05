@@ -1,6 +1,7 @@
 #include "ResourceManager.h"
 #include "filesystem/FilesystemHelper.h"
 #include "graphics/VulkanHighLevel.h"
+#include "graphics/image/Image2D.h"
 
 using namespace Engine::Core;
 using namespace Engine::Resources;
@@ -12,8 +13,9 @@ std::unique_ptr<CResourceManager> utl::singleton<CResourceManager>::_instance{nu
 
 void CResourceManager::create()
 {
-    std::shared_ptr<CImage> pEmptyTexture = std::make_shared<CImage>();
-    pEmptyTexture->createEmptyTexture(512, 512, 1, 2, 0x8C43);
+    auto pEmptyTexture = std::make_shared<CImage2D>();
+    pEmptyTexture->create(vk::Extent2D{512, 512}, vk::Format::eR8G8B8A8Srgb);
+    //pEmptyTexture->createEmptyTexture(512, 512, 1, 2, 0x8C43);
     addExisting("no_texture", pEmptyTexture);
 }
 

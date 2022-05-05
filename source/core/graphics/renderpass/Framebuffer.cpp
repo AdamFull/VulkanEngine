@@ -2,6 +2,7 @@
 #include "graphics/VulkanHighLevel.h"
 #include "graphics/VulkanStaticHelper.h"
 #include "graphics/image/Image.h"
+#include "graphics/image/Image2D.h"
 #include "graphics/image/ImageLoader.h"
 
 using namespace Engine::Core;
@@ -92,11 +93,8 @@ std::unordered_map<std::string, std::shared_ptr<CImage>>& CFramebuffer::getCurre
 
 std::shared_ptr<CImage> CFramebuffer::createImage(vk::Format format, vk::ImageUsageFlags usageFlags, vk::Extent2D extent)
 {
-    auto texture = std::make_shared<CImage>();
+    auto texture = std::make_shared<CImage2D>();
     bool translate_layout{false};
-    ktxTexture *offscreen;
-    vk::Format imageFormat;
-    Loaders::CImageLoader::allocateRawDataAsKTXTexture(&offscreen, &imageFormat, extent.width, extent.height, 1, 2, VulkanStaticHelper::VkFormatToGLFormat(format));
 
     vk::ImageAspectFlags aspectMask{};
     vk::ImageLayout imageLayout{};
@@ -118,17 +116,7 @@ std::shared_ptr<CImage> CFramebuffer::createImage(vk::Format format, vk::ImageUs
         translate_layout = true;
     }
 
-    texture->initializeTexture(offscreen, imageFormat, usageFlags, aspectMask);
-    Loaders::CImageLoader::close(&offscreen);
-    if(translate_layout)
-    {
-        texture->transitionImageLayout(imageLayout, aspectMask, false);
-    }
-    else
-    {
-        texture->setImageLayout(imageLayout);
-    }
-
-    texture->updateDescriptor();
+    texture->create(extent, format, imageLayout, usageFlags, aspectMask, vk::Filter::eLinear, vk::SamplerAddressMode::eClampToEdge, 
+    vk::SampleCountFlagBits::e1, translate_layout);
     return texture;
 }

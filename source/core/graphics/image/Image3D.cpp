@@ -10,7 +10,8 @@ void CImage3D::loadNoise(ENoisePattern ePattern, uint32_t width, uint32_t height
     ktxTexture *texture;
     Loaders::CImageLoader::allocateRawDataAsKTXTexture(&texture, &format, width, height, depth, 3, 0x8229);
 
-    initializeTexture(texture, format);
+    //TODO: fix that
+    //initializeTexture(texture, format);
 
     switch (ePattern)
     {

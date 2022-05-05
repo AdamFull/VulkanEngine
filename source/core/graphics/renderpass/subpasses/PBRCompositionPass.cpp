@@ -12,6 +12,8 @@
 #include "graphics/descriptor/DescriptorHandler.h"
 #include "graphics/image/ImageLoader.h"
 #include "graphics/image/Image.h"
+#include "graphics/image/Image2D.h"
+#include "graphics/image/ImageCubemap.h"
 #include "graphics/buffer/PushHandler.hpp"
 #include "GlobalVariables.h"
 
@@ -87,13 +89,9 @@ void CPBRCompositionPass::cleanup()
 
 std::shared_ptr<CImage> CPBRCompositionPass::ComputeBRDFLUT(uint32_t size)
 {
-    auto brdfImage = std::make_shared<CImage>();
-    ktxTexture *offscreen;
-    vk::Format format{};
-    Loaders::CImageLoader::allocateRawDataAsKTXTexture(&offscreen, &format, size, size, 1, 2, VulkanStaticHelper::VkFormatToGLFormat(vk::Format::eR16G16Sfloat));
-    brdfImage->initializeTexture(offscreen, format, vk::ImageUsageFlagBits::eTransferSrc | vk::ImageUsageFlagBits::eTransferDst | vk::ImageUsageFlagBits::eSampled | vk::ImageUsageFlagBits::eColorAttachment | vk::ImageUsageFlagBits::eStorage);
-    brdfImage->transitionImageLayout(vk::ImageLayout::eGeneral, vk::ImageAspectFlagBits::eColor);
-    brdfImage->updateDescriptor();
+    auto brdfImage = std::make_shared<CImage2D>();
+    brdfImage->create(vk::Extent2D{size, size}, vk::Format::eR16G16Sfloat, vk::ImageLayout::eGeneral,
+    vk::ImageUsageFlagBits::eTransferSrc | vk::ImageUsageFlagBits::eTransferDst | vk::ImageUsageFlagBits::eSampled | vk::ImageUsageFlagBits::eColorAttachment | vk::ImageUsageFlagBits::eStorage);
 
     auto cmdBuf = CCommandBuffer(true, vk::QueueFlagBits::eCompute);
     auto commandBuffer = cmdBuf.getCommandBuffer();
@@ -115,22 +113,14 @@ std::shared_ptr<CImage> CPBRCompositionPass::ComputeBRDFLUT(uint32_t size)
     commandBuffer.dispatch(groupCountX, groupCountY, 1);
     cmdBuf.submitIdle();
 
-    Loaders::CImageLoader::close(&offscreen);
-
     return brdfImage;
 }
 
 std::shared_ptr<CImage> CPBRCompositionPass::ComputeIrradiance(const std::shared_ptr<CImage> &source, uint32_t size)
 {
-    auto irradianceCubemap = std::make_shared<CImage>();
-
-    ktxTexture *offscreen;
-    vk::Format format{};
-    Loaders::CImageLoader::allocateRawDataAsKTXTexture(&offscreen, &format, size, size, 1, 2, VulkanStaticHelper::VkFormatToGLFormat(vk::Format::eR32G32B32A32Sfloat));
-    offscreen->isCubemap = true;
-    irradianceCubemap->initializeTexture(offscreen, format, vk::ImageUsageFlagBits::eTransferSrc | vk::ImageUsageFlagBits::eTransferDst | vk::ImageUsageFlagBits::eSampled | vk::ImageUsageFlagBits::eColorAttachment | vk::ImageUsageFlagBits::eStorage);
-    irradianceCubemap->transitionImageLayout(vk::ImageLayout::eGeneral, vk::ImageAspectFlagBits::eColor);
-    irradianceCubemap->updateDescriptor();
+    auto irradianceCubemap = std::make_shared<CImageCubemap>();
+    irradianceCubemap->create(vk::Extent2D{size, size}, vk::Format::eR32G32B32A32Sfloat, vk::ImageLayout::eGeneral,
+    vk::ImageUsageFlagBits::eTransferSrc | vk::ImageUsageFlagBits::eTransferDst | vk::ImageUsageFlagBits::eSampled | vk::ImageUsageFlagBits::eColorAttachment | vk::ImageUsageFlagBits::eStorage);
 
     auto cmdBuf = CCommandBuffer(true, vk::QueueFlagBits::eCompute);
     auto commandBuffer = cmdBuf.getCommandBuffer();
@@ -153,22 +143,15 @@ std::shared_ptr<CImage> CPBRCompositionPass::ComputeIrradiance(const std::shared
     commandBuffer.dispatch(groupCountX, groupCountY, 1);
     cmdBuf.submitIdle();
 
-    Loaders::CImageLoader::close(&offscreen);
-
     return irradianceCubemap;
 }
 
 std::shared_ptr<CImage> CPBRCompositionPass::ComputePrefiltered(const std::shared_ptr<CImage> &source, uint32_t size)
 {
-    auto prefilteredCubemap = std::make_shared<CImage>();
-
-    ktxTexture *offscreen;
-    vk::Format format{};
-    Loaders::CImageLoader::allocateRawDataAsKTXTexture(&offscreen, &format, size, size, 1, 2, VulkanStaticHelper::VkFormatToGLFormat(vk::Format::eR16G16B16A16Sfloat), true);
-    offscreen->isCubemap = true;
-    prefilteredCubemap->initializeTexture(offscreen, format, vk::ImageUsageFlagBits::eTransferSrc | vk::ImageUsageFlagBits::eTransferDst | vk::ImageUsageFlagBits::eSampled | vk::ImageUsageFlagBits::eColorAttachment | vk::ImageUsageFlagBits::eStorage);
-    prefilteredCubemap->transitionImageLayout(vk::ImageLayout::eGeneral, vk::ImageAspectFlagBits::eColor);
-    prefilteredCubemap->updateDescriptor();
+    auto prefilteredCubemap = std::make_shared<CImageCubemap>();
+    prefilteredCubemap->create(vk::Extent2D{size, size}, vk::Format::eR16G16B16A16Sfloat, vk::ImageLayout::eGeneral,
+    vk::ImageUsageFlagBits::eTransferSrc | vk::ImageUsageFlagBits::eTransferDst | vk::ImageUsageFlagBits::eSampled | vk::ImageUsageFlagBits::eColorAttachment | vk::ImageUsageFlagBits::eStorage,
+    vk::ImageAspectFlagBits::eColor, vk::Filter::eLinear, vk::SamplerAddressMode::eClampToEdge, vk::SampleCountFlagBits::e1, true, false, true);
 
     auto cmdBuf = CCommandBuffer(true, vk::QueueFlagBits::eCompute);
     auto descriptor = Descriptor::CDescriptorHandler();
@@ -226,6 +209,5 @@ std::shared_ptr<CImage> CPBRCompositionPass::ComputePrefiltered(const std::share
         CDevice::getInstance()->destroy(levelView);
     }
 
-    Loaders::CImageLoader::close(&offscreen);
     return prefilteredCubemap;
 }

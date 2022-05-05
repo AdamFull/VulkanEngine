@@ -2,6 +2,7 @@
 #include "ResourceCunstruct.h"
 
 #include "graphics/image/Image.h"
+#include "graphics/image/Image2D.h"
 #include "materials/VulkanMaterial.h"
 #include "meshes/MeshFragment.h"
 #include "meshes/MeshFactory.h"
@@ -16,12 +17,6 @@ namespace Engine
         public:
             void create();
             void load(std::string srResourcesPath);
-
-            template <class ResType>
-            void addExisting(std::string srResourceName, std::shared_ptr<ResType> pResource)
-            {
-                assert(false && "Cannot find resource type");
-            }
 
             template <class ResType, class InfoType>
             std::shared_ptr<ResType> Add(InfoType info)
@@ -38,8 +33,15 @@ namespace Engine
             }
 
             /*******************************For texture****************************/
-            template <>
-            void addExisting<Core::CImage>(std::string srResourceName, std::shared_ptr<Core::CImage> pResource)
+            void addExisting(std::string srResourceName, std::shared_ptr<Core::CImage> pResource)
+            {
+                auto it = m_mTextures.find(srResourceName);
+                if (it != m_mTextures.end())
+                    assert(false && "Resource named: is already exists.");
+                m_mTextures.emplace(srResourceName, pResource);
+            }
+
+            void addExisting(std::string srResourceName, std::shared_ptr<Core::CImage2D> pResource)
             {
                 auto it = m_mTextures.find(srResourceName);
                 if (it != m_mTextures.end())
@@ -51,7 +53,16 @@ namespace Engine
             std::shared_ptr<Core::CImage> Add(FTextureCreateInfo info)
             {
                 std::shared_ptr<Core::CImage> texture = std::make_unique<Core::CImage>();
-                texture->loadFromFile(info.srSrc);
+                texture->create(info.srSrc);
+                addExisting(info.srName, texture);
+                return nullptr;
+            }
+
+            template <>
+            std::shared_ptr<Core::CImage2D> Add(FTextureCreateInfo info)
+            {
+                std::shared_ptr<Core::CImage> texture = std::make_unique<Core::CImage2D>();
+                texture->create(info.srSrc);
                 addExisting(info.srName, texture);
                 return nullptr;
             }
@@ -66,8 +77,7 @@ namespace Engine
             }
 
             /*******************************For material****************************/
-            template <>
-            void addExisting<Material::CMaterialBase>(std::string srResourceName, std::shared_ptr<Material::CMaterialBase> pResource)
+            void addExisting(std::string srResourceName, std::shared_ptr<Material::CMaterialBase> pResource)
             {
                 auto it = m_mMaterials.find(srResourceName);
                 if (it != m_mMaterials.end())
@@ -93,8 +103,7 @@ namespace Engine
             }
 
             /*******************************For mesh****************************/
-            template <>
-            void addExisting<Mesh::CMeshFragment>(std::string srResourceName, std::shared_ptr<Mesh::CMeshFragment> pResource)
+            void addExisting(std::string srResourceName, std::shared_ptr<Mesh::CMeshFragment> pResource)
             {
                 auto it = m_mMeshes.find(srResourceName);
                 if (it != m_mMeshes.end())

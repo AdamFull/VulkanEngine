@@ -574,7 +574,7 @@ std::shared_ptr<CImage> GLTFLoader::loadTexture(const tinygltf::Image &image, st
 
     vk::Format format;
     ktxTexture *texture;
-    auto nativeTexture = std::make_shared<CImage>();
+    auto nativeTexture = std::make_shared<CImage2D>();
     if (!isKtx)
     {
         auto isAlbedo = image.name.find("albedo") != std::string::npos;

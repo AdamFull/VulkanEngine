@@ -59,6 +59,10 @@ void CCommandBuffer::submitIdle()
     submitInfo.commandBufferCount = vCommandBuffers.size();
     submitInfo.pCommandBuffers = vCommandBuffers.data();
 
+    vk::FenceCreateInfo fenceCreateInfo{};
+    vk::Fence fence = CDevice::getInstance()->make<vk::Fence, vk::FenceCreateInfo>(fenceCreateInfo);
+    CDevice::getInstance()->getLogical().resetFences(1, &fence);
+
     vk::Queue queue{};
     switch (queueType)
     {
@@ -72,8 +76,10 @@ void CCommandBuffer::submitIdle()
         queue = CDevice::getInstance()->getTransferQueue();
     } break;
     }
-    queue.submit(submitInfo, nullptr);
-    queue.waitIdle();
+    queue.submit(submitInfo, fence);
+    auto fencesResult = CDevice::getInstance()->getLogical().waitForFences(1, &fence, VK_TRUE, std::numeric_limits<uint64_t>::max());
+    CDevice::getInstance()->destroy(fence);
+    //queue.waitIdle();
 }
 
 vk::Result CCommandBuffer::submit(uint32_t& imageIndex)

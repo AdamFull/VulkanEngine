@@ -11,16 +11,16 @@ std::unique_ptr<CVulkanHighLevel> utl::singleton<CVulkanHighLevel>::_instance{nu
 
 CVulkanHighLevel::~CVulkanHighLevel()
 {
-    CDevice::getInstance()->GPUWait();
-    CDevice::getInstance()->destroy(m_pipelineCache);
+    CDevice::inst()->GPUWait();
+    CDevice::inst()->destroy(m_pipelineCache);
 }
 
 void CVulkanHighLevel::create(FEngineCreateInfo createInfo)
 {
-    CWindowHandle::getInstance()->create(createInfo.window);
-    CDevice::getInstance()->create(createInfo.device);
+    CWindowHandle::inst()->create(createInfo.window);
+    CDevice::inst()->create(createInfo.device);
     createPipelineCache();
-    CSwapChain::getInstance()->create();
+    CSwapChain::inst()->create();
 
     if (!glslang::InitializeProcess())
 		throw std::runtime_error("Failed to initialize glslang processor.");
@@ -29,33 +29,33 @@ void CVulkanHighLevel::create(FEngineCreateInfo createInfo)
 void CVulkanHighLevel::createPipelineCache()
 {
     vk::PipelineCacheCreateInfo pipelineCacheCreateInfo = {};
-    m_pipelineCache = CDevice::getInstance()->getLogical().createPipelineCache(pipelineCacheCreateInfo);
+    m_pipelineCache = CDevice::inst()->getLogical().createPipelineCache(pipelineCacheCreateInfo);
 }
 
 void CVulkanHighLevel::recreateSwapChain()
 {
-    CWindowHandle::getInstance()->wait();
-    CDevice::getInstance()->GPUWait();
+    CWindowHandle::inst()->wait();
+    CDevice::inst()->GPUWait();
 
     cleanupSwapChain();
-    CSwapChain::getInstance()->reCreate();
+    CSwapChain::inst()->reCreate();
 
-    CRenderSystem::getInstance()->reCreate();
-    CImguiOverlay::getInstance()->reCreate();
+    CRenderSystem::inst()->reCreate();
+    CImguiOverlay::inst()->reCreate();
 }
 
 void CVulkanHighLevel::cleanupSwapChain()
 {
-    CSwapChain::getInstance()->cleanup();
-    CRenderSystem::getInstance()->cleanup();
+    CSwapChain::inst()->cleanup();
+    CRenderSystem::inst()->cleanup();
 }
 
 void CVulkanHighLevel::cleanup()
 {
-    CDevice::getInstance()->GPUWait();
+    CDevice::inst()->GPUWait();
 
     cleanupSwapChain();
-    CImguiOverlay::getInstance()->cleanup();
+    CImguiOverlay::inst()->cleanup();
 }
 
 namespace Engine

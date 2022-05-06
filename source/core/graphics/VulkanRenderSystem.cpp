@@ -18,8 +18,8 @@ CRenderSystem::~CRenderSystem()
 
 void CRenderSystem::create()
 {
-    screenExtent = CSwapChain::getInstance()->getExtent();
-    commandBuffers = std::make_shared<CCommandBuffer>(false, vk::QueueFlagBits::eGraphics, vk::CommandBufferLevel::ePrimary, CSwapChain::getInstance()->getFramesInFlight());
+    screenExtent = CSwapChain::inst()->getExtent();
+    commandBuffers = std::make_shared<CCommandBuffer>(false, vk::QueueFlagBits::eGraphics, vk::CommandBufferLevel::ePrimary, CSwapChain::inst()->getFramesInFlight());
 
     vStages.emplace_back(std::make_unique<Render::CDeferredStage>());
     vStages.emplace_back(std::make_unique<Render::CPostProcessStage>());
@@ -36,8 +36,8 @@ void CRenderSystem::create()
 
 void CRenderSystem::reCreate()
 {
-    screenExtent = CSwapChain::getInstance()->getExtent();
-    commandBuffers = std::make_shared<CCommandBuffer>(false, vk::QueueFlagBits::eGraphics, vk::CommandBufferLevel::ePrimary, CSwapChain::getInstance()->getFramesInFlight());
+    screenExtent = CSwapChain::inst()->getExtent();
+    commandBuffers = std::make_shared<CCommandBuffer>(false, vk::QueueFlagBits::eGraphics, vk::CommandBufferLevel::ePrimary, CSwapChain::inst()->getFramesInFlight());
     currentStageIndex = 0;
     for(auto& stage : vStages)
     {
@@ -92,7 +92,7 @@ vk::CommandBuffer& CRenderSystem::getCurrentCommandBuffer()
 vk::CommandBuffer& CRenderSystem::beginFrame()
 {
     assert(!frameStarted && "Can't call beginFrame while already in progress");
-    CSwapChain::getInstance()->acquireNextImage(&imageIndex);
+    CSwapChain::inst()->acquireNextImage(&imageIndex);
     frameStarted = true;
 
     commandBuffers->begin(vk::CommandBufferUsageFlagBits::eSimultaneousUse, imageIndex);

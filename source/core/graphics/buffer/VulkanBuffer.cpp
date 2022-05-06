@@ -14,7 +14,7 @@ void CVulkanBuffer::create(vk::DeviceSize instanceSize, uint32_t instanceCount,
 {
     alignmentSize = getAlignment(instanceSize, minOffsetAlignment);
     bufferSize = alignmentSize * instanceCount;
-    CDevice::getInstance()->createOnDeviceBuffer(bufferSize, usageFlags, memoryPropertyFlags, buffer, deviceMemory);
+    CDevice::inst()->createOnDeviceBuffer(bufferSize, usageFlags, memoryPropertyFlags, buffer, deviceMemory);
 }
 
 void CVulkanBuffer::reCreate(vk::DeviceSize instanceSize, uint32_t instanceCount,
@@ -27,8 +27,8 @@ void CVulkanBuffer::reCreate(vk::DeviceSize instanceSize, uint32_t instanceCount
 void CVulkanBuffer::clean()
 {
     unmapMem();
-    CDevice::getInstance()->destroy(buffer);
-    CDevice::getInstance()->destroy(deviceMemory);
+    CDevice::inst()->destroy(buffer);
+    CDevice::inst()->destroy(deviceMemory);
 }
 
 vk::DescriptorBufferInfo CVulkanBuffer::getDscriptor(vk::DeviceSize size, vk::DeviceSize offset)
@@ -43,26 +43,26 @@ vk::DescriptorBufferInfo CVulkanBuffer::getDscriptor()
 
 vk::Result CVulkanBuffer::mapMem(vk::DeviceSize size, vk::DeviceSize offset)
 {
-    assert(CDevice::getInstance() && buffer && deviceMemory && "Called map on buffer before create");
+    assert(CDevice::inst() && buffer && deviceMemory && "Called map on buffer before create");
     if (size == VK_WHOLE_SIZE)
     {
-        return CDevice::getInstance()->getLogical().mapMemory(deviceMemory, 0, bufferSize, vk::MemoryMapFlags{}, &mappedMemory);
+        return CDevice::inst()->getLogical().mapMemory(deviceMemory, 0, bufferSize, vk::MemoryMapFlags{}, &mappedMemory);
     }
-    return CDevice::getInstance()->getLogical().mapMemory(deviceMemory, offset, size, vk::MemoryMapFlags{}, &mappedMemory);
+    return CDevice::inst()->getLogical().mapMemory(deviceMemory, offset, size, vk::MemoryMapFlags{}, &mappedMemory);
 }
 
 void CVulkanBuffer::unmapMem()
 {
     if (mappedMemory)
     {
-        CDevice::getInstance()->getLogical().unmapMemory(deviceMemory);
+        CDevice::inst()->getLogical().unmapMemory(deviceMemory);
         mappedMemory = nullptr;
     }
 }
 
 void CVulkanBuffer::write(void *idata, vk::DeviceSize size, vk::DeviceSize offset)
 {
-    assert(CDevice::getInstance() && mappedMemory && "Cannot copy to unmapped buffer");
+    assert(CDevice::inst() && mappedMemory && "Cannot copy to unmapped buffer");
 
     if (size == VK_WHOLE_SIZE)
     {
@@ -82,7 +82,7 @@ vk::Result CVulkanBuffer::flush(vk::DeviceSize size, vk::DeviceSize offset)
     mappedRange.memory = deviceMemory;
     mappedRange.offset = offset;
     mappedRange.size = size;
-    return CDevice::getInstance()->getLogical().flushMappedMemoryRanges(1, &mappedRange);
+    return CDevice::inst()->getLogical().flushMappedMemoryRanges(1, &mappedRange);
 }
 
 vk::DescriptorBufferInfo CVulkanBuffer::descriptorInfo(vk::DeviceSize size, vk::DeviceSize offset)
@@ -97,7 +97,7 @@ vk::Result CVulkanBuffer::invalidate(vk::DeviceSize size, vk::DeviceSize offset)
     mappedRange.offset = offset;
     mappedRange.size = size;
 
-    return CDevice::getInstance()->getLogical().invalidateMappedMemoryRanges(1, &mappedRange);
+    return CDevice::inst()->getLogical().invalidateMappedMemoryRanges(1, &mappedRange);
 }
 
 void CVulkanBuffer::writeToIndex(void *idata, int index)

@@ -11,7 +11,7 @@ CPresentFinalStage::~CPresentFinalStage()
 
 void CPresentFinalStage::create()
 {
-    screenExtent = CSwapChain::getInstance()->getExtent();
+    screenExtent = CSwapChain::inst()->getExtent();
 
     std::vector<vk::AttachmentReference> vReferences_0
     {
@@ -19,7 +19,7 @@ void CPresentFinalStage::create()
     };
 
     pRenderPass = Render::CRenderPass::Builder().
-    addAttachmentDescription(CSwapChain::getInstance()->getImageFormat(), vk::SampleCountFlagBits::e1, vk::AttachmentLoadOp::eClear, vk::AttachmentStoreOp::eStore, 
+    addAttachmentDescription(CSwapChain::inst()->getImageFormat(), vk::SampleCountFlagBits::e1, vk::AttachmentLoadOp::eClear, vk::AttachmentStoreOp::eStore, 
     vk::AttachmentLoadOp::eDontCare, vk::AttachmentStoreOp::eDontCare, vk::ImageLayout::eUndefined, vk::ImageLayout::ePresentSrcKHR).
     addSubpassDescription(vk::PipelineBindPoint::eGraphics, vReferences_0).
     addSubpassDependency(VK_SUBPASS_EXTERNAL, 0, vk::PipelineStageFlagBits::eBottomOfPipe, vk::PipelineStageFlagBits::eColorAttachmentOutput,
@@ -31,7 +31,7 @@ void CPresentFinalStage::create()
     pRenderPass->pushSubpass(std::make_shared<CThroughPass>());
 
     pFramebuffer = std::make_unique<CFramebuffer>();
-    pFramebuffer->addImage("present_khr", CSwapChain::getInstance()->getImageFormat(), vk::ImageUsageFlagBits::eColorAttachment);
+    pFramebuffer->addImage("present_khr", CSwapChain::inst()->getImageFormat(), vk::ImageUsageFlagBits::eColorAttachment);
 
     pRenderPass->setRenderArea(vk::Offset2D{0, 0}, screenExtent);
     pFramebuffer->create(pRenderPass->get(), screenExtent);

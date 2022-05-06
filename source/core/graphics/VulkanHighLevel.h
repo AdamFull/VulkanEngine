@@ -16,7 +16,7 @@
 #include "pipeline/ComputePipeline.h"
 #include <util/helpers.hpp>
 
-#define UHLInstance Engine::Core::CVulkanHighLevel::getInstance()
+#define UHLInstance Engine::Core::CVulkanHighLevel::inst()
 
 namespace Engine
 {

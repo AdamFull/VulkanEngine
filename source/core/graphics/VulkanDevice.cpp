@@ -144,7 +144,7 @@ void CDevice::createDebugCallback(const FDeviceCreateInfo& deviceCI)
 void CDevice::createSurface()
 {
     assert(m_vkInstance && "Unable to create surface, cause vulkan instance is not valid");
-    CWindowHandle::getInstance()->createWindowSurface(m_vkInstance, m_surface);
+    CWindowHandle::inst()->createWindowSurface(m_vkInstance, m_surface);
     assert(m_surface && "Surface creation failed");
 }
 

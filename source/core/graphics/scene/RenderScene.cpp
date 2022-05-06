@@ -19,7 +19,7 @@ CRenderScene::~CRenderScene()
 void CRenderScene::create()
 {
     m_pRoot = std::make_shared<Core::Scene::CSceneRootComponent>();
-    CResourceManager::getInstance()->create();
+    CResourceManager::inst()->create();
 }
 
 void CRenderScene::reCreate()
@@ -30,11 +30,11 @@ void CRenderScene::reCreate()
 
 void CRenderScene::destroy()
 {
-    CDevice::getInstance()->GPUWait();
-    /*if (CRenderSystem::getInstance()->GetFrameStartFlag())
+    CDevice::inst()->GPUWait();
+    /*if (CRenderSystem::inst()->GetFrameStartFlag())
     {
         bool bResult;
-        auto commandBuffer = CRenderSystem::getInstance()->GetCurrentCommandBuffer();
+        auto commandBuffer = CRenderSystem::inst()->GetCurrentCommandBuffer();
         UHLInstance->EndFrame(commandBuffer, &bResult);
     }*/
 
@@ -48,11 +48,11 @@ void CRenderScene::attachObject(std::shared_ptr<Core::Scene::CRenderObject> obje
 
 void CRenderScene::createObjects()
 {
-    CVBO::getInstance()->create();
+    CVBO::inst()->create();
 }
 
 void CRenderScene::render(float fDeltaTime)
 {
     m_pRoot->update(fDeltaTime);
-    CRenderSystem::getInstance()->render();
+    CRenderSystem::inst()->render();
 }

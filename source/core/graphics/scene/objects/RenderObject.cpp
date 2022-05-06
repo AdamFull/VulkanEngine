@@ -175,16 +175,16 @@ bool CRenderObject::checkFrustum(const std::shared_ptr<CRenderObject>& object)
     {
         case ECullingType::eByPoint: 
         { 
-            return CFrustum::getInstance()->checkPoint(object->getPosition()); 
+            return CFrustum::inst()->checkPoint(object->getPosition()); 
         } break;
         case ECullingType::eBySphere: 
         { 
-            return CFrustum::getInstance()->checkSphere(object->getPosition(), object->getCullingRadius()); 
+            return CFrustum::inst()->checkSphere(object->getPosition(), object->getCullingRadius()); 
         } break;
         case ECullingType::eByBox: 
         {
             auto& bounds = object->getBounds();
-            return CFrustum::getInstance()->checkBox(object->getPosition() + bounds.first, object->getPosition() + bounds.second); 
+            return CFrustum::inst()->checkBox(object->getPosition() + bounds.first, object->getPosition() + bounds.second); 
         } break;
     }
     return false;

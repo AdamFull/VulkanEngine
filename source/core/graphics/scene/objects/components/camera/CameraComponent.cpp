@@ -74,8 +74,8 @@ void CCameraComponent::update(float fDeltaTime)
 {
     CRenderObject::update(fDeltaTime);
 
-    auto aspect = CSwapChain::getInstance()->getAspectRatio();
+    auto aspect = CSwapChain::inst()->getAspectRatio();
     setPerspectiveProjection(45.f, aspect, 0.01f, 1024.f);
     setViewYXZ(m_transform.pos, m_transform.rot);
-    CFrustum::getInstance()->update(viewMatrix, projectionMatrix);
+    CFrustum::inst()->update(viewMatrix, projectionMatrix);
 }

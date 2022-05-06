@@ -11,8 +11,8 @@ using namespace Engine::Core::Scene;
 
 void CApplication::create()
 {
-    CInputMapper::getInstance()->createAction("ServiceHandles", EActionKey::eEscape, EActionKey::eF1);
-    CInputMapper::getInstance()->bindAction("ServiceHandles", EKeyState::eRelease, this, &CApplication::serviceHandle);
+    CInputMapper::inst()->createAction("ServiceHandles", EActionKey::eEscape, EActionKey::eF1);
+    CInputMapper::inst()->bindAction("ServiceHandles", EKeyState::eRelease, this, &CApplication::serviceHandle);
 
     Core::FEngineCreateInfo createInfo = FilesystemHelper::getConfigAs<Core::FEngineCreateInfo>("engine/config.json");
     UHLInstance->create(createInfo);
@@ -20,8 +20,8 @@ void CApplication::create()
     m_pCameraController = std::make_unique<Controllers::CCameraEditorController>();
     m_pCameraController->create();
 
-    CSceneManager::getInstance()->load("scene.json");
-    CRenderSystem::getInstance()->create();
+    CSceneManager::inst()->load("scene.json");
+    CRenderSystem::inst()->create();
 }
 
 void CApplication::serviceHandle(EActionKey eKey, EKeyState eState)
@@ -30,7 +30,7 @@ void CApplication::serviceHandle(EActionKey eKey, EKeyState eState)
     {
     case EActionKey::eEscape:
     {
-        CSceneManager::getInstance()->unload();
+        CSceneManager::inst()->unload();
         std::exit(10);
     }
     break;
@@ -41,20 +41,20 @@ void CApplication::serviceHandle(EActionKey eKey, EKeyState eState)
 
 void CApplication::run()
 {
-    auto& currentScene = CSceneManager::getInstance()->getScene();
+    auto& currentScene = CSceneManager::inst()->getScene();
     currentScene->createObjects();
     float delta_time{0.001f};
-    while (!Core::Window::CWindowHandle::getInstance()->isShouldClose())
+    while (!Core::Window::CWindowHandle::inst()->isShouldClose())
     {
         auto startTime = std::chrono::high_resolution_clock::now();
 
-        Core::Window::CWindowHandle::getInstance()->pollEvents();
+        Core::Window::CWindowHandle::inst()->pollEvents();
         m_pCameraController->update(delta_time);
 
         currentScene->render(delta_time);
 
         // TODO: remove update from input mapper. Don't need anymore
-        CInputMapper::getInstance()->update(delta_time);
+        CInputMapper::inst()->update(delta_time);
 
         auto currentTime = std::chrono::high_resolution_clock::now();
         delta_time = std::chrono::duration<float, std::chrono::seconds::period>(currentTime - startTime).count();

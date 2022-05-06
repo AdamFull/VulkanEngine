@@ -9,17 +9,17 @@ using namespace Engine::Resources::Material;
 
 void CThroughPass::create()
 {
-    auto& renderPass = CRenderSystem::getInstance()->getCurrentStage()->getRenderPass()->get();
-    auto subpass = CRenderSystem::getInstance()->getCurrentStage()->getRenderPass()->getCurrentSubpass();
-    pMaterial = CMaterialLoader::getInstance()->create("through_pass");
+    auto& renderPass = CRenderSystem::inst()->getCurrentStage()->getRenderPass()->get();
+    auto subpass = CRenderSystem::inst()->getCurrentStage()->getRenderPass()->getCurrentSubpass();
+    pMaterial = CMaterialLoader::inst()->create("through_pass");
     pMaterial->create(renderPass, subpass);
     CSubpass::create();
 }
 
 void CThroughPass::render(vk::CommandBuffer& commandBuffer)
 {
-    auto imageIndex = CSwapChain::getInstance()->getCurrentFrame();
-    pMaterial->addTexture("samplerColor", CRenderSystem::getInstance()->getPrevStage()->getFramebuffer()->getCurrentImages()["output_color"]);
+    auto imageIndex = CSwapChain::inst()->getCurrentFrame();
+    pMaterial->addTexture("samplerColor", CRenderSystem::inst()->getPrevStage()->getFramebuffer()->getCurrentImages()["output_color"]);
 
     pMaterial->update(imageIndex);
     pMaterial->bind(commandBuffer, imageIndex);

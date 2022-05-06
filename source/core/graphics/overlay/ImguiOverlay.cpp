@@ -61,7 +61,7 @@ void CImguiOverlay::create(vk::RenderPass& renderPass, uint32_t subpass)
     pool_info.maxSets = 1000 * IM_ARRAYSIZE(pool_sizes);
     pool_info.poolSizeCount = (uint32_t)IM_ARRAYSIZE(pool_sizes);
     pool_info.pPoolSizes = pool_sizes;
-    descriptorPool = CDevice::getInstance()->make<vk::DescriptorPool, vk::DescriptorPoolCreateInfo>(pool_info);
+    descriptorPool = CDevice::inst()->make<vk::DescriptorPool, vk::DescriptorPoolCreateInfo>(pool_info);
 
     ImGui::CreateContext();
     baseInitialize();
@@ -73,20 +73,20 @@ void CImguiOverlay::create(vk::RenderPass& renderPass, uint32_t subpass)
     m_vOverlays.emplace_back(std::make_shared<Overlay::COverlayPropertyEditor>("Property editor"));
     m_vOverlays.emplace_back(std::make_shared<Overlay::COverlayViewport>("Viewport"));
 
-    ImGui_ImplGlfw_InitForVulkan(CWindowHandle::getInstance()->getWindowInstance(), true);
+    ImGui_ImplGlfw_InitForVulkan(CWindowHandle::inst()->getWindowInstance(), true);
     ImGui_ImplVulkan_InitInfo init_info = {};
-    init_info.Instance = CDevice::getInstance()->getVkInstance();
-    init_info.PhysicalDevice = CDevice::getInstance()->getPhysical();
-    init_info.Device = CDevice::getInstance()->getLogical();
-    init_info.QueueFamily = CDevice::getInstance()->findQueueFamilies().graphicsFamily.value();
-    init_info.Queue = CDevice::getInstance()->getGraphicsQueue();
+    init_info.Instance = CDevice::inst()->getVkInstance();
+    init_info.PhysicalDevice = CDevice::inst()->getPhysical();
+    init_info.Device = CDevice::inst()->getLogical();
+    init_info.QueueFamily = CDevice::inst()->findQueueFamilies().graphicsFamily.value();
+    init_info.Queue = CDevice::inst()->getGraphicsQueue();
 
     // pipeline cache is a potential future optimization, ignoring for now
-    init_info.PipelineCache = CVulkanHighLevel::getInstance()->getPipelineCache();
+    init_info.PipelineCache = CVulkanHighLevel::inst()->getPipelineCache();
     init_info.DescriptorPool = descriptorPool;
     init_info.Allocator = VK_NULL_HANDLE;
     init_info.MinImageCount = 2;
-    init_info.ImageCount = CSwapChain::getInstance()->getFramesInFlight();
+    init_info.ImageCount = CSwapChain::inst()->getFramesInFlight();
     init_info.MSAASamples = VK_SAMPLE_COUNT_1_BIT;
     init_info.Subpass = subpass;
     //init_info.CheckVkResultFn = check_vk_result;
@@ -107,8 +107,8 @@ void CImguiOverlay::create(vk::RenderPass& renderPass, uint32_t subpass)
 void CImguiOverlay::reCreate()
 {
     cleanup();
-    auto& renderPass = CRenderSystem::getInstance()->getCurrentStage()->getRenderPass()->get();
-    auto subpass = CRenderSystem::getInstance()->getCurrentStage()->getRenderPass()->getCurrentSubpass();
+    auto& renderPass = CRenderSystem::inst()->getCurrentStage()->getRenderPass()->get();
+    auto subpass = CRenderSystem::inst()->getCurrentStage()->getRenderPass()->getCurrentSubpass();
 
     vk::DescriptorPoolSize pool_sizes[] = 
     {
@@ -130,22 +130,22 @@ void CImguiOverlay::reCreate()
     pool_info.maxSets = 1000 * IM_ARRAYSIZE(pool_sizes);
     pool_info.poolSizeCount = (uint32_t)IM_ARRAYSIZE(pool_sizes);
     pool_info.pPoolSizes = pool_sizes;
-    descriptorPool = CDevice::getInstance()->make<vk::DescriptorPool, vk::DescriptorPoolCreateInfo>(pool_info);
+    descriptorPool = CDevice::inst()->make<vk::DescriptorPool, vk::DescriptorPoolCreateInfo>(pool_info);
 
-    ImGui_ImplGlfw_InitForVulkan(CWindowHandle::getInstance()->getWindowInstance(), true);
+    ImGui_ImplGlfw_InitForVulkan(CWindowHandle::inst()->getWindowInstance(), true);
     ImGui_ImplVulkan_InitInfo init_info = {};
-    init_info.Instance = CDevice::getInstance()->getVkInstance();
-    init_info.PhysicalDevice = CDevice::getInstance()->getPhysical();
-    init_info.Device = CDevice::getInstance()->getLogical();
-    init_info.QueueFamily = CDevice::getInstance()->findQueueFamilies().graphicsFamily.value();
-    init_info.Queue = CDevice::getInstance()->getGraphicsQueue();
+    init_info.Instance = CDevice::inst()->getVkInstance();
+    init_info.PhysicalDevice = CDevice::inst()->getPhysical();
+    init_info.Device = CDevice::inst()->getLogical();
+    init_info.QueueFamily = CDevice::inst()->findQueueFamilies().graphicsFamily.value();
+    init_info.Queue = CDevice::inst()->getGraphicsQueue();
 
     // pipeline cache is a potential future optimization, ignoring for now
-    init_info.PipelineCache = CVulkanHighLevel::getInstance()->getPipelineCache();
+    init_info.PipelineCache = CVulkanHighLevel::inst()->getPipelineCache();
     init_info.DescriptorPool = descriptorPool;
     init_info.Allocator = VK_NULL_HANDLE;
     init_info.MinImageCount = 2;
-    init_info.ImageCount = CSwapChain::getInstance()->getFramesInFlight();
+    init_info.ImageCount = CSwapChain::inst()->getFramesInFlight();
     init_info.MSAASamples = VK_SAMPLE_COUNT_1_BIT;
     init_info.Subpass = subpass;
     //init_info.CheckVkResultFn = check_vk_result;

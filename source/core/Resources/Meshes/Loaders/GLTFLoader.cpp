@@ -139,8 +139,8 @@ void GLTFLoader::loadMeshFragment(std::shared_ptr<GLTFSceneNode> sceneNode, cons
         if (primitive.indices < 0)
             continue;
 
-        uint32_t indexStart = CVBO::getInstance()->getLastIndex();
-        uint32_t vertexStart = CVBO::getInstance()->getLastVertex();
+        uint32_t indexStart = CVBO::inst()->getLastIndex();
+        uint32_t vertexStart = CVBO::inst()->getLastVertex();
         uint32_t indexCount = 0;
         uint32_t vertexCount = 0;
         glm::vec3 posMin{};
@@ -322,10 +322,10 @@ void GLTFLoader::loadMeshFragment(std::shared_ptr<GLTFSceneNode> sceneNode, cons
 
         nativeMesh->addPrimitive(std::move(modelPrim));
 
-        CVBO::getInstance()->addMeshData(std::move(vertexBuffer), std::move(indexBuffer));
+        CVBO::inst()->addMeshData(std::move(vertexBuffer), std::move(indexBuffer));
     }
     sceneNode->m_pMesh = nativeMesh;
-    CResourceManager::getInstance()->addExisting(nativeMesh->getName(), nativeMesh);
+    CResourceManager::inst()->addExisting(nativeMesh->getName(), nativeMesh);
 }
 
 void GLTFLoader::recalculateTangents(std::vector<Core::FVertex>& vertices, std::vector<uint32_t>& indices, uint64_t startIndex)
@@ -484,7 +484,7 @@ void GLTFLoader::loadMaterials(const tinygltf::Model &model)
             return vTextures.at(index);
         }
         
-        return CResourceManager::getInstance()->Get<Core::CImage>("no_texture");
+        return CResourceManager::inst()->Get<Core::CImage>("no_texture");
     };
 
     uint32_t material_index{0};
@@ -499,7 +499,7 @@ void GLTFLoader::loadMaterials(const tinygltf::Model &model)
         ss << material_index;
 
         FMaterialParams params;
-        std::shared_ptr<CMaterialBase> nativeMaterial = CMaterialLoader::getInstance()->create("default");
+        std::shared_ptr<CMaterialBase> nativeMaterial = CMaterialLoader::inst()->create("default");
         nativeMaterial->setName(ss.str());
 
         nativeMaterial->addTexture("color_tex", get_texture(mat.values, "baseColorTexture"));
@@ -536,7 +536,7 @@ void GLTFLoader::loadMaterials(const tinygltf::Model &model)
 
         nativeMaterial->setParams(std::move(params));
         vMaterials.emplace_back(nativeMaterial);
-        CResourceManager::getInstance()->addExisting(nativeMaterial->getName(), nativeMaterial);
+        CResourceManager::inst()->addExisting(nativeMaterial->getName(), nativeMaterial);
         material_index++;
     }
 }
@@ -559,7 +559,7 @@ void GLTFLoader::loadTextures(const tinygltf::Model &model)
         auto texture = loadTexture(image, srPath);
         //texture->SetName(ss.str());
         vTextures.emplace_back(texture);
-        CResourceManager::getInstance()->addExisting(ss.str(), texture);
+        CResourceManager::inst()->addExisting(ss.str(), texture);
         index++;
     }
 }

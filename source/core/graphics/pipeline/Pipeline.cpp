@@ -59,8 +59,8 @@ void CPipelineBase::recreatePipeline()
 
 void CPipelineBase::cleanup()
 {
-    CDevice::getInstance()->destroy(m_pipeline);
-    CDevice::getInstance()->destroy(m_pipelineLayout);
+    CDevice::inst()->destroy(m_pipeline);
+    CDevice::inst()->destroy(m_pipelineLayout);
 }
 
 void CPipelineBase::bind(vk::CommandBuffer &commandBuffer)
@@ -92,7 +92,7 @@ void CPipelineBase::createDescriptorSetLayout()
 	descriptorSetLayoutCreateInfo.bindingCount = static_cast<uint32_t>(descriptorSetLayouts.size());
 	descriptorSetLayoutCreateInfo.pBindings = descriptorSetLayouts.data();
 
-    if (CDevice::getInstance()->getLogical().createDescriptorSetLayout(&descriptorSetLayoutCreateInfo, nullptr, &m_descriptorSetLayout) != vk::Result::eSuccess)
+    if (CDevice::inst()->getLogical().createDescriptorSetLayout(&descriptorSetLayoutCreateInfo, nullptr, &m_descriptorSetLayout) != vk::Result::eSuccess)
     {
         throw std::runtime_error("failed to create descriptor set layout!");
     }
@@ -107,7 +107,7 @@ void CPipelineBase::createDescriptorPool()
 	descriptorPoolCreateInfo.maxSets = 8192; // 16384;
 	descriptorPoolCreateInfo.poolSizeCount = static_cast<uint32_t>(descriptorPools.size());
 	descriptorPoolCreateInfo.pPoolSizes = descriptorPools.data();
-    m_descriptorPool = CDevice::getInstance()->make<vk::DescriptorPool, vk::DescriptorPoolCreateInfo>(descriptorPoolCreateInfo);
+    m_descriptorPool = CDevice::inst()->make<vk::DescriptorPool, vk::DescriptorPoolCreateInfo>(descriptorPoolCreateInfo);
 }
 
 void CPipelineBase::createPipelineLayout()
@@ -119,7 +119,7 @@ void CPipelineBase::createPipelineLayout()
 	pipelineLayoutCreateInfo.pSetLayouts = &m_descriptorSetLayout;
 	pipelineLayoutCreateInfo.pushConstantRangeCount = static_cast<uint32_t>(pushConstantRanges.size());
 	pipelineLayoutCreateInfo.pPushConstantRanges = pushConstantRanges.data();
-    m_pipelineLayout = CDevice::getInstance()->make<vk::PipelineLayout, vk::PipelineLayoutCreateInfo>(pipelineLayoutCreateInfo);
+    m_pipelineLayout = CDevice::inst()->make<vk::PipelineLayout, vk::PipelineLayoutCreateInfo>(pipelineLayoutCreateInfo);
 }
 
 void CPipelineBase::recreateShaders()

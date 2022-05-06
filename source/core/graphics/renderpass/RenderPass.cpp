@@ -85,7 +85,7 @@ CRenderPass::CRenderPass(vk::RenderPass&& pass) : renderPass(std::move(pass))
 
 CRenderPass::~CRenderPass()
 {
-    CDevice::getInstance()->destroy(renderPass);
+    CDevice::inst()->destroy(renderPass);
 }
 
 void CRenderPass::create()
@@ -108,18 +108,18 @@ void CRenderPass::reCreate()
 
 void CRenderPass::cleanup()
 {
-    CDevice::getInstance()->destroy(renderPass);
+    CDevice::inst()->destroy(renderPass);
     //TODO: cleanup
 }
 
 void CRenderPass::begin(vk::CommandBuffer& commandBuffer)
 {
-    if(renderArea.extent != CSwapChain::getInstance()->getExtent())
+    if(renderArea.extent != CSwapChain::inst()->getExtent())
         UHLInstance->recreateSwapChain();
     //Begins render pass for start rendering
     vk::RenderPassBeginInfo renderPassBeginInfo{};
     renderPassBeginInfo.renderPass = renderPass;
-    renderPassBeginInfo.framebuffer = CRenderSystem::getInstance()->getCurrentStage()->getFramebuffer()->getCurrentFramebuffer();
+    renderPassBeginInfo.framebuffer = CRenderSystem::inst()->getCurrentStage()->getFramebuffer()->getCurrentFramebuffer();
     renderPassBeginInfo.renderArea = renderArea;
     renderPassBeginInfo.clearValueCount = static_cast<uint32_t>(vClearValues.size());
     renderPassBeginInfo.pClearValues = vClearValues.data();
@@ -181,5 +181,5 @@ vk::RenderPass CRenderPass::createRenderPass()
     renderPassCI.pSubpasses = vSubpassDesc.data();
     renderPassCI.dependencyCount = static_cast<uint32_t>(vSubpassDep.size());
     renderPassCI.pDependencies = vSubpassDep.data();
-    return CDevice::getInstance()->getLogical().createRenderPass(renderPassCI);
+    return CDevice::inst()->getLogical().createRenderPass(renderPassCI);
 }

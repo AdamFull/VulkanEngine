@@ -21,7 +21,7 @@ void COverlayDebug::draw()
         }
 
         float fFrameTime = 1000.0f / ImGui::GetIO().Framerate;
-        auto camera = Core::Scene::CCameraManager::getInstance()->getCurrentCamera();
+        auto camera = Core::Scene::CCameraManager::inst()->getCurrentCamera();
 
         int viewport_size[2] = {Window::CWindowHandle::m_iWidth, Window::CWindowHandle::m_iHeight};
 
@@ -55,9 +55,9 @@ void COverlayDebug::draw()
         ImGui::DragFloat("blur_strength", &GlobalVariables::blurStrength, 0.001, 0.1, 1.0);
 
         ImGui::Text("VBO");
-        int vertices = CVBO::getInstance()->getLastVertex();
+        int vertices = CVBO::inst()->getLastVertex();
         ImGui::InputInt("Vertices", &vertices);
-        int indices = CVBO::getInstance()->getLastIndex();
+        int indices = CVBO::inst()->getLastIndex();
         ImGui::InputInt("Indices", &indices);
 
         ImGui::End();

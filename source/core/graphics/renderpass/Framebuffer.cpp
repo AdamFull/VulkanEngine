@@ -21,7 +21,7 @@ CFramebuffer::~CFramebuffer()
 void CFramebuffer::create(vk::RenderPass& renderPass, vk::Extent2D extent)
 {
     imagesExtent = extent;
-    auto framesInFlight = CSwapChain::getInstance()->getFramesInFlight();
+    auto framesInFlight = CSwapChain::inst()->getFramesInFlight();
     for(size_t frame = 0; frame < framesInFlight; frame++)
     {
         std::vector<vk::ImageView> imageViews{};
@@ -34,9 +34,9 @@ void CFramebuffer::create(vk::RenderPass& renderPass, vk::Extent2D extent)
             }
             else
             {
-                if(attachment.format == CSwapChain::getInstance()->getImageFormat())
+                if(attachment.format == CSwapChain::inst()->getImageFormat())
                 {
-                    imageViews.push_back(CSwapChain::getInstance()->getImageViews()[frame]);
+                    imageViews.push_back(CSwapChain::inst()->getImageViews()[frame]);
                 }
                 else
                 {
@@ -59,7 +59,7 @@ void CFramebuffer::create(vk::RenderPass& renderPass, vk::Extent2D extent)
         framebufferCI.height = extent.height;
         framebufferCI.layers = 1;
 
-        vFramebuffers.emplace_back(CDevice::getInstance()->make<vk::Framebuffer, vk::FramebufferCreateInfo>(framebufferCI));
+        vFramebuffers.emplace_back(CDevice::inst()->make<vk::Framebuffer, vk::FramebufferCreateInfo>(framebufferCI));
     }
 }
 
@@ -74,7 +74,7 @@ void CFramebuffer::cleanup()
 {
     mImages.clear();
     for(auto& fb : vFramebuffers)
-        CDevice::getInstance()->destroy(fb);
+        CDevice::inst()->destroy(fb);
 }
 
 void CFramebuffer::addImage(const std::string& name, vk::Format format, vk::ImageUsageFlags usageFlags)
@@ -84,12 +84,12 @@ void CFramebuffer::addImage(const std::string& name, vk::Format format, vk::Imag
 
 vk::Framebuffer& CFramebuffer::getCurrentFramebuffer()
 {
-    return getFramebuffer(CSwapChain::getInstance()->getCurrentFrame());
+    return getFramebuffer(CSwapChain::inst()->getCurrentFrame());
 }
 
 std::unordered_map<std::string, std::shared_ptr<CImage>>& CFramebuffer::getCurrentImages()
 {
-    return getImages(CSwapChain::getInstance()->getCurrentFrame());
+    return getImages(CSwapChain::inst()->getCurrentFrame());
 }
 
 std::shared_ptr<CImage> CFramebuffer::createImage(vk::Format format, vk::ImageUsageFlags usageFlags, vk::Extent2D extent)

@@ -13,7 +13,7 @@ namespace Engine
             static std::unique_ptr<CVBO> _instance;
         public:
             CVBO();
-            static std::unique_ptr<CVertexBufferObject>& getInstance();
+            static std::unique_ptr<CVertexBufferObject>& inst();
         private:
             std::unique_ptr<CVertexBufferObject> pVBO;
         };

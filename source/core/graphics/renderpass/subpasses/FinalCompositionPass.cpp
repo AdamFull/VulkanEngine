@@ -14,24 +14,24 @@ using namespace Engine::Resources::Material;
 
 void CFinalCompositionPass::create()
 {
-    auto framesInFlight = CSwapChain::getInstance()->getFramesInFlight();
+    auto framesInFlight = CSwapChain::inst()->getFramesInFlight();
     pUniform = std::make_shared<CUniformBuffer>();
     pUniform->create(framesInFlight, sizeof(FPostProcess));
 
-    auto& renderPass = CRenderSystem::getInstance()->getCurrentStage()->getRenderPass()->get();
-    auto subpass = CRenderSystem::getInstance()->getCurrentStage()->getRenderPass()->getCurrentSubpass();
+    auto& renderPass = CRenderSystem::inst()->getCurrentStage()->getRenderPass()->get();
+    auto subpass = CRenderSystem::inst()->getCurrentStage()->getRenderPass()->getCurrentSubpass();
 
-    pMaterial = CMaterialLoader::getInstance()->create("post_process");
+    pMaterial = CMaterialLoader::inst()->create("post_process");
     pMaterial->create(renderPass, subpass);
     CSubpass::create();
 }
 
 void CFinalCompositionPass::render(vk::CommandBuffer& commandBuffer)
 {
-    auto imageIndex = CSwapChain::getInstance()->getCurrentFrame();
+    auto imageIndex = CSwapChain::inst()->getCurrentFrame();
 
-    pMaterial->addTexture("samplerColor", CRenderSystem::getInstance()->getPrevStage()->getFramebuffer()->getCurrentImages()["output_color"]);
-    pMaterial->addTexture("samplerBrightness", CRenderSystem::getInstance()->getPrevStage()->getFramebuffer()->getCurrentImages()["brightness_buffer"]); //bloom_image
+    pMaterial->addTexture("samplerColor", CRenderSystem::inst()->getPrevStage()->getFramebuffer()->getCurrentImages()["output_color"]);
+    pMaterial->addTexture("samplerBrightness", CRenderSystem::inst()->getPrevStage()->getFramebuffer()->getCurrentImages()["brightness_buffer"]); //bloom_image
     //May be move to CompositionObject
     FPostProcess ubo;
     //HDR

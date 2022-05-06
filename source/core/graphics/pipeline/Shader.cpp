@@ -81,7 +81,7 @@ EShLanguage getEshLanguage(vk::ShaderStageFlagBits stageFlag)
 
 TBuiltInResource getResources() 
 {
-    //auto props = CDevice::getInstance()->GetPhysical().getProperties();
+    //auto props = CDevice::inst()->GetPhysical().getProperties();
 	TBuiltInResource resources = {};
 	resources.maxLights                                 = 32;
     resources.maxClipPlanes                             = 6;
@@ -196,7 +196,7 @@ CShader::~CShader()
 void CShader::addStage(const std::filesystem::path &moduleName, const std::string& moduleCode, const std::string &preamble)
 {
     std::vector<uint32_t> spirv;
-    auto spirv_cache = CShaderCache::getInstance()->get(moduleName.filename().string(), moduleCode);
+    auto spirv_cache = CShaderCache::inst()->get(moduleName.filename().string(), moduleCode);
     if (!spirv_cache)
     {
         vShaderStage.emplace_back(getShaderStage(moduleName));
@@ -218,7 +218,7 @@ void CShader::addStage(const std::filesystem::path &moduleName, const std::strin
         auto defaultVersion = glslang::EShTargetVulkan_1_1;
         shader.setEnvInput(glslang::EShSourceGlsl, language, glslang::EShClientVulkan, 110);
         shader.setEnvClient(glslang::EShClientVulkan, defaultVersion);
-        shader.setEnvTarget(glslang::EShTargetSpv, CDevice::getInstance()->getVulkanVersion() >= VK_API_VERSION_1_1 ? glslang::EShTargetSpv_1_3 : glslang::EShTargetSpv_1_0);
+        shader.setEnvTarget(glslang::EShTargetSpv, CDevice::inst()->getVulkanVersion() >= VK_API_VERSION_1_1 ? glslang::EShTargetSpv_1_3 : glslang::EShTargetSpv_1_0);
 
         CShaderIncluder includer;
 
@@ -293,7 +293,7 @@ void CShader::addStage(const std::filesystem::path &moduleName, const std::strin
 
         spv::SpvBuildLogger logger;
         GlslangToSpv(*program.getIntermediate(static_cast<EShLanguage>(language)), spirv, &logger, &spvOptions);
-        CShaderCache::getInstance()->add(moduleName.filename().string(), getShaderStage(moduleName), spirv, moduleCode, localSizes);
+        CShaderCache::inst()->add(moduleName.filename().string(), getShaderStage(moduleName), spirv, moduleCode, localSizes);
     }
     else
     {
@@ -306,7 +306,7 @@ void CShader::addStage(const std::filesystem::path &moduleName, const std::strin
 
     try
     {
-        auto shaderModule = CDevice::getInstance()->make<vk::ShaderModule, vk::ShaderModuleCreateInfo>
+        auto shaderModule = CDevice::inst()->make<vk::ShaderModule, vk::ShaderModuleCreateInfo>
         (
             vk::ShaderModuleCreateInfo
             {
@@ -336,7 +336,7 @@ void CShader::addStage(const std::filesystem::path &moduleName, const std::strin
 void CShader::clear()
 {
     for(auto& stage : vShaderModules)
-        CDevice::getInstance()->destroy(stage.module);
+        CDevice::inst()->destroy(stage.module);
 
     vShaderModules.clear();
     vShaderStage.clear();

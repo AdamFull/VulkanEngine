@@ -8,17 +8,17 @@ using namespace Engine::Resources::Material;
 
 void CImguiPass::create()
 {
-    auto& renderPass = CRenderSystem::getInstance()->getCurrentStage()->getRenderPass()->get();
-    auto subpass = CRenderSystem::getInstance()->getCurrentStage()->getRenderPass()->getCurrentSubpass();
-    CImguiOverlay::getInstance()->create(renderPass, subpass);
+    auto& renderPass = CRenderSystem::inst()->getCurrentStage()->getRenderPass()->get();
+    auto subpass = CRenderSystem::inst()->getCurrentStage()->getRenderPass()->getCurrentSubpass();
+    CImguiOverlay::inst()->create(renderPass, subpass);
     CSubpass::create();
 }
 
 void CImguiPass::render(vk::CommandBuffer& commandBuffer)
 {
-    auto imageIndex = CSwapChain::getInstance()->getCurrentFrame();
-    CImguiOverlay::getInstance()->newFrame();
-    CImguiOverlay::getInstance()->drawFrame(commandBuffer, imageIndex);
+    auto imageIndex = CSwapChain::inst()->getCurrentFrame();
+    CImguiOverlay::inst()->newFrame();
+    CImguiOverlay::inst()->drawFrame(commandBuffer, imageIndex);
 }
 
 void CImguiPass::cleanup()

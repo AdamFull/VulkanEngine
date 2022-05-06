@@ -10,14 +10,14 @@ using namespace Engine::Core::Overlay;
 
 void COverlayViewport::create()
 {
-    for(size_t i = 0; i < CSwapChain::getInstance()->getFramesInFlight(); i++)
+    for(size_t i = 0; i < CSwapChain::inst()->getFramesInFlight(); i++)
     {
-        auto image = CRenderSystem::getInstance()->getPrevStage()->getFramebuffer()->getImages(i)["output_color"]->getDescriptor();
+        auto image = CRenderSystem::inst()->getPrevStage()->getFramebuffer()->getImages(i)["output_color"]->getDescriptor();
         descriptors.emplace_back(ImGui_ImplVulkan_AddTexture(image.sampler, image.imageView, static_cast<VkImageLayout>(image.imageLayout)));
     }
     auto pBackend = (ImGui_ImplVulkan_Data*)ImGui::GetIO().BackendRendererUserData;
     pDescriptorSet = std::make_shared<CDescriptorSet>();
-    pDescriptorSet->create(vk::PipelineBindPoint::eGraphics, pBackend->PipelineLayout, CImguiOverlay::getInstance()->getDescriptorPool(), pBackend->DescriptorSetLayout, CSwapChain::getInstance()->getFramesInFlight());
+    pDescriptorSet->create(vk::PipelineBindPoint::eGraphics, pBackend->PipelineLayout, CImguiOverlay::inst()->getDescriptorPool(), pBackend->DescriptorSetLayout, CSwapChain::inst()->getFramesInFlight());
     //pDescriptorPtr = std::make_unique<VkDescriptorSet>();
 }
 
@@ -25,14 +25,14 @@ void COverlayViewport::draw()
 {
     if (bOverlayState)
     {
-        auto currentImage = CSwapChain::getInstance()->getCurrentFrame();
+        auto currentImage = CSwapChain::inst()->getCurrentFrame();
         if (!ImGui::Begin(srOverlayName.c_str(), &bOverlayState))
         {
             ImGui::End();
             return;
         }
-        auto extent = CSwapChain::getInstance()->getExtent();
-        auto imageDescriptor = CRenderSystem::getInstance()->getPrevStage()->getFramebuffer()->getCurrentImages()["output_color"]->getDescriptor();
+        auto extent = CSwapChain::inst()->getExtent();
+        auto imageDescriptor = CRenderSystem::inst()->getPrevStage()->getFramebuffer()->getCurrentImages()["output_color"]->getDescriptor();
         vk::WriteDescriptorSet write{};
         write.descriptorType = vk::DescriptorType::eCombinedImageSampler;
         //write.dstBinding = 0;

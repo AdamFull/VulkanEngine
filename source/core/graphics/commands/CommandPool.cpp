@@ -5,8 +5,8 @@ using namespace Engine::Core;
 
 CCommandPool::CCommandPool(const std::thread::id &threadId) : threadId(threadId) 
 {
-    auto& logical = CDevice::getInstance()->getLogical();
-	QueueFamilyIndices queueFamilyIndices = CDevice::getInstance()->findQueueFamilies(CDevice::getInstance()->getPhysical());
+    auto& logical = CDevice::inst()->getLogical();
+	QueueFamilyIndices queueFamilyIndices = CDevice::inst()->findQueueFamilies(CDevice::inst()->getPhysical());
 
     vk::CommandPoolCreateInfo poolInfo = {};
     poolInfo.flags = vk::CommandPoolCreateFlagBits::eTransient | vk::CommandPoolCreateFlagBits::eResetCommandBuffer;
@@ -17,5 +17,5 @@ CCommandPool::CCommandPool(const std::thread::id &threadId) : threadId(threadId)
 
 CCommandPool::~CCommandPool() 
 {
-	CDevice::getInstance()->destroy(commandPool);
+	CDevice::inst()->destroy(commandPool);
 }

@@ -9,7 +9,7 @@ CVBO::CVBO()
     pVBO = std::make_unique<CVertexBufferObject>();
 }
 
-std::unique_ptr<CVertexBufferObject>& CVBO::getInstance()
+std::unique_ptr<CVertexBufferObject>& CVBO::inst()
 {
     if(!_instance)
         _instance.reset(new CVBO());

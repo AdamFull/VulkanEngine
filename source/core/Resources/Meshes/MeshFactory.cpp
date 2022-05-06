@@ -36,7 +36,7 @@ std::shared_ptr<CMeshFragment> CMeshFactory::create(FMeshCreateInfo info)
         for (auto &matInfo : info.vMaterials)
         {
             std::shared_ptr<Material::CMaterialBase> material = Material::CMaterialFactory::create(matInfo);
-            CResourceManager::getInstance()->addExisting(matInfo.srName, material);
+            CResourceManager::inst()->addExisting(matInfo.srName, material);
             mesh->setMaterial(material);
         }
     }

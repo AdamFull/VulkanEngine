@@ -15,7 +15,7 @@ void COverlaySceneGraph::draw()
             return;
         }
 
-        auto& pRoot = CSceneManager::getInstance()->getScene()->getRoot();
+        auto& pRoot = CSceneManager::inst()->getScene()->getRoot();
         ImGui::PushStyleVar(ImGuiStyleVar_FramePadding, ImVec2(2, 2));
         if (ImGui::BeginTable("split", 1, ImGuiTableFlags_BordersOuter | ImGuiTableFlags_Resizable))
         {

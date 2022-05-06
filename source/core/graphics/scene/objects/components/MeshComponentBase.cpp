@@ -50,7 +50,7 @@ void CMeshComponentBase::render(vk::CommandBuffer &commandBuffer, uint32_t image
 
     if (m_pMesh)
     {
-        auto camera = CCameraManager::getInstance()->getCurrentCamera();
+        auto camera = CCameraManager::inst()->getCurrentCamera();
         auto transform = getTransform();
         FUniformData ubo{};
         ubo.model = transform.getModel();
@@ -62,7 +62,7 @@ void CMeshComponentBase::render(vk::CommandBuffer &commandBuffer, uint32_t image
         for(uint32_t i = 0; i < m_vInstances.size(); i++)
         {
             auto& pos = m_vInstances.at(i);
-            if(true/*CFrustum::getInstance()->checkSphere(glm::vec4(getPosition(), 1.f) + pos, 1.f)*/)
+            if(true/*CFrustum::inst()->checkSphere(glm::vec4(getPosition(), 1.f) + pos, 1.f)*/)
             {
                 ubo.instancePos[i] = pos;
                 instanceCount++;

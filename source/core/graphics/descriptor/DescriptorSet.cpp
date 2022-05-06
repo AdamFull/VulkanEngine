@@ -6,7 +6,7 @@ using namespace Engine::Core::Descriptor;
 
 CDescriptorSet::~CDescriptorSet()
 {
-    CDevice::getInstance()->getLogical().freeDescriptorSets(descriptorPool, vDescriptorSets);
+    CDevice::inst()->getLogical().freeDescriptorSets(descriptorPool, vDescriptorSets);
 }
 
 void CDescriptorSet::create(vk::PipelineBindPoint bindPoint, vk::PipelineLayout layout, vk::DescriptorPool pool, vk::DescriptorSetLayout setLayout, uint32_t images)
@@ -22,7 +22,7 @@ void CDescriptorSet::create(vk::PipelineBindPoint bindPoint, vk::PipelineLayout 
     allocInfo.pSetLayouts = vSetLayouts.data();
     vDescriptorSets.resize(images);
 
-    if (CDevice::getInstance()->getLogical().allocateDescriptorSets(&allocInfo, vDescriptorSets.data()) != vk::Result::eSuccess)
+    if (CDevice::inst()->getLogical().allocateDescriptorSets(&allocInfo, vDescriptorSets.data()) != vk::Result::eSuccess)
     {
         throw std::runtime_error("failed to create descriptor set!");
     }
@@ -38,13 +38,13 @@ void CDescriptorSet::update(std::vector<vk::WriteDescriptorSet> &vWrites, uint32
     for (auto &write : vWrites)
         write.dstSet = vDescriptorSets.at(index);
 
-    CDevice::getInstance()->getLogical().updateDescriptorSets(static_cast<uint32_t>(vWrites.size()), vWrites.data(), 0, nullptr);
+    CDevice::inst()->getLogical().updateDescriptorSets(static_cast<uint32_t>(vWrites.size()), vWrites.data(), 0, nullptr);
 }
 
 void CDescriptorSet::update(vk::WriteDescriptorSet &writes, uint32_t index)
 {
     writes.dstSet = vDescriptorSets.at(index);
-    CDevice::getInstance()->getLogical().updateDescriptorSets(1, &writes, 0, nullptr);
+    CDevice::inst()->getLogical().updateDescriptorSets(1, &writes, 0, nullptr);
 }
 
 void CDescriptorSet::bind(const vk::CommandBuffer &commandBuffer, uint32_t index) const

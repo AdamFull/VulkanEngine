@@ -74,7 +74,7 @@ std::shared_ptr<Core::Scene::CRenderObject> CSceneFactory::createCamera(FSceneOb
     auto camera = std::make_shared<Core::Scene::CCameraComponent>();
     camera->setTransform(info.fTransform);
     camera->setName(info.srName);
-    Core::Scene::CCameraManager::getInstance()->attach(camera);
+    Core::Scene::CCameraManager::inst()->attach(camera);
     return camera;
 }
 
@@ -94,7 +94,7 @@ std::shared_ptr<Core::Scene::CRenderObject> CSceneFactory::createSkybox(FSceneOb
         {
             auto material = Resources::Material::CMaterialFactory::create(matInfo);
             loader->addMaterial(material);
-            CResourceManager::getInstance()->addExisting(material->getName(), material);
+            CResourceManager::inst()->addExisting(material->getName(), material);
         }
     }
 
@@ -119,7 +119,7 @@ std::shared_ptr<Core::Scene::CRenderObject> CSceneFactory::createGLTFMesh(FScene
         {
             auto material = Resources::Material::CMaterialFactory::create(matInfo);
             loader->addMaterial(material);
-            CResourceManager::getInstance()->addExisting(material->getName(), material);
+            CResourceManager::inst()->addExisting(material->getName(), material);
         }
     }
 
@@ -140,6 +140,6 @@ std::shared_ptr<Core::Scene::CRenderObject> CSceneFactory::createGLTFMesh(FScene
 
 std::shared_ptr<Core::Scene::CRenderObject> CSceneFactory::createLightSource(FSceneObject info)
 {
-    auto lightSource = CLightSourceManager::getInstance()->createSource(info.light.eType, info.fTransform, info.light.vColor, info.light.fAttenuation);
+    auto lightSource = CLightSourceManager::inst()->createSource(info.light.eType, info.fTransform, info.light.vColor, info.light.fAttenuation);
     return lightSource;
 }

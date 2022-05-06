@@ -14,7 +14,7 @@ CDeferredStage::~CDeferredStage()
 
 void CDeferredStage::create()
 {
-    screenExtent = CSwapChain::getInstance()->getExtent();
+    screenExtent = CSwapChain::inst()->getExtent();
 
     std::vector<vk::AttachmentReference> vReferences_0
     {

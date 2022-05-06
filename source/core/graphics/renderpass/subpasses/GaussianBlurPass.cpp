@@ -13,26 +13,26 @@ using namespace Engine::Resources::Material;
 
 void CGaussianBlurPass::create()
 {
-    auto framesInFlight = CSwapChain::getInstance()->getFramesInFlight();
+    auto framesInFlight = CSwapChain::inst()->getFramesInFlight();
     pUniform = std::make_shared<CUniformBuffer>();
     pUniform->create(framesInFlight, sizeof(FBlurData));
 
-    auto& renderPass = CRenderSystem::getInstance()->getCurrentStage()->getRenderPass()->get();
-    auto subpass = CRenderSystem::getInstance()->getCurrentStage()->getRenderPass()->getCurrentSubpass();
+    auto& renderPass = CRenderSystem::inst()->getCurrentStage()->getRenderPass()->get();
+    auto subpass = CRenderSystem::inst()->getCurrentStage()->getRenderPass()->getCurrentSubpass();
 //VK_IMAGE_USAGE_TRANSFER_SRC_BIT | VK_IMAGE_USAGE_TRANSFER_DST_BIT | VK_IMAGE_USAGE_SAMPLED_BIT
-    pImage = CFramebuffer::createImage(vk::Format::eR8G8B8A8Unorm, vk::ImageUsageFlagBits::eTransferSrc | vk::ImageUsageFlagBits::eTransferDst | vk::ImageUsageFlagBits::eStorage | vk::ImageUsageFlagBits::eSampled, CSwapChain::getInstance()->getExtent());
+    pImage = CFramebuffer::createImage(vk::Format::eR8G8B8A8Unorm, vk::ImageUsageFlagBits::eTransferSrc | vk::ImageUsageFlagBits::eTransferDst | vk::ImageUsageFlagBits::eStorage | vk::ImageUsageFlagBits::eSampled, CSwapChain::inst()->getExtent());
 
-    pMaterial = CMaterialLoader::getInstance()->create("gaussian_blur");
+    pMaterial = CMaterialLoader::inst()->create("gaussian_blur");
     pMaterial->create(renderPass, subpass);
     CSubpass::create();
 }
 
 void CGaussianBlurPass::render(vk::CommandBuffer& commandBuffer)
 {
-    auto imageIndex = CSwapChain::getInstance()->getCurrentFrame();
+    auto imageIndex = CSwapChain::inst()->getCurrentFrame();
 
     pMaterial->addTexture("writeColour", pImage);
-    pMaterial->addTexture("samplerBrightness", CRenderSystem::getInstance()->getPrevStage()->getFramebuffer()->getCurrentImages()[imageReferenceName]);
+    pMaterial->addTexture("samplerBrightness", CRenderSystem::inst()->getPrevStage()->getFramebuffer()->getCurrentImages()[imageReferenceName]);
 
     FBlurData uniform;
     uniform.blurScale = GlobalVariables::blurScale;

@@ -4,7 +4,7 @@
 using namespace Engine::Core;
 
 CCommandBuffer::CCommandBuffer(bool _begin, vk::QueueFlagBits queueType, vk::CommandBufferLevel bufferLevel, uint32_t count) :
-commandPool(CDevice::getInstance()->getCommandPool()), queueType(queueType)
+commandPool(CDevice::inst()->getCommandPool()), queueType(queueType)
 {
     vk::CommandBufferAllocateInfo allocInfo = {};
     allocInfo.commandPool = commandPool->getCommandPool();
@@ -12,7 +12,7 @@ commandPool(CDevice::getInstance()->getCommandPool()), queueType(queueType)
     allocInfo.commandBufferCount = count;
 
     // TODO: Handle error
-    vCommandBuffers = CDevice::getInstance()->getLogical().allocateCommandBuffers(allocInfo);
+    vCommandBuffers = CDevice::inst()->getLogical().allocateCommandBuffers(allocInfo);
 
     if(_begin)
         begin();
@@ -20,7 +20,7 @@ commandPool(CDevice::getInstance()->getCommandPool()), queueType(queueType)
 
 CCommandBuffer::~CCommandBuffer()
 {
-    CDevice::getInstance()->getLogical().freeCommandBuffers(commandPool->getCommandPool(), vCommandBuffers);
+    CDevice::inst()->getLogical().freeCommandBuffers(commandPool->getCommandPool(), vCommandBuffers);
     vCommandBuffers.clear();
 }
 
@@ -60,25 +60,25 @@ void CCommandBuffer::submitIdle()
     submitInfo.pCommandBuffers = vCommandBuffers.data();
 
     vk::FenceCreateInfo fenceCreateInfo{};
-    vk::Fence fence = CDevice::getInstance()->make<vk::Fence, vk::FenceCreateInfo>(fenceCreateInfo);
-    CDevice::getInstance()->getLogical().resetFences(1, &fence);
+    vk::Fence fence = CDevice::inst()->make<vk::Fence, vk::FenceCreateInfo>(fenceCreateInfo);
+    CDevice::inst()->getLogical().resetFences(1, &fence);
 
     vk::Queue queue{};
     switch (queueType)
     {
     case vk::QueueFlagBits::eGraphics: {
-        queue = CDevice::getInstance()->getGraphicsQueue();
+        queue = CDevice::inst()->getGraphicsQueue();
     } break;
     case vk::QueueFlagBits::eCompute: {
-        queue = CDevice::getInstance()->getComputeQueue();
+        queue = CDevice::inst()->getComputeQueue();
     } break;
     case vk::QueueFlagBits::eTransfer: {
-        queue = CDevice::getInstance()->getTransferQueue();
+        queue = CDevice::inst()->getTransferQueue();
     } break;
     }
     queue.submit(submitInfo, fence);
-    auto fencesResult = CDevice::getInstance()->getLogical().waitForFences(1, &fence, VK_TRUE, std::numeric_limits<uint64_t>::max());
-    CDevice::getInstance()->destroy(fence);
+    auto fencesResult = CDevice::inst()->getLogical().waitForFences(1, &fence, VK_TRUE, std::numeric_limits<uint64_t>::max());
+    CDevice::inst()->destroy(fence);
     //queue.waitIdle();
 }
 
@@ -88,5 +88,5 @@ vk::Result CCommandBuffer::submit(uint32_t& imageIndex)
 		end();
 
     auto commandBuffer = getCommandBuffer();
-    return CSwapChain::getInstance()->submitCommandBuffers(&commandBuffer, &imageIndex, queueType);
+    return CSwapChain::inst()->submitCommandBuffers(&commandBuffer, &imageIndex, queueType);
 }

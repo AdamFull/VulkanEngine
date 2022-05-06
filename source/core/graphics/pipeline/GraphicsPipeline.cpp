@@ -12,8 +12,8 @@ void CGraphicsPipeline::create(vk::RenderPass& renderPass, uint32_t subpass)
 
 void CGraphicsPipeline::createPipeline()
 {
-    assert(CDevice::getInstance() && "Cannot create pipeline, cause logical device is not valid.");
-    assert(CSwapChain::getInstance() && "Cannot create pipeline, cause render pass is not valid.");
+    assert(CDevice::inst() && "Cannot create pipeline, cause logical device is not valid.");
+    assert(CSwapChain::inst() && "Cannot create pipeline, cause render pass is not valid.");
 
     auto& bindingDescription = m_vertexInput.getInputBindingDescription();
     auto& attributeDescription = m_vertexInput.getInputAttributeDescription();
@@ -36,7 +36,7 @@ void CGraphicsPipeline::createPipeline()
 	specializationEntry.offset = 0;
 	specializationEntry.size = sizeof(uint32_t);
 
-    uint32_t specializationData = static_cast<uint32_t>(CDevice::getInstance()->getSamples());
+    uint32_t specializationData = static_cast<uint32_t>(CDevice::inst()->getSamples());
 	vk::SpecializationInfo specializationInfo;
 	specializationInfo.mapEntryCount = 1;
 	specializationInfo.pMapEntries = &specializationEntry;
@@ -44,7 +44,7 @@ void CGraphicsPipeline::createPipeline()
 	specializationInfo.pData = &specializationData;
 
     
-    auto attachmentCount = CRenderSystem::getInstance()->getCurrentStage()->getRenderPass()->getCurrentDescription().colorAttachmentCount;
+    auto attachmentCount = CRenderSystem::inst()->getCurrentStage()->getRenderPass()->getCurrentDescription().colorAttachmentCount;
     std::vector<vk::PipelineColorBlendAttachmentState> colorBlendAttachments;
     for(uint32_t i = 0; i < attachmentCount; i++)
     {
@@ -94,7 +94,7 @@ void CGraphicsPipeline::createPipeline()
     pipelineInfo.basePipelineHandle = nullptr;
     pipelineInfo.pDynamicState = &dynamicStateInfo;
 
-    auto result = CDevice::getInstance()->getLogical().createGraphicsPipelines(UHLInstance->getPipelineCache(), 1, &pipelineInfo, nullptr, &m_pipeline);
+    auto result = CDevice::inst()->getLogical().createGraphicsPipelines(UHLInstance->getPipelineCache(), 1, &pipelineInfo, nullptr, &m_pipeline);
     assert(m_pipeline && "Failed creating pipeline.");
 }
 

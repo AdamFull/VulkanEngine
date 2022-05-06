@@ -11,7 +11,7 @@ CSandboxFinalStage::~CSandboxFinalStage()
 
 void CSandboxFinalStage::create()
 {
-    screenExtent = CSwapChain::getInstance()->getExtent();
+    screenExtent = CSwapChain::inst()->getExtent();
 
     std::vector<vk::AttachmentReference> vReferences_0
     {
@@ -20,7 +20,7 @@ void CSandboxFinalStage::create()
     vk::AttachmentReference depthReference{1, vk::ImageLayout::eDepthStencilAttachmentOptimal};
 
     pRenderPass = Render::CRenderPass::Builder().
-    addAttachmentDescription(CSwapChain::getInstance()->getImageFormat(), vk::SampleCountFlagBits::e1, vk::AttachmentLoadOp::eClear, vk::AttachmentStoreOp::eStore, 
+    addAttachmentDescription(CSwapChain::inst()->getImageFormat(), vk::SampleCountFlagBits::e1, vk::AttachmentLoadOp::eClear, vk::AttachmentStoreOp::eStore, 
     vk::AttachmentLoadOp::eDontCare, vk::AttachmentStoreOp::eDontCare, vk::ImageLayout::eUndefined, vk::ImageLayout::ePresentSrcKHR).
     addAttachmentDescription(CImage::getDepthFormat(), vk::SampleCountFlagBits::e1, vk::AttachmentLoadOp::eClear, vk::AttachmentStoreOp::eDontCare, 
     vk::AttachmentLoadOp::eDontCare, vk::AttachmentStoreOp::eDontCare, vk::ImageLayout::eUndefined, vk::ImageLayout::eDepthStencilAttachmentOptimal). //Depth stencil
@@ -34,7 +34,7 @@ void CSandboxFinalStage::create()
     pRenderPass->pushSubpass(std::make_shared<CImguiPass>());
 
     pFramebuffer = std::make_unique<CFramebuffer>();
-    pFramebuffer->addImage("present_khr", CSwapChain::getInstance()->getImageFormat(), vk::ImageUsageFlagBits::eColorAttachment);
+    pFramebuffer->addImage("present_khr", CSwapChain::inst()->getImageFormat(), vk::ImageUsageFlagBits::eColorAttachment);
     pFramebuffer->addImage("depth_image", CImage::getDepthFormat(), vk::ImageUsageFlagBits::eDepthStencilAttachment);
 
     pRenderPass->setRenderArea(vk::Offset2D{0, 0}, screenExtent);

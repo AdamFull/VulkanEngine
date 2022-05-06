@@ -38,7 +38,7 @@ namespace utl
         static std::unique_ptr<_Ty> _instance;
 
     public:
-        static std::unique_ptr<_Ty> &getInstance()
+        static std::unique_ptr<_Ty> &inst()
         {
             if (!_instance)
                 _instance.reset(new _Ty());

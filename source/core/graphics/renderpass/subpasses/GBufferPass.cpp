@@ -11,17 +11,17 @@ using namespace Engine::Resources;
 
 void CGBufferPass::create()
 {
-    auto& renderPass = CRenderSystem::getInstance()->getCurrentStage()->getRenderPass()->get();
-    auto subpass = CRenderSystem::getInstance()->getCurrentStage()->getRenderPass()->getCurrentSubpass();
-    CSceneManager::getInstance()->getScene()->getRoot()->create(renderPass, subpass);
+    auto& renderPass = CRenderSystem::inst()->getCurrentStage()->getRenderPass()->get();
+    auto subpass = CRenderSystem::inst()->getCurrentStage()->getRenderPass()->getCurrentSubpass();
+    CSceneManager::inst()->getScene()->getRoot()->create(renderPass, subpass);
     CSubpass::create();
 }
 
 void CGBufferPass::render(vk::CommandBuffer& commandBuffer)
 {
-    auto imageIndex = CSwapChain::getInstance()->getCurrentFrame();
-    CVBO::getInstance()->bind(commandBuffer);
-    CSceneManager::getInstance()->getScene()->getRoot()->render(commandBuffer, imageIndex);
+    auto imageIndex = CSwapChain::inst()->getCurrentFrame();
+    CVBO::inst()->bind(commandBuffer);
+    CSceneManager::inst()->getScene()->getRoot()->render(commandBuffer, imageIndex);
 }
 
 void CGBufferPass::cleanup()

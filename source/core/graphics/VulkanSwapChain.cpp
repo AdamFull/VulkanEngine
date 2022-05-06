@@ -14,9 +14,9 @@ CSwapChain::~CSwapChain()
 
     for (size_t i = 0; i < m_iFramesInFlight; i++)
     {
-        CDevice::getInstance()->destroy(m_vRenderFinishedSemaphores[i]);
-        CDevice::getInstance()->destroy(m_vImageAvailableSemaphores[i]);
-        CDevice::getInstance()->destroy(m_vInFlightFences[i]);
+        CDevice::inst()->destroy(m_vRenderFinishedSemaphores[i]);
+        CDevice::inst()->destroy(m_vImageAvailableSemaphores[i]);
+        CDevice::inst()->destroy(m_vInFlightFences[i]);
     }
 }
 
@@ -29,9 +29,9 @@ void CSwapChain::create()
 
 vk::Result CSwapChain::acquireNextImage(uint32_t *imageIndex)
 {
-    auto res = CDevice::getInstance()->getLogical().waitForFences(1, &m_vInFlightFences[m_currentFrame], VK_TRUE, std::numeric_limits<uint64_t>::max());
+    auto res = CDevice::inst()->getLogical().waitForFences(1, &m_vInFlightFences[m_currentFrame], VK_TRUE, std::numeric_limits<uint64_t>::max());
 
-    auto result = CDevice::getInstance()->getLogical().acquireNextImageKHR(
+    auto result = CDevice::inst()->getLogical().acquireNextImageKHR(
         m_swapChain, std::numeric_limits<uint64_t>::max(),
         m_vImageAvailableSemaphores[m_currentFrame], nullptr, imageIndex);
 
@@ -56,7 +56,7 @@ vk::Result CSwapChain::submitCommandBuffers(const vk::CommandBuffer *commandBuff
     submitInfo.pSignalSemaphores = signalSemaphores;
 
     // TODO: Handle this result
-    auto result = CDevice::getInstance()->getLogical().resetFences(1, &m_vInFlightFences[m_currentFrame]);
+    auto result = CDevice::inst()->getLogical().resetFences(1, &m_vInFlightFences[m_currentFrame]);
 
     try
     {
@@ -64,17 +64,17 @@ vk::Result CSwapChain::submitCommandBuffers(const vk::CommandBuffer *commandBuff
         switch (queueBit)
         {
         case vk::QueueFlagBits::eGraphics: {
-            queue = CDevice::getInstance()->getGraphicsQueue();
+            queue = CDevice::inst()->getGraphicsQueue();
         } break;
         case vk::QueueFlagBits::eCompute: {
-            queue = CDevice::getInstance()->getComputeQueue();
+            queue = CDevice::inst()->getComputeQueue();
         } break;
         case vk::QueueFlagBits::eTransfer: {
-            queue = CDevice::getInstance()->getTransferQueue();
+            queue = CDevice::inst()->getTransferQueue();
         } break;
         }
         queue.submit(submitInfo, m_vInFlightFences[m_currentFrame]);
-        //CDevice::getInstance()->GetGraphicsQueue().submit(submitInfo, m_vInFlightFences[m_currentFrame]);
+        //CDevice::inst()->GetGraphicsQueue().submit(submitInfo, m_vInFlightFences[m_currentFrame]);
     }
     catch (vk::SystemError err)
     {
@@ -91,7 +91,7 @@ vk::Result CSwapChain::submitCommandBuffers(const vk::CommandBuffer *commandBuff
     presentInfo.pImageIndices = imageIndex;
 
     vk::Result resultPresent;
-    resultPresent = CDevice::getInstance()->getPresentQueue().presentKHR(presentInfo);
+    resultPresent = CDevice::inst()->getPresentQueue().presentKHR(presentInfo);
 
     m_currentFrame = (m_currentFrame + 1) % m_iFramesInFlight;
 
@@ -101,9 +101,9 @@ vk::Result CSwapChain::submitCommandBuffers(const vk::CommandBuffer *commandBuff
 void CSwapChain::cleanup()
 {
     for (auto imageView : m_vImageViews)
-        CDevice::getInstance()->destroy(imageView);
+        CDevice::inst()->destroy(imageView);
 
-    CDevice::getInstance()->destroy(m_swapChain);
+    CDevice::inst()->destroy(m_swapChain);
 }
 
 void CSwapChain::reCreate()
@@ -114,8 +114,8 @@ void CSwapChain::reCreate()
 
 void CSwapChain::createSwapChain()
 {
-    assert(CDevice::getInstance() && "Cannot create swap chain, cause logical device is not valid.");
-    SwapChainSupportDetails swapChainSupport = CDevice::getInstance()->querySwapChainSupport();
+    assert(CDevice::inst() && "Cannot create swap chain, cause logical device is not valid.");
+    SwapChainSupportDetails swapChainSupport = CDevice::inst()->querySwapChainSupport();
 
     vk::SurfaceFormatKHR surfaceFormat = VulkanStaticHelper::ChooseSwapSurfaceFormat(swapChainSupport.formats);
     vk::PresentModeKHR presentMode = VulkanStaticHelper::ChooseSwapPresentMode(swapChainSupport.presentModes);
@@ -130,7 +130,7 @@ void CSwapChain::createSwapChain()
 
     vk::SwapchainCreateInfoKHR createInfo(
         vk::SwapchainCreateFlagsKHR(),
-        CDevice::getInstance()->getSurface(),
+        CDevice::inst()->getSurface(),
         imageCount,
         surfaceFormat.format,
         surfaceFormat.colorSpace,
@@ -138,7 +138,7 @@ void CSwapChain::createSwapChain()
         1, // imageArrayLayers
         vk::ImageUsageFlagBits::eColorAttachment);
 
-    QueueFamilyIndices indices = CDevice::getInstance()->findQueueFamilies();
+    QueueFamilyIndices indices = CDevice::inst()->findQueueFamilies();
     uint32_t queueFamilyIndices[] = {indices.graphicsFamily.value(), indices.presentFamily.value()};
 
     if (indices.graphicsFamily != indices.presentFamily)
@@ -159,10 +159,10 @@ void CSwapChain::createSwapChain()
 
     createInfo.oldSwapchain = vk::SwapchainKHR(nullptr);
 
-    m_swapChain = CDevice::getInstance()->make<vk::SwapchainKHR, vk::SwapchainCreateInfoKHR>(createInfo);
+    m_swapChain = CDevice::inst()->make<vk::SwapchainKHR, vk::SwapchainCreateInfoKHR>(createInfo);
     assert(m_swapChain && "Swap chain was not created");
 
-    m_vImages = CDevice::getInstance()->make<std::vector<vk::Image>, vk::SwapchainKHR>(m_swapChain);
+    m_vImages = CDevice::inst()->make<std::vector<vk::Image>, vk::SwapchainKHR>(m_swapChain);
     assert(!m_vImages.empty() && "Swap chain images was not created");
 
     m_imageFormat = surfaceFormat.format;
@@ -197,9 +197,9 @@ void CSwapChain::createSyncObjects()
     {
         for (size_t i = 0; i < m_iFramesInFlight; i++)
         {
-            m_vImageAvailableSemaphores[i] = CDevice::getInstance()->make<vk::Semaphore, vk::SemaphoreCreateInfo>(vk::SemaphoreCreateInfo{});
-            m_vRenderFinishedSemaphores[i] = CDevice::getInstance()->make<vk::Semaphore, vk::SemaphoreCreateInfo>(vk::SemaphoreCreateInfo{});
-            m_vInFlightFences[i] = CDevice::getInstance()->make<vk::Fence, vk::FenceCreateInfo>(vk::FenceCreateInfo{vk::FenceCreateFlagBits::eSignaled});
+            m_vImageAvailableSemaphores[i] = CDevice::inst()->make<vk::Semaphore, vk::SemaphoreCreateInfo>(vk::SemaphoreCreateInfo{});
+            m_vRenderFinishedSemaphores[i] = CDevice::inst()->make<vk::Semaphore, vk::SemaphoreCreateInfo>(vk::SemaphoreCreateInfo{});
+            m_vInFlightFences[i] = CDevice::inst()->make<vk::Fence, vk::FenceCreateInfo>(vk::FenceCreateInfo{vk::FenceCreateFlagBits::eSignaled});
         }
     }
     catch (vk::SystemError err)

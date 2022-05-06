@@ -1,4 +1,5 @@
 #pragma once
+#include "util/function.hpp"
 
 namespace Engine
 {

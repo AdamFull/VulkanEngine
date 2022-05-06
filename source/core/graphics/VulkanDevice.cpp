@@ -1,3 +1,4 @@
+#include "util/ulog.hpp"
 #include "VulkanHighLevel.h"
 #include "VulkanStaticHelper.h"
 

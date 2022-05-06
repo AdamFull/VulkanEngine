@@ -1,4 +1,6 @@
 #pragma once
+#include <glm/glm.hpp>
+#include "Serialization.hpp"
 
 namespace glm
 {
@@ -547,27 +549,4 @@ namespace glm
     //glm::dmat2
     void to_json(nlohmann::json &json, const dmat2 &type);
     void from_json(const nlohmann::json &json, dmat2 &type);
-
-    
-    /*--------------------GLM quat--------------------*/
-    //glm::lowp_quat
-    void to_json(nlohmann::json &json, const lowp_quat &type);
-    void from_json(const nlohmann::json &json, lowp_quat &type);
-    //glm::mediump_quat
-    void to_json(nlohmann::json &json, const mediump_quat &type);
-    void from_json(const nlohmann::json &json, mediump_quat &type);
-    //glm::quat
-    void to_json(nlohmann::json &json, const quat &type);
-    void from_json(const nlohmann::json &json, quat &type);
-
-
-    //glm::lowp_dquat
-    void to_json(nlohmann::json &json, const lowp_dquat &type);
-    void from_json(const nlohmann::json &json, lowp_dquat &type);
-    //glm::mediump_dquat
-    void to_json(nlohmann::json &json, const mediump_dquat &type);
-    void from_json(const nlohmann::json &json, mediump_dquat &type);
-    //glm::dquat
-    void to_json(nlohmann::json &json, const dquat &type);
-    void from_json(const nlohmann::json &json, dquat &type);
 }

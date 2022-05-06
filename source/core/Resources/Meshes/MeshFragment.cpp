@@ -1,4 +1,5 @@
 #include "MeshFragment.h"
+#include "util/uuid.hpp"
 #include "resources/materials/VulkanMaterial.h"
 #include "graphics/VulkanDevice.hpp"
 #include "graphics/VulkanHighLevel.h"

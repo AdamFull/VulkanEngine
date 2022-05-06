@@ -3,6 +3,8 @@
 #define TINYGLTF_NO_STB_IMAGE_WRITE
 
 #include "GLTFLoader.h"
+#include <util/ulog.hpp>
+#include <glm/gtc/type_ptr.hpp>
 #include "resources/ResourceManager.h"
 #include "resources/meshes/MeshFragment.h"
 #include "resources/materials/MaterialLoader.h"

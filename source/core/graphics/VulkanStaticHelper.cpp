@@ -1,4 +1,5 @@
 #include "VulkanStaticHelper.h"
+#include "util/ulog.hpp"
 #include "external/ktx/lib/vk_format.h"
 
 using namespace Engine::Core;

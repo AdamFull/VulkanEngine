@@ -1,6 +1,7 @@
 #include "CameraEditorController.h"
 #include "keymapper/InputMapper.h"
 #include "graphics/scene/objects/components/camera/CameraManager.h"
+#include "util/Transform.hpp"
 
 using namespace Engine::Controllers;
 using namespace Engine::Core::Scene;

@@ -1,5 +1,6 @@
 #include "core/Application.h"
 #include "Resources/ResourceManager.h"
+#include "util/ulog.hpp"
 
 int main()
 {

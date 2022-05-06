@@ -39,8 +39,8 @@ namespace Engine
                     inline Builder& setDynamicStates(const std::vector<vk::DynamicState>& states) { m_vDynamicStateEnables = states; return *this; }
                     inline Builder& addShaderStage(const std::string& stage) { m_vStages.emplace_back(stage); return *this; }
                     inline Builder& setShaderStages(const std::vector<std::string>& stages) { m_vStages = stages; return *this; }
-                    inline Builder& addDefine(const std::string& name, const std::string& value) { m_vDefines.emplace_back(std::make_pair(name, value)); return *this; }
-                    inline Builder& setDefines(const std::vector<CShader::Define>& defines) { m_vDefines = defines; return *this; }
+                    inline Builder& addDefine(const std::string& name, const std::string& value) { m_vDefines.emplace(std::make_pair(name, value)); return *this; }
+                    inline Builder& setDefines(const std::map<std::string, std::string>& defines) { m_vDefines = defines; return *this; }
                     std::unique_ptr<CPipelineBase> build(vk::PipelineBindPoint bindPoint);
                 private:
                     CVertexInput m_vertexInput;
@@ -50,7 +50,7 @@ namespace Engine
                     vk::Bool32 m_enableDepth{VK_FALSE};
                     std::vector<vk::DynamicState> m_vDynamicStateEnables{vk::DynamicState::eViewport, vk::DynamicState::eScissor};
                     std::vector<std::string> m_vStages;
-                    std::vector<CShader::Define> m_vDefines;
+                    std::map<std::string, std::string> m_vDefines;
                 };
                 CPipelineBase() = default;
                 virtual ~CPipelineBase();
@@ -83,7 +83,7 @@ namespace Engine
                 virtual void recreateShaders();
 
                 std::vector<std::string> m_vShaderCache;
-                std::vector<CShader::Define> m_vDefines;
+                std::map<std::string, std::string> m_vDefines;
                 std::unique_ptr<CShader> m_pShader;
 
                 CVertexInput m_vertexInput;

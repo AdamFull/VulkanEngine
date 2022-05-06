@@ -1,4 +1,5 @@
 #pragma once
+#include "util/threading.hpp"
 #include "Window/WindowHandle.h"
 #include "VulkanDevice.hpp"
 #include "VulkanSwapChain.h"

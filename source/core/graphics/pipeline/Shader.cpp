@@ -1,4 +1,5 @@
 #include "Shader.h"
+#include "util/ulog.hpp"
 #include "graphics/VulkanHighLevel.h"
 #include "ShaderCache.h"
 #include "filesystem/FilesystemHelper.h"

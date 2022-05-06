@@ -27,7 +27,7 @@ namespace Engine
                     vk::Bool32 enableDepth{VK_FALSE};
                     std::vector<vk::DynamicState> dynamicStateEnables{vk::DynamicState::eViewport, vk::DynamicState::eScissor};
                     std::vector<std::string> stages;
-                    std::vector<Core::Pipeline::CShader::Define> defines;
+                    std::map<std::string, std::string> defines;
                 };
                 std::unordered_map<std::string, FCreationInfo> creationInfo;
             };

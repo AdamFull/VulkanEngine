@@ -1,6 +1,8 @@
 #include "CameraComponent.h"
+#include "util/Frustum.hpp"
 #include "graphics/VulkanHighLevel.h"
 
+using namespace Engine::Util;
 using namespace Engine::Core::Scene;
 
 void CCameraComponent::setOrthographicProjection(float fLeft, float fRight, float fTop, float fBottom, float fNear, float fFar)
@@ -75,4 +77,5 @@ void CCameraComponent::update(float fDeltaTime)
     auto aspect = CSwapChain::getInstance()->getAspectRatio();
     setPerspectiveProjection(45.f, aspect, 0.01f, 1024.f);
     setViewYXZ(m_transform.pos, m_transform.rot);
+    CFrustum::getInstance()->update(viewMatrix, projectionMatrix);
 }

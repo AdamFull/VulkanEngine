@@ -13,7 +13,7 @@
                 "shaders/main/diffuse.vert", 
                 "shaders/main/diffuse.frag"
             ],
-            "defines": []
+            "defines": {}
         },
         "pbr_composition": 
         {
@@ -26,7 +26,7 @@
                 "shaders/main/screenspace.vert", 
                 "shaders/main/deferred.frag"
             ],
-            "defines": []
+            "defines": {}
         },
         "gaussian_blur": 
         {
@@ -39,7 +39,10 @@
                 "shaders/main/screenspace.vert", 
                 "shaders/postprocess/gaussianblur.frag"
             ],
-            "defines": []
+            "defines": 
+            {
+                "BLUR_TYPE": "5"
+            } 
         },
         "skybox": 
         {
@@ -53,7 +56,7 @@
                 "shaders/main/skybox.vert", 
                 "shaders/main/skybox.frag"
             ],
-            "defines": []
+            "defines": {}
         },
         "post_process": 
         {
@@ -66,7 +69,7 @@
                 "shaders/main/screenspace.vert", 
                 "shaders/postprocess/bloomcompose.frag"
             ],
-            "defines": []
+            "defines": {}
         },
         "imguiui": 
         {
@@ -80,7 +83,7 @@
                 "shaders/main/ui.vert", 
                 "shaders/main/ui.frag"
             ],
-            "defines": []
+            "defines": {}
         },
         "through_pass":
         {
@@ -93,7 +96,7 @@
                 "shaders/main/screenspace.vert", 
                 "shaders/postprocess/throughpass.frag"
             ],
-            "defines": []
+            "defines": {}
         }
     }
 }

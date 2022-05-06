@@ -1,4 +1,5 @@
 #include "MeshComponentBase.h"
+#include "util/Frustum.hpp"
 #include "graphics/VulkanDevice.hpp"
 #include "graphics/VulkanRenderSystem.h"
 #include "graphics/VulkanHighLevel.h"
@@ -10,6 +11,7 @@
 using namespace Engine::Core::Scene;
 using namespace Engine::Resources;
 using namespace Engine::Core;
+using namespace Engine::Util;
 
 void CMeshComponentBase::create(vk::RenderPass& renderPass, uint32_t subpass)
 {
@@ -55,10 +57,17 @@ void CMeshComponentBase::render(vk::CommandBuffer &commandBuffer, uint32_t image
         ubo.view = camera->getView();
         ubo.projection = camera->getProjection();
 
+        //Check frustum for instances
+        uint32_t instanceCount{0};
         for(uint32_t i = 0; i < m_vInstances.size(); i++)
-            ubo.instancePos[i] = m_vInstances.at(i);
-        
-        auto instanceCount = m_vInstances.size();
+        {
+            auto& pos = m_vInstances.at(i);
+            if(true/*CFrustum::getInstance()->checkSphere(glm::vec4(getPosition(), 1.f) + pos, 1.f)*/)
+            {
+                ubo.instancePos[i] = pos;
+                instanceCount++;
+            }  
+        }
         m_pMesh->render(commandBuffer, imageIndex, ubo, instanceCount == 0 ? 1 : instanceCount);
     }
 }
@@ -76,4 +85,10 @@ void CMeshComponentBase::cleanup()
 void CMeshComponentBase::destroy()
 {
     CComponentBase::destroy();
+}
+
+void CMeshComponentBase::setInstances(const std::vector<glm::vec4> &vInstances)
+{ 
+    m_vInstances = vInstances;
+    bHasInstances = !m_vInstances.empty(); 
 }

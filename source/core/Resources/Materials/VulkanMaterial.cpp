@@ -1,4 +1,5 @@
 #include "VulkanMaterial.h"
+#include "util/uuid.hpp"
 #include "graphics/VulkanHighLevel.h"
 #include "resources/ResourceManager.h"
 

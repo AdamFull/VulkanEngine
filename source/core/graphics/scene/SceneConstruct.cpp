@@ -20,6 +20,34 @@ namespace Engine
                 }
             )
 
+            NLOHMANN_JSON_SERIALIZE_ENUM
+            (
+                ECullingType,
+                {
+                    {ECullingType::eByPoint, "point"},
+                    {ECullingType::eBySphere, "sphere"},
+                    {ECullingType::eByBox, "box"}
+                }
+            )
+
+            void to_json(nlohmann::json &json, const FCullingInfo &type)
+            {
+                json = nlohmann::json
+                {
+                    {"type", type.eType},
+                    {"enable", type.bEnableCulling},
+                    {"radius", type.fSphereRadius}
+                };
+            }
+
+            void from_json(const nlohmann::json &json, FCullingInfo &type)
+            {
+                // Optional
+                ParseArgument(json, type.eType, "type");
+                ParseArgument(json, type.bEnableCulling, "enable");
+                ParseArgument(json, type.fSphereRadius, "radius");
+            }
+
 
             void to_json(nlohmann::json &json, const FSceneObject &type)
             {
@@ -30,7 +58,8 @@ namespace Engine
                     {"mesh", type.mesh},
                     {"transform", type.fTransform},
                     {"instances", type.vInstances},
-                    {"childs", {type.vSceneObjects}}
+                    {"childs", {type.vSceneObjects}},
+                    {"culling", type.culling}
                 };
             }
 
@@ -48,6 +77,7 @@ namespace Engine
                 ParseArgument(json, type.fTransform, "transform");
                 ParseArgument(json, type.vInstances, "instances");
                 ParseArgument(json, type.vSceneObjects, "childs");
+                ParseArgument(json, type.culling, "culling");
             }
 
             void to_json(nlohmann::json &json, const FSceneCreateInfo &type)

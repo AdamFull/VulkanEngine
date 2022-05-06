@@ -1,6 +1,8 @@
 #include "RenderObject.h"
+#include "util/Frustum.hpp"
 #include "graphics/VulkanDevice.hpp"
 
+using namespace Engine::Util;
 using namespace Engine::Core::Scene;
 using namespace Engine::Resources;
 
@@ -29,7 +31,10 @@ void CRenderObject::render(vk::CommandBuffer &commandBuffer, uint32_t imageIndex
 {
     for (auto &[name, child] : m_mChilds)
     {
-        if (child->bVisible)
+        bool needToRender = child->bVisible;
+        if(child->isCullable())
+            needToRender = needToRender && checkFrustum(child);
+        if (needToRender)
             child->render(commandBuffer, imageIndex);
     }
 }
@@ -162,4 +167,25 @@ void CRenderObject::setRotation(glm::vec3 rotation)
 void CRenderObject::setScale(glm::vec3 scale)
 {
     m_transform.scale = scale;
+}
+
+bool CRenderObject::checkFrustum(const std::shared_ptr<CRenderObject>& object)
+{
+    switch (object->getCullingType())
+    {
+        case ECullingType::eByPoint: 
+        { 
+            return CFrustum::getInstance()->checkPoint(object->getPosition()); 
+        } break;
+        case ECullingType::eBySphere: 
+        { 
+            return CFrustum::getInstance()->checkSphere(object->getPosition(), object->getCullingRadius()); 
+        } break;
+        case ECullingType::eByBox: 
+        {
+            auto& bounds = object->getBounds();
+            return CFrustum::getInstance()->checkBox(object->getPosition() + bounds.first, object->getPosition() + bounds.second); 
+        } break;
+    }
+    return false;
 }

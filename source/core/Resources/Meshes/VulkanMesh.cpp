@@ -1,4 +1,5 @@
 #include "VulkanMesh.h"
+#include "util/uuid.hpp"
 
 using namespace Engine::Core;
 using namespace Engine::Resources::Mesh;

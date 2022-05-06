@@ -103,6 +103,9 @@ std::shared_ptr<Core::Scene::CRenderObject> CSceneFactory::createSkybox(FSceneOb
     mesh->setTransform(info.fTransform);
     mesh->setName(info.srName);
     mesh->setMesh(loader->getMesh());
+    mesh->setCullable(info.culling.bEnableCulling);
+    mesh->setCullingRadius(info.culling.fSphereRadius);
+    mesh->setCyllingType(info.culling.eType);
 
     return mesh;
 }
@@ -128,6 +131,9 @@ std::shared_ptr<Core::Scene::CRenderObject> CSceneFactory::createGLTFMesh(FScene
     auto& loaded = loader->getMesh();
     loaded->textureRepeat(info.mesh.fRepeat);
     mesh->setMesh(loaded);
+    mesh->setCullable(info.culling.bEnableCulling);
+    mesh->setCullingRadius(info.culling.fSphereRadius);
+    mesh->setCyllingType(info.culling.eType);
 
     return mesh;
 }

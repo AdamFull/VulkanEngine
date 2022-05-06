@@ -1,4 +1,5 @@
 #pragma once
+#include <external/tinygltf/json.hpp>
 
 template<class T>
 void ParseArgument(const nlohmann::json &json, T &type, const std::string& tag, bool required = false)

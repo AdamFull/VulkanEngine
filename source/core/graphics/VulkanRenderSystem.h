@@ -20,6 +20,8 @@ namespace Engine
             std::unique_ptr<Render::CRenderStage>& getCurrentStage() { return vStages.at(currentStageIndex); }
             std::unique_ptr<Render::CRenderStage>& getPrevStage() { return vStages.at(currentStageIndex - 1); }
 
+            const size_t getTotalFramesCounted() const { return totalFrameNumberCounter; }
+
             vk::CommandBuffer& getCurrentCommandBuffer();
         private:
             vk::CommandBuffer& beginFrame();
@@ -30,6 +32,8 @@ namespace Engine
             bool frameStarted{false};
             vk::Extent2D screenExtent{};
             uint32_t currentStageIndex{0};
+
+            size_t totalFrameNumberCounter{0};
 
             std::vector<std::unique_ptr<Render::CRenderStage>> vStages;
         };

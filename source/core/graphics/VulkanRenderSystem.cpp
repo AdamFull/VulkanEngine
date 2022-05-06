@@ -71,6 +71,11 @@ void CRenderSystem::render()
         Window::CWindowHandle::m_bWasResized = false;
         UHLInstance->recreateSwapChain();
     }
+
+    if(totalFrameNumberCounter != std::numeric_limits<size_t>::max())
+        totalFrameNumberCounter++;
+    else
+        totalFrameNumberCounter = 1;
 }
 
 void CRenderSystem::cleanup()

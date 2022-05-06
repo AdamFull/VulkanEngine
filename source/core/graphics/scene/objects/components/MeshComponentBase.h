@@ -26,7 +26,7 @@ namespace Engine
 
                 virtual void setMesh(std::shared_ptr<Resources::Mesh::CMeshBase> mesh) { m_pMesh = mesh; }
                 virtual void setIndex(uint32_t index) { m_iIndex = index; }
-                void setInstances(const std::vector<glm::vec4> &vInstances) { m_vInstances = vInstances; }
+                void setInstances(const std::vector<glm::vec4> &vInstances);
 
             protected:
                 std::vector<glm::vec4> m_vInstances;

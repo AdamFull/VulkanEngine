@@ -17,7 +17,6 @@
 #include <util/helpers.hpp>
 
 #define UHLInstance Engine::Core::CVulkanHighLevel::getInstance()
-#define UThreadPool UHLInstance->getThreadPool()
 
 namespace Engine
 {
@@ -38,7 +37,6 @@ namespace Engine
 
             // TODO: Dont forget about clean textures
             void cleanup();
-            inline std::unique_ptr<utl::threadpool>& getThreadPool() { return m_pThreadPool; }
 
             inline vk::PipelineCache& getPipelineCache() { return m_pipelineCache; }
             void recreateSwapChain();
@@ -47,7 +45,6 @@ namespace Engine
             void createPipelineCache();
             void cleanupSwapChain();
 
-            std::unique_ptr<utl::threadpool> m_pThreadPool;
             vk::PipelineCache m_pipelineCache;
         };
 

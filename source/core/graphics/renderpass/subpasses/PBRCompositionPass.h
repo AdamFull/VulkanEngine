@@ -23,9 +23,9 @@ namespace Engine
             private:
                 std::shared_ptr<CImage> m_pSkybox;
 
-                utl::future<std::shared_ptr<CImage>> brdf;
-                utl::future<std::shared_ptr<CImage>> irradiance;
-                utl::future<std::shared_ptr<CImage>> prefiltered;
+                CFuture<std::shared_ptr<CImage>> brdf;
+                CFuture<std::shared_ptr<CImage>> irradiance;
+                CFuture<std::shared_ptr<CImage>> prefiltered;
             };
         }
     }

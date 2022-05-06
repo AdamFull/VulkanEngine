@@ -17,7 +17,6 @@ CVulkanHighLevel::~CVulkanHighLevel()
 
 void CVulkanHighLevel::create(FEngineCreateInfo createInfo)
 {
-    m_pThreadPool = std::make_unique<utl::threadpool>();
     CWindowHandle::getInstance()->create(createInfo.window);
     CDevice::getInstance()->create(createInfo.device);
     createPipelineCache();

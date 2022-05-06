@@ -32,17 +32,15 @@ void CPBRCompositionPass::create()
 
     m_pSkybox =CResourceManager::getInstance()->Get<CImage>("skybox_cubemap_tex");
 
-    brdf = UHLInstance->getThreadPool()->submit(&CPBRCompositionPass::ComputeBRDFLUT, 512);
-    irradiance = UHLInstance->getThreadPool()->submit(&CPBRCompositionPass::ComputeIrradiance, m_pSkybox, 64);
-    prefiltered = UHLInstance->getThreadPool()->submit(&CPBRCompositionPass::ComputePrefiltered, m_pSkybox, 512);
+    brdf = CThreadPool::getInstance()->submit(&CPBRCompositionPass::ComputeBRDFLUT, 512);
+    irradiance = CThreadPool::getInstance()->submit(&CPBRCompositionPass::ComputeIrradiance, m_pSkybox, 64);
+    prefiltered = CThreadPool::getInstance()->submit(&CPBRCompositionPass::ComputePrefiltered, m_pSkybox, 512);
 
     auto& renderPass = CRenderSystem::getInstance()->getCurrentStage()->getRenderPass()->get();
     auto subpass = CRenderSystem::getInstance()->getCurrentStage()->getRenderPass()->getCurrentSubpass();
 
     pMaterial = CMaterialLoader::getInstance()->create("pbr_composition");
     pMaterial->create(renderPass, subpass);
-
-    
     CSubpass::create();
 }
 

@@ -12,7 +12,6 @@ namespace Engine
             public:
                 ~CDeferredStage();
                 void create() override;
-                void reCreate() override;
             private:
             };
         }

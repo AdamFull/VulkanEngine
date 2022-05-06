@@ -18,34 +18,36 @@ layout(std140, binding = 2) uniform FBloomUbo
 
 #include "../shared_shaders.glsl"
 
-/*const float weights[] = float[](
-0.0024499299678342, 0.0043538453346397, 0.0073599963704157, 0.0118349786570722, 0.0181026699707781,
-0.0263392293891488, 0.0364543006660986, 0.0479932050577658, 0.0601029809166942, 0.0715974486241365,
-0.0811305381519717, 0.0874493212267511, 0.0896631113333857, 0.0874493212267511, 0.0811305381519717,
-0.0715974486241365, 0.0601029809166942, 0.0479932050577658, 0.0364543006660986, 0.0263392293891488,
-0.0181026699707781, 0.0118349786570722, 0.0073599963704157, 0.0043538453346397, 0.0024499299678342);*/
-const float weights[] = float[](0.227027, 0.1945946, 0.1216216, 0.054054, 0.016216);
-
 void main() 
 {
-    vec2 tex_offset = 1.0 / textureSize(samplerBrightness, 0) * ubo.blurScale; // gets size of single texel
-	vec3 result = texture(samplerBrightness, inUV).rgb * weights[0]; // current fragment's contribution
+    vec2 sizeColour = textureSize(samplerBrightness, 0);
+	vec4 colour = vec4(0.0f);
 
-	for(int i = 1; i < weights.length(); ++i)
-	{
-		if (ubo.direction == 1)
-		{
-			// H
-			result += texture(samplerBrightness, inUV + vec2(tex_offset.x * i, 0.0)).rgb * weights[i] * ubo.blurStrength;
-			result += texture(samplerBrightness, inUV - vec2(tex_offset.x * i, 0.0)).rgb * weights[i] * ubo.blurStrength;
-		}
-		else
-		{
-			// V
-			result += texture(samplerBrightness, inUV + vec2(0.0, tex_offset.y * i)).rgb * weights[i] * ubo.blurStrength;
-			result += texture(samplerBrightness, inUV - vec2(0.0, tex_offset.y * i)).rgb * weights[i] * ubo.blurStrength;
-		}
-	}
+#if BLUR_TYPE == 5
+	vec2 off1 = 1.3333333333333333f * scene.direction;
+	colour += texture(samplerBrightness, inUV) * 0.29411764705882354;
+	colour += texture(samplerBrightness, inUV + (off1 / sizeColour)) * 0.35294117647058826f;
+	colour += texture(samplerBrightness, inUV - (off1 / sizeColour)) * 0.35294117647058826f;
+#elif BLUR_TYPE == 9
+	vec2 off1 = 1.3846153846f * scene.direction;
+	vec2 off2 = 3.2307692308f * scene.direction;
+	colour += texture(samplerBrightness, inUV) * 0.2270270270f;
+	colour += texture(samplerBrightness, inUV + (off1 / sizeColour)) * 0.3162162162f;
+	colour += texture(samplerBrightness, inUV - (off1 / sizeColour)) * 0.3162162162f;
+	colour += texture(samplerBrightness, inUV + (off2 / sizeColour)) * 0.0702702703f;
+	colour += texture(samplerBrightness, inUV - (off2 / sizeColour)) * 0.0702702703f;
+#elif BLUR_TYPE == 13
+	vec2 off1 = 1.411764705882353f * scene.direction;
+	vec2 off2 = 3.2941176470588234f * scene.direction;
+	vec2 off3 = 5.176470588235294f * scene.direction;
+	colour += texture(samplerBrightness, inUV) * 0.1964825501511404f;
+	colour += texture(samplerBrightness, inUV + (off1 / sizeColour)) * 0.2969069646728344f;
+	colour += texture(samplerBrightness, inUV - (off1 / sizeColour)) * 0.2969069646728344f;
+	colour += texture(samplerBrightness, inUV + (off2 / sizeColour)) * 0.09447039785044732f;
+	colour += texture(samplerBrightness, inUV - (off2 / sizeColour)) * 0.09447039785044732f;
+	colour += texture(samplerBrightness, inUV + (off3 / sizeColour)) * 0.010381362401148057f;
+	colour += texture(samplerBrightness, inUV - (off3 / sizeColour)) * 0.010381362401148057f;
+#endif
 
-	imageStore(writeColour, ivec2(inUV * imageSize(writeColour)), vec4(result, 1.0));
+	imageStore(writeColour, ivec2(inUV * imageSize(writeColour)), colour);
 }

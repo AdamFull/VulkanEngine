@@ -20,14 +20,11 @@ void CPostProcessStage::create()
     {
         {0, vk::ImageLayout::eColorAttachmentOptimal}
     };
-    vk::AttachmentReference depthReference{1, vk::ImageLayout::eDepthStencilAttachmentOptimal};
 
     pRenderPass = Render::CRenderPass::Builder().
     addAttachmentDescription(vk::Format::eR8G8B8A8Unorm, vk::SampleCountFlagBits::e1, vk::AttachmentLoadOp::eClear, vk::AttachmentStoreOp::eStore, 
     vk::AttachmentLoadOp::eDontCare, vk::AttachmentStoreOp::eDontCare, vk::ImageLayout::eUndefined, vk::ImageLayout::eShaderReadOnlyOptimal).
-    addAttachmentDescription(CImage::getDepthFormat(), vk::SampleCountFlagBits::e1, vk::AttachmentLoadOp::eClear, vk::AttachmentStoreOp::eDontCare, 
-    vk::AttachmentLoadOp::eDontCare, vk::AttachmentStoreOp::eDontCare, vk::ImageLayout::eUndefined, vk::ImageLayout::eDepthStencilAttachmentOptimal). //Depth stencil
-    addSubpassDescription(vk::PipelineBindPoint::eGraphics, vReferences_0, &depthReference).    //First blur pass
+    addSubpassDescription(vk::PipelineBindPoint::eGraphics, vReferences_0).    //First blur pass
     addSubpassDependency(VK_SUBPASS_EXTERNAL, 0, vk::PipelineStageFlagBits::eBottomOfPipe, vk::PipelineStageFlagBits::eColorAttachmentOutput,
     vk::AccessFlagBits::eMemoryRead, vk::AccessFlagBits::eColorAttachmentRead | vk::AccessFlagBits::eColorAttachmentWrite).
     addSubpassDependency(0, VK_SUBPASS_EXTERNAL, vk::PipelineStageFlagBits::eColorAttachmentOutput, vk::PipelineStageFlagBits::eBottomOfPipe,
@@ -38,17 +35,8 @@ void CPostProcessStage::create()
 
     pFramebuffer = std::make_unique<CFramebuffer>();
     pFramebuffer->addImage("output_color", vk::Format::eR8G8B8A8Unorm, vk::ImageUsageFlagBits::eColorAttachment | vk::ImageUsageFlagBits::eSampled);
-    pFramebuffer->addImage("depth_image", CImage::getDepthFormat(), vk::ImageUsageFlagBits::eDepthStencilAttachment);
 
     pRenderPass->setRenderArea(vk::Offset2D{0, 0}, screenExtent);
     pFramebuffer->create(pRenderPass->get(), screenExtent);
     pRenderPass->create();
-}
-
-void CPostProcessStage::reCreate()
-{
-    screenExtent = CSwapChain::getInstance()->getExtent();
-    pRenderPass->setRenderArea(vk::Offset2D{0, 0}, screenExtent);
-    pRenderPass->reCreate();
-    pFramebuffer->reCreate(pRenderPass->get());
 }

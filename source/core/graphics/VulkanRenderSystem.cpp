@@ -23,8 +23,8 @@ void CRenderSystem::create()
 
     vStages.emplace_back(std::make_unique<Render::CDeferredStage>());
     vStages.emplace_back(std::make_unique<Render::CPostProcessStage>());
-    vStages.emplace_back(std::make_unique<Render::CSandboxFinalStage>());
-    //vStages.emplace_back(std::make_unique<Render::CPresentFinalStage>());
+    //vStages.emplace_back(std::make_unique<Render::CSandboxFinalStage>());
+    vStages.emplace_back(std::make_unique<Render::CPresentFinalStage>());
 
     currentStageIndex = 0;
     for(auto& stage : vStages)
@@ -38,14 +38,21 @@ void CRenderSystem::reCreate()
 {
     screenExtent = CSwapChain::getInstance()->getExtent();
     commandBuffers = std::make_shared<CCommandBuffer>(false, vk::QueueFlagBits::eGraphics, vk::CommandBufferLevel::ePrimary, CSwapChain::getInstance()->getFramesInFlight());
+    currentStageIndex = 0;
+    for(auto& stage : vStages)
+    {
+        stage->reCreate();
+        currentStageIndex++;
+    }
+    Window::CWindowHandle::m_bWasResized = false;
 }
 
 void CRenderSystem::render()
 {
     vk::CommandBuffer commandBuffer{};
     try { commandBuffer = beginFrame(); }
-    catch (vk::OutOfDateKHRError err) { UHLInstance->recreateSwapChain(); }
-    catch (vk::SystemError err) { throw std::runtime_error("Failed to acquire swap chain image!"); }
+        catch (vk::OutOfDateKHRError err) { UHLInstance->recreateSwapChain(); }
+        catch (vk::SystemError err) { throw std::runtime_error("Failed to acquire swap chain image!"); }
 
     currentStageIndex = 0;
     for(auto& stage : vStages)

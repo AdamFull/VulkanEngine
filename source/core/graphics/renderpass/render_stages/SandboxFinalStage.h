@@ -12,7 +12,6 @@ namespace Engine
             public:
                 ~CSandboxFinalStage();
                 void create() override;
-                void reCreate() override;
             private:
             };
         }

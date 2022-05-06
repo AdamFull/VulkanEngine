@@ -14,7 +14,7 @@ namespace Engine
                 CRenderStage() = default;
                 virtual ~CRenderStage() {}
                 virtual void create() {}
-                virtual void reCreate() {}
+                virtual void reCreate();
                 virtual void render(vk::CommandBuffer& commandBuffer);
                 virtual void cleanup();
 

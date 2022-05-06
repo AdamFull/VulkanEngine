@@ -12,7 +12,7 @@ CSandboxFinalStage::~CSandboxFinalStage()
 void CSandboxFinalStage::create()
 {
     screenExtent = CSwapChain::getInstance()->getExtent();
-    
+
     std::vector<vk::AttachmentReference> vReferences_0
     {
         {0, vk::ImageLayout::eColorAttachmentOptimal}
@@ -40,12 +40,4 @@ void CSandboxFinalStage::create()
     pRenderPass->setRenderArea(vk::Offset2D{0, 0}, screenExtent);
     pFramebuffer->create(pRenderPass->get(), screenExtent);
     pRenderPass->create();
-}
-
-void CSandboxFinalStage::reCreate()
-{
-    screenExtent = CSwapChain::getInstance()->getExtent();
-    pRenderPass->setRenderArea(vk::Offset2D{0, 0}, screenExtent);
-    pRenderPass->reCreate();
-    pFramebuffer->reCreate(pRenderPass->get());
 }

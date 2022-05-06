@@ -13,3 +13,11 @@ void CRenderStage::cleanup()
     pRenderPass->cleanup();
     pFramebuffer->cleanup();
 }
+
+void CRenderStage::reCreate()
+{
+    screenExtent = CSwapChain::getInstance()->getExtent();
+    pRenderPass->setRenderArea(vk::Offset2D{0, 0}, screenExtent);
+    pRenderPass->reCreate();
+    pFramebuffer->reCreate(pRenderPass->get());
+}

@@ -12,7 +12,6 @@ namespace Engine
             public:
                 ~CPresentFinalStage();
                 void create() override;
-                void reCreate() override;
             private:
             };
         }

@@ -12,7 +12,6 @@ namespace Engine
             public:
                 ~CPostProcessStage();
                 void create() override;
-                void reCreate() override;
             private:
             };
         }

@@ -47,7 +47,8 @@ void CFramebuffer::create(vk::RenderPass& renderPass, vk::Extent2D extent)
             }
         }
 
-        imageViews.push_back(pDepth->getDescriptor().imageView);
+        if(pDepth)
+            imageViews.push_back(pDepth->getDescriptor().imageView);
 
         vk::FramebufferCreateInfo framebufferCI = {};
         framebufferCI.pNext = nullptr;

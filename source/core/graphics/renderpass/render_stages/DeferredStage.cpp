@@ -59,7 +59,7 @@ void CDeferredStage::create()
     //GBuffer description
     addSubpassDescription(vk::PipelineBindPoint::eGraphics, vReferences_0, &depthReference).
     //PBR composition description
-    addSubpassDescription(vk::PipelineBindPoint::eGraphics, vReferences_1, &depthReference, vInputReferences_1).
+    addSubpassDescription(vk::PipelineBindPoint::eGraphics, vReferences_1, nullptr, vInputReferences_1).
     //Begin drawing gbuffer
     addSubpassDependency(VK_SUBPASS_EXTERNAL, 0, vk::PipelineStageFlagBits::eBottomOfPipe, vk::PipelineStageFlagBits::eColorAttachmentOutput,
     vk::AccessFlagBits::eMemoryRead, vk::AccessFlagBits::eColorAttachmentRead | vk::AccessFlagBits::eColorAttachmentWrite).
@@ -87,12 +87,4 @@ void CDeferredStage::create()
     pRenderPass->setRenderArea(vk::Offset2D{0, 0}, screenExtent);
     pFramebuffer->create(pRenderPass->get(), screenExtent);
     pRenderPass->create();
-}
-
-void CDeferredStage::reCreate()
-{
-    screenExtent = CSwapChain::getInstance()->getExtent();
-    pRenderPass->setRenderArea(vk::Offset2D{0, 0}, screenExtent);
-    pRenderPass->reCreate();
-    pFramebuffer->reCreate(pRenderPass->get());
 }

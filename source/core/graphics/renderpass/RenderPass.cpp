@@ -114,6 +114,8 @@ void CRenderPass::cleanup()
 
 void CRenderPass::begin(vk::CommandBuffer& commandBuffer)
 {
+    if(renderArea.extent != CSwapChain::getInstance()->getExtent())
+        UHLInstance->recreateSwapChain();
     //Begins render pass for start rendering
     vk::RenderPassBeginInfo renderPassBeginInfo{};
     renderPassBeginInfo.renderPass = renderPass;

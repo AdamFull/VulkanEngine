@@ -15,12 +15,12 @@ void FPrimitive::setDimensions(glm::vec3 min, glm::vec3 max)
     dimensions.radius = glm::distance(min, max) / 2.0f;
 }
 
-void CMeshFragment::create(vk::RenderPass& renderPass, uint32_t subpass)
+void CMeshFragment::create()
 {
     for (auto &primitive : m_vPrimitives)
     {
         if(primitive.material)
-            primitive.material->create(renderPass, subpass);
+            primitive.material->create();
     }
 }
 

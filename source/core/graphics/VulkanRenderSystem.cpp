@@ -23,8 +23,8 @@ void CRenderSystem::create()
 
     vStages.emplace_back(std::make_unique<Render::CDeferredStage>());
     vStages.emplace_back(std::make_unique<Render::CPostProcessStage>());
-    //vStages.emplace_back(std::make_unique<Render::CSandboxFinalStage>());
-    vStages.emplace_back(std::make_unique<Render::CPresentFinalStage>());
+    vStages.emplace_back(std::make_unique<Render::CSandboxFinalStage>());
+    //vStages.emplace_back(std::make_unique<Render::CPresentFinalStage>());
 
     currentStageIndex = 0;
     for(auto& stage : vStages)
@@ -51,8 +51,8 @@ void CRenderSystem::render()
 {
     vk::CommandBuffer commandBuffer{};
     try { commandBuffer = beginFrame(); }
-        catch (vk::OutOfDateKHRError err) { UHLInstance->recreateSwapChain(); }
-        catch (vk::SystemError err) { throw std::runtime_error("Failed to acquire swap chain image!"); }
+    catch (vk::OutOfDateKHRError err) { UHLInstance->recreateSwapChain(); }
+    catch (vk::SystemError err) { throw std::runtime_error("Failed to acquire swap chain image!"); }
 
     currentStageIndex = 0;
     for(auto& stage : vStages)
@@ -92,7 +92,7 @@ vk::CommandBuffer& CRenderSystem::getCurrentCommandBuffer()
 vk::CommandBuffer& CRenderSystem::beginFrame()
 {
     assert(!frameStarted && "Can't call beginFrame while already in progress");
-    CSwapChain::inst()->acquireNextImage(&imageIndex);
+    auto result = CSwapChain::inst()->acquireNextImage(&imageIndex);
     frameStarted = true;
 
     commandBuffers->begin(vk::CommandBufferUsageFlagBits::eSimultaneousUse, imageIndex);

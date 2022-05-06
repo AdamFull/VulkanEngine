@@ -19,6 +19,7 @@ namespace Engine
                 }
 
                 void create() override;
+                void reCreate() override;
                 void draw() override;
             private:
                 std::shared_ptr<Descriptor::CDescriptorSet> pDescriptorSet;

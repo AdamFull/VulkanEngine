@@ -5,9 +5,9 @@
 using namespace Engine::Core::Scene;
 using namespace Engine::Resources;
 
-void CSceneRootComponent::create(vk::RenderPass& renderPass, uint32_t subpass)
+void CSceneRootComponent::create()
 {
-    CRenderObject::create(renderPass, subpass);
+    CRenderObject::create();
 }
 
 void CSceneRootComponent::render(vk::CommandBuffer &commandBuffer, uint32_t imageIndex)

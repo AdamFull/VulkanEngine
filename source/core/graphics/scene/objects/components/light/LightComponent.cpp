@@ -4,9 +4,9 @@ using namespace Engine::Resources;
 using namespace Engine::Core;
 using namespace Engine::Core::Scene;
 
-void CLightComponent::create(vk::RenderPass& renderPass, uint32_t subpass)
+void CLightComponent::create()
 {
-    CComponentBase::create(renderPass, subpass);
+    CComponentBase::create();
 }
 
 void CLightComponent::reCreate()

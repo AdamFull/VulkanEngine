@@ -10,15 +10,16 @@ using namespace Engine::Core::Overlay;
 
 void COverlayViewport::create()
 {
-    for(size_t i = 0; i < CSwapChain::inst()->getFramesInFlight(); i++)
-    {
-        auto image = CRenderSystem::inst()->getPrevStage()->getFramebuffer()->getImages(i)["output_color"]->getDescriptor();
-        descriptors.emplace_back(ImGui_ImplVulkan_AddTexture(image.sampler, image.imageView, static_cast<VkImageLayout>(image.imageLayout)));
-    }
     auto pBackend = (ImGui_ImplVulkan_Data*)ImGui::GetIO().BackendRendererUserData;
     pDescriptorSet = std::make_shared<CDescriptorSet>();
     pDescriptorSet->create(vk::PipelineBindPoint::eGraphics, pBackend->PipelineLayout, CImguiOverlay::inst()->getDescriptorPool(), pBackend->DescriptorSetLayout, CSwapChain::inst()->getFramesInFlight());
     //pDescriptorPtr = std::make_unique<VkDescriptorSet>();
+}
+
+void COverlayViewport::reCreate()
+{
+    auto pBackend = (ImGui_ImplVulkan_Data*)ImGui::GetIO().BackendRendererUserData;
+    pDescriptorSet->create(vk::PipelineBindPoint::eGraphics, pBackend->PipelineLayout, CImguiOverlay::inst()->getDescriptorPool(), pBackend->DescriptorSetLayout, CSwapChain::inst()->getFramesInFlight());
 }
 
 void COverlayViewport::draw()
@@ -42,7 +43,7 @@ void COverlayViewport::draw()
 
         //auto pBackend = (ImGui_ImplVulkan_Data*)ImGui::GetIO().BackendRendererUserData;
         ImVec2 viewportPanelSize = ImGui::GetContentRegionAvail();
-        ImGui::Image(descriptors.at(currentImage), ImVec2{viewportPanelSize.x, viewportPanelSize.y});
+        ImGui::Image(pDescriptorSet->get(currentImage), ImVec2{viewportPanelSize.x, viewportPanelSize.y});
         ImGui::End();
     }
 }

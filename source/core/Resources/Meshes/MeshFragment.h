@@ -34,7 +34,7 @@ namespace Engine
             {
             public:
                 
-                void create(vk::RenderPass& renderPass, uint32_t subpass);
+                void create();
                 virtual void addPrimitive(FPrimitive &&primitive);
                 FPrimitive& getPrimitive(uint32_t index);
                 virtual void setMaterial(std::shared_ptr<Material::CMaterialBase> material);

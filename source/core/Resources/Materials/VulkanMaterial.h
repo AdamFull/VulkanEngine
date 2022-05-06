@@ -40,11 +40,12 @@ namespace Engine
                 CMaterialBase() = default;
                 virtual ~CMaterialBase();
 
-                virtual void create(vk::RenderPass& renderPass, uint32_t subpass);
+                virtual void create();
                 void addTexture(const std::string& attachment, vk::DescriptorImageInfo& descriptor);
                 void addTexture(const std::string& attachment, std::shared_ptr<Core::CImage> pTexture);
                 void addBuffer(const std::string& attachment, vk::DescriptorBufferInfo& descriptor);
                 vk::DescriptorImageInfo& getTexture(const std::string& attachment);
+
                 virtual void reCreate();
                 virtual void update(uint32_t imageIndex);
                 virtual void bind(vk::CommandBuffer commandBuffer, uint32_t imageIndex);

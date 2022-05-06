@@ -9,11 +9,14 @@ using namespace Engine::Resources::Material;
 
 void CThroughPass::create()
 {
-    auto& renderPass = CRenderSystem::inst()->getCurrentStage()->getRenderPass()->get();
-    auto subpass = CRenderSystem::inst()->getCurrentStage()->getRenderPass()->getCurrentSubpass();
     pMaterial = CMaterialLoader::inst()->create("through_pass");
-    pMaterial->create(renderPass, subpass);
+    pMaterial->create();
     CSubpass::create();
+}
+
+void CThroughPass::reCreate()
+{
+    pMaterial->reCreate();
 }
 
 void CThroughPass::render(vk::CommandBuffer& commandBuffer)

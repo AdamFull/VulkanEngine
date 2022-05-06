@@ -16,15 +16,15 @@ void CPostProcessStage::create()
 {
     screenExtent = CSwapChain::inst()->getExtent();
 
-    std::vector<vk::AttachmentReference> vReferences_0
+    outReferences.emplace(0, std::vector<vk::AttachmentReference>
     {
         {0, vk::ImageLayout::eColorAttachmentOptimal}
-    };
+    });
 
     pRenderPass = Render::CRenderPass::Builder().
     addAttachmentDescription(vk::Format::eR8G8B8A8Unorm, vk::SampleCountFlagBits::e1, vk::AttachmentLoadOp::eClear, vk::AttachmentStoreOp::eStore, 
     vk::AttachmentLoadOp::eDontCare, vk::AttachmentStoreOp::eDontCare, vk::ImageLayout::eUndefined, vk::ImageLayout::eShaderReadOnlyOptimal).
-    addSubpassDescription(vk::PipelineBindPoint::eGraphics, vReferences_0).    //First blur pass
+    addSubpassDescription(vk::PipelineBindPoint::eGraphics, outReferences[0]).    //First blur pass
     addSubpassDependency(VK_SUBPASS_EXTERNAL, 0, vk::PipelineStageFlagBits::eBottomOfPipe, vk::PipelineStageFlagBits::eColorAttachmentOutput,
     vk::AccessFlagBits::eMemoryRead, vk::AccessFlagBits::eColorAttachmentRead | vk::AccessFlagBits::eColorAttachmentWrite).
     addSubpassDependency(0, VK_SUBPASS_EXTERNAL, vk::PipelineStageFlagBits::eColorAttachmentOutput, vk::PipelineStageFlagBits::eBottomOfPipe,

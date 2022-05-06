@@ -23,8 +23,13 @@ void CGaussianBlurPass::create()
     pImage = CFramebuffer::createImage(vk::Format::eR8G8B8A8Unorm, vk::ImageUsageFlagBits::eTransferSrc | vk::ImageUsageFlagBits::eTransferDst | vk::ImageUsageFlagBits::eStorage | vk::ImageUsageFlagBits::eSampled, CSwapChain::inst()->getExtent());
 
     pMaterial = CMaterialLoader::inst()->create("gaussian_blur");
-    pMaterial->create(renderPass, subpass);
+    pMaterial->create();
     CSubpass::create();
+}
+
+void CGaussianBlurPass::reCreate()
+{
+    pMaterial->reCreate();
 }
 
 void CGaussianBlurPass::render(vk::CommandBuffer& commandBuffer)

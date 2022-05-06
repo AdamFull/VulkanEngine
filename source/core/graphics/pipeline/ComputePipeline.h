@@ -13,7 +13,6 @@ namespace Engine
                 CComputePipeline() = default;
 
                 void create() override;
-                void recreatePipeline() override;
 
             protected:
                 void createPipeline() override;

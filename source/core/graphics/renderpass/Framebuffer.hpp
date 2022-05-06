@@ -22,7 +22,7 @@ namespace Engine
                 ~CFramebuffer();
 
                 void create(vk::RenderPass& renderPass, vk::Extent2D extent);
-                void reCreate(vk::RenderPass& renderPass);
+                void reCreate(vk::RenderPass& renderPass, vk::Extent2D extent);
                 void cleanup();
 
                 void addImage(const std::string& name, vk::Format format, vk::ImageUsageFlags usageFlags);
@@ -38,7 +38,7 @@ namespace Engine
                 std::vector<FTextureAttachmentInfo> attachments;
                 vk::Extent2D imagesExtent;
                 std::map<uint32_t, std::unordered_map<std::string, std::shared_ptr<CImage>>> mImages;
-                std::shared_ptr<CImage> pDepth;
+                std::vector<std::shared_ptr<CImage>> vDepth;
             };
         }
     }

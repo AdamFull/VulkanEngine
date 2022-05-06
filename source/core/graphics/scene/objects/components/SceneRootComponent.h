@@ -15,7 +15,7 @@ namespace Engine
                     m_srName = srName;
                 }
 
-                void create(vk::RenderPass &renderPass, uint32_t subpass) override;
+                void create() override;
                 void render(vk::CommandBuffer &commandBuffer, uint32_t imageIndex) override;
                 void update(float fDeltaTime) override;
             };

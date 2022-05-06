@@ -20,6 +20,7 @@ namespace Engine
                 CSubpass() = default;
 
                 virtual void create() {}
+                virtual void reCreate() {}
                 virtual void render(vk::CommandBuffer& commandBuffer) {}
                 virtual void cleanup() {}
             protected:

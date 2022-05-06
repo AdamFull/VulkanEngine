@@ -101,21 +101,21 @@ void CRenderPass::create()
 
 void CRenderPass::reCreate()
 {
-    //Recreating render pass instance with framebuffer
-    cleanup();
     renderPass = createRenderPass();
+    currentSubpassIndex = 0;
+    for(auto& subpass : vSubpasses)
+    {
+        subpass->reCreate();
+        currentSubpassIndex++;
+    }
 }
 
 void CRenderPass::cleanup()
 {
-    CDevice::inst()->destroy(renderPass);
-    //TODO: cleanup
 }
 
 void CRenderPass::begin(vk::CommandBuffer& commandBuffer)
 {
-    if(renderArea.extent != CSwapChain::inst()->getExtent())
-        UHLInstance->recreateSwapChain();
     //Begins render pass for start rendering
     vk::RenderPassBeginInfo renderPassBeginInfo{};
     renderPassBeginInfo.renderPass = renderPass;
@@ -141,13 +141,13 @@ void CRenderPass::render(vk::CommandBuffer& commandBuffer)
 {
     begin(commandBuffer);
     //Render each stage
-    uint32_t subpass_id{0};
+    currentSubpassIndex = 0;
     for(auto& subpass : vSubpasses)
     {
         subpass->render(commandBuffer);
-        if((vSubpasses.size() - 1) > subpass_id)
+        if((vSubpasses.size() - 1) > currentSubpassIndex)
             commandBuffer.nextSubpass(vk::SubpassContents::eInline);
-        subpass_id++;
+        currentSubpassIndex++;
     }
     end(commandBuffer);
 }

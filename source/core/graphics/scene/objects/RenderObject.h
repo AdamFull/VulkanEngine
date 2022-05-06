@@ -17,7 +17,7 @@ namespace Engine
                 CRenderObject(std::string srName);
 
                 // Create render object
-                virtual void create(vk::RenderPass &renderPass, uint32_t subpass);
+                virtual void create();
                 // Recreate render object
                 virtual void reCreate();
                 // Do render things

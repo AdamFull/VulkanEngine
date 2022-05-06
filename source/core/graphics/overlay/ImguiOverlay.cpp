@@ -35,7 +35,6 @@ std::unique_ptr<CImguiOverlay> utl::singleton<CImguiOverlay>::_instance{nullptr}
 CImguiOverlay::~CImguiOverlay()
 {
     cleanup();
-    ImGui_ImplGlfw_Shutdown();
     ImGui::DestroyContext();
 }
 
@@ -106,7 +105,8 @@ void CImguiOverlay::create(vk::RenderPass& renderPass, uint32_t subpass)
 
 void CImguiOverlay::reCreate()
 {
-    cleanup();
+    ImGui_ImplVulkan_Shutdown();
+    ImGui_ImplGlfw_Shutdown();
     auto& renderPass = CRenderSystem::inst()->getCurrentStage()->getRenderPass()->get();
     auto subpass = CRenderSystem::inst()->getCurrentStage()->getRenderPass()->getCurrentSubpass();
 
@@ -156,11 +156,17 @@ void CImguiOverlay::reCreate()
     ImGui_ImplVulkan_CreateFontsTexture(commandBuffer);
     cmdBuf.submitIdle();
     ImGui_ImplVulkan_DestroyFontUploadObjects();
+
+    for (auto &overlay : m_vOverlays)
+    {
+        overlay->reCreate();
+    }
 }
 
 void CImguiOverlay::cleanup()
 {
     ImGui_ImplVulkan_Shutdown();
+    ImGui_ImplGlfw_Shutdown();
 }
 
 void CImguiOverlay::baseInitialize()
@@ -214,8 +220,13 @@ void CImguiOverlay::drawFrame(vk::CommandBuffer commandBuffer, uint32_t index)
 {
     if (bEnabled)
     {
+        ImGuiIO &io = ImGui::GetIO();
         ImGui::Render();
-        ImGui::UpdatePlatformWindows();
+        if (io.ConfigFlags & ImGuiConfigFlags_ViewportsEnable)
+        {
+            ImGui::UpdatePlatformWindows();
+            //ImGui::RenderPlatformWindowsDefault();
+        }
         ImDrawData *drawdata = ImGui::GetDrawData();
         ImGui_ImplVulkan_RenderDrawData(drawdata, commandBuffer);
     }

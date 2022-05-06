@@ -7,15 +7,15 @@ int main()
     Engine::CApplication app;
     app.create();
 
-    try
-    {
+    //try
+    //{
         app.run();
-    }
+    /*}
     catch (const std::exception &e)
     {
         utl::logger::log(utl::ELogLevel::eError, e.what());
         return EXIT_FAILURE;
-    }
+    }*/
 
     return EXIT_SUCCESS;
 }

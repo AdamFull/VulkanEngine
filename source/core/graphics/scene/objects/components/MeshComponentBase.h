@@ -17,7 +17,7 @@ namespace Engine
             class CMeshComponentBase : public CComponentBase
             {
             public:
-                void create(vk::RenderPass &renderPass, uint32_t subpass) override;
+                void create() override;
                 void reCreate() override;
                 void update(float fDeltaTime) override;
                 void render(vk::CommandBuffer &commandBuffer, uint32_t imageIndex) override;

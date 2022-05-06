@@ -24,6 +24,10 @@ namespace Engine
                 std::unique_ptr<CRenderPass> pRenderPass;
                 std::unique_ptr<CFramebuffer> pFramebuffer;
                 vk::Extent2D screenExtent;
+
+                vk::AttachmentReference depthReference{};
+                std::map<size_t, std::vector<vk::AttachmentReference>> outReferences;
+                std::map<size_t, std::vector<vk::AttachmentReference>> inReferences;
             };
         }
     }

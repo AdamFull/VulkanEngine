@@ -14,10 +14,13 @@ using namespace Engine::Resources::Material;
 void CShadowPass::create()
 {
     pMaterial = CMaterialLoader::inst()->create("pbr_composition");
-    auto& renderPass = CRenderSystem::inst()->getCurrentStage()->getRenderPass()->get();
-    auto subpass = CRenderSystem::inst()->getCurrentStage()->getRenderPass()->getCurrentSubpass();
-    pMaterial->create(renderPass, subpass);
+    pMaterial->create();
     CSubpass::create();
+}
+
+void CShadowPass::reCreate()
+{
+    pMaterial->reCreate();
 }
 
 void CShadowPass::render(vk::CommandBuffer& commandBuffer)

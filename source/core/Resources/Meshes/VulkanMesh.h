@@ -37,7 +37,7 @@ namespace Engine
             {
             public:
                 
-                virtual void create(vk::RenderPass& renderPass, uint32_t subpass);
+                virtual void create();
                 virtual void reCreate();
                 virtual void render(vk::CommandBuffer commandBuffer, uint32_t imageIndex, Core::FUniformData& ubo, uint32_t instanceCount = 1);
                 virtual void cleanup();

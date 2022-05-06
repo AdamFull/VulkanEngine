@@ -13,14 +13,12 @@ using namespace Engine::Resources;
 using namespace Engine::Core;
 using namespace Engine::Util;
 
-void CMeshComponentBase::create(vk::RenderPass& renderPass, uint32_t subpass)
+void CMeshComponentBase::create()
 {
-    CComponentBase::create(renderPass, subpass);
+    CComponentBase::create();
 
     if (m_pMesh)
-    {
-        m_pMesh->create(renderPass, subpass);
-    }
+        m_pMesh->create();
 }
 
 void CMeshComponentBase::reCreate()

@@ -41,7 +41,6 @@ namespace Engine
             {
             public:
                 CShaderCache();
-                ~CShaderCache();
                 void add(const std::string& name, vk::ShaderStageFlagBits stage, const std::vector<uint32_t>& code, const std::string& moduleCode, std::array<std::optional<uint32_t>, 3>& localSizes);
                 void update(const std::string& name, const std::vector<uint32_t>& code, std::array<std::optional<uint32_t>, 3>& localSizes, const std::string& hash);
                 std::optional<FShaderCache::FCachedShader> get(const std::string& name, const std::string& moduleCode);

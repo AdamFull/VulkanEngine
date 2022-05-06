@@ -16,7 +16,7 @@ void CDeferredStage::create()
 {
     screenExtent = CSwapChain::inst()->getExtent();
 
-    std::vector<vk::AttachmentReference> vReferences_0
+    outReferences.emplace(0, std::vector<vk::AttachmentReference>
     {
         {1, vk::ImageLayout::eColorAttachmentOptimal},
         {2, vk::ImageLayout::eColorAttachmentOptimal},
@@ -24,16 +24,15 @@ void CDeferredStage::create()
         {4, vk::ImageLayout::eColorAttachmentOptimal},
         {5, vk::ImageLayout::eColorAttachmentOptimal},
         {6, vk::ImageLayout::eColorAttachmentOptimal},
-    };
-    vk::AttachmentReference depthReference{8, vk::ImageLayout::eDepthStencilAttachmentOptimal};
-
-    std::vector<vk::AttachmentReference> vReferences_1
+    });
+    outReferences.emplace(1, std::vector<vk::AttachmentReference>
     {
         {0, vk::ImageLayout::eColorAttachmentOptimal},
         {7, vk::ImageLayout::eColorAttachmentOptimal}
-    };
+    });
+    depthReference = vk::AttachmentReference{8, vk::ImageLayout::eDepthStencilAttachmentOptimal};
 
-    std::vector<vk::AttachmentReference> vInputReferences_1
+    inReferences.emplace(1, std::vector<vk::AttachmentReference>
     {
         {1, vk::ImageLayout::eShaderReadOnlyOptimal},
         {2, vk::ImageLayout::eShaderReadOnlyOptimal},
@@ -41,7 +40,7 @@ void CDeferredStage::create()
         {4, vk::ImageLayout::eShaderReadOnlyOptimal},
         {5, vk::ImageLayout::eShaderReadOnlyOptimal},
         {6, vk::ImageLayout::eShaderReadOnlyOptimal},
-    };
+    });
 
     pRenderPass = Render::CRenderPass::Builder().
     addAttachmentDescription(vk::Format::eR32G32B32A32Sfloat, vk::SampleCountFlagBits::e1, vk::AttachmentLoadOp::eClear, vk::AttachmentStoreOp::eStore, 
@@ -57,9 +56,9 @@ void CDeferredStage::create()
     addAttachmentDescription(CImage::getDepthFormat(), vk::SampleCountFlagBits::e1, vk::AttachmentLoadOp::eClear, vk::AttachmentStoreOp::eDontCare, 
     vk::AttachmentLoadOp::eDontCare, vk::AttachmentStoreOp::eDontCare, vk::ImageLayout::eUndefined, vk::ImageLayout::eDepthStencilAttachmentOptimal). //Depth stencil
     //GBuffer description
-    addSubpassDescription(vk::PipelineBindPoint::eGraphics, vReferences_0, &depthReference).
+    addSubpassDescription(vk::PipelineBindPoint::eGraphics, outReferences[0], &depthReference).
     //PBR composition description
-    addSubpassDescription(vk::PipelineBindPoint::eGraphics, vReferences_1, nullptr, vInputReferences_1).
+    addSubpassDescription(vk::PipelineBindPoint::eGraphics, outReferences[1], nullptr, inReferences[1]).
     //Begin drawing gbuffer
     addSubpassDependency(VK_SUBPASS_EXTERNAL, 0, vk::PipelineStageFlagBits::eBottomOfPipe, vk::PipelineStageFlagBits::eColorAttachmentOutput,
     vk::AccessFlagBits::eMemoryRead, vk::AccessFlagBits::eColorAttachmentRead | vk::AccessFlagBits::eColorAttachmentWrite).

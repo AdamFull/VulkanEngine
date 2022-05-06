@@ -15,10 +15,10 @@ CRenderObject::CRenderObject(std::string srName)
     m_srName = srName;
 }
 
-void CRenderObject::create(vk::RenderPass& renderPass, uint32_t subpass)
+void CRenderObject::create()
 {
     for (auto &[name, child] : m_mChilds)
-        child->create(renderPass, subpass);
+        child->create();
 }
 
 void CRenderObject::reCreate()

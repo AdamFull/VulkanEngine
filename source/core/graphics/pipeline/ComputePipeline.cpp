@@ -9,12 +9,6 @@ void CComputePipeline::create()
     createPipeline();
 }
 
-void CComputePipeline::recreatePipeline()
-{
-    recreateShaders();
-    createPipeline();
-}
-
 void CComputePipeline::createPipeline()
 {
     assert(CDevice::inst() && "Cannot create pipeline, cause logical device is not valid.");

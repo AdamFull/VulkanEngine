@@ -53,8 +53,12 @@ void CPipelineBase::create()
     createPipelineLayout();
 }
 
-void CPipelineBase::recreatePipeline()
+void CPipelineBase::reCreate(vk::RenderPass& renderPass, uint32_t _subpass)
 {
+    m_renderPass = renderPass;
+    subpass = _subpass;
+    recreateShaders();
+    createPipeline();
 }
 
 void CPipelineBase::cleanup()

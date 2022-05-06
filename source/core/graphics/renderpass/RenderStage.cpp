@@ -19,5 +19,5 @@ void CRenderStage::reCreate()
     screenExtent = CSwapChain::inst()->getExtent();
     pRenderPass->setRenderArea(vk::Offset2D{0, 0}, screenExtent);
     pRenderPass->reCreate();
-    pFramebuffer->reCreate(pRenderPass->get());
+    pFramebuffer->reCreate(pRenderPass->get(), screenExtent);
 }

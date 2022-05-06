@@ -97,9 +97,3 @@ void CGraphicsPipeline::createPipeline()
     auto result = CDevice::inst()->getLogical().createGraphicsPipelines(UHLInstance->getPipelineCache(), 1, &pipelineInfo, nullptr, &m_pipeline);
     assert(m_pipeline && "Failed creating pipeline.");
 }
-
-void CGraphicsPipeline::recreatePipeline()
-{
-    recreateShaders();
-    createPipeline();
-}

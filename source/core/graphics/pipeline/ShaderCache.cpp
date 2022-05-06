@@ -86,11 +86,6 @@ CShaderCache::CShaderCache()
     load();
 }
 
-CShaderCache::~CShaderCache()
-{
-    save();
-}
-
 void CShaderCache::add(const std::string& name, vk::ShaderStageFlagBits stage, const std::vector<uint32_t>& code, const std::string& moduleCode, std::array<std::optional<uint32_t>, 3>& localSizes)
 {
     auto hash = std::to_string(hasher(moduleCode));

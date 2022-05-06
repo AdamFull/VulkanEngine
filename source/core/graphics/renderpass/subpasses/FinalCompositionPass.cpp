@@ -18,12 +18,14 @@ void CFinalCompositionPass::create()
     pUniform = std::make_shared<CUniformBuffer>();
     pUniform->create(framesInFlight, sizeof(FPostProcess));
 
-    auto& renderPass = CRenderSystem::inst()->getCurrentStage()->getRenderPass()->get();
-    auto subpass = CRenderSystem::inst()->getCurrentStage()->getRenderPass()->getCurrentSubpass();
-
     pMaterial = CMaterialLoader::inst()->create("post_process");
-    pMaterial->create(renderPass, subpass);
+    pMaterial->create();
     CSubpass::create();
+}
+
+void CFinalCompositionPass::reCreate()
+{
+    pMaterial->reCreate();
 }
 
 void CFinalCompositionPass::render(vk::CommandBuffer& commandBuffer)

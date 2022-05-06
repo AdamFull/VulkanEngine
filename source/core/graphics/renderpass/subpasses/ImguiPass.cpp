@@ -14,6 +14,11 @@ void CImguiPass::create()
     CSubpass::create();
 }
 
+void CImguiPass::reCreate()
+{
+    CImguiOverlay::inst()->reCreate();
+}
+
 void CImguiPass::render(vk::CommandBuffer& commandBuffer)
 {
     auto imageIndex = CSwapChain::inst()->getCurrentFrame();

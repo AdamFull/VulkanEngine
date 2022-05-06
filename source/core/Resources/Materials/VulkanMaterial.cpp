@@ -12,9 +12,11 @@ CMaterialBase::~CMaterialBase()
 {
 }
 
-void CMaterialBase::create(vk::RenderPass& renderPass, uint32_t subpass)
+void CMaterialBase::create()
 {
     uint32_t images = CSwapChain::inst()->getFramesInFlight();
+    auto& renderPass = CRenderSystem::inst()->getCurrentStage()->getRenderPass()->get();
+    auto subpass = CRenderSystem::inst()->getCurrentStage()->getRenderPass()->getCurrentSubpass();
     m_pPipeline->create(renderPass, subpass);
     m_pDescriptorSet = std::make_unique<CDescriptorHandler>();
     m_pDescriptorSet->create(m_pPipeline);
@@ -42,7 +44,9 @@ vk::DescriptorImageInfo& CMaterialBase::getTexture(const std::string& attachment
 
 void CMaterialBase::reCreate()
 {
-    m_pPipeline->recreatePipeline();
+    auto& renderPass = CRenderSystem::inst()->getCurrentStage()->getRenderPass()->get();
+    auto subpass = CRenderSystem::inst()->getCurrentStage()->getRenderPass()->getCurrentSubpass();
+    m_pPipeline->reCreate(renderPass, subpass);
 }
 
 void CMaterialBase::update(uint32_t imageIndex)

@@ -21,6 +21,7 @@ CFramebuffer::~CFramebuffer()
 void CFramebuffer::create(vk::RenderPass& renderPass, vk::Extent2D extent)
 {
     imagesExtent = extent;
+    auto testExtent = CSwapChain::inst()->getExtent();
     auto framesInFlight = CSwapChain::inst()->getFramesInFlight();
     for(size_t frame = 0; frame < framesInFlight; frame++)
     {
@@ -29,8 +30,8 @@ void CFramebuffer::create(vk::RenderPass& renderPass, vk::Extent2D extent)
         {
             if(attachment.usageFlags & vk::ImageUsageFlagBits::eDepthStencilAttachment)
             {
-                if(!pDepth)
-                    pDepth = createImage(attachment.format, attachment.usageFlags, extent);
+                if(vDepth.empty())
+                    vDepth.emplace_back(createImage(attachment.format, attachment.usageFlags, imagesExtent));
             }
             else
             {
@@ -40,15 +41,15 @@ void CFramebuffer::create(vk::RenderPass& renderPass, vk::Extent2D extent)
                 }
                 else
                 {
-                    auto image = createImage(attachment.format, attachment.usageFlags, extent);
+                    auto image = createImage(attachment.format, attachment.usageFlags, imagesExtent);
                     mImages[frame].emplace(attachment.name, image);
                     imageViews.push_back(image->getDescriptor().imageView);
                 }
             }
         }
 
-        if(pDepth)
-            imageViews.push_back(pDepth->getDescriptor().imageView);
+        if(!vDepth.empty())
+            imageViews.push_back(vDepth.front()->getDescriptor().imageView);
 
         vk::FramebufferCreateInfo framebufferCI = {};
         framebufferCI.pNext = nullptr;
@@ -63,18 +64,19 @@ void CFramebuffer::create(vk::RenderPass& renderPass, vk::Extent2D extent)
     }
 }
 
-void CFramebuffer::reCreate(vk::RenderPass& renderPass)
+void CFramebuffer::reCreate(vk::RenderPass& renderPass, vk::Extent2D extent)
 {
-    //TODO: re create ops
-    cleanup();
-    create(renderPass, imagesExtent);
+    vFramebuffers.clear();
+    mImages.clear();
+    vDepth.clear();
+    create(renderPass, extent);
 }
 
 void CFramebuffer::cleanup()
 {
     mImages.clear();
-    for(auto& fb : vFramebuffers)
-        CDevice::inst()->destroy(fb);
+    vDepth.clear();
+    vFramebuffers.clear();
 }
 
 void CFramebuffer::addImage(const std::string& name, vk::Format format, vk::ImageUsageFlags usageFlags)

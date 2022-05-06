@@ -3,9 +3,9 @@
 using namespace Engine::Core::Scene;
 using namespace Engine::Resources;
 
-void CComponentBase::create(vk::RenderPass& renderPass, uint32_t subpass)
+void CComponentBase::create()
 {
-    CRenderObject::create(renderPass, subpass);
+    CRenderObject::create();
 }
 
 void CComponentBase::reCreate()

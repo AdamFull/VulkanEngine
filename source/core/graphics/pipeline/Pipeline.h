@@ -61,7 +61,7 @@ namespace Engine
                 void bind(vk::CommandBuffer &commandBuffer);
 
                 virtual void loadShader(const std::vector<std::string> &vShaders);
-                virtual void recreatePipeline();
+                virtual void reCreate(vk::RenderPass& renderPass, uint32_t _subpass);
 
                 virtual void cleanup();
 

@@ -41,7 +41,6 @@ void CVulkanHighLevel::recreateSwapChain()
     CSwapChain::inst()->reCreate();
 
     CRenderSystem::inst()->reCreate();
-    CImguiOverlay::inst()->reCreate();
 }
 
 void CVulkanHighLevel::cleanupSwapChain()
@@ -52,10 +51,7 @@ void CVulkanHighLevel::cleanupSwapChain()
 
 void CVulkanHighLevel::cleanup()
 {
-    CDevice::inst()->GPUWait();
-
-    cleanupSwapChain();
-    CImguiOverlay::inst()->cleanup();
+    
 }
 
 namespace Engine

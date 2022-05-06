@@ -4,12 +4,12 @@
 using namespace Engine::Core;
 using namespace Engine::Resources::Mesh;
 
-void CMeshBase::create(vk::RenderPass& renderPass, uint32_t subpass)
+void CMeshBase::create()
 {
     m_pUniformBuffer = std::make_shared<CUniformBuffer>();
     m_pUniformBuffer->create(2, sizeof(FUniformData));
     for (auto& fragment : m_vFragments)
-        fragment->create(renderPass, subpass);
+        fragment->create();
 }
 
 void CMeshBase::reCreate()

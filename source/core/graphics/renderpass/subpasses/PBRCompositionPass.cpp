@@ -36,12 +36,14 @@ void CPBRCompositionPass::create()
     irradiance = CThreadPool::inst()->submit(&CPBRCompositionPass::ComputeIrradiance, m_pSkybox, 64);
     prefiltered = CThreadPool::inst()->submit(&CPBRCompositionPass::ComputePrefiltered, m_pSkybox, 512);
 
-    auto& renderPass = CRenderSystem::inst()->getCurrentStage()->getRenderPass()->get();
-    auto subpass = CRenderSystem::inst()->getCurrentStage()->getRenderPass()->getCurrentSubpass();
-
     pMaterial = CMaterialLoader::inst()->create("pbr_composition");
-    pMaterial->create(renderPass, subpass);
+    pMaterial->create();
     CSubpass::create();
+}
+
+void CPBRCompositionPass::reCreate()
+{
+    pMaterial->reCreate();
 }
 
 void CPBRCompositionPass::render(vk::CommandBuffer& commandBuffer)

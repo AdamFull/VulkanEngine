@@ -17,6 +17,7 @@ namespace Engine
                 }
 
                 virtual void create() {}
+                virtual void reCreate() {}
                 virtual void setState(bool bState) { bOverlayState = bState; }
                 virtual void draw();
 

@@ -7,6 +7,10 @@ namespace Engine
     {
         namespace Pipeline
         {
+            /**
+             * @brief Compite pipeline class. Just contain data for creation compute pipeline
+             * 
+             */
             class CComputePipeline : public CPipelineBase
             {
             public:

@@ -8,6 +8,10 @@ namespace Engine
         namespace Pipeline { class CPipelineBase; }
         namespace Descriptor
         {
+            /**
+             * @brief Descriptor set class implementation
+             * 
+             */
             class CDescriptorSet : public utl::non_copyable
             {
             public:

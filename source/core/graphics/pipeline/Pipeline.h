@@ -7,6 +7,10 @@ namespace Engine
     {
         namespace Pipeline
         {
+            /**
+             * @brief Vertex input data container class
+             * 
+             */
             class CVertexInput
             {
             public:
@@ -22,10 +26,19 @@ namespace Engine
             };
 
             class CShader;
+
+            /**
+             * @brief Base pipeline class
+             * 
+             */
             class CPipelineBase
             {
             public:
                 friend class Builder;
+                /**
+                 * @brief Pipeline builder class
+                 * 
+                 */
                 class Builder
                 {
                 public:
@@ -55,31 +68,119 @@ namespace Engine
                 CPipelineBase() = default;
                 virtual ~CPipelineBase();
 
+                /**
+                 * @brief Create pipeline with render pass and subpass
+                 * 
+                 * @param renderPass Vulkan render pass
+                 * @param subpass Vulkan subpass
+                 */
                 virtual void create(vk::RenderPass& renderPass, uint32_t subpass);
+
+                /**
+                 * @brief Create pipeline without using graphics instances
+                 * 
+                 */
                 virtual void create();
 
+                /**
+                 * @brief Bind pipeline to command buffer
+                 * 
+                 * @param commandBuffer Current command buffer
+                 */
                 void bind(vk::CommandBuffer &commandBuffer);
 
+                /**
+                 * @brief Load shader method
+                 * 
+                 * @param vShaders Vector with shader names
+                 */
                 virtual void loadShader(const std::vector<std::string> &vShaders);
+
+                /**
+                 * @brief ReCreating pipeline woth new render pass and subpass
+                 * 
+                 * @param renderPass Vulkan render pass
+                 * @param _subpass Vulkan subpass
+                 */
                 virtual void reCreate(vk::RenderPass& renderPass, uint32_t _subpass);
 
+                /**
+                 * @brief Clean all pipeline instances before deletion
+                 * 
+                 */
                 virtual void cleanup();
 
+                /**
+                 * @brief Get pipeline state object
+                 * 
+                 * @return vk::Pipeline& Vulkan pso
+                 */
                 inline virtual vk::Pipeline &getPipeline() { return m_pipeline; }
+
+                /**
+                 * @brief Get pipeline bind point
+                 * 
+                 * @return vk::PipelineBindPoint& Bind point
+                 */
                 inline virtual vk::PipelineBindPoint &getBindPoint() { return m_bindPoint; }
 
+                /**
+                 * @brief Get pipeline descriptor set layout
+                 * 
+                 * @return vk::DescriptorSetLayout& Descriptor set layout
+                 */
                 inline vk::DescriptorSetLayout& getDescriptorSetLayout() { return m_descriptorSetLayout; }
+
+                /**
+                 * @brief Get descriptor pool
+                 * 
+                 * @return vk::DescriptorPool& Vulkan descriptor pool
+                 */
                 inline vk::DescriptorPool& getDescriptorPool() { return m_descriptorPool; }
+
+                /**
+                 * @brief Get pipeline layout
+                 * 
+                 * @return vk::PipelineLayout& Vulkan pipeline layout
+                 */
                 inline vk::PipelineLayout& getPipelineLayout() { return m_pipelineLayout; }
 
+                /**
+                 * @brief Get shader object
+                 * 
+                 * @return std::unique_ptr<CShader>& Shader smart pointer
+                 */
                 inline std::unique_ptr<CShader>& getShader() { return m_pShader; }
 
             protected:
+                /**
+                 * @brief Creates desctiptor set for pipeline
+                 * 
+                 */
                 void createDescriptorSetLayout();
+
+                /**
+                 * @brief Creates descriptor pool for pipeline
+                 * 
+                 */
                 void createDescriptorPool();
+
+                /**
+                 * @brief Creates pipeline layout
+                 * 
+                 */
                 void createPipelineLayout();
 
+                /**
+                 * @brief Creates a pipeline object. Should be overloaded in specific child
+                 * 
+                 */
                 virtual void createPipeline() {}
+
+                /**
+                 * @brief Re creating shaders from compiled source
+                 * 
+                 */
                 virtual void recreateShaders();
 
                 std::vector<std::string> m_vShaderCache;

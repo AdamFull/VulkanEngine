@@ -6,6 +6,10 @@ namespace Engine
 {
     namespace Core
     {
+        /**
+         * @brief Implementation of 3d image
+         * 
+         */
         class CImage3D : public CImage
         {
         public:

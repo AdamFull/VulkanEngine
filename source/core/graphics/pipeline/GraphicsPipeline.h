@@ -7,6 +7,10 @@ namespace Engine
     {
         namespace Pipeline
         {
+            /**
+             * @brief Graphics pipeline class. Just contain data for creation graphics pipeline
+             * 
+             */
             class CGraphicsPipeline : public CPipelineBase
             {
             public:

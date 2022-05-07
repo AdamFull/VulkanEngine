@@ -61,6 +61,7 @@ namespace Engine
             size_t iUniformSize{0};
             std::vector<std::unique_ptr<CVulkanBuffer>> vBuffers;
             std::vector<bool> vMapped;
+            bool bIsClean{false};
         };
     }
 }

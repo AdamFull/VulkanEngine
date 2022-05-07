@@ -54,6 +54,7 @@ namespace Engine
             void *mappedMemory = nullptr;
             vk::Buffer buffer = VK_NULL_HANDLE;
             vk::DeviceMemory deviceMemory = VK_NULL_HANDLE;
+            bool bIsClean{false};
 
             vk::DeviceSize bufferSize;
             uint32_t instanceCount;

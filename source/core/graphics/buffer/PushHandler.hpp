@@ -44,6 +44,7 @@ namespace Engine
             std::optional<Pipeline::CPushConstBlock> pushBlock;
             std::vector<std::unique_ptr<CVulkanBuffer>> vBuffers;
             std::vector<std::unique_ptr<char[]>> vData;
+            bool bIsClean{false};
         };
     }
 }

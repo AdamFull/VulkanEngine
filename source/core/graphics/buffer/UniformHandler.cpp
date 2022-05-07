@@ -26,10 +26,14 @@ void CUniformHandler::reCreate()
 
 void CUniformHandler::cleanup()
 {
-    for(auto& buffer : vBuffers)
-        buffer->cleanup();
-    vBuffers.clear();
-    vMapped.clear();
+    if(!bIsClean)
+    {
+        for(auto& buffer : vBuffers)
+            buffer->cleanup();
+        vBuffers.clear();
+        vMapped.clear();
+        bIsClean = true;
+    }
 }
 
 void CUniformHandler::flush(vk::CommandBuffer& commandBuffer, std::shared_ptr<Pipeline::CPipelineBase> pPipeline)

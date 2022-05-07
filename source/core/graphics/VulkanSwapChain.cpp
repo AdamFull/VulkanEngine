@@ -11,13 +11,6 @@ std::unique_ptr<CSwapChain> utl::singleton<CSwapChain>::_instance{nullptr};
 CSwapChain::~CSwapChain()
 {
     cleanup();
-
-    for (size_t i = 0; i < m_iFramesInFlight; i++)
-    {
-        CDevice::inst()->destroy(m_vRenderFinishedSemaphores[i]);
-        CDevice::inst()->destroy(m_vImageAvailableSemaphores[i]);
-        CDevice::inst()->destroy(m_vInFlightFences[i]);
-    }
 }
 
 void CSwapChain::create()
@@ -100,10 +93,23 @@ vk::Result CSwapChain::submitCommandBuffers(const vk::CommandBuffer *commandBuff
 
 void CSwapChain::cleanup()
 {
-    for (auto imageView : m_vImageViews)
-        CDevice::inst()->destroy(imageView);
+    if(!bIsClean)
+    {
+        for(auto image : m_vImages)
+            CDevice::inst()->destroy(image);
+        for (auto imageView : m_vImageViews)
+            CDevice::inst()->destroy(imageView);
 
-    CDevice::inst()->destroy(m_swapChain);
+        for (size_t i = 0; i < m_iFramesInFlight; i++)
+        {
+            CDevice::inst()->destroy(m_vRenderFinishedSemaphores[i]);
+            CDevice::inst()->destroy(m_vImageAvailableSemaphores[i]);
+            CDevice::inst()->destroy(m_vInFlightFences[i]);
+        }
+
+        CDevice::inst()->destroy(m_swapChain);
+        bIsClean = true;
+    }
 }
 
 void CSwapChain::reCreate()

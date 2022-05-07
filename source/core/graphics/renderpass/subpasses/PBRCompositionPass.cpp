@@ -30,7 +30,7 @@ void CPBRCompositionPass::create()
     pUniform = std::make_shared<CUniformBuffer>();
     pUniform->create(framesInFlight, sizeof(FLightningData));
 
-    m_pSkybox =CResourceManager::inst()->Get<CImage>("skybox_cubemap_tex");
+    m_pSkybox =CResourceManager::inst()->get<CImage>("skybox_cubemap_tex");
 
     brdf = CThreadPool::inst()->submit(&CPBRCompositionPass::ComputeBRDFLUT, 512);
     irradiance = CThreadPool::inst()->submit(&CPBRCompositionPass::ComputeIrradiance, m_pSkybox, 64);

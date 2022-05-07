@@ -29,6 +29,6 @@ void CGBufferPass::render(vk::CommandBuffer& commandBuffer)
 
 void CGBufferPass::cleanup()
 {
-    CSceneManager::inst()->getScene()->destroy();
+    CSceneManager::inst()->getScene()->cleanup();
     CSubpass::cleanup();
 }

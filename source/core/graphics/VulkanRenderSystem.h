@@ -32,6 +32,7 @@ namespace Engine
             bool frameStarted{false};
             vk::Extent2D screenExtent{};
             uint32_t currentStageIndex{0};
+            bool bIsClean{false};
 
             size_t totalFrameNumberCounter{0};
 

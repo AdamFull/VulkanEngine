@@ -19,14 +19,13 @@ void CRenderScene::create()
 
 void CRenderScene::reCreate()
 {
-    m_pRoot->cleanup();
     m_pRoot->reCreate();
 }
 
 void CRenderScene::cleanup()
 {
     if(m_pRoot)
-        m_pRoot->destroy();
+        m_pRoot->cleanup();
 }
 
 void CRenderScene::attachObject(std::shared_ptr<Core::Scene::CRenderObject> object)

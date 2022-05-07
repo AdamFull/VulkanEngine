@@ -39,6 +39,7 @@ namespace Engine
                 vk::Extent2D imagesExtent;
                 std::map<uint32_t, std::unordered_map<std::string, std::shared_ptr<CImage>>> mImages;
                 std::vector<std::shared_ptr<CImage>> vDepth;
+                bool bIsClean{false};
             };
         }
     }

@@ -11,6 +11,8 @@ namespace Engine
             explicit CCommandBuffer(bool _begin = true, vk::QueueFlagBits queueType = vk::QueueFlagBits::eGraphics, vk::CommandBufferLevel bufferLevel = vk::CommandBufferLevel::ePrimary, uint32_t count = 1);
             ~CCommandBuffer();
 
+            void cleanup();
+
             void begin(vk::CommandBufferUsageFlags usage = vk::CommandBufferUsageFlagBits::eOneTimeSubmit, uint32_t index = 0);
             void end();
 
@@ -25,6 +27,7 @@ namespace Engine
         private:
             vk::Queue getQueue() const;
             uint32_t frameIndex{0};
+            bool bIsClean{false};
 
             std::shared_ptr<CCommandPool> commandPool;
 

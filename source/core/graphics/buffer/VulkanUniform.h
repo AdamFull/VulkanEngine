@@ -71,6 +71,7 @@ namespace Engine
         private:
             void createUniformBuffers(uint32_t inFlightFrames);
             size_t iUniformSize{0};
+            bool bIsClean{false};
 
             std::vector<std::unique_ptr<CVulkanBuffer>> vBuffers;
         };

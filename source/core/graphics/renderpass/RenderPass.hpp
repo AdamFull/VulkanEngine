@@ -46,6 +46,7 @@ namespace Engine
 
                 CRenderPass() = default;
                 CRenderPass(vk::RenderPass &&pass);
+                ~CRenderPass();
 
                 void create();
                 void reCreate();
@@ -73,6 +74,7 @@ namespace Engine
                 vk::RenderPass createRenderPass();
                 std::vector<std::shared_ptr<CSubpass>> vSubpasses;
                 uint32_t currentSubpassIndex{0};
+                bool bIsClean{false};
 
                 //ReCreate data
                 std::vector<vk::AttachmentDescription> vAttachDesc;

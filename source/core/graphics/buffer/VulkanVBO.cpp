@@ -11,8 +11,12 @@ void CVertexBufferObject::create()
 
 void CVertexBufferObject::cleanup()
 {
-    vertexBuffer->cleanup();
-    indexBuffer->cleanup();
+    if(!bIsClean)
+    {
+        vertexBuffer->cleanup();
+        indexBuffer->cleanup();
+        bIsClean = true;
+    }
 }
 
 void CVertexBufferObject::bind(vk::CommandBuffer commandBuffer)

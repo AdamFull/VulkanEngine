@@ -186,6 +186,7 @@ namespace Engine
                 std::vector<std::string> m_vShaderCache;
                 std::map<std::string, std::string> m_vDefines;
                 std::unique_ptr<CShader> m_pShader;
+                bool bIsClean{false};
 
                 CVertexInput m_vertexInput;
 

@@ -20,9 +20,13 @@ void CUniformBuffer::reCreate(uint32_t inFlightFrames)
 
 void CUniformBuffer::cleanup()
 {
-    for(auto& buffer : vBuffers)
-        buffer->cleanup();
-    vBuffers.clear();
+    if(!bIsClean)
+    {
+        for(auto& buffer : vBuffers)
+            buffer->cleanup();
+        vBuffers.clear();
+        bIsClean = true;
+    }
 }
 void CUniformBuffer::updateUniformBuffer(uint32_t index, void *ubo)
 {

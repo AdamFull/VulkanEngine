@@ -26,12 +26,16 @@ void CVulkanBuffer::reCreate(vk::DeviceSize instanceSize, uint32_t instanceCount
 
 void CVulkanBuffer::cleanup()
 {
-    if(mappedMemory)
-        unmapMem();
-    if(buffer)
-        CDevice::inst()->destroy(buffer);
-    if(deviceMemory)
-        CDevice::inst()->destroy(deviceMemory);
+    if(!bIsClean)
+    {
+        if(mappedMemory)
+            unmapMem();
+        if(buffer)
+            CDevice::inst()->destroy(buffer);
+        if(deviceMemory)
+            CDevice::inst()->destroy(deviceMemory);
+        bIsClean = true;
+    }
 }
 
 vk::DescriptorBufferInfo CVulkanBuffer::getDscriptor(vk::DeviceSize size, vk::DeviceSize offset)

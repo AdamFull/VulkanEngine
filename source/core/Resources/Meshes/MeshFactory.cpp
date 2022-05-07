@@ -33,12 +33,12 @@ std::shared_ptr<CMeshFragment> CMeshFactory::create(FMeshCreateInfo info)
 
     if (!info.bUseIncludedMaterial)
     {
-        for (auto &matInfo : info.vMaterials)
+        /*for (auto &matInfo : info.vMaterials)
         {
             std::shared_ptr<Material::CMaterialBase> material = Material::CMaterialFactory::create(matInfo);
             CResourceManager::inst()->addExisting(matInfo.srName, material);
             mesh->setMaterial(material);
-        }
+        }*/
     }
     return mesh;
 }

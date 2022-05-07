@@ -80,8 +80,13 @@ void CRenderSystem::render()
 
 void CRenderSystem::cleanup()
 {
-    for(auto& stage : vStages)
-        stage->cleanup();
+    if(!bIsClean)
+    {
+        commandBuffers->cleanup();
+        for(auto& stage : vStages)
+            stage->cleanup();
+        bIsClean = true;
+    }
 }
 
 vk::CommandBuffer& CRenderSystem::getCurrentCommandBuffer()

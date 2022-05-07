@@ -25,10 +25,14 @@ void CPushHandler::reCreate()
 
 void CPushHandler::cleanup()
 {
-    for(auto& buffer : vBuffers)
-        buffer->cleanup();
-    vBuffers.clear();
-    vData.clear();
+    if(!bIsClean)
+    {
+        for(auto& buffer : vBuffers)
+            buffer->cleanup();
+        vBuffers.clear();
+        vData.clear();
+        bIsClean = true;
+    }
 }
 
 void CPushHandler::flush(vk::CommandBuffer& commandBuffer, std::shared_ptr<Pipeline::CPipelineBase> pPipeline)

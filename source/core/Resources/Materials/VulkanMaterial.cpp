@@ -55,7 +55,7 @@ void CMaterialBase::reCreate()
 void CMaterialBase::update(uint32_t imageIndex)
 {
 
-    m_pDescriptorSet->clear();
+    m_pDescriptorSet->reset();
     for(auto& [key, buffer] : m_mBuffers)
         m_pDescriptorSet->set(key, buffer);
     for(auto& [key, texture] : m_mTextures)

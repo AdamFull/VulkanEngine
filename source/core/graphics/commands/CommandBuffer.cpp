@@ -18,10 +18,19 @@ commandPool(CDevice::inst()->getCommandPool()), queueType(queueType)
         begin();
 }
 
+void CCommandBuffer::cleanup()
+{
+    if(!bIsClean)
+    {
+        CDevice::inst()->getLogical().freeCommandBuffers(commandPool->getCommandPool(), vCommandBuffers);
+        vCommandBuffers.clear();
+        bIsClean = true;
+    }
+}
+
 CCommandBuffer::~CCommandBuffer()
 {
-    CDevice::inst()->getLogical().freeCommandBuffers(commandPool->getCommandPool(), vCommandBuffers);
-    vCommandBuffers.clear();
+    cleanup();
 }
 
 

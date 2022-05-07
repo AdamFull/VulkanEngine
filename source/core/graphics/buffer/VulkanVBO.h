@@ -23,6 +23,7 @@ namespace Engine
             void createVertexBuffer();
             void createIndexBuffer();
             bool bBuffersCreated{false};
+            bool bIsClean{false};
 
             std::vector<FVertex> vVertices;
             std::unique_ptr<CVulkanBuffer> vertexBuffer;

@@ -74,9 +74,15 @@ void CFramebuffer::reCreate(vk::RenderPass& renderPass, vk::Extent2D extent)
 
 void CFramebuffer::cleanup()
 {
-    mImages.clear();
-    vDepth.clear();
-    vFramebuffers.clear();
+    if(!bIsClean)
+    {
+        for(auto& framebuffer : vFramebuffers)
+            CDevice::inst()->destroy(framebuffer);
+        vFramebuffers.clear();
+        mImages.clear();
+        vDepth.clear();
+        bIsClean = true;
+    }   
 }
 
 void CFramebuffer::addImage(const std::string& name, vk::Format format, vk::ImageUsageFlags usageFlags)

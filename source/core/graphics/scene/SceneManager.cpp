@@ -13,5 +13,5 @@ void CSceneManager::load(const std::string& scene_name)
 
 void CSceneManager::unload()
 {
-    pCurrentScene->destroy();
+    pCurrentScene->cleanup();
 }

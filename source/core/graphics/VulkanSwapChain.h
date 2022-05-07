@@ -60,6 +60,7 @@ namespace Engine
         private:
             vk::Format m_imageFormat;
             vk::Extent2D m_extent;
+            bool bIsClean{false};
 
             // Swap chain buffer
             std::vector<vk::Image> m_vImages;

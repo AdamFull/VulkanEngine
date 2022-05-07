@@ -15,6 +15,11 @@ CRenderObject::CRenderObject(std::string srName)
     m_srName = srName;
 }
 
+CRenderObject::~CRenderObject()
+{
+    m_mChilds.clear();
+}
+
 void CRenderObject::create()
 {
     for (auto &[name, child] : m_mChilds)

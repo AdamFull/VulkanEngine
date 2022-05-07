@@ -46,7 +46,6 @@ namespace Engine
 
                 CRenderPass() = default;
                 CRenderPass(vk::RenderPass &&pass);
-                ~CRenderPass();
 
                 void create();
                 void reCreate();

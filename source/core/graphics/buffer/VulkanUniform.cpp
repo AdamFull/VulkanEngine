@@ -2,11 +2,6 @@
 
 using namespace Engine::Core;
 
-CUniformBuffer::~CUniformBuffer()
-{
-
-}
-
 void CUniformBuffer::create(uint32_t inFlightFrames, size_t uniform_size)
 {
     iUniformSize = uniform_size;

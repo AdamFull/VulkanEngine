@@ -83,11 +83,6 @@ CRenderPass::CRenderPass(vk::RenderPass&& pass) : renderPass(std::move(pass))
 
 }
 
-CRenderPass::~CRenderPass()
-{
-    CDevice::inst()->destroy(renderPass);
-}
-
 void CRenderPass::create()
 {
     //Creating subpasses (render stages)
@@ -112,6 +107,11 @@ void CRenderPass::reCreate()
 
 void CRenderPass::cleanup()
 {
+    for(auto& subpass : vSubpasses)
+        subpass->cleanup();
+    vSubpasses.clear();
+    if(renderPass)
+        CDevice::inst()->destroy(renderPass);
 }
 
 void CRenderPass::begin(vk::CommandBuffer& commandBuffer)

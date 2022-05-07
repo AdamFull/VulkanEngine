@@ -5,6 +5,11 @@
 using namespace Engine::Core;
 using namespace Engine::Core::Pipeline;
 
+CUniformHandler::~CUniformHandler()
+{
+    vBuffers.clear();
+}
+
 void CUniformHandler::create(const CUniformBlock &_uniformBlock)
 {
     uint32_t images = CSwapChain::inst()->getFramesInFlight();

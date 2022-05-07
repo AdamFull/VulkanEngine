@@ -4,7 +4,7 @@ using namespace Engine::Core;
 
 CVertexBufferObject::~CVertexBufferObject()
 {
-
+    int aaa = 0;
 }
 
 void CVertexBufferObject::create()

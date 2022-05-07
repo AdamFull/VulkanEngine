@@ -11,11 +11,6 @@ using namespace Engine::Core;
 using namespace Engine::Core::Scene;
 using namespace Engine::Resources;
 
-CRenderScene::~CRenderScene()
-{
-    destroy();
-}
-
 void CRenderScene::create()
 {
     m_pRoot = std::make_shared<Core::Scene::CSceneRootComponent>();
@@ -28,17 +23,10 @@ void CRenderScene::reCreate()
     m_pRoot->reCreate();
 }
 
-void CRenderScene::destroy()
+void CRenderScene::cleanup()
 {
-    CDevice::inst()->GPUWait();
-    /*if (CRenderSystem::inst()->GetFrameStartFlag())
-    {
-        bool bResult;
-        auto commandBuffer = CRenderSystem::inst()->GetCurrentCommandBuffer();
-        UHLInstance->EndFrame(commandBuffer, &bResult);
-    }*/
-
-    m_pRoot->destroy();
+    if(m_pRoot)
+        m_pRoot->destroy();
 }
 
 void CRenderScene::attachObject(std::shared_ptr<Core::Scene::CRenderObject> object)

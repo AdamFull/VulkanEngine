@@ -13,11 +13,10 @@ namespace Engine
             {
             public:
                 CRenderScene() = default;
-                ~CRenderScene();
                 
                 void create();
                 void reCreate();
-                void destroy();
+                void cleanup();
                 void attachObject(std::shared_ptr<Core::Scene::CRenderObject> object);
                 inline std::shared_ptr<Core::Scene::CRenderObject>& getRoot() { return m_pRoot; }
                 void createObjects();

@@ -10,6 +10,8 @@ namespace Engine
         class CUniformHandler : public utl::non_copy_movable
         {
         public:
+            CUniformHandler() = default;
+            ~CUniformHandler();
             void create(const Pipeline::CUniformBlock &uniformBlock);
             void reCreate();
             void cleanup();

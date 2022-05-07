@@ -57,7 +57,6 @@ namespace Engine
         {
         public:
             CUniformBuffer() = default;
-            ~CUniformBuffer();
 
             void create(uint32_t inFlightFrames, size_t uniform_size);
             void reCreate(uint32_t inFlightFrames);

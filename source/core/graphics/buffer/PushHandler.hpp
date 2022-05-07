@@ -10,6 +10,8 @@ namespace Engine
         class CPushHandler : public utl::non_copy_movable
         {
         public:
+            CPushHandler() = default;
+            ~CPushHandler();
             void create(const Pipeline::CPushConstBlock &pushBlock);
             void reCreate();
             void cleanup();

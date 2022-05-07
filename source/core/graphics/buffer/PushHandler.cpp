@@ -5,6 +5,11 @@
 using namespace Engine::Core;
 using namespace Engine::Core::Pipeline;
 
+CPushHandler::~CPushHandler()
+{
+    vBuffers.clear();
+}
+
 void CPushHandler::create(const CPushConstBlock &uniformBlock)
 {
     uint32_t images = CSwapChain::inst()->getFramesInFlight();

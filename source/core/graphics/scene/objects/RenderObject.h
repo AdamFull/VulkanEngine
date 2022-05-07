@@ -15,6 +15,7 @@ namespace Engine
             public:
                 CRenderObject();
                 CRenderObject(std::string srName);
+                ~CRenderObject();
 
                 // Create render object
                 virtual void create();

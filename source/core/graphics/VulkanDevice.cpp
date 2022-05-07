@@ -1,9 +1,11 @@
 #include "util/ulog.hpp"
 #include "VulkanHighLevel.h"
 #include "VulkanStaticHelper.h"
+#include "Resources/Materials/MaterialLoader.h"
 
 using namespace Engine::Core;
 using namespace Engine::Core::Window;
+using namespace Engine::Resources::Material;
 
 template<>
 std::unique_ptr<CDevice> utl::singleton<CDevice>::_instance{nullptr};
@@ -68,10 +70,10 @@ CDevice::~CDevice()
     // surface is created by glfw, therefore not using a Unique handle
     destroy(m_surface);
 
+    vkDestroyDevice(m_logical, nullptr);
+
     if (m_bValidation)
         destroyDebugUtilsMessengerEXT(m_vkInstance, m_vkDebugUtils, nullptr);
-
-    vkDestroyDevice(m_logical, nullptr);
     vkDestroyInstance(m_vkInstance, nullptr);
 }
 
@@ -84,6 +86,11 @@ void CDevice::create(const FDeviceCreateInfo& deviceCI)
     createSurface();
     createDevice(deviceCI);
     m_pCommandPool = std::make_unique<CCommandPool>();
+
+    CSwapChain::inst();
+    CMaterialLoader::inst();
+    CRenderSystem::inst();
+    CVBO::inst();
 }
 
 uint32_t CDevice::getVulkanVersion()

@@ -75,9 +75,7 @@ void CMeshComponentBase::cleanup()
     CComponentBase::cleanup();
 
     if (m_pMesh)
-    {
         m_pMesh->cleanup();
-    }
 }
 
 void CMeshComponentBase::destroy()

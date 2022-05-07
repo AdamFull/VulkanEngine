@@ -10,10 +10,13 @@ using namespace Engine::Core::Pipeline;
 
 CMaterialBase::~CMaterialBase()
 {
+    cleanup();
 }
 
 void CMaterialBase::create()
 {
+    //Material loads render pass and subpass number from attached render stage
+    //Material should be in render stage because render stage contains specific render pass and subpass
     uint32_t images = CSwapChain::inst()->getFramesInFlight();
     auto& renderPass = CRenderSystem::inst()->getCurrentStage()->getRenderPass()->get();
     auto subpass = CRenderSystem::inst()->getCurrentStage()->getRenderPass()->getCurrentSubpass();
@@ -51,6 +54,7 @@ void CMaterialBase::reCreate()
 
 void CMaterialBase::update(uint32_t imageIndex)
 {
+
     m_pDescriptorSet->clear();
     for(auto& [key, buffer] : m_mBuffers)
         m_pDescriptorSet->set(key, buffer);
@@ -67,7 +71,16 @@ void CMaterialBase::bind(vk::CommandBuffer commandBuffer, uint32_t imageIndex)
 
 void CMaterialBase::cleanup()
 {
-
+    //Custom cleanup rules
+    if(m_pDescriptorSet)
+        m_pDescriptorSet->cleanup();
+    for(auto& handler : m_vUniformBuffers)
+        handler->cleanup();
+    m_vUniformBuffers.clear();
+    for(auto& push : m_vPushConstants)
+        push->cleanup();
+    m_vPushConstants.clear();
+    m_pPipeline->cleanup();
 }
 
 void CMaterialBase::setName(const std::string& srName)

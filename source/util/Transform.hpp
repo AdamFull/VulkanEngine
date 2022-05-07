@@ -3,6 +3,10 @@
 #include <glm/gtc/matrix_transform.hpp>
 #include "serializer/serialization.hpp"
 
+/**
+ * @brief Structure that describes current transformations of render object
+ * 
+ */
 struct FTransform
 {
     glm::vec3 pos{};
@@ -17,6 +21,11 @@ struct FTransform
         return *this;
     }
 
+    /**
+     * @brief Get the Forward Vector of render object
+     * 
+     * @return const glm::vec3 Forward vector 
+     */
     const glm::vec3 getForwardVector() const
     {
         glm::vec3 camFront;
@@ -27,17 +36,32 @@ struct FTransform
         return camFront;
     }
 
+    /**
+     * @brief Get the Right Vector of render object
+     * 
+     * @return const glm::vec3 Right vector
+     */
     const glm::vec3 getRightVector() const
     {
         auto camFront = getForwardVector();
         return glm::normalize(glm::cross(camFront, glm::vec3(0.0f, 1.0f, 0.0f)));
     }
 
+    /**
+     * @brief Get the Up Vector of render object
+     * 
+     * @return const glm::vec3 Up vector
+     */
     const glm::vec3 getUpVector() const
     {
         return glm::vec3{0.f, 1.f, 0.f};
     }
 
+    /**
+     * @brief Get render object model matrix
+     * 
+     * @return glm::mat4 Model matrix
+     */
     inline glm::mat4 getModel()
     {
         glm::mat4 translation{1.0};
@@ -55,6 +79,11 @@ struct FTransform
         return translation;
     }
 
+    /**
+     * @brief Get render object normal matrix
+     * 
+     * @return glm::mat4 Normal matrix
+     */
     inline glm::mat4 getNormal()
     {
         return glm::transpose(getModel());

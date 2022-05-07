@@ -152,13 +152,9 @@ CMaterialLoader::CMaterialLoader()
     load();
 }
 
-CMaterialLoader::~CMaterialLoader()
-{
-    //save();
-}
-
 std::shared_ptr<CMaterialBase> CMaterialLoader::create(const std::string& name)
 {
+    //TODO: Check ability to store same materials
     auto it = data.creationInfo.find(name);
     if(it != data.creationInfo.end())
     {
@@ -187,9 +183,6 @@ std::shared_ptr<CMaterialBase> CMaterialLoader::create(const std::string& name)
     return nullptr;
 }
 
-//i can load number of attachments from stage or from shader but from shader is harder
-//Create buffer of stage attachments
-//Create method to access for render stage from subpasses
 void CMaterialLoader::load()
 {
     auto tmp = FilesystemHelper::readFile("materials.json");

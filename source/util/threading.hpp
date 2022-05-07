@@ -4,6 +4,11 @@
 
 namespace Engine
 {
+	/**
+	 * @brief Future class for returning data from thread
+	 * 
+	 * @tparam _Ty Data type
+	 */
     template <typename _Ty>
     class CFuture
     {
@@ -47,6 +52,10 @@ namespace Engine
         std::optional<_Ty> __current;
     };
 
+	/**
+	 * @brief Worker class of thread pool
+	 * 
+	 */
     class CWorker
 	{
 	private:
@@ -57,12 +66,22 @@ namespace Engine
 		std::mutex _queue_mutex;
 		std::condition_variable _condition;
 
+		/**
+		 * @brief Worker main loop
+		 * 
+		 */
 		void loop();
 
 	public:
 		CWorker();
 		~CWorker();
 
+		/**
+		 * @brief Pushes lambda function without parameters
+		 * 
+		 * @tparam _Lambda Lambda function, or class type
+		 * @param function Worker function
+		 */
 		template<class _Lambda>
 		void push(_Lambda&& function)
 		{
@@ -71,13 +90,24 @@ namespace Engine
 			_condition.notify_one();
 		}
 
+		/**
+		 * @brief Pushes lambda function with parameters
+		 * 
+		 * @tparam _Lambda Lambda function, or class type
+		 * @tparam _Types Lambda function variadic arguments
+		 * @param function Worker function
+		 * @param args Variadic arguments
+		 */
 		template<class _Lambda, class... _Types>
 		void push(_Lambda&& function, _Types&& ...args)
 		{
 			push([function, ...args = std::forward<_Types>(args)] { function(std::forward<_Types>(args)...); });
 		}
 
-		// Wait until all work items have been finished
+		/**
+		 * @brief Wait until all work items have been finished
+		 * 
+		 */
 		void wait()
 		{
 			std::unique_lock<std::mutex> lock(_queue_mutex);
@@ -90,6 +120,10 @@ namespace Engine
 		}
 	};
 
+	/**
+	 * @brief Thread pool implementation class
+	 * 
+	 */
     class CThreadPool : public utl::singleton<CThreadPool>
     {
     public:
@@ -97,6 +131,12 @@ namespace Engine
 		CThreadPool(const size_t& count);
 		~CThreadPool();
 
+		/**
+		 * @brief Pushes functional object as worker task
+		 * 
+		 * @tparam _Types Variadic arguments
+		 * @param args Arguments
+		 */
         template<class... _Types>
         void push(_Types&& ...args)
         {
@@ -105,6 +145,13 @@ namespace Engine
                 _current = 0;
         }
 
+		/**
+		 * @brief Pushes functional object with return type for assynchronous result processing 
+		 * 
+		 * @param work Functional worker
+		 * @param args Variadic arguments
+		 * @return CFuture<_Kty> Future object for attempting access to result 
+		 */
 		template<class _Ty, class... _Types, typename _Kty = std::invoke_result_t<std::decay_t<_Ty>, std::decay_t<_Types>...>, typename = std::enable_if_t<!std::is_void_v<_Ty>>>
 		CFuture<_Kty> submit(_Ty&& work, _Types&& ...args)
 		{
@@ -127,7 +174,17 @@ namespace Engine
 			return CFuture<_Kty>(std::move(_future));
 		}
 
+		/**
+		 * @brief Set the worker count
+		 * 
+		 * @param count Thread number
+		 */
         void set_worker_count(const size_t& count);
+
+		/**
+		 * @brief Wait while work will be done
+		 * 
+		 */
         void wait();
     private:
         std::vector<std::unique_ptr<CWorker>> _workers;

@@ -31,13 +31,13 @@ namespace Engine
         {
         public:
             CDevice() = default;
-            ~CDevice();
 
             static VkResult createDebugUtilsMessengerEXT(VkInstance, const VkDebugUtilsMessengerCreateInfoEXT *, const VkAllocationCallbacks *, VkDebugUtilsMessengerEXT *);
             static VKAPI_ATTR VkBool32 VKAPI_CALL validationCallback(VkDebugUtilsMessageSeverityFlagBitsEXT, VkDebugUtilsMessageTypeFlagsEXT, const VkDebugUtilsMessengerCallbackDataEXT *, void *);
             static void destroyDebugUtilsMessengerEXT(VkInstance, VkDebugUtilsMessengerEXT, const VkAllocationCallbacks *);
 
             void create(const FDeviceCreateInfo& deviceCI);
+            void cleanup();
 
             inline void GPUWait() { m_logical.waitIdle(); }
 

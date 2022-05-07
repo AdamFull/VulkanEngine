@@ -65,18 +65,6 @@ void CDevice::destroyDebugUtilsMessengerEXT(VkInstance instance, VkDebugUtilsMes
     }
 }
 
-CDevice::~CDevice()
-{
-    // surface is created by glfw, therefore not using a Unique handle
-    destroy(m_surface);
-
-    vkDestroyDevice(m_logical, nullptr);
-
-    if (m_bValidation)
-        destroyDebugUtilsMessengerEXT(m_vkInstance, m_vkDebugUtils, nullptr);
-    vkDestroyInstance(m_vkInstance, nullptr);
-}
-
 // TODO: add features picking while initialization
 void CDevice::create(const FDeviceCreateInfo& deviceCI)
 {
@@ -86,11 +74,18 @@ void CDevice::create(const FDeviceCreateInfo& deviceCI)
     createSurface();
     createDevice(deviceCI);
     m_pCommandPool = std::make_unique<CCommandPool>();
+}
 
-    CSwapChain::inst();
-    CMaterialLoader::inst();
-    CRenderSystem::inst();
-    CVBO::inst();
+void CDevice::cleanup()
+{
+    // surface is created by glfw, therefore not using a Unique handle
+    destroy(m_surface);
+
+    vkDestroyDevice(m_logical, nullptr);
+
+    if (m_bValidation)
+        destroyDebugUtilsMessengerEXT(m_vkInstance, m_vkDebugUtils, nullptr);
+    vkDestroyInstance(m_vkInstance, nullptr);
 }
 
 uint32_t CDevice::getVulkanVersion()

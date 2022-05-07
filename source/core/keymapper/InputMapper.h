@@ -17,12 +17,23 @@ namespace Engine
         std::vector<utl::function<void(float, float)>> vListeners;
     };
 
+    /**
+     * @brief Simple input mapper singleton class. Creates bindings for input devices
+     * 
+     */
     class CInputMapper : public utl::singleton<CInputMapper>
     {
     public:
         CInputMapper();
         ~CInputMapper();
 
+        /**
+         * @brief Creates binding with KeyCode and action name. After creating action, you can bind your function to this name.
+         * 
+         * @tparam Args Variadic arguments. In this case should contain EActionKey type
+         * @param srActionName New action name
+         * @param args Action keys
+         */
         template<class ...Args>
         void createAction(std::string srActionName, Args &&...args)
         {

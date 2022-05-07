@@ -30,6 +30,7 @@ void CApplication::serviceHandle(EActionKey eKey, EKeyState eState)
     {
     case EActionKey::eEscape:
     {
+        CVulkanHighLevel::inst()->cleanup();
         CSceneManager::inst()->unload();
         std::exit(10);
     }

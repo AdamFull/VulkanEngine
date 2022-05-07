@@ -63,8 +63,14 @@ void CPipelineBase::reCreate(vk::RenderPass& renderPass, uint32_t _subpass)
 
 void CPipelineBase::cleanup()
 {
-    CDevice::inst()->destroy(m_pipeline);
-    CDevice::inst()->destroy(m_pipelineLayout);
+    if(m_descriptorSetLayout)
+        CDevice::inst()->destroy(m_descriptorSetLayout);
+    if(m_descriptorPool)
+        CDevice::inst()->destroy(m_descriptorPool);
+    if(m_pipeline)
+        CDevice::inst()->destroy(m_pipeline);
+    if(m_pipelineLayout)
+        CDevice::inst()->destroy(m_pipelineLayout);
 }
 
 void CPipelineBase::bind(vk::CommandBuffer &commandBuffer)

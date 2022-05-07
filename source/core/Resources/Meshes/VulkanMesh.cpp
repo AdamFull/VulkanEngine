@@ -44,12 +44,6 @@ void CMeshBase::cleanup()
         fragment->cleanup();
 }
 
-void CMeshBase::destroy()
-{
-    for (auto& fragment : m_vFragments)
-        fragment->destroy();
-}
-
 void CMeshBase::addFragment(std::shared_ptr<CMeshFragment> fragment)
 {
     m_vFragments.push_back(fragment);

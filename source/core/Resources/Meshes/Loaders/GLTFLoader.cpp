@@ -43,7 +43,7 @@ bLoadMaterials(loadMaterials), bUseMaterials(useMaterials), srModelName(modelNam
 
 }
 
-void GLTFLoader::load(std::string srPath, std::string srName)
+void GLTFLoader::load(const std::string& srPath, const std::string& srName)
 {
     tinygltf::Model gltfModel;
     tinygltf::TinyGLTF gltfContext;
@@ -484,7 +484,7 @@ void GLTFLoader::loadMaterials(const tinygltf::Model &model)
             return vTextures.at(index);
         }
         
-        return CResourceManager::inst()->Get<Core::CImage>("no_texture");
+        return CResourceManager::inst()->get<Core::CImage>("no_texture");
     };
 
     uint32_t material_index{0};
@@ -564,7 +564,7 @@ void GLTFLoader::loadTextures(const tinygltf::Model &model)
     }
 }
 
-std::shared_ptr<CImage> GLTFLoader::loadTexture(const tinygltf::Image &image, std::string path)
+std::shared_ptr<CImage> GLTFLoader::loadTexture(const tinygltf::Image &image, const std::string& path)
 {
     bool isKtx = false;
     // Image points to an external ktx file

@@ -4,11 +4,6 @@
 using namespace Engine::Core;
 using namespace Engine::Core::Descriptor;
 
-CDescriptorSet::~CDescriptorSet()
-{
-    CDevice::inst()->getLogical().freeDescriptorSets(descriptorPool, vDescriptorSets);
-}
-
 void CDescriptorSet::create(vk::PipelineBindPoint bindPoint, vk::PipelineLayout layout, vk::DescriptorPool pool, vk::DescriptorSetLayout setLayout, uint32_t images)
 {
     pipelineBindPoint = bindPoint;
@@ -31,6 +26,11 @@ void CDescriptorSet::create(vk::PipelineBindPoint bindPoint, vk::PipelineLayout 
 void CDescriptorSet::create(std::shared_ptr<Pipeline::CPipelineBase> pPipeline, uint32_t images)
 {
     create(pPipeline->getBindPoint(), pPipeline->getPipelineLayout(), pPipeline->getDescriptorPool(), pPipeline->getDescriptorSetLayout(), images);
+}
+
+void CDescriptorSet::cleanup()
+{
+    CDevice::inst()->getLogical().freeDescriptorSets(descriptorPool, vDescriptorSets);
 }
 
 void CDescriptorSet::update(std::vector<vk::WriteDescriptorSet> &vWrites, uint32_t index)

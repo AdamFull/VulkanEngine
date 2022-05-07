@@ -15,11 +15,11 @@ namespace Engine
                         vk::BufferUsageFlags usageFlags, vk::MemoryPropertyFlags memoryPropertyFlags,
                         vk::DeviceSize minOffsetAlignment = 1);
 
+            void cleanup();
+
             void reCreate(vk::DeviceSize instanceSize, uint32_t instanceCount,
                           vk::BufferUsageFlags usageFlags, vk::MemoryPropertyFlags memoryPropertyFlags,
                           vk::DeviceSize minOffsetAlignment = 1);
-
-            void clean();
 
             vk::DescriptorBufferInfo getDscriptor(vk::DeviceSize size, vk::DeviceSize offset);
             vk::DescriptorBufferInfo getDscriptor();

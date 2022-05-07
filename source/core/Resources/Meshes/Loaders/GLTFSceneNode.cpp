@@ -3,7 +3,7 @@
 using namespace Engine::Resources::Mesh;
 using namespace Engine::Resources::Loaders;
 
-void GLTFSceneNode::setName(std::string srName)
+void GLTFSceneNode::setName(const std::string& srName)
 {
     if (m_pParent)
     {
@@ -40,7 +40,7 @@ std::map<std::string, std::shared_ptr<GLTFSceneNode>> &GLTFSceneNode::getChilds(
 }
 
 // Deep search
-std::shared_ptr<GLTFSceneNode> GLTFSceneNode::find(std::string srName)
+std::shared_ptr<GLTFSceneNode> GLTFSceneNode::find(const std::string& srName)
 {
     auto it_id = m_mUUID.find(srName);
     if (it_id != m_mUUID.end())

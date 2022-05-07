@@ -9,12 +9,6 @@ using namespace Engine::Core::Window;
 template<>
 std::unique_ptr<CVulkanHighLevel> utl::singleton<CVulkanHighLevel>::_instance{nullptr};
 
-CVulkanHighLevel::~CVulkanHighLevel()
-{
-    CDevice::inst()->GPUWait();
-    CDevice::inst()->destroy(m_pipelineCache);
-}
-
 void CVulkanHighLevel::create(FEngineCreateInfo createInfo)
 {
     CWindowHandle::inst()->create(createInfo.window);
@@ -51,7 +45,12 @@ void CVulkanHighLevel::cleanupSwapChain()
 
 void CVulkanHighLevel::cleanup()
 {
-    
+    CDevice::inst()->GPUWait();
+    CSwapChain::inst()->cleanup();
+    CRenderSystem::inst()->cleanup();
+    CVBO::inst()->cleanup();
+    CDevice::inst()->destroy(m_pipelineCache);
+    CDevice::inst()->cleanup();
 }
 
 namespace Engine

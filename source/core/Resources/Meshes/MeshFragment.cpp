@@ -34,16 +34,6 @@ FPrimitive& CMeshFragment::getPrimitive(uint32_t index)
     return m_vPrimitives.at(index);
 }
 
-void CMeshFragment::setMaterial(std::shared_ptr<Material::CMaterialBase> material)
-{
-    /*auto it = m_vPrimitives.find(srPrimitiveName);
-    std::find(m_vPrimitives.begin(), m_vPrimitives.end(), )
-    if(it != m_vPrimitives.end())
-        it->second.material = material;
-    else
-        assert(false && "Primitive for material was not found");*/
-}
-
 void CMeshFragment::reCreate()
 {
     for (auto &primitive : m_vPrimitives)
@@ -83,11 +73,6 @@ void CMeshFragment::cleanup()
         if(primitive.material)
             primitive.material->cleanup();
     }
-}
-
-void CMeshFragment::destroy()
-{
-
 }
 
 void CMeshFragment::setName(const std::string& srName)

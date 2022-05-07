@@ -13,14 +13,16 @@ std::unique_ptr<CResourceManager> utl::singleton<CResourceManager>::_instance{nu
 
 void CResourceManager::create()
 {
+    //Creating empty texture
     auto pEmptyTexture = std::make_shared<CImage2D>();
     pEmptyTexture->create(vk::Extent2D{512, 512}, vk::Format::eR8G8B8A8Srgb);
-    //pEmptyTexture->createEmptyTexture(512, 512, 1, 2, 0x8C43);
     addExisting("no_texture", pEmptyTexture);
 }
 
 void CResourceManager::load(std::string srResourcesPath)
 {
+    //Not sure that this method still works
+    //TODO: check is this methos still uses
     auto input = FilesystemHelper::readFile(srResourcesPath);
     auto res_json = nlohmann::json::parse(input).front();
 
@@ -33,11 +35,11 @@ void CResourceManager::load(std::string srResourcesPath)
     res_json.at("meshes").get_to(vMeshes);
 
     for (auto texture : vTextures)
-        Add<CImage>(texture);
+        add<CImage>(texture);
 
     for (auto material : vMaterials)
-        Add<CMaterialBase>(material);
+        add<CMaterialBase>(material);
 
     for (auto mesh : vMeshes)
-        Add<CMeshFragment>(mesh);
+        add<CMeshFragment>(mesh);
 }

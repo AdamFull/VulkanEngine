@@ -14,21 +14,6 @@
 #define GLM_FORCE_RADIANS
 #define GLM_FORCE_DEPTH_ZERO_TO_ONE
 #define GLM_ENABLE_EXPERIMENTAL
-//
-//#include <glm/gtx/vector_angle.hpp>
-//
-//#include <glm/gtx/matrix_operation.hpp>
-//
-
-//
-
-//#include <util/uuid.hpp>
-//#include <util/memory.hpp>
-//#include <util/function.hpp>
-//#include <util/ulog.hpp>
-//#include <util/threading.hpp>
-//#include <util/DynamicNode.hpp>
-//#include <util/StringHelper.h>
 
 #include <cassert>
 #include <memory>

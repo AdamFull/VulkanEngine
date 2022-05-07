@@ -2,6 +2,10 @@
 
 namespace utl
 {
+    /**
+     * @brief Makes child non copyable
+     * 
+     */
     class non_copyable
     {
     protected:
@@ -13,6 +17,10 @@ namespace utl
         non_copyable &operator=(const non_copyable &) = delete;
     };
 
+    /**
+     * @brief Makes child non movable
+     * 
+     */
     class non_movable
     {
     protected:
@@ -24,6 +32,10 @@ namespace utl
         non_movable &operator=(non_movable &&) noexcept = delete;
     };
 
+    /**
+     * @brief Maskes child non copyable and non movable
+     * 
+     */
     class non_copy_movable : public non_copyable, public non_movable
     {
     protected:
@@ -31,6 +43,11 @@ namespace utl
         virtual ~non_copy_movable() = default;
     };
 
+    /**
+     * @brief Makes singleton from child
+     * 
+     * @tparam _Ty Children class
+     */
     template <class _Ty>
     class singleton : public non_copy_movable
     {

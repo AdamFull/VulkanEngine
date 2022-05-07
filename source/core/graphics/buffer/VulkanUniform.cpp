@@ -2,6 +2,11 @@
 
 using namespace Engine::Core;
 
+CUniformBuffer::~CUniformBuffer()
+{
+    cleanup();
+}
+
 void CUniformBuffer::create(uint32_t inFlightFrames, size_t uniform_size)
 {
     iUniformSize = uniform_size;
@@ -15,6 +20,8 @@ void CUniformBuffer::reCreate(uint32_t inFlightFrames)
 
 void CUniformBuffer::cleanup()
 {
+    for(auto& buffer : vBuffers)
+        buffer->cleanup();
     vBuffers.clear();
 }
 void CUniformBuffer::updateUniformBuffer(uint32_t index, void *ubo)

@@ -12,12 +12,12 @@ namespace Engine
             {
             public:
                 CDescriptorHandler() = default;
-                ~CDescriptorHandler();
 
                 void create(std::shared_ptr<Pipeline::CPipelineBase> pPipeline);
+                void cleanup();
                 void update(uint32_t index);
                 void bind(const vk::CommandBuffer &commandBuffer, uint32_t index) const;
-                void clear();
+                void reset();
 
                 void set(const std::string& srUniformName, vk::DescriptorBufferInfo& bufferInfo);
                 void set(const std::string& srUniformName, vk::DescriptorImageInfo& imageInfo);

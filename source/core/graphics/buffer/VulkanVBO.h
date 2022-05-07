@@ -11,9 +11,9 @@ namespace Engine
         {
         public:
             CVertexBufferObject() = default;
-            ~CVertexBufferObject();
 
             void create();
+            void cleanup();
             void bind(vk::CommandBuffer commandBuffer);
             void addMeshData(std::vector<FVertex> &&vertices, std::vector<uint32_t> &&indices);
             inline uint64_t getLastIndex() { return vIndices.size(); }

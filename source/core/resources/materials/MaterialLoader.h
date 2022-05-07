@@ -38,16 +38,34 @@ namespace Engine
             void to_json(nlohmann::json &json, const FMaterialInfo &type);
             void from_json(const nlohmann::json &json, FMaterialInfo &type);
 
+            /**
+             * @brief Load materials from file
+             * 
+             */
             class CMaterialLoader : public utl::singleton<CMaterialLoader>
             {
             public:
                 CMaterialLoader();
-                ~CMaterialLoader();
 
+                /**
+                 * @brief Create material by name. All material create info stores in file "materials.json"
+                 * 
+                 * @param name Material name
+                 * @return std::shared_ptr<Material::CMaterialBase> Smart pointer to material object
+                 */
                 std::shared_ptr<Material::CMaterialBase> create(const std::string &name);
 
             private:
+                /**
+                 * @brief Load file with material info
+                 * 
+                 */
                 void load();
+
+                /**
+                 * @brief Save file with material info
+                 * 
+                 */
                 void save();
 
                 std::map<std::string, std::shared_ptr<Material::CMaterialBase>> mMaterialCache;

@@ -6,17 +6,18 @@
 using namespace Engine::Core;
 using namespace Engine::Core::Descriptor;
 
-CDescriptorHandler::~CDescriptorHandler()
-{
-
-}
-
 void CDescriptorHandler::create(std::shared_ptr<Pipeline::CPipelineBase> pipeline)
 {
     uint32_t images = CSwapChain::inst()->getFramesInFlight();
     pDescriptorSet = std::make_unique<CDescriptorSet>();
     pDescriptorSet->create(pipeline, images);
     pPipeline = pipeline;
+}
+
+void CDescriptorHandler::cleanup()
+{
+    //Custom rules for delete object
+    pDescriptorSet->cleanup();
 }
 
 void CDescriptorHandler::update(uint32_t index)
@@ -31,7 +32,7 @@ void CDescriptorHandler::bind(const vk::CommandBuffer &commandBuffer, uint32_t i
     pDescriptorSet->bind(commandBuffer, index);
 }
 
-void CDescriptorHandler::clear()
+void CDescriptorHandler::reset()
 {
     vWriteDescriptorSets.clear();
 }

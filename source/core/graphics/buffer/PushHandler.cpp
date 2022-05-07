@@ -7,7 +7,7 @@ using namespace Engine::Core::Pipeline;
 
 CPushHandler::~CPushHandler()
 {
-    vBuffers.clear();
+    cleanup();
 }
 
 void CPushHandler::create(const CPushConstBlock &uniformBlock)
@@ -25,6 +25,9 @@ void CPushHandler::reCreate()
 
 void CPushHandler::cleanup()
 {
+    for(auto& buffer : vBuffers)
+        buffer->cleanup();
+    vBuffers.clear();
     vData.clear();
 }
 

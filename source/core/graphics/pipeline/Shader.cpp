@@ -416,20 +416,6 @@ void CShader::finalizeReflection()
 		lastDescriptorBinding = vDescriptorSetLayouts.back().binding;
 }
 
-std::optional<uint32_t> CShader::getDescriptorLocation(const std::string &name) const
-{
-    if (auto it = mDescriptorLocations.find(name); it != mDescriptorLocations.end())
-		return it->second;
-	return std::nullopt;
-}
-
-std::optional<uint64_t> CShader::getDescriptorSize(const std::string &name) const
-{
-    if (auto it = mDescriptorSizes.find(name); it != mDescriptorSizes.end())
-		return it->second;
-	return std::nullopt;
-}
-
 std::optional<CUniform> CShader::getUniform(const std::string &name) const
 {
     if (auto it = mUniforms.find(name); it != mUniforms.end())

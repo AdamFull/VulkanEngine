@@ -2,16 +2,17 @@
 
 using namespace Engine::Core;
 
-CVertexBufferObject::~CVertexBufferObject()
-{
-    int aaa = 0;
-}
-
 void CVertexBufferObject::create()
 {
     createVertexBuffer();
     createIndexBuffer();
     bBuffersCreated = true;
+}
+
+void CVertexBufferObject::cleanup()
+{
+    vertexBuffer->cleanup();
+    indexBuffer->cleanup();
 }
 
 void CVertexBufferObject::bind(vk::CommandBuffer commandBuffer)
@@ -42,7 +43,7 @@ void CVertexBufferObject::createVertexBuffer()
     vertexBuffer = std::make_unique<CVulkanBuffer>();
     vertexBuffer->create(vertexSize, vVertices.size(), vk::BufferUsageFlagBits::eTransferDst | vk::BufferUsageFlagBits::eVertexBuffer, vk::MemoryPropertyFlagBits::eDeviceLocal);
     CDevice::inst()->copyOnDeviceBuffer(stagingBuffer.getBuffer(), vertexBuffer->getBuffer(), bufferSize);
-    // m_vVertices.clear();
+    stagingBuffer.cleanup();
 }
 
 void CVertexBufferObject::createIndexBuffer()
@@ -58,5 +59,5 @@ void CVertexBufferObject::createIndexBuffer()
     indexBuffer = std::make_unique<CVulkanBuffer>();
     indexBuffer->create(indexSize, vIndices.size(), vk::BufferUsageFlagBits::eTransferDst | vk::BufferUsageFlagBits::eIndexBuffer, vk::MemoryPropertyFlagBits::eDeviceLocal);
     CDevice::inst()->copyOnDeviceBuffer(stagingBuffer.getBuffer(), indexBuffer->getBuffer(), bufferSize);
-    // m_vIndices.clear();
+    stagingBuffer.cleanup();
 }

@@ -31,8 +31,6 @@ namespace Engine
         class CVulkanHighLevel : public utl::singleton<CVulkanHighLevel>
         {
         public:
-            ~CVulkanHighLevel();
-
             void create(FEngineCreateInfo createInfo);
 
             // TODO: Dont forget about clean textures

@@ -5,7 +5,7 @@ using namespace Engine::Core;
 
 CVulkanBuffer::~CVulkanBuffer()
 {
-    clean();
+    cleanup();
 }
 
 void CVulkanBuffer::create(vk::DeviceSize instanceSize, uint32_t instanceCount,
@@ -24,11 +24,14 @@ void CVulkanBuffer::reCreate(vk::DeviceSize instanceSize, uint32_t instanceCount
     create(instanceSize, instanceCount, usageFlags, memoryPropertyFlags, minOffsetAlignment);
 }
 
-void CVulkanBuffer::clean()
+void CVulkanBuffer::cleanup()
 {
-    unmapMem();
-    CDevice::inst()->destroy(buffer);
-    CDevice::inst()->destroy(deviceMemory);
+    if(mappedMemory)
+        unmapMem();
+    if(buffer)
+        CDevice::inst()->destroy(buffer);
+    if(deviceMemory)
+        CDevice::inst()->destroy(deviceMemory);
 }
 
 vk::DescriptorBufferInfo CVulkanBuffer::getDscriptor(vk::DeviceSize size, vk::DeviceSize offset)

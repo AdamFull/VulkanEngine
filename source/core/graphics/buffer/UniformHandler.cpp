@@ -7,7 +7,7 @@ using namespace Engine::Core::Pipeline;
 
 CUniformHandler::~CUniformHandler()
 {
-    vBuffers.clear();
+    cleanup();
 }
 
 void CUniformHandler::create(const CUniformBlock &_uniformBlock)
@@ -26,6 +26,8 @@ void CUniformHandler::reCreate()
 
 void CUniformHandler::cleanup()
 {
+    for(auto& buffer : vBuffers)
+        buffer->cleanup();
     vBuffers.clear();
     vMapped.clear();
 }

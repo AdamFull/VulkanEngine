@@ -26,7 +26,7 @@ using namespace Engine::Core::Scene;
 
 void CPBRCompositionPass::create()
 {
-    auto framesInFlight = CSwapChain::inst()->getFramesInFlight();
+    auto framesInFlight = CDevice::inst()->getFramesInFlight();
     pUniform = std::make_shared<CUniformBuffer>();
     pUniform->create(framesInFlight, sizeof(FLightningData));
 
@@ -59,7 +59,7 @@ void CPBRCompositionPass::render(vk::CommandBuffer& commandBuffer)
     pMaterial->addTexture("emission_tex", images["emission_tex"]);
     pMaterial->addTexture("mrah_tex", images["mrah_tex"]);
 
-    auto imageIndex = CSwapChain::inst()->getCurrentFrame();
+    auto imageIndex = CDevice::inst()->getCurrentFrame();
 
     //May be move to CompositionObject
     FLightningData ubo;
@@ -198,7 +198,7 @@ std::shared_ptr<CImage> CPBRCompositionPass::ComputePrefiltered(const std::share
         descriptor.set("outColour", descriptorWrite);
         descriptor.set("samplerColour", source->getDescriptor());
         descriptor.update(0);
-        descriptor.bind(commandBuffer, CSwapChain::inst()->getCurrentFrame());
+        descriptor.bind(commandBuffer, CDevice::inst()->getCurrentFrame());
         push.flush(commandBuffer, computePipeline);
 
         auto groupCountX = static_cast<uint32_t>(std::ceil(static_cast<float>(size) / static_cast<float>(*computePipeline->getShader()->getLocalSizes()[0])));
@@ -206,7 +206,7 @@ std::shared_ptr<CImage> CPBRCompositionPass::ComputePrefiltered(const std::share
         commandBuffer.dispatch(groupCountX, groupCountY, 1);
         cmdBuf.submitIdle();
 
-        CDevice::inst()->destroy(levelView);
+        CDevice::inst()->destroy(&levelView);
     }
 
     return prefilteredCubemap;

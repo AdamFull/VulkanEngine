@@ -8,7 +8,7 @@ using namespace Engine::Core::Descriptor;
 
 void CDescriptorHandler::create(std::shared_ptr<Pipeline::CPipelineBase> pipeline)
 {
-    uint32_t images = CSwapChain::inst()->getFramesInFlight();
+    uint32_t images = CDevice::inst()->getFramesInFlight();
     pDescriptorSet = std::make_unique<CDescriptorSet>();
     pDescriptorSet->create(pipeline, images);
     pPipeline = pipeline;
@@ -22,9 +22,11 @@ void CDescriptorHandler::cleanup()
 
 void CDescriptorHandler::update(uint32_t index)
 {
+    auto& vkDevice = CDevice::inst()->getLogical();
+    assert(vkDevice && "Trying to update descriptor sets, but device is invalid.");
     for (auto &write : vWriteDescriptorSets)
         write.dstSet = pDescriptorSet->get(index);
-    CDevice::inst()->getLogical().updateDescriptorSets(static_cast<uint32_t>(vWriteDescriptorSets.size()), vWriteDescriptorSets.data(), 0, nullptr);
+    vkDevice.updateDescriptorSets(static_cast<uint32_t>(vWriteDescriptorSets.size()), vWriteDescriptorSets.data(), 0, nullptr);
 }
 
 void CDescriptorHandler::bind(const vk::CommandBuffer &commandBuffer, uint32_t index) const

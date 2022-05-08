@@ -21,7 +21,7 @@ void CImguiPass::reCreate()
 
 void CImguiPass::render(vk::CommandBuffer& commandBuffer)
 {
-    auto imageIndex = CSwapChain::inst()->getCurrentFrame();
+    auto imageIndex = CDevice::inst()->getCurrentFrame();
     CImguiOverlay::inst()->newFrame();
     CImguiOverlay::inst()->drawFrame(commandBuffer, imageIndex);
 }

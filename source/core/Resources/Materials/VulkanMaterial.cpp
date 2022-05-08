@@ -17,7 +17,7 @@ void CMaterialBase::create()
 {
     //Material loads render pass and subpass number from attached render stage
     //Material should be in render stage because render stage contains specific render pass and subpass
-    uint32_t images = CSwapChain::inst()->getFramesInFlight();
+    uint32_t images = CDevice::inst()->getFramesInFlight();
     auto& renderPass = CRenderSystem::inst()->getCurrentStage()->getRenderPass()->get();
     auto subpass = CRenderSystem::inst()->getCurrentStage()->getRenderPass()->getCurrentSubpass();
     m_pPipeline->create(renderPass, subpass);

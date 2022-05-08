@@ -22,7 +22,7 @@ void CGBufferPass::reCreate()
 
 void CGBufferPass::render(vk::CommandBuffer& commandBuffer)
 {
-    auto imageIndex = CSwapChain::inst()->getCurrentFrame();
+    auto imageIndex = CDevice::inst()->getCurrentFrame();
     CVBO::inst()->bind(commandBuffer);
     CSceneManager::inst()->getScene()->getRoot()->render(commandBuffer, imageIndex);
 }

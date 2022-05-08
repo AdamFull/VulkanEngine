@@ -4,7 +4,7 @@
 
 using namespace Engine::Core;
 
-bool VulkanStaticHelper::CheckValidationLayerSupport(const std::vector<const char*>& validationLayers)
+bool VulkanStaticHelper::checkValidationLayerSupport(const std::vector<const char*>& validationLayers)
 {
     auto availableLayers = vk::enumerateInstanceLayerProperties();
 
@@ -31,7 +31,7 @@ bool VulkanStaticHelper::CheckValidationLayerSupport(const std::vector<const cha
     return true;
 }
 
-std::vector<const char *> VulkanStaticHelper::GetRequiredExtensions(bool validation)
+std::vector<const char *> VulkanStaticHelper::getRequiredExtensions(bool validation)
 {
     uint32_t glfwExtensionCount = 0;
     const char **glfwExtensions;
@@ -47,7 +47,7 @@ std::vector<const char *> VulkanStaticHelper::GetRequiredExtensions(bool validat
     return extensions;
 }
 
-bool VulkanStaticHelper::CheckDeviceExtensionSupport(const vk::PhysicalDevice &device, const std::vector<const char*>& deviceExtensions)
+bool VulkanStaticHelper::checkDeviceExtensionSupport(const vk::PhysicalDevice &device, const std::vector<const char*>& deviceExtensions)
 {
     std::set<std::string> sRequiredExtensions(deviceExtensions.begin(), deviceExtensions.end());
 
@@ -59,7 +59,7 @@ bool VulkanStaticHelper::CheckDeviceExtensionSupport(const vk::PhysicalDevice &d
     return sRequiredExtensions.empty();
 }
 
-vk::SurfaceFormatKHR VulkanStaticHelper::ChooseSwapSurfaceFormat(const std::vector<vk::SurfaceFormatKHR> &availableFormats)
+vk::SurfaceFormatKHR VulkanStaticHelper::chooseSwapSurfaceFormat(const std::vector<vk::SurfaceFormatKHR> &availableFormats)
 {
     if (availableFormats.size() == 1 && availableFormats[0].format == vk::Format::eUndefined)
     {
@@ -77,7 +77,7 @@ vk::SurfaceFormatKHR VulkanStaticHelper::ChooseSwapSurfaceFormat(const std::vect
     return availableFormats[0];
 }
 
-vk::PresentModeKHR VulkanStaticHelper::ChooseSwapPresentMode(const std::vector<vk::PresentModeKHR> availablePresentModes)
+vk::PresentModeKHR VulkanStaticHelper::chooseSwapPresentMode(const std::vector<vk::PresentModeKHR> availablePresentModes)
 {
     vk::PresentModeKHR bestMode = vk::PresentModeKHR::eFifo;
 
@@ -96,7 +96,7 @@ vk::PresentModeKHR VulkanStaticHelper::ChooseSwapPresentMode(const std::vector<v
     return bestMode;
 }
 
-uint32_t VulkanStaticHelper::VkFormatToGLFormat(vk::Format format)
+uint32_t VulkanStaticHelper::vkFormatToGLFormat(vk::Format format)
 {
      switch ( format )
 	{
@@ -559,7 +559,7 @@ vk::Format VulkanStaticHelper::GLFormatToVkFormat(uint32_t format)
 	}
 }
 
-bool VulkanStaticHelper::HasStencilComponent(vk::Format format)
+bool VulkanStaticHelper::hasStencilComponent(vk::Format format)
 {
     return format == vk::Format::eD32SfloatS8Uint || format == vk::Format::eD24UnormS8Uint;
 }

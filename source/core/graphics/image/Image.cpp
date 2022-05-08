@@ -1,17 +1,18 @@
 #include "Image.h"
 #include "graphics/VulkanHighLevel.h"
+#include "graphics/overlay/imgui_impl_vulkan.h"
 
 using namespace Engine::Core;
 using namespace Engine::Core::Loaders;
 
 CImage::~CImage()
 {
-    CDevice::inst()->destroy(_image);
-    CDevice::inst()->destroy(_view);
-    CDevice::inst()->destroy(_deviceMemory);
+    CDevice::inst()->destroy(&_image);
+    CDevice::inst()->destroy(&_view);
+    CDevice::inst()->destroy(&_deviceMemory);
 
     if(!_bUsingInternalSampler)
-        CDevice::inst()->destroy(_sampler);
+        CDevice::inst()->destroy(&_sampler);
 }
 
 void CImage::updateDescriptor()
@@ -35,8 +36,10 @@ vk::SamplerAddressMode addressMode, vk::Filter filter)
 
 void CImage::generateMipmaps(vk::Image &image, uint32_t mipLevels, vk::Format format, uint32_t width, uint32_t height, vk::ImageAspectFlags aspectFlags)
 {
+    auto& physicalDevice = CDevice::inst()->getPhysical();
+    assert(physicalDevice && "Trying to generate mipmaps, but physical device is invalid.");
     vk::FormatProperties formatProperties;
-    CDevice::inst()->getPhysical().getFormatProperties(format, &formatProperties);
+    physicalDevice.getFormatProperties(format, &formatProperties);
 
     if (!(formatProperties.optimalTilingFeatures & vk::FormatFeatureFlagBits::eSampledImageFilterLinear))
     {
@@ -159,8 +162,10 @@ vk::Filter filter, vk::SampleCountFlagBits samples)
     viewInfo.subresourceRange.levelCount = _mipLevels;
     viewInfo.subresourceRange.baseArrayLayer = 0;
     viewInfo.subresourceRange.layerCount = _instCount;
+    viewInfo.image = _image;
 
-    _view = createImageView(_image, viewInfo);
+    vk::Result res = CDevice::inst()->create(viewInfo, &_view);
+    assert(res == vk::Result::eSuccess && "Cannot create image view");
 
     if(!_sampler)
     {
@@ -171,10 +176,12 @@ vk::Filter filter, vk::SampleCountFlagBits samples)
 
 vk::Format CImage::findSupportedFormat(const std::vector<vk::Format> &candidates, vk::ImageTiling tiling, vk::FormatFeatureFlags features)
 {
+    auto& physicalDevice = CDevice::inst()->getPhysical();
+    assert(physicalDevice && "Trying to find supported format, but physical device is invalid.");
     for (vk::Format format : candidates)
     {
         vk::FormatProperties props;
-        CDevice::inst()->getPhysical().getFormatProperties(format, &props);
+        physicalDevice.getFormatProperties(format, &props);
 
         if (tiling == vk::ImageTiling::eLinear && (props.linearTilingFeatures & features) == features)
         {
@@ -206,10 +213,11 @@ vk::Format CImage::getDepthFormat()
 
 void CImage::createImage(vk::Image &image, vk::DeviceMemory &memory, vk::ImageCreateInfo createInfo, vk::MemoryPropertyFlags properties)
 {
+    vk::Result res;
     assert(CDevice::inst() && "Cannot create image, cause logical device is not valid.");
 
-    image = CDevice::inst()->getLogical().createImage(createInfo, nullptr);
-    assert(image && "Image was not created");
+    res = CDevice::inst()->create(createInfo, &image);
+    assert(res == vk::Result::eSuccess && "Image was not created");
 
     vk::MemoryRequirements memReq{};
     CDevice::inst()->getLogical().getImageMemoryRequirements(image, &memReq);
@@ -218,8 +226,8 @@ void CImage::createImage(vk::Image &image, vk::DeviceMemory &memory, vk::ImageCr
     allocInfo.allocationSize = memReq.size;
     allocInfo.memoryTypeIndex = CDevice::inst()->findMemoryType(memReq.memoryTypeBits, properties);
 
-    memory = CDevice::inst()->getLogical().allocateMemory(allocInfo);
-    assert(memory && "Image memory was not allocated");
+    res = CDevice::inst()->create(allocInfo, &memory);
+    assert(res == vk::Result::eSuccess && "Image memory was not allocated");
 
     CDevice::inst()->getLogical().bindImageMemory(image, memory, 0);
 }
@@ -352,22 +360,10 @@ void CImage::copyTo(vk::CommandBuffer& commandBuffer, vk::Image& src, vk::Image&
     commandBuffer.copyImage(src, srcLayout, dst, dstLayout, 1, &region);
 }
 
-vk::ImageView CImage::createImageView(vk::Image &pImage, vk::ImageViewCreateInfo viewInfo)
-{
-    assert(CDevice::inst() && "Cannot create image view, cause logical device is not valid.");
-    viewInfo.image = pImage;
-
-    vk::ImageView imageView;
-    // TODO: Handle result
-    auto result = CDevice::inst()->getLogical().createImageView(&viewInfo, nullptr, &imageView);
-    assert(imageView && "Was not created");
-
-    return imageView;
-}
-
 void CImage::createSampler(vk::Sampler &sampler, uint32_t mip_levels, vk::SamplerAddressMode eAddressMode, vk::Filter magFilter)
 {
-    assert(CDevice::inst() && "Cannot create sampler, cause logical device is not valid.");
+    auto& physicalDevice = CDevice::inst()->getPhysical();
+    assert(physicalDevice && "Trying to create sampler, but physical device is invalid.");
     vk::SamplerCreateInfo samplerInfo{};
     samplerInfo.magFilter = magFilter;
     samplerInfo.minFilter = vk::Filter::eLinear;
@@ -376,7 +372,7 @@ void CImage::createSampler(vk::Sampler &sampler, uint32_t mip_levels, vk::Sample
     samplerInfo.addressModeW = eAddressMode;
 
     vk::PhysicalDeviceProperties properties{};
-    properties = CDevice::inst()->getPhysical().getProperties();
+    properties = physicalDevice.getProperties();
 
     samplerInfo.anisotropyEnable = VK_TRUE;
     samplerInfo.maxAnisotropy = properties.limits.maxSamplerAnisotropy;
@@ -391,14 +387,16 @@ void CImage::createSampler(vk::Sampler &sampler, uint32_t mip_levels, vk::Sample
     samplerInfo.maxLod = static_cast<float>(mip_levels);
 
     // TODO: Result handle
-    auto result = CDevice::inst()->getLogical().createSampler(&samplerInfo, nullptr, &sampler);
-    assert(sampler && "Texture sampler was not created");
+   vk::Result res = CDevice::inst()->create(samplerInfo, &sampler);
+    assert(res == vk::Result::eSuccess && "Texture sampler was not created");
 }
 
 bool CImage::isSupportedDimension(ktxTexture *info)
 {
+    auto& physicalDevice = CDevice::inst()->getPhysical();
+    assert(physicalDevice && "Trying to check supported dibension, but physical device is invalid.");
     vk::PhysicalDeviceProperties devprops;
-    CDevice::inst()->getPhysical().getProperties(&devprops);
+    physicalDevice.getProperties(&devprops);
 
     if(info->isCubemap)
     {
@@ -560,4 +558,13 @@ vk::SamplerAddressMode addressMode, vk::Filter filter)
 void CImage::setImageLayout(vk::ImageLayout layout)
 {
     _imageLayout = layout;
+}
+
+vk::DescriptorSet& CImage::getDescriptorSet()
+{
+    if(!descriptorSet)
+    {
+        descriptorSet = ImGui_ImplVulkan_AddTexture(_descriptor.sampler, _descriptor.imageView, _descriptor.imageLayout);
+    }
+    return descriptorSet;
 }

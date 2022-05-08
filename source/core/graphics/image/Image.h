@@ -184,15 +184,6 @@ namespace Engine
             static void copyTo(vk::CommandBuffer& commandBuffer, vk::Image& src, vk::Image& dst, vk::ImageLayout srcLayout, vk::ImageLayout dstLayout, vk::ImageCopy& region);
 
             /**
-             * @brief Creates image view object
-             * 
-             * @param pImage Vulkan image
-             * @param viewInfo Image view create info
-             * @return vk::ImageView Image view object
-             */
-            static vk::ImageView createImageView(vk::Image &pImage, vk::ImageViewCreateInfo viewInfo);
-
-            /**
              * @brief Creates image sampler
              * 
              * @param sampler Image sampler reference
@@ -344,6 +335,12 @@ namespace Engine
              */
             vk::ImageLayout getImageLayout() const { return _imageLayout; }
 
+            /**
+             * @brief Get get texture descriptor
+             * 
+             * @return vk::DescriptorSet& 
+             */
+            vk::DescriptorSet& getDescriptorSet();
 
         protected:
             /**
@@ -370,6 +367,7 @@ namespace Engine
             vk::DeviceMemory _deviceMemory{VK_NULL_HANDLE};
             vk::ImageView _view{VK_NULL_HANDLE};
             vk::Sampler _sampler{VK_NULL_HANDLE};
+            vk::DescriptorSet descriptorSet{VK_NULL_HANDLE};
 
             vk::DescriptorImageInfo _descriptor;
             bool _bUsingInternalSampler{false};

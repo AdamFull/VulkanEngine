@@ -12,7 +12,7 @@ CPushHandler::~CPushHandler()
 
 void CPushHandler::create(const CPushConstBlock &uniformBlock)
 {
-    uint32_t images = CSwapChain::inst()->getFramesInFlight();
+    uint32_t images = CDevice::inst()->getFramesInFlight();
     for(auto i = 0; i < images; i++)
         vData.emplace_back(std::make_unique<char[]>(uniformBlock.getSize()));
     pushBlock = uniformBlock;
@@ -37,7 +37,7 @@ void CPushHandler::cleanup()
 
 void CPushHandler::flush(vk::CommandBuffer& commandBuffer, std::shared_ptr<Pipeline::CPipelineBase> pPipeline)
 {
-    uint32_t index = CSwapChain::inst()->getCurrentFrame();
+    uint32_t index = CDevice::inst()->getCurrentFrame();
     
     auto& data = vData.at(index);
     if(data)

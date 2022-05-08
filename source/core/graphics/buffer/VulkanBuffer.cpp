@@ -12,9 +12,28 @@ void CVulkanBuffer::create(vk::DeviceSize instanceSize, uint32_t instanceCount,
                           vk::BufferUsageFlags usageFlags, vk::MemoryPropertyFlags memoryPropertyFlags,
                           vk::DeviceSize minOffsetAlignment)
 {
+    auto logical = CDevice::inst()->getLogical();
     alignmentSize = getAlignment(instanceSize, minOffsetAlignment);
     bufferSize = alignmentSize * instanceCount;
-    CDevice::inst()->createOnDeviceBuffer(bufferSize, usageFlags, memoryPropertyFlags, buffer, deviceMemory);
+
+    vk::BufferCreateInfo bufferInfo = {};
+    bufferInfo.size = bufferSize;
+    bufferInfo.usage = usageFlags;
+    bufferInfo.sharingMode = vk::SharingMode::eExclusive;
+
+    vk::Result res = CDevice::inst()->create(bufferInfo, &buffer);
+    assert(res == vk::Result::eSuccess && "On device buffer was not created");
+
+    vk::MemoryRequirements memRequirements = logical.getBufferMemoryRequirements(buffer);
+
+    vk::MemoryAllocateInfo allocInfo = {};
+    allocInfo.allocationSize = memRequirements.size;
+    allocInfo.memoryTypeIndex = CDevice::inst()->findMemoryType(memRequirements.memoryTypeBits, memoryPropertyFlags);
+
+    res = CDevice::inst()->create(allocInfo, &deviceMemory);
+    assert(res == vk::Result::eSuccess && "Buffer memory was not allocated");
+
+    logical.bindBufferMemory(buffer, deviceMemory, 0);
 }
 
 void CVulkanBuffer::reCreate(vk::DeviceSize instanceSize, uint32_t instanceCount,
@@ -31,9 +50,9 @@ void CVulkanBuffer::cleanup()
         if(mappedMemory)
             unmapMem();
         if(buffer)
-            CDevice::inst()->destroy(buffer);
+            CDevice::inst()->destroy(&buffer);
         if(deviceMemory)
-            CDevice::inst()->destroy(deviceMemory);
+            CDevice::inst()->destroy(&deviceMemory);
         bIsClean = true;
     }
 }
@@ -50,26 +69,29 @@ vk::DescriptorBufferInfo CVulkanBuffer::getDscriptor()
 
 vk::Result CVulkanBuffer::mapMem(vk::DeviceSize size, vk::DeviceSize offset)
 {
-    assert(CDevice::inst() && buffer && deviceMemory && "Called map on buffer before create");
+    auto& vkDevice =  CDevice::inst()->getLogical();
+    assert(vkDevice && buffer && deviceMemory && "Called map on buffer before create");
     if (size == VK_WHOLE_SIZE)
     {
-        return CDevice::inst()->getLogical().mapMemory(deviceMemory, 0, bufferSize, vk::MemoryMapFlags{}, &mappedMemory);
+        return vkDevice.mapMemory(deviceMemory, 0, bufferSize, vk::MemoryMapFlags{}, &mappedMemory);
     }
-    return CDevice::inst()->getLogical().mapMemory(deviceMemory, offset, size, vk::MemoryMapFlags{}, &mappedMemory);
+    return vkDevice.mapMemory(deviceMemory, offset, size, vk::MemoryMapFlags{}, &mappedMemory);
 }
 
 void CVulkanBuffer::unmapMem()
 {
+    auto& vkDevice =  CDevice::inst()->getLogical();
+    assert(vkDevice && "Called unmap buffer but device is invalid");
     if (mappedMemory)
     {
-        CDevice::inst()->getLogical().unmapMemory(deviceMemory);
+        vkDevice.unmapMemory(deviceMemory);
         mappedMemory = nullptr;
     }
 }
 
 void CVulkanBuffer::write(void *idata, vk::DeviceSize size, vk::DeviceSize offset)
 {
-    assert(CDevice::inst() && mappedMemory && "Cannot copy to unmapped buffer");
+    assert(mappedMemory && "Cannot copy to unmapped buffer");
 
     if (size == VK_WHOLE_SIZE)
     {
@@ -85,11 +107,13 @@ void CVulkanBuffer::write(void *idata, vk::DeviceSize size, vk::DeviceSize offse
 
 vk::Result CVulkanBuffer::flush(vk::DeviceSize size, vk::DeviceSize offset)
 {
+    auto& vkDevice =  CDevice::inst()->getLogical();
+    assert(vkDevice && "Called flush buffer but device is invalid");
     vk::MappedMemoryRange mappedRange = {};
     mappedRange.memory = deviceMemory;
     mappedRange.offset = offset;
     mappedRange.size = size;
-    return CDevice::inst()->getLogical().flushMappedMemoryRanges(1, &mappedRange);
+    return vkDevice.flushMappedMemoryRanges(1, &mappedRange);
 }
 
 vk::DescriptorBufferInfo CVulkanBuffer::descriptorInfo(vk::DeviceSize size, vk::DeviceSize offset)
@@ -99,12 +123,14 @@ vk::DescriptorBufferInfo CVulkanBuffer::descriptorInfo(vk::DeviceSize size, vk::
 
 vk::Result CVulkanBuffer::invalidate(vk::DeviceSize size, vk::DeviceSize offset)
 {
+    auto& vkDevice =  CDevice::inst()->getLogical();
+    assert(vkDevice && "Called invalidate buffer but device is invalid");
     vk::MappedMemoryRange mappedRange = {};
     mappedRange.memory = deviceMemory;
     mappedRange.offset = offset;
     mappedRange.size = size;
 
-    return CDevice::inst()->getLogical().invalidateMappedMemoryRanges(1, &mappedRange);
+    return vkDevice.invalidateMappedMemoryRanges(1, &mappedRange);
 }
 
 void CVulkanBuffer::writeToIndex(void *idata, int index)

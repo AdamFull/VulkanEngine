@@ -1,4 +1,5 @@
 #include "RenderStage.h"
+#include "graphics/VulkanDevice.hpp"
 
 using namespace Engine::Core;
 using namespace Engine::Core::Render;
@@ -16,7 +17,7 @@ void CRenderStage::cleanup()
 
 void CRenderStage::reCreate()
 {
-    screenExtent = CSwapChain::inst()->getExtent();
+    screenExtent = CDevice::inst()->getExtent();
     pRenderPass->setRenderArea(vk::Offset2D{0, 0}, screenExtent);
     pRenderPass->reCreate();
     pFramebuffer->reCreate(pRenderPass->get(), screenExtent);

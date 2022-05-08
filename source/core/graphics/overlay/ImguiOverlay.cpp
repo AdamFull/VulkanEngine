@@ -10,7 +10,6 @@
 #include "resources/ResourceManager.h"
 #include "graphics/image/Image.h"
 #include "resources/materials/MaterialLoader.h"
-#include "graphics/VulkanSwapChain.h"
 #include "graphics/VulkanInitializers.h"
 
 #include "overlays/OverlayDebug.h"
@@ -85,8 +84,8 @@ void CImguiOverlay::create(vk::RenderPass& renderPass, uint32_t subpass)
     init_info.DescriptorPool = descriptorPool;
     init_info.Allocator = VK_NULL_HANDLE;
     init_info.MinImageCount = 2;
-    init_info.ImageCount = CSwapChain::inst()->getFramesInFlight();
-    init_info.MSAASamples = VK_SAMPLE_COUNT_1_BIT;
+    init_info.ImageCount = CDevice::inst()->getFramesInFlight();
+    init_info.MSAASamples = vk::SampleCountFlagBits::e1;
     init_info.Subpass = subpass;
     //init_info.CheckVkResultFn = check_vk_result;
     ImGui_ImplVulkan_Init(&init_info, renderPass);
@@ -110,28 +109,6 @@ void CImguiOverlay::reCreate()
     auto& renderPass = CRenderSystem::inst()->getCurrentStage()->getRenderPass()->get();
     auto subpass = CRenderSystem::inst()->getCurrentStage()->getRenderPass()->getCurrentSubpass();
 
-    vk::DescriptorPoolSize pool_sizes[] = 
-    {
-        {vk::DescriptorType::eSampler, 1000},
-        {vk::DescriptorType::eCombinedImageSampler, 1000},
-        {vk::DescriptorType::eSampledImage, 1000},
-        {vk::DescriptorType::eStorageImage, 1000},
-        {vk::DescriptorType::eUniformTexelBuffer, 1000},
-        {vk::DescriptorType::eStorageTexelBuffer, 1000},
-        {vk::DescriptorType::eUniformBuffer, 1000},
-        {vk::DescriptorType::eStorageBuffer, 1000},
-        {vk::DescriptorType::eUniformBufferDynamic, 1000},
-        {vk::DescriptorType::eStorageBufferDynamic, 1000},
-        {vk::DescriptorType::eInputAttachment, 1000}
-    };
-
-    vk::DescriptorPoolCreateInfo pool_info = {};
-    pool_info.flags = vk::DescriptorPoolCreateFlagBits::eFreeDescriptorSet;
-    pool_info.maxSets = 1000 * IM_ARRAYSIZE(pool_sizes);
-    pool_info.poolSizeCount = (uint32_t)IM_ARRAYSIZE(pool_sizes);
-    pool_info.pPoolSizes = pool_sizes;
-    descriptorPool = CDevice::inst()->make<vk::DescriptorPool, vk::DescriptorPoolCreateInfo>(pool_info);
-
     ImGui_ImplGlfw_InitForVulkan(CWindowHandle::inst()->getWindowInstance(), true);
     ImGui_ImplVulkan_InitInfo init_info = {};
     init_info.Instance = CDevice::inst()->getVkInstance();
@@ -145,8 +122,8 @@ void CImguiOverlay::reCreate()
     init_info.DescriptorPool = descriptorPool;
     init_info.Allocator = VK_NULL_HANDLE;
     init_info.MinImageCount = 2;
-    init_info.ImageCount = CSwapChain::inst()->getFramesInFlight();
-    init_info.MSAASamples = VK_SAMPLE_COUNT_1_BIT;
+    init_info.ImageCount = CDevice::inst()->getFramesInFlight();
+    init_info.MSAASamples = vk::SampleCountFlagBits::e1;
     init_info.Subpass = subpass;
     //init_info.CheckVkResultFn = check_vk_result;
     ImGui_ImplVulkan_Init(&init_info, renderPass);

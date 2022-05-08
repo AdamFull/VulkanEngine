@@ -10,7 +10,7 @@ bool instantLayoutTransition, bool anisotropic, bool mipmaps)
 {
     ktxTexture *texture;
     vk::Format imageFormat;
-    CImageLoader::allocateRawDataAsKTXTexture(&texture, &imageFormat, extent.width, extent.height, 1, 2, VulkanStaticHelper::VkFormatToGLFormat(format), mipmaps);
+    CImageLoader::allocateRawDataAsKTXTexture(&texture, &imageFormat, extent.width, extent.height, 1, 2, VulkanStaticHelper::vkFormatToGLFormat(format), mipmaps);
     texture->isCubemap = true;
     initializeTexture(texture, imageFormat, usage, aspect, addressMode, filter, samples);
     CImageLoader::close(&texture);

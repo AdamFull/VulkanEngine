@@ -13,14 +13,14 @@ using namespace Engine::Resources::Material;
 
 void CGaussianBlurPass::create()
 {
-    auto framesInFlight = CSwapChain::inst()->getFramesInFlight();
+    auto framesInFlight = CDevice::inst()->getFramesInFlight();
     pUniform = std::make_shared<CUniformBuffer>();
     pUniform->create(framesInFlight, sizeof(FBlurData));
 
     auto& renderPass = CRenderSystem::inst()->getCurrentStage()->getRenderPass()->get();
     auto subpass = CRenderSystem::inst()->getCurrentStage()->getRenderPass()->getCurrentSubpass();
 //VK_IMAGE_USAGE_TRANSFER_SRC_BIT | VK_IMAGE_USAGE_TRANSFER_DST_BIT | VK_IMAGE_USAGE_SAMPLED_BIT
-    pImage = CFramebuffer::createImage(vk::Format::eR8G8B8A8Unorm, vk::ImageUsageFlagBits::eTransferSrc | vk::ImageUsageFlagBits::eTransferDst | vk::ImageUsageFlagBits::eStorage | vk::ImageUsageFlagBits::eSampled, CSwapChain::inst()->getExtent());
+    pImage = CFramebuffer::createImage(vk::Format::eR8G8B8A8Unorm, vk::ImageUsageFlagBits::eTransferSrc | vk::ImageUsageFlagBits::eTransferDst | vk::ImageUsageFlagBits::eStorage | vk::ImageUsageFlagBits::eSampled, CDevice::inst()->getExtent());
 
     pMaterial = CMaterialLoader::inst()->create("gaussian_blur");
     pMaterial->create();
@@ -34,7 +34,7 @@ void CGaussianBlurPass::reCreate()
 
 void CGaussianBlurPass::render(vk::CommandBuffer& commandBuffer)
 {
-    auto imageIndex = CSwapChain::inst()->getCurrentFrame();
+    auto imageIndex = CDevice::inst()->getCurrentFrame();
 
     pMaterial->addTexture("writeColour", pImage);
     pMaterial->addTexture("samplerBrightness", CRenderSystem::inst()->getPrevStage()->getFramebuffer()->getCurrentImages()[imageReferenceName]);

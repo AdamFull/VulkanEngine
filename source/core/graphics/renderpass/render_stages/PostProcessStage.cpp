@@ -14,7 +14,7 @@ CPostProcessStage::~CPostProcessStage()
 
 void CPostProcessStage::create()
 {
-    screenExtent = CSwapChain::inst()->getExtent();
+    screenExtent = CDevice::inst()->getExtent();
 
     outReferences.emplace(0, std::vector<vk::AttachmentReference>
     {

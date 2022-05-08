@@ -66,13 +66,13 @@ void CPipelineBase::cleanup()
     if(!bIsClean)
     {
         if(m_descriptorSetLayout)
-            CDevice::inst()->destroy(m_descriptorSetLayout);
+            CDevice::inst()->destroy(&m_descriptorSetLayout);
         if(m_descriptorPool)
-            CDevice::inst()->destroy(m_descriptorPool);
+            CDevice::inst()->destroy(&m_descriptorPool);
         if(m_pipeline)
-            CDevice::inst()->destroy(m_pipeline);
+            CDevice::inst()->destroy(&m_pipeline);
         if(m_pipelineLayout)
-            CDevice::inst()->destroy(m_pipelineLayout);
+            CDevice::inst()->destroy(&m_pipelineLayout);
         bIsClean = true;
     }
 }
@@ -106,7 +106,7 @@ void CPipelineBase::createDescriptorSetLayout()
 	descriptorSetLayoutCreateInfo.bindingCount = static_cast<uint32_t>(descriptorSetLayouts.size());
 	descriptorSetLayoutCreateInfo.pBindings = descriptorSetLayouts.data();
 
-    if (CDevice::inst()->getLogical().createDescriptorSetLayout(&descriptorSetLayoutCreateInfo, nullptr, &m_descriptorSetLayout) != vk::Result::eSuccess)
+    if (CDevice::inst()->create(&descriptorSetLayoutCreateInfo, m_descriptorSetLayout) != vk::Result::eSuccess)
     {
         throw std::runtime_error("failed to create descriptor set layout!");
     }

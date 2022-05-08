@@ -17,10 +17,8 @@ void CDescriptorSet::create(vk::PipelineBindPoint bindPoint, vk::PipelineLayout 
     allocInfo.pSetLayouts = vSetLayouts.data();
     vDescriptorSets.resize(images);
 
-    if (CDevice::inst()->getLogical().allocateDescriptorSets(&allocInfo, vDescriptorSets.data()) != vk::Result::eSuccess)
-    {
-        throw std::runtime_error("failed to create descriptor set!");
-    }
+    vk::Result res = CDevice::inst()->create(allocInfo, vDescriptorSets.data());
+    assert(res == vk::Result::eSuccess && "Cannot create descriptor sets.");
 }
 
 void CDescriptorSet::create(std::shared_ptr<Pipeline::CPipelineBase> pPipeline, uint32_t images)
@@ -30,21 +28,28 @@ void CDescriptorSet::create(std::shared_ptr<Pipeline::CPipelineBase> pPipeline, 
 
 void CDescriptorSet::cleanup()
 {
-    CDevice::inst()->getLogical().freeDescriptorSets(descriptorPool, vDescriptorSets);
+    //TODO: add destroy method
+    auto& vkDevice = CDevice::inst()->getLogical();
+    assert(vkDevice && "Trying to free descriptor sets, but device is invalid.");
+    vkDevice.freeDescriptorSets(descriptorPool, vDescriptorSets);
 }
 
 void CDescriptorSet::update(std::vector<vk::WriteDescriptorSet> &vWrites, uint32_t index)
 {
+    auto& vkDevice = CDevice::inst()->getLogical();
+    assert(vkDevice && "Trying to update descriptor sets, but device is invalid.");
     for (auto &write : vWrites)
         write.dstSet = vDescriptorSets.at(index);
 
-    CDevice::inst()->getLogical().updateDescriptorSets(static_cast<uint32_t>(vWrites.size()), vWrites.data(), 0, nullptr);
+    vkDevice.updateDescriptorSets(static_cast<uint32_t>(vWrites.size()), vWrites.data(), 0, nullptr);
 }
 
 void CDescriptorSet::update(vk::WriteDescriptorSet &writes, uint32_t index)
 {
+    auto& vkDevice = CDevice::inst()->getLogical();
+    assert(vkDevice && "Trying to free descriptor sets, but device is invalid.");
     writes.dstSet = vDescriptorSets.at(index);
-    CDevice::inst()->getLogical().updateDescriptorSets(1, &writes, 0, nullptr);
+    vkDevice.updateDescriptorSets(1, &writes, 0, nullptr);
 }
 
 void CDescriptorSet::bind(const vk::CommandBuffer &commandBuffer, uint32_t index) const

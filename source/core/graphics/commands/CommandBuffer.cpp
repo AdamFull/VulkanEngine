@@ -11,8 +11,9 @@ commandPool(CDevice::inst()->getCommandPool()), queueType(queueType)
     allocInfo.level = bufferLevel;
     allocInfo.commandBufferCount = count;
 
-    // TODO: Handle error
-    vCommandBuffers = CDevice::inst()->getLogical().allocateCommandBuffers(allocInfo);
+    vCommandBuffers.resize(count);
+    vk::Result res = CDevice::inst()->create(allocInfo, vCommandBuffers.data());
+    assert(res == vk::Result::eSuccess && "Cannot create bommand buffers");
 
     if(_begin)
         begin();
@@ -58,8 +59,11 @@ void CCommandBuffer::end()
 }
 
 
-void CCommandBuffer::submitIdle()
+vk::Result CCommandBuffer::submitIdle()
 {
+    auto& vkDevice = CDevice::inst()->getLogical();
+    assert(vkDevice && "Trying to submit queue, but device is invalid.");
+    vk::Result res;
     if (running)
 		end();
 
@@ -69,8 +73,11 @@ void CCommandBuffer::submitIdle()
     submitInfo.pCommandBuffers = vCommandBuffers.data();
 
     vk::FenceCreateInfo fenceCreateInfo{};
-    vk::Fence fence = CDevice::inst()->make<vk::Fence, vk::FenceCreateInfo>(fenceCreateInfo);
-    CDevice::inst()->getLogical().resetFences(1, &fence);
+    vk::Fence fence;
+    res = CDevice::inst()->create(fenceCreateInfo, &fence);
+    assert(res == vk::Result::eSuccess && "Cannot create fence.");
+    res = vkDevice.resetFences(1, &fence);
+    assert(res == vk::Result::eSuccess && "Cannot reset fence.");
 
     vk::Queue queue{};
     switch (queueType)
@@ -86,9 +93,10 @@ void CCommandBuffer::submitIdle()
     } break;
     }
     queue.submit(submitInfo, fence);
-    auto fencesResult = CDevice::inst()->getLogical().waitForFences(1, &fence, VK_TRUE, std::numeric_limits<uint64_t>::max());
-    CDevice::inst()->destroy(fence);
-    //queue.waitIdle();
+    res = vkDevice.waitForFences(1, &fence, VK_TRUE, std::numeric_limits<uint64_t>::max());
+    assert(res == vk::Result::eSuccess && "Wait for fences error.");
+    CDevice::inst()->destroy(&fence);
+    return res;
 }
 
 vk::Result CCommandBuffer::submit(uint32_t& imageIndex)
@@ -97,5 +105,5 @@ vk::Result CCommandBuffer::submit(uint32_t& imageIndex)
 		end();
 
     auto commandBuffer = getCommandBuffer();
-    return CSwapChain::inst()->submitCommandBuffers(&commandBuffer, &imageIndex, queueType);
+    return CDevice::inst()->submitCommandBuffers(&commandBuffer, &imageIndex, queueType);
 }

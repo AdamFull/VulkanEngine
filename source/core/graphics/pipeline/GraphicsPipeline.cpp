@@ -13,7 +13,7 @@ void CGraphicsPipeline::create(vk::RenderPass& renderPass, uint32_t subpass)
 void CGraphicsPipeline::createPipeline()
 {
     assert(CDevice::inst() && "Cannot create pipeline, cause logical device is not valid.");
-    assert(CSwapChain::inst() && "Cannot create pipeline, cause render pass is not valid.");
+    assert(CDevice::inst() && "Cannot create pipeline, cause render pass is not valid.");
 
     auto& bindingDescription = m_vertexInput.getInputBindingDescription();
     auto& attributeDescription = m_vertexInput.getInputAttributeDescription();
@@ -94,6 +94,6 @@ void CGraphicsPipeline::createPipeline()
     pipelineInfo.basePipelineHandle = nullptr;
     pipelineInfo.pDynamicState = &dynamicStateInfo;
 
-    auto result = CDevice::inst()->getLogical().createGraphicsPipelines(UHLInstance->getPipelineCache(), 1, &pipelineInfo, nullptr, &m_pipeline);
+    auto result = CDevice::inst()->create(pipelineInfo, m_pipeline);
     assert(m_pipeline && "Failed creating pipeline.");
 }

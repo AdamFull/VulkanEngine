@@ -12,7 +12,7 @@ void CComputePipeline::create()
 void CComputePipeline::createPipeline()
 {
     assert(CDevice::inst() && "Cannot create pipeline, cause logical device is not valid.");
-    assert(CSwapChain::inst() && "Cannot create pipeline, cause render pass is not valid.");
+    assert(CDevice::inst() && "Cannot create pipeline, cause render pass is not valid.");
 
     auto shaderStages = m_pShader->getStageCreateInfo();
 
@@ -22,6 +22,6 @@ void CComputePipeline::createPipeline()
     pipelineInfo.basePipelineHandle = nullptr;
     pipelineInfo.basePipelineIndex = -1;
 
-    auto result = CDevice::inst()->getLogical().createComputePipelines(UHLInstance->getPipelineCache(), 1, &pipelineInfo, nullptr, &m_pipeline);
+    auto result = CDevice::inst()->create(pipelineInfo, m_pipeline);
     assert(m_pipeline && "Failed creating pipeline.");
 }

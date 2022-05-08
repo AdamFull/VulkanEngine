@@ -306,15 +306,12 @@ void CShader::addStage(const std::filesystem::path &moduleName, const std::strin
 
     try
     {
-        auto shaderModule = CDevice::inst()->make<vk::ShaderModule, vk::ShaderModuleCreateInfo>
-        (
-            vk::ShaderModuleCreateInfo
-            {
-                vk::ShaderModuleCreateFlags(),
-                spirv.size() * sizeof(uint32_t),
-                spirv.data()
-            }
-        );
+        vk::ShaderModuleCreateInfo shaderCI{};
+        shaderCI.codeSize = spirv.size() * sizeof(uint32_t);
+        shaderCI.pCode = spirv.data();
+        vk::ShaderModule shaderModule{VK_NULL_HANDLE};
+        vk::Result res = CDevice::inst()->create(shaderCI, &shaderModule);
+        assert(res == vk::Result::eSuccess && "Cannot create shader module.")
 
         vShaderModules.emplace_back
         (
@@ -336,7 +333,7 @@ void CShader::addStage(const std::filesystem::path &moduleName, const std::strin
 void CShader::clear()
 {
     for(auto& stage : vShaderModules)
-        CDevice::inst()->destroy(stage.module);
+        CDevice::inst()->destroy(&stage.module);
 
     vShaderModules.clear();
     vShaderStage.clear();

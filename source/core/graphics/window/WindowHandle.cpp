@@ -44,8 +44,6 @@ bool CWindowHandle::m_bWasResized{false};
 
 CWindowHandle::CWindowHandle()
 {
-    glfwInit();
-    glfwWindowHint(GLFW_CLIENT_API, GLFW_NO_API);
 }
 
 CWindowHandle::~CWindowHandle()
@@ -55,6 +53,9 @@ CWindowHandle::~CWindowHandle()
 
 void CWindowHandle::create(FWindowCreateInfo createInfo)
 {
+    glfwInit();
+    glfwWindowHint(GLFW_CLIENT_API, GLFW_NO_API);
+    
     auto* pPrimaryMonitor = glfwGetPrimaryMonitor();
     const GLFWvidmode* mode = glfwGetVideoMode(pPrimaryMonitor);
     if(createInfo.fullscreen)

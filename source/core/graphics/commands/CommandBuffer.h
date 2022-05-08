@@ -16,7 +16,7 @@ namespace Engine
             void begin(vk::CommandBufferUsageFlags usage = vk::CommandBufferUsageFlagBits::eOneTimeSubmit, uint32_t index = 0);
             void end();
 
-            void submitIdle();
+            vk::Result submitIdle();
 
             vk::Result submit(uint32_t& imageIndex);
 

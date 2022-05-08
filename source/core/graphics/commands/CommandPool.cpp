@@ -5,17 +5,27 @@ using namespace Engine::Core;
 
 CCommandPool::CCommandPool(const std::thread::id &threadId) : threadId(threadId) 
 {
-    auto& logical = CDevice::inst()->getLogical();
-	QueueFamilyIndices queueFamilyIndices = CDevice::inst()->findQueueFamilies(CDevice::inst()->getPhysical());
+    //TODO: refactor here device calls
+	QueueFamilyIndices queueFamilyIndices = CDevice::inst()->findQueueFamilies();
 
     vk::CommandPoolCreateInfo poolInfo = {};
     poolInfo.flags = vk::CommandPoolCreateFlagBits::eTransient | vk::CommandPoolCreateFlagBits::eResetCommandBuffer;
     poolInfo.queueFamilyIndex = queueFamilyIndices.graphicsFamily.value();
 
-    commandPool = logical.createCommandPool(poolInfo);
+    vk::Result res = CDevice::inst()->create(poolInfo, &commandPool);
+    assert(res == vk::Result::eSuccess && "Cannot create command pool.");
+}
+
+void CCommandPool::cleanup()
+{
+    if(!bIsClean)
+    {
+        CDevice::inst()->destroy(&commandPool);
+        bIsClean = true;
+    }
 }
 
 CCommandPool::~CCommandPool() 
 {
-	CDevice::inst()->destroy(commandPool);
+	cleanup();
 }

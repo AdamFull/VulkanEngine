@@ -14,7 +14,7 @@ using namespace Engine::Resources::Material;
 
 void CFinalCompositionPass::create()
 {
-    auto framesInFlight = CSwapChain::inst()->getFramesInFlight();
+    auto framesInFlight = CDevice::inst()->getFramesInFlight();
     pUniform = std::make_shared<CUniformBuffer>();
     pUniform->create(framesInFlight, sizeof(FPostProcess));
 
@@ -30,7 +30,7 @@ void CFinalCompositionPass::reCreate()
 
 void CFinalCompositionPass::render(vk::CommandBuffer& commandBuffer)
 {
-    auto imageIndex = CSwapChain::inst()->getCurrentFrame();
+    auto imageIndex = CDevice::inst()->getCurrentFrame();
 
     pMaterial->addTexture("samplerColor", CRenderSystem::inst()->getPrevStage()->getFramebuffer()->getCurrentImages()["output_color"]);
     pMaterial->addTexture("samplerBrightness", CRenderSystem::inst()->getPrevStage()->getFramebuffer()->getCurrentImages()["brightness_buffer"]); //bloom_image

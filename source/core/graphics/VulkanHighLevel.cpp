@@ -9,47 +9,21 @@ using namespace Engine::Core::Window;
 template<>
 std::unique_ptr<CVulkanHighLevel> utl::singleton<CVulkanHighLevel>::_instance{nullptr};
 
+//TODO: remove this class
 void CVulkanHighLevel::create(FEngineCreateInfo createInfo)
 {
     CWindowHandle::inst()->create(createInfo.window);
     CDevice::inst()->create(createInfo.device);
-    createPipelineCache();
-    CSwapChain::inst()->create();
 
     if (!glslang::InitializeProcess())
 		throw std::runtime_error("Failed to initialize glslang processor.");
 }
 
-void CVulkanHighLevel::createPipelineCache()
-{
-    vk::PipelineCacheCreateInfo pipelineCacheCreateInfo = {};
-    m_pipelineCache = CDevice::inst()->getLogical().createPipelineCache(pipelineCacheCreateInfo);
-}
-
-void CVulkanHighLevel::recreateSwapChain()
-{
-    CWindowHandle::inst()->wait();
-    CDevice::inst()->GPUWait();
-
-    cleanupSwapChain();
-    CSwapChain::inst()->reCreate();
-
-    CRenderSystem::inst()->reCreate();
-}
-
-void CVulkanHighLevel::cleanupSwapChain()
-{
-    CSwapChain::inst()->cleanup();
-    CRenderSystem::inst()->cleanup();
-}
-
 void CVulkanHighLevel::cleanup()
 {
     CDevice::inst()->GPUWait();
-    CSwapChain::inst()->cleanup();
     CRenderSystem::inst()->cleanup();
     CVBO::inst()->cleanup();
-    CDevice::inst()->destroy(m_pipelineCache);
     CDevice::inst()->cleanup();
 }
 

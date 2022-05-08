@@ -101,6 +101,7 @@ void CRenderPass::create()
 
 void CRenderPass::reCreate()
 {
+    CDevice::inst()->destroy(&renderPass);
     renderPass = createRenderPass();
     currentSubpassIndex = 0;
     for(auto& subpass : vSubpasses)
@@ -118,7 +119,7 @@ void CRenderPass::cleanup()
             subpass->cleanup();
         vSubpasses.clear();
         if(renderPass)
-            CDevice::inst()->destroy(renderPass);
+            CDevice::inst()->destroy(&renderPass);
         bIsClean = true;
     }
 }
@@ -183,6 +184,7 @@ void CRenderPass::pushSubpass(std::shared_ptr<CSubpass>&& subpass)
 
 vk::RenderPass CRenderPass::createRenderPass()
 {
+    vk::RenderPass renderPass{VK_NULL_HANDLE};
     vk::RenderPassCreateInfo renderPassCI = {};
     renderPassCI.attachmentCount = static_cast<uint32_t>(vAttachDesc.size());
     renderPassCI.pAttachments = vAttachDesc.data();
@@ -190,5 +192,6 @@ vk::RenderPass CRenderPass::createRenderPass()
     renderPassCI.pSubpasses = vSubpassDesc.data();
     renderPassCI.dependencyCount = static_cast<uint32_t>(vSubpassDep.size());
     renderPassCI.pDependencies = vSubpassDep.data();
-    return CDevice::inst()->getLogical().createRenderPass(renderPassCI);
+    vk::Result res = CDevice::inst()->create(renderPassCI, &renderPass);
+    return res;
 }

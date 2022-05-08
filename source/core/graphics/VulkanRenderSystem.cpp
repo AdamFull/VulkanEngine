@@ -18,13 +18,13 @@ CRenderSystem::~CRenderSystem()
 
 void CRenderSystem::create()
 {
-    screenExtent = CSwapChain::inst()->getExtent();
-    commandBuffers = std::make_shared<CCommandBuffer>(false, vk::QueueFlagBits::eGraphics, vk::CommandBufferLevel::ePrimary, CSwapChain::inst()->getFramesInFlight());
+    screenExtent = CDevice::inst()->getExtent();
+    commandBuffers = std::make_shared<CCommandBuffer>(false, vk::QueueFlagBits::eGraphics, vk::CommandBufferLevel::ePrimary, CDevice::inst()->getFramesInFlight());
 
     vStages.emplace_back(std::make_unique<Render::CDeferredStage>());
     vStages.emplace_back(std::make_unique<Render::CPostProcessStage>());
-    vStages.emplace_back(std::make_unique<Render::CSandboxFinalStage>());
-    //vStages.emplace_back(std::make_unique<Render::CPresentFinalStage>());
+    //vStages.emplace_back(std::make_unique<Render::CSandboxFinalStage>());
+    vStages.emplace_back(std::make_unique<Render::CPresentFinalStage>());
 
     currentStageIndex = 0;
     for(auto& stage : vStages)
@@ -36,22 +36,26 @@ void CRenderSystem::create()
 
 void CRenderSystem::reCreate()
 {
-    screenExtent = CSwapChain::inst()->getExtent();
-    commandBuffers = std::make_shared<CCommandBuffer>(false, vk::QueueFlagBits::eGraphics, vk::CommandBufferLevel::ePrimary, CSwapChain::inst()->getFramesInFlight());
+    CDevice::inst()->tryRebuildSwapchain();
+    screenExtent = CDevice::inst()->getExtent();
+    commandBuffers = std::make_shared<CCommandBuffer>(false, vk::QueueFlagBits::eGraphics, vk::CommandBufferLevel::ePrimary, CDevice::inst()->getFramesInFlight());
+    Window::CWindowHandle::m_bWasResized = false;
+
     currentStageIndex = 0;
     for(auto& stage : vStages)
     {
         stage->reCreate();
         currentStageIndex++;
     }
-    Window::CWindowHandle::m_bWasResized = false;
 }
 
 void CRenderSystem::render()
 {
+    if(CDevice::inst()->getReduildFlag()) { reCreate(); }
+
     vk::CommandBuffer commandBuffer{};
     try { commandBuffer = beginFrame(); }
-    catch (vk::OutOfDateKHRError err) { UHLInstance->recreateSwapChain(); }
+    catch (vk::OutOfDateKHRError err) { CDevice::inst()->setRebuildFlag(); }
     catch (vk::SystemError err) { throw std::runtime_error("Failed to acquire swap chain image!"); }
 
     currentStageIndex = 0;
@@ -68,8 +72,7 @@ void CRenderSystem::render()
 
     if (resultPresent == vk::Result::eSuboptimalKHR || resultPresent == vk::Result::eErrorOutOfDateKHR || Window::CWindowHandle::m_bWasResized)
     {
-        Window::CWindowHandle::m_bWasResized = false;
-        UHLInstance->recreateSwapChain();
+        CDevice::inst()->setRebuildFlag();
     }
 
     if(totalFrameNumberCounter != std::numeric_limits<size_t>::max())
@@ -97,7 +100,7 @@ vk::CommandBuffer& CRenderSystem::getCurrentCommandBuffer()
 vk::CommandBuffer& CRenderSystem::beginFrame()
 {
     assert(!frameStarted && "Can't call beginFrame while already in progress");
-    auto result = CSwapChain::inst()->acquireNextImage(&imageIndex);
+    auto result = CDevice::inst()->acquireNextImage(&imageIndex);
     frameStarted = true;
 
     commandBuffers->begin(vk::CommandBufferUsageFlagBits::eSimultaneousUse, imageIndex);

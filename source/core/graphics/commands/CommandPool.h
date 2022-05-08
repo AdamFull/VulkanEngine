@@ -9,6 +9,7 @@ namespace Engine
         {
         public:
             explicit CCommandPool(const std::thread::id &threadId = std::this_thread::get_id());
+            void cleanup();
 
             ~CCommandPool();
 
@@ -18,6 +19,7 @@ namespace Engine
             const std::thread::id &getThreadId() const { return threadId; }
         private:
             vk::CommandPool commandPool = VK_NULL_HANDLE;
+            bool bIsClean{false};
 	        std::thread::id threadId;
         };
     }

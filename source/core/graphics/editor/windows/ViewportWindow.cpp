@@ -3,10 +3,12 @@
 #include "graphics/editor/imgui_impl_vulkan.h"
 #include "graphics/VulkanHighLevel.h"
 #include "graphics/descriptor/DescriptorSet.h"
+#include "Resources/ResourceManager.h"
 
 using namespace Engine::Core;
 using namespace Engine::Core::Descriptor;
 using namespace Engine::Core::Editor;
+using namespace Engine::Resources;
 
 void CViewportWindow::create()
 {
@@ -33,10 +35,12 @@ void CViewportWindow::draw()
             return;
         }
         auto extent = CDevice::inst()->getExtent();
-        auto imageDescriptor = CRenderSystem::inst()->getPrevStage()->getFramebuffer()->getCurrentImages()["output_color"];
 
         ImVec2 viewportPanelSize = ImGui::GetContentRegionAvail();
+        auto imageDescriptor = CRenderSystem::inst()->getPrevStage()->getFramebuffer()->getCurrentImages()["output_color"];
         ImGui::Image(imageDescriptor->getDescriptorSet(), ImVec2{viewportPanelSize.x, viewportPanelSize.y});
+        //auto loadedImage = CResourceManager::inst()->get<CImage>("floor_mesh_component_texture_vintage-tile1_normal-ogl_0");
+        //ImGui::Image(loadedImage->getDescriptorSet(), ImVec2{viewportPanelSize.x, viewportPanelSize.y});
         ImGui::End();
     }
 }

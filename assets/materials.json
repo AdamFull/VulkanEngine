@@ -10,8 +10,23 @@
             "depth": true,
             "dynamicStates": ["viewport", "scissor"],
             "stages": [
-                "shaders/main/diffuse.vert", 
+                "shaders/main/diffuse.vert",
                 "shaders/main/diffuse.frag"
+            ],
+            "defines": {}
+        },
+        "displaynormal":
+        {
+            "vertexType": "default",
+            "bindPoint": "graphics",
+            "culling": "none",
+            "frontface": "clockwise",
+            "depth": true,
+            "dynamicStates": ["viewport", "scissor"],
+            "stages": [
+                "shaders/main/debug/displaynormal.vert", 
+                "shaders/main/debug/displaynormal.geom",
+                "shaders/main/debug/displaynormal.frag"
             ],
             "defines": {}
         },

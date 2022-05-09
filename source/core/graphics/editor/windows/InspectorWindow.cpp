@@ -102,13 +102,13 @@ void CInspectorWindow::draw()
                     case ECullingType::eByPoint: {} break;
                     case ECullingType::eBySphere:  {
                         auto sphereRadius = selected->getCullingRadius();
-                        if(ImGui::InputFloat("CullingSphereRadius", &sphereRadius))
+                        if(ImGui::DragFloat("CullingSphereRadius", &sphereRadius))
                             selected->setCullingRadius(sphereRadius);
                     } break;
                     case ECullingType::eByBox: {
                         auto bounds = selected->getBounds();
-                        if(ImGui::InputFloat3("BoxBegin", glm::value_ptr(bounds.first)) ||
-                        ImGui::InputFloat3("BoxEnd", glm::value_ptr(bounds.second)))
+                        if(ImGui::DragFloat3("BoxBegin", glm::value_ptr(bounds.first)) ||
+                        ImGui::DragFloat3("BoxEnd", glm::value_ptr(bounds.second)))
                             selected->setBounds(bounds.first, bounds.second);
                     } break;
                 }

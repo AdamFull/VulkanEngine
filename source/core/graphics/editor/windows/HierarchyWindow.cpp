@@ -104,9 +104,15 @@ void CHierarchyWindow::buildHierarchy(std::shared_ptr<CRenderObject> pObject)
 	}
 
     //Mouse click event
-    if (ImGui::IsItemClicked(0) || ImGui::IsItemClicked(1))
+    if (ImGui::IsItemClicked(0))
 	{
         CEditor::inst()->deselectAll();
+        CEditor::inst()->selectObject(pObject);
+    }
+
+    // Ctrl + click
+    if(ImGui::IsKeyPressed(ImGuiKey_LeftCtrl) && ImGui::IsItemClicked(0))
+    {
         CEditor::inst()->selectObject(pObject);
     }
 

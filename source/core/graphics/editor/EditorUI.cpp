@@ -149,7 +149,7 @@ void CEditorUI::cleanup()
 void CEditorUI::baseInitialize()
 {
     // Color scheme
-    ImGuiStyle &style = ImGui::GetStyle();
+    /*ImGuiStyle &style = ImGui::GetStyle();
     style.Colors[ImGuiCol_TitleBg] = ImVec4(1.0f, 0.4f, 0.0f, 1.0f);
     style.Colors[ImGuiCol_TitleBgActive] = ImVec4(1.0f, 0.4f, 0.0f, 1.0f);
     style.Colors[ImGuiCol_TitleBgCollapsed] = ImVec4(1.0f, 0.4f, 0.0f, 0.1f);
@@ -167,10 +167,11 @@ void CEditorUI::baseInitialize()
     style.Colors[ImGuiCol_ButtonHovered] = ImVec4(1.0f, 0.4f, 0.0f, 0.6f);
     style.Colors[ImGuiCol_ButtonActive] = ImVec4(1.0f, 0.4f, 0.0f, 0.8f);
     style.Colors[ImGuiCol_DockingEmptyBg] = ImVec4(0.0f, 0.0f, 0.0f, 0.0f);
-    style.Colors[ImGuiCol_DockingPreview] = ImVec4(1.0f, 0.4f, 0.0f, 1.0f);
+    style.Colors[ImGuiCol_DockingPreview] = ImVec4(1.0f, 0.4f, 0.0f, 1.0f);*/
     // Dimensions
     ImGuiIO &io = ImGui::GetIO();
     io.ConfigFlags |= ImGuiConfigFlags_DockingEnable;
+    io.ConfigFlags |= ImGuiConfigFlags_ViewportsEnable;
     io.DisplaySize = ImVec2(CWindowHandle::m_iWidth, CWindowHandle::m_iHeight);
     io.DisplayFramebufferScale = ImVec2(1.0f, 1.0f);
 }
@@ -202,7 +203,7 @@ void CEditorUI::drawFrame(vk::CommandBuffer commandBuffer, uint32_t index)
         if (io.ConfigFlags & ImGuiConfigFlags_ViewportsEnable)
         {
             ImGui::UpdatePlatformWindows();
-            //ImGui::RenderPlatformWindowsDefault();
+            ImGui::RenderPlatformWindowsDefault();
         }
         ImDrawData *drawdata = ImGui::GetDrawData();
         ImGui_ImplVulkan_RenderDrawData(drawdata, commandBuffer);

@@ -1,12 +1,12 @@
-#include "OverlayLog.h"
+#include "LogWindow.h"
 
-using namespace Engine::Core::Overlay;
+using namespace Engine::Core::Editor;
 
-void COverlayLog::draw()
+void CLogWindow::draw()
 {
     if (bOverlayState)
     {
-        if (!ImGui::Begin(srOverlayName.c_str(), &bOverlayState))
+        if (!ImGui::Begin("Log", &bOverlayState))
         {
             ImGui::End();
             return;
@@ -75,7 +75,7 @@ void COverlayLog::draw()
     }
 }
 
-void COverlayLog::clear()
+void CLogWindow::clear()
 {
     Buf.clear();
     LineOffsets.clear();

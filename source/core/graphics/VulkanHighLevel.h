@@ -7,7 +7,7 @@
 #include "buffer/VulkanUniform.h"
 #include "GlobalVertexBuffer.h"
 #include "VulkanRenderSystem.h"
-#include "overlay/ImguiOverlay.h"
+#include "editor/EditorUI.h"
 #include "serializer/Serialization.hpp"
 
 #include "pipeline/Pipeline.h"

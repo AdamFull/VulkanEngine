@@ -1,26 +1,25 @@
-#include "OverlayConsole.h"
+#include "ConsoleWindow.h"
 
-using namespace Engine::Core::Overlay;
+using namespace Engine::Core::Editor;
 
-COverlayConsole::COverlayConsole(std::string srName)
+CConsoleWindow::CConsoleWindow()
 {
-    srOverlayName = srName;
     Commands.push_back("help");
     Commands.push_back("clear");
     Commands.push_back("exit");
     bOverlayState = false;
 }
 
-COverlayConsole::~COverlayConsole()
+CConsoleWindow::~CConsoleWindow()
 {
 }
 
-void COverlayConsole::draw()
+void CConsoleWindow::draw()
 {
     if (bOverlayState)
     {
         ImGui::SetNextWindowSize(ImVec2(520, 600), ImGuiCond_FirstUseEver);
-        if (!ImGui::Begin(srOverlayName.c_str(), &bOverlayState))
+        if (!ImGui::Begin("Console", &bOverlayState))
         {
             ImGui::End();
             return;
@@ -150,14 +149,14 @@ void COverlayConsole::draw()
     }
 }
 
-void COverlayConsole::clearLog()
+void CConsoleWindow::clearLog()
 {
     for (int i = 0; i < Items.Size; i++)
         free(Items[i]);
     Items.clear();
 }
 
-void COverlayConsole::execCommand(const char *command_line)
+void CConsoleWindow::execCommand(const char *command_line)
 {
     addLog("# %s\n", command_line);
 
@@ -199,13 +198,13 @@ void COverlayConsole::execCommand(const char *command_line)
     ScrollToBottom = true;
 }
 
-int COverlayConsole::textEditCallbackStub(ImGuiInputTextCallbackData *data)
+int CConsoleWindow::textEditCallbackStub(ImGuiInputTextCallbackData *data)
 {
-    COverlayConsole *console = (COverlayConsole *)data->UserData;
+    CConsoleWindow *console = (CConsoleWindow *)data->UserData;
     return console->textEditCallback(data);
 }
 
-int COverlayConsole::textEditCallback(ImGuiInputTextCallbackData *data)
+int CConsoleWindow::textEditCallback(ImGuiInputTextCallbackData *data)
 {
     // AddLog("cursor: %d, selection: %d-%d", data->CursorPos, data->SelectionStart, data->SelectionEnd);
     switch (data->EventFlag)
@@ -306,7 +305,7 @@ int COverlayConsole::textEditCallback(ImGuiInputTextCallbackData *data)
     return 0;
 }
 
-void COverlayConsole::addLog(const char *fmt, ...) IM_FMTARGS(2)
+void CConsoleWindow::addLog(const char *fmt, ...) IM_FMTARGS(2)
 {
     // FIXME-OPT
     char buf[1024];
@@ -318,7 +317,7 @@ void COverlayConsole::addLog(const char *fmt, ...) IM_FMTARGS(2)
     Items.push_back(strdup(buf));
 }
 
-int COverlayConsole::stricmp(const char *s1, const char *s2)
+int CConsoleWindow::stricmp(const char *s1, const char *s2)
 {
     int d;
     while ((d = toupper(*s2) - toupper(*s1)) == 0 && *s1)
@@ -329,7 +328,7 @@ int COverlayConsole::stricmp(const char *s1, const char *s2)
     return d;
 }
 
-int COverlayConsole::strnicmp(const char *s1, const char *s2, int n)
+int CConsoleWindow::strnicmp(const char *s1, const char *s2, int n)
 {
     int d = 0;
     while (n > 0 && (d = toupper(*s2) - toupper(*s1)) == 0 && *s1)
@@ -341,7 +340,7 @@ int COverlayConsole::strnicmp(const char *s1, const char *s2, int n)
     return d;
 }
 
-char *COverlayConsole::strdup(const char *s)
+char *CConsoleWindow::strdup(const char *s)
 {
     IM_ASSERT(s);
     size_t len = strlen(s) + 1;
@@ -350,7 +349,7 @@ char *COverlayConsole::strdup(const char *s)
     return (char *)memcpy(buf, (const void *)s, len);
 }
 
-void COverlayConsole::strtrim(char *s)
+void CConsoleWindow::strtrim(char *s)
 {
     char *str_end = s + strlen(s);
     while (str_end > s && str_end[-1] == ' ')

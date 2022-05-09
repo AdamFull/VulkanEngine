@@ -1,4 +1,4 @@
-#include "OverlayDebug.h"
+#include "DebugWindow.h"
 #include <imgui.h>
 #include <glm/gtc/type_ptr.hpp>
 #include <graphics/window/WindowHandle.h>
@@ -8,13 +8,13 @@
 #include "graphics/buffer/VulkanVBO.h"
 #include "graphics/VulkanHighLevel.h"
 
-using namespace Engine::Core::Overlay;
+using namespace Engine::Core::Editor;
 
-void COverlayDebug::draw()
+void CDebugWindow::draw()
 {
     if (bOverlayState)
     {
-        if (!ImGui::Begin(srOverlayName.c_str(), &bOverlayState))
+        if (!ImGui::Begin("Debug", &bOverlayState))
         {
             ImGui::End();
             return;

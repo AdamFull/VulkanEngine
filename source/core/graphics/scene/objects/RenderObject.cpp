@@ -6,107 +6,164 @@ using namespace Engine::Util;
 using namespace Engine::Core::Scene;
 using namespace Engine::Resources;
 
+static uint64_t _objectIdCounter{0};
+
 CRenderObject::CRenderObject()
 {
+    objectId = _objectIdCounter;
+    _objectIdCounter++;
 }
 
-CRenderObject::CRenderObject(std::string srName)
+CRenderObject::CRenderObject(std::string name)
 {
-    m_srName = srName;
+    srName = name;
 }
 
 CRenderObject::~CRenderObject()
 {
-    m_mChilds.clear();
+    mChilds.clear();
 }
 
 void CRenderObject::create()
 {
-    for (auto &[name, child] : m_mChilds)
+    for (auto &[name, child] : mChilds)
         child->create();
 }
 
 void CRenderObject::reCreate()
 {
-    for (auto &[name, child] : m_mChilds)
+    for (auto &[name, child] : mChilds)
         child->reCreate();
 }
 
 void CRenderObject::render(vk::CommandBuffer &commandBuffer, uint32_t imageIndex)
 {
-    for (auto &[name, child] : m_mChilds)
+    if (bEnable)
     {
-        bool needToRender = child->bVisible;
-        if(child->isCullable())
-            needToRender = needToRender && checkFrustum(child);
-        if (needToRender)
-            child->render(commandBuffer, imageIndex);
+        for (auto &[name, child] : mChilds)
+        {
+            bool needToRender = child->isVisible();
+            if (child->isCullable())
+            {
+                switch (child->getCullingType())
+                {
+                case ECullingType::eByPoint:
+                {
+                    needToRender = needToRender && CFrustum::inst()->checkPoint(child->getPosition());
+                }
+                break;
+                case ECullingType::eBySphere:
+                {
+                    needToRender = needToRender && CFrustum::inst()->checkSphere(child->getPosition(), child->getCullingRadius());
+                }
+                break;
+                case ECullingType::eByBox:
+                {
+                    auto &bounds = child->getBounds();
+                    needToRender = needToRender && CFrustum::inst()->checkBox(child->getPosition() + bounds.first, child->getPosition() + bounds.second);
+                }
+                break;
+                }
+            }
+
+            if (needToRender)
+            {
+                child->render(commandBuffer, imageIndex);
+            }
+        }
     }
 }
 
 void CRenderObject::update(float fDeltaTime)
 {
-    for (auto &[name, child] : m_mChilds)
-        child->update(fDeltaTime);
+    if (bEnable)
+    {
+        for (auto &[name, child] : mChilds)
+            child->update(fDeltaTime);
+    }
 }
 
 void CRenderObject::cleanup()
 {
-    for (auto &[name, child] : m_mChilds)
+    for (auto &[name, child] : mChilds)
         child->cleanup();
 }
 
 void CRenderObject::destroy()
 {
-    for (auto &[name, child] : m_mChilds)
+    for (auto &[name, child] : mChilds)
         child->destroy();
 }
 
-void CRenderObject::setName(std::string srName)
+void CRenderObject::setName(std::string name)
 {
-    m_srName = srName;
+    if(name == srName)
+        return;
+        
+    if(pParent)
+    {
+        auto& childs = pParent->getChilds();
+        auto child = childs.extract(srName);
+        if(child)
+        {
+            child.key() = name;
+            childs.insert(std::move(child));
+        }
+    }
+    srName = name;
 }
 
 std::string &CRenderObject::getName()
 {
-    return m_srName;
+    return srName;
 }
 
 std::shared_ptr<CRenderObject> &CRenderObject::getParent()
 {
-    return m_pParent;
+    return pParent;
 }
 
 std::unordered_map<std::string, std::shared_ptr<CRenderObject>> &CRenderObject::getChilds()
 {
-    return m_mChilds;
+    return mChilds;
 }
 
 // Deep search
 std::shared_ptr<CRenderObject> CRenderObject::find(std::string srName)
 {
-    auto it = m_mChilds.find(srName);
-    if (it != m_mChilds.end())
+    auto it = mChilds.find(srName);
+    if (it != mChilds.end())
         return it->second;
 
-    for (auto &[name, child] : m_mChilds)
+    for (auto &[name, child] : mChilds)
         child->find(srName);
+    return nullptr;
+}
+
+std::shared_ptr<CRenderObject> CRenderObject::find(uint64_t id)
+{
+    for(auto& [name, child] : mChilds)
+    {
+        if(child->objectId == id)
+            return child;
+        return child->find(id);
+    }
     return nullptr;
 }
 
 void CRenderObject::addChild(std::shared_ptr<CRenderObject> child)
 {
-    m_mChilds.emplace(child->m_srName, child);
+    mChilds.emplace(child->srName, child);
     child->setParent(shared_from_this());
 }
 
 void CRenderObject::setParent(std::shared_ptr<CRenderObject> parent)
 {
-    m_pParentOld = m_pParent;
-    m_pParent = parent;
+    pParentOld = pParent;
+    pParent = parent;
     // If you set parent for this, you should attach self to parent's child's
-    if (m_pParentOld)
-        m_pParentOld->detach(shared_from_this());
+    if (pParentOld)
+        pParentOld->detach(shared_from_this());
 }
 void CRenderObject::attach(std::shared_ptr<CRenderObject> child)
 {
@@ -115,82 +172,61 @@ void CRenderObject::attach(std::shared_ptr<CRenderObject> child)
 
 void CRenderObject::detach(std::shared_ptr<CRenderObject> child)
 {
-    auto it = m_mChilds.find(child->m_srName);
-    if (it != m_mChilds.end())
+    auto it = mChilds.find(child->srName);
+    if (it != mChilds.end())
     {
-        m_mChilds.erase(it);
+        mChilds.erase(it);
     }
 }
 
 FTransform CRenderObject::getTransform()
 {
-    FTransform transform = m_transform;
-    if (m_pParent)
-        transform += m_pParent->getTransform();
-    return transform;
+    FTransform t = transform;
+    if (pParent)
+        t += pParent->getTransform();
+    return t;
 }
 
 const glm::vec3 CRenderObject::getPosition() const
 {
-    glm::vec3 position = m_transform.pos;
-    if (m_pParent)
-        position += m_pParent->getPosition();
+    glm::vec3 position = transform.pos;
+    if (pParent)
+        position += pParent->getPosition();
     return position;
 }
 
 const glm::vec3 CRenderObject::getRotation() const
 {
-    glm::vec3 rotation = m_transform.rot;
-    if (m_pParent)
-        rotation += m_pParent->getRotation();
+    glm::vec3 rotation = transform.rot;
+    if (pParent)
+        rotation += pParent->getRotation();
     return rotation;
 }
 
 const glm::vec3 CRenderObject::getScale() const
 {
-    glm::vec3 scale = m_transform.scale;
-    if (m_pParent)
-        scale *= m_pParent->getScale();
+    glm::vec3 scale = transform.scale;
+    if (pParent)
+        scale *= pParent->getScale();
     return scale;
 }
 
 void CRenderObject::setTransform(FTransform transformNew)
 {
-    m_transform = transformNew;
+    transform = transformNew;
 }
 
 void CRenderObject::setPosition(glm::vec3 position)
 {
-    m_transform.pos = position;
+    transform.pos = position;
 }
 
 void CRenderObject::setRotation(glm::vec3 rotation)
 {
-    m_transform.rot = rotation;
+    transform.rot = rotation;
 }
 
 void CRenderObject::setScale(glm::vec3 scale)
 {
-    m_transform.scale = scale;
-}
-
-bool CRenderObject::checkFrustum(const std::shared_ptr<CRenderObject>& object)
-{
-    switch (object->getCullingType())
-    {
-        case ECullingType::eByPoint: 
-        { 
-            return CFrustum::inst()->checkPoint(object->getPosition()); 
-        } break;
-        case ECullingType::eBySphere: 
-        { 
-            return CFrustum::inst()->checkSphere(object->getPosition(), object->getCullingRadius()); 
-        } break;
-        case ECullingType::eByBox: 
-        {
-            auto& bounds = object->getBounds();
-            return CFrustum::inst()->checkBox(object->getPosition() + bounds.first, object->getPosition() + bounds.second); 
-        } break;
-    }
-    return false;
+    transform.scale = scale;
 }

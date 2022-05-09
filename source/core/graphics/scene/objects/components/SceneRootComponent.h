@@ -10,9 +10,9 @@ namespace Engine
             class CSceneRootComponent : public CRenderObject
             {
             public:
-                explicit CSceneRootComponent(std::string srName = "SceneRoot")
+                explicit CSceneRootComponent(std::string name = "SceneRoot")
                 {
-                    m_srName = srName;
+                    srName = name;
                 }
 
                 void create() override;

@@ -5,16 +5,13 @@ namespace Engine
 {
     namespace Core
     {
-        namespace Overlay
+        namespace Editor
         {
-            class COverlayBase
+            class CWindowBase
             {
             public:
-                virtual ~COverlayBase() {}
-                COverlayBase() = default;
-                COverlayBase(std::string)
-                {
-                }
+                virtual ~CWindowBase() {}
+                CWindowBase() = default;
 
                 virtual void create() {}
                 virtual void reCreate() {}
@@ -22,7 +19,6 @@ namespace Engine
                 virtual void draw();
 
             protected:
-                std::string srOverlayName;
                 bool bOverlayState{true};
             };
         }

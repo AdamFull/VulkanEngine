@@ -1,6 +1,6 @@
 #include "Image.h"
 #include "graphics/VulkanHighLevel.h"
-#include "graphics/overlay/imgui_impl_vulkan.h"
+#include "graphics/editor/imgui_impl_vulkan.h"
 
 using namespace Engine::Core;
 using namespace Engine::Core::Loaders;

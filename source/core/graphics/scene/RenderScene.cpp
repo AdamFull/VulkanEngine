@@ -2,7 +2,7 @@
 #include "graphics/scene/objects/components/camera/CameraManager.h"
 #include "graphics/VulkanHighLevel.h"
 #include "keymapper/InputMapper.h"
-#include "graphics/overlay/ImguiOverlay.h"
+#include "graphics/editor/EditorUI.h"
 
 #include "resources/ResourceCunstruct.h"
 

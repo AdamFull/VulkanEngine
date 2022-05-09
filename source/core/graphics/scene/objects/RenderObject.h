@@ -29,22 +29,33 @@ namespace Engine
                 // Destroy objects( deleting );
                 virtual void destroy();
 
+                void setVisible(bool value) { bVisible = value; }
+                bool isVisible() const { return bVisible; }
+                void setEnable(bool value) { bEnable = value; }
+                bool isEnabled() const { return bEnable; }
+
                 // Deep search
-                std::shared_ptr<CRenderObject> find(std::string srName);
+                std::shared_ptr<CRenderObject> find(std::string name);
+                std::shared_ptr<CRenderObject> find(uint64_t id);
                 void addChild(std::shared_ptr<CRenderObject> child);
                 void setParent(std::shared_ptr<CRenderObject> parent);
                 void attach(std::shared_ptr<CRenderObject> child);
                 void detach(std::shared_ptr<CRenderObject> child);
 
+                uint64_t getId() const { return objectId; }
                 std::string &getName();
                 // std::string &GetUUID();
                 std::shared_ptr<CRenderObject> &getParent();
                 std::unordered_map<std::string, std::shared_ptr<CRenderObject>> &getChilds();
 
                 FTransform getTransform();
+                FTransform getLocalTransform() { return transform; }
                 const glm::vec3 getPosition() const;
+                const glm::vec3 getLocalPosition() const { return transform.pos; }
                 const glm::vec3 getRotation() const;
+                const glm::vec3 getLocalRotation() const { return transform.rot; }
                 const glm::vec3 getScale() const;
+                const glm::vec3 getLocalScale() const { return transform.scale; }
 
                 void setCullingRadius(float radius) { fCullingRadius = radius; }
                 void setCullable(bool cullable) { bEnableCulling = cullable; }
@@ -55,31 +66,30 @@ namespace Engine
                 const bool isCullable() const { return bEnableCulling; }
                 const std::pair<glm::vec3, glm::vec3> getBounds() const { return boundingBox; } 
                 const ECullingType getCullingType() const { return eCullingType; }
+                void setCullingType(ECullingType eType) { eCullingType = eType; }
 
-                void setName(std::string srName);
+                void setName(std::string name);
 
                 void setTransform(FTransform transformNew);
                 void setPosition(glm::vec3 position);
                 void setRotation(glm::vec3 rotation);
                 void setScale(glm::vec3 scale);
 
-                bool checkFrustum(const std::shared_ptr<CRenderObject>& object);
-
             protected:
-                std::string m_srName;
-                // std::string m_srUUID;
-                FTransform m_transform;
+                uint64_t objectId{0};
+                std::string srName;
+                FTransform transform;
                 bool bVisible{true};
+                bool bEnable{true};
                 bool bEnableCulling{true};
                 bool bHasInstances{false};
                 float fCullingRadius{2.f};
                 std::pair<glm::vec3, glm::vec3> boundingBox{};
                 ECullingType eCullingType{ECullingType::eBySphere};
 
-                std::shared_ptr<CRenderObject> m_pParent;
-                std::shared_ptr<CRenderObject> m_pParentOld;
-                std::unordered_map<std::string, std::shared_ptr<CRenderObject>> m_mChilds;
-                // std::unordered_map<std::string, std::string> m_mUUID;
+                std::shared_ptr<CRenderObject> pParent;
+                std::shared_ptr<CRenderObject> pParentOld;
+                std::unordered_map<std::string, std::shared_ptr<CRenderObject>> mChilds;
             };
         }
     }

@@ -1,22 +1,17 @@
 #pragma once
-#include "OverlayBase.h"
+#include "WindowBase.h"
 
 namespace Engine
 {
     namespace Core
     {
         namespace Descriptor { class CDescriptorSet; }
-        namespace Overlay
+        namespace Editor
         {
-            class COverlayViewport : public COverlayBase
+            class CViewportWindow : public CWindowBase
             {
             public:
-                COverlayViewport() = default;
-                COverlayViewport(std::string srName)
-                {
-                    srOverlayName = srName;
-                    bOverlayState = true;
-                }
+                CViewportWindow() = default;
 
                 void create() override;
                 void reCreate() override;

@@ -1,4 +1,4 @@
-#include "ImguiOverlay.h"
+#include "EditorUI.h"
 #include "imgui_impl_glfw.h"
 #include "imgui_impl_vulkan.h"
 
@@ -12,12 +12,12 @@
 #include "resources/materials/MaterialLoader.h"
 #include "graphics/VulkanInitializers.h"
 
-#include "overlays/OverlayDebug.h"
-#include "overlays/OverlayConsole.h"
-#include "overlays/OverlayLog.h"
-#include "overlays/OverlayPropertyEditor.h"
-#include "overlays/OverlaySceneGraph.h"
-#include "overlays/OverlayViewport.h"
+#include "windows/DebugWindow.h"
+#include "windows/ConsoleWindow.h"
+#include "windows/LogWindow.h"
+#include "windows/InspectorWindow.h"
+#include "windows/HierarchyWindow.h"
+#include "windows/ViewportWindow.h"
 
 #include "graphics/scene/objects/RenderObject.h"
 
@@ -29,15 +29,15 @@ using namespace Engine::Resources;
 using namespace Engine::Resources::Material;
 
 template<>
-std::unique_ptr<CImguiOverlay> utl::singleton<CImguiOverlay>::_instance{nullptr};
+std::unique_ptr<CEditorUI> utl::singleton<CEditorUI>::_instance{nullptr};
 
-CImguiOverlay::~CImguiOverlay()
+CEditorUI::~CEditorUI()
 {
     cleanup();
     ImGui::DestroyContext();
 }
 
-void CImguiOverlay::create(vk::RenderPass& renderPass, uint32_t subpass)
+void CEditorUI::create(vk::RenderPass& renderPass, uint32_t subpass)
 {
     vk::DescriptorPoolSize pool_sizes[] = 
     {
@@ -65,12 +65,10 @@ void CImguiOverlay::create(vk::RenderPass& renderPass, uint32_t subpass)
     ImGui::CreateContext();
     baseInitialize();
 
-    m_vOverlays.emplace_back(std::make_shared<Overlay::COverlayDebug>("Debug info"));
-    //m_vOverlays.emplace_back(std::make_shared<Overlay::OverlayConsole>("Console"));
-    //m_vOverlays.emplace_back(std::make_shared<Overlay::OverlayLog>("Log"));
-    m_vOverlays.emplace_back(std::make_shared<Overlay::COverlaySceneGraph>("Scene"));
-    m_vOverlays.emplace_back(std::make_shared<Overlay::COverlayPropertyEditor>("Property editor"));
-    m_vOverlays.emplace_back(std::make_shared<Overlay::COverlayViewport>("Viewport"));
+    vWindows.emplace_back(std::make_shared<Editor::CDebugWindow>());
+    vWindows.emplace_back(std::make_shared<Editor::CHierarchyWindow>());
+    vWindows.emplace_back(std::make_shared<Editor::CInspectorWindow>());
+    vWindows.emplace_back(std::make_shared<Editor::CViewportWindow>());
 
     ImGui_ImplGlfw_InitForVulkan(CWindowHandle::inst()->getWindowInstance(), true);
     ImGui_ImplVulkan_InitInfo init_info = {};
@@ -97,13 +95,13 @@ void CImguiOverlay::create(vk::RenderPass& renderPass, uint32_t subpass)
     cmdBuf.submitIdle();
     ImGui_ImplVulkan_DestroyFontUploadObjects();
 
-    for (auto &overlay : m_vOverlays)
+    for (auto &overlay : vWindows)
     {
         overlay->create();
     }
 }
 
-void CImguiOverlay::reCreate()
+void CEditorUI::reCreate()
 {
     ImGui_ImplVulkan_Shutdown();
     ImGui_ImplGlfw_Shutdown();
@@ -135,20 +133,20 @@ void CImguiOverlay::reCreate()
     cmdBuf.submitIdle();
     ImGui_ImplVulkan_DestroyFontUploadObjects();
 
-    for (auto &overlay : m_vOverlays)
+    for (auto &overlay : vWindows)
     {
         overlay->reCreate();
     }
 }
 
-void CImguiOverlay::cleanup()
+void CEditorUI::cleanup()
 {
     ImGui_ImplVulkan_Shutdown();
     ImGui_ImplGlfw_Shutdown();
     CDevice::inst()->destroy(&descriptorPool);
 }
 
-void CImguiOverlay::baseInitialize()
+void CEditorUI::baseInitialize()
 {
     // Color scheme
     ImGuiStyle &style = ImGui::GetStyle();
@@ -177,7 +175,7 @@ void CImguiOverlay::baseInitialize()
     io.DisplayFramebufferScale = ImVec2(1.0f, 1.0f);
 }
 
-void CImguiOverlay::newFrame()
+void CEditorUI::newFrame()
 {
     if (bEnabled)
     {
@@ -188,14 +186,14 @@ void CImguiOverlay::newFrame()
         ImGui::DockSpaceOverViewport();
 
         //ImGui::ShowDemoWindow();
-        for (auto &overlay : m_vOverlays)
+        for (auto &overlay : vWindows)
         {
             overlay->draw();
         }
     }
 }
 
-void CImguiOverlay::drawFrame(vk::CommandBuffer commandBuffer, uint32_t index)
+void CEditorUI::drawFrame(vk::CommandBuffer commandBuffer, uint32_t index)
 {
     if (bEnabled)
     {
@@ -211,23 +209,23 @@ void CImguiOverlay::drawFrame(vk::CommandBuffer commandBuffer, uint32_t index)
     }
 }
 
-void CImguiOverlay::onFocusChange(int focused)
+void CEditorUI::onFocusChange(int focused)
 {
     ImGuiIO &io = ImGui::GetIO();
     io.AddFocusEvent(focused != 0);
 }
 
-void CImguiOverlay::onCursorEnter(int enter)
+void CEditorUI::onCursorEnter(int enter)
 {
 }
 
-void CImguiOverlay::onMouseButtonDown(int button, int action, int mods)
+void CEditorUI::onMouseButtonDown(int button, int action, int mods)
 {
     ImGuiIO &io = ImGui::GetIO();
     io.MouseDown[button] = (action == 1);
 }
 
-void CImguiOverlay::onMousePositionUpdate(float xpos, float ypos)
+void CEditorUI::onMousePositionUpdate(float xpos, float ypos)
 {
     ImGuiIO &io = ImGui::GetIO();
     if (io.WantCaptureMouse)
@@ -236,14 +234,14 @@ void CImguiOverlay::onMousePositionUpdate(float xpos, float ypos)
     }
 }
 
-void CImguiOverlay::onMouseScroll(float xpos, float ypos)
+void CEditorUI::onMouseScroll(float xpos, float ypos)
 {
     ImGuiIO &io = ImGui::GetIO();
     io.MouseWheelH += xpos;
     io.MouseWheel += ypos;
 }
 
-void CImguiOverlay::onKeyboardInput(int key, int scancode, int action, int mods)
+void CEditorUI::onKeyboardInput(int key, int scancode, int action, int mods)
 {
     ImGuiIO &io = ImGui::GetIO();
     if (key >= 0 && key < IM_ARRAYSIZE(io.KeysDown))
@@ -269,12 +267,12 @@ void CImguiOverlay::onKeyboardInput(int key, int scancode, int action, int mods)
 #endif
 }
 
-void CImguiOverlay::onInputChar(unsigned int c)
+void CEditorUI::onInputChar(unsigned int c)
 {
     ImGuiIO &io = ImGui::GetIO();
     io.AddInputCharacter(c);
 }
 
-void CImguiOverlay::onMonitorEvent(int monitor)
+void CEditorUI::onMonitorEvent(int monitor)
 {
 }

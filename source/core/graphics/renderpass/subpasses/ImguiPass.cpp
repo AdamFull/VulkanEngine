@@ -10,20 +10,20 @@ void CImguiPass::create()
 {
     auto& renderPass = CRenderSystem::inst()->getCurrentStage()->getRenderPass()->get();
     auto subpass = CRenderSystem::inst()->getCurrentStage()->getRenderPass()->getCurrentSubpass();
-    CImguiOverlay::inst()->create(renderPass, subpass);
+    CEditorUI::inst()->create(renderPass, subpass);
     CSubpass::create();
 }
 
 void CImguiPass::reCreate()
 {
-    CImguiOverlay::inst()->reCreate();
+    CEditorUI::inst()->reCreate();
 }
 
 void CImguiPass::render(vk::CommandBuffer& commandBuffer)
 {
     auto imageIndex = CDevice::inst()->getCurrentFrame();
-    CImguiOverlay::inst()->newFrame();
-    CImguiOverlay::inst()->drawFrame(commandBuffer, imageIndex);
+    CEditorUI::inst()->newFrame();
+    CEditorUI::inst()->drawFrame(commandBuffer, imageIndex);
 }
 
 void CImguiPass::cleanup()

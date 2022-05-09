@@ -11,9 +11,9 @@ namespace Engine
             {
             public:
                 CCameraComponent() = default;
-                explicit CCameraComponent(std::string srName)
+                explicit CCameraComponent(std::string name)
                 {
-                    m_srName = srName;
+                    srName = name;
                 }
 
                 void setOrthographicProjection(float fLeft, float fRight, float fTop, float fBottom, float fNear, float fFar);

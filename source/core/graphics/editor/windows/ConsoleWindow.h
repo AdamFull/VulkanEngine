@@ -1,18 +1,17 @@
 #pragma once
-#include "OverlayBase.h"
+#include "WindowBase.h"
 
 namespace Engine
 {
     namespace Core
     {
-        namespace Overlay
+        namespace Editor
         {
-            class COverlayConsole : public COverlayBase
+            class CConsoleWindow : public CWindowBase
             {
             public:
-                COverlayConsole() = default;
-                COverlayConsole(std::string srName);
-                ~COverlayConsole();
+                CConsoleWindow();
+                ~CConsoleWindow();
 
                 void draw() override;
 

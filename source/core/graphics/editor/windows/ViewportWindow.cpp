@@ -1,33 +1,33 @@
-#include "OverlayViewport.h"
+#include "ViewportWindow.h"
 #include <imgui.h>
-#include "graphics/overlay/imgui_impl_vulkan.h"
+#include "graphics/editor/imgui_impl_vulkan.h"
 #include "graphics/VulkanHighLevel.h"
 #include "graphics/descriptor/DescriptorSet.h"
 
 using namespace Engine::Core;
 using namespace Engine::Core::Descriptor;
-using namespace Engine::Core::Overlay;
+using namespace Engine::Core::Editor;
 
-void COverlayViewport::create()
+void CViewportWindow::create()
 {
     //auto pBackend = (ImGui_ImplVulkan_Data*)ImGui::GetIO().BackendRendererUserData;
     //pDescriptorSet = std::make_shared<CDescriptorSet>();
-    //pDescriptorSet->create(vk::PipelineBindPoint::eGraphics, pBackend->PipelineLayout, CImguiOverlay::inst()->getDescriptorPool(), pBackend->DescriptorSetLayout, CDevice::inst()->getFramesInFlight());
+    //pDescriptorSet->create(vk::PipelineBindPoint::eGraphics, pBackend->PipelineLayout, CEditorUI::inst()->getDescriptorPool(), pBackend->DescriptorSetLayout, CDevice::inst()->getFramesInFlight());
     //pDescriptorPtr = std::make_unique<VkDescriptorSet>();
 }
 
-void COverlayViewport::reCreate()
+void CViewportWindow::reCreate()
 {
     //auto pBackend = (ImGui_ImplVulkan_Data*)ImGui::GetIO().BackendRendererUserData;
-    //pDescriptorSet->create(vk::PipelineBindPoint::eGraphics, pBackend->PipelineLayout, CImguiOverlay::inst()->getDescriptorPool(), pBackend->DescriptorSetLayout, CDevice::inst()->getFramesInFlight());
+    //pDescriptorSet->create(vk::PipelineBindPoint::eGraphics, pBackend->PipelineLayout, CEditorUI::inst()->getDescriptorPool(), pBackend->DescriptorSetLayout, CDevice::inst()->getFramesInFlight());
 }
 
-void COverlayViewport::draw()
+void CViewportWindow::draw()
 {
     if (bOverlayState)
     {
         auto currentImage = CDevice::inst()->getCurrentFrame();
-        if (!ImGui::Begin(srOverlayName.c_str(), &bOverlayState))
+        if (!ImGui::Begin("Viewport", &bOverlayState))
         {
             ImGui::End();
             return;

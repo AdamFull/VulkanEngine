@@ -1,6 +1,6 @@
 #pragma once
 #include <imgui.h>
-#include "overlays/OverlayBase.h"
+#include "windows/WindowBase.h"
 #include "util/helpers.hpp"
 
 namespace Engine
@@ -20,11 +20,11 @@ namespace Engine
             float fMouseY{0.f};
         };
 
-        class CImguiOverlay : public utl::singleton<CImguiOverlay>
+        class CEditorUI : public utl::singleton<CEditorUI>
         {
         public:
-            CImguiOverlay() = default;
-            ~CImguiOverlay();
+            CEditorUI() = default;
+            ~CEditorUI();
 
             void create(vk::RenderPass& renderPass, uint32_t subpass);
             void reCreate();
@@ -49,7 +49,7 @@ namespace Engine
             void onInputChar(unsigned int c);
             void onMonitorEvent(int monitor);
 
-            std::vector<std::shared_ptr<Overlay::COverlayBase>> m_vOverlays;
+            std::vector<std::shared_ptr<Editor::CWindowBase>> vWindows;
             bool bEnabled = true;
             FGUIControls controls;
             vk::DescriptorPool descriptorPool{};

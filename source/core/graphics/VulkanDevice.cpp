@@ -118,16 +118,18 @@ void CDevice::create(const FDeviceCreateInfo& deviceCI)
 
 void CDevice::cleanup()
 {
+    cleanupSwapchain();
+    destroy(&pipelineCache);
     m_pCommandPool->cleanup();
     
     // surface is created by glfw, therefore not using a Unique handle
     destroy(&vkSurface);
 
-    vkDestroyDevice(vkDevice, nullptr);
+    destroy(&vkDevice);
 
     if (m_bValidation)
-        destroyDebugUtilsMessengerEXT(vkInstance, m_vkDebugUtils, nullptr);
-    vkDestroyInstance(vkInstance, nullptr);
+        destroyDebugUtilsMessengerEXT(vkInstance, m_vkDebugUtils, (const VkAllocationCallbacks*)pAllocator);
+    destroy(&vkInstance);
 }
 
 void CDevice::tryRebuildSwapchain()
@@ -138,6 +140,7 @@ void CDevice::tryRebuildSwapchain()
         m_pCommandPool = std::make_unique<CCommandPool>();
         cleanupSwapchain();
         createSwapchain();
+        currentFrame = 0;
         bSwapChainRebuild = false;
     }
 }
@@ -227,8 +230,7 @@ void CDevice::createInstance(const FDeviceCreateInfo& deviceCI)
 
     auto extensions = VulkanStaticHelper::getRequiredExtensions(deviceCI.validation);
 
-    auto createInfo = vk::InstanceCreateInfo{};
-    createInfo.flags = vk::InstanceCreateFlags();
+    vk::InstanceCreateInfo createInfo{};
     createInfo.pApplicationInfo = &deviceCI.appInfo;
     createInfo.enabledLayerCount = 0;
     createInfo.ppEnabledLayerNames = nullptr;
@@ -242,8 +244,8 @@ void CDevice::createInstance(const FDeviceCreateInfo& deviceCI)
         createInfo.ppEnabledLayerNames = deviceCI.validationLayers.data();
     }
 
-    vkInstance = vk::createInstance(createInfo, nullptr);
-    assert(vkInstance && "Vulkan instance was not created.");
+    vk::Result res = create(createInfo, &vkInstance);
+    assert(res == vk::Result::eSuccess && "Cannot create vulkan instance.");
 }
 
 void CDevice::createDebugCallback(const FDeviceCreateInfo& deviceCI)
@@ -259,7 +261,7 @@ void CDevice::createDebugCallback(const FDeviceCreateInfo& deviceCI)
         nullptr);
 
     // NOTE: Vulkan-hpp has methods for this, but they trigger linking errors...
-    if (createDebugUtilsMessengerEXT(vkInstance, reinterpret_cast<const VkDebugUtilsMessengerCreateInfoEXT *>(&createInfo), nullptr, &m_vkDebugUtils) != VK_SUCCESS)
+    if (createDebugUtilsMessengerEXT(vkInstance, reinterpret_cast<const VkDebugUtilsMessengerCreateInfoEXT *>(&createInfo), (const VkAllocationCallbacks*)pAllocator, &m_vkDebugUtils) != VK_SUCCESS)
     {
         throw std::runtime_error("failed to set up debug callback!");
     }
@@ -268,7 +270,9 @@ void CDevice::createDebugCallback(const FDeviceCreateInfo& deviceCI)
 void CDevice::createSurface()
 {
     assert(vkInstance && "Unable to create surface, cause vulkan instance is not valid");
-    CWindowHandle::inst()->createWindowSurface(vkInstance, vkSurface);
+    VkSurfaceKHR rawSurfaceKHR{VK_NULL_HANDLE};
+    CWindowHandle::inst()->createWindowSurface(vkInstance, (const void*)pAllocator, rawSurfaceKHR);
+    vkSurface = rawSurfaceKHR;
     assert(vkSurface && "Surface creation failed");
 }
 
@@ -295,11 +299,9 @@ void CDevice::createDevice(const FDeviceCreateInfo& deviceCI)
         queueCreateInfos.push_back({vk::DeviceQueueCreateFlags(), queueFamily, 1, &queuePriority});
     }
 
-    auto createInfo = vk::DeviceCreateInfo(
-        vk::DeviceCreateFlags(),
-        static_cast<uint32_t>(queueCreateInfos.size()),
-        queueCreateInfos.data());
-
+    auto createInfo = vk::DeviceCreateInfo{};
+    createInfo.queueCreateInfoCount = static_cast<uint32_t>(queueCreateInfos.size());
+    createInfo.pQueueCreateInfos = queueCreateInfos.data();
     createInfo.pEnabledFeatures = &deviceCI.deviceFeatures;
     createInfo.enabledExtensionCount = static_cast<uint32_t>(deviceCI.deviceExtensions.size());
     createInfo.ppEnabledExtensionNames = deviceCI.deviceExtensions.data();
@@ -310,8 +312,8 @@ void CDevice::createDevice(const FDeviceCreateInfo& deviceCI)
         createInfo.ppEnabledLayerNames = deviceCI.validationLayers.data();
     }
 
-    vkDevice = vkPhysical.createDevice(createInfo);
-    assert(vkDevice && "Failed to create logical device.");
+    vk::Result res = create(createInfo, &vkDevice);
+    assert(res == vk::Result::eSuccess && "Failed to create logical device.");
 
     m_qGraphicsQueue = vkDevice.getQueue(indices.graphicsFamily.value(), 0);
     assert(m_qGraphicsQueue && "Failed while getting graphics queue.");
@@ -390,6 +392,7 @@ void CDevice::createSwapchain()
 
     //Creating image views
     {
+        vImageViews.resize(framesInFlight);
         vk::ImageViewCreateInfo viewInfo{};
         viewInfo.viewType = vk::ImageViewType::e2D;
         viewInfo.format = imageFormat;

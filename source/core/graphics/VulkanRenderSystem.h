@@ -24,7 +24,7 @@ namespace Engine
 
             vk::CommandBuffer& getCurrentCommandBuffer();
         private:
-            vk::CommandBuffer& beginFrame();
+            vk::CommandBuffer beginFrame();
             vk::Result endFrame();
 
             std::shared_ptr<CCommandBuffer> commandBuffers;

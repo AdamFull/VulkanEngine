@@ -12,9 +12,6 @@ void CGraphicsPipeline::create(vk::RenderPass& renderPass, uint32_t subpass)
 
 void CGraphicsPipeline::createPipeline()
 {
-    assert(CDevice::inst() && "Cannot create pipeline, cause logical device is not valid.");
-    assert(CDevice::inst() && "Cannot create pipeline, cause render pass is not valid.");
-
     auto& bindingDescription = m_vertexInput.getInputBindingDescription();
     auto& attributeDescription = m_vertexInput.getInputAttributeDescription();
 
@@ -88,12 +85,12 @@ void CGraphicsPipeline::createPipeline()
     pipelineInfo.pMultisampleState = &multisampling;
     pipelineInfo.pColorBlendState = &colorBlending;
     pipelineInfo.pDepthStencilState = &depthStencil;
-    pipelineInfo.layout = m_pipelineLayout;
+    pipelineInfo.layout = pipelineLayout;
     pipelineInfo.renderPass = m_renderPass;
     pipelineInfo.subpass = subpass;
     pipelineInfo.basePipelineHandle = nullptr;
     pipelineInfo.pDynamicState = &dynamicStateInfo;
 
-    auto result = CDevice::inst()->create(pipelineInfo, m_pipeline);
-    assert(m_pipeline && "Failed creating pipeline.");
+    auto result = CDevice::inst()->create(pipelineInfo, &pipeline);
+    assert(pipeline && "Failed creating pipeline.");
 }

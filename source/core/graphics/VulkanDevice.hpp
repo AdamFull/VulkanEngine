@@ -66,8 +66,6 @@ namespace Engine
             }
 
             /*****************************************Image work helpers*****************************************/
-
-            void createOnDeviceBuffer(vk::DeviceSize size, vk::BufferUsageFlags usage, vk::MemoryPropertyFlags properties, vk::Buffer &buffer, vk::DeviceMemory &bufferMemory);
             void copyOnDeviceBuffer(vk::Buffer srcBuffer, vk::Buffer dstBuffer, vk::DeviceSize size);
 
             /**************************************************Getters********************************************/
@@ -75,7 +73,7 @@ namespace Engine
             inline vk::SurfaceKHR &getSurface() { return vkSurface; }
             inline std::shared_ptr<CCommandPool> getCommandPool() { return m_pCommandPool; }
 
-            inline vk::PhysicalDevice getPhysical() { return vkPhysical; }
+            inline vk::PhysicalDevice& getPhysical() { return vkPhysical; }
             inline vk::Device &getLogical() { return vkDevice; }
             inline vk::Queue &getGraphicsQueue() { return m_qGraphicsQueue; }
             inline vk::Queue &getPresentQueue() { return m_qPresentQueue; }
@@ -107,6 +105,10 @@ namespace Engine
                 assert(false && "Unknown object type.");
                 return vk::Result::eSuccess; 
             }
+            template<> vk::Result create(vk::InstanceCreateInfo& info, vk::Instance* ref) 
+            { return vk::createInstance(&info, pAllocator, ref); }
+            template<> vk::Result create(vk::DeviceCreateInfo& info, vk::Device* ref) 
+            { return vkPhysical.createDevice(&info, pAllocator, ref); }
             template<> vk::Result create(vk::SwapchainCreateInfoKHR& info, vk::SwapchainKHR* ref) 
             { return vkDevice.createSwapchainKHR(&info, pAllocator, ref); }
             template<> vk::Result create(vk::RenderPassCreateInfo& info, vk::RenderPass* ref) 
@@ -145,8 +147,12 @@ namespace Engine
             { return vkDevice.createPipelineCache(&info, pAllocator, ref); }
             template<> vk::Result create(vk::BufferCreateInfo& info, vk::Buffer* ref)
             { return vkDevice.createBuffer(&info, pAllocator, ref); }
+            template<> vk::Result create(vk::DescriptorPoolCreateInfo& info, vk::DescriptorPool* ref)
+            { return vkDevice.createDescriptorPool(&info, pAllocator, ref); }
 
             template<class _Ty> void destroy(_Ty* ref)              { assert(false && "Unknown object type."); }
+            template<> void destroy(vk::Instance* ref)              { vkDestroyInstance(*ref, (const VkAllocationCallbacks*)pAllocator); }
+            template<> void destroy(vk::Device* ref)                { vkDestroyDevice(*ref, (const VkAllocationCallbacks*)pAllocator); }
             template<> void destroy(vk::Sampler* ref)               { vkDevice.destroySampler(*ref, pAllocator); }
             template<> void destroy(vk::Image* ref)                 { vkDevice.destroyImage(*ref, pAllocator); }
             template<> void destroy(vk::ImageView* ref)             { vkDevice.destroyImageView(*ref, pAllocator); }

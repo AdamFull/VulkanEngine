@@ -59,7 +59,8 @@ void CImguiOverlay::create(vk::RenderPass& renderPass, uint32_t subpass)
     pool_info.maxSets = 1000 * IM_ARRAYSIZE(pool_sizes);
     pool_info.poolSizeCount = (uint32_t)IM_ARRAYSIZE(pool_sizes);
     pool_info.pPoolSizes = pool_sizes;
-    descriptorPool = CDevice::inst()->make<vk::DescriptorPool, vk::DescriptorPoolCreateInfo>(pool_info);
+    vk::Result res = CDevice::inst()->create(pool_info, &descriptorPool);
+    assert(res == vk::Result::eSuccess && "Cannot create descriptor pool.");
 
     ImGui::CreateContext();
     baseInitialize();
@@ -80,7 +81,7 @@ void CImguiOverlay::create(vk::RenderPass& renderPass, uint32_t subpass)
     init_info.Queue = CDevice::inst()->getGraphicsQueue();
 
     // pipeline cache is a potential future optimization, ignoring for now
-    init_info.PipelineCache = CVulkanHighLevel::inst()->getPipelineCache();
+    init_info.PipelineCache = CDevice::inst()->getPipelineCache();
     init_info.DescriptorPool = descriptorPool;
     init_info.Allocator = VK_NULL_HANDLE;
     init_info.MinImageCount = 2;
@@ -118,7 +119,7 @@ void CImguiOverlay::reCreate()
     init_info.Queue = CDevice::inst()->getGraphicsQueue();
 
     // pipeline cache is a potential future optimization, ignoring for now
-    init_info.PipelineCache = CVulkanHighLevel::inst()->getPipelineCache();
+    init_info.PipelineCache = CDevice::inst()->getPipelineCache();
     init_info.DescriptorPool = descriptorPool;
     init_info.Allocator = VK_NULL_HANDLE;
     init_info.MinImageCount = 2;
@@ -144,6 +145,7 @@ void CImguiOverlay::cleanup()
 {
     ImGui_ImplVulkan_Shutdown();
     ImGui_ImplGlfw_Shutdown();
+    CDevice::inst()->destroy(&descriptorPool);
 }
 
 void CImguiOverlay::baseInitialize()

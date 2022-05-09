@@ -193,5 +193,6 @@ vk::RenderPass CRenderPass::createRenderPass()
     renderPassCI.dependencyCount = static_cast<uint32_t>(vSubpassDep.size());
     renderPassCI.pDependencies = vSubpassDep.data();
     vk::Result res = CDevice::inst()->create(renderPassCI, &renderPass);
-    return res;
+    assert(res == vk::Result::eSuccess && "Cannot create render pass.");
+    return renderPass;
 }

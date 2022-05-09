@@ -11,17 +11,14 @@ void CComputePipeline::create()
 
 void CComputePipeline::createPipeline()
 {
-    assert(CDevice::inst() && "Cannot create pipeline, cause logical device is not valid.");
-    assert(CDevice::inst() && "Cannot create pipeline, cause render pass is not valid.");
-
     auto shaderStages = m_pShader->getStageCreateInfo();
 
     vk::ComputePipelineCreateInfo pipelineInfo{};
     pipelineInfo.stage = shaderStages.front();
-    pipelineInfo.layout = m_pipelineLayout;
+    pipelineInfo.layout = pipelineLayout;
     pipelineInfo.basePipelineHandle = nullptr;
     pipelineInfo.basePipelineIndex = -1;
 
-    auto result = CDevice::inst()->create(pipelineInfo, m_pipeline);
-    assert(m_pipeline && "Failed creating pipeline.");
+    vk::Result res = CDevice::inst()->create(pipelineInfo, &pipeline);
+    assert(res == vk::Result::eSuccess && "Failed creating pipeline.");
 }

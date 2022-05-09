@@ -311,7 +311,7 @@ void CShader::addStage(const std::filesystem::path &moduleName, const std::strin
         shaderCI.pCode = spirv.data();
         vk::ShaderModule shaderModule{VK_NULL_HANDLE};
         vk::Result res = CDevice::inst()->create(shaderCI, &shaderModule);
-        assert(res == vk::Result::eSuccess && "Cannot create shader module.")
+        assert(res == vk::Result::eSuccess && "Cannot create shader module.");
 
         vShaderModules.emplace_back
         (

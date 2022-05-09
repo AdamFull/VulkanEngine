@@ -174,7 +174,9 @@ std::shared_ptr<CImage> CPBRCompositionPass::ComputePrefiltered(const std::share
         viewInfo.subresourceRange.levelCount = 1;
         viewInfo.subresourceRange.baseArrayLayer = 0;
         viewInfo.subresourceRange.layerCount = 6;
-		levelView = CImage::createImageView(prefilteredCubemap->getImage(), viewInfo);
+        viewInfo.image = prefilteredCubemap->getImage();
+		vk::Result res = CDevice::inst()->create(viewInfo, &levelView);
+        assert(res == vk::Result::eSuccess && "Cannot create image view.");
 
         cmdBuf.begin();
         auto commandBuffer = cmdBuf.getCommandBuffer();

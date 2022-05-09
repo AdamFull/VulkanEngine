@@ -21,9 +21,11 @@ commandPool(CDevice::inst()->getCommandPool()), queueType(queueType)
 
 void CCommandBuffer::cleanup()
 {
+    auto& vkDevice = CDevice::inst()->getLogical();
+    assert(vkDevice && "Trying to free command buffers, but logical device is invalid");
     if(!bIsClean)
     {
-        CDevice::inst()->getLogical().freeCommandBuffers(commandPool->getCommandPool(), vCommandBuffers);
+        vkDevice.freeCommandBuffers(commandPool->getCommandPool(), vCommandBuffers);
         vCommandBuffers.clear();
         bIsClean = true;
     }

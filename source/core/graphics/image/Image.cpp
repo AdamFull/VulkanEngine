@@ -214,13 +214,14 @@ vk::Format CImage::getDepthFormat()
 void CImage::createImage(vk::Image &image, vk::DeviceMemory &memory, vk::ImageCreateInfo createInfo, vk::MemoryPropertyFlags properties)
 {
     vk::Result res;
-    assert(CDevice::inst() && "Cannot create image, cause logical device is not valid.");
+    auto& vkDevice = CDevice::inst()->getLogical();
+    assert(vkDevice && "Trying to create image, byt logical device is not valid.");
 
     res = CDevice::inst()->create(createInfo, &image);
     assert(res == vk::Result::eSuccess && "Image was not created");
 
     vk::MemoryRequirements memReq{};
-    CDevice::inst()->getLogical().getImageMemoryRequirements(image, &memReq);
+    vkDevice.getImageMemoryRequirements(image, &memReq);
 
     vk::MemoryAllocateInfo allocInfo{};
     allocInfo.allocationSize = memReq.size;
@@ -229,7 +230,7 @@ void CImage::createImage(vk::Image &image, vk::DeviceMemory &memory, vk::ImageCr
     res = CDevice::inst()->create(allocInfo, &memory);
     assert(res == vk::Result::eSuccess && "Image memory was not allocated");
 
-    CDevice::inst()->getLogical().bindImageMemory(image, memory, 0);
+    vkDevice.bindImageMemory(image, memory, 0);
 }
 
 void CImage::transitionImageLayout(vk::Image &image, std::vector<vk::ImageMemoryBarrier>& vBarriers, vk::ImageLayout oldLayout, vk::ImageLayout newLayout)

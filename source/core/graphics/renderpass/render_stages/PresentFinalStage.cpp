@@ -1,4 +1,5 @@
 #include "PresentFinalStage.h"
+#include "graphics/VulkanHighLevel.h"
 #include "graphics/renderpass/subpasses/ThroughPass.h"
 
 using namespace Engine::Core;

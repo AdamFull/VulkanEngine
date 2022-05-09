@@ -33,17 +33,17 @@ namespace Engine
 
                 inline void pollEvents() { glfwPollEvents(); }
 
-                inline bool isShouldClose() { return glfwWindowShouldClose(m_pWindow); }
+                inline bool isShouldClose() { return glfwWindowShouldClose(pWindow); }
 
                 inline void frameBufferUpdated() { m_bWasResized = false; }
 
-                void createWindowSurface(vk::Instance &instance, vk::SurfaceKHR &surface);
+                void createWindowSurface(vk::Instance &instance, const void* pAllocator, VkSurfaceKHR &surface);
 
                 inline std::pair<int32_t, int32_t> getSize() { return std::make_pair(m_iWidth, m_iHeight); }
 
                 inline GLFWwindow *getWindowInstance()
                 {
-                    return m_pWindow;
+                    return pWindow;
                 }
 
                 static int32_t m_iWidth;
@@ -51,7 +51,7 @@ namespace Engine
                 static bool m_bWasResized;
 
             private:
-                GLFWwindow *m_pWindow;
+                GLFWwindow *pWindow;
             };
 
             REGISTER_SERIALIZATION_BLOCK_H(FWindowCreateInfo);

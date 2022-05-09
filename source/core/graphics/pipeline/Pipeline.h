@@ -115,7 +115,7 @@ namespace Engine
                  * 
                  * @return vk::Pipeline& Vulkan pso
                  */
-                inline virtual vk::Pipeline &getPipeline() { return m_pipeline; }
+                inline virtual vk::Pipeline &getPipeline() { return pipeline; }
 
                 /**
                  * @brief Get pipeline bind point
@@ -129,21 +129,21 @@ namespace Engine
                  * 
                  * @return vk::DescriptorSetLayout& Descriptor set layout
                  */
-                inline vk::DescriptorSetLayout& getDescriptorSetLayout() { return m_descriptorSetLayout; }
+                inline vk::DescriptorSetLayout& getDescriptorSetLayout() { return descriptorSetLayout; }
 
                 /**
                  * @brief Get descriptor pool
                  * 
                  * @return vk::DescriptorPool& Vulkan descriptor pool
                  */
-                inline vk::DescriptorPool& getDescriptorPool() { return m_descriptorPool; }
+                inline vk::DescriptorPool& getDescriptorPool() { return descriptorPool; }
 
                 /**
                  * @brief Get pipeline layout
                  * 
                  * @return vk::PipelineLayout& Vulkan pipeline layout
                  */
-                inline vk::PipelineLayout& getPipelineLayout() { return m_pipelineLayout; }
+                inline vk::PipelineLayout& getPipelineLayout() { return pipelineLayout; }
 
                 /**
                  * @brief Get shader object
@@ -183,16 +183,16 @@ namespace Engine
                  */
                 virtual void recreateShaders();
 
-                std::vector<std::string> m_vShaderCache;
+                std::vector<std::string> vShaderCache;
                 std::map<std::string, std::string> m_vDefines;
                 std::unique_ptr<CShader> m_pShader;
                 bool bIsClean{false};
 
                 CVertexInput m_vertexInput;
 
-                vk::DescriptorSetLayout m_descriptorSetLayout{nullptr};
-                vk::DescriptorPool m_descriptorPool{nullptr};
-                vk::PipelineLayout m_pipelineLayout{nullptr};
+                vk::DescriptorSetLayout descriptorSetLayout{nullptr};
+                vk::DescriptorPool descriptorPool{nullptr};
+                vk::PipelineLayout pipelineLayout{nullptr};
 
                 vk::RenderPass m_renderPass{nullptr};
                 vk::PipelineBindPoint m_bindPoint;
@@ -204,7 +204,7 @@ namespace Engine
                 std::vector<std::string> m_vStages;
                 uint32_t subpass{0};
 
-                vk::Pipeline m_pipeline;
+                vk::Pipeline pipeline;
             };
         }
     }

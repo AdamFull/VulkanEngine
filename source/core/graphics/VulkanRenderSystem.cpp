@@ -23,8 +23,8 @@ void CRenderSystem::create()
 
     vStages.emplace_back(std::make_unique<Render::CDeferredStage>());
     vStages.emplace_back(std::make_unique<Render::CPostProcessStage>());
-    vStages.emplace_back(std::make_unique<Render::CSandboxFinalStage>());
-    //vStages.emplace_back(std::make_unique<Render::CPresentFinalStage>());
+    //vStages.emplace_back(std::make_unique<Render::CSandboxFinalStage>());
+    vStages.emplace_back(std::make_unique<Render::CPresentFinalStage>());
 
     currentStageIndex = 0;
     for(auto& stage : vStages)
@@ -111,7 +111,7 @@ vk::CommandBuffer CRenderSystem::beginFrame()
     }
     frameStarted = true;
 
-    commandBuffers->begin(vk::CommandBufferUsageFlagBits::eSimultaneousUse, imageIndex);
+    commandBuffers->begin(vk::CommandBufferUsageFlagBits::eRenderPassContinue, imageIndex);
     return commandBuffers->getCommandBuffer();
 }
 

@@ -1,20 +1,23 @@
 #include "VulkanMesh.h"
 #include "util/uuid.hpp"
+#include "graphics/VulkanDevice.hpp"
 
 using namespace Engine::Core;
 using namespace Engine::Resources::Mesh;
 
 void CMeshBase::create()
 {
+    auto framesInFlight = CDevice::inst()->getFramesInFlight();
     m_pUniformBuffer = std::make_shared<CUniformBuffer>();
-    m_pUniformBuffer->create(2, sizeof(FUniformData));
+    m_pUniformBuffer->create(framesInFlight, sizeof(FUniformData));
     for (auto& fragment : m_vFragments)
         fragment->create();
 }
 
 void CMeshBase::reCreate()
 {
-    m_pUniformBuffer->reCreate(2);
+    auto framesInFlight = CDevice::inst()->getFramesInFlight();
+    m_pUniformBuffer->reCreate(framesInFlight);
 
     for (auto& fragment : m_vFragments)
         fragment->reCreate();

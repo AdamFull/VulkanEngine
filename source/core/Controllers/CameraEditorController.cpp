@@ -10,7 +10,7 @@ void CCameraEditorController::create()
 {
 
     CInputMapper::inst()->createAction("CameraMovement", EActionKey::eW, EActionKey::eS, EActionKey::eA,
-                                             EActionKey::eD, EActionKey::eSpace, EActionKey::eLeftControl, EActionKey::eMouseLeft);
+                                             EActionKey::eD, EActionKey::eSpace, EActionKey::eLeftControl, EActionKey::eMouseMiddle);
     CInputMapper::inst()->createAction("CameraRotation", EActionKey::eCursorDelta);
     CInputMapper::inst()->createAction("CameraMovementToPoint", EActionKey::eScrol);
 
@@ -50,7 +50,7 @@ void CCameraEditorController::cameraMovement(EActionKey eKey, EKeyState eState)
     case EActionKey::eLeftControl:
         direction -= transform.getUpVector();
         break;
-    case EActionKey::eMouseLeft:
+    case EActionKey::eMouseMiddle:
         m_bRotatePass = true;
         break;
 

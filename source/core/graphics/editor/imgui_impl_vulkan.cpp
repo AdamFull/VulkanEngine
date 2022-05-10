@@ -1310,9 +1310,9 @@ void ImGui_ImplVulkanH_CreateWindowSwapChain(vk::PhysicalDevice physical_device,
         vk::SubpassDependency dependency = {};
         dependency.srcSubpass = VK_SUBPASS_EXTERNAL;
         dependency.dstSubpass = 0;
-        dependency.srcStageMask = vk::PipelineStageFlagBits::eColorAttachmentOutput;
+        dependency.srcStageMask = vk::PipelineStageFlagBits::eFragmentShader; //vk::PipelineStageFlagBits::eColorAttachmentOutput;
         dependency.dstStageMask = vk::PipelineStageFlagBits::eColorAttachmentOutput;
-        dependency.srcAccessMask = vk::AccessFlags{};
+        dependency.srcAccessMask = vk::AccessFlagBits::eMemoryRead; //vk::AccessFlags{};
         dependency.dstAccessMask = vk::AccessFlagBits::eColorAttachmentWrite;
         vk::RenderPassCreateInfo info = {};
         info.attachmentCount = 1;
@@ -1323,7 +1323,7 @@ void ImGui_ImplVulkanH_CreateWindowSwapChain(vk::PhysicalDevice physical_device,
         info.pDependencies = &dependency;
         err = device.createRenderPass(&info, allocator, &wd->RenderPass);
         check_vk_result(err);
-
+        
         // We do not create a pipeline by default as this is also used by examples' main.cpp,
         // but secondary viewport in multi-viewport mode may want to create one with:
         //ImGui_ImplVulkan_CreatePipeline(device, allocator, VK_NULL_HANDLE, wd->RenderPass, vk::SampleCountFlagBits::e1, &wd->Pipeline, bd->Subpass);

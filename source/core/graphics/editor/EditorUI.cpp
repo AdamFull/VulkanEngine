@@ -65,7 +65,7 @@ void CEditorUI::create(vk::RenderPass& renderPass, uint32_t subpass)
     ImGui::CreateContext();
     baseInitialize();
 
-    vWindows.emplace_back(std::make_shared<Editor::CDebugWindow>());
+    //vWindows.emplace_back(std::make_shared<Editor::CDebugWindow>());
     vWindows.emplace_back(std::make_shared<Editor::CHierarchyWindow>());
     vWindows.emplace_back(std::make_shared<Editor::CInspectorWindow>());
     vWindows.emplace_back(std::make_shared<Editor::CViewportWindow>());
@@ -82,7 +82,7 @@ void CEditorUI::create(vk::RenderPass& renderPass, uint32_t subpass)
     init_info.PipelineCache = CDevice::inst()->getPipelineCache();
     init_info.DescriptorPool = descriptorPool;
     init_info.Allocator = VK_NULL_HANDLE;
-    init_info.MinImageCount = 2;
+    init_info.MinImageCount = CDevice::inst()->getFramesInFlight();
     init_info.ImageCount = CDevice::inst()->getFramesInFlight();
     init_info.MSAASamples = vk::SampleCountFlagBits::e1;
     init_info.Subpass = subpass;

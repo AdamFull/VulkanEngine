@@ -208,7 +208,7 @@ namespace Engine
             vk::Extent2D swapchainExtent;
             vk::SwapchainKHR swapChain{VK_NULL_HANDLE};
             size_t currentFrame{0};
-            uint32_t framesInFlight{2};
+            uint32_t framesInFlight{3};
             bool bSwapChainRebuild{};
 
             std::vector<vk::Image> vImages;

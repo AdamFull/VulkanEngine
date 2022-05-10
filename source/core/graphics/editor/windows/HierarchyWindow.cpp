@@ -80,7 +80,8 @@ void CHierarchyWindow::buildHierarchy(std::shared_ptr<CRenderObject> pObject)
     uint32_t flags = ImGuiTreeNodeFlags_OpenOnArrow;
 
     //Is object selected
-    if (CEditor::inst()->isSelected(pObject))
+    auto isSelected = CEditor::inst()->isSelected(pObject);
+    if (isSelected)
 		flags |= ImGuiTreeNodeFlags_Selected;
 
     //Has object childs
@@ -101,19 +102,24 @@ void CHierarchyWindow::buildHierarchy(std::shared_ptr<CRenderObject> pObject)
     if (ImGui::IsItemHovered() && ImGui::IsMouseDoubleClicked(0))
 	{
 		//TODO: Add object lookAt
-	}
+	}    
 
-    //Mouse click event
-    if (ImGui::IsItemClicked(0))
-	{
-        CEditor::inst()->deselectAll();
-        CEditor::inst()->selectObject(pObject);
-    }
-
-    // Ctrl + click
-    if(ImGui::IsKeyPressed(ImGuiKey_LeftCtrl) && ImGui::IsItemClicked(0))
+    if(ImGui::IsItemHovered())
     {
-        CEditor::inst()->selectObject(pObject);
+        // Ctrl + click
+        if(ImGui::IsKeyPressed(ImGuiKey_LeftCtrl) && ImGui::IsItemClicked(0))
+        {
+            if(isSelected)
+                CEditor::inst()->deselectObject(pObject);
+            else
+                CEditor::inst()->selectObject(pObject);
+        }
+        //Mouse click event
+        else if (!ImGui::IsKeyPressed(ImGuiKey_LeftCtrl) && ImGui::IsItemClicked(0))
+        {
+            CEditor::inst()->deselectAll();
+            CEditor::inst()->selectObject(pObject);
+        }
     }
 
     if(isOpen && !childs.empty())

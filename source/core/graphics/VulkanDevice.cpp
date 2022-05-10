@@ -237,11 +237,15 @@ void CDevice::createInstance(const FDeviceCreateInfo& deviceCI)
     createInfo.enabledExtensionCount = static_cast<uint32_t>(extensions.size());
     createInfo.ppEnabledExtensionNames = extensions.data();
 
-
+    std::array<vk::ValidationFeatureEnableEXT, 1> validationExt{vk::ValidationFeatureEnableEXT::eSynchronizationValidation};
+    vk::ValidationFeaturesEXT validationFeatures{};
+    validationFeatures.enabledValidationFeatureCount = validationExt.size();
+    validationFeatures.pEnabledValidationFeatures = validationExt.data();
     if (deviceCI.validation)
     {
         createInfo.enabledLayerCount = static_cast<uint32_t>(deviceCI.validationLayers.size());
         createInfo.ppEnabledLayerNames = deviceCI.validationLayers.data();
+        createInfo.pNext = &validationFeatures;
     }
 
     vk::Result res = create(createInfo, &vkInstance);

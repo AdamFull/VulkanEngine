@@ -133,6 +133,8 @@ namespace Engine
                 std::vector<std::shared_ptr<GLTFSceneNode>> m_vNodes;
                 std::vector<std::shared_ptr<GLTFSceneNode>> m_vLinearNodes;
 
+                std::string srParentPath{""};
+
                 //Parameters
                 bool bLoadTextures;
                 bool bLoadMaterials;

@@ -1,19 +1,18 @@
 #include "ImageLoader.h"
-#include "filesystem/FilesystemHelper.h"
 
 #define STB_IMAGE_IMPLEMENTATION
 #include "external/tinygltf/stb_image.h"
 
 using namespace Engine::Core::Loaders;
 
-bool CImageLoader::load(char const *filename, ktxTexture **target, vk::Format *format)
+bool CImageLoader::load(char const *filename, ktxTexture **target, vk::Format *format, const fs::path& parentPath)
 {
     fs::path filepath{filename};
 
     if (filepath.extension() == ".ktx")
-        return loadKTX(filename, target, format);
+        return loadKTX(filename, target, format, parentPath);
     else
-        return loadSTB(filename, target, format);
+        return loadSTB(filename, target, format, parentPath);
 
     return false;
 }
@@ -84,7 +83,7 @@ bool CImageLoader::allocateRawDataAsKTXTextureCubemap(ktxTexture **target, vk::F
     return result == KTX_SUCCESS;
 }
 
-bool CImageLoader::loadSTB(char const *filename, ktxTexture **target, vk::Format *format)
+bool CImageLoader::loadSTB(char const *filename, ktxTexture **target, vk::Format *format, const fs::path& parentPath)
 {
     int w, h, c;
     unsigned char *data = stbi_load(filename, &w, &h, &c, STBI_rgb_alpha);
@@ -95,10 +94,10 @@ bool CImageLoader::loadSTB(char const *filename, ktxTexture **target, vk::Format
     return result;
 }
 
-bool CImageLoader::loadKTX(char const *filename, ktxTexture **target, vk::Format *format)
+bool CImageLoader::loadKTX(char const *filename, ktxTexture **target, vk::Format *format, const fs::path& parentPath)
 {
-    auto fpath = FilesystemHelper::getWorkDir() / filename;
-    auto result = ktxTexture_CreateFromNamedFile(fpath.string().c_str(), KTX_TEXTURE_CREATE_LOAD_IMAGE_DATA_BIT, target);
+    auto fpath = (parentPath / filename).string();
+    auto result = ktxTexture_CreateFromNamedFile(fpath.c_str(), KTX_TEXTURE_CREATE_LOAD_IMAGE_DATA_BIT, target);
 
     VkFormat raw_format = vkGetFormatFromOpenGLInternalFormat((*target)->glInternalformat);
     *format = static_cast<vk::Format>(raw_format);

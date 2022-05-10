@@ -50,6 +50,7 @@ void GLTFLoader::load(const std::string& srPath, const std::string& srName)
     std::string error, warning;
     gltfContext.SetImageLoader(loadImageDataFuncEmpty, nullptr);
     auto fpath = FilesystemHelper::getWorkDir() / srPath;
+    srParentPath = fpath.parent_path().string();
     bool fileLoaded = gltfContext.LoadASCIIFromFile(&gltfModel, &error, &warning, fpath.string());
     current_primitive = 0;
 
@@ -555,8 +556,7 @@ void GLTFLoader::loadTextures(const tinygltf::Model &model)
             ss << image.name << "_";
         ss << std::to_string(index);
 
-        std::string srPath = "";
-        auto texture = loadTexture(image, srPath);
+        auto texture = loadTexture(image, srParentPath);
         //texture->SetName(ss.str());
         vTextures.emplace_back(texture);
         CResourceManager::inst()->addExisting(ss.str(), texture);
@@ -614,8 +614,7 @@ std::shared_ptr<CImage> GLTFLoader::loadTexture(const tinygltf::Image &image, co
     }
     else
     {
-        std::string srTexturePath = path + "/" + image.uri;
-        CImageLoader::load(srTexturePath.c_str(), &texture, &format);
+        CImageLoader::load(image.uri.c_str(), &texture, &format, path);
     }
     nativeTexture->loadFromMemory(texture, format);
     CImageLoader::close(&texture);

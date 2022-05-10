@@ -59,9 +59,9 @@ vk::AccessFlags srcAccessMask, vk::AccessFlags dstAccessMask, vk::DependencyFlag
     vk::SubpassDependency dep{};
     dep.srcSubpass = src;
     dep.dstSubpass = dst;
-    dep.srcStageMask = srcStageMask;
-    dep.dstStageMask = dstStageMask;
-    dep.srcAccessMask = srcAccessMask;
+    dep.srcStageMask = srcStageMask;    //Pipeline stage what we waiting
+    dep.dstStageMask = dstStageMask;    //Pipeline stage where we waiting
+    dep.srcAccessMask = srcAccessMask;  //
     dep.dstAccessMask = dstAccessMask;
     dep.dependencyFlags = depFlags;
     return addSubpassDependency(std::move(dep));

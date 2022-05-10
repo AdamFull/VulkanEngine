@@ -1,6 +1,7 @@
 #pragma once
 #include "external/ktx/include/ktx.h"
 #include "external/ktx/lib/vk_format.h"
+#include "filesystem/FilesystemHelper.h"
 
 namespace Engine
 {
@@ -25,7 +26,7 @@ namespace Engine
                  * @param format Vulkan texture format
                  * @return true when texture was loaded successfully
                  */
-                static bool load(char const *filename, ktxTexture **target, vk::Format *format);
+                static bool load(char const *filename, ktxTexture **target, vk::Format *format, const fs::path& parentPath = FilesystemHelper::getWorkDir());
 
                 /**
                  * @brief Closes texture file
@@ -89,7 +90,7 @@ namespace Engine
                  * @param format Vulkan texture format
                  * @return true when texture was loaded successfully
                  */
-                static bool loadSTB(char const *filename, ktxTexture **target, vk::Format *format);
+                static bool loadSTB(char const *filename, ktxTexture **target, vk::Format *format, const fs::path& parentPath);
 
                 /**
                  * @brief Loads image with ktx library format
@@ -99,7 +100,7 @@ namespace Engine
                  * @param format Vulkan texture format
                  * @return true when texture was loaded successfully
                  */
-                static bool loadKTX(char const *filename, ktxTexture **target, vk::Format *format);
+                static bool loadKTX(char const *filename, ktxTexture **target, vk::Format *format, const fs::path& parentPath);
             };
         }
     }

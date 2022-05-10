@@ -39,6 +39,6 @@
     },
     "scene":
     {
-        "default_scene": "scene.json"
+        "default_scene": "sponza_scene.json"
     }
 }

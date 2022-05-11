@@ -3,7 +3,10 @@
 #include "resources/materials/VulkanMaterial.h"
 #include "graphics/VulkanDevice.hpp"
 #include "graphics/VulkanHighLevel.h"
+#include "util/Frustum.hpp"
+#include <glm/gtx/matrix_decompose.hpp>
 
+using namespace Engine::Util;
 using namespace Engine::Resources::Mesh;
 
 void FPrimitive::setDimensions(glm::vec3 min, glm::vec3 max)
@@ -43,26 +46,41 @@ void CMeshFragment::reCreate()
     }
 }
 
-void CMeshFragment::update(vk::DescriptorBufferInfo& uboDesc, uint32_t imageIndex)
+void CMeshFragment::render(vk::CommandBuffer commandBuffer, vk::DescriptorBufferInfo& uboDesc, const glm::mat4& model, uint32_t imageIndex, uint32_t instanceCount)
 {
-    for (auto &primitive : m_vPrimitives)
-    {
-        if(primitive.material && primitive.bUseMaterial)
-        {
-             primitive.material->addBuffer("FUniformData", uboDesc);
-            primitive.material->update(imageIndex);
-        }
-    }
-}
+    glm::vec3 scale;
+    glm::quat rot;
+    glm::vec3 pos;
+    glm::vec3 skew;
+    glm::vec4 perspective;
+    glm::decompose(model, scale, rot, pos, skew, perspective);
 
-void CMeshFragment::bind(vk::CommandBuffer commandBuffer, uint32_t imageIndex, uint32_t instanceCount)
-{
     for (auto &primitive : m_vPrimitives)
     {
-        if(primitive.material && primitive.bUseMaterial)
-            primitive.material->bind(commandBuffer, imageIndex);
-            
-        commandBuffer.drawIndexed(primitive.indexCount, instanceCount, primitive.firstIndex, 0, 0);
+        bool needToRender{true};
+        switch (2)
+        {
+        case 0:{
+            needToRender = CFrustum::inst()->checkPoint(pos);
+        }break;
+        case 1:{
+            needToRender = CFrustum::inst()->checkSphere(pos, primitive.dimensions.radius);
+        }break;
+        case 2:{
+            needToRender = CFrustum::inst()->checkBox(pos + primitive.dimensions.min * scale, pos + primitive.dimensions.max * scale);
+        }break;
+        }
+
+        if(needToRender)
+        {
+            if(primitive.material && primitive.bUseMaterial)
+            {
+                primitive.material->addBuffer("FUniformData", uboDesc);
+                primitive.material->update(imageIndex);
+                primitive.material->bind(commandBuffer, imageIndex);
+            }
+            commandBuffer.drawIndexed(primitive.indexCount, instanceCount, primitive.firstIndex, 0, 0);
+        }
     }
 }
 

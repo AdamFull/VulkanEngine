@@ -13,17 +13,17 @@ using namespace Engine::Resources;
 using namespace Engine::Core;
 using namespace Engine::Util;
 
-void CMeshComponentBase::create()
+void CMeshObjectBase::create()
 {
-    CComponentBase::create();
+    CRenderObject::create();
 
     if (m_pMesh)
         m_pMesh->create();
 }
 
-void CMeshComponentBase::reCreate()
+void CMeshObjectBase::reCreate()
 {
-    CComponentBase::reCreate();
+    CRenderObject::reCreate();
 
     if (m_pMesh)
     {
@@ -31,9 +31,9 @@ void CMeshComponentBase::reCreate()
     }
 }
 
-void CMeshComponentBase::update(float fDeltaTime)
+void CMeshObjectBase::update(float fDeltaTime)
 {
-    CComponentBase::update(fDeltaTime);
+    CRenderObject::update(fDeltaTime);
 
     if (m_pMesh)
     {
@@ -42,9 +42,9 @@ void CMeshComponentBase::update(float fDeltaTime)
     }
 }
 
-void CMeshComponentBase::render(vk::CommandBuffer &commandBuffer, uint32_t imageIndex)
+void CMeshObjectBase::render(vk::CommandBuffer &commandBuffer, uint32_t imageIndex)
 {
-    CComponentBase::render(commandBuffer, imageIndex);
+    CRenderObject::render(commandBuffer, imageIndex);
 
     if (m_pMesh)
     {
@@ -70,20 +70,20 @@ void CMeshComponentBase::render(vk::CommandBuffer &commandBuffer, uint32_t image
     }
 }
 
-void CMeshComponentBase::cleanup()
+void CMeshObjectBase::cleanup()
 {
-    CComponentBase::cleanup();
+    CRenderObject::cleanup();
 
     if (m_pMesh)
         m_pMesh->cleanup();
 }
 
-void CMeshComponentBase::destroy()
+void CMeshObjectBase::destroy()
 {
-    CComponentBase::destroy();
+    CRenderObject::destroy();
 }
 
-void CMeshComponentBase::setInstances(const std::vector<glm::vec4> &vInstances)
+void CMeshObjectBase::setInstances(const std::vector<glm::vec4> &vInstances)
 { 
     m_vInstances = vInstances;
     bHasInstances = !m_vInstances.empty(); 

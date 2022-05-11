@@ -9,6 +9,16 @@ namespace Engine
     {
         namespace Scene
         {
+            enum class ERenderObjectType
+            {
+                eNone,
+                eMesh,
+                eCamera,
+                ePointLight,
+                eSpotLight,
+                eDirectionLight
+            };
+
             class CRenderObject : public std::enable_shared_from_this<CRenderObject>
             {
             public:

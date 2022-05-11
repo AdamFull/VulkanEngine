@@ -6,22 +6,22 @@ using namespace Engine::Core::Scene;
 
 void CLightComponent::create()
 {
-    CComponentBase::create();
+    CRenderObject::create();
 }
 
 void CLightComponent::reCreate()
 {
-    CComponentBase::reCreate();
+    CRenderObject::reCreate();
 }
 
 void CLightComponent::update(float fDeltaTime)
 {
-    CComponentBase::update(fDeltaTime);
+    CRenderObject::update(fDeltaTime);
 }
 
 void CLightComponent::render(vk::CommandBuffer &commandBuffer, uint32_t imageIndex)
 {
-    CComponentBase::render(commandBuffer, imageIndex);
+    CRenderObject::render(commandBuffer, imageIndex);
 }
 
 FLight CLightComponent::getLight()

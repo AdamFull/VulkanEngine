@@ -23,7 +23,7 @@ void CPresentFinalStage::create()
     addAttachmentDescription(CDevice::inst()->getImageFormat(), vk::SampleCountFlagBits::e1, vk::AttachmentLoadOp::eClear, vk::AttachmentStoreOp::eStore, 
     vk::AttachmentLoadOp::eDontCare, vk::AttachmentStoreOp::eDontCare, vk::ImageLayout::eUndefined, vk::ImageLayout::ePresentSrcKHR).
     addSubpassDescription(vk::PipelineBindPoint::eGraphics, outReferences[0]).
-    addSubpassDependency(VK_SUBPASS_EXTERNAL, 0, vk::PipelineStageFlagBits::eEarlyFragmentTests, vk::PipelineStageFlagBits::eColorAttachmentOutput,
+    addSubpassDependency(VK_SUBPASS_EXTERNAL, 0, vk::PipelineStageFlagBits::eFragmentShader, vk::PipelineStageFlagBits::eColorAttachmentOutput,
     vk::AccessFlagBits::eMemoryRead, vk::AccessFlagBits::eColorAttachmentWrite).
     build();
     

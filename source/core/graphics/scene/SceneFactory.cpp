@@ -98,7 +98,7 @@ std::shared_ptr<Core::Scene::CRenderObject> CSceneFactory::createSkybox(FSceneOb
         }
     }
 
-    auto mesh = std::make_shared<Core::Scene::CMeshComponentBase>();
+    auto mesh = std::make_shared<Core::Scene::CMeshObjectBase>();
     loader->load(info.mesh.srSrc, info.srName);
     mesh->setTransform(info.fTransform);
     mesh->setName(info.srName);
@@ -123,7 +123,7 @@ std::shared_ptr<Core::Scene::CRenderObject> CSceneFactory::createGLTFMesh(FScene
         }
     }
 
-    auto mesh = std::make_shared<Core::Scene::CMeshComponentBase>();
+    auto mesh = std::make_shared<Core::Scene::CMeshObjectBase>();
     mesh->setInstances(info.vInstances);
     loader->load(info.mesh.srSrc, info.srName);
     mesh->setTransform(info.fTransform);

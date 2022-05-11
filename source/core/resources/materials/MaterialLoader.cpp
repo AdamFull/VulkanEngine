@@ -108,6 +108,7 @@ namespace Engine
                     {"dynamicStates", type.dynamicStateEnables},
                     {"stages", type.stages},
                     {"defines", type.defines},
+                    {"multisampling", type.multisampling}
                 };
             }
 
@@ -121,6 +122,7 @@ namespace Engine
                 ParseArgument(json, type.dynamicStateEnables, "dynamicStates", false);
                 ParseArgument(json, type.stages, "stages", true);
                 ParseArgument(json, type.defines, "defines", false);
+                ParseArgument(json, type.multisampling, "multisampling", false);
             }
 
             void to_json(nlohmann::json &json, const FMaterialInfo &type)

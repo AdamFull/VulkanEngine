@@ -34,8 +34,7 @@ void CMeshBase::render(vk::CommandBuffer commandBuffer, uint32_t imageIndex, Cor
         m_pUniformBuffer->updateUniformBuffer(imageIndex, &ubo);
         auto& buffer = m_pUniformBuffer->getUniformBuffer(imageIndex);
         auto descriptor = buffer->getDscriptor();
-        fragment->update(descriptor ,imageIndex);
-        fragment->bind(commandBuffer, imageIndex, instanceCount);
+        fragment->render(commandBuffer, descriptor, ubo.model, imageIndex, instanceCount);
     }
 }
 

@@ -1,5 +1,5 @@
 #pragma once
-#include "graphics/scene/objects/components/ComponentBase.h"
+#include "graphics/scene/objects/RenderObject.h"
 #include "graphics/buffer/VulkanUniform.h"
 
 namespace Engine
@@ -8,7 +8,7 @@ namespace Engine
     {
         namespace Scene
         {
-            class CLightComponent : public CComponentBase
+            class CLightComponent : public CRenderObject
             {
             public:
                 void create() override;

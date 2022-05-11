@@ -70,21 +70,13 @@ namespace Engine
                 void reCreate();
 
                 /**
-                 * @brief Update primitives
-                 * 
-                 * @param uboDesc Uniform buffer data to update
-                 * @param imageIndex Current swap chain image index
-                 */
-                void update(vk::DescriptorBufferInfo& uboDesc, uint32_t imageIndex);
-
-                /**
                  * @brief Binds materials attached to primitive 
                  * 
                  * @param commandBuffer Current command buffer
                  * @param imageIndex Current swap chain image index
                  * @param instanceCount Number of instances to draw
                  */
-                void bind(vk::CommandBuffer commandBuffer, uint32_t imageIndex, uint32_t instanceCount = 1);
+                void render(vk::CommandBuffer commandBuffer, vk::DescriptorBufferInfo& uboDesc, const glm::mat4& model, uint32_t imageIndex, uint32_t instanceCount = 1);
 
                 /**
                  * @brief Clena up all attached sub objects

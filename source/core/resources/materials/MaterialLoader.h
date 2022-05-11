@@ -28,6 +28,7 @@ namespace Engine
                     std::vector<vk::DynamicState> dynamicStateEnables{vk::DynamicState::eViewport, vk::DynamicState::eScissor};
                     std::vector<std::string> stages;
                     std::map<std::string, std::string> defines;
+                    bool multisampling{false};
                 };
                 std::unordered_map<std::string, FCreationInfo> creationInfo;
             };

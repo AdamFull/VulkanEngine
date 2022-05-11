@@ -1,5 +1,5 @@
 #pragma once
-#include "ComponentBase.h"
+#include "graphics/scene/objects/RenderObject.h"
 
 namespace Engine
 {
@@ -14,7 +14,7 @@ namespace Engine
     {
         namespace Scene
         {
-            class CMeshComponentBase : public CComponentBase
+            class CMeshObjectBase : public CRenderObject
             {
             public:
                 void create() override;

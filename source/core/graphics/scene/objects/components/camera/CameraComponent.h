@@ -10,7 +10,7 @@ namespace Engine
             class CCameraComponent : public CRenderObject
             {
             public:
-                CCameraComponent() = default;
+                CCameraComponent();
                 explicit CCameraComponent(std::string name)
                 {
                     srName = name;

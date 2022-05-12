@@ -5,6 +5,11 @@
 using namespace Engine::Util;
 using namespace Engine::Core::Scene;
 
+CCameraComponent::CCameraComponent()
+{
+    eObjectType = ERenderObjectType::eCamera;
+}
+
 void CCameraComponent::setOrthographicProjection(float fLeft, float fRight, float fTop, float fBottom, float fNear, float fFar)
 {
     projectionMatrix = glm::mat4{1.0f};

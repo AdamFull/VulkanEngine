@@ -85,6 +85,8 @@ namespace Engine
                 void setRotation(glm::vec3 rotation);
                 void setScale(glm::vec3 scale);
 
+                ERenderObjectType getObjectType() const { return eObjectType; }
+
             protected:
                 uint64_t objectId{0};
                 std::string srName;
@@ -96,6 +98,7 @@ namespace Engine
                 float fCullingRadius{2.f};
                 std::pair<glm::vec3, glm::vec3> boundingBox{};
                 ECullingType eCullingType{ECullingType::eBySphere};
+                ERenderObjectType eObjectType{ERenderObjectType::eNone};
 
                 std::shared_ptr<CRenderObject> pParent;
                 std::shared_ptr<CRenderObject> pParentOld;

@@ -4,6 +4,11 @@ using namespace Engine::Resources;
 using namespace Engine::Core;
 using namespace Engine::Core::Scene;
 
+CLightComponent::CLightComponent()
+{
+    eObjectType = ERenderObjectType::ePointLight;
+}
+
 void CLightComponent::create()
 {
     CRenderObject::create();

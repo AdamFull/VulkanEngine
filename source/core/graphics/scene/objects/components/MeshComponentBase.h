@@ -17,6 +17,7 @@ namespace Engine
             class CMeshObjectBase : public CRenderObject
             {
             public:
+                CMeshObjectBase();
                 void create() override;
                 void reCreate() override;
                 void update(float fDeltaTime) override;

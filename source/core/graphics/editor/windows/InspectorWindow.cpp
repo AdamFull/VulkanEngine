@@ -1,4 +1,8 @@
 #include "InspectorWindow.h"
+#include "graphics/scene/objects/RenderObject.h"
+#include "graphics/scene/objects/components/MeshComponentBase.h"
+#include "graphics/scene/objects/components/camera/CameraComponent.h"
+#include "graphics/scene/objects/components/light/LightComponent.h"
 #include "graphics/editor/Editor.h"
 #include <glm/gtc/type_ptr.hpp>
 
@@ -65,24 +69,24 @@ void CInspectorWindow::draw()
 
             ImGui::Text("Flags");
             auto isVisible = selected->isVisible();
-            if(ImGui::Checkbox("IsVisible", &isVisible))
+            if(ImGui::Checkbox("Is visible", &isVisible))
                 selected->setVisible(isVisible);
             auto isEnabled = selected->isEnabled();
-            if(ImGui::Checkbox("IsEnabled", &isEnabled))
+            if(ImGui::Checkbox("Is enabled", &isEnabled))
                 selected->setEnable(isEnabled);
 
             ImGui::Separator();
 
             ImGui::Text("Culling");
             auto isCullable = selected->isCullable();
-            if(ImGui::Checkbox("IsCullingEnabled", &isCullable))
+            if(ImGui::Checkbox("Is culling enabled", &isCullable))
                 selected->setCullable(isCullable);
 
             if(isCullable)
             {
                 auto cullingType = selected->getCullingType();
                 const char* culling_type = toCullingName(cullingType);
-                if(ImGui::BeginCombo("CullingType", culling_type))
+                if(ImGui::BeginCombo("Culling type", culling_type))
                 {
                     for (int n = 0; n < culling_types_count; n++)
                     {
@@ -102,16 +106,41 @@ void CInspectorWindow::draw()
                     case ECullingType::eByPoint: {} break;
                     case ECullingType::eBySphere:  {
                         auto sphereRadius = selected->getCullingRadius();
-                        if(ImGui::DragFloat("CullingSphereRadius", &sphereRadius))
+                        if(ImGui::DragFloat("Culling sphere radius", &sphereRadius))
                             selected->setCullingRadius(sphereRadius);
                     } break;
                     case ECullingType::eByBox: {
                         auto bounds = selected->getBounds();
-                        if(ImGui::DragFloat3("BoxBegin", glm::value_ptr(bounds.first)) ||
-                        ImGui::DragFloat3("BoxEnd", glm::value_ptr(bounds.second)))
+                        if(ImGui::DragFloat3("Box Begin", glm::value_ptr(bounds.first)) ||
+                        ImGui::DragFloat3("Box End", glm::value_ptr(bounds.second)))
                             selected->setBounds(bounds.first, bounds.second);
                     } break;
                 }
+            }
+
+            auto objectType = selected->getObjectType();
+            switch (objectType)
+            {
+            case ERenderObjectType::eMesh:{
+                auto pMesh = std::dynamic_pointer_cast<CMeshObjectBase>(selected);
+                ImGui::Text("Static Mesh");
+            }break;
+            case ERenderObjectType::eCamera:{
+                auto pCamera = std::dynamic_pointer_cast<CCameraComponent>(selected);
+                ImGui::Text("Camera");
+            }break;
+            case ERenderObjectType::ePointLight:{
+                auto pPoint = std::dynamic_pointer_cast<CLightComponent>(selected);
+                ImGui::Text("Point light");
+                auto color = pPoint->getColor();
+                if(ImGui::DragFloat3("Color", glm::value_ptr(color)))
+                    pPoint->setColor(color);
+                auto attenuation = pPoint->getAttenuation();
+                if(ImGui::DragFloat("Attenuation", &attenuation))
+                    pPoint->setAttenuation(attenuation);
+            }break;
+            
+            default: break;
             }
         }
 

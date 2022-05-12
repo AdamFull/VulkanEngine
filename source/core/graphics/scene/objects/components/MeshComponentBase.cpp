@@ -13,6 +13,11 @@ using namespace Engine::Resources;
 using namespace Engine::Core;
 using namespace Engine::Util;
 
+CMeshObjectBase::CMeshObjectBase()
+{
+    eObjectType = ERenderObjectType::eMesh;
+}
+
 void CMeshObjectBase::create()
 {
     CRenderObject::create();

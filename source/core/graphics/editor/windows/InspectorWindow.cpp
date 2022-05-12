@@ -58,11 +58,11 @@ void CInspectorWindow::draw()
 
             auto transform = selected->getLocalTransform();
             ImGui::Text("Transform");
-            if(ImGui::DragFloat3("position", glm::value_ptr(transform.pos)))
+            if(ImGui::DragFloat3("position", glm::value_ptr(transform.pos), 0.01, 0.01))
                 selected->setPosition(transform.pos);
-            if(ImGui::DragFloat3("rotation", glm::value_ptr(transform.rot)))
+            if(ImGui::DragFloat3("rotation", glm::value_ptr(transform.rot), 0.01, 0.01))
                 selected->setRotation(transform.rot);
-            if(ImGui::DragFloat3("scale", glm::value_ptr(transform.scale)))
+            if(ImGui::DragFloat3("scale", glm::value_ptr(transform.scale), 0.01, 0.01))
                 selected->setScale(transform.scale);
 
             ImGui::Separator();
@@ -106,13 +106,13 @@ void CInspectorWindow::draw()
                     case ECullingType::eByPoint: {} break;
                     case ECullingType::eBySphere:  {
                         auto sphereRadius = selected->getCullingRadius();
-                        if(ImGui::DragFloat("Culling sphere radius", &sphereRadius))
+                        if(ImGui::DragFloat("Culling sphere radius", &sphereRadius, 0.01, 0.01))
                             selected->setCullingRadius(sphereRadius);
                     } break;
                     case ECullingType::eByBox: {
                         auto bounds = selected->getBounds();
-                        if(ImGui::DragFloat3("Box Begin", glm::value_ptr(bounds.first)) ||
-                        ImGui::DragFloat3("Box End", glm::value_ptr(bounds.second)))
+                        if(ImGui::DragFloat3("Box Begin", glm::value_ptr(bounds.first), 0.01, 0.01) ||
+                        ImGui::DragFloat3("Box End", glm::value_ptr(bounds.second), 0.01, 0.01))
                             selected->setBounds(bounds.first, bounds.second);
                     } break;
                 }
@@ -133,10 +133,10 @@ void CInspectorWindow::draw()
                 auto pPoint = std::dynamic_pointer_cast<CLightComponent>(selected);
                 ImGui::Text("Point light");
                 auto color = pPoint->getColor();
-                if(ImGui::DragFloat3("Color", glm::value_ptr(color)))
+                if(ImGui::DragFloat3("Color", glm::value_ptr(color)), 0.01, 0.0, 255.0)
                     pPoint->setColor(color);
                 auto attenuation = pPoint->getAttenuation();
-                if(ImGui::DragFloat("Attenuation", &attenuation))
+                if(ImGui::DragFloat("Attenuation", &attenuation), 0.01, 0.1)
                     pPoint->setAttenuation(attenuation);
             }break;
             

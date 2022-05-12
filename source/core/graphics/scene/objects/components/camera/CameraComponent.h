@@ -23,6 +23,7 @@ namespace Engine
 
                 const inline glm::mat4 &getProjection() const { return projectionMatrix; }
                 const inline glm::mat4 &getView() const { return viewMatrix; }
+                const inline glm::mat4 &getGizmoView() const { return viewMatrix; }
 
                 glm::vec4 viewPos{};
 
@@ -33,6 +34,7 @@ namespace Engine
 
                 glm::mat4 projectionMatrix{1.f};
                 glm::mat4 viewMatrix{1.f};
+                glm::mat4 viewGizmoMatrix{1.f};
                 bool bFlipY{true};
             };
         }

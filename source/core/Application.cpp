@@ -20,7 +20,7 @@ void CApplication::create()
     m_pCameraController = std::make_unique<Controllers::CCameraEditorController>();
     m_pCameraController->create();
 
-    CSceneManager::inst()->load("sponza_scene.json");
+    CSceneManager::inst()->load("scene.json");
     CRenderSystem::inst()->create();
 }
 

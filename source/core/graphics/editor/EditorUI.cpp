@@ -1,4 +1,5 @@
 #include "EditorUI.h"
+#include <ImGuizmo.h>
 #include "imgui_impl_glfw.h"
 #include "imgui_impl_vulkan.h"
 
@@ -183,6 +184,7 @@ void CEditorUI::newFrame()
         ImGui_ImplVulkan_NewFrame();
         ImGui_ImplGlfw_NewFrame();
         ImGui::NewFrame();
+        ImGuizmo::BeginFrame();
 
         ImGui::DockSpaceOverViewport();
 

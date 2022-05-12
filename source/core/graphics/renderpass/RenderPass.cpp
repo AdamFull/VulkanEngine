@@ -135,7 +135,13 @@ void CRenderPass::begin(vk::CommandBuffer& commandBuffer)
     renderPassBeginInfo.pClearValues = vClearValues.data();
     commandBuffer.beginRenderPass(renderPassBeginInfo, vk::SubpassContents::eInline);
 
-    vk::Viewport viewport = Initializers::Viewport(renderArea.extent.width, renderArea.extent.height);
+    vk::Viewport viewport{};
+    viewport.width = static_cast<float>(renderArea.extent.width);
+    viewport.height = -static_cast<float>(renderArea.extent.height);
+    viewport.x = 0;   
+	viewport.y = static_cast<float>(renderArea.extent.height);
+    viewport.minDepth = 0.0f;
+    viewport.maxDepth = 1.0f;
     vk::Rect2D scissor = renderArea;
 
     commandBuffer.setViewport(0, 1, &viewport);

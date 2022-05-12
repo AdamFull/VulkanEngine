@@ -20,7 +20,7 @@
         },
         "validation": true,
         "validation_layers": ["VK_LAYER_KHRONOS_validation"],
-        "device_extensions": ["VK_KHR_swapchain"],
+        "device_extensions": ["VK_KHR_swapchain", "VK_KHR_maintenance1"],
         "device_features":
         {
             "sampler_anisotropy": true,

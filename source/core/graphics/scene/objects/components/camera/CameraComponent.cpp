@@ -69,10 +69,9 @@ void CCameraComponent::setViewYXZ(glm::vec3 position, glm::vec3 rotation)
 	    translation.y *= -1.0f;
 
 	transM = glm::translate(glm::mat4(1.0f), translation);
-
 	viewMatrix = rotM * transM;
 
-    viewPos = glm::vec4(position, 0.0) * glm::vec4(-1.0, 1.0, -1.0, 1.0);
+    viewPos = glm::vec4(position, 0.0) *  glm::vec4(-1.0, 1.0, -1.0, 1.0);
 }
 
 void CCameraComponent::update(float fDeltaTime)

@@ -50,7 +50,7 @@ std::vector<const char *> VulkanStaticHelper::getRequiredExtensions(bool validat
 bool VulkanStaticHelper::checkDeviceExtensionSupport(const vk::PhysicalDevice &device, const std::vector<const char*>& deviceExtensions)
 {
     std::set<std::string> sRequiredExtensions(deviceExtensions.begin(), deviceExtensions.end());
-
+	
     for (const auto &extension : device.enumerateDeviceExtensionProperties())
     {
         sRequiredExtensions.erase(extension.extensionName);

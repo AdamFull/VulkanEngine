@@ -107,7 +107,11 @@ void RendererBase::BeginRender(vk::CommandBuffer& commandBuffer)
 
     commandBuffer.beginRenderPass(renderPassInfo, vk::SubpassContents::eInline);
 
-    vk::Viewport viewport = Initializers::Viewport(out_extent.width, out_extent.height);
+    vk::Viewport viewport{};
+    viewport.width = out_extent.width;
+    viewport.height = -static_cast<float>(out_extent.height);
+    viewport.x = 0;   
+	viewport.y = out_extent.height;
     vk::Rect2D scissor{{0, 0}, out_extent};
 
     commandBuffer.setViewport(0, 1, &viewport);

@@ -6,7 +6,7 @@
             "vertexType": "default",
             "bindPoint": "graphics",
             "culling": "back",
-            "frontface": "counterClockwise",
+            "frontface": "clockwise",
             "depth": true,
             "dynamicStates": ["viewport", "scissor"],
             "stages": [
@@ -20,7 +20,7 @@
             "vertexType": "default",
             "bindPoint": "graphics",
             "culling": "none",
-            "frontface": "clockwise",
+            "frontface": "counterClockwise",
             "depth": true,
             "dynamicStates": ["viewport", "scissor"],
             "stages": [
@@ -34,7 +34,7 @@
         {
             "bindPoint": "graphics",
             "culling": "front",
-            "frontface": "counterClockwise",
+            "frontface": "clockwise",
             "depth": false,
             "dynamicStates": ["viewport", "scissor"],
             "stages": [
@@ -47,7 +47,7 @@
         {
             "bindPoint": "graphics",
             "culling": "front",
-            "frontface": "counterClockwise",
+            "frontface": "clockwise",
             "depth": false,
             "dynamicStates": ["viewport", "scissor"],
             "stages": [
@@ -64,7 +64,7 @@
             "vertexType": "default",
             "bindPoint": "graphics",
             "culling": "front",
-            "frontface": "counterClockwise",
+            "frontface": "clockwise",
             "depth": false,
             "dynamicStates": ["viewport", "scissor"],
             "stages": [
@@ -77,7 +77,7 @@
         {
             "bindPoint": "graphics",
             "culling": "front",
-            "frontface": "counterClockwise",
+            "frontface": "clockwise",
             "depth": false,
             "dynamicStates": ["viewport", "scissor"],
             "stages": [
@@ -91,7 +91,7 @@
             "vertexType": "imgui",
             "bindPoint": "graphics",
             "culling": "none",
-            "frontface": "counterClockwise",
+            "frontface": "clockwise",
             "depth": false,
             "dynamicStates": ["viewport", "scissor"],
             "stages": [
@@ -104,7 +104,7 @@
         {
             "bindPoint": "graphics",
             "culling": "front",
-            "frontface": "counterClockwise",
+            "frontface": "clockwise",
             "depth": false,
             "dynamicStates": ["viewport", "scissor"],
             "stages": [

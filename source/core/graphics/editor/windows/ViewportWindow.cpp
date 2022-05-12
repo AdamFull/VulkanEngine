@@ -27,7 +27,7 @@ void CViewportWindow::draw()
 {
     if (bOverlayState)
     {
-        CDevice::inst()->GPUWait();
+        //CDevice::inst()->GPUWait();
         auto currentImage = CDevice::inst()->getCurrentFrame();
         if (!ImGui::Begin("Viewport", &bOverlayState))
         {

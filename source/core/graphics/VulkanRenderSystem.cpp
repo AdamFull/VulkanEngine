@@ -23,8 +23,8 @@ void CRenderSystem::create()
 
     vStages.emplace_back(std::make_unique<Render::CDeferredStage>());
     vStages.emplace_back(std::make_unique<Render::CPostProcessStage>());
-    //vStages.emplace_back(std::make_unique<Render::CSandboxFinalStage>());
-    vStages.emplace_back(std::make_unique<Render::CPresentFinalStage>());
+    vStages.emplace_back(std::make_unique<Render::CSandboxFinalStage>());
+    //vStages.emplace_back(std::make_unique<Render::CPresentFinalStage>());
 
     currentStageIndex = 0;
     for(auto& stage : vStages)

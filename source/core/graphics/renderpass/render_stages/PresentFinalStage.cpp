@@ -24,7 +24,7 @@ void CPresentFinalStage::create()
     vk::AttachmentLoadOp::eDontCare, vk::AttachmentStoreOp::eDontCare, vk::ImageLayout::eUndefined, vk::ImageLayout::ePresentSrcKHR).
     addSubpassDescription(vk::PipelineBindPoint::eGraphics, outReferences[0]).
     addSubpassDependency(VK_SUBPASS_EXTERNAL, 0, vk::PipelineStageFlagBits::eFragmentShader, vk::PipelineStageFlagBits::eColorAttachmentOutput,
-    vk::AccessFlagBits::eMemoryRead, vk::AccessFlagBits::eColorAttachmentWrite).
+    vk::AccessFlagBits::eShaderRead, vk::AccessFlagBits::eColorAttachmentWrite).
     build();
     
     pRenderPass->pushSubpass(std::make_shared<CThroughPass>());

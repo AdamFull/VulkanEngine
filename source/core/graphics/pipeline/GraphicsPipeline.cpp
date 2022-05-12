@@ -51,7 +51,7 @@ void CGraphicsPipeline::createPipeline()
     }
 
     vk::PipelineColorBlendStateCreateInfo colorBlending{};
-    colorBlending.logicOpEnable = VK_FALSE;
+    colorBlending.logicOpEnable = VK_TRUE;
     colorBlending.logicOp = vk::LogicOp::eCopy;
     colorBlending.attachmentCount = static_cast<uint32_t>(colorBlendAttachments.size());
     colorBlending.pAttachments = colorBlendAttachments.data();

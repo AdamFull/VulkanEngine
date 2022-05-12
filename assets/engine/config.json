@@ -28,7 +28,8 @@
             "fill_mode_non_solid": true,
             "multi_viewport": true,
             "geometry_shader": true,
-            "fragment_stores_and_atomics": true
+            "fragment_stores_and_atomics": true,
+            "logic_op": true
         },
         "graphics":
         {

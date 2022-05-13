@@ -74,6 +74,7 @@ void CFrustum::update(const glm::mat4& view, const glm::mat4& projection)
 
 bool CFrustum::checkPoint(const glm::vec3& pos)
 {
+	return true;
     for (uint32_t i = 0; i < 6; i++) 
     {
 		if (frustumSides[i][0] * pos.x + frustumSides[i][1] * pos.y + frustumSides[i][2] * pos.z + frustumSides[i][3] <= 0.0f)
@@ -84,6 +85,7 @@ bool CFrustum::checkPoint(const glm::vec3& pos)
 
 bool CFrustum::checkSphere(const glm::vec3& pos, float radius)
 {
+	return true;
     for (uint32_t i = 0; i < 6; i++) 
     {
 		if (frustumSides[i][0] * pos.x + frustumSides[i][1] * pos.y + frustumSides[i][2] * pos.z + frustumSides[i][3] <= -radius) 
@@ -94,6 +96,7 @@ bool CFrustum::checkSphere(const glm::vec3& pos, float radius)
 
 bool CFrustum::checkBox(const glm::vec3& start, const glm::vec3& end)
 {
+	return true;
     for (uint32_t i = 0; i < 6; i++) 
     {
 		if (   frustumSides[i][0] * start.x + frustumSides[i][1] * start.y + frustumSides[i][2] * start.z + frustumSides[i][3] <= 0.0f

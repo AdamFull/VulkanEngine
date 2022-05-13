@@ -140,6 +140,8 @@ void CRenderPass::begin(vk::CommandBuffer& commandBuffer)
     viewport.height = -static_cast<float>(renderArea.extent.height);
     viewport.x = 0;   
 	viewport.y = static_cast<float>(renderArea.extent.height);
+    //viewport.width = renderArea.extent.width;
+    //viewport.height = renderArea.extent.height;
     viewport.minDepth = 0.0f;
     viewport.maxDepth = 1.0f;
     vk::Rect2D scissor = renderArea;

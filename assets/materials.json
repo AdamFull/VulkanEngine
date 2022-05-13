@@ -46,7 +46,7 @@
         "gaussian_blur": 
         {
             "bindPoint": "graphics",
-            "culling": "front",
+            "culling": "back",
             "frontface": "clockwise",
             "depth": false,
             "dynamicStates": ["viewport", "scissor"],

@@ -27,28 +27,26 @@ void CCameraEditorController::update(float fDeltaTime)
 void CCameraEditorController::cameraMovement(EActionKey eKey, EKeyState eState)
 {
     auto camera = CCameraManager::inst()->getCurrentCamera();
-    FTransform transform = camera->getTransform();
 
-    glm::vec3 direction{0.f};
     switch (eKey)
     {
     case EActionKey::eW:
-        direction += transform.getForwardVector();
+        camera->moveForward(false);
         break;
     case EActionKey::eS:
-        direction -= transform.getForwardVector();
+        camera->moveForward(true);
         break;
     case EActionKey::eA:
-        direction -= transform.getRightVector();
+        camera->moveRight(true);
         break;
     case EActionKey::eD:
-        direction += transform.getRightVector();
+        camera->moveRight(false);
         break;
     case EActionKey::eSpace:
-        direction += transform.getUpVector();
+        camera->moveUp(false);
         break;
     case EActionKey::eLeftControl:
-        direction -= transform.getUpVector();
+        camera->moveUp(true);
         break;
     case EActionKey::eMouseMiddle:
         m_bRotatePass = true;
@@ -56,12 +54,6 @@ void CCameraEditorController::cameraMovement(EActionKey eKey, EKeyState eState)
 
     default:
         break;
-    }
-
-    if (glm::dot(direction, direction) > std::numeric_limits<float>::epsilon())
-    {
-        transform.pos += m_fMoveSpeed * m_fDeltaTime * direction;
-        camera->setTransform(transform);
     }
 }
 
@@ -71,14 +63,7 @@ void CCameraEditorController::mouseRotation(float fX, float fY)
         return;
 
     auto camera = CCameraManager::inst()->getCurrentCamera();
-    FTransform transform = camera->getTransform();
-    glm::vec3 rotate = glm::vec3{fY * m_fLookSpeed * -1.f, fX * m_fLookSpeed, 0.f};
-
-    if (glm::dot(rotate, rotate) > std::numeric_limits<float>::epsilon())
-    {
-        transform.rot += rotate * 20.0f;
-        camera->setTransform(transform);
-    }
+    camera->lookAt(fX, fY);
     m_bRotatePass = false;
 }
 

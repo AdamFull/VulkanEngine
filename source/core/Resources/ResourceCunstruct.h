@@ -148,7 +148,7 @@ namespace Engine
             /// @brief Light source type
             ELightSourceType eType{};
             /// @brief Light color
-            glm::vec3 vColor{};
+            glm::vec4 vColor{};
             /// @brief  Light attenuation radius
             float fAttenuation{};
         };

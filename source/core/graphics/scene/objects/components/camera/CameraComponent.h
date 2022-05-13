@@ -16,26 +16,28 @@ namespace Engine
                     srName = name;
                 }
 
-                void setOrthographicProjection(float fLeft, float fRight, float fTop, float fBottom, float fNear, float fFar);
-                void setPerspectiveProjection(float fovy, float aspect, float fNear, float fFar);
-
                 void update(float fDeltaTime) override;
 
-                const inline glm::mat4 &getProjection() const { return projectionMatrix; }
-                const inline glm::mat4 &getView() const { return viewMatrix; }
-                const inline glm::mat4 &getGizmoView() const { return viewMatrix; }
+                void moveForward(bool bInv);
+                void moveRight(bool bInv);
+                void moveUp(bool bInv);
+
+                void lookAt(float dX, float dY);
+
+                glm::mat4 getProjection() const;
+                glm::mat4 getView() const;
+
+                glm::vec3 getForwardVector() const;
+                glm::vec3 getUpVector() const;
+                glm::vec3 getRightVector() const;
 
                 glm::vec4 viewPos{};
 
             private:
-                void setViewDirection(glm::vec3 position, glm::vec3 direction, glm::vec3 up = glm::vec3{0.f, -1.f, 0.f});
-                void setViewTarget(glm::vec3 position, glm::vec3 target, glm::vec3 up = glm::vec3{0.f, -1.f, 0.f});
-                void setViewYXZ(glm::vec3 position, glm::vec3 rotation);
-
-                glm::mat4 projectionMatrix{1.f};
-                glm::mat4 viewMatrix{1.f};
-                glm::mat4 viewGizmoMatrix{1.f};
-                bool bFlipY{true};
+                float dt{0.0}, fieldOfView{45.f}, near{0.01f}, far{2048.f}, sensitivity{3.f};
+                float angleH{0.f}, angleV{0.f};
+                glm::vec3 direction{-1.0, 0.0, 0.0};
+                //TODO: set projection type
             };
         }
     }

@@ -10,76 +10,79 @@ CCameraComponent::CCameraComponent()
     eObjectType = ERenderObjectType::eCamera;
 }
 
-void CCameraComponent::setOrthographicProjection(float fLeft, float fRight, float fTop, float fBottom, float fNear, float fFar)
-{
-    projectionMatrix = glm::mat4{1.0f};
-    projectionMatrix[0][0] = 2.f / (fRight - fLeft);
-    projectionMatrix[1][1] = 2.f / (fBottom - fTop);
-    projectionMatrix[2][2] = 1.f / (fFar - fNear);
-    projectionMatrix[3][0] = -(fRight + fLeft) / (fRight - fLeft);
-    projectionMatrix[3][1] = -(fBottom + fTop) / (fBottom - fTop);
-    projectionMatrix[3][2] = -fNear / (fFar - fNear);
-}
-
-void CCameraComponent::setPerspectiveProjection(float fovy, float aspect, float fNear, float fFar)
-{
-    projectionMatrix = glm::perspective(glm::radians(fovy), aspect, fNear, fFar);
-    if(bFlipY)
-        projectionMatrix[1][1] *= -1.f;
-    //viewMatrix[1][1] *= -1.f;
-}
-
-void CCameraComponent::setViewDirection(glm::vec3 position, glm::vec3 direction, glm::vec3 up)
-{
-    const glm::vec3 w{glm::normalize(direction)};
-    const glm::vec3 u{glm::normalize(glm::cross(w, up))};
-    const glm::vec3 v{glm::cross(w, u)};
-
-    viewMatrix = glm::mat4{1.f};
-    viewMatrix[0][0] = u.x;
-    viewMatrix[1][0] = u.y;
-    viewMatrix[2][0] = u.z;
-    viewMatrix[0][1] = v.x;
-    viewMatrix[1][1] = v.y;
-    viewMatrix[2][1] = v.z;
-    viewMatrix[0][2] = w.x;
-    viewMatrix[1][2] = w.y;
-    viewMatrix[2][2] = w.z;
-    viewMatrix[3][0] = -glm::dot(u, position);
-    viewMatrix[3][1] = -glm::dot(v, position);
-    viewMatrix[3][2] = -glm::dot(w, position);
-}
-
-void CCameraComponent::setViewTarget(glm::vec3 position, glm::vec3 target, glm::vec3 up)
-{
-    setViewDirection(position, target - position, up);
-}
-
-void CCameraComponent::setViewYXZ(glm::vec3 position, glm::vec3 rotation)
-{
-    glm::mat4 rotM = glm::mat4(1.0f);
-	glm::mat4 transM;
-
-	rotM = glm::rotate(rotM, glm::radians(rotation.x * (bFlipY ? -1.0f : 1.f)), glm::vec3(1.0f, 0.0f, 0.0f));
-	rotM = glm::rotate(rotM, glm::radians(rotation.y), glm::vec3(0.0f, 1.0f, 0.0f));
-	rotM = glm::rotate(rotM, glm::radians(rotation.z), glm::vec3(0.0f, 0.0f, 1.0f));
-
-	glm::vec3 translation = position;
-    if(bFlipY)
-	    translation.y *= -1.0f;
-
-	transM = glm::translate(glm::mat4(1.0f), translation);
-	viewMatrix = rotM * transM;
-
-    viewPos = glm::vec4(position, 0.0) *  glm::vec4(-1.0, 1.0, -1.0, 1.0);
-}
-
 void CCameraComponent::update(float fDeltaTime)
 {
-    CRenderObject::update(fDeltaTime);
+    CRenderObject::update(fDeltaTime); 
+    dt = fDeltaTime;
+    viewPos = glm::vec4(transform.pos, 0.0);
+    transform.rot = direction;
+    CFrustum::inst()->update(getView(), getProjection());
+    //TODO: check frustum in camera
+}
 
+void CCameraComponent::moveForward(bool bInv)
+{
+    float dir = bInv ? -1.f : 1.f;
+    transform.pos += getForwardVector() * dir * dt * sensitivity;
+}
+
+void CCameraComponent::moveRight(bool bInv)
+{
+    float dir = bInv ? -1.f : 1.f;
+    transform.pos += getRightVector() * dir * dt * sensitivity;
+}
+
+void CCameraComponent::moveUp(bool bInv)
+{
+    float dir = bInv ? -1.f : 1.f;
+    transform.pos += getUpVector() * dir * dt * sensitivity;
+}
+
+void CCameraComponent::lookAt(float dX, float dY)
+{
+    float rotX = dX/2;
+    float rotY = dY/2;
+    float sens = 100.f * sensitivity * 1.f / dt;
+
+    angleH += rotX*sens;
+    if(angleV + rotY*sens > 89)
+        angleV = 89;
+    else if(angleV + rotY*sens < -89)
+        angleV = -89;
+    else
+        angleV += rotY*sens;
+
+    const float w{cos(glm::radians(angleV)) * -cos(glm::radians(angleH))};
+    const float u{-sin(glm::radians(angleV))};
+    const float v{cos(glm::radians(angleV)) * -sin(glm::radians(angleH))};
+    
+    direction = glm::normalize(glm::vec3(w, u, v));
+}
+
+glm::mat4 CCameraComponent::getProjection() const
+{
     auto aspect = CDevice::inst()->getAspectRatio();
-    setPerspectiveProjection(45.f, aspect, 0.01f, 2048.f);
-    setViewYXZ(transform.pos, transform.rot);
-    CFrustum::inst()->update(viewMatrix, projectionMatrix);
+    auto perspective = glm::perspective(glm::radians(fieldOfView), aspect, near, far);
+    perspective[1][1] *= -1.f;
+    return perspective;
+}
+
+glm::mat4 CCameraComponent::getView() const
+{
+    return glm::lookAt(transform.pos, transform.pos + direction, getUpVector());
+}
+
+glm::vec3 CCameraComponent::getForwardVector() const
+{
+    return direction;
+}
+
+glm::vec3 CCameraComponent::getUpVector() const
+{
+    return glm::vec3{0.0, 1.0, 0.0};
+}
+
+glm::vec3 CCameraComponent::getRightVector() const
+{
+    return glm::normalize(glm::cross(getForwardVector(), getUpVector()));
 }

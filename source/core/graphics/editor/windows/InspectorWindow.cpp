@@ -5,6 +5,7 @@
 #include "graphics/scene/objects/components/light/LightComponent.h"
 #include "graphics/editor/Editor.h"
 #include <glm/gtc/type_ptr.hpp>
+#include "graphics/editor/CustomControls.h"
 
 using namespace Engine::Core;
 using namespace Engine::Core::Scene;
@@ -49,37 +50,39 @@ void CInspectorWindow::draw()
 
         if(selected)
         {
+            ImGui::Separator();
+            ImGui::Text("Parameters");
+            ImGui::Separator();
+
             auto& name = selected->getName();
-            ImGui::Text("Name");
-            if(ImGui::InputText("###roname", name.data(), name.capacity()))
+            if(FControls::TextInput("Name", name))
                 selected->setName(name);
 
             ImGui::Separator();
-
-            auto transform = selected->getLocalTransform();
             ImGui::Text("Transform");
-            if(ImGui::DragFloat3("position", glm::value_ptr(transform.pos), 0.01, 0.01))
-                selected->setPosition(transform.pos);
-            if(ImGui::DragFloat3("rotation", glm::value_ptr(transform.rot), 0.01, 0.01))
-                selected->setRotation(transform.rot);
-            if(ImGui::DragFloat3("scale", glm::value_ptr(transform.scale), 0.01, 0.01))
-                selected->setScale(transform.scale);
-
             ImGui::Separator();
 
+            auto transform = selected->getLocalTransform();
+            if(FControls::DragTransform(transform))
+                selected->setTransform(transform);
+
+            ImGui::Separator();
             ImGui::Text("Flags");
+            ImGui::Separator();
+
             auto isVisible = selected->isVisible();
-            if(ImGui::Checkbox("Is visible", &isVisible))
+            if(FControls::CheckBox("Is visible", &isVisible))
                 selected->setVisible(isVisible);
             auto isEnabled = selected->isEnabled();
-            if(ImGui::Checkbox("Is enabled", &isEnabled))
+            if(FControls::CheckBox("Is enabled", &isEnabled))
                 selected->setEnable(isEnabled);
 
             ImGui::Separator();
-
             ImGui::Text("Culling");
+            ImGui::Separator();
+
             auto isCullable = selected->isCullable();
-            if(ImGui::Checkbox("Is culling enabled", &isCullable))
+            if(FControls::CheckBox("Is cullable", &isCullable))
                 selected->setCullable(isCullable);
 
             if(isCullable)
@@ -106,13 +109,13 @@ void CInspectorWindow::draw()
                     case ECullingType::eByPoint: {} break;
                     case ECullingType::eBySphere:  {
                         auto sphereRadius = selected->getCullingRadius();
-                        if(ImGui::DragFloat("Culling sphere radius", &sphereRadius, 0.01, 0.01))
+                        if(FControls::DragFloat("Sphere radius", &sphereRadius, 0.01, 0.01))
                             selected->setCullingRadius(sphereRadius);
                     } break;
                     case ECullingType::eByBox: {
                         auto bounds = selected->getBounds();
-                        if(ImGui::DragFloat3("Box Begin", glm::value_ptr(bounds.first), 0.01, 0.01) ||
-                        ImGui::DragFloat3("Box End", glm::value_ptr(bounds.second), 0.01, 0.01))
+                        if(FControls::DragFloatVec3("Box Begin", bounds.first, 0.01, 0.01) ||
+                        FControls::DragFloatVec3("Box End", bounds.second, 0.01, 0.01))
                             selected->setBounds(bounds.first, bounds.second);
                     } break;
                 }
@@ -133,10 +136,10 @@ void CInspectorWindow::draw()
                 auto pPoint = std::dynamic_pointer_cast<CLightComponent>(selected);
                 ImGui::Text("Point light");
                 auto color = pPoint->getColor();
-                if(ImGui::DragFloat3("Color", glm::value_ptr(color)), 0.01, 0.0, 255.0)
+                if(FControls::ColorPicker3("Color", color))
                     pPoint->setColor(color);
                 auto attenuation = pPoint->getAttenuation();
-                if(ImGui::DragFloat("Attenuation", &attenuation), 0.01, 0.1)
+                if(FControls::DragFloat("Attenuation", &attenuation, 0.01, 0.1))
                     pPoint->setAttenuation(attenuation);
             }break;
             

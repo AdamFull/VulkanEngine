@@ -17,6 +17,8 @@ namespace Engine
             void render();
             void cleanup();
 
+            void rebuildViewport();
+
             std::unique_ptr<Render::CRenderStage>& getStage(uint32_t stageIndex) { return vStages.at(stageIndex); }
             std::unique_ptr<Render::CRenderStage>& getCurrentStage() { return vStages.at(currentStageIndex); }
             std::unique_ptr<Render::CRenderStage>& getPrevStage() { return vStages.at(currentStageIndex - 1); }

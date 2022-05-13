@@ -21,7 +21,6 @@ CFramebuffer::~CFramebuffer()
 void CFramebuffer::create(vk::RenderPass& renderPass, vk::Extent2D extent)
 {
     imagesExtent = extent;
-    auto testExtent = CDevice::inst()->getExtent();
     auto framesInFlight = CDevice::inst()->getFramesInFlight();
     for(size_t frame = 0; frame < framesInFlight; frame++)
     {

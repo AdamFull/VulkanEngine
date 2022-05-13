@@ -15,6 +15,7 @@ namespace Engine
                 virtual ~CRenderStage() {}
                 virtual void create() {}
                 virtual void reCreate();
+                virtual void rebuild() {}
                 virtual void render(vk::CommandBuffer& commandBuffer);
                 virtual void cleanup();
 
@@ -24,6 +25,7 @@ namespace Engine
                 std::unique_ptr<CRenderPass> pRenderPass;
                 std::unique_ptr<CFramebuffer> pFramebuffer;
                 vk::Extent2D screenExtent;
+                bool detectExtent{false};
 
                 vk::AttachmentReference depthReference{};
                 std::map<size_t, std::vector<vk::AttachmentReference>> outReferences;

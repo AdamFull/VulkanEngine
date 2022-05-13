@@ -21,10 +21,24 @@ namespace Engine
 {
     namespace Core
     {
+        enum class ELaunchMode
+        {   
+            eNone,
+            eGame,
+            eEditor
+        };
+
+        struct FEngineModeCreateInfo
+        {
+            ELaunchMode mode{ELaunchMode::eGame};
+            std::string scene;
+        };
+
         struct FEngineCreateInfo
         {
             Window::FWindowCreateInfo window;
             FDeviceCreateInfo device;
+            FEngineModeCreateInfo engine;
         };
 
         class CVulkanHighLevel : public utl::singleton<CVulkanHighLevel>
@@ -34,8 +48,14 @@ namespace Engine
 
             // TODO: Dont forget about clean textures
             void cleanup();
+
+            const FEngineCreateInfo& getCI() const { return ci; }
+
+        private:
+            FEngineCreateInfo ci{};
         };
 
+        REGISTER_SERIALIZATION_BLOCK_H(FEngineModeCreateInfo);
         REGISTER_SERIALIZATION_BLOCK_H(FEngineCreateInfo);
     }
 }

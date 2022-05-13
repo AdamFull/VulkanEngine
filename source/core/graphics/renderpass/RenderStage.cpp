@@ -17,7 +17,7 @@ void CRenderStage::cleanup()
 
 void CRenderStage::reCreate()
 {
-    screenExtent = CDevice::inst()->getExtent();
+    screenExtent = CDevice::inst()->getExtent(detectExtent);
     pRenderPass->setRenderArea(vk::Offset2D{0, 0}, screenExtent);
     pRenderPass->reCreate();
     pFramebuffer->reCreate(pRenderPass->get(), screenExtent);

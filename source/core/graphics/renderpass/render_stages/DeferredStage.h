@@ -12,6 +12,7 @@ namespace Engine
             public:
                 ~CDeferredStage();
                 void create() override;
+                void rebuild() override;
             };
         }
     }

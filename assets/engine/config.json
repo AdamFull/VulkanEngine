@@ -38,8 +38,9 @@
             "ray_tracing": false
         }
     },
-    "scene":
+    "engine":
     {
-        "default_scene": "sponza_scene.json"
+        "mode": "game",
+        "start_scene": "scene.json"
     }
 }

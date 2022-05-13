@@ -74,6 +74,8 @@ void CViewportWindow::drawViewport(float offsetx, float offsety)
     pDescriptorSet->update(write, currentImage);
 
     ImGui::Image(pDescriptorSet->get(currentImage), ImVec2{offsetx, offsety});
+    //TODO: check is viewport dragging now
+    CDevice::inst()->setViewportExtent(vk::Extent2D{(uint32_t)offsetx, (uint32_t)offsety});
 }
 
 void CViewportWindow::drawManipulator(float offsetx, float offsety, float sizex, float sizey)

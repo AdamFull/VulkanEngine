@@ -87,7 +87,7 @@ namespace Engine
 
             //Swapchain getters
             inline vk::Format getImageFormat() { return imageFormat; };
-            inline vk::Extent2D getExtent() { return swapchainExtent; }
+            vk::Extent2D getExtent(bool automatic = false);
             inline std::vector<vk::Image> &getImages() { return vImages; }
             inline std::vector<vk::ImageView> &getImageViews() { return vImageViews; }
             inline vk::SwapchainKHR &GetSwapChain() { return swapChain; }
@@ -96,9 +96,12 @@ namespace Engine
             inline std::vector<vk::Fence> &getInFlightFences() { return vInFlightFences; }
             inline size_t getCurrentFrame() { return currentFrame; }
             inline uint32_t getFramesInFlight() { return framesInFlight; }
-            inline float getAspectRatio() { return static_cast<float>(swapchainExtent.width) / static_cast<float>(swapchainExtent.height); }
+            float getAspect(bool automatic = false);
             inline bool getReduildFlag() { return bSwapChainRebuild; }
             inline void setRebuildFlag() { bSwapChainRebuild = true; }
+
+            void setViewportExtent(vk::Extent2D extent);
+            inline const bool isNeedToRebuildViewport() const { return bViewportRebuild; }
 
             template<class _Ty, class _Ret> vk::Result create(_Ty& info, _Ret* ref)
             { 
@@ -210,6 +213,9 @@ namespace Engine
             size_t currentFrame{0};
             uint32_t framesInFlight{3};
             bool bSwapChainRebuild{};
+
+            vk::Extent2D viewportExtent;
+            bool bViewportRebuild{false};
 
             std::vector<vk::Image> vImages;
             std::vector<vk::ImageView> vImageViews;

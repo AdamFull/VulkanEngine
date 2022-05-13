@@ -14,7 +14,8 @@ CPostProcessStage::~CPostProcessStage()
 
 void CPostProcessStage::create()
 {
-    screenExtent = CDevice::inst()->getExtent();
+    detectExtent = true;
+    screenExtent = CDevice::inst()->getExtent(detectExtent);
 
     outReferences.emplace(0, std::vector<vk::AttachmentReference>
     {
@@ -39,4 +40,13 @@ void CPostProcessStage::create()
     pRenderPass->setRenderArea(vk::Offset2D{0, 0}, screenExtent);
     pFramebuffer->create(pRenderPass->get(), screenExtent);
     pRenderPass->create();
+}
+
+//TODO: make it better
+void CPostProcessStage::rebuild()
+{
+    screenExtent = CDevice::inst()->getExtent(detectExtent);
+    pRenderPass->setRenderArea(vk::Offset2D{0, 0}, screenExtent);
+    pRenderPass->reCreate();
+    pFramebuffer->reCreate(pRenderPass->get(), screenExtent);
 }

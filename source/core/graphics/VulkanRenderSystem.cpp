@@ -18,13 +18,21 @@ CRenderSystem::~CRenderSystem()
 
 void CRenderSystem::create()
 {
+    auto engineMode = UHLInstance->getCI().engine.mode;
     screenExtent = CDevice::inst()->getExtent();
     commandBuffers = std::make_shared<CCommandBuffer>(false, vk::QueueFlagBits::eGraphics, vk::CommandBufferLevel::ePrimary, CDevice::inst()->getFramesInFlight());
 
     vStages.emplace_back(std::make_unique<Render::CDeferredStage>());
     vStages.emplace_back(std::make_unique<Render::CPostProcessStage>());
-    vStages.emplace_back(std::make_unique<Render::CSandboxFinalStage>());
-    //vStages.emplace_back(std::make_unique<Render::CPresentFinalStage>());
+    switch (engineMode)
+    {
+    case ELaunchMode::eGame:{
+        vStages.emplace_back(std::make_unique<Render::CPresentFinalStage>());
+    } break;
+    case ELaunchMode::eEditor:{
+        vStages.emplace_back(std::make_unique<Render::CSandboxFinalStage>());
+    } break;
+    }
 
     currentStageIndex = 0;
     for(auto& stage : vStages)
@@ -50,9 +58,22 @@ void CRenderSystem::reCreate()
     }
 }
 
+void CRenderSystem::rebuildViewport()
+{
+    CDevice::inst()->GPUWait();
+    
+    currentStageIndex = 0;
+    for(auto& stage : vStages)
+    {
+        stage->rebuild();
+        currentStageIndex++;
+    }
+}
+
 void CRenderSystem::render()
 {
     if(CDevice::inst()->getReduildFlag()) { reCreate(); }
+    if(CDevice::inst()->isNeedToRebuildViewport()) { rebuildViewport(); }
     vk::CommandBuffer commandBuffer{};
     try { commandBuffer = beginFrame(); }
     catch (vk::OutOfDateKHRError err) { CDevice::inst()->setRebuildFlag(); }

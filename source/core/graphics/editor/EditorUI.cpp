@@ -13,9 +13,6 @@
 #include "resources/materials/MaterialLoader.h"
 #include "graphics/VulkanInitializers.h"
 
-#include "windows/DebugWindow.h"
-#include "windows/ConsoleWindow.h"
-#include "windows/LogWindow.h"
 #include "windows/InspectorWindow.h"
 #include "windows/HierarchyWindow.h"
 #include "windows/ViewportWindow.h"
@@ -66,10 +63,9 @@ void CEditorUI::create(vk::RenderPass& renderPass, uint32_t subpass)
     ImGui::CreateContext();
     baseInitialize();
 
-    //vWindows.emplace_back(std::make_shared<Editor::CDebugWindow>());
-    vWindows.emplace_back(std::make_shared<Editor::CHierarchyWindow>());
-    vWindows.emplace_back(std::make_shared<Editor::CInspectorWindow>());
-    vWindows.emplace_back(std::make_shared<Editor::CViewportWindow>());
+    vWindows.emplace(EEditorWindowType::eHierarchy, std::make_shared<Editor::CHierarchyWindow>());
+    vWindows.emplace(EEditorWindowType::eInspector, std::make_shared<Editor::CInspectorWindow>());
+    vWindows.emplace(EEditorWindowType::eViewport, std::make_shared<Editor::CViewportWindow>());
 
     ImGui_ImplGlfw_InitForVulkan(CWindowHandle::inst()->getWindowInstance(), true);
     ImGui_ImplVulkan_InitInfo init_info = {};
@@ -96,10 +92,8 @@ void CEditorUI::create(vk::RenderPass& renderPass, uint32_t subpass)
     cmdBuf.submitIdle();
     ImGui_ImplVulkan_DestroyFontUploadObjects();
 
-    for (auto &overlay : vWindows)
-    {
+    for (auto& [type, overlay] : vWindows)
         overlay->create();
-    }
 }
 
 void CEditorUI::reCreate()
@@ -134,10 +128,8 @@ void CEditorUI::reCreate()
     cmdBuf.submitIdle();
     ImGui_ImplVulkan_DestroyFontUploadObjects();
 
-    for (auto &overlay : vWindows)
-    {
+    for (auto& [type, overlay] : vWindows)
         overlay->reCreate();
-    }
 }
 
 void CEditorUI::cleanup()
@@ -256,10 +248,8 @@ void CEditorUI::newFrame()
         ImGui::DockSpaceOverViewport();
 
         ImGui::ShowDemoWindow();
-        for (auto &overlay : vWindows)
-        {
+        for (auto& [type, overlay] : vWindows)
             overlay->draw();
-        }
     }
 }
 

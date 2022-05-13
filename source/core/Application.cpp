@@ -20,7 +20,7 @@ void CApplication::create()
     m_pCameraController = std::make_unique<Controllers::CCameraEditorController>();
     m_pCameraController->create();
 
-    CSceneManager::inst()->load("scene.json");
+    CSceneManager::inst()->load(createInfo.engine.scene);
     CRenderSystem::inst()->create();
 }
 

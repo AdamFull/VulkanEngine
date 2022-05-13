@@ -14,7 +14,8 @@ CDeferredStage::~CDeferredStage()
 
 void CDeferredStage::create()
 {
-    screenExtent = CDevice::inst()->getExtent();
+    detectExtent = true;
+    screenExtent = CDevice::inst()->getExtent(detectExtent);
 
     outReferences.emplace(0, std::vector<vk::AttachmentReference>
     {
@@ -85,4 +86,12 @@ void CDeferredStage::create()
     pRenderPass->setRenderArea(vk::Offset2D{0, 0}, screenExtent);
     pFramebuffer->create(pRenderPass->get(), screenExtent);
     pRenderPass->create();
+}
+
+void CDeferredStage::rebuild()
+{
+    screenExtent = CDevice::inst()->getExtent(detectExtent);
+    pRenderPass->setRenderArea(vk::Offset2D{0, 0}, screenExtent);
+    pRenderPass->reCreate();
+    pFramebuffer->reCreate(pRenderPass->get(), screenExtent);
 }

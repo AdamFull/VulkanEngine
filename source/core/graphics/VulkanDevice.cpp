@@ -114,6 +114,8 @@ void CDevice::create(const FDeviceCreateInfo& deviceCI)
     createPipelineCache();
     createSwapchain();
     m_pCommandPool = std::make_unique<CCommandPool>();
+
+    viewportExtent = swapchainExtent;
 }
 
 void CDevice::cleanup()
@@ -141,6 +143,7 @@ void CDevice::tryRebuildSwapchain()
         cleanupSwapchain();
         createSwapchain();
         currentFrame = 0;
+        viewportExtent = swapchainExtent;
         bSwapChainRebuild = false;
     }
 }
@@ -597,6 +600,37 @@ void CDevice::copyOnDeviceBuffer(vk::Buffer srcBuffer, vk::Buffer dstBuffer, vk:
     commandBuffer.copyBuffer(srcBuffer, dstBuffer, copyRegion);
 
     cmdBuf.submitIdle();
+}
+
+vk::Extent2D CDevice::getExtent(bool automatic)
+{
+    auto engineMode = UHLInstance->getCI().engine.mode;
+    if(automatic)
+    {
+        switch (engineMode)
+        {
+        case ELaunchMode::eEditor: return viewportExtent; break;
+        case ELaunchMode::eGame: return swapchainExtent; break;
+        }
+    }
+    return swapchainExtent;
+}
+
+float CDevice::getAspect(bool automatic)
+{
+    auto ext = getExtent(automatic);
+    return static_cast<float>(ext.width) / static_cast<float>(ext.height);
+}
+
+void CDevice::setViewportExtent(vk::Extent2D extent)
+{
+    if(extent != viewportExtent)
+    {
+        bViewportRebuild = true;
+        viewportExtent = extent;
+    }
+    else
+        bViewportRebuild = false;
 }
 
 vk::PhysicalDevice CDevice::getPhysicalDevice(const std::vector<const char*>& deviceExtensions)

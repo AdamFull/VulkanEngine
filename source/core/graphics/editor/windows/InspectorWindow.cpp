@@ -121,26 +121,42 @@ void CInspectorWindow::draw()
                 }
             }
 
+            ImGui::Separator();
             auto objectType = selected->getObjectType();
             switch (objectType)
             {
             case ERenderObjectType::eMesh:{
                 auto pMesh = std::dynamic_pointer_cast<CMeshObjectBase>(selected);
                 ImGui::Text("Static Mesh");
+                ImGui::Separator();
             }break;
             case ERenderObjectType::eCamera:{
                 auto pCamera = std::dynamic_pointer_cast<CCameraComponent>(selected);
                 ImGui::Text("Camera");
+                ImGui::Separator();
+                auto fov = pCamera->getFieldOfView();
+                if(FControls::DragFloat("FOV", &fov, 0.01, 0.1))
+                    pCamera->setFieldOfView(fov);
+                auto nearPlane = pCamera->getNearPlane();
+                if(FControls::DragFloat("Near plane", &nearPlane, 0.01, 0.1))
+                    pCamera->setNearPlane(nearPlane);
+                auto farPlane = pCamera->getFarPlane();
+                if(FControls::DragFloat("Far plane", &farPlane, 0.01, 0.1))
+                    pCamera->setFarPlane(farPlane);
             }break;
             case ERenderObjectType::ePointLight:{
                 auto pPoint = std::dynamic_pointer_cast<CLightComponent>(selected);
                 ImGui::Text("Point light");
+                ImGui::Separator();
                 auto color = pPoint->getColor();
                 if(FControls::ColorPicker3("Color", color))
                     pPoint->setColor(color);
                 auto attenuation = pPoint->getAttenuation();
                 if(FControls::DragFloat("Attenuation", &attenuation, 0.01, 0.1))
                     pPoint->setAttenuation(attenuation);
+                auto intencity = pPoint->getIntencity();
+                if(FControls::DragFloat("Intencity", &intencity, 0.01, 0.1))
+                    pPoint->setIntencity(intencity);
             }break;
             
             default: break;

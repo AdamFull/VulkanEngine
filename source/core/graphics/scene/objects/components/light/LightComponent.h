@@ -17,16 +17,19 @@ namespace Engine
                 void update(float fDeltaTime) override;
                 void render(vk::CommandBuffer &commandBuffer, uint32_t imageIndex) override;
 
-                glm::vec3 getColor() const { return m_vColor; }
-                float getAttenuation() { return m_fAttenuation; }
-                inline void setColor(glm::vec3 color) { m_vColor = color; }
-                inline void setAttenuation(float attenuation) { m_fAttenuation = attenuation; }
+                glm::vec3 getColor() const { return vColor; }
+                float getAttenuation() { return fAttenuation; }
+                float getIntencity() { return fIntencity; }
+                inline void setColor(glm::vec3 color) { vColor = color; }
+                inline void setAttenuation(float attenuation) { fAttenuation = attenuation; }
+                inline void setIntencity(float intencity) { fIntencity = intencity; }
 
                 FLight getLight();
 
             protected:
-                glm::vec3 m_vColor{};
-                float m_fAttenuation;
+                glm::vec3 vColor{};
+                float fAttenuation;
+                float fIntencity{1.f};
             };
         }
     }

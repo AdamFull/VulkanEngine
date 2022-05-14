@@ -33,7 +33,8 @@ FLight CLightComponent::getLight()
 {
     FLight light{};
     light.position = getPosition();
-    light.color = m_vColor;
-    light.radius = m_fAttenuation;
+    light.color = vColor;
+    light.radius = fAttenuation;
+    light.intencity = fIntencity;
     return light;
 }

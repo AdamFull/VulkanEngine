@@ -43,6 +43,9 @@ std::vector<FLight> CLightSourceManager::getSources()
 {
     std::vector<Core::FLight> vOutput{};
     for(auto& pLight : m_vLights)
-        vOutput.emplace_back(pLight->getLight());
+    {
+        if(pLight->isEnabled() && pLight->wasRendered())
+            vOutput.emplace_back(pLight->getLight());
+    }
     return vOutput;
 }

@@ -23,12 +23,13 @@ struct Light {
 	vec3 position;
 	vec3 color;
 	float radius;
+	float intencity;
 };
 
 layout(std140, binding = 9) uniform UBOLightning
 {
 	vec3 viewPos;
-	Light lights[1024];
+	Light lights[256];
 	int lightCount;
 	float bloom_threshold;
 } ubo;
@@ -75,7 +76,7 @@ void main()
 			L = normalize(L);
 			//float atten = ubo.lights[i].radius / (pow(length(L), 2.0) + 1.0);
 			float atten = clamp(1.0 - pow(dist, 2.0f)/pow(ubo.lights[i].radius, 2.0f), 0.0f, 1.0f);;
-			Lo += atten * ubo.lights[i].color.rgb * specularContribution(albedo, L, V, N, F0, metalic, roughness);
+			Lo += atten * ubo.lights[i].color.rgb * ubo.lights[i].intencity * specularContribution(albedo, L, V, N, F0, metalic, roughness);
 		}
 
 		//outFragcolor = vec4(Lo, 1.0f );

@@ -40,31 +40,31 @@ void CRenderObject::render(vk::CommandBuffer &commandBuffer, uint32_t imageIndex
     auto& camera = CCameraManager::inst()->getCurrentCamera();
     for (auto &[name, child] : mChilds)
     {
-        bool needToRender = child->isVisible();
+        bWasRendered = child->isVisible();
         if (child->isCullable() && child != camera)
         {
             switch (child->getCullingType())
             {
             case ECullingType::eByPoint:
             {
-                needToRender = needToRender && camera->checkPoint(child->getPosition());
+                bWasRendered = bWasRendered && camera->checkPoint(child->getPosition());
             }
             break;
             case ECullingType::eBySphere:
             {
-                needToRender = needToRender && camera->checkSphere(child->getPosition(), child->getCullingRadius());
+                bWasRendered = bWasRendered && camera->checkSphere(child->getPosition(), child->getCullingRadius());
             }
             break;
             case ECullingType::eByBox:
             {
                 auto &bounds = child->getBounds();
-                needToRender = needToRender && camera->checkBox(child->getPosition() + bounds.first, child->getPosition() + bounds.second);
+                bWasRendered = bWasRendered && camera->checkBox(child->getPosition() + bounds.first, child->getPosition() + bounds.second);
             }
             break;
             }
         }
 
-        if (needToRender && child->bEnable)
+        if (bWasRendered && child->bEnable)
         {
             child->render(commandBuffer, imageIndex);
         }

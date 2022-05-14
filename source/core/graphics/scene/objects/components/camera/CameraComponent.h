@@ -58,6 +58,14 @@ namespace Engine
                  */
                 bool checkBox(const glm::vec3& start, const glm::vec3& end);
 
+                const float getFieldOfView() const { return fieldOfView; }
+                const float getNearPlane() const { return near; }
+                const float getFarPlane() const { return far; }
+
+                void  setFieldOfView(float value) { fieldOfView = value; }
+                void  setNearPlane(float value) { near = value; }
+                void  setFarPlane(float value) { far = value; }
+
                 glm::vec4 viewPos{};
 
             private:

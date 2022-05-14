@@ -151,6 +151,8 @@ namespace Engine
             glm::vec4 vColor{};
             /// @brief  Light attenuation radius
             float fAttenuation{};
+            /// @brief  Light intencity
+            float fIntencity{1.f};
         };
 
         REGISTER_SERIALIZATION_BLOCK_H(FNoiseParam);

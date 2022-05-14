@@ -86,17 +86,17 @@
             ],
             "defines": {}
         },
-        "imguiui": 
+        "shadow_pass": 
         {
-            "vertexType": "imgui",
+            "vertexType": "default",
             "bindPoint": "graphics",
-            "culling": "none",
+            "culling": "back",
             "frontface": "clockwise",
             "depth": false,
-            "dynamicStates": ["viewport", "scissor"],
+            "dynamicStates": ["viewport", "scissor", ""],
             "stages": [
-                "shaders/main/ui.vert", 
-                "shaders/main/ui.frag"
+                "shaders/main/shadow.vert", 
+                "shaders/main/shadow.geom"
             ],
             "defines": {}
         },

@@ -43,6 +43,7 @@ namespace Engine
                 bool isVisible() const { return bVisible; }
                 void setEnable(bool value) { bEnable = value; }
                 bool isEnabled() const { return bEnable; }
+                bool wasRendered() const { return bWasRendered; }
 
                 // Deep search
                 std::shared_ptr<CRenderObject> find(std::string name);
@@ -93,9 +94,10 @@ namespace Engine
                 FTransform transform;
                 bool bVisible{true};
                 bool bEnable{true};
+                bool bWasRendered{true};
                 bool bEnableCulling{true};
                 bool bHasInstances{false};
-                float fCullingRadius{1.2f};
+                float fCullingRadius{1.1f};
                 std::pair<glm::vec3, glm::vec3> boundingBox{};
                 ECullingType eCullingType{ECullingType::eBySphere};
                 ERenderObjectType eObjectType{ERenderObjectType::eNone};

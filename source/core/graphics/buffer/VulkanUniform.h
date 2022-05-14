@@ -24,12 +24,13 @@ namespace Engine
             alignas(16) glm::vec3 position;
             alignas(16) glm::vec3 color;
             alignas(4) float radius;
+            alignas(4) float intencity;
         };
 
         struct FLightningData
         {
             glm::vec3 viewPos;
-            FLight lights[1024];
+            FLight lights[256];
             int lightCount;
             float bloomThreshold;
         };

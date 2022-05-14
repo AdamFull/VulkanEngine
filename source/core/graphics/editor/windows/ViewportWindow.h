@@ -22,6 +22,7 @@ namespace Engine
                 void drawOverlay(float offsetx, float offsety);
                 std::shared_ptr<Descriptor::CDescriptorSet> pDescriptorSet;
                 std::vector<VkDescriptorSet> descriptors;
+                float overlayX{300.0}, overlayY{50.f};
             };
         }
     }

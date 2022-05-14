@@ -1,5 +1,6 @@
 #include "ViewportWindow.h"
 #include <imgui.h>
+#include <imgui_internal.h>
 #include <ImGuizmo.h>
 #include <glm/gtc/type_ptr.hpp>
 #include <glm/gtc/matrix_transform.hpp>
@@ -74,8 +75,9 @@ void CViewportWindow::drawViewport(float offsetx, float offsety)
     pDescriptorSet->update(write, currentImage);
 
     ImGui::Image(pDescriptorSet->get(currentImage), ImVec2{offsetx, offsety});
-    //TODO: check is viewport dragging now
-    CDevice::inst()->setViewportExtent(vk::Extent2D{(uint32_t)offsetx, (uint32_t)offsety});
+    
+    if(!ImGui::IsAnyItemActive())
+        CDevice::inst()->setViewportExtent(vk::Extent2D{(uint32_t)offsetx, (uint32_t)offsety});
 }
 
 void CViewportWindow::drawManipulator(float offsetx, float offsety, float sizex, float sizey)
@@ -100,6 +102,7 @@ void CViewportWindow::drawManipulator(float offsetx, float offsety, float sizex,
     if(selected)
     {
         auto camera = Core::Scene::CCameraManager::inst()->getCurrentCamera();
+        camera->setControl(ImGui::IsWindowHovered(ImGuiFocusedFlags_RootAndChildWindows));
 
         ImGuizmo::SetOrthographic(false);
         ImGuizmo::SetDrawlist();
@@ -136,9 +139,13 @@ void CViewportWindow::drawManipulator(float offsetx, float offsety, float sizex,
 void CViewportWindow::drawOverlay(float offsetx, float offsety)
 {
     ImGui::SetCursorPos(ImVec2(offsetx, offsety));
-    ImGui::BeginGroup();
+    ImGuiWindowFlags window_flags = ImGuiWindowFlags_None;
+    ImGui::PushStyleVar(ImGuiStyleVar_ChildRounding, 5.0f);
+    ImGui::PushStyleColor(ImGuiCol_ChildBg, {0.23529413f, 0.24705884f, 0.25490198f, 0.50f});
+    ImGui::BeginChild("ChildR", ImVec2(overlayX, overlayY), false, window_flags);
+
     auto& io = ImGui::GetIO();
-    char overlay[32];
+    char overlay[64];
     float fFrameTime = 1000.0f / io.Framerate;
     sprintf(overlay, "dt: %.3f | FPS: %.3f", fFrameTime, io.Framerate);
     ImGui::Text(overlay);
@@ -147,5 +154,14 @@ void CViewportWindow::drawOverlay(float offsetx, float offsety)
     auto props = physical.getProperties();
     sprintf(overlay, "GPU: %s", props.deviceName.data());
     ImGui::Text(overlay);
-    ImGui::EndGroup();
+
+    sprintf(overlay, "Vertices: %zu, Indices %zu", CVBO::inst()->getLastVertex(), CVBO::inst()->getLastIndex());
+    ImGui::Text(overlay);
+
+    //overlayX = ImGui::GetCursorPosX();
+    overlayY = ImGui::GetCursorPosY();
+
+    ImGui::EndChild();
+    ImGui::PopStyleVar();
+    ImGui::PopStyleColor();
 }

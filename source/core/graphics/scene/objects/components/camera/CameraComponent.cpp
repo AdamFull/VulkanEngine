@@ -22,24 +22,36 @@ void CCameraComponent::update(float fDeltaTime)
 
 void CCameraComponent::moveForward(bool bInv)
 {
+    if(!bEnableControls)
+        return;
+
     float dir = bInv ? -1.f : 1.f;
     transform.pos += getForwardVector() * dir * dt * sensitivity;
 }
 
 void CCameraComponent::moveRight(bool bInv)
 {
+    if(!bEnableControls)
+        return;
+        
     float dir = bInv ? -1.f : 1.f;
     transform.pos += getRightVector() * dir * dt * sensitivity;
 }
 
 void CCameraComponent::moveUp(bool bInv)
 {
+    if(!bEnableControls)
+        return;
+        
     float dir = bInv ? -1.f : 1.f;
     transform.pos += getUpVector() * dir * dt * sensitivity;
 }
 
 void CCameraComponent::lookAt(float dX, float dY)
 {
+    if(!bEnableControls)
+        return;
+        
     float rotX = dX/2;
     float rotY = dY/2;
     float sens = 100.f * sensitivity * 1.f / dt;

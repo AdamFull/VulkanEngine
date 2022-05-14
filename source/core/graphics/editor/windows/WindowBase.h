@@ -18,6 +18,9 @@ namespace Engine
                 virtual void setState(bool bState) { bOverlayState = bState; }
                 virtual void draw();
 
+                const bool isEnabled() const { return bOverlayState; }
+                void toggleEnable() { bOverlayState = !bOverlayState; }
+
             protected:
                 bool bOverlayState{true};
             };

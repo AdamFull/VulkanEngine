@@ -4,6 +4,8 @@
 #include "windows/InspectorWindow.h"
 #include "windows/HierarchyWindow.h"
 #include "windows/ViewportWindow.h"
+#include "windows/WorldSettingsWindow.h"
+#include "windows/ContentBrowserWindow.h"
 #include "util/helpers.hpp"
 
 namespace Engine
@@ -15,6 +17,7 @@ namespace Engine
             eHierarchy,
             eInspector,
             eViewport,
+            eWorld,
             eContentBrowser
         };
 
@@ -54,6 +57,18 @@ namespace Engine
                 return std::dynamic_pointer_cast<Editor::CViewportWindow>(vWindows[EEditorWindowType::eViewport]);
             }
 
+            template<>
+            std::shared_ptr<Editor::CWorldSettingsWindow> getWindow()
+            {
+                return std::dynamic_pointer_cast<Editor::CWorldSettingsWindow>(vWindows[EEditorWindowType::eWorld]);
+            }
+
+            template<>
+            std::shared_ptr<Editor::CContentBrowserWindow> getWindow()
+            {
+                return std::dynamic_pointer_cast<Editor::CContentBrowserWindow>(vWindows[EEditorWindowType::eContentBrowser]);
+            }
+
         private:
             void baseInitialize();
 
@@ -62,6 +77,14 @@ namespace Engine
             std::map<EEditorWindowType, std::shared_ptr<Editor::CWindowBase>> vWindows;
             bool bEnabled = true;
             vk::DescriptorPool descriptorPool{};
+
+            std::map<EEditorWindowType, const char*> vWindowNames{
+                {EEditorWindowType::eContentBrowser, "Content browser"},
+                {EEditorWindowType::eHierarchy, "Hierarchy"},
+                {EEditorWindowType::eInspector, "Inspector"},
+                {EEditorWindowType::eViewport, "Viewport"},
+                {EEditorWindowType::eWorld, "World"}
+            };
         };
     }
 }

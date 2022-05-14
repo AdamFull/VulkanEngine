@@ -69,13 +69,12 @@ void CCameraEditorController::mouseRotation(float fX, float fY)
 
 void CCameraEditorController::cameraToPoint(float fX, float fY)
 {
-    auto camera = CCameraManager::inst()->getCurrentCamera();
+    /*auto camera = CCameraManager::inst()->getCurrentCamera();
     FTransform transform = camera->getTransform();
     glm::vec3 direction = transform.getForwardVector() * fY;
 
     if (glm::dot(direction, direction) > std::numeric_limits<float>::epsilon())
     {
-        transform.pos += m_fScrollSpeed * direction;
-        camera->setTransform(transform);
-    }
+        camera->moveForward(false);
+    }*/
 }

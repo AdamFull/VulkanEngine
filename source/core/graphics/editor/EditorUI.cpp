@@ -13,15 +13,12 @@
 #include "resources/materials/MaterialLoader.h"
 #include "graphics/VulkanInitializers.h"
 
-#include "windows/InspectorWindow.h"
-#include "windows/HierarchyWindow.h"
-#include "windows/ViewportWindow.h"
-
 #include "graphics/scene/objects/RenderObject.h"
 
 #include "graphics/VulkanHighLevel.h"
 
 using namespace Engine::Core;
+using namespace Engine::Core::Editor;
 using namespace Engine::Core::Window;
 using namespace Engine::Resources;
 using namespace Engine::Resources::Material;
@@ -63,9 +60,11 @@ void CEditorUI::create(vk::RenderPass& renderPass, uint32_t subpass)
     ImGui::CreateContext();
     baseInitialize();
 
-    vWindows.emplace(EEditorWindowType::eHierarchy, std::make_shared<Editor::CHierarchyWindow>());
-    vWindows.emplace(EEditorWindowType::eInspector, std::make_shared<Editor::CInspectorWindow>());
-    vWindows.emplace(EEditorWindowType::eViewport, std::make_shared<Editor::CViewportWindow>());
+    vWindows.emplace(EEditorWindowType::eHierarchy, std::make_shared<CHierarchyWindow>());
+    vWindows.emplace(EEditorWindowType::eInspector, std::make_shared<CInspectorWindow>());
+    vWindows.emplace(EEditorWindowType::eViewport, std::make_shared<CViewportWindow>());
+    vWindows.emplace(EEditorWindowType::eWorld, std::make_shared<CWorldSettingsWindow>());
+    vWindows.emplace(EEditorWindowType::eContentBrowser, std::make_shared<CContentBrowserWindow>());
 
     ImGui_ImplGlfw_InitForVulkan(CWindowHandle::inst()->getWindowInstance(), true);
     ImGui_ImplVulkan_InitInfo init_info = {};
@@ -232,10 +231,11 @@ void CEditorUI::newFrame()
             }
             if (ImGui::BeginMenu("Window"))
             {
-                if (ImGui::MenuItem("Viewport")) {}
-                if (ImGui::MenuItem("Hierarchy", nullptr, true)) {}
-                if (ImGui::MenuItem("Inspector")) {}
-                if (ImGui::MenuItem("Content manager")) {}
+                for (auto& [type, overlay] : vWindows)
+                {
+                    if(ImGui::MenuItem(vWindowNames[type], nullptr, overlay->isEnabled())) 
+                        overlay->toggleEnable();
+                }
                 ImGui::EndMenu();
             }
             if (ImGui::BeginMenu("Help"))

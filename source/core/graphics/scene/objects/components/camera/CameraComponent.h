@@ -17,6 +17,7 @@ namespace Engine
                 }
 
                 void update(float fDeltaTime) override;
+                void setControl(bool bControl) { bEnableControls = bControl; }
 
                 void moveForward(bool bInv);
                 void moveRight(bool bInv);
@@ -37,6 +38,7 @@ namespace Engine
                 float dt{0.0}, fieldOfView{45.f}, near{0.01f}, far{2048.f}, sensitivity{3.f};
                 float angleH{0.f}, angleV{0.f};
                 glm::vec3 direction{-1.0, 0.0, 0.0};
+                bool bEnableControls{true};
                 //TODO: set projection type
             };
         }

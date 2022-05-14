@@ -1,5 +1,4 @@
 #include "MeshComponentBase.h"
-#include "util/Frustum.hpp"
 #include "graphics/VulkanDevice.hpp"
 #include "graphics/VulkanRenderSystem.h"
 #include "graphics/VulkanHighLevel.h"
@@ -11,7 +10,6 @@
 using namespace Engine::Core::Scene;
 using namespace Engine::Resources;
 using namespace Engine::Core;
-using namespace Engine::Util;
 
 CMeshObjectBase::CMeshObjectBase()
 {

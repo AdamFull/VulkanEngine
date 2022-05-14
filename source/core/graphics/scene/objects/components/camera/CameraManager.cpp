@@ -5,7 +5,7 @@ using namespace Engine::Core::Scene;
 template<>
 std::unique_ptr<CCameraManager> utl::singleton<CCameraManager>::_instance{nullptr};
 
-std::shared_ptr<CCameraComponent> CCameraManager::getCurrentCamera()
+std::shared_ptr<CCameraComponent>& CCameraManager::getCurrentCamera()
 {
     return m_vCameras.at(m_iCameraIndex);
 }

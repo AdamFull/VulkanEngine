@@ -1,8 +1,7 @@
 #include "RenderObject.h"
-#include "util/Frustum.hpp"
 #include "graphics/VulkanDevice.hpp"
+#include "graphics/scene/objects/components/camera/CameraManager.h"
 
-using namespace Engine::Util;
 using namespace Engine::Core::Scene;
 using namespace Engine::Resources;
 
@@ -38,47 +37,45 @@ void CRenderObject::reCreate()
 
 void CRenderObject::render(vk::CommandBuffer &commandBuffer, uint32_t imageIndex)
 {
-    if (bEnable)
+    auto& camera = CCameraManager::inst()->getCurrentCamera();
+    for (auto &[name, child] : mChilds)
     {
-        for (auto &[name, child] : mChilds)
+        bool needToRender = child->isVisible();
+        if (child->isCullable() && child != camera)
         {
-            bool needToRender = child->isVisible();
-            if (child->isCullable())
+            switch (child->getCullingType())
             {
-                switch (child->getCullingType())
-                {
-                case ECullingType::eByPoint:
-                {
-                    needToRender = needToRender && CFrustum::inst()->checkPoint(child->getPosition());
-                }
-                break;
-                case ECullingType::eBySphere:
-                {
-                    needToRender = needToRender && CFrustum::inst()->checkSphere(child->getPosition(), child->getCullingRadius());
-                }
-                break;
-                case ECullingType::eByBox:
-                {
-                    auto &bounds = child->getBounds();
-                    needToRender = needToRender && CFrustum::inst()->checkBox(child->getPosition() + bounds.first, child->getPosition() + bounds.second);
-                }
-                break;
-                }
+            case ECullingType::eByPoint:
+            {
+                needToRender = needToRender && camera->checkPoint(child->getPosition());
             }
+            break;
+            case ECullingType::eBySphere:
+            {
+                needToRender = needToRender && camera->checkSphere(child->getPosition(), child->getCullingRadius());
+            }
+            break;
+            case ECullingType::eByBox:
+            {
+                auto &bounds = child->getBounds();
+                needToRender = needToRender && camera->checkBox(child->getPosition() + bounds.first, child->getPosition() + bounds.second);
+            }
+            break;
+            }
+        }
 
-            if (needToRender)
-            {
-                child->render(commandBuffer, imageIndex);
-            }
+        if (needToRender && child->bEnable)
+        {
+            child->render(commandBuffer, imageIndex);
         }
     }
 }
 
 void CRenderObject::update(float fDeltaTime)
 {
-    if (bEnable)
+    for (auto &[name, child] : mChilds)
     {
-        for (auto &[name, child] : mChilds)
+        if(child->isEnabled())
             child->update(fDeltaTime);
     }
 }

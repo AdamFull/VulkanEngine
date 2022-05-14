@@ -11,7 +11,7 @@ namespace Engine
             class CCameraManager : public utl::singleton<CCameraManager>
             {
             public:
-                std::shared_ptr<CCameraComponent> getCurrentCamera();
+                std::shared_ptr<CCameraComponent>& getCurrentCamera();
                 void setCurrentCameraIndex(size_t index);
                 void attach(std::shared_ptr<CCameraComponent> newCamera);
 

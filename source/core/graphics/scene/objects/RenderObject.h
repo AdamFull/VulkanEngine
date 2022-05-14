@@ -95,7 +95,7 @@ namespace Engine
                 bool bEnable{true};
                 bool bEnableCulling{true};
                 bool bHasInstances{false};
-                float fCullingRadius{2.f};
+                float fCullingRadius{1.2f};
                 std::pair<glm::vec3, glm::vec3> boundingBox{};
                 ECullingType eCullingType{ECullingType::eBySphere};
                 ERenderObjectType eObjectType{ERenderObjectType::eNone};

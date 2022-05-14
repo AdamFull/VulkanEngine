@@ -3,11 +3,8 @@
 #include "resources/materials/VulkanMaterial.h"
 #include "graphics/VulkanDevice.hpp"
 #include "graphics/VulkanHighLevel.h"
-#include "util/Frustum.hpp"
 #include <glm/gtx/matrix_decompose.hpp>
 
-
-using namespace Engine::Util;
 using namespace Engine::Resources::Mesh;
 
 void FPrimitive::setDimensions(glm::vec3 min, glm::vec3 max)
@@ -59,19 +56,6 @@ void CMeshFragment::render(vk::CommandBuffer commandBuffer, vk::DescriptorBuffer
     for (auto &primitive : m_vPrimitives)
     {
         bool needToRender{true};
-        switch (2)
-        {
-        case 0:{
-            needToRender = CFrustum::inst()->checkPoint(pos);
-        }break;
-        case 1:{
-            needToRender = CFrustum::inst()->checkSphere(pos, primitive.dimensions.radius);
-        }break;
-        case 2:{
-            needToRender = CFrustum::inst()->checkBox(pos + primitive.dimensions.min * scale, pos + primitive.dimensions.max * scale);
-        }break;
-        }
-
         if(needToRender)
         {
             if(primitive.material && primitive.bUseMaterial)

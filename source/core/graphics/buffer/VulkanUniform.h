@@ -29,7 +29,6 @@ namespace Engine
 
         struct FDirectionalLight
         {
-            alignas(16) glm::vec3 position;
             alignas(16) glm::vec3 color;
             alignas(16) glm::vec3 direction;
             alignas(4) float intencity;

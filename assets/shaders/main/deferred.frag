@@ -29,7 +29,6 @@ struct PointLight
 
 struct DirectionalLight
 {
-	vec3 position;
 	vec3 color;
 	vec3 direction;
 	float intencity;
@@ -126,13 +125,14 @@ void main()
 		//Adding spot lights
 		for(int i = 0; i < spotLights.count; i++) 
 		{
-			vec3 L = spotLights.lights[i].position - inWorldPos;
-			float theta = dot(L, normalize(-spotLights.lights[i].direction)); 
+			vec3 L = normalize(inWorldPos - spotLights.lights[i].position);
+			float theta = dot(L, spotLights.lights[i].direction); 
 			if(theta > spotLights.lights[i].cutoff)
 			{
 				float dist = length(L);
 				L = normalize(L);
-				Lo += spotLights.lights[i].color.rgb * spotLights.lights[i].intencity * specularContribution(albedo, L, V, N, F0, metalic, roughness);
+				float atten = 1.0 - (1.0 - theta) * 1.0/(1.0 - spotLights.lights[i].cutoff);
+				Lo += spotLights.lights[i].color.rgb * atten * spotLights.lights[i].intencity * specularContribution(albedo, L, V, N, F0, metalic, roughness);
 			}
 		}
 

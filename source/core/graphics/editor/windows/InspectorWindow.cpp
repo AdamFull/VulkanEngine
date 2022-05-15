@@ -2,7 +2,9 @@
 #include "graphics/scene/objects/RenderObject.h"
 #include "graphics/scene/objects/components/MeshComponentBase.h"
 #include "graphics/scene/objects/components/camera/CameraComponent.h"
-#include "graphics/scene/objects/components/light/LightSourceBase.h"
+#include "graphics/scene/objects/components/light/LightSourceDirectional.h"
+#include "graphics/scene/objects/components/light/LightSourcePoint.h"
+#include "graphics/scene/objects/components/light/LightSourceSpot.h"
 #include "graphics/editor/Editor.h"
 #include <glm/gtc/type_ptr.hpp>
 #include "graphics/editor/CustomControls.h"
@@ -146,18 +148,48 @@ void CInspectorWindow::draw()
             }break;
             case ERenderObjectType::eLight:{
                 //TODO: check light type
-                auto pPoint = std::dynamic_pointer_cast<CLightSourceBase>(selected);
-                ImGui::Text("Point light");
-                ImGui::Separator();
-                auto color = pPoint->getColor();
+                auto pLight = std::dynamic_pointer_cast<CLightSourceBase>(selected);
+                switch (pLight->getLightType())
+                {
+                    case Resources::ELightSourceType::eDirectional:
+                    {
+                        ImGui::Text("Directional light");
+                        ImGui::Separator();
+                        
+                        auto pDirectional = std::dynamic_pointer_cast<CLightSourceDirectional>(selected);
+                        auto direction = pDirectional->getDirection();
+                        if(FControls::DragFloatVec3("Direction", direction, 0.01, 0.1))
+                            pDirectional->setDirection(direction);
+                    } break;
+                    case Resources::ELightSourceType::ePoint: {
+                        ImGui::Text("Point light");
+                        ImGui::Separator();
+
+                        auto pPoint = std::dynamic_pointer_cast<CLightSourcePoint>(selected);
+                        auto attenuation = pPoint->getAttenuation();
+                        if(FControls::DragFloat("Attenuation", &attenuation, 0.01, 0.1))
+                            pPoint->setAttenuation(attenuation);
+                    } break;
+                    case Resources::ELightSourceType::eSpot: {
+                        ImGui::Text("Spot light");
+                        ImGui::Separator();
+
+                        auto pSpot = std::dynamic_pointer_cast<CLightSourceSpot>(selected);
+                        auto direction = pSpot->getDirection();
+                        if(FControls::DragFloatVec3("Direction", direction, 0.01, 0.1))
+                            pSpot->setDirection(direction);
+                        auto cutoff = pSpot->getCutoff();
+                        if(FControls::DragFloat("Cutoff", &cutoff, 0.01, 0.1))
+                            pSpot->setCutoff(cutoff);
+                    } break;
+                }
+                
+                auto color = pLight->getColor();
                 if(FControls::ColorEdit3("Color", color))
-                    pPoint->setColor(color);
-                //auto attenuation = pPoint->getAttenuation();
-                //if(FControls::DragFloat("Attenuation", &attenuation, 0.01, 0.1))
-                //    pPoint->setAttenuation(attenuation);
-                auto intencity = pPoint->getIntencity();
+                    pLight->setColor(color);
+                auto intencity = pLight->getIntencity();
                 if(FControls::DragFloat("Intencity", &intencity, 0.01, 0.1))
-                    pPoint->setIntencity(intencity);
+                    pLight->setIntencity(intencity);
             }break;
             
             default: break;

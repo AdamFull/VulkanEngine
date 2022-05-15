@@ -10,17 +10,17 @@ namespace Engine
             class CLightSourceSpot : public CLightSourceBase
             {
             public:
-                CLightSourceSpot() = default;
+                CLightSourceSpot();
                 FSpotLight getLight();
 
-                void setDirection(const glm::vec3& value) { direction = value; }
-                const glm::vec3 getDirection() const { return direction; }
+                void setDirection(const glm::vec3& value) { transform.rot = value; }
+                const glm::vec3 getDirection() const { return transform.rot; }
 
                 void setCutoff(float value) { cutoff = value; }
                 const float getCutoff() const { return cutoff; }
             protected:
                 glm::vec3 direction{1.0};
-                float cutoff{2.f};
+                float cutoff{0.f};
             };
         }
     }

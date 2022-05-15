@@ -10,7 +10,7 @@ namespace Engine
             class CLightSourceDirectional : public CLightSourceBase
             {
             public:
-                CLightSourceDirectional() = default;
+                CLightSourceDirectional();
                 FDirectionalLight getLight();
 
                 void setDirection(const glm::vec3& value) { transform.rot = value; }

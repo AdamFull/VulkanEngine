@@ -10,7 +10,7 @@ namespace Engine
             class CLightSourcePoint : public CLightSourceBase
             {
             public:
-                CLightSourcePoint() = default;
+                CLightSourcePoint();
                 FPointLight getLight();
 
                 void setAttenuation(float value) { fAttenuation = value; }

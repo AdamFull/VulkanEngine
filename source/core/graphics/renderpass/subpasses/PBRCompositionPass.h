@@ -27,6 +27,10 @@ namespace Engine
                 CFuture<std::shared_ptr<CImage>> brdf;
                 CFuture<std::shared_ptr<CImage>> irradiance;
                 CFuture<std::shared_ptr<CImage>> prefiltered;
+
+                std::shared_ptr<CUniformBuffer> pUniformPoint;
+                std::shared_ptr<CUniformBuffer> pUniformDirectional;
+                std::shared_ptr<CUniformBuffer> pUniformSpot;
             };
         }
     }

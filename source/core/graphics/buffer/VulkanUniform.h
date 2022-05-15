@@ -19,7 +19,7 @@ namespace Engine
             alignas(4) float exposure;
         };
 
-        struct FLight 
+        struct FPointLight
         {
             alignas(16) glm::vec3 position;
             alignas(16) glm::vec3 color;
@@ -27,11 +27,44 @@ namespace Engine
             alignas(4) float intencity;
         };
 
+        struct FDirectionalLight
+        {
+            alignas(16) glm::vec3 position;
+            alignas(16) glm::vec3 color;
+            alignas(16) glm::vec3 direction;
+            alignas(4) float intencity;
+        };
+
+        struct FSpotLight
+        {
+            alignas(16) glm::vec3 position;
+            alignas(16) glm::vec3 color;
+            alignas(16) glm::vec3 direction;
+            alignas(4) float intencity;
+            alignas(4) float cutoff;
+        };
+
+        struct FPointLightsData
+        {
+            FPointLight lights[256];
+            int count;
+        };
+
+        struct FDirectionalLightsData
+        {
+            FDirectionalLight lights[256];
+            int count;
+        };
+
+        struct FSpotLightsData
+        {
+            FSpotLight lights[256];
+            int count;
+        };
+
         struct FLightningData
         {
             glm::vec3 viewPos;
-            FLight lights[256];
-            int lightCount;
             float bloomThreshold;
         };
 

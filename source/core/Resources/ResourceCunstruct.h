@@ -134,7 +134,9 @@ namespace Engine
 
         enum class ELightSourceType
         {
-            ePoint
+            ePoint,
+            eSpot,
+            eDirectional
         };
 
         /**

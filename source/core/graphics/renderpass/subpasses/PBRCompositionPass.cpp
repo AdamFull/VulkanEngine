@@ -4,7 +4,6 @@
 #include "graphics/scene/objects/RenderObject.h"
 #include "graphics/scene/objects/components/camera/CameraManager.h"
 #include "graphics/scene/lightning/LightSourceManager.h"
-#include "graphics/scene/objects/components/light/LightComponent.h"
 #include "graphics/VulkanHighLevel.h"
 #include "graphics/VulkanInitializers.h"
 #include "graphics/pipeline/Pipeline.h"
@@ -30,7 +29,16 @@ void CPBRCompositionPass::create()
     pUniform = std::make_shared<CUniformBuffer>();
     pUniform->create(framesInFlight, sizeof(FLightningData));
 
-    m_pSkybox =CResourceManager::inst()->get<CImage>("skybox_cubemap_tex");
+    pUniformPoint = std::make_shared<CUniformBuffer>();
+    pUniformPoint->create(framesInFlight, sizeof(FPointLightsData));
+
+    pUniformDirectional = std::make_shared<CUniformBuffer>();
+    pUniformDirectional->create(framesInFlight, sizeof(FDirectionalLightsData));
+
+    pUniformSpot = std::make_shared<CUniformBuffer>();
+    pUniformSpot->create(framesInFlight, sizeof(FSpotLightsData));
+
+    m_pSkybox = CResourceManager::inst()->get<CImage>("skybox_cubemap_tex");
 
     brdf = CThreadPool::inst()->submit(&CPBRCompositionPass::ComputeBRDFLUT, 512);
     irradiance = CThreadPool::inst()->submit(&CPBRCompositionPass::ComputeIrradiance, m_pSkybox, 64);
@@ -61,21 +69,51 @@ void CPBRCompositionPass::render(vk::CommandBuffer& commandBuffer)
 
     auto imageIndex = CDevice::inst()->getCurrentFrame();
 
+    auto camera = CCameraManager::inst()->getCurrentCamera();
+
     //May be move to CompositionObject
     FLightningData ubo;
-    auto camera = CCameraManager::inst()->getCurrentCamera();
-    auto vLights = CLightSourceManager::inst()->getSources();
-    for(std::size_t i = 0; i < vLights.size(); i++)
-        ubo.lights[i] = vLights.at(i);
-
-    ubo.lightCount = vLights.size();
     ubo.viewPos = camera->viewPos; //camera->viewPos
     ubo.bloomThreshold = GlobalVariables::bloomThreshold;
-    
+
     pUniform->updateUniformBuffer(imageIndex, &ubo);
-    auto& buffer = pUniform->getUniformBuffer(imageIndex);
-    auto descriptor = buffer->getDscriptor();
-    pMaterial->addBuffer("UBOLightning", descriptor);
+    auto& bufferUBO = pUniform->getUniformBuffer(imageIndex);
+    auto descriptorUBO = bufferUBO->getDscriptor();
+    pMaterial->addBuffer("UBOLightning", descriptorUBO);
+
+    FPointLightsData pointUBO;
+    auto vPointLights = CLightSourceManager::inst()->getSources<FPointLight>();
+    for(std::size_t i = 0; i < vPointLights.size(); i++)
+        pointUBO.lights[i] = vPointLights.at(i);
+    pointUBO.count = vPointLights.size();
+
+    pUniformPoint->updateUniformBuffer(imageIndex, &pointUBO);
+    auto& bufferPoint = pUniformPoint->getUniformBuffer(imageIndex);
+    auto descriptorPoint = bufferPoint->getDscriptor();
+    pMaterial->addBuffer("UBOPointLights", descriptorPoint);
+
+    FDirectionalLightsData directionalUBO;
+    auto vDirectionalLights = CLightSourceManager::inst()->getSources<FDirectionalLight>();
+    for(std::size_t i = 0; i < vDirectionalLights.size(); i++)
+        directionalUBO.lights[i] = vDirectionalLights.at(i);
+    directionalUBO.count = vDirectionalLights.size();
+
+    pUniformDirectional->updateUniformBuffer(imageIndex, &directionalUBO);
+    auto& bufferDirectional = pUniformDirectional->getUniformBuffer(imageIndex);
+    auto descriptorDirectional = bufferDirectional->getDscriptor();
+    pMaterial->addBuffer("UBODirectionalLights", descriptorDirectional);
+
+    FSpotLightsData spotUBO;
+    auto vSpotLights = CLightSourceManager::inst()->getSources<FSpotLight>();
+    for(std::size_t i = 0; i < vSpotLights.size(); i++)
+        spotUBO.lights[i] = vSpotLights.at(i);
+    spotUBO.count = vSpotLights.size();
+    
+    pUniformSpot->updateUniformBuffer(imageIndex, &spotUBO);
+    auto& bufferSpot = pUniformSpot->getUniformBuffer(imageIndex);
+    auto descriptorSpot = bufferSpot->getDscriptor();
+    pMaterial->addBuffer("UBOSpotLights", descriptorSpot);
+    
     pMaterial->update(imageIndex);
     pMaterial->bind(commandBuffer, imageIndex);
 

@@ -218,14 +218,14 @@
             "type": "light_source",
             "light":
             {
-                "type": "point",
-                "color": {"x": 1.0, "y": 0.0, "z": 0.0},
-                "attenuation": 100.0
+                "type": "directional",
+                "color": {"x": 1.0, "y": 1.0, "z": 1.0},
+                "intencity": 20.0
             },
             "transform":
             {
-                "pos": {"x": -6.6, "y": 2.0, "z": 0.0},
-                "rot": {"x": 0.0, "y": 0.0, "z": 0.0},
+                "pos": {"x": -20.0, "y": 100.0, "z": 10.0},
+                "rot": {"x": 0.0, "y": -1.0, "z": -1.0},
                 "scale": {"x": 1.0, "y": 1.0, "z": 1.0}
             }
         },
@@ -236,91 +236,12 @@
             {
                 "type": "point",
                 "color": {"x": 0.0, "y": 1.0, "z": 0.0},
-                "attenuation": 10.0
+                "attenuation": 50.0,
+                "intencity": 10.0
             },
             "transform":
             {
-                "pos": {"x": 0.0, "y": 4.0, "z": 0.0},
-                "rot": {"x": 0.0, "y": 0.0, "z": 0.0},
-                "scale": {"x": 1.0, "y": 1.0, "z": 1.0}
-            }
-        },
-        {
-            "name": "PointLight_3",
-            "type": "light_source",
-            "light":
-            {
-                "type": "point",
-                "color": {"x": 0.0, "y": 0.0, "z": 1.0},
-                "attenuation": 10.0
-            },
-            "transform":
-            {
-                "pos": {"x": 6.3, "y": 6.0, "z": 0.0},
-                "rot": {"x": 0.0, "y": 0.0, "z": 0.0},
-                "scale": {"x": 1.0, "y": 1.0, "z": 1.0}
-            }
-        },
-        {
-            "name": "PointLight_4",
-            "type": "light_source",
-            "light":
-            {
-                "type": "point",
-                "color": {"x": 1.0, "y": 0.9, "z": 0.5},
-                "attenuation": 50.0
-            },
-            "transform":
-            {
-                "pos": {"x": 0.0, "y": 12.0, "z": -4.16},
-                "rot": {"x": 0.0, "y": 0.0, "z": 0.0},
-                "scale": {"x": 1.0, "y": 1.0, "z": 1.0}
-            }
-        },
-        {
-            "name": "PointLight_5",
-            "type": "light_source",
-            "light":
-            {
-                "type": "point",
-                "color": {"x": 0.2, "y": 0.4, "z": 0.7},
-                "attenuation": 15.0
-            },
-            "transform":
-            {
-                "pos": {"x": -4.5, "y": 4.0, "z": -8.66},
-                "rot": {"x": 0.0, "y": 0.0, "z": 0.0},
-                "scale": {"x": 1.0, "y": 1.0, "z": 1.0}
-            }
-        },
-        {
-            "name": "PointLight_6",
-            "type": "light_source",
-            "light":
-            {
-                "type": "point",
-                "color": {"x": 0.1, "y": 0.9, "z": 0.3},
-                "attenuation": 15.0
-            },
-            "transform":
-            {
-                "pos": {"x": 0.0, "y": 0.326, "z": -4.0},
-                "rot": {"x": 0.0, "y": 0.0, "z": 0.0},
-                "scale": {"x": 1.0, "y": 1.0, "z": 1.0}
-            }
-        },
-        {
-            "name": "PointLight_7",
-            "type": "light_source",
-            "light":
-            {
-                "type": "point",
-                "color": {"x": 1.1, "y": 0.5, "z": 0.3},
-                "attenuation": 15.0
-            },
-            "transform":
-            {
-                "pos": {"x": 6.0, "y": 3.0, "z": -4.0},
+                "pos": {"x": 20.0, "y": 20.0, "z": 20.0},
                 "rot": {"x": 0.0, "y": 0.0, "z": 0.0},
                 "scale": {"x": 1.0, "y": 1.0, "z": 1.0}
             }

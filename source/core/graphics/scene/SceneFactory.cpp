@@ -140,6 +140,30 @@ std::shared_ptr<Core::Scene::CRenderObject> CSceneFactory::createGLTFMesh(FScene
 
 std::shared_ptr<Core::Scene::CRenderObject> CSceneFactory::createLightSource(FSceneObject info)
 {
-    auto lightSource = CLightSourceManager::inst()->createSource(info.light.eType, info.fTransform, info.light.vColor, info.light.fAttenuation);
-    return lightSource;
+    switch (info.light.eType)
+    {
+    case ELightSourceType::ePoint:{
+        auto lightSource = CLightSourceManager::inst()->createSource<Core::Scene::CLightSourcePoint>();
+        lightSource->setTransform(info.fTransform);
+        lightSource->setColor(info.light.vColor);
+        lightSource->setAttenuation(info.light.fAttenuation);
+        lightSource->setIntencity(info.light.fIntencity);
+        return lightSource;
+        }break;
+    case ELightSourceType::eDirectional:{
+        auto lightSource = CLightSourceManager::inst()->createSource<Core::Scene::CLightSourceDirectional>();
+        lightSource->setTransform(info.fTransform);
+        lightSource->setColor(info.light.vColor);
+        lightSource->setIntencity(info.light.fIntencity);
+        return lightSource;
+        }break;
+    case ELightSourceType::eSpot:{
+        auto lightSource = CLightSourceManager::inst()->createSource<Core::Scene::CLightSourceSpot>();
+        lightSource->setTransform(info.fTransform);
+        lightSource->setColor(info.light.vColor);
+        lightSource->setIntencity(info.light.fIntencity);
+        return lightSource;
+        }break;
+    }
+    return nullptr;
 }

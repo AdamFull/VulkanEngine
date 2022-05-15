@@ -60,7 +60,7 @@ bool FControls::CheckBox(const std::string& label, bool* value)
     return bValueChanged;
 }
 
-bool FControls::ColorPicker3(const std::string& label, glm::vec3& value)
+bool FControls::ColorEdit3(const std::string& label, glm::vec3& value)
 {
     ImGuiColorEditFlags misc_flags{};
     bool bValueChanged{false};
@@ -72,7 +72,7 @@ bool FControls::ColorPicker3(const std::string& label, glm::vec3& value)
     ImGui::Text(label.c_str());
     ImGui::NextColumn();
 
-    bValueChanged = ImGui::ColorPicker3(("##" + label).c_str(), glm::value_ptr(value), misc_flags | ImGuiColorEditFlags_NoSidePreview | ImGuiColorEditFlags_NoSmallPreview);
+    bValueChanged = ImGui::ColorEdit3(("##" + label).c_str(), glm::value_ptr(value), misc_flags);
 
     ImGui::Columns(1);
     ImGui::PopID();

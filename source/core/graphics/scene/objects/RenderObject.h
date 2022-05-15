@@ -14,9 +14,7 @@ namespace Engine
                 eNone,
                 eMesh,
                 eCamera,
-                ePointLight,
-                eSpotLight,
-                eDirectionLight
+                eLight
             };
 
             class CRenderObject : public std::enable_shared_from_this<CRenderObject>

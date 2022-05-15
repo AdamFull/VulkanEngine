@@ -145,7 +145,9 @@ namespace Engine
         (
             ELightSourceType, 
             {
-                {ELightSourceType::ePoint, "point"}
+                {ELightSourceType::ePoint, "point"},
+                {ELightSourceType::eSpot, "spot"},
+                {ELightSourceType::eDirectional, "directional"}
             }
         )
 
@@ -156,7 +158,8 @@ namespace Engine
                 {"name", type.srName},
                 {"type", type.eType},
                 {"color", type.vColor},
-                {"attenuation", type.fAttenuation}
+                {"attenuation", type.fAttenuation},
+                {"intencity", type.fIntencity}
             };
         }
 
@@ -165,7 +168,8 @@ namespace Engine
             ParseArgument(json, type.srName, "name");
             ParseArgument(json, type.eType, "type", true);
             ParseArgument(json, type.vColor, "color", true);
-            ParseArgument(json, type.fAttenuation, "attenuation", true);
+            ParseArgument(json, type.fAttenuation, "attenuation");
+            ParseArgument(json, type.fIntencity, "intencity");
         }
     }
 }

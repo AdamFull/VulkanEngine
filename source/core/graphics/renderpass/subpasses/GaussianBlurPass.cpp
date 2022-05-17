@@ -14,8 +14,6 @@ using namespace Engine::Resources::Material;
 void CGaussianBlurPass::create()
 {
     auto framesInFlight = CDevice::inst()->getFramesInFlight();
-    pUniform = std::make_shared<CUniformBuffer>();
-    pUniform->create(framesInFlight, sizeof(FBlurData));
 
     auto& renderPass = CRenderSystem::inst()->getCurrentStage()->getRenderPass()->get();
     auto subpass = CRenderSystem::inst()->getCurrentStage()->getRenderPass()->getCurrentSubpass();
@@ -39,15 +37,11 @@ void CGaussianBlurPass::render(vk::CommandBuffer& commandBuffer)
     pMaterial->addTexture("writeColour", pImage);
     pMaterial->addTexture("samplerBrightness", CRenderSystem::inst()->getPrevStage()->getFramebuffer()->getCurrentImages()[imageReferenceName]);
 
-    FBlurData uniform;
-    uniform.blurScale = GlobalVariables::blurScale;
-    uniform.blurStrength = GlobalVariables::blurStrength;
-    uniform.direction = direction;
-
-    pUniform->updateUniformBuffer(imageIndex, &uniform);
-    auto& buffer = pUniform->getUniformBuffer(imageIndex);
-    auto descriptor = buffer->getDscriptor();
-    pMaterial->addBuffer("FBloomUbo", descriptor);
+    auto pUBO = pMaterial->getUniformBuffer("FBloomUbo");
+    pUBO->set("blurScale", &GlobalVariables::blurScale, imageIndex);
+    pUBO->set("blurStrength", &GlobalVariables::blurStrength, imageIndex);
+    pUBO->set("direction", &direction, imageIndex);
+    
     pMaterial->update(imageIndex);
     pMaterial->bind(commandBuffer, imageIndex);
     commandBuffer.draw(3, 1, 0, 0);

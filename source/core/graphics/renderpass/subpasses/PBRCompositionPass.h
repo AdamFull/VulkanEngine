@@ -2,6 +2,7 @@
 #include "util/threading.hpp"
 #include "graphics/renderpass/Subpass.h"
 #include "graphics/image/Image.h"
+#include "graphics/scene/objects/components/light/LightSourceBase.h"
 
 namespace Engine
 {
@@ -28,9 +29,14 @@ namespace Engine
                 CFuture<std::shared_ptr<CImage>> irradiance;
                 CFuture<std::shared_ptr<CImage>> prefiltered;
 
-                std::shared_ptr<CUniformBuffer> pUniformPoint;
-                std::shared_ptr<CUniformBuffer> pUniformDirectional;
-                std::shared_ptr<CUniformBuffer> pUniformSpot;
+                Scene::FPointLight point_lights[256];
+                int point_count{0};
+
+                Scene::FDirectionalLight directional_lights[256];
+                int directional_count{0};
+
+                Scene::FSpotLight spot_lights[256];
+                int spot_count{0};
             };
         }
     }

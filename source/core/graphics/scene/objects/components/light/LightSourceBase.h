@@ -1,6 +1,5 @@
 #pragma once
 #include "graphics/scene/objects/RenderObject.h"
-#include "graphics/buffer/VulkanUniform.h"
 
 namespace Engine
 {
@@ -8,6 +7,30 @@ namespace Engine
     {
         namespace Scene
         {
+            struct FPointLight
+            {
+                alignas(16) glm::vec3 position;
+                alignas(16) glm::vec3 color;
+                alignas(4) float radius;
+                alignas(4) float intencity;
+            };
+
+            struct FDirectionalLight
+            {
+                alignas(16) glm::vec3 color;
+                alignas(16) glm::vec3 direction;
+                alignas(4) float intencity;
+            };
+
+            struct FSpotLight
+            {
+                alignas(16) glm::vec3 position;
+                alignas(16) glm::vec3 color;
+                alignas(16) glm::vec3 direction;
+                alignas(4) float intencity;
+                alignas(4) float cutoff;
+            };
+
             class CLightSourceBase : public CRenderObject
             {
             public:

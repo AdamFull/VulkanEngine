@@ -57,14 +57,14 @@ void CVulkanBuffer::cleanup()
     }
 }
 
-vk::DescriptorBufferInfo CVulkanBuffer::getDscriptor(vk::DeviceSize size, vk::DeviceSize offset)
+vk::DescriptorBufferInfo CVulkanBuffer::getDescriptor(vk::DeviceSize size, vk::DeviceSize offset)
 {
     return vk::DescriptorBufferInfo{buffer, offset, size};
 }
 
-vk::DescriptorBufferInfo CVulkanBuffer::getDscriptor()
+vk::DescriptorBufferInfo CVulkanBuffer::getDescriptor()
 {
-    return getDscriptor(bufferSize, 0);
+    return getDescriptor(bufferSize, 0);
 }
 
 vk::Result CVulkanBuffer::mapMem(vk::DeviceSize size, vk::DeviceSize offset)

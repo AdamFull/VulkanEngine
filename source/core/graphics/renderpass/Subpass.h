@@ -11,7 +11,6 @@ namespace Engine
     }
     namespace Core
     {
-        class CUniformBuffer;
         namespace Render
         {
             class CSubpass
@@ -24,7 +23,6 @@ namespace Engine
                 virtual void render(vk::CommandBuffer& commandBuffer) {}
                 virtual void cleanup();
             protected:
-                std::shared_ptr<CUniformBuffer> pUniform;
                 std::shared_ptr<Resources::Material::CMaterialBase> pMaterial;
             };
         }

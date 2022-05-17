@@ -1,5 +1,4 @@
 #pragma once
-#include "graphics/buffer/VulkanUniform.h"
 #include "MeshFragment.h"
 
 namespace Engine
@@ -80,7 +79,7 @@ namespace Engine
                  * @param ubo Uniform buffer data
                  * @param instanceCount Draw instances count
                  */
-                virtual void render(vk::CommandBuffer commandBuffer, uint32_t imageIndex, Core::FUniformData& ubo, uint32_t instanceCount = 1);
+                virtual void render(vk::CommandBuffer commandBuffer, uint32_t imageIndex, glm::mat4& model, uint32_t instanceCount = 1);
 
                 /**
                  * @brief Cleans all attached objects in mesh
@@ -133,7 +132,6 @@ namespace Engine
             protected:
                 std::vector<std::shared_ptr<CMeshFragment>> m_vFragments;
                 std::vector<FAnimation> m_vAnimations;
-                std::shared_ptr<Core::CUniformBuffer> m_pUniformBuffer;
                 std::string m_srName;
                 float fRepeat;
             };

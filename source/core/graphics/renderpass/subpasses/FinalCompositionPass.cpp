@@ -15,8 +15,6 @@ using namespace Engine::Resources::Material;
 void CFinalCompositionPass::create()
 {
     auto framesInFlight = CDevice::inst()->getFramesInFlight();
-    pUniform = std::make_shared<CUniformBuffer>();
-    pUniform->create(framesInFlight, sizeof(FPostProcess));
 
     pMaterial = CMaterialLoader::inst()->create("post_process");
     pMaterial->create();
@@ -35,15 +33,7 @@ void CFinalCompositionPass::render(vk::CommandBuffer& commandBuffer)
     pMaterial->addTexture("samplerColor", CRenderSystem::inst()->getPrevStage()->getFramebuffer()->getCurrentImages()["output_color"]);
     pMaterial->addTexture("samplerBrightness", CRenderSystem::inst()->getPrevStage()->getFramebuffer()->getCurrentImages()["brightness_buffer"]); //bloom_image
     //May be move to CompositionObject
-    FPostProcess ubo;
-    //HDR
-    ubo.gamma = GlobalVariables::postprocessGamma;
-    ubo.exposure = GlobalVariables::postprocessExposure;
 
-    pUniform->updateUniformBuffer(imageIndex, &ubo);
-    auto& buffer = pUniform->getUniformBuffer(imageIndex);
-    auto descriptor = buffer->getDscriptor();
-    pMaterial->addBuffer("FBloomUbo", descriptor);
     pMaterial->update(imageIndex);
     pMaterial->bind(commandBuffer, imageIndex);
 

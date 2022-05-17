@@ -53,10 +53,7 @@ void CMeshObjectBase::render(vk::CommandBuffer &commandBuffer, uint32_t imageInd
     {
         auto camera = CCameraManager::inst()->getCurrentCamera();
         auto transform = getTransform();
-        FUniformData ubo{};
-        ubo.model = transform.getModel();
-        ubo.view = camera->getView();
-        ubo.projection = camera->getProjection();
+        auto model = transform.getModel();
 
         //Check frustum for instances
         uint32_t instanceCount{0};
@@ -65,11 +62,11 @@ void CMeshObjectBase::render(vk::CommandBuffer &commandBuffer, uint32_t imageInd
             auto& pos = m_vInstances.at(i);
             if(true/*CFrustum::inst()->checkSphere(glm::vec4(getPosition(), 1.f) + pos, 1.f)*/)
             {
-                ubo.instancePos[i] = pos;
-                instanceCount++;
+                //ubo.instancePos[i] = pos;
+                //instanceCount++;
             }  
         }
-        m_pMesh->render(commandBuffer, imageIndex, ubo, instanceCount == 0 ? 1 : instanceCount);
+        m_pMesh->render(commandBuffer, imageIndex, model, instanceCount == 0 ? 1 : instanceCount);
     }
 }
 

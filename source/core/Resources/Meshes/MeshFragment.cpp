@@ -3,9 +3,12 @@
 #include "resources/materials/VulkanMaterial.h"
 #include "graphics/VulkanDevice.hpp"
 #include "graphics/VulkanHighLevel.h"
+#include <glm/gtc/type_ptr.hpp>
 #include <glm/gtx/matrix_decompose.hpp>
+#include "graphics/scene/objects/components/camera/CameraManager.h"
 
 using namespace Engine::Resources::Mesh;
+using namespace Engine::Core::Scene;
 
 void FPrimitive::setDimensions(glm::vec3 min, glm::vec3 max)
 {
@@ -44,7 +47,7 @@ void CMeshFragment::reCreate()
     }
 }
 
-void CMeshFragment::render(vk::CommandBuffer commandBuffer, vk::DescriptorBufferInfo& uboDesc, const glm::mat4& model, uint32_t imageIndex, uint32_t instanceCount)
+void CMeshFragment::render(vk::CommandBuffer commandBuffer, const glm::mat4& model, uint32_t imageIndex, uint32_t instanceCount)
 {
     glm::vec3 scale;
     glm::quat rot;
@@ -53,6 +56,10 @@ void CMeshFragment::render(vk::CommandBuffer commandBuffer, vk::DescriptorBuffer
     glm::vec4 perspective;
     glm::decompose(model, scale, rot, pos, skew, perspective);
 
+    auto camera = CCameraManager::inst()->getCurrentCamera();
+    auto view = camera->getView();
+    auto projection = camera->getProjection();
+    auto normal = glm::transpose(glm::inverse(model));
     for (auto &primitive : m_vPrimitives)
     {
         bool needToRender{true};
@@ -60,7 +67,13 @@ void CMeshFragment::render(vk::CommandBuffer commandBuffer, vk::DescriptorBuffer
         {
             if(primitive.material && primitive.bUseMaterial)
             {
-                primitive.material->addBuffer("FUniformData", uboDesc);
+                auto& pUBO = primitive.material->getUniformBuffer("FUniformData");
+                pUBO->set("model", model, imageIndex);
+                pUBO->set("view", view, imageIndex);
+                pUBO->set("projection", projection, imageIndex);
+                pUBO->set("normal", normal, imageIndex);
+                pUBO->set("instancePos", instancePos, imageIndex);
+                
                 primitive.material->update(imageIndex);
                 primitive.material->bind(commandBuffer, imageIndex);
             }

@@ -20,13 +20,13 @@ layout(std140, binding = 0) uniform FUniformData
   mat4 view;
   mat4 projection;
   mat4 normal;
-  vec4 instancePos[256];
+  //vec4 instancePos[256];
   //float repeat;
 } ubo;
 
 void main() 
 {
-  vec4 tmpPos = vec4(inPosition, 1.0) + ubo.instancePos[gl_InstanceIndex];
+  vec4 tmpPos = vec4(inPosition, 1.0);
 
   outWorldPos = (ubo.model * tmpPos).xyz;
 

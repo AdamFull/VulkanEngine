@@ -137,12 +137,14 @@ namespace Engine
                  */
                 inline std::shared_ptr<Core::Pipeline::CPipelineBase> getPipeline() { return m_pPipeline; }
 
+                std::shared_ptr<Core::CUniformHandler>& getUniformBuffer(const std::string& name) { return mUniformBuffers[name]; }
+
             protected:
                 FMaterialParams m_fMatParams{};
                 std::string m_srName;
 
                 std::unique_ptr<Core::Descriptor::CDescriptorHandler> m_pDescriptorSet;
-                std::vector<std::shared_ptr<Core::CUniformHandler>> m_vUniformBuffers;
+                std::map<std::string, std::shared_ptr<Core::CUniformHandler>> mUniformBuffers;
                 std::vector<std::shared_ptr<Core::CPushHandler>> m_vPushConstants;
                 std::shared_ptr<Core::Pipeline::CPipelineBase> m_pPipeline;
                 std::map<std::string, vk::DescriptorImageInfo> m_mTextures;

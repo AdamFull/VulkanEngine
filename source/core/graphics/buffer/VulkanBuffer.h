@@ -21,8 +21,8 @@ namespace Engine
                           vk::BufferUsageFlags usageFlags, vk::MemoryPropertyFlags memoryPropertyFlags,
                           vk::DeviceSize minOffsetAlignment = 1);
 
-            vk::DescriptorBufferInfo getDscriptor(vk::DeviceSize size, vk::DeviceSize offset);
-            vk::DescriptorBufferInfo getDscriptor();
+            vk::DescriptorBufferInfo getDescriptor(vk::DeviceSize size, vk::DeviceSize offset);
+            vk::DescriptorBufferInfo getDescriptor();
 
             vk::Result mapMem(vk::DeviceSize size = VK_WHOLE_SIZE, vk::DeviceSize offset = 0);
             void unmapMem();

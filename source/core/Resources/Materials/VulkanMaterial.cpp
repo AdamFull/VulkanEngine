@@ -23,6 +23,13 @@ void CMaterialBase::create()
     m_pPipeline->create(renderPass, subpass);
     m_pDescriptorSet = std::make_unique<CDescriptorHandler>();
     m_pDescriptorSet->create(m_pPipeline);
+
+    for(auto& [name, uniform] : m_pPipeline->getShader()->getUniformBlocks())
+    {
+        auto pUniform = std::make_shared<Core::CUniformHandler>();
+        pUniform->create(uniform);
+        mUniformBuffers.emplace(name, pUniform);
+    }
 }
 
 void CMaterialBase::addTexture(const std::string& attachment, vk::DescriptorImageInfo& descriptor)
@@ -54,10 +61,15 @@ void CMaterialBase::reCreate()
 
 void CMaterialBase::update(uint32_t imageIndex)
 {
-
     m_pDescriptorSet->reset();
-    for(auto& [key, buffer] : m_mBuffers)
-        m_pDescriptorSet->set(key, buffer);
+    for(auto& [name, uniform] : mUniformBuffers)
+    {
+        //uniform->flush();
+        auto& buffer = uniform->getUniformBuffer(imageIndex);
+        auto descriptor = buffer->getDescriptor();
+        m_pDescriptorSet->set(name, descriptor);
+    }
+
     for(auto& [key, texture] : m_mTextures)
         m_pDescriptorSet->set(key, texture);
     m_pDescriptorSet->update(imageIndex);
@@ -74,9 +86,9 @@ void CMaterialBase::cleanup()
     //Custom cleanup rules
     if(m_pDescriptorSet)
         m_pDescriptorSet->cleanup();
-    for(auto& handler : m_vUniformBuffers)
+    for(auto& [name, handler] : mUniformBuffers)
         handler->cleanup();
-    m_vUniformBuffers.clear();
+    mUniformBuffers.clear();
     for(auto& push : m_vPushConstants)
         push->cleanup();
     m_vPushConstants.clear();

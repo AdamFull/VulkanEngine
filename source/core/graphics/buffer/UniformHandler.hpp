@@ -15,23 +15,20 @@ namespace Engine
             void create(const Pipeline::CUniformBlock &uniformBlock);
             void reCreate();
             void cleanup();
-            void flush(vk::CommandBuffer& commandBuffer, std::shared_ptr<Pipeline::CPipelineBase> pPipeline);
+            void flush();
 
             template<class T>
-            void set(const T &object, uint32_t index, std::size_t offset, std::size_t size)
+            void set(T &object, uint32_t index, std::size_t offset, std::size_t size)
             {
                 if (!uniformBlock || vBuffers.empty())
 			        return;
 
                 if(!vMapped.at(index))
                 {
-                    vBuffers.at(index)->mapMem();
+                    //vBuffers.at(index)->mapMem();
                     vMapped.at(index) = true;
                 }
-
-                auto* data = vBuffers.at(index)->getMappedMemory();
-
-                std::memcpy(static_cast<char *>(data) + offset, &object, size);
+                vBuffers.at(index)->write((void*)&object, size, offset);
             }
 
             template<class T>

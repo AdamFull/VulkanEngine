@@ -4,7 +4,6 @@
 #include "VulkanDevice.hpp"
 #include "VulkanStaticHelper.h"
 #include "buffer/VulkanBuffer.h"
-#include "buffer/VulkanUniform.h"
 #include "GlobalVertexBuffer.h"
 #include "VulkanRenderSystem.h"
 #include "editor/EditorUI.h"

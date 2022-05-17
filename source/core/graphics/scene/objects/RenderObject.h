@@ -1,6 +1,5 @@
 #pragma once
 #include "util/Transform.hpp"
-#include "graphics/buffer/VulkanUniform.h"
 #include "graphics/scene/SceneConstruct.h"
 
 namespace Engine

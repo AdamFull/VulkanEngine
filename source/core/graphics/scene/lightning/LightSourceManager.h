@@ -3,7 +3,6 @@
 #include "graphics/scene/objects/components/light/LightSourcePoint.h"
 #include "graphics/scene/objects/components/light/LightSourceDirectional.h"
 #include "graphics/scene/objects/components/light/LightSourceSpot.h"
-#include "graphics/buffer/VulkanUniform.h"
 #include <util/helpers.hpp>
 
 namespace Engine
@@ -55,9 +54,9 @@ namespace Engine
                 std::vector<_Ty> getSources(){}
 
                 template<>
-                std::vector<Core::FPointLight> getSources()
+                std::vector<FPointLight> getSources()
                 {
-                    std::vector<Core::FPointLight> vOutput{};
+                    std::vector<FPointLight> vOutput{};
                     for(auto& source : vPointLights)
                     {
                         if(source->isEnabled() && source->wasRendered())
@@ -67,9 +66,9 @@ namespace Engine
                 }
 
                 template<>
-                std::vector<Core::FDirectionalLight> getSources()
+                std::vector<FDirectionalLight> getSources()
                 {
-                    std::vector<Core::FDirectionalLight> vOutput{};
+                    std::vector<FDirectionalLight> vOutput{};
                     for(auto& source : vDirectionalLights)
                     {
                         if(source->isEnabled() && source->wasRendered())
@@ -79,9 +78,9 @@ namespace Engine
                 }
 
                 template<>
-                std::vector<Core::FSpotLight> getSources()
+                std::vector<FSpotLight> getSources()
                 {
-                    std::vector<Core::FSpotLight> vOutput{};
+                    std::vector<FSpotLight> vOutput{};
                     for(auto& source : vSpotLights)
                     {
                         if(source->isEnabled() && source->wasRendered())

@@ -1,4 +1,5 @@
 #include "PBRCompositionPass.h"
+#include <glm/gtc/type_ptr.hpp>
 #include "resources/materials/MaterialLoader.h"
 #include "resources/ResourceManager.h"
 #include "graphics/scene/objects/RenderObject.h"
@@ -26,17 +27,6 @@ using namespace Engine::Core::Scene;
 void CPBRCompositionPass::create()
 {
     auto framesInFlight = CDevice::inst()->getFramesInFlight();
-    pUniform = std::make_shared<CUniformBuffer>();
-    pUniform->create(framesInFlight, sizeof(FLightningData));
-
-    pUniformPoint = std::make_shared<CUniformBuffer>();
-    pUniformPoint->create(framesInFlight, sizeof(FPointLightsData));
-
-    pUniformDirectional = std::make_shared<CUniformBuffer>();
-    pUniformDirectional->create(framesInFlight, sizeof(FDirectionalLightsData));
-
-    pUniformSpot = std::make_shared<CUniformBuffer>();
-    pUniformSpot->create(framesInFlight, sizeof(FSpotLightsData));
 
     m_pSkybox = CResourceManager::inst()->get<CImage>("skybox_cubemap_tex");
 
@@ -71,48 +61,36 @@ void CPBRCompositionPass::render(vk::CommandBuffer& commandBuffer)
 
     auto camera = CCameraManager::inst()->getCurrentCamera();
 
-    //May be move to CompositionObject
-    FLightningData ubo;
-    ubo.viewPos = camera->viewPos; //camera->viewPos
-    ubo.bloomThreshold = GlobalVariables::bloomThreshold;
-
-    pUniform->updateUniformBuffer(imageIndex, &ubo);
-    auto& bufferUBO = pUniform->getUniformBuffer(imageIndex);
-    auto descriptorUBO = bufferUBO->getDscriptor();
-    pMaterial->addBuffer("UBOLightning", descriptorUBO);
-
-    FPointLightsData pointUBO;
+    auto pUBOL = pMaterial->getUniformBuffer("UBOLightning");
+    pUBOL->set("viewPos", camera->viewPos, imageIndex);
+    pUBOL->set("bloom_threshold", &GlobalVariables::bloomThreshold, imageIndex);
+    
     auto vPointLights = CLightSourceManager::inst()->getSources<FPointLight>();
     for(std::size_t i = 0; i < vPointLights.size(); i++)
-        pointUBO.lights[i] = vPointLights.at(i);
-    pointUBO.count = vPointLights.size();
+        point_lights[i] = vPointLights.at(i);
+    point_count = vPointLights.size();
 
-    pUniformPoint->updateUniformBuffer(imageIndex, &pointUBO);
-    auto& bufferPoint = pUniformPoint->getUniformBuffer(imageIndex);
-    auto descriptorPoint = bufferPoint->getDscriptor();
-    pMaterial->addBuffer("UBOPointLights", descriptorPoint);
+    auto pUBOPoint = pMaterial->getUniformBuffer("UBOPointLights");
+    pUBOPoint->set("lights", point_lights, imageIndex);
+    pUBOPoint->set("count", point_count, imageIndex);
 
-    FDirectionalLightsData directionalUBO;
     auto vDirectionalLights = CLightSourceManager::inst()->getSources<FDirectionalLight>();
     for(std::size_t i = 0; i < vDirectionalLights.size(); i++)
-        directionalUBO.lights[i] = vDirectionalLights.at(i);
-    directionalUBO.count = vDirectionalLights.size();
+        directional_lights[i] = vDirectionalLights.at(i);
+    directional_count = vDirectionalLights.size();
 
-    pUniformDirectional->updateUniformBuffer(imageIndex, &directionalUBO);
-    auto& bufferDirectional = pUniformDirectional->getUniformBuffer(imageIndex);
-    auto descriptorDirectional = bufferDirectional->getDscriptor();
-    pMaterial->addBuffer("UBODirectionalLights", descriptorDirectional);
+    auto pUBODir = pMaterial->getUniformBuffer("UBODirectionalLights");
+    pUBODir->set("lights", directional_lights, imageIndex);
+    pUBODir->set("count", directional_count, imageIndex);
 
-    FSpotLightsData spotUBO;
     auto vSpotLights = CLightSourceManager::inst()->getSources<FSpotLight>();
     for(std::size_t i = 0; i < vSpotLights.size(); i++)
-        spotUBO.lights[i] = vSpotLights.at(i);
-    spotUBO.count = vSpotLights.size();
+        spot_lights[i] = vSpotLights.at(i);
+    spot_count = vSpotLights.size();
     
-    pUniformSpot->updateUniformBuffer(imageIndex, &spotUBO);
-    auto& bufferSpot = pUniformSpot->getUniformBuffer(imageIndex);
-    auto descriptorSpot = bufferSpot->getDscriptor();
-    pMaterial->addBuffer("UBOSpotLights", descriptorSpot);
+    auto pUBOSpot = pMaterial->getUniformBuffer("UBOSpotLights");
+    pUBOSpot->set("lights", spot_lights, imageIndex);
+    pUBOSpot->set("count", spot_count, imageIndex);
     
     pMaterial->update(imageIndex);
     pMaterial->bind(commandBuffer, imageIndex);

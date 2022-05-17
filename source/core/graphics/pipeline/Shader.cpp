@@ -515,7 +515,7 @@ const vk::VertexInputBindingDescription CShader::getBindingDescription(vk::Shade
     desc.stride = size;
     return desc;
 }
-
+//Position from depth
 
 void CShader::buildReflection(std::vector<uint32_t>& spirv, vk::ShaderStageFlagBits stageFlag)
 {

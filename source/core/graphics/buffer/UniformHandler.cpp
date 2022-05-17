@@ -36,16 +36,16 @@ void CUniformHandler::cleanup()
     }
 }
 
-void CUniformHandler::flush(vk::CommandBuffer& commandBuffer, std::shared_ptr<Pipeline::CPipelineBase> pPipeline)
+void CUniformHandler::flush()
 {
     uint32_t index = CDevice::inst()->getCurrentFrame();
-    if (!vBuffers.empty())
+    if (vBuffers.empty())
 		return;
     
     if(vMapped.at(index))
     {
         vBuffers.at(index)->flush();
-        vBuffers.at(index)->unmapMem();
+        //vBuffers.at(index)->unmapMem();
         vMapped.at(index) = false;
     }
 }
@@ -60,7 +60,7 @@ void CUniformHandler::createUniformBuffers(uint32_t inFlightFrames)
     {
         auto uniform = std::make_unique<CVulkanBuffer>();
         uniform->create(iUniformSize, 1, vk::BufferUsageFlagBits::eUniformBuffer, vk::MemoryPropertyFlagBits::eHostVisible | vk::MemoryPropertyFlagBits::eHostCoherent, minOffsetAllignment);
-        //uniform->MapMem();
+        uniform->mapMem();
 
         vBuffers[i] = std::move(uniform);
     }

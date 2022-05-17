@@ -76,7 +76,7 @@ namespace Engine
                  * @param imageIndex Current swap chain image index
                  * @param instanceCount Number of instances to draw
                  */
-                void render(vk::CommandBuffer commandBuffer, vk::DescriptorBufferInfo& uboDesc, const glm::mat4& model, uint32_t imageIndex, uint32_t instanceCount = 1);
+                void render(vk::CommandBuffer commandBuffer, const glm::mat4& model, uint32_t imageIndex, uint32_t instanceCount = 1);
 
                 /**
                  * @brief Clena up all attached sub objects
@@ -113,6 +113,7 @@ namespace Engine
                 inline std::string getName() { return m_srName; }
 
             protected:
+                glm::vec4 instancePos[256];
                 std::vector<FPrimitive> m_vPrimitives;
                 glm::mat4 m_mMatrix;
                 std::string m_srName;

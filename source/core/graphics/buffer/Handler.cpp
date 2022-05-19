@@ -44,6 +44,6 @@ void CHandler::flush()
             bMapped = false;
         }
 
-        status == EHandlerStatus::eFlushed;
+        status = EHandlerStatus::eFlushed;
     }
 }

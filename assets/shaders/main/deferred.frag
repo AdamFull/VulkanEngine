@@ -45,6 +45,9 @@ struct SpotLight
 
 layout(binding = 9) uniform UBOLightning
 {
+	mat4 view;
+	mat4 projection;
+	mat4 invViewProjection;
 	vec3 viewPos;
 	float bloom_threshold;
 	int pointLightCount;

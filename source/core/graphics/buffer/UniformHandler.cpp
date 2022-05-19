@@ -13,6 +13,6 @@ void CUniformHandler::create(const CUniformBlock &_uniformBlock)
     
     auto uniform = std::make_unique<CVulkanBuffer>();
     uniform->create(uniformBlock->getSize(), 1, vk::BufferUsageFlagBits::eUniformBuffer, vk::MemoryPropertyFlagBits::eHostVisible | vk::MemoryPropertyFlagBits::eHostCoherent, minOffsetAllignment);
-    uniform->mapMem();
+    
     pBuffer = std::move(uniform);
 }

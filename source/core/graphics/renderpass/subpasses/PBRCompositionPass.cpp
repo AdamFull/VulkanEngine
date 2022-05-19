@@ -60,6 +60,9 @@ void CPBRCompositionPass::render(vk::CommandBuffer& commandBuffer)
     auto imageIndex = CDevice::inst()->getCurrentFrame();
 
     auto camera = CCameraManager::inst()->getCurrentCamera();
+    auto view = camera->getView();
+    auto projection = camera->getProjection();
+    auto invViewProjection = glm::inverse(projection * view);
     
     auto vPointLights = CLightSourceManager::inst()->getSources<FPointLight>();
     for(std::size_t i = 0; i < vPointLights.size(); i++)
@@ -77,6 +80,9 @@ void CPBRCompositionPass::render(vk::CommandBuffer& commandBuffer)
     spot_count = vSpotLights.size();
 
     auto& pUBO = pMaterial->getUniformBuffer("UBOLightning");
+    pUBO->set("view", view);
+    pUBO->set("projection", projection);
+    pUBO->set("invViewProjection", invViewProjection);
     pUBO->set("viewPos", camera->viewPos);
     pUBO->set("bloom_threshold", GlobalVariables::bloomThreshold);
     pUBO->set("pointLightCount", point_count);

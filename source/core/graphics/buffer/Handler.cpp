@@ -40,7 +40,6 @@ void CHandler::flush()
     {
         if(bMapped)
         {
-            pBuffer->flush();
             pBuffer->unmapMem();
             bMapped = false;
         }

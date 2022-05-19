@@ -85,8 +85,9 @@ bool CImageLoader::allocateRawDataAsKTXTextureCubemap(ktxTexture **target, vk::F
 
 bool CImageLoader::loadSTB(char const *filename, ktxTexture **target, vk::Format *format, const fs::path& parentPath)
 {
+    auto fpath = (parentPath / filename).string();
     int w, h, c;
-    unsigned char *data = stbi_load(filename, &w, &h, &c, STBI_rgb_alpha);
+    unsigned char *data = stbi_load(fpath.c_str(), &w, &h, &c, STBI_rgb_alpha);
 
     bool result = allocateRawDataAsKTXTexture(data, target, format, w, h, 1, 2, GL_SRGB8_ALPHA8, true);
     *format = vk::Format::eR8G8B8A8Srgb;

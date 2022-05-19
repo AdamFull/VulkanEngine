@@ -15,8 +15,8 @@ void main()
 	vec3 color = texture(samplerCubeMap, inWorldPos).rgb;
 
 	outPosition = vec4(inWorldPos, 1.0);
-	outMask = vec4(0.0);
+	outMask = vec4(vec3(0.0), 1.0);
 	outNormal = vec4(vec3(0.0), 1.0);
 	outAlbedo = vec4(color, 1.0);
-	//outMRAH = vec4(1.0);
+	outMRAH = vec4(1.0);
 }

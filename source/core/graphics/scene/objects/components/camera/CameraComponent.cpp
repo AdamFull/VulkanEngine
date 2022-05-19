@@ -135,7 +135,7 @@ glm::mat4 CCameraComponent::getProjection() const
 {
     auto aspect = CDevice::inst()->getAspect(true);
     auto perspective = glm::perspective(glm::radians(fieldOfView), aspect, near, far);
-    perspective[1][1] *= -1.f;
+    //perspective[1][1] *= -1.f;
     return perspective;
 }
 

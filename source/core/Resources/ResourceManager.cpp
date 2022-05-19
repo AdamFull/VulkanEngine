@@ -14,8 +14,8 @@ std::unique_ptr<CResourceManager> utl::singleton<CResourceManager>::_instance{nu
 void CResourceManager::create()
 {
     //Creating empty texture
-    auto pEmptyTexture = std::make_shared<CImage2D>();
-    pEmptyTexture->create(vk::Extent2D{512, 512}, vk::Format::eR8G8B8A8Srgb);
+    auto pEmptyTexture = std::make_shared<CImage>();
+    pEmptyTexture->create("empty.png");
     addExisting("no_texture", pEmptyTexture);
 }
 

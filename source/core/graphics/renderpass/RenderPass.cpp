@@ -74,6 +74,7 @@ std::unique_ptr<CRenderPass> CRenderPass::Builder::build()
     pRenderPass->vAttachDesc = std::move(vAttachDesc);
     pRenderPass->vSubpassDesc = std::move(vSubpassDesc);
     pRenderPass->vSubpassDep = std::move(vSubpassDep);
+    pRenderPass->flipViewport = flipViewport;
     pRenderPass->renderPass = pRenderPass->createRenderPass();
     return pRenderPass;
 }
@@ -136,12 +137,21 @@ void CRenderPass::begin(vk::CommandBuffer& commandBuffer)
     commandBuffer.beginRenderPass(renderPassBeginInfo, vk::SubpassContents::eInline);
 
     vk::Viewport viewport{};
-    viewport.width = static_cast<float>(renderArea.extent.width);
-    viewport.height = -static_cast<float>(renderArea.extent.height);
-    viewport.x = 0;   
-	viewport.y = static_cast<float>(renderArea.extent.height);
-    //viewport.width = renderArea.extent.width;
-    //viewport.height = renderArea.extent.height;
+    if(flipViewport)
+    {
+        viewport.width = static_cast<float>(renderArea.extent.width);
+        viewport.height = -static_cast<float>(renderArea.extent.height);
+        viewport.x = 0;   
+        viewport.y = static_cast<float>(renderArea.extent.height);
+    }
+    else
+    {
+        viewport.width = renderArea.extent.width;
+        viewport.height = renderArea.extent.height;
+        viewport.x = 0;
+        viewport.y = 0;
+    }
+    
     viewport.minDepth = 0.0f;
     viewport.maxDepth = 1.0f;
     vk::Rect2D scissor = renderArea;

@@ -5,7 +5,7 @@
         {
             "vertexType": "default",
             "bindPoint": "graphics",
-            "culling": "back",
+            "culling": "front",
             "frontface": "clockwise",
             "depth": true,
             "dynamicStates": ["viewport", "scissor"],

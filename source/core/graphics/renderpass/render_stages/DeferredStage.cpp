@@ -67,6 +67,7 @@ void CDeferredStage::create()
     vk::PipelineStageFlagBits::eColorAttachmentOutput, vk::AccessFlagBits::eColorAttachmentWrite | vk::AccessFlagBits::eDepthStencilAttachmentWrite, vk::AccessFlagBits::eColorAttachmentWrite).
     addSubpassDependency(1, VK_SUBPASS_EXTERNAL, vk::PipelineStageFlagBits::eColorAttachmentOutput, vk::PipelineStageFlagBits::eFragmentShader,
     vk::AccessFlagBits::eColorAttachmentWrite, vk::AccessFlagBits::eShaderRead).
+    setFlipViewport(VK_TRUE).
     build();
 
     pRenderPass->pushSubpass(std::make_shared<CGBufferPass>());

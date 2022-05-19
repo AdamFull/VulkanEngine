@@ -85,7 +85,6 @@ void CVulkanBuffer::unmapMem()
     if (mappedMemory)
     {
         vkDevice.unmapMemory(deviceMemory);
-        mappedMemory = nullptr;
     }
 }
 

@@ -1,4 +1,6 @@
 #pragma once
+#include <spirv_cross.hpp>
+#include <spirv_glsl.hpp>
 #include "graphics/descriptor/DescriptorSet.h"
 #include "graphics/descriptor/DescriptorSet.h"
 
@@ -9,9 +11,16 @@ class TType;
 
 namespace spirv_cross
 {
-    class Compiler;
-    class Resource;
-    struct SPIRType;
+    class CompilerGLSLExt : public CompilerGLSL
+    {
+    public:
+        explicit CompilerGLSLExt(std::vector<uint32_t> spirv_) : CompilerGLSL(std::move(spirv_)) {}
+        BufferPackingStandard get_packing_standart(const SPIRType& type);
+        uint32_t get_packed_base_size(const SPIRType &type);
+        uint32_t get_packed_alignment(const SPIRType &type, const Bitset &flags);
+        uint32_t get_packed_array_stride(const SPIRType &type, const Bitset &flags);
+        uint32_t get_packed_size(const SPIRType &type, const Bitset &flags);
+    };
 }
 
 namespace Engine
@@ -454,7 +463,7 @@ namespace Engine
                  * @param descriptorType Descriptor type
                  * @return CUniformBlock Builded uniform block with included uniforms
                  */
-                CUniformBlock buildUniformBlock(spirv_cross::Compiler* compiler, const spirv_cross::Resource &res, vk::ShaderStageFlagBits stageFlag, vk::DescriptorType descriptorType);
+                CUniformBlock buildUniformBlock(spirv_cross::CompilerGLSLExt* compiler, const spirv_cross::Resource &res, vk::ShaderStageFlagBits stageFlag, vk::DescriptorType descriptorType);
 
                 /**
                  * @brief Helper for parsing push constant block
@@ -464,7 +473,7 @@ namespace Engine
                  * @param stageFlag Shader stage flag
                  * @return CPushConstBlock Builded push constant block with included uniforms
                  */
-                CPushConstBlock buildPushBlock(spirv_cross::Compiler* compiler, const spirv_cross::Resource &res, vk::ShaderStageFlagBits stageFlag);
+                CPushConstBlock buildPushBlock(spirv_cross::CompilerGLSLExt* compiler, const spirv_cross::Resource &res, vk::ShaderStageFlagBits stageFlag);
 
                 /**
                  * @brief Helper for parsing single uniforms (texture bindings for example)
@@ -475,7 +484,7 @@ namespace Engine
                  * @param descriptorType Descriptor type
                  * @return CUniform Uniform with all built in parameters
                  */
-                CUniform buildUnifrom(spirv_cross::Compiler* compiler, const spirv_cross::Resource &res, vk::ShaderStageFlagBits stageFlag, vk::DescriptorType descriptorType);
+                CUniform buildUnifrom(spirv_cross::CompilerGLSLExt* compiler, const spirv_cross::Resource &res, vk::ShaderStageFlagBits stageFlag, vk::DescriptorType descriptorType);
 
                 /**
                  * @brief Helper for shader  attributes parsing
@@ -485,7 +494,7 @@ namespace Engine
                  * @param stageFlag Shader stage flag
                  * @return CAttribute 
                  */
-                CAttribute buildAttribute(spirv_cross::Compiler* compiler, const spirv_cross::Resource &res, uint32_t& offset);
+                CAttribute buildAttribute(spirv_cross::CompilerGLSLExt* compiler, const spirv_cross::Resource &res, uint32_t& offset);
 
                 /**
                  * @brief Get helper for automatically detect shader stage

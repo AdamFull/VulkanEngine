@@ -80,8 +80,6 @@ void CPBRCompositionPass::render(vk::CommandBuffer& commandBuffer)
     spot_count = vSpotLights.size();
 
     auto& pUBO = pMaterial->getUniformBuffer("UBOLightning");
-    pUBO->set("view", view);
-    pUBO->set("projection", projection);
     pUBO->set("invViewProjection", invViewProjection);
     pUBO->set("viewPos", camera->viewPos);
     pUBO->set("bloom_threshold", GlobalVariables::bloomThreshold);

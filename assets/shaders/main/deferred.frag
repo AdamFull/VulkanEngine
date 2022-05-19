@@ -1,6 +1,7 @@
 #version 450
 #extension GL_ARB_separate_shader_objects : enable
 #extension GL_ARB_shading_language_420pack : enable
+#extension GL_EXT_scalar_block_layout : enable
 #extension GL_GOOGLE_include_directive : require
 
 layout (binding = 0) uniform sampler2D brdflut_tex;
@@ -43,12 +44,10 @@ struct SpotLight
 	float cutoff;
 };
 
-layout(binding = 9) uniform UBOLightning
+layout(std140, binding = 9) uniform UBOLightning
 {
-	mat4 view;
-	mat4 projection;
 	mat4 invViewProjection;
-	vec3 viewPos;
+	vec4 viewPos;
 	float bloom_threshold;
 	int pointLightCount;
 	int directionalLightCount;
@@ -56,7 +55,7 @@ layout(binding = 9) uniform UBOLightning
 } ubo;
 
 //Lights
-layout(binding = 10) uniform UBOLights
+layout(std430, binding = 10) uniform UBOLights
 {
 	PointLight pointLights[32];
 	DirectionalLight directionalLights[32];
@@ -85,7 +84,7 @@ void main()
 	vec3 fragcolor = vec3(0.0f);
 	if(!ignoreLightning && N != vec3(0.0f))
 	{
-		vec3 cameraPos = ubo.viewPos;
+		vec3 cameraPos = ubo.viewPos.xyz;
 		// Calculate direction from fragment to viewPosition
 		vec3 V = normalize(cameraPos - inWorldPos);
 		// Reflection vector

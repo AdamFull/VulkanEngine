@@ -5,12 +5,58 @@
 #include "filesystem/FilesystemHelper.h"
 #include <glslang/SPIRV/GlslangToSpv.h>
 #include <glslang/Public/ShaderLang.h>
-#include <spirv_cross.hpp>
 
 //Spirv cross reflection doc
 //https://github.com/KhronosGroup/SPIRV-Cross/wiki/Reflection-API-user-guide
 
 using namespace Engine::Core::Pipeline;
+
+namespace spirv_cross
+{
+    BufferPackingStandard CompilerGLSLExt::get_packing_standart(const SPIRType& type)
+    {
+        if(buffer_is_packing_standard(type, BufferPackingStd140))
+            return BufferPackingStd140;
+        else if(buffer_is_packing_standard(type, BufferPackingStd430))
+            return BufferPackingStd430;
+        else if(buffer_is_packing_standard(type, BufferPackingStd140EnhancedLayout))
+            return BufferPackingStd140EnhancedLayout;
+        else if(buffer_is_packing_standard(type, BufferPackingStd430EnhancedLayout))
+            return BufferPackingStd430EnhancedLayout;
+        else if(buffer_is_packing_standard(type, BufferPackingHLSLCbuffer))
+            return BufferPackingHLSLCbuffer;
+        else if(buffer_is_packing_standard(type, BufferPackingHLSLCbufferPackOffset))
+            return BufferPackingHLSLCbufferPackOffset;
+        else if(buffer_is_packing_standard(type, BufferPackingScalar))
+            return BufferPackingScalar;
+        else if(buffer_is_packing_standard(type, BufferPackingScalarEnhancedLayout))
+            return BufferPackingScalarEnhancedLayout;
+    }
+
+    uint32_t CompilerGLSLExt::get_packed_base_size(const SPIRType &type)
+    {
+        auto packing = get_packing_standart(type);
+        return type_to_packed_base_size(type, packing);
+    }
+
+    uint32_t CompilerGLSLExt::get_packed_alignment(const SPIRType &type, const Bitset &flags)
+    {
+        auto packing = get_packing_standart(type);
+        return type_to_packed_alignment(type, flags, packing);
+    }
+
+    uint32_t CompilerGLSLExt::get_packed_array_stride(const SPIRType &type, const Bitset &flags)
+    {
+        auto packing = get_packing_standart(type);
+        return type_to_packed_array_stride(type, flags, packing);
+    }
+
+    uint32_t CompilerGLSLExt::get_packed_size(const SPIRType &type, const Bitset &flags)
+    {
+        auto packing = get_packing_standart(type);
+        return type_to_packed_size(type, flags, packing);
+    }
+}
 
 class CShaderIncluder : public glslang::TShader::Includer 
 {
@@ -511,11 +557,11 @@ const vk::VertexInputBindingDescription CShader::getBindingDescription(vk::Shade
 
 void CShader::buildReflection(std::vector<uint32_t>& spirv, vk::ShaderStageFlagBits stageFlag)
 {
-    spirv_cross::Compiler compiler(spirv);
+    spirv_cross::CompilerGLSLExt compiler(spirv);
     auto active = compiler.get_active_interface_variables();
     auto resources = compiler.get_shader_resources(active);
     compiler.set_enabled_interface_variables(move(active));
-
+    
     //Parsing uniform buffers
     for(const auto& res : resources.uniform_buffers)
     {
@@ -606,10 +652,11 @@ void CShader::buildReflection(std::vector<uint32_t>& spirv, vk::ShaderStageFlagB
     getBindingDescription(vk::ShaderStageFlagBits::eVertex);
 }
 
-CUniformBlock CShader::buildUniformBlock(spirv_cross::Compiler* compiler, const spirv_cross::Resource &res, vk::ShaderStageFlagBits stageFlag, vk::DescriptorType descriptorType)
+CUniformBlock CShader::buildUniformBlock(spirv_cross::CompilerGLSLExt* compiler, const spirv_cross::Resource &res, vk::ShaderStageFlagBits stageFlag, vk::DescriptorType descriptorType)
 {
     //New uniform block
     const auto& type = compiler->get_type(res.type_id);
+    auto& decoration = compiler->get_decoration_bitset(type.self);
     unsigned member_count = type.member_types.size();
     CUniformBlock uniformBlock{};
     uniformBlock.set = compiler->get_decoration(res.id, spv::DecorationDescriptorSet);
@@ -638,7 +685,7 @@ CUniformBlock CShader::buildUniformBlock(spirv_cross::Compiler* compiler, const 
     return uniformBlock;
 }
 
-CPushConstBlock CShader::buildPushBlock(spirv_cross::Compiler* compiler, const spirv_cross::Resource &res, vk::ShaderStageFlagBits stageFlag)
+CPushConstBlock CShader::buildPushBlock(spirv_cross::CompilerGLSLExt* compiler, const spirv_cross::Resource &res, vk::ShaderStageFlagBits stageFlag)
 {
     //New push block
     const auto& type = compiler->get_type(res.type_id);
@@ -661,7 +708,7 @@ CPushConstBlock CShader::buildPushBlock(spirv_cross::Compiler* compiler, const s
     return pushBlock;
 }
 
-CUniform CShader::buildUnifrom(spirv_cross::Compiler* compiler, const spirv_cross::Resource &res, vk::ShaderStageFlagBits stageFlag, vk::DescriptorType descriptorType)
+CUniform CShader::buildUnifrom(spirv_cross::CompilerGLSLExt* compiler, const spirv_cross::Resource &res, vk::ShaderStageFlagBits stageFlag, vk::DescriptorType descriptorType)
 {
     CUniform uniform{};
     uniform.set = compiler->get_decoration(res.id, spv::DecorationDescriptorSet);
@@ -671,7 +718,7 @@ CUniform CShader::buildUnifrom(spirv_cross::Compiler* compiler, const spirv_cros
     return uniform;
 }
 
-CAttribute CShader::buildAttribute(spirv_cross::Compiler* compiler, const spirv_cross::Resource &res, uint32_t& offset)
+CAttribute CShader::buildAttribute(spirv_cross::CompilerGLSLExt* compiler, const spirv_cross::Resource &res, uint32_t& offset)
 {
     CAttribute attribute{};
     const auto& type = compiler->get_type(res.type_id);

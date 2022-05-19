@@ -25,7 +25,7 @@ namespace Engine
             void flush();
 
             template<class T>
-            void set(T &object, std::size_t offset, std::size_t size)
+            void set(T& object, std::size_t offset, std::size_t size)
             {
                 if (!uniformBlock || vBuffers.empty())
 			        return;
@@ -47,7 +47,7 @@ namespace Engine
             }
 
             template<class T>
-            void set(const std::string &uniformName, const T &object, std::size_t size = 0)
+            void set(const std::string &uniformName, const T& object, std::size_t size = 0)
             {
                 if (!uniformBlock)
 			        return;
@@ -58,7 +58,8 @@ namespace Engine
 
                 auto realSize = size;
                 if (realSize == 0)
-                    realSize = std::min(sizeof(object), uniform->getSize());
+                    realSize = uniform->getSize();
+                auto aligned = sizeof(object);
                 
                 set(object, uniform->getOffset(), realSize);
             }

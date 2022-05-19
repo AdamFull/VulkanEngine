@@ -102,6 +102,7 @@ set(KTX_INCLUDE_DIR ${CMAKE_CURRENT_SOURCE_DIR}/external/ktx/include)
 find_package(glfw3 REQUIRED)
 find_package(glslang REQUIRED)
 find_package(spirv_cross_core CONFIG REQUIRED)
+find_package(spirv_cross_glsl CONFIG REQUIRED)
 find_package(glm REQUIRED)
 
 add_executable(${PROJECT_NAME} ${CPP_FILES} ${HPP_FILES})
@@ -111,6 +112,7 @@ target_link_libraries( ${PROJECT_NAME} PUBLIC
 	glfw
 	${VULKAN_LIB_LIST} 
 	spirv-cross-core
+	spirv-cross-glsl
 	imgui
 	libktx
 )

@@ -25,6 +25,30 @@ namespace Engine
             void flush();
 
             template<class T>
+            void write(T& object)
+            {
+                if (!uniformBlock || vBuffers.empty())
+			        return;
+                
+                auto index = getCurrentFrameProxy();
+                auto& pBuffer = vBuffers.at(index);
+
+                if(!vMapped.at(index))
+                {
+                    pBuffer->mapMem();
+                    vMapped.at(index) = true;
+                }
+
+                if(status == EHandlerStatus::eChanged || pBuffer->compare((void*)&object, size, offset))
+                {
+                    pBuffer->write((void*)&object, size, offset);
+                    status = EHandlerStatus::eChanged;
+                }
+
+                flush();
+            }
+
+            template<class T>
             void set(T& object, std::size_t offset, std::size_t size)
             {
                 if (!uniformBlock || vBuffers.empty())

@@ -614,7 +614,6 @@ CUniformBlock CShader::buildUniformBlock(spirv_cross::Compiler* compiler, const 
     CUniformBlock uniformBlock{};
     uniformBlock.set = compiler->get_decoration(res.id, spv::DecorationDescriptorSet);
     uniformBlock.binding = compiler->get_decoration(res.id, spv::DecorationBinding);
-    uniformBlock.stageFlags = stageFlag;
 
     for(uint32_t i = 0; i < member_count; i++)
     {

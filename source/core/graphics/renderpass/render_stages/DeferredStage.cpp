@@ -49,7 +49,7 @@ void CDeferredStage::create()
     addAttachmentDescription(vk::Format::eR16G16B16A16Sfloat). //Position buffer
     addAttachmentDescription(vk::Format::eR16G16B16A16Sfloat). //Light mask buffer
     addAttachmentDescription(vk::Format::eR16G16B16A16Sfloat). //Normals buffer
-    addAttachmentDescription(vk::Format::eR8G8B8A8Snorm). //Albedo buffer
+    addAttachmentDescription(vk::Format::eR8G8B8A8Srgb). //Albedo buffer
     addAttachmentDescription(vk::Format::eR8G8B8A8Snorm). //Emissive buffer
     addAttachmentDescription(vk::Format::eR8G8B8A8Srgb). //Metal, roughness, AmbientOcclusion, Height maps buffer
     addAttachmentDescription(vk::Format::eR32G32B32A32Sfloat, vk::SampleCountFlagBits::e1, vk::AttachmentLoadOp::eClear, vk::AttachmentStoreOp::eStore, 
@@ -78,7 +78,7 @@ void CDeferredStage::create()
     pFramebuffer->addImage("position_tex", vk::Format::eR16G16B16A16Sfloat, vk::ImageUsageFlagBits::eColorAttachment | vk::ImageUsageFlagBits::eInputAttachment);
     pFramebuffer->addImage("lightning_mask_tex", vk::Format::eR16G16B16A16Sfloat, vk::ImageUsageFlagBits::eColorAttachment | vk::ImageUsageFlagBits::eInputAttachment);
     pFramebuffer->addImage("normal_tex", vk::Format::eR16G16B16A16Sfloat, vk::ImageUsageFlagBits::eColorAttachment | vk::ImageUsageFlagBits::eInputAttachment);
-    pFramebuffer->addImage("albedo_tex", vk::Format::eR8G8B8A8Snorm, vk::ImageUsageFlagBits::eColorAttachment | vk::ImageUsageFlagBits::eInputAttachment);
+    pFramebuffer->addImage("albedo_tex", vk::Format::eR8G8B8A8Srgb, vk::ImageUsageFlagBits::eColorAttachment | vk::ImageUsageFlagBits::eInputAttachment);
     pFramebuffer->addImage("emission_tex", vk::Format::eR8G8B8A8Snorm, vk::ImageUsageFlagBits::eColorAttachment | vk::ImageUsageFlagBits::eInputAttachment);
     pFramebuffer->addImage("mrah_tex", vk::Format::eR8G8B8A8Srgb, vk::ImageUsageFlagBits::eColorAttachment | vk::ImageUsageFlagBits::eInputAttachment);
     pFramebuffer->addImage("brightness_buffer", vk::Format::eR32G32B32A32Sfloat, vk::ImageUsageFlagBits::eColorAttachment | vk::ImageUsageFlagBits::eSampled);

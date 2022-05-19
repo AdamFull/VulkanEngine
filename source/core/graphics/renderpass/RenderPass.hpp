@@ -22,16 +22,17 @@ namespace Engine
                 class Builder
                 {
                 public:
-                    Builder &addAttachmentDescription(vk::AttachmentDescription &&desc);
-                    Builder &addAttachmentDescription(const vk::Format format, vk::SampleCountFlagBits samples = vk::SampleCountFlagBits::e1, vk::AttachmentLoadOp loadOp = vk::AttachmentLoadOp::eClear, vk::AttachmentStoreOp storeOp = vk::AttachmentStoreOp::eStore,
+                    Builder& setFlipViewport(vk::Bool32 value) { flipViewport = value; return *this; }
+                    Builder& addAttachmentDescription(vk::AttachmentDescription &&desc);
+                    Builder& addAttachmentDescription(const vk::Format format, vk::SampleCountFlagBits samples = vk::SampleCountFlagBits::e1, vk::AttachmentLoadOp loadOp = vk::AttachmentLoadOp::eClear, vk::AttachmentStoreOp storeOp = vk::AttachmentStoreOp::eStore,
                                                       vk::AttachmentLoadOp stencilLoadOp = vk::AttachmentLoadOp::eDontCare, vk::AttachmentStoreOp stencilStoreOp = vk::AttachmentStoreOp::eDontCare, vk::ImageLayout initialLayout = vk::ImageLayout::eUndefined, 
                                                       vk::ImageLayout finalLayout = vk::ImageLayout::eColorAttachmentOptimal);
 
-                    Builder &addSubpassDescription(vk::SubpassDescription &&desc);
-                    Builder &addSubpassDescription(vk::PipelineBindPoint bindPoint, const std::vector<vk::AttachmentReference> &attachRef = {}, vk::AttachmentReference *depthAttach = nullptr, const std::vector<vk::AttachmentReference> &inputRef = {});
+                    Builder& addSubpassDescription(vk::SubpassDescription &&desc);
+                    Builder& addSubpassDescription(vk::PipelineBindPoint bindPoint, const std::vector<vk::AttachmentReference> &attachRef = {}, vk::AttachmentReference *depthAttach = nullptr, const std::vector<vk::AttachmentReference> &inputRef = {});
 
-                    Builder &addSubpassDependency(vk::SubpassDependency &&dep);
-                    Builder &addSubpassDependency(uint32_t src, uint32_t dst, vk::PipelineStageFlags srcStageMask = vk::PipelineStageFlagBits::eColorAttachmentOutput, 
+                    Builder& addSubpassDependency(vk::SubpassDependency &&dep);
+                    Builder& addSubpassDependency(uint32_t src, uint32_t dst, vk::PipelineStageFlags srcStageMask = vk::PipelineStageFlagBits::eColorAttachmentOutput, 
                     vk::PipelineStageFlags dstStageMask = vk::PipelineStageFlagBits::eFragmentShader, vk::AccessFlags srcAccessMask = vk::AccessFlagBits::eColorAttachmentWrite, 
                     vk::AccessFlags dstAccessMask = vk::AccessFlagBits::eMemoryRead, vk::DependencyFlags depFlags = vk::DependencyFlagBits::eByRegion);
 
@@ -42,6 +43,7 @@ namespace Engine
                     std::vector<vk::SubpassDescription> vSubpassDesc;
                     std::vector<vk::SubpassDependency> vSubpassDep;
                     std::vector<vk::ClearValue> vClearValues;
+                    vk::Bool32 flipViewport{VK_FALSE};
                 };
 
                 CRenderPass() = default;
@@ -81,6 +83,7 @@ namespace Engine
                 std::vector<vk::SubpassDescription> vSubpassDesc;
                 std::vector<vk::SubpassDependency> vSubpassDep;
                 std::vector<vk::ClearValue> vClearValues;
+                vk::Bool32 flipViewport{VK_FALSE};
 
                 vk::RenderPass renderPass{nullptr};
                 vk::Rect2D renderArea;

@@ -112,7 +112,7 @@ void CViewportWindow::drawManipulator(float offsetx, float offsety, float sizex,
         auto view = camera->getView();
         //Camera projection
         auto projection = camera->getProjection();
-        projection = glm::scale(projection, glm::vec3(1.0, -1.0, 1.0));
+        //projection = glm::scale(projection, glm::vec3(1.0, -1.0, 1.0));
         //Object transform
         auto model = selected->getTransform().getModel();
 

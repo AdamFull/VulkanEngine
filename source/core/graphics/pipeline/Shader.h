@@ -153,7 +153,7 @@ namespace Engine
                 uint32_t set{0};
                 uint32_t binding{0};
                 size_t size{0};
-                vk::ShaderStageFlags stageFlags{};
+                vk::ShaderStageFlags stageFlags{vk::ShaderStageFlagBits::eAll};
                 vk::DescriptorType descriptorType;
                 std::map<std::string, CUniform> mUniforms{};
             };

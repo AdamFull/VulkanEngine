@@ -27,15 +27,17 @@ namespace Engine
             template<class T>
             void set(T &object, std::size_t offset, std::size_t size)
             {
-                if (!uniformBlock || !pBuffer)
+                if (!uniformBlock || vBuffers.empty())
 			        return;
 
-                if(!bMapped)
+                auto index = getCurrentFrameProxy();
+                auto& pBuffer = vBuffers.at(index);
+
+                if(!vMapped.at(index))
                 {
                     pBuffer->mapMem();
-                    bMapped = true;
+                    vMapped.at(index) = true;
                 }
-
 
                 if(status == EHandlerStatus::eChanged || pBuffer->compare((void*)&object, size, offset))
                 {
@@ -56,17 +58,19 @@ namespace Engine
 
                 auto realSize = size;
                 if (realSize == 0)
-                    realSize = std::min(sizeof(object), static_cast<std::size_t>(uniform->getSize()));
+                    realSize = std::min(sizeof(object), uniform->getSize());
                 
-                set(object, static_cast<std::size_t>(uniform->getOffset()), realSize);
+                set(object, uniform->getOffset(), realSize);
             }
 
             // Getters
-            std::unique_ptr<CVulkanBuffer>& getBuffer() { return pBuffer; }
+            std::unique_ptr<CVulkanBuffer>& getBuffer();
+        private:
+            uint32_t getCurrentFrameProxy();
         protected:
             std::optional<Pipeline::CUniformBlock> uniformBlock;
-            std::unique_ptr<CVulkanBuffer> pBuffer;
-            bool bMapped{false};
+            std::vector<std::unique_ptr<CVulkanBuffer>> vBuffers;
+            std::vector<bool> vMapped;
             bool bIsClean{false};
             EHandlerStatus status{EHandlerStatus::eNone};
         };

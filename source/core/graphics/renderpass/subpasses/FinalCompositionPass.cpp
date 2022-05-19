@@ -34,6 +34,11 @@ void CFinalCompositionPass::render(vk::CommandBuffer& commandBuffer)
     pMaterial->addTexture("samplerBrightness", CRenderSystem::inst()->getPrevStage()->getFramebuffer()->getCurrentImages()["brightness_buffer"]); //bloom_image
     //May be move to CompositionObject
 
+    //TODO: push constant ranges here
+    auto& pUBO = pMaterial->getUniformBuffer("FBloomUbo");
+    pUBO->set("gamma", GlobalVariables::postprocessGamma);
+    pUBO->set("exposure", GlobalVariables::postprocessExposure);
+
     pMaterial->update();
     pMaterial->bind();
 

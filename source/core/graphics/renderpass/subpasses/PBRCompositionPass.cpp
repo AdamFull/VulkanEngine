@@ -89,10 +89,10 @@ void CPBRCompositionPass::render(vk::CommandBuffer& commandBuffer)
     pUBO->set("directionalLightCount", directional_count);
     pUBO->set("spotLightCount", spot_count);
 
-    /*auto& pUBOLights = pMaterial->getUniformBuffer("UBOLights");
+    auto& pUBOLights = pMaterial->getUniformBuffer("UBOLights");
     pUBOLights->set("pointLights", point_lights);
     pUBOLights->set("directionalLights", directional_lights);
-    pUBOLights->set("spotLights", spot_lights);*/
+    pUBOLights->set("spotLights", spot_lights);
     
     pMaterial->update();
     pMaterial->bind();

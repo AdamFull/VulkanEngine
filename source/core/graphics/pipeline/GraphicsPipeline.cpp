@@ -46,12 +46,12 @@ void CGraphicsPipeline::createPipeline()
     for(uint32_t i = 0; i < attachmentCount; i++)
     {
         vk::PipelineColorBlendAttachmentState colorBlendAttachment =
-        Initializers::PipelineColorBlendAttachmentState(vk::ColorComponentFlagBits::eR | vk::ColorComponentFlagBits::eG | vk::ColorComponentFlagBits::eB | vk::ColorComponentFlagBits::eA, VK_TRUE);
+        Initializers::PipelineColorBlendAttachmentState(vk::ColorComponentFlagBits::eR | vk::ColorComponentFlagBits::eG | vk::ColorComponentFlagBits::eB | vk::ColorComponentFlagBits::eA, VK_FALSE);
         colorBlendAttachments.emplace_back(colorBlendAttachment);
     }
 
     vk::PipelineColorBlendStateCreateInfo colorBlending{};
-    colorBlending.logicOpEnable = VK_TRUE;
+    colorBlending.logicOpEnable = VK_FALSE;
     colorBlending.logicOp = vk::LogicOp::eCopy;
     colorBlending.attachmentCount = static_cast<uint32_t>(colorBlendAttachments.size());
     colorBlending.pAttachments = colorBlendAttachments.data();

@@ -9,7 +9,7 @@ layout (location = 0) in vec2 inUV;
 
 layout (location = 0) out vec4 outColor;
 
-layout(std140, binding = 2) uniform FBloomUbo 
+layout(binding = 2) uniform FBloomUbo 
 {
     //HDR
     float gamma;

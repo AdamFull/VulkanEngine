@@ -15,7 +15,7 @@ CRenderPass::Builder& CRenderPass::Builder::addAttachmentDescription(vk::Attachm
     if(desc.finalLayout == vk::ImageLayout::eDepthStencilAttachmentOptimal)
         cv.setDepthStencil(vk::ClearDepthStencilValue{1.0f, 0});
     else
-        cv.setColor(vk::ClearColorValue{std::array<float, 4>{0.0f, 0.0f, 0.0f, 0.0f}});
+        cv.setColor(vk::ClearColorValue{std::array<float, 4>{0.0f, 0.0f, 0.0f, 1.0f}});
 
     vClearValues.emplace_back(cv);
     vAttachDesc.emplace_back(std::move(desc));

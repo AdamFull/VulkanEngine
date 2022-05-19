@@ -2,8 +2,8 @@
     "window":
     {
         "name": "Vulkan",
-        "width": 2560,
-        "height": 1475,
+        "width": 1280,
+        "height": 720,
         "fullscreen": false,
         "windowed": true,
         "backend": ""

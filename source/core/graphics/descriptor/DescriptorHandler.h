@@ -15,8 +15,8 @@ namespace Engine
 
                 void create(std::shared_ptr<Pipeline::CPipelineBase> pPipeline);
                 void cleanup();
-                void update(uint32_t index);
-                void bind(const vk::CommandBuffer &commandBuffer, uint32_t index) const;
+                void update();
+                void bind(const vk::CommandBuffer &commandBuffer) const;
                 void reset();
 
                 void set(const std::string& srUniformName, vk::DescriptorBufferInfo& bufferInfo);

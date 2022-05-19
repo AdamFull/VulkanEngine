@@ -2,7 +2,7 @@
 #include "graphics/image/Image.h"
 
 #include "graphics/descriptor/DescriptorHandler.h"
-#include "graphics/buffer/UniformHandler.hpp"
+#include "graphics/buffer/Handler.h"
 #include "graphics/buffer/PushHandler.hpp"
 
 #include "resources/ResourceCunstruct.h"
@@ -90,18 +90,14 @@ namespace Engine
 
                 /**
                  * @brief Update material descriptor sets
-                 * 
-                 * @param imageIndex Swap chain image index
                  */
-                virtual void update(uint32_t imageIndex);
+                virtual void update();
 
                 /**
                  * @brief Bind material pipeline and descriptor sets`
                  * 
-                 * @param commandBuffer Current command buffer
-                 * @param imageIndex Swap chain image index
                  */
-                virtual void bind(vk::CommandBuffer commandBuffer, uint32_t imageIndex);
+                virtual void bind();
 
                 /**
                  * @brief Cleanup swapchain and descriptors
@@ -137,14 +133,14 @@ namespace Engine
                  */
                 inline std::shared_ptr<Core::Pipeline::CPipelineBase> getPipeline() { return m_pPipeline; }
 
-                std::shared_ptr<Core::CUniformHandler>& getUniformBuffer(const std::string& name) { return mUniformBuffers[name]; }
+                std::shared_ptr<Core::CHandler>& getUniformBuffer(const std::string& name) { return mBuffers[name]; }
 
             protected:
                 FMaterialParams m_fMatParams{};
                 std::string m_srName;
 
                 std::unique_ptr<Core::Descriptor::CDescriptorHandler> m_pDescriptorSet;
-                std::map<std::string, std::shared_ptr<Core::CUniformHandler>> mUniformBuffers;
+                std::map<std::string, std::shared_ptr<Core::CHandler>> mBuffers;
                 std::vector<std::shared_ptr<Core::CPushHandler>> m_vPushConstants;
                 std::shared_ptr<Core::Pipeline::CPipelineBase> m_pPipeline;
                 std::map<std::string, vk::DescriptorImageInfo> m_mTextures;

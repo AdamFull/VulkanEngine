@@ -47,7 +47,7 @@ void CMeshFragment::reCreate()
     }
 }
 
-void CMeshFragment::render(vk::CommandBuffer commandBuffer, const glm::mat4& model, uint32_t imageIndex, uint32_t instanceCount)
+void CMeshFragment::render(vk::CommandBuffer commandBuffer, const glm::mat4& model, uint32_t instanceCount)
 {
     glm::vec3 scale;
     glm::quat rot;
@@ -68,14 +68,14 @@ void CMeshFragment::render(vk::CommandBuffer commandBuffer, const glm::mat4& mod
             if(primitive.material && primitive.bUseMaterial)
             {
                 auto& pUBO = primitive.material->getUniformBuffer("FUniformData");
-                pUBO->set("model", model, imageIndex);
-                pUBO->set("view", view, imageIndex);
-                pUBO->set("projection", projection, imageIndex);
-                pUBO->set("normal", normal, imageIndex);
-                pUBO->set("instancePos", instancePos, imageIndex);
+                pUBO->set("model", model);
+                pUBO->set("view", view);
+                pUBO->set("projection", projection);
+                pUBO->set("normal", normal);
+                //pUBO->set("instancePos", instancePos);
                 
-                primitive.material->update(imageIndex);
-                primitive.material->bind(commandBuffer, imageIndex);
+                primitive.material->update();
+                primitive.material->bind();
             }
             commandBuffer.drawIndexed(primitive.indexCount, instanceCount, primitive.firstIndex, 0, 0);
         }

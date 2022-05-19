@@ -73,10 +73,9 @@ namespace Engine
                  * @brief Binds materials attached to primitive 
                  * 
                  * @param commandBuffer Current command buffer
-                 * @param imageIndex Current swap chain image index
                  * @param instanceCount Number of instances to draw
                  */
-                void render(vk::CommandBuffer commandBuffer, const glm::mat4& model, uint32_t imageIndex, uint32_t instanceCount = 1);
+                void render(vk::CommandBuffer commandBuffer, const glm::mat4& model, uint32_t instanceCount = 1);
 
                 /**
                  * @brief Clena up all attached sub objects

@@ -27,7 +27,7 @@ void CShadowPass::render(vk::CommandBuffer& commandBuffer)
 {
     auto imageIndex = CDevice::inst()->getCurrentFrame();
     CVBO::inst()->bind(commandBuffer);
-    pMaterial->bind(commandBuffer, imageIndex);
+    pMaterial->bind();
     CSceneManager::inst()->getScene()->getRoot()->render(commandBuffer, imageIndex);
 }
 

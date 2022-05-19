@@ -75,11 +75,10 @@ namespace Engine
                  * @brief Rendering mesh and all attached sub objects
                  * 
                  * @param commandBuffer Current command buffer
-                 * @param imageIndex Current swap chain image
                  * @param ubo Uniform buffer data
                  * @param instanceCount Draw instances count
                  */
-                virtual void render(vk::CommandBuffer commandBuffer, uint32_t imageIndex, glm::mat4& model, uint32_t instanceCount = 1);
+                virtual void render(vk::CommandBuffer commandBuffer, glm::mat4& model, uint32_t instanceCount = 1);
 
                 /**
                  * @brief Cleans all attached objects in mesh

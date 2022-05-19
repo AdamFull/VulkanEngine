@@ -337,8 +337,6 @@ void CShader::clear()
 
     vShaderModules.clear();
     vShaderStage.clear();
-    mDescriptorLocations.clear();
-    mDescriptorSizes.clear();
     mUniforms.clear();
     mUniformBlocks.clear();
     mInputAttributes.clear();
@@ -362,9 +360,6 @@ void CShader::finalizeReflection()
         descriptorSetLayoutBinding.stageFlags = uniformBlock.stageFlags;
         descriptorSetLayoutBinding.pImmutableSamplers = nullptr;
         vDescriptorSetLayouts.emplace_back(descriptorSetLayoutBinding);
-
-        mDescriptorLocations.emplace(uniformBlockName, uniformBlock.binding);
-		mDescriptorSizes.emplace(uniformBlockName, uniformBlock.size);
     }
 
     for (const auto &[uniformName, uniform] : mUniforms) 
@@ -376,9 +371,6 @@ void CShader::finalizeReflection()
         descriptorSetLayoutBinding.stageFlags = uniform.stageFlags;
         descriptorSetLayoutBinding.pImmutableSamplers = nullptr;
         vDescriptorSetLayouts.emplace_back(descriptorSetLayoutBinding);
-
-        mDescriptorLocations.emplace(uniformName, uniform.binding);
-		mDescriptorSizes.emplace(uniformName, uniform.size);
     }
 
     vDescriptorPools.resize(9);
@@ -622,16 +614,22 @@ CUniformBlock CShader::buildUniformBlock(spirv_cross::Compiler* compiler, const 
     CUniformBlock uniformBlock{};
     uniformBlock.set = compiler->get_decoration(res.id, spv::DecorationDescriptorSet);
     uniformBlock.binding = compiler->get_decoration(res.id, spv::DecorationBinding);
+    uniformBlock.stageFlags = stageFlag;
 
     for(uint32_t i = 0; i < member_count; i++)
     {
+        size_t array_stride{0}, matrix_stride{0};
         auto &member_type = compiler->get_type(type.member_types[i]);
         CUniform uniform{};
         //compiler.get_member_decoration(, i, spv::DecorationDescriptorSet);
         uniform.size = compiler->get_declared_struct_member_size(type, i);
         uniform.offset = compiler->type_struct_member_offset(type, i);
-        if (!member_type.array.empty()) { size_t array_stride = compiler->type_struct_member_array_stride(type, i); }
-        if (member_type.columns > 1) { size_t matrix_stride = compiler->type_struct_member_matrix_stride(type, i); }
+        if (!member_type.array.empty() && uniform.size == 0) 
+            array_stride = compiler->type_struct_member_array_stride(type, i);
+
+        if (member_type.columns > 1) 
+            matrix_stride = compiler->type_struct_member_matrix_stride(type, i);
+
         uniform.stageFlags = stageFlag;
         uniformBlock.mUniforms.emplace(compiler->get_member_name(type.self, i), uniform);
     }

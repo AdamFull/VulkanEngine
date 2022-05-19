@@ -60,40 +60,36 @@ void CPBRCompositionPass::render(vk::CommandBuffer& commandBuffer)
     auto imageIndex = CDevice::inst()->getCurrentFrame();
 
     auto camera = CCameraManager::inst()->getCurrentCamera();
-
-    auto pUBOL = pMaterial->getUniformBuffer("UBOLightning");
-    pUBOL->set("viewPos", camera->viewPos, imageIndex);
-    pUBOL->set("bloom_threshold", &GlobalVariables::bloomThreshold, imageIndex);
     
     auto vPointLights = CLightSourceManager::inst()->getSources<FPointLight>();
     for(std::size_t i = 0; i < vPointLights.size(); i++)
         point_lights[i] = vPointLights.at(i);
     point_count = vPointLights.size();
 
-    auto pUBOPoint = pMaterial->getUniformBuffer("UBOPointLights");
-    pUBOPoint->set("lights", point_lights, imageIndex);
-    pUBOPoint->set("count", point_count, imageIndex);
-
     auto vDirectionalLights = CLightSourceManager::inst()->getSources<FDirectionalLight>();
     for(std::size_t i = 0; i < vDirectionalLights.size(); i++)
         directional_lights[i] = vDirectionalLights.at(i);
     directional_count = vDirectionalLights.size();
 
-    auto pUBODir = pMaterial->getUniformBuffer("UBODirectionalLights");
-    pUBODir->set("lights", directional_lights, imageIndex);
-    pUBODir->set("count", directional_count, imageIndex);
-
     auto vSpotLights = CLightSourceManager::inst()->getSources<FSpotLight>();
     for(std::size_t i = 0; i < vSpotLights.size(); i++)
         spot_lights[i] = vSpotLights.at(i);
     spot_count = vSpotLights.size();
+
+    auto& pUBO = pMaterial->getUniformBuffer("UBOLightning");
+    pUBO->set("viewPos", camera->viewPos);
+    pUBO->set("bloom_threshold", GlobalVariables::bloomThreshold);
+    pUBO->set("pointLightCount", point_count);
+    pUBO->set("directionalLightCount", directional_count);
+    pUBO->set("spotLightCount", spot_count);
+
+    auto& pUBOLights = pMaterial->getUniformBuffer("UBOLights");
+    pUBOLights->set("pointLights", point_lights);
+    pUBOLights->set("directionalLights", directional_lights);
+    pUBOLights->set("spotLights", spot_lights);
     
-    auto pUBOSpot = pMaterial->getUniformBuffer("UBOSpotLights");
-    pUBOSpot->set("lights", spot_lights, imageIndex);
-    pUBOSpot->set("count", spot_count, imageIndex);
-    
-    pMaterial->update(imageIndex);
-    pMaterial->bind(commandBuffer, imageIndex);
+    pMaterial->update();
+    pMaterial->bind();
 
     commandBuffer.draw(3, 1, 0, 0);
 }
@@ -121,8 +117,8 @@ std::shared_ptr<CImage> CPBRCompositionPass::ComputeBRDFLUT(uint32_t size)
 
     descriptor.create(computePipeline);
     descriptor.set("outColour", brdfImage->getDescriptor());
-    descriptor.update(0);
-    descriptor.bind(commandBuffer, 0);
+    descriptor.update();
+    descriptor.bind(commandBuffer);
     
     auto groupCountX = static_cast<uint32_t>(std::ceil(static_cast<float>(size) / static_cast<float>(*computePipeline->getShader()->getLocalSizes()[0])));
 	auto groupCountY = static_cast<uint32_t>(std::ceil(static_cast<float>(size) / static_cast<float>(*computePipeline->getShader()->getLocalSizes()[1])));
@@ -151,8 +147,8 @@ std::shared_ptr<CImage> CPBRCompositionPass::ComputeIrradiance(const std::shared
     descriptor.create(computePipeline);
     descriptor.set("outColour", irradianceCubemap->getDescriptor());
     descriptor.set("samplerColour", source->getDescriptor());
-    descriptor.update(0);
-    descriptor.bind(commandBuffer, 0);
+    descriptor.update();
+    descriptor.bind(commandBuffer);
 
     auto groupCountX = static_cast<uint32_t>(std::ceil(static_cast<float>(size) / static_cast<float>(*computePipeline->getShader()->getLocalSizes()[0])));
 	auto groupCountY = static_cast<uint32_t>(std::ceil(static_cast<float>(size) / static_cast<float>(*computePipeline->getShader()->getLocalSizes()[1])));
@@ -215,8 +211,8 @@ std::shared_ptr<CImage> CPBRCompositionPass::ComputePrefiltered(const std::share
         descriptor.create(computePipeline);
         descriptor.set("outColour", descriptorWrite);
         descriptor.set("samplerColour", source->getDescriptor());
-        descriptor.update(0);
-        descriptor.bind(commandBuffer, CDevice::inst()->getCurrentFrame());
+        descriptor.update();
+        descriptor.bind(commandBuffer);
         push.flush(commandBuffer, computePipeline);
 
         auto groupCountX = static_cast<uint32_t>(std::ceil(static_cast<float>(size) / static_cast<float>(*computePipeline->getShader()->getLocalSizes()[0])));

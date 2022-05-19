@@ -29,14 +29,14 @@ namespace Engine
                 CFuture<std::shared_ptr<CImage>> irradiance;
                 CFuture<std::shared_ptr<CImage>> prefiltered;
 
-                Scene::FPointLight point_lights[256];
-                int point_count{0};
+                std::array<Scene::FPointLight, 32> point_lights;
+                int32_t point_count{0};
 
-                Scene::FDirectionalLight directional_lights[256];
-                int directional_count{0};
+                std::array<Scene::FDirectionalLight, 32> directional_lights;
+                int32_t directional_count{0};
 
-                Scene::FSpotLight spot_lights[256];
-                int spot_count{0};
+                std::array<Scene::FSpotLight, 32> spot_lights;
+                int32_t spot_count{0};
             };
         }
     }

@@ -27,6 +27,7 @@ namespace Engine
             vk::Result mapMem(vk::DeviceSize size = VK_WHOLE_SIZE, vk::DeviceSize offset = 0);
             void unmapMem();
 
+            bool compare(void *idata, vk::DeviceSize size = VK_WHOLE_SIZE, vk::DeviceSize offset = 0);
             void write(void *idata, vk::DeviceSize size = VK_WHOLE_SIZE, vk::DeviceSize offset = 0);
             vk::Result flush(vk::DeviceSize size = VK_WHOLE_SIZE, vk::DeviceSize offset = 0);
             vk::DescriptorBufferInfo descriptorInfo(vk::DeviceSize size = VK_WHOLE_SIZE, vk::DeviceSize offset = 0);

@@ -20,14 +20,14 @@ void CMeshBase::reCreate()
         fragment->reCreate();
 }
 
-void CMeshBase::render(vk::CommandBuffer commandBuffer, uint32_t imageIndex, glm::mat4& model, uint32_t instanceCount)
+void CMeshBase::render(vk::CommandBuffer commandBuffer, glm::mat4& model, uint32_t instanceCount)
 {
     for (auto& fragment : m_vFragments)
     {
         //ubo.repeat = fRepeat;
         auto mmodel = model * fragment->getLocalMatrix();
 
-        fragment->render(commandBuffer, mmodel, imageIndex, instanceCount);
+        fragment->render(commandBuffer, mmodel, instanceCount);
     }
 }
 

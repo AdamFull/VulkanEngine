@@ -24,8 +24,8 @@ void CThroughPass::render(vk::CommandBuffer& commandBuffer)
     auto imageIndex = CDevice::inst()->getCurrentFrame();
     pMaterial->addTexture("samplerColor", CRenderSystem::inst()->getPrevStage()->getFramebuffer()->getCurrentImages()["output_color"]);
 
-    pMaterial->update(imageIndex);
-    pMaterial->bind(commandBuffer, imageIndex);
+    pMaterial->update();
+    pMaterial->bind();
 
     commandBuffer.draw(3, 1, 0, 0);
 }

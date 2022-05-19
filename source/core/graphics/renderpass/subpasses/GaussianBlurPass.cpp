@@ -37,13 +37,13 @@ void CGaussianBlurPass::render(vk::CommandBuffer& commandBuffer)
     pMaterial->addTexture("writeColour", pImage);
     pMaterial->addTexture("samplerBrightness", CRenderSystem::inst()->getPrevStage()->getFramebuffer()->getCurrentImages()[imageReferenceName]);
 
-    auto pUBO = pMaterial->getUniformBuffer("FBloomUbo");
+    auto& pUBO = pMaterial->getUniformBuffer("FBloomUbo");
     pUBO->set("blurScale", &GlobalVariables::blurScale, imageIndex);
     pUBO->set("blurStrength", &GlobalVariables::blurStrength, imageIndex);
     pUBO->set("direction", &direction, imageIndex);
-    
-    pMaterial->update(imageIndex);
-    pMaterial->bind(commandBuffer, imageIndex);
+
+    pMaterial->update();
+    pMaterial->bind();
     commandBuffer.draw(3, 1, 0, 0);
 }
 

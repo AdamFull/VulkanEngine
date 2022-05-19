@@ -4,26 +4,27 @@
 using namespace Engine::Core;
 using namespace Engine::Core::Descriptor;
 
-void CDescriptorSet::create(vk::PipelineBindPoint bindPoint, vk::PipelineLayout layout, vk::DescriptorPool pool, vk::DescriptorSetLayout setLayout, uint32_t images)
+void CDescriptorSet::create(vk::PipelineBindPoint bindPoint, vk::PipelineLayout layout, vk::DescriptorPool pool, vk::DescriptorSetLayout setLayout)
 {
     pipelineBindPoint = bindPoint;
     pipelineLayout = layout;
     descriptorPool = pool;
 
-    std::vector<vk::DescriptorSetLayout> vSetLayouts(images, setLayout);
+    auto framesInFlight = CDevice::inst()->getFramesInFlight();
+    std::vector<vk::DescriptorSetLayout> vSetLayouts(framesInFlight, setLayout);
     vk::DescriptorSetAllocateInfo allocInfo{};
     allocInfo.descriptorPool = descriptorPool;
-    allocInfo.descriptorSetCount = images;
+    allocInfo.descriptorSetCount = framesInFlight;
     allocInfo.pSetLayouts = vSetLayouts.data();
-    vDescriptorSets.resize(images);
+    vDescriptorSets.resize(framesInFlight);
 
     vk::Result res = CDevice::inst()->create(allocInfo, vDescriptorSets.data());
     assert(res == vk::Result::eSuccess && "Cannot create descriptor sets.");
 }
 
-void CDescriptorSet::create(std::shared_ptr<Pipeline::CPipelineBase> pPipeline, uint32_t images)
+void CDescriptorSet::create(std::shared_ptr<Pipeline::CPipelineBase> pPipeline)
 {
-    create(pPipeline->getBindPoint(), pPipeline->getPipelineLayout(), pPipeline->getDescriptorPool(), pPipeline->getDescriptorSetLayout(), images);
+    create(pPipeline->getBindPoint(), pPipeline->getPipelineLayout(), pPipeline->getDescriptorPool(), pPipeline->getDescriptorSetLayout());
 }
 
 void CDescriptorSet::cleanup()
@@ -34,25 +35,32 @@ void CDescriptorSet::cleanup()
     vkDevice.freeDescriptorSets(descriptorPool, vDescriptorSets);
 }
 
-void CDescriptorSet::update(std::vector<vk::WriteDescriptorSet> &vWrites, uint32_t index)
+void CDescriptorSet::update(std::vector<vk::WriteDescriptorSet> &vWrites)
 {
     auto& vkDevice = CDevice::inst()->getLogical();
     assert(vkDevice && "Trying to update descriptor sets, but device is invalid.");
     for (auto &write : vWrites)
-        write.dstSet = vDescriptorSets.at(index);
+        write.dstSet = get();
 
     vkDevice.updateDescriptorSets(static_cast<uint32_t>(vWrites.size()), vWrites.data(), 0, nullptr);
 }
 
-void CDescriptorSet::update(vk::WriteDescriptorSet &writes, uint32_t index)
+void CDescriptorSet::update(vk::WriteDescriptorSet &writes)
 {
     auto& vkDevice = CDevice::inst()->getLogical();
     assert(vkDevice && "Trying to free descriptor sets, but device is invalid.");
-    writes.dstSet = vDescriptorSets.at(index);
+    writes.dstSet = get();
     vkDevice.updateDescriptorSets(1, &writes, 0, nullptr);
 }
 
-void CDescriptorSet::bind(const vk::CommandBuffer &commandBuffer, uint32_t index) const
+void CDescriptorSet::bind(const vk::CommandBuffer &commandBuffer) const
 {
-    commandBuffer.bindDescriptorSets(pipelineBindPoint, pipelineLayout, 0, 1, &vDescriptorSets.at(index), 0, nullptr);
+    auto currentFrame = CDevice::inst()->getCurrentFrame();
+    commandBuffer.bindDescriptorSets(pipelineBindPoint, pipelineLayout, 0, 1, &vDescriptorSets.at(currentFrame), 0, nullptr);
+}
+
+vk::DescriptorSet& CDescriptorSet::get()
+{
+    auto currentFrame = CDevice::inst()->getCurrentFrame();
+    return vDescriptorSets.at(currentFrame);
 }

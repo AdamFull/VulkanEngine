@@ -34,8 +34,8 @@ void CFinalCompositionPass::render(vk::CommandBuffer& commandBuffer)
     pMaterial->addTexture("samplerBrightness", CRenderSystem::inst()->getPrevStage()->getFramebuffer()->getCurrentImages()["brightness_buffer"]); //bloom_image
     //May be move to CompositionObject
 
-    pMaterial->update(imageIndex);
-    pMaterial->bind(commandBuffer, imageIndex);
+    pMaterial->update();
+    pMaterial->bind();
 
     commandBuffer.draw(3, 1, 0, 0);
 }

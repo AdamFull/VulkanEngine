@@ -2,6 +2,8 @@
 #include "util/uuid.hpp"
 #include "graphics/VulkanHighLevel.h"
 #include "resources/ResourceManager.h"
+#include "graphics/buffer/UniformHandler.hpp"
+#include "graphics/buffer/StorageHandler.h"
 
 using namespace Engine::Core;
 using namespace Engine::Resources::Material;
@@ -26,9 +28,14 @@ void CMaterialBase::create()
 
     for(auto& [name, uniform] : m_pPipeline->getShader()->getUniformBlocks())
     {
-        auto pUniform = std::make_shared<Core::CUniformHandler>();
+        std::shared_ptr<CHandler> pUniform;
+        switch(uniform.getDescriptorType())
+        {
+            case vk::DescriptorType::eUniformBuffer: pUniform = std::make_shared<CUniformHandler>(); break;
+            case vk::DescriptorType::eStorageBuffer: pUniform = std::make_shared<CStorageHandler>(); break;
+        }
         pUniform->create(uniform);
-        mUniformBuffers.emplace(name, pUniform);
+        mBuffers.emplace(name, pUniform);
     }
 }
 
@@ -59,25 +66,26 @@ void CMaterialBase::reCreate()
     m_pPipeline->reCreate(renderPass, subpass);
 }
 
-void CMaterialBase::update(uint32_t imageIndex)
+void CMaterialBase::update()
 {
     m_pDescriptorSet->reset();
-    for(auto& [name, uniform] : mUniformBuffers)
+    for(auto& [name, uniform] : mBuffers)
     {
-        //uniform->flush();
-        auto& buffer = uniform->getUniformBuffer(imageIndex);
+        uniform->flush();
+        auto& buffer = uniform->getBuffer();
         auto descriptor = buffer->getDescriptor();
         m_pDescriptorSet->set(name, descriptor);
     }
 
     for(auto& [key, texture] : m_mTextures)
         m_pDescriptorSet->set(key, texture);
-    m_pDescriptorSet->update(imageIndex);
+    m_pDescriptorSet->update();
 }
 
-void CMaterialBase::bind(vk::CommandBuffer commandBuffer, uint32_t imageIndex)
+void CMaterialBase::bind()
 {
-    m_pDescriptorSet->bind(commandBuffer, imageIndex);
+    auto& commandBuffer = CRenderSystem::inst()->getCurrentCommandBuffer();
+    m_pDescriptorSet->bind(commandBuffer);
     m_pPipeline->bind(commandBuffer);
 }
 
@@ -86,9 +94,9 @@ void CMaterialBase::cleanup()
     //Custom cleanup rules
     if(m_pDescriptorSet)
         m_pDescriptorSet->cleanup();
-    for(auto& [name, handler] : mUniformBuffers)
+    for(auto& [name, handler] : mBuffers)
         handler->cleanup();
-    mUniformBuffers.clear();
+    mBuffers.clear();
     for(auto& push : m_vPushConstants)
         push->cleanup();
     m_vPushConstants.clear();

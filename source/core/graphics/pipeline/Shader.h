@@ -153,7 +153,7 @@ namespace Engine
                 uint32_t set{0};
                 uint32_t binding{0};
                 size_t size{0};
-                vk::ShaderStageFlags stageFlags{vk::ShaderStageFlagBits::eAll};
+                vk::ShaderStageFlags stageFlags{};
                 vk::DescriptorType descriptorType;
                 std::map<std::string, CUniform> mUniforms{};
             };
@@ -512,9 +512,6 @@ namespace Engine
                 static size_t parseSize(const spirv_cross::SPIRType& type);
 
                 std::array<std::optional<uint32_t>, 3> localSizes;
-
-                std::unordered_map<std::string, uint32_t> mDescriptorLocations;
-	            std::unordered_map<std::string, uint64_t> mDescriptorSizes;
 
                 std::unordered_map<std::string, CUniform> mUniforms;
                 std::unordered_map<std::string, CUniformBlock> mUniformBlocks;

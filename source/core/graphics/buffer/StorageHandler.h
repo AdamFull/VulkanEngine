@@ -7,10 +7,10 @@ namespace Engine
 {
     namespace Core
     {
-        class CUniformHandler : public CHandler
+        class CStorageHandler : public CHandler
         {
         public:
-            CUniformHandler() = default;
+            CStorageHandler() = default;
             void create(const Pipeline::CUniformBlock &uniformBlock) override;
         };
     }

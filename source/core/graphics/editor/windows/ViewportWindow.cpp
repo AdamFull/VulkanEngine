@@ -29,13 +29,13 @@ void CViewportWindow::create()
 {
     auto pBackend = (ImGui_ImplVulkan_Data*)ImGui::GetIO().BackendRendererUserData;
     pDescriptorSet = std::make_shared<CDescriptorSet>();
-    pDescriptorSet->create(vk::PipelineBindPoint::eGraphics, pBackend->PipelineLayout, CEditorUI::inst()->getDescriptorPool(), pBackend->DescriptorSetLayout, CDevice::inst()->getFramesInFlight());
+    pDescriptorSet->create(vk::PipelineBindPoint::eGraphics, pBackend->PipelineLayout, CEditorUI::inst()->getDescriptorPool(), pBackend->DescriptorSetLayout);
 }
 
 void CViewportWindow::reCreate()
 {
     auto pBackend = (ImGui_ImplVulkan_Data*)ImGui::GetIO().BackendRendererUserData;
-    pDescriptorSet->create(vk::PipelineBindPoint::eGraphics, pBackend->PipelineLayout, CEditorUI::inst()->getDescriptorPool(), pBackend->DescriptorSetLayout, CDevice::inst()->getFramesInFlight());
+    pDescriptorSet->create(vk::PipelineBindPoint::eGraphics, pBackend->PipelineLayout, CEditorUI::inst()->getDescriptorPool(), pBackend->DescriptorSetLayout);
 }
 
 void CViewportWindow::draw()
@@ -72,9 +72,9 @@ void CViewportWindow::drawViewport(float offsetx, float offsety)
     write.dstBinding = 0;
     write.pImageInfo = &imageDescriptor->getDescriptor();
     write.descriptorCount = 1;
-    pDescriptorSet->update(write, currentImage);
+    pDescriptorSet->update(write);
 
-    ImGui::Image(pDescriptorSet->get(currentImage), ImVec2{offsetx, offsety});
+    ImGui::Image(pDescriptorSet->get(), ImVec2{offsetx, offsety});
     
     if(!ImGui::IsAnyItemActive())
         CDevice::inst()->setViewportExtent(vk::Extent2D{(uint32_t)offsetx, (uint32_t)offsety});

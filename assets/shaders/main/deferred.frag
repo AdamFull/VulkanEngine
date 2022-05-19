@@ -43,30 +43,22 @@ struct SpotLight
 	float cutoff;
 };
 
-layout(std140, binding = 9) uniform UBOLightning
+layout(binding = 9) uniform UBOLightning
 {
 	vec3 viewPos;
 	float bloom_threshold;
+	int pointLightCount;
+	int directionalLightCount;
+	int spotLightCount;
 } ubo;
 
 //Lights
-layout(std140, binding = 10) uniform UBOPointLights
+layout(binding = 10) uniform UBOLights
 {
-	PointLight lights[256];
-	int count;
-} pointLights;
-
-layout(std140, binding = 11) uniform UBODirectionalLights
-{
-	DirectionalLight lights[256];
-	int count;
-} directionalLights;
-
-layout(std140, binding = 12) uniform UBOSpotLights
-{
-	SpotLight lights[256];
-	int count;
-} spotLights;
+	PointLight pointLights[32];
+	DirectionalLight directionalLights[32];
+	SpotLight spotLights[32];
+} lights;
 
 #include "../shared_lightning.glsl"
 
@@ -104,35 +96,38 @@ void main()
 		vec3 Lo = vec3(0.0f);
 
 		//Adding point lights
-		for(int i = 0; i < pointLights.count; i++) 
+		for(int i = 0; i < ubo.pointLightCount; i++) 
 		{
-			vec3 L = pointLights.lights[i].position - inWorldPos;
+			PointLight light = lights.pointLights[i];
+			vec3 L = light.position - inWorldPos;
 			float dist = length(L);
 			L = normalize(L);
-			float atten = clamp(1.0 - pow(dist, 2.0f)/pow(pointLights.lights[i].radius, 2.0f), 0.0f, 1.0f); atten *= atten;
-			Lo += atten * pointLights.lights[i].color.rgb * pointLights.lights[i].intencity * specularContribution(albedo, L, V, N, F0, metalic, roughness);
+			float atten = clamp(1.0 - pow(dist, 2.0f)/pow(light.radius, 2.0f), 0.0f, 1.0f); atten *= atten;
+			Lo += atten * light.color.rgb * light.intencity * specularContribution(albedo, L, V, N, F0, metalic, roughness);
 		}
 
 		//Adding directional lights
-		for(int i = 0; i < directionalLights.count; i++) 
+		for(int i = 0; i < ubo.directionalLightCount; i++) 
 		{
-			vec3 L = -directionalLights.lights[i].direction;
+			DirectionalLight light = lights.directionalLights[i];
+			vec3 L = -light.direction;
 			float dist = length(L);
 			L = normalize(L);
-			Lo += directionalLights.lights[i].color.rgb * directionalLights.lights[i].intencity * specularContribution(albedo, L, V, N, F0, metalic, roughness);
+			Lo += light.color.rgb * light.intencity * specularContribution(albedo, L, V, N, F0, metalic, roughness);
 		}
 
 		//Adding spot lights
-		for(int i = 0; i < spotLights.count; i++) 
+		for(int i = 0; i < ubo.spotLightCount; i++) 
 		{
-			vec3 L = normalize(inWorldPos - spotLights.lights[i].position);
-			float theta = dot(L, spotLights.lights[i].direction); 
-			if(theta > spotLights.lights[i].cutoff)
+			SpotLight light = lights.spotLights[i];
+			vec3 L = normalize(inWorldPos - light.position);
+			float theta = dot(L, light.direction); 
+			if(theta > light.cutoff)
 			{
 				float dist = length(L);
 				L = normalize(L);
-				float atten = 1.0 - (1.0 - theta) * 1.0/(1.0 - spotLights.lights[i].cutoff);
-				Lo += spotLights.lights[i].color.rgb * atten * spotLights.lights[i].intencity * specularContribution(albedo, L, V, N, F0, metalic, roughness);
+				float atten = 1.0 - (1.0 - theta) * 1.0/(1.0 - light.cutoff);
+				Lo += light.color.rgb * atten * light.intencity * specularContribution(albedo, L, V, N, F0, metalic, roughness);
 			}
 		}
 

@@ -89,19 +89,34 @@ void CVulkanBuffer::unmapMem()
     }
 }
 
+bool CVulkanBuffer::compare(void *idata, vk::DeviceSize size, vk::DeviceSize offset)
+{
+    assert(mappedMemory && "Cannot compare to unmapped buffer");
+    if (offset == 0)
+    {
+        return std::memcmp(mappedMemory, idata, size) != 0;
+    }
+    else
+    {
+        char *memOffset = (char *)mappedMemory;
+        memOffset += offset;
+        return std::memcmp(memOffset, idata, size) != 0;
+    }
+}
+
 void CVulkanBuffer::write(void *idata, vk::DeviceSize size, vk::DeviceSize offset)
 {
     assert(mappedMemory && "Cannot copy to unmapped buffer");
 
     if (size == VK_WHOLE_SIZE)
     {
-        memcpy(mappedMemory, idata, bufferSize);
+        std::memcpy(mappedMemory, idata, bufferSize);
     }
     else
     {
         char *memOffset = (char *)mappedMemory;
         memOffset += offset;
-        memcpy(memOffset, idata, size);
+        std::memcpy(memOffset, idata, size);
     }
 }
 

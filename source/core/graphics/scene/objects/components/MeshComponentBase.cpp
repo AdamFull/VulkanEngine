@@ -66,7 +66,7 @@ void CMeshObjectBase::render(vk::CommandBuffer &commandBuffer, uint32_t imageInd
                 //instanceCount++;
             }  
         }
-        m_pMesh->render(commandBuffer, imageIndex, model, instanceCount == 0 ? 1 : instanceCount);
+        m_pMesh->render(commandBuffer, model, instanceCount == 0 ? 1 : instanceCount);
     }
 }
 

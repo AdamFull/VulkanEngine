@@ -13,15 +13,13 @@ layout(binding = 6) uniform sampler2D ao_tex;
 layout (location = 0) in vec3 inNormal;
 layout (location = 1) in vec2 inUV;
 layout (location = 2) in vec3 inColor;
-layout (location = 3) in vec3 inWorldPos;
-layout (location = 4) in vec4 inTangent;
+layout (location = 3) in vec4 inTangent;
 
-layout (location = 0) out vec4 outPosition;
-layout (location = 1) out vec4 outMask;
-layout (location = 2) out vec4 outNormal;
-layout (location = 3) out vec4 outAlbedo;
-layout (location = 4) out vec4 outEmission;
-layout (location = 5) out vec4 outMRAH;
+layout (location = 0) out vec4 outMask;
+layout (location = 1) out vec4 outNormal;
+layout (location = 2) out vec4 outAlbedo;
+layout (location = 3) out vec4 outEmission;
+layout (location = 4) out vec4 outMRAH;
 
 #include "../shared_shaders.glsl"
 
@@ -36,15 +34,12 @@ float linearDepth(float depth)
 
 void main() 
 {
-	outPosition = vec4(inWorldPos, 1.0);
+	//outPosition = vec4(inWorldPos, 1.0);
 
-	//outNormal = vec4(normalize(inNormal), 1.0);
 	outNormal = vec4(getNormalsOld(normal_tex, inNormal, inTangent, inUV), 1.0);
-	//outNormal = vec4(getNormals(normal_tex, inWorldPos, inNormal, inUV), 1.0);
 
 	outMask = vec4(1.0);
 	outAlbedo = texture(color_tex, inUV);
-	//outAlbedo = vec4(mix(outAlbedo.rgb, inColor, 0.5), outAlbedo.a);
 
 	vec4 metalRough = texture(metalRough_tex, inUV);
 	float metal = metalRough.b;

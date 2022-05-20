@@ -11,8 +11,7 @@ layout(location = 4) in vec4 inTangent;
 layout (location = 0) out vec3 outNormal;
 layout (location = 1) out vec2 outUV;
 layout (location = 2) out vec3 outColor;
-layout (location = 3) out vec3 outWorldPos;
-layout (location = 4) out vec4 outTangent;
+layout (location = 3) out vec4 outTangent;
 
 layout(std140, binding = 0) uniform FUniformData 
 {
@@ -28,7 +27,7 @@ void main()
 {
   vec4 tmpPos = vec4(inPosition, 1.0);
 
-  outWorldPos = (ubo.model * tmpPos).xyz;
+  //outWorldPos = (ubo.model * tmpPos).xyz;
 
   mat3 normal = mat3(ubo.normal);
 	outUV = inTexCoord * 1.0;

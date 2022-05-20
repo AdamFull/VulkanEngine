@@ -46,7 +46,6 @@ void CPBRCompositionPass::reCreate()
 
 void CPBRCompositionPass::render(vk::CommandBuffer& commandBuffer)
 {
-    FSceneUniform sceneUniform{};
     auto& images = CRenderSystem::inst()->getCurrentStage()->getFramebuffer()->getCurrentImages();
     pMaterial->addTexture("brdflut_tex", *brdf);
     pMaterial->addTexture("irradiance_tex", *irradiance);
@@ -68,29 +67,26 @@ void CPBRCompositionPass::render(vk::CommandBuffer& commandBuffer)
     auto vPointLights = CLightSourceManager::inst()->getSources<FPointLight>();
     for(std::size_t i = 0; i < vPointLights.size(); i++)
         point_lights[i] = vPointLights.at(i);
-    sceneUniform.pointLightCount = vPointLights.size();
+    point_count = vPointLights.size();
 
     auto vDirectionalLights = CLightSourceManager::inst()->getSources<FDirectionalLight>();
     for(std::size_t i = 0; i < vDirectionalLights.size(); i++)
         directional_lights[i] = vDirectionalLights.at(i);
-    sceneUniform.directionalLightCount = vDirectionalLights.size();
+    directional_count = vDirectionalLights.size();
 
     auto vSpotLights = CLightSourceManager::inst()->getSources<FSpotLight>();
     for(std::size_t i = 0; i < vSpotLights.size(); i++)
         spot_lights[i] = vSpotLights.at(i);
-    sceneUniform.spotLightCount = vSpotLights.size();
-
-    sceneUniform.viewPos = camera->viewPos;
-    sceneUniform.bloom_threshold = GlobalVariables::bloomThreshold;
-    auto ubosize = sizeof(FSceneUniform);
+    spot_count = vSpotLights.size();
+    
     auto& pUBO = pMaterial->getPushConstant("ubo");
-    pUBO->set("invViewProjection", invViewProjection, imageIndex);
-    pUBO->set("viewPos", camera->viewPos, imageIndex);
-    pUBO->set("bloom_threshold", GlobalVariables::bloomThreshold, imageIndex);
-    pUBO->set("pointLightCount", point_count, imageIndex);
-    pUBO->set("directionalLightCount", directional_count, imageIndex);
-    pUBO->set("spotLightCount", spot_count, imageIndex);
-    pUBO->flush(commandBuffer, pMaterial->getPipeline());
+    pUBO->set("invViewProjection", invViewProjection);
+    pUBO->set("viewPos", camera->viewPos);
+    pUBO->set("bloom_threshold", GlobalVariables::bloomThreshold);
+    pUBO->set("pointLightCount", point_count);
+    pUBO->set("directionalLightCount", directional_count);
+    pUBO->set("spotLightCount", spot_count);
+    pUBO->flush(commandBuffer);
 
     auto& pUBOLights = pMaterial->getUniformBuffer("UBOLights");
     pUBOLights->set("pointLights", point_lights);
@@ -182,7 +178,7 @@ std::shared_ptr<CImage> CPBRCompositionPass::ComputePrefiltered(const std::share
     addShaderStage("shaders/generators/prefilteredmap.comp").
     build(vk::PipelineBindPoint::eCompute);
     computePipeline->create();
-    push.create(*computePipeline->getShader()->getPushBlock("object"));
+    push.create(*computePipeline->getShader()->getPushBlock("object"), computePipeline);
 
     for (uint32_t i = 0; i < prefilteredCubemap->getMipLevels(); i++)
     {
@@ -215,14 +211,14 @@ std::shared_ptr<CImage> CPBRCompositionPass::ComputePrefiltered(const std::share
 		descriptorWrite.descriptorType = outColor->getDescriptorType();
 		descriptorWrite.pImageInfo = &imageInfo;
 
-        push.set("roughness", static_cast<float>(i) / static_cast<float>(prefilteredCubemap->getMipLevels() - 1), 0);
+        push.set("roughness", static_cast<float>(i) / static_cast<float>(prefilteredCubemap->getMipLevels() - 1));
 
         descriptor.create(computePipeline);
         descriptor.set("outColour", descriptorWrite);
         descriptor.set("samplerColour", source->getDescriptor());
         descriptor.update();
         descriptor.bind(commandBuffer);
-        push.flush(commandBuffer, computePipeline);
+        push.flush(commandBuffer);
 
         auto groupCountX = static_cast<uint32_t>(std::ceil(static_cast<float>(size) / static_cast<float>(*computePipeline->getShader()->getLocalSizes()[0])));
         auto groupCountY = static_cast<uint32_t>(std::ceil(static_cast<float>(size) / static_cast<float>(*computePipeline->getShader()->getLocalSizes()[1])));

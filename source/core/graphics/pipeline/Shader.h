@@ -58,14 +58,14 @@ namespace Engine
                  * 
                  * @return uint32_t Uniform offset
                  */
-                uint32_t getOffset() const { return offset; }
+                std::size_t getOffset() const { return offset; }
 
                 /**
                  * @brief Get uniform size
                  * 
                  * @return size_t Uniform size
                  */
-                size_t getSize() const { return size; }
+                std::size_t getSize() const { return size; }
 
                 /**
                  * @brief Get uniform descriptor type
@@ -84,8 +84,8 @@ namespace Engine
             private:
                 uint32_t set{0};
                 uint32_t binding{0};
-                uint32_t offset{0};
-                size_t size{0};
+                std::size_t offset{0};
+                std::size_t size{0};
                 vk::DescriptorType descriptorType;
                 vk::ShaderStageFlags stageFlags{vk::ShaderStageFlagBits::eAll};
             };
@@ -119,7 +119,7 @@ namespace Engine
                  * 
                  * @return size_t Uniform buffer size
                  */
-                size_t getSize() const { return size; }
+                std::size_t getSize() const { return size; }
 
                 /**
                  * @brief Get uniform buffer stage flags
@@ -161,7 +161,7 @@ namespace Engine
             private:
                 uint32_t set{0};
                 uint32_t binding{0};
-                size_t size{0};
+                std::size_t size{0};
                 vk::ShaderStageFlags stageFlags{vk::ShaderStageFlagBits::eAll};
                 vk::DescriptorType descriptorType;
                 std::map<std::string, CUniform> mUniforms{};
@@ -182,7 +182,7 @@ namespace Engine
                  * 
                  * @return size_t Bloack size
                  */
-                size_t getSize() const { return size; }
+                std::size_t getSize() const { return size; }
 
                 /**
                  * @brief Get push block stages
@@ -214,7 +214,7 @@ namespace Engine
                     return it->second;
                 }
             private:
-                size_t size{0};
+                std::size_t size{0};
                 vk::ShaderStageFlags stageFlags{vk::ShaderStageFlagBits::eAll};
                 std::map<std::string, CUniform> mUniforms{};
             };
@@ -248,14 +248,14 @@ namespace Engine
                  * 
                  * @return size_t Attribute size
                  */
-                size_t getSize() const { return size; }
+                std::size_t getSize() const { return size; }
 
                 /**
                  * @brief Get attribute offset
                  * 
                  * @return size_t Attribute offset
                  */
-                size_t getOffset() const { return offset; }
+                std::size_t getOffset() const { return offset; }
 
                 /**
                  * @brief Get Attribute vulkan format
@@ -267,8 +267,8 @@ namespace Engine
             private:
                 uint32_t set{0};
                 uint32_t location{0};
-                size_t size{0};
-                size_t offset{0};
+                std::size_t size{0};
+                std::size_t offset{0};
                 vk::Format type{};
             };
 

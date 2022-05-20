@@ -41,7 +41,7 @@ void CMaterialBase::create()
     for(auto& [name, uniform] : m_pPipeline->getShader()->getPushBlocks())
     {
         auto pUniform = std::make_shared<CPushHandler>();
-        pUniform->create(uniform);
+        pUniform->create(uniform, m_pPipeline);
         mPushConstants.emplace(name, pUniform);
     }
 }

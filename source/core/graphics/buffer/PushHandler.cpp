@@ -10,17 +10,20 @@ CPushHandler::~CPushHandler()
     cleanup();
 }
 
-void CPushHandler::create(const CPushConstBlock &uniformBlock)
+void CPushHandler::create(const CPushConstBlock &uniformBlock, std::shared_ptr<Pipeline::CPipelineBase> pipeline)
 {
     uint32_t images = CDevice::inst()->getFramesInFlight();
+
+    pPipeline = pipeline;
+
     for(auto i = 0; i < images; i++)
         vData.emplace_back(std::make_unique<char[]>(uniformBlock.getSize()));
     pushBlock = uniformBlock;
 }
 
-void CPushHandler::reCreate()
+void CPushHandler::reCreate(std::shared_ptr<Pipeline::CPipelineBase> pipeline)
 {
-    create(pushBlock.value());
+    create(pushBlock.value(), pipeline);
 }
 
 void CPushHandler::cleanup()
@@ -35,13 +38,18 @@ void CPushHandler::cleanup()
     }
 }
 
-void CPushHandler::flush(vk::CommandBuffer& commandBuffer, std::shared_ptr<Pipeline::CPipelineBase> pPipeline)
+void CPushHandler::flush(vk::CommandBuffer& commandBuffer)
 {
     uint32_t index = CDevice::inst()->getCurrentFrame();
     
     auto& data = vData.at(index);
-    if(data)
+    if(data && pPipeline)
     {
         commandBuffer.pushConstants(pPipeline->getPipelineLayout(), pushBlock->getStageFlags(), 0, static_cast<uint32_t>(pushBlock->getSize()), data.get());
     }
+}
+
+uint32_t CPushHandler::getCurrentFrameProxy()
+{
+    return CDevice::inst()->getCurrentFrame();
 }

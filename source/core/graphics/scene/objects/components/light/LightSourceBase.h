@@ -7,28 +7,36 @@ namespace Engine
     {
         namespace Scene
         {
-            struct FPointLight
+            struct FPointLightUA
             {
-                glm::vec3 position;
-                glm::vec3 color;
+                 glm::vec3 position;
+                 glm::vec3 color;
                 float radius;
                 float intencity;
             };
 
+            struct FPointLight
+            {
+                alignas(16) glm::vec3 position;
+                alignas(16) glm::vec3 color;
+                alignas(4) float radius;
+                alignas(4) float intencity;
+            };
+
             struct FDirectionalLight
             {
-                glm::vec3 color;
-                glm::vec3 direction;
-                float intencity;
+                alignas(16) glm::vec3 color;
+                alignas(16) glm::vec3 direction;
+                alignas(4) float intencity;
             };
 
             struct FSpotLight
             {
-                glm::vec3 position;
-                glm::vec3 color;
-                glm::vec3 direction;
-                float intencity;
-                float cutoff;
+                alignas(16) glm::vec3 position;
+                alignas(16) glm::vec3 color;
+                alignas(16) glm::vec3 direction;
+                alignas(4) float intencity;
+                alignas(4) float cutoff;
             };
 
             class CLightSourceBase : public CRenderObject

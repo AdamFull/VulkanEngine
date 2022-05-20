@@ -214,7 +214,7 @@
             ]
         },
         {
-            "name": "PointLight_1",
+            "name": "DirectionalLight_1",
             "type": "light_source",
             "light":
             {
@@ -230,7 +230,7 @@
             }
         },
         {
-            "name": "PointLight_2",
+            "name": "PointLight_1",
             "type": "light_source",
             "light":
             {
@@ -242,6 +242,40 @@
             "transform":
             {
                 "pos": {"x": 20.0, "y": 20.0, "z": 20.0},
+                "rot": {"x": 0.0, "y": 0.0, "z": 0.0},
+                "scale": {"x": 1.0, "y": 1.0, "z": 1.0}
+            }
+        },
+        {
+            "name": "PointLight_2",
+            "type": "light_source",
+            "light":
+            {
+                "type": "point",
+                "color": {"x": 1.0, "y": 1.0, "z": 0.0},
+                "attenuation": 15.0,
+                "intencity": 10.0
+            },
+            "transform":
+            {
+                "pos": {"x": 1.0, "y": 1.0, "z": 20.0},
+                "rot": {"x": 0.0, "y": 0.0, "z": 0.0},
+                "scale": {"x": 1.0, "y": 1.0, "z": 1.0}
+            }
+        },
+        {
+            "name": "PointLight_3",
+            "type": "light_source",
+            "light":
+            {
+                "type": "point",
+                "color": {"x": 1.0, "y": 0.1, "z": 0.1},
+                "attenuation": 20.0,
+                "intencity": 10.0
+            },
+            "transform":
+            {
+                "pos": {"x": 10.0, "y": 1.0, "z": 20.0},
                 "rot": {"x": 0.0, "y": 0.0, "z": 0.0},
                 "scale": {"x": 1.0, "y": 1.0, "z": 1.0}
             }

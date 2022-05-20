@@ -35,9 +35,10 @@ void CFinalCompositionPass::render(vk::CommandBuffer& commandBuffer)
     //May be move to CompositionObject
 
     //TODO: push constant ranges here
-    auto& pUBO = pMaterial->getUniformBuffer("FBloomUbo");
+    auto& pUBO = pMaterial->getPushConstant("ubo");
     pUBO->set("gamma", GlobalVariables::postprocessGamma);
     pUBO->set("exposure", GlobalVariables::postprocessExposure);
+    pUBO->flush(commandBuffer);
 
     pMaterial->update();
     pMaterial->bind();

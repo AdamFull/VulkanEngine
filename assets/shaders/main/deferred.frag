@@ -55,7 +55,7 @@ layout(push_constant) uniform UBOLightning
 } ubo;
 
 //Lights
-layout(std430, binding = 9) uniform UBOLights
+layout(std140, binding = 9) uniform UBOLights
 {
 	PointLight pointLights[32];
 	DirectionalLight directionalLights[32];

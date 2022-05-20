@@ -46,6 +46,7 @@ void CPBRCompositionPass::reCreate()
 
 void CPBRCompositionPass::render(vk::CommandBuffer& commandBuffer)
 {
+    FSceneUniform sceneUniform{};
     auto& images = CRenderSystem::inst()->getCurrentStage()->getFramebuffer()->getCurrentImages();
     pMaterial->addTexture("brdflut_tex", *brdf);
     pMaterial->addTexture("irradiance_tex", *irradiance);
@@ -67,25 +68,29 @@ void CPBRCompositionPass::render(vk::CommandBuffer& commandBuffer)
     auto vPointLights = CLightSourceManager::inst()->getSources<FPointLight>();
     for(std::size_t i = 0; i < vPointLights.size(); i++)
         point_lights[i] = vPointLights.at(i);
-    point_count = vPointLights.size();
+    sceneUniform.pointLightCount = vPointLights.size();
 
     auto vDirectionalLights = CLightSourceManager::inst()->getSources<FDirectionalLight>();
     for(std::size_t i = 0; i < vDirectionalLights.size(); i++)
         directional_lights[i] = vDirectionalLights.at(i);
-    directional_count = vDirectionalLights.size();
+    sceneUniform.directionalLightCount = vDirectionalLights.size();
 
     auto vSpotLights = CLightSourceManager::inst()->getSources<FSpotLight>();
     for(std::size_t i = 0; i < vSpotLights.size(); i++)
         spot_lights[i] = vSpotLights.at(i);
-    spot_count = vSpotLights.size();
+    sceneUniform.spotLightCount = vSpotLights.size();
 
-    auto& pUBO = pMaterial->getUniformBuffer("UBOLightning");
-    pUBO->set("invViewProjection", invViewProjection);
-    pUBO->set("viewPos", camera->viewPos);
-    pUBO->set("bloom_threshold", GlobalVariables::bloomThreshold);
-    pUBO->set("pointLightCount", point_count);
-    pUBO->set("directionalLightCount", directional_count);
-    pUBO->set("spotLightCount", spot_count);
+    sceneUniform.viewPos = camera->viewPos;
+    sceneUniform.bloom_threshold = GlobalVariables::bloomThreshold;
+    auto ubosize = sizeof(FSceneUniform);
+    auto& pUBO = pMaterial->getPushConstant("ubo");
+    pUBO->set("invViewProjection", invViewProjection, imageIndex);
+    pUBO->set("viewPos", camera->viewPos, imageIndex);
+    pUBO->set("bloom_threshold", GlobalVariables::bloomThreshold, imageIndex);
+    pUBO->set("pointLightCount", point_count, imageIndex);
+    pUBO->set("directionalLightCount", directional_count, imageIndex);
+    pUBO->set("spotLightCount", spot_count, imageIndex);
+    pUBO->flush(commandBuffer, pMaterial->getPipeline());
 
     auto& pUBOLights = pMaterial->getUniformBuffer("UBOLights");
     pUBOLights->set("pointLights", point_lights);

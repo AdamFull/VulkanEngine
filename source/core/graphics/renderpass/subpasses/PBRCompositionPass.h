@@ -37,6 +37,16 @@ namespace Engine
 
                 std::array<Scene::FSpotLight, 32> spot_lights;
                 int32_t spot_count{0};
+
+                struct FSceneUniform
+                {
+                    glm::mat4 invViewProjection;
+                    glm::vec4 viewPos;
+                    alignas(4) float bloom_threshold;
+                    alignas(4) int pointLightCount;
+                    alignas(4) int directionalLightCount;
+                    alignas(4) int spotLightCount;
+                };
             };
         }
     }

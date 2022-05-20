@@ -134,6 +134,7 @@ namespace Engine
                 inline std::shared_ptr<Core::Pipeline::CPipelineBase> getPipeline() { return m_pPipeline; }
 
                 std::shared_ptr<Core::CHandler>& getUniformBuffer(const std::string& name) { return mBuffers[name]; }
+                std::shared_ptr<Core::CPushHandler>& getPushConstant(const std::string& name) { return mPushConstants[name]; }
 
             protected:
                 FMaterialParams m_fMatParams{};
@@ -141,7 +142,7 @@ namespace Engine
 
                 std::unique_ptr<Core::Descriptor::CDescriptorHandler> m_pDescriptorSet;
                 std::map<std::string, std::shared_ptr<Core::CHandler>> mBuffers;
-                std::vector<std::shared_ptr<Core::CPushHandler>> m_vPushConstants;
+                std::map<std::string, std::shared_ptr<Core::CPushHandler>> mPushConstants;
                 std::shared_ptr<Core::Pipeline::CPipelineBase> m_pPipeline;
                 std::map<std::string, vk::DescriptorImageInfo> m_mTextures;
                 std::map<std::string, vk::DescriptorBufferInfo> m_mBuffers;

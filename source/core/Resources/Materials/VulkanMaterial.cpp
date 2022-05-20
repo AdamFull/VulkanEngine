@@ -37,6 +37,13 @@ void CMaterialBase::create()
         pUniform->create(uniform);
         mBuffers.emplace(name, pUniform);
     }
+
+    for(auto& [name, uniform] : m_pPipeline->getShader()->getPushBlocks())
+    {
+        auto pUniform = std::make_shared<CPushHandler>();
+        pUniform->create(uniform);
+        mPushConstants.emplace(name, pUniform);
+    }
 }
 
 void CMaterialBase::addTexture(const std::string& attachment, vk::DescriptorImageInfo& descriptor)
@@ -97,9 +104,9 @@ void CMaterialBase::cleanup()
     for(auto& [name, handler] : mBuffers)
         handler->cleanup();
     mBuffers.clear();
-    for(auto& push : m_vPushConstants)
-        push->cleanup();
-    m_vPushConstants.clear();
+    for(auto& [name, handler] : mPushConstants)
+        handler->cleanup();
+    mPushConstants.clear();
     m_pPipeline->cleanup();
 }
 

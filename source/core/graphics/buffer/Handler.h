@@ -39,9 +39,10 @@ namespace Engine
                     vMapped.at(index) = true;
                 }
 
-                if(status == EHandlerStatus::eChanged || pBuffer->compare((void*)&object, size, offset))
+                auto size = sizeof(object);
+                if(status == EHandlerStatus::eChanged || pBuffer->compare((void*)&object, size, 0))
                 {
-                    pBuffer->write((void*)&object, size, offset);
+                    pBuffer->write((void*)&object, size, 0);
                     status = EHandlerStatus::eChanged;
                 }
 

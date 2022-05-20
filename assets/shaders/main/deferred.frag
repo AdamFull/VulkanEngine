@@ -44,7 +44,7 @@ struct SpotLight
 	float cutoff;
 };
 
-layout(std140, binding = 9) uniform UBOLightning
+layout(push_constant) uniform UBOLightning
 {
 	mat4 invViewProjection;
 	vec4 viewPos;
@@ -55,7 +55,7 @@ layout(std140, binding = 9) uniform UBOLightning
 } ubo;
 
 //Lights
-layout(std430, binding = 10) uniform UBOLights
+layout(std430, binding = 9) uniform UBOLights
 {
 	PointLight pointLights[32];
 	DirectionalLight directionalLights[32];

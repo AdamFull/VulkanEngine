@@ -24,7 +24,7 @@ namespace Engine
                 public:
                     Builder& setFlipViewport(vk::Bool32 value) { flipViewport = value; return *this; }
                     Builder& addAttachmentDescription(vk::AttachmentDescription &&desc);
-                    Builder& addAttachmentDescription(const vk::Format format, vk::SampleCountFlagBits samples = vk::SampleCountFlagBits::e1, vk::AttachmentLoadOp loadOp = vk::AttachmentLoadOp::eClear, vk::AttachmentStoreOp storeOp = vk::AttachmentStoreOp::eStore,
+                    Builder& addAttachmentDescription(const vk::Format format, vk::SampleCountFlagBits samples = vk::SampleCountFlagBits::e1, vk::AttachmentLoadOp loadOp = vk::AttachmentLoadOp::eClear, vk::AttachmentStoreOp storeOp = vk::AttachmentStoreOp::eDontCare,
                                                       vk::AttachmentLoadOp stencilLoadOp = vk::AttachmentLoadOp::eDontCare, vk::AttachmentStoreOp stencilStoreOp = vk::AttachmentStoreOp::eDontCare, vk::ImageLayout initialLayout = vk::ImageLayout::eUndefined, 
                                                       vk::ImageLayout finalLayout = vk::ImageLayout::eColorAttachmentOptimal);
 

@@ -8,12 +8,12 @@ layout (binding = 0) uniform sampler2D brdflut_tex;
 layout (binding = 1) uniform samplerCube irradiance_tex;
 layout (binding = 2) uniform samplerCube prefiltred_tex;
 
-layout (input_attachment_index = 1, binding = 3) uniform subpassInput lightning_mask_tex;
-layout (input_attachment_index = 2, binding = 4) uniform subpassInput normal_tex;
-layout (input_attachment_index = 3, binding = 5) uniform subpassInput albedo_tex;
-layout (input_attachment_index = 4, binding = 6) uniform subpassInput emission_tex;
-layout (input_attachment_index = 5, binding = 7) uniform subpassInput mrah_tex;
-layout (input_attachment_index = 6, binding = 8) uniform subpassInput depth_tex;
+layout (input_attachment_index = 0, binding = 3) uniform subpassInput lightning_mask_tex;
+layout (input_attachment_index = 1, binding = 4) uniform subpassInput normal_tex;
+layout (input_attachment_index = 2, binding = 5) uniform subpassInput albedo_tex;
+layout (input_attachment_index = 3, binding = 6) uniform subpassInput emission_tex;
+layout (input_attachment_index = 4, binding = 7) uniform subpassInput mrah_tex;
+layout (input_attachment_index = 5, binding = 8) uniform subpassInput depth_tex;
 
 layout (location = 0) in vec2 inUV;
 

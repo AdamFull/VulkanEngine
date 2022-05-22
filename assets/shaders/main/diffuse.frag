@@ -16,28 +16,18 @@ layout (location = 2) in vec3 inColor;
 layout (location = 3) in vec4 inTangent;
 
 layout (location = 0) out float outMask;
-layout (location = 1) out vec4 outNormal;
-layout (location = 2) out vec4 outAlbedo;
-layout (location = 3) out vec4 outEmission;
-layout (location = 4) out vec4 outMRAH;
+layout (location = 1) out uvec4 outPack;
+layout (location = 2) out vec4 outEmission;
 
 #include "../shared_shaders.glsl"
-
-const float NEAR_PLANE = 0.01f;
-const float FAR_PLANE = 1024.0f;
-
-float linearDepth(float depth) 
-{
-    float z = depth * 2.0f - 1.0f;
-    return (2.0f * NEAR_PLANE * FAR_PLANE) / (FAR_PLANE + NEAR_PLANE - z * (FAR_PLANE - NEAR_PLANE));
-}
+#include "../shader_util.glsl"
 
 void main() 
 {
-	outNormal = vec4(getNormalsOld(normal_tex, inNormal, inTangent, inUV), 1.0);
-
 	outMask = 1.0;
-	outAlbedo = texture(color_tex, inUV);
+
+	vec3 normal_map = getNormalsOld(normal_tex, inNormal, inTangent, inUV);
+	vec3 albedo_map = texture(color_tex, inUV).rgb;
 
 	vec4 metalRough = texture(metalRough_tex, inUV);
 	float metal = metalRough.b;
@@ -45,6 +35,9 @@ void main()
 	float occlusion = texture(ao_tex, inUV).r;
 	float height = texture(height_tex, inUV).r;
 
+	vec4 pbr_map = vec4(metal, rough, occlusion, height);
+
+	outPack = packTextures(normal_map, albedo_map, pbr_map);
+
 	outEmission = texture(emissive_tex, inUV);
-	outMRAH = vec4(metal, rough, occlusion, 1.0);
 }

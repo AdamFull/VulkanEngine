@@ -51,12 +51,10 @@ void CPBRCompositionPass::render(vk::CommandBuffer& commandBuffer)
     pMaterial->addTexture("brdflut_tex", *brdf);
     pMaterial->addTexture("irradiance_tex", *irradiance);
     pMaterial->addTexture("prefiltred_tex", *prefiltered);
-    //pMaterial->addTexture("position_tex", images["position_tex"]);
+    
     pMaterial->addTexture("lightning_mask_tex", images["lightning_mask_tex"]);
-    pMaterial->addTexture("normal_tex", images["normal_tex"]);
-    pMaterial->addTexture("albedo_tex", images["albedo_tex"]);
+    pMaterial->addTexture("packed_tex", images["packed_tex"]);
     pMaterial->addTexture("emission_tex", images["emission_tex"]);
-    pMaterial->addTexture("mrah_tex", images["mrah_tex"]);
     pMaterial->addTexture("depth_tex", depthImage);
 
     auto imageIndex = CDevice::inst()->getCurrentFrame();

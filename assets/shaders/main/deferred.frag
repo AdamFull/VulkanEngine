@@ -9,11 +9,9 @@ layout (binding = 1) uniform samplerCube irradiance_tex;
 layout (binding = 2) uniform samplerCube prefiltred_tex;
 
 layout (input_attachment_index = 0, binding = 3) uniform subpassInput lightning_mask_tex;
-layout (input_attachment_index = 1, binding = 4) uniform subpassInput normal_tex;
-layout (input_attachment_index = 2, binding = 5) uniform subpassInput albedo_tex;
-layout (input_attachment_index = 3, binding = 6) uniform subpassInput emission_tex;
-layout (input_attachment_index = 4, binding = 7) uniform subpassInput mrah_tex;
-layout (input_attachment_index = 5, binding = 8) uniform subpassInput depth_tex;
+layout (input_attachment_index = 1, binding = 4) uniform usubpassInput packed_tex;
+layout (input_attachment_index = 2, binding = 5) uniform subpassInput emission_tex;
+layout (input_attachment_index = 3, binding = 6) uniform subpassInput depth_tex;
 
 layout (location = 0) in vec2 inUV;
 
@@ -67,15 +65,25 @@ layout(std140, binding = 9) uniform UBOLights
 
 void main() 
 {
-	// Get G-Buffer values
-	//vec3 inWorldPos = subpassLoad(position_tex).rgb;
+	// ---Get G-Buffer values---
+
+	//Load depth and world position
 	float depth = subpassLoad(depth_tex).r;
 	vec3 inWorldPos = getPositionFromDepth(inUV, depth, ubo.invViewProjection);
+
+	// REMOVE THIS. Load lightning mask
 	float mask = subpassLoad(lightning_mask_tex).r;
-	vec3 albedo = pow(subpassLoad(albedo_tex).rgb, vec3(2.2f));
-	vec3 N = subpassLoad(normal_tex).rgb;
+
+	vec3 normal = vec3(0.0);
+	vec3 albedo = vec3(0.0);
+	vec4 mrah = vec4(0.0);
+
+	// Loading texture pack
+	uvec4 packed_data = subpassLoad(packed_tex);
+	unpackTextures(packed_data, normal, albedo, mrah);
+
+	albedo = pow(albedo, vec3(2.2f));
 	vec3 emission = pow(subpassLoad(emission_tex).rgb, vec3(2.2f));
-	vec4 mrah = subpassLoad(mrah_tex);
 
 	float metalic = mrah.r;
 	float roughness = mrah.g;
@@ -85,13 +93,13 @@ void main()
 	bool ignoreLightning = mask == 0.0f;
 
 	vec3 fragcolor = vec3(0.0f);
-	if(!ignoreLightning && N != vec3(0.0f))
+	if(!ignoreLightning && normal != vec3(0.0f))
 	{
 		vec3 cameraPos = ubo.viewPos.xyz;
 		// Calculate direction from fragment to viewPosition
 		vec3 V = normalize(cameraPos - inWorldPos);
 		// Reflection vector
-		vec3 R = reflect(-V, N);
+		vec3 R = reflect(-V, normal);
 
 		vec3 F0 = vec3(0.04f); 
 		// Reflectance at normal incidence angle
@@ -108,7 +116,7 @@ void main()
 			float dist = length(L);
 			L = normalize(L);
 			float atten = clamp(1.0 - pow(dist, 2.0f)/pow(light.radius, 2.0f), 0.0f, 1.0f); atten *= atten;
-			Lo += atten * light.color.rgb * light.intencity * specularContribution(albedo, L, V, N, F0, metalic, roughness);
+			Lo += atten * light.color.rgb * light.intencity * specularContribution(albedo, L, V, normal, F0, metalic, roughness);
 		}
 
 		//Adding directional lights
@@ -118,7 +126,7 @@ void main()
 			vec3 L = -light.direction;
 			float dist = length(L);
 			L = normalize(L);
-			Lo += light.color.rgb * light.intencity * specularContribution(albedo, L, V, N, F0, metalic, roughness);
+			Lo += light.color.rgb * light.intencity * specularContribution(albedo, L, V, normal, F0, metalic, roughness);
 		}
 
 		//Adding spot lights
@@ -132,18 +140,18 @@ void main()
 				float dist = length(L);
 				L = normalize(L);
 				float atten = 1.0 - (1.0 - theta) * 1.0/(1.0 - light.cutoff);
-				Lo += light.color.rgb * atten * light.intencity * specularContribution(albedo, L, V, N, F0, metalic, roughness);
+				Lo += light.color.rgb * atten * light.intencity * specularContribution(albedo, L, V, normal, F0, metalic, roughness);
 			}
 		}
 
-		vec2 brdf = texture(brdflut_tex, vec2(max(dot(N, V), 0.0f), roughness)).rg;
+		vec2 brdf = texture(brdflut_tex, vec2(max(dot(normal, V), 0.0f), roughness)).rg;
 		vec3 reflection = prefilteredReflection(R, roughness, prefiltred_tex);	
-		vec3 irradiance = pow(texture(irradiance_tex, N).rgb, vec3(2.2f));
+		vec3 irradiance = pow(texture(irradiance_tex, normal).rgb, vec3(2.2f));
 
 		// Diffuse based on irradiance
 		vec3 diffuse = irradiance * albedo;	
 
-		vec3 F = F_SchlickR(max(dot(N, V), 0.0f), F0, roughness);
+		vec3 F = F_SchlickR(max(dot(normal, V), 0.0f), F0, roughness);
 
 		// Specular reflectance
 		vec3 specular = reflection * (F * brdf.r + brdf.g);

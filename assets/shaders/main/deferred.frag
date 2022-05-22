@@ -4,6 +4,9 @@
 #extension GL_EXT_scalar_block_layout : enable
 #extension GL_GOOGLE_include_directive : require
 
+#include "../shared_lightning.glsl"
+#include "../shader_util.glsl"
+
 layout (binding = 0) uniform sampler2D brdflut_tex;
 layout (binding = 1) uniform samplerCube irradiance_tex;
 layout (binding = 2) uniform samplerCube prefiltred_tex;
@@ -16,30 +19,6 @@ layout (location = 0) in vec2 inUV;
 
 layout (location = 0) out vec4 outFragcolor;
 layout (location = 1) out vec4 outBrightness;
-
-struct PointLight
-{
-	vec3 position;
-	vec3 color;
-	float radius;
-	float intencity;
-};
-
-struct DirectionalLight
-{
-	vec3 color;
-	vec3 direction;
-	float intencity;
-};
-
-struct SpotLight
-{
-	vec3 position;
-	vec3 color;
-	vec3 direction;
-	float intencity;
-	float cutoff;
-};
 
 layout(push_constant) uniform UBOLightning
 {
@@ -58,9 +37,6 @@ layout(std140, binding = 9) uniform UBOLights
 	DirectionalLight directionalLights[32];
 	SpotLight spotLights[32];
 } lights;
-
-#include "../shared_lightning.glsl"
-#include "../shader_util.glsl"
 
 void main() 
 {
@@ -151,9 +127,6 @@ void main()
 
 		// Specular reflectance
 		vec3 specular = reflection * (F * brdf.r + brdf.g);
-
-		//outFragcolor = vec4(V, 1.0f );
-		//return;
 
 		// Ambient part
 		vec3 kD = 1.0f - F;

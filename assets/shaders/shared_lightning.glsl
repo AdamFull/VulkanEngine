@@ -1,5 +1,29 @@
 #define PI 3.1415926535897932384626433832795
 
+struct PointLight
+{
+	vec3 position;
+	vec3 color;
+	float radius;
+	float intencity;
+};
+
+struct DirectionalLight
+{
+	vec3 color;
+	vec3 direction;
+	float intencity;
+};
+
+struct SpotLight
+{
+	vec3 position;
+	vec3 color;
+	vec3 direction;
+	float intencity;
+	float cutoff;
+};
+
 // From http://filmicworlds.com/blog/filmic-tonemapping-operators/
 vec3 Uncharted2Tonemap(vec3 color)
 {

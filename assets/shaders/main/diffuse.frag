@@ -10,20 +10,18 @@ layout(binding = 4) uniform sampler2D normal_tex;
 layout(binding = 5) uniform sampler2D height_tex;
 layout(binding = 6) uniform sampler2D ao_tex;
 
-layout (location = 0) in vec3 inNormal;
-layout (location = 1) in vec2 inUV;
-layout (location = 2) in vec3 inColor;
-layout (location = 3) in vec4 inTangent;
+layout(location = 0) in vec2 inUV;
+layout(location = 1) in vec3 inColor;
+layout(location = 2) in mat3 inTBN;
 
-layout (location = 0) out uvec4 outPack;
-layout (location = 1) out vec4 outEmission;
+layout(location = 0) out uvec4 outPack;
+layout(location = 1) out vec4 outEmission;
 
-#include "../shared_shaders.glsl"
 #include "../shader_util.glsl"
 
 void main() 
 {
-	vec3 normal_map = getNormalsOld(normal_tex, inNormal, inTangent, inUV);
+	vec3 normal_map = getTangentSpaceNormalMap(normal_tex, inTBN, inUV);
 	vec3 albedo_map = texture(color_tex, inUV).rgb;
 
 	vec4 metalRough = texture(metalRough_tex, inUV);

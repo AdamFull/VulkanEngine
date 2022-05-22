@@ -1,3 +1,20 @@
+vec3 getTangentSpaceNormalMap(sampler2D samplerNormal, mat3 TBN, vec2 uv)
+{
+	vec3 normalColor = texture(samplerNormal, uv).rgb;
+	vec3 tangentNormal = normalColor * 2.0f - 1.0f;
+	return normalize(TBN * tangentNormal);
+}
+
+// Calculate normal in tangent space
+mat3 calculateTBN(vec3 normal, vec4 tangent)
+{
+	vec3 N = normalize(normal);
+	vec3 T = normalize(tangent.xyz);
+	vec3 B = normalize(cross(N, T) * tangent.w);
+	
+	return mat3(T, B, N);
+}
+
 vec3 getPositionFromDepth(vec2 texcoord, float depth, mat4 invViewProjection)
 {
     vec4 clipSpaceLocation;

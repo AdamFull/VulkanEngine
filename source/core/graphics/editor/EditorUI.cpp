@@ -247,7 +247,7 @@ void CEditorUI::newFrame()
 
         ImGui::DockSpaceOverViewport();
 
-        ImGui::ShowDemoWindow();
+        //ImGui::ShowDemoWindow();
         for (auto& [type, overlay] : vWindows)
             overlay->draw();
     }

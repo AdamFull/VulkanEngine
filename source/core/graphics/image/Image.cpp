@@ -5,6 +5,8 @@
 using namespace Engine::Core;
 using namespace Engine::Core::Loaders;
 
+//Maybe add to image generation of attachment description and 
+
 CImage::~CImage()
 {
     CDevice::inst()->destroy(&_image);
@@ -99,6 +101,7 @@ vk::Filter filter, vk::SampleCountFlagBits samples)
     _addressMode = addressMode;
     _filter = filter;
     _samples = samples;
+    _usage = flags;
 
     //TODO: Add checking for texture type here
     if(!isSupportedDimension(info))
@@ -559,6 +562,16 @@ vk::SamplerAddressMode addressMode, vk::Filter filter)
 void CImage::setImageLayout(vk::ImageLayout layout)
 {
     _imageLayout = layout;
+}
+
+vk::DescriptorImageInfo& CImage::getDescriptor()
+{
+    if(_imageLayout == vk::ImageLayout::eDepthStencilAttachmentOptimal && (_usage & vk::ImageUsageFlagBits::eInputAttachment))
+    {
+        _imageLayout = vk::ImageLayout::eShaderReadOnlyOptimal;
+        updateDescriptor();
+    }
+    return _descriptor;
 }
 
 vk::DescriptorSet& CImage::getDescriptorSet()

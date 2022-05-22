@@ -263,7 +263,7 @@ namespace Engine
              * 
              * @return vk::DescriptorImageInfo& Descriptor image info
              */
-            vk::DescriptorImageInfo &getDescriptor() { return _descriptor; }
+            vk::DescriptorImageInfo &getDescriptor();
 
             /**
              * @brief Get image extent

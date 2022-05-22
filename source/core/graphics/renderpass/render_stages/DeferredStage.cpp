@@ -42,10 +42,10 @@ void CDeferredStage::create()
         {7, vk::ImageLayout::eShaderReadOnlyOptimal},
     });
 
+    //TODO: i don't need to rewrite descriptor sets. I can just update them
     pRenderPass = Render::CRenderPass::Builder().
     addAttachmentDescription(vk::Format::eR32G32B32A32Sfloat, vk::SampleCountFlagBits::e1, vk::AttachmentLoadOp::eClear, vk::AttachmentStoreOp::eStore, 
     vk::AttachmentLoadOp::eDontCare, vk::AttachmentStoreOp::eDontCare, vk::ImageLayout::eUndefined, vk::ImageLayout::eShaderReadOnlyOptimal). //Final image
-    //addAttachmentDescription(vk::Format::eR16G16B16A16Sfloat). //Position buffer
     addAttachmentDescription(vk::Format::eR8G8B8A8Srgb). //Light mask buffer
     addAttachmentDescription(vk::Format::eR16G16B16A16Sfloat). //Normals buffer
     addAttachmentDescription(vk::Format::eR8G8B8A8Srgb). //Albedo buffer
@@ -59,11 +59,14 @@ void CDeferredStage::create()
     addSubpassDescription(vk::PipelineBindPoint::eGraphics, outReferences[0], &depthReference).
     //PBR composition description
     addSubpassDescription(vk::PipelineBindPoint::eGraphics, outReferences[1], nullptr, inReferences[1]).
+
     addSubpassDependency(VK_SUBPASS_EXTERNAL, 0, vk::PipelineStageFlagBits::eFragmentShader,
     vk::PipelineStageFlagBits::eColorAttachmentOutput | vk::PipelineStageFlagBits::eEarlyFragmentTests | vk::PipelineStageFlagBits::eLateFragmentTests,
     vk::AccessFlagBits::eShaderRead, vk::AccessFlagBits::eColorAttachmentWrite | vk::AccessFlagBits::eDepthStencilAttachmentRead | vk::AccessFlagBits::eDepthStencilAttachmentWrite).
     addSubpassDependency(0, 1, vk::PipelineStageFlagBits::eColorAttachmentOutput | vk::PipelineStageFlagBits::eEarlyFragmentTests | vk::PipelineStageFlagBits::eLateFragmentTests,
     vk::PipelineStageFlagBits::eColorAttachmentOutput, vk::AccessFlagBits::eColorAttachmentWrite | vk::AccessFlagBits::eDepthStencilAttachmentWrite, vk::AccessFlagBits::eColorAttachmentWrite).
+    addSubpassDependency(0, VK_SUBPASS_EXTERNAL, vk::PipelineStageFlagBits::eColorAttachmentOutput | vk::PipelineStageFlagBits::eEarlyFragmentTests | vk::PipelineStageFlagBits::eLateFragmentTests, vk::PipelineStageFlagBits::eFragmentShader,
+    vk::AccessFlagBits::eColorAttachmentWrite | vk::AccessFlagBits::eDepthStencilAttachmentWrite, vk::AccessFlagBits::eShaderRead).
     addSubpassDependency(1, VK_SUBPASS_EXTERNAL, vk::PipelineStageFlagBits::eColorAttachmentOutput, vk::PipelineStageFlagBits::eFragmentShader,
     vk::AccessFlagBits::eColorAttachmentWrite, vk::AccessFlagBits::eShaderRead).
     setFlipViewport(VK_TRUE).
@@ -74,7 +77,6 @@ void CDeferredStage::create()
 
     pFramebuffer = std::make_unique<CFramebuffer>();
     pFramebuffer->addImage("output_color", vk::Format::eR32G32B32A32Sfloat, vk::ImageUsageFlagBits::eColorAttachment | vk::ImageUsageFlagBits::eSampled);
-    //pFramebuffer->addImage("position_tex", vk::Format::eR16G16B16A16Sfloat, vk::ImageUsageFlagBits::eColorAttachment | vk::ImageUsageFlagBits::eInputAttachment);
     pFramebuffer->addImage("lightning_mask_tex", vk::Format::eR8G8B8A8Srgb, vk::ImageUsageFlagBits::eColorAttachment | vk::ImageUsageFlagBits::eInputAttachment);
     pFramebuffer->addImage("normal_tex", vk::Format::eR16G16B16A16Sfloat, vk::ImageUsageFlagBits::eColorAttachment | vk::ImageUsageFlagBits::eInputAttachment);
     pFramebuffer->addImage("albedo_tex", vk::Format::eR8G8B8A8Srgb, vk::ImageUsageFlagBits::eColorAttachment | vk::ImageUsageFlagBits::eInputAttachment);
@@ -86,24 +88,6 @@ void CDeferredStage::create()
     pRenderPass->setRenderArea(vk::Offset2D{0, 0}, screenExtent);
     pFramebuffer->create(pRenderPass->get(), screenExtent);
     pRenderPass->create();
-
-    /*
-    Validation Error: [ VUID-VkWriteDescriptorSet-descriptorType-04151 ] 
-    Object 0: handle = 0xe7c4f500000001e3, 
-    type = VK_OBJECT_TYPE_DESCRIPTOR_SET; | 
-    MessageID = 0x62405e2d | 
-    vkUpdateDescriptorSets() pDescriptorWrites[3] failed write update validation for VkDescriptorSet 0xe7c4f500000001e3[] with error: 
-    Write update to VkDescriptorSet 0xe7c4f500000001e3[] allocated with VkDescriptorSetLayout 0xfcda0e00000001e0[] binding #8 failed 
-    with error message: Attempted write update to image descriptor failed due to: Descriptor update with descriptorType 
-    VK_DESCRIPTOR_TYPE_INPUT_ATTACHMENT is being updated with invalid imageLayout VK_IMAGE_LAYOUT_DEPTH_STENCIL_ATTACHMENT_OPTIMAL for 
-    image VkImage 0x94162c000000010a[] in imageView VkImageView 0x4d6d9a000000010c[]. Allowed layouts are: 
-    VK_IMAGE_LAYOUT_DEPTH_STENCIL_READ_ONLY_OPTIMAL, VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL, VK_IMAGE_LAYOUT_GENERAL, 
-    VK_IMAGE_LAYOUT_DEPTH_READ_ONLY_STENCIL_ATTACHMENT_OPTIMAL, VK_IMAGE_LAYOUT_DEPTH_ATTACHMENT_STENCIL_READ_ONLY_OPTIMAL, 
-    VK_IMAGE_LAYOUT_DEPTH_READ_ONLY_OPTIMAL, VK_IMAGE_LAYOUT_STENCIL_READ_ONLY_OPTIMAL. 
-    The Vulkan spec states: If descriptorType is VK_DESCRIPTOR_TYPE_INPUT_ATTACHMENT the imageLayout member of each element of 
-    pImageInfo must be a member of the list given in Input Attachment 
-    (https://vulkan.lunarg.com/doc/view/1.3.204.1/windows/1.3-extensions/vkspec.html#VUID-VkWriteDescriptorSet-descriptorType-04151)
-    */
 }
 
 void CDeferredStage::rebuild()

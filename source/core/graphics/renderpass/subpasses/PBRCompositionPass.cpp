@@ -52,7 +52,6 @@ void CPBRCompositionPass::render(vk::CommandBuffer& commandBuffer)
     pMaterial->addTexture("irradiance_tex", *irradiance);
     pMaterial->addTexture("prefiltred_tex", *prefiltered);
     
-    pMaterial->addTexture("lightning_mask_tex", images["lightning_mask_tex"]);
     pMaterial->addTexture("packed_tex", images["packed_tex"]);
     pMaterial->addTexture("emission_tex", images["emission_tex"]);
     pMaterial->addTexture("depth_tex", depthImage);

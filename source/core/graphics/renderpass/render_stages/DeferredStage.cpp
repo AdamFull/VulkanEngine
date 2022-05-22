@@ -21,28 +21,25 @@ void CDeferredStage::create()
     {
         {1, vk::ImageLayout::eColorAttachmentOptimal},
         {2, vk::ImageLayout::eColorAttachmentOptimal},
-        {3, vk::ImageLayout::eColorAttachmentOptimal},
     });
     outReferences.emplace(1, std::vector<vk::AttachmentReference>
     {
         {0, vk::ImageLayout::eColorAttachmentOptimal},
-        {4, vk::ImageLayout::eColorAttachmentOptimal}
+        {3, vk::ImageLayout::eColorAttachmentOptimal}
     });
-    depthReference = vk::AttachmentReference{5, vk::ImageLayout::eDepthStencilAttachmentOptimal};
+    depthReference = vk::AttachmentReference{4, vk::ImageLayout::eDepthStencilAttachmentOptimal};
 
     inReferences.emplace(1, std::vector<vk::AttachmentReference>
     {
         {1, vk::ImageLayout::eShaderReadOnlyOptimal},
         {2, vk::ImageLayout::eShaderReadOnlyOptimal},
-        {3, vk::ImageLayout::eShaderReadOnlyOptimal},
-        {5, vk::ImageLayout::eShaderReadOnlyOptimal},
+        {4, vk::ImageLayout::eShaderReadOnlyOptimal},
     });
 
     //TODO: i don't need to rewrite descriptor sets. I can just update them
     pRenderPass = Render::CRenderPass::Builder().
     addAttachmentDescription(vk::Format::eR32G32B32A32Sfloat, vk::SampleCountFlagBits::e1, vk::AttachmentLoadOp::eClear, vk::AttachmentStoreOp::eStore, 
     vk::AttachmentLoadOp::eDontCare, vk::AttachmentStoreOp::eDontCare, vk::ImageLayout::eUndefined, vk::ImageLayout::eShaderReadOnlyOptimal). //Final image
-    addAttachmentDescription(vk::Format::eR8Snorm). //Light mask buffer
     addAttachmentDescription(vk::Format::eR32G32B32A32Uint). // normal, color, mrah(metal, roughness, ao, height)
     addAttachmentDescription(vk::Format::eR8G8B8A8Snorm). //Emissive buffer
     addAttachmentDescription(vk::Format::eR32G32B32A32Sfloat, vk::SampleCountFlagBits::e1, vk::AttachmentLoadOp::eClear, vk::AttachmentStoreOp::eStore, 
@@ -69,7 +66,6 @@ void CDeferredStage::create()
 
     pFramebuffer = std::make_unique<CFramebuffer>();
     pFramebuffer->addImage("output_color", vk::Format::eR32G32B32A32Sfloat, vk::ImageUsageFlagBits::eColorAttachment | vk::ImageUsageFlagBits::eSampled);
-    pFramebuffer->addImage("lightning_mask_tex", vk::Format::eR8Snorm, vk::ImageUsageFlagBits::eColorAttachment | vk::ImageUsageFlagBits::eInputAttachment);
     pFramebuffer->addImage("packed_tex", vk::Format::eR32G32B32A32Uint, vk::ImageUsageFlagBits::eColorAttachment | vk::ImageUsageFlagBits::eInputAttachment);
     pFramebuffer->addImage("emission_tex", vk::Format::eR8G8B8A8Snorm, vk::ImageUsageFlagBits::eColorAttachment | vk::ImageUsageFlagBits::eInputAttachment);
     pFramebuffer->addImage("brightness_buffer", vk::Format::eR32G32B32A32Sfloat, vk::ImageUsageFlagBits::eColorAttachment | vk::ImageUsageFlagBits::eSampled);

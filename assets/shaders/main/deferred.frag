@@ -8,10 +8,9 @@ layout (binding = 0) uniform sampler2D brdflut_tex;
 layout (binding = 1) uniform samplerCube irradiance_tex;
 layout (binding = 2) uniform samplerCube prefiltred_tex;
 
-layout (input_attachment_index = 0, binding = 3) uniform subpassInput lightning_mask_tex;
-layout (input_attachment_index = 1, binding = 4) uniform usubpassInput packed_tex;
-layout (input_attachment_index = 2, binding = 5) uniform subpassInput emission_tex;
-layout (input_attachment_index = 3, binding = 6) uniform subpassInput depth_tex;
+layout (input_attachment_index = 0, binding = 3) uniform usubpassInput packed_tex;
+layout (input_attachment_index = 1, binding = 4) uniform subpassInput emission_tex;
+layout (input_attachment_index = 2, binding = 5) uniform subpassInput depth_tex;
 
 layout (location = 0) in vec2 inUV;
 
@@ -71,9 +70,6 @@ void main()
 	float depth = subpassLoad(depth_tex).r;
 	vec3 inWorldPos = getPositionFromDepth(inUV, depth, ubo.invViewProjection);
 
-	// REMOVE THIS. Load lightning mask
-	float mask = subpassLoad(lightning_mask_tex).r;
-
 	vec3 normal = vec3(0.0);
 	vec3 albedo = vec3(0.0);
 	vec4 mrah = vec4(0.0);
@@ -90,10 +86,10 @@ void main()
 	float occlusion = mrah.b;
 	float height = mrah.a;
 
-	bool ignoreLightning = mask == 0.0f;
+	bool calculateLightning = normal != vec3(0.0f);
 
 	vec3 fragcolor = vec3(0.0f);
-	if(!ignoreLightning && normal != vec3(0.0f))
+	if(calculateLightning)
 	{
 		vec3 cameraPos = ubo.viewPos.xyz;
 		// Calculate direction from fragment to viewPosition
@@ -174,7 +170,7 @@ void main()
 
 	float brightness = dot(fragcolor.rgb, vec3(0.2126, 0.7152, 0.0722));
 	if(brightness > ubo.bloom_threshold)
-        outBrightness = vec4(fragcolor.rgb, 1.0) * mask;
+        outBrightness = vec4(fragcolor.rgb, 1.0) * (calculateLightning ? 1.0 : 0.0);
     else
         outBrightness = vec4(0.0, 0.0, 0.0, 1.0);
    

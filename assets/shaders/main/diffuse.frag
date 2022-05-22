@@ -15,17 +15,14 @@ layout (location = 1) in vec2 inUV;
 layout (location = 2) in vec3 inColor;
 layout (location = 3) in vec4 inTangent;
 
-layout (location = 0) out float outMask;
-layout (location = 1) out uvec4 outPack;
-layout (location = 2) out vec4 outEmission;
+layout (location = 0) out uvec4 outPack;
+layout (location = 1) out vec4 outEmission;
 
 #include "../shared_shaders.glsl"
 #include "../shader_util.glsl"
 
 void main() 
 {
-	outMask = 1.0;
-
 	vec3 normal_map = getNormalsOld(normal_tex, inNormal, inTangent, inUV);
 	vec3 albedo_map = texture(color_tex, inUV).rgb;
 

@@ -15,7 +15,7 @@ layout (location = 1) in vec2 inUV;
 layout (location = 2) in vec3 inColor;
 layout (location = 3) in vec4 inTangent;
 
-layout (location = 0) out vec4 outMask;
+layout (location = 0) out float outMask;
 layout (location = 1) out vec4 outNormal;
 layout (location = 2) out vec4 outAlbedo;
 layout (location = 3) out vec4 outEmission;
@@ -34,11 +34,9 @@ float linearDepth(float depth)
 
 void main() 
 {
-	//outPosition = vec4(inWorldPos, 1.0);
-
 	outNormal = vec4(getNormalsOld(normal_tex, inNormal, inTangent, inUV), 1.0);
 
-	outMask = vec4(1.0);
+	outMask = 1.0;
 	outAlbedo = texture(color_tex, inUV);
 
 	vec4 metalRough = texture(metalRough_tex, inUV);

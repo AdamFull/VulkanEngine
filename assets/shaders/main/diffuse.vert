@@ -27,8 +27,6 @@ void main()
 {
   vec4 tmpPos = vec4(inPosition, 1.0);
 
-  //outWorldPos = (ubo.model * tmpPos).xyz;
-
   mat3 normal = mat3(ubo.normal);
 	outUV = inTexCoord * 1.0;
   outNormal = normal * inNormal;

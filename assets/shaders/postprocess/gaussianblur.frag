@@ -8,7 +8,7 @@ layout (binding = 1) uniform sampler2D samplerBrightness;
 
 layout (location = 0) in vec2 inUV;
 
-layout(std140, binding = 2) uniform FBloomUbo 
+layout(push_constant) uniform FBloomUbo 
 {
     //Bloom
 	float blurScale;

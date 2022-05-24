@@ -7,11 +7,10 @@ namespace Engine
     {
         namespace Render
         {
-            class CGaussianBlurPass : public CSubpass
+            class CDownsamplePass : public CSubpass
             {
             public:
-                CGaussianBlurPass() = default;
-                explicit CGaussianBlurPass(int direction, const std::string& ref_name) : direction(direction), imageReferenceName(ref_name) {}
+                CDownsamplePass() = default;
                 void create() override;
                 void reCreate() override;
                 void render(vk::CommandBuffer& commandBuffer) override;
@@ -19,7 +18,6 @@ namespace Engine
             private:
                 int direction{-1};
                 std::string imageReferenceName{""};
-                std::shared_ptr<CImage> pImage;
             };
         }
     }

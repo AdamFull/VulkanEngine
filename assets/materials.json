@@ -59,6 +59,19 @@
                 "BLUR_TYPE": "5"
             } 
         },
+        "downsample": 
+        {
+            "bindPoint": "graphics",
+            "culling": "back",
+            "frontface": "clockwise",
+            "depth": false,
+            "dynamicStates": ["viewport", "scissor"],
+            "stages": [
+                "shaders/main/screenspace.vert", 
+                "shaders/postprocess/downsample.frag"
+            ],
+            "defines": {} 
+        },
         "skybox": 
         {
             "vertexType": "default",

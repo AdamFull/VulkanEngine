@@ -1,7 +1,8 @@
 #include "PostProcessStage.h"
 #include "graphics/VulkanHighLevel.h"
 #include "graphics/commands/CommandBuffer.h"
-#include "graphics/renderpass/subpasses/GaussianBlurPass.h"
+#include "graphics/renderpass/subpasses/DownsamplePass.h"
+#include "graphics/renderpass/subpasses/BlurPass.h"
 #include "graphics/renderpass/subpasses/FinalCompositionPass.h"
 
 using namespace Engine::Core;
@@ -23,7 +24,7 @@ void CPostProcessStage::create()
     });
 
     pRenderPass = Render::CRenderPass::Builder().
-    addAttachmentDescription(vk::Format::eR32G32B32A32Sfloat, vk::SampleCountFlagBits::e1, vk::AttachmentLoadOp::eClear, vk::AttachmentStoreOp::eStore, 
+    addAttachmentDescription(vk::Format::eR8G8B8A8Srgb, vk::SampleCountFlagBits::e1, vk::AttachmentLoadOp::eClear, vk::AttachmentStoreOp::eStore, 
     vk::AttachmentLoadOp::eDontCare, vk::AttachmentStoreOp::eDontCare, vk::ImageLayout::eUndefined, vk::ImageLayout::eShaderReadOnlyOptimal).
     addSubpassDescription(vk::PipelineBindPoint::eGraphics, outReferences[0]).    //First blur pass
     addSubpassDependency(VK_SUBPASS_EXTERNAL, 0, vk::PipelineStageFlagBits::eFragmentShader, vk::PipelineStageFlagBits::eColorAttachmentOutput,
@@ -32,14 +33,21 @@ void CPostProcessStage::create()
     vk::AccessFlagBits::eColorAttachmentWrite, vk::AccessFlagBits::eShaderRead).
     build();
 
-    pRenderPass->pushSubpass(std::make_shared<CFinalCompositionPass>());
+    //pRenderPass->pushSubpass(std::make_shared<CDownsamplePass>());
+    pRenderPass->pushSubpass(std::make_shared<CBlurPass>(-1, "brightness_buffer"));
+    //pRenderPass->pushSubpass(std::make_shared<CFinalCompositionPass>());
 
     pFramebuffer = std::make_unique<CFramebuffer>();
-    pFramebuffer->addImage("output_color", vk::Format::eR32G32B32A32Sfloat, vk::ImageUsageFlagBits::eColorAttachment | vk::ImageUsageFlagBits::eTransferDst | vk::ImageUsageFlagBits::eSampled);
+    pFramebuffer->addImage("output_color", vk::Format::eR8G8B8A8Srgb, vk::ImageUsageFlagBits::eColorAttachment | vk::ImageUsageFlagBits::eTransferDst | vk::ImageUsageFlagBits::eSampled);
 
     pRenderPass->setRenderArea(vk::Offset2D{0, 0}, screenExtent);
     pFramebuffer->create(pRenderPass->get(), screenExtent);
     pRenderPass->create();
+}
+
+void CPostProcessStage::render(vk::CommandBuffer& commandBuffer)
+{
+    pRenderPass->render(commandBuffer);
 }
 
 //TODO: make it better

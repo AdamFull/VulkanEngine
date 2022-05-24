@@ -19,8 +19,20 @@ void CWorldSettingsWindow::draw()
         ImGui::Text("HDR");
         ImGui::Separator();
 
+        ImGui::BeginGroup();
         FControls::DragFloat("gamma", &GlobalVariables::postprocessGamma, 0.001, 0.0, 5.0);
         FControls::DragFloat("exposure", &GlobalVariables::postprocessExposure, 0.001, 0.1, 20.0);
+        ImGui::EndGroup();
+
+        ImGui::Separator();
+        ImGui::Text("Bloom");
+        ImGui::Separator();
+
+        ImGui::BeginGroup();
+        FControls::DragFloat("threshold", &GlobalVariables::bloomThreshold, 0.001, 0.0, 5.0);
+        FControls::DragFloat("scale", &GlobalVariables::blurScale, 0.001, 0.0, 5.0);
+        FControls::DragFloat("strength", &GlobalVariables::blurStrength, 0.001, 0.0, 5.0);
+        ImGui::EndGroup();
 
         ImGui::End();
     }

@@ -7,5 +7,5 @@ namespace Engine
     float GlobalVariables::postprocessGamma{1.2};
     float GlobalVariables::postprocessExposure{2.2f};
     float GlobalVariables::blurScale{1.0f};
-    float GlobalVariables::blurStrength{1.0f};
+    float GlobalVariables::blurStrength{1.7f};
 }

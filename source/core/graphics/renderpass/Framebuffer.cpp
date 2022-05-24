@@ -127,7 +127,7 @@ std::shared_ptr<CImage> CFramebuffer::createImage(vk::Format format, vk::ImageUs
         translate_layout = true;
     }
 
-    texture->create(extent, format, imageLayout, usageFlags, aspectMask, vk::Filter::eLinear, vk::SamplerAddressMode::eRepeat, 
+    texture->create(extent, format, imageLayout, usageFlags, aspectMask, vk::Filter::eNearest, vk::SamplerAddressMode::eRepeat, 
     vk::SampleCountFlagBits::e1, translate_layout);
     return texture;
 }

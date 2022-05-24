@@ -12,6 +12,7 @@ namespace Engine
             public:
                 ~CPostProcessStage();
                 void create() override;
+                void render(vk::CommandBuffer& commandBuffer) override;
                 void rebuild() override;
             private:
             };

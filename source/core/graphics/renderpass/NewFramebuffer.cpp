@@ -1,0 +1,275 @@
+#include "NewFramebuffer.h"
+#include "graphics/VulkanHighLevel.h"
+#include "graphics/image/Image.h"
+#include "graphics/image/Image2D.h"
+#include "graphics/image/ImageLoader.h"
+#include "Subpass.h"
+
+using namespace Engine::Core;
+using namespace Engine::Core::Render;
+
+void CFramebufferNew::create()
+{
+    createRenderPass();
+    createFramebuffer();
+
+    currentSubpassIndex = 0;
+    for(auto& subpass : vSubpasses)
+    {
+        subpass->create();
+        currentSubpassIndex++;
+    }
+}
+
+void CFramebufferNew::reCreate()
+{
+    CDevice::inst()->destroy(&renderPass);
+    createRenderPass();
+    currentSubpassIndex = 0;
+    for(auto& subpass : vSubpasses)
+    {
+        subpass->reCreate();
+        currentSubpassIndex++;
+    }
+
+    vFramebuffers.clear();
+    mFramebufferImages.clear();
+    vFramebufferDepth.clear();
+    createFramebuffer();
+}
+
+void CFramebufferNew::cleanup()
+{
+    if(!bIsClean)
+    {
+        for(auto& subpass : vSubpasses)
+            subpass->cleanup();
+        vSubpasses.clear();
+        if(renderPass)
+            CDevice::inst()->destroy(&renderPass);
+        bIsClean = true;
+
+        for(auto& framebuffer : vFramebuffers)
+            CDevice::inst()->destroy(&framebuffer);
+        vFramebuffers.clear();
+        mFramebufferImages.clear();
+        vFramebufferDepth.clear();
+    }
+}
+
+void CFramebufferNew::begin(vk::CommandBuffer &commandBuffer)
+{
+    vk::RenderPassBeginInfo renderPassBeginInfo{};
+    renderPassBeginInfo.renderPass = renderPass;
+    renderPassBeginInfo.framebuffer = getCurrentFramebuffer();
+    renderPassBeginInfo.renderArea = renderArea;
+    renderPassBeginInfo.clearValueCount = static_cast<uint32_t>(vClearValues.size());
+    renderPassBeginInfo.pClearValues = vClearValues.data();
+    commandBuffer.beginRenderPass(renderPassBeginInfo, vk::SubpassContents::eInline);
+
+    vk::Viewport viewport{};
+    if(flipViewport)
+    {
+        viewport.width = static_cast<float>(renderArea.extent.width);
+        viewport.height = -static_cast<float>(renderArea.extent.height);
+        viewport.x = 0;   
+        viewport.y = static_cast<float>(renderArea.extent.height);
+    }
+    else
+    {
+        viewport.width = renderArea.extent.width;
+        viewport.height = renderArea.extent.height;
+        viewport.x = 0;
+        viewport.y = 0;
+    }
+    
+    viewport.minDepth = 0.0f;
+    viewport.maxDepth = 1.0f;
+    vk::Rect2D scissor = renderArea;
+
+    commandBuffer.setViewport(0, 1, &viewport);
+    commandBuffer.setScissor(0, 1, &scissor);
+}
+
+void CFramebufferNew::end(vk::CommandBuffer &commandBuffer)
+{
+    commandBuffer.endRenderPass();
+}
+
+void CFramebufferNew::render(vk::CommandBuffer& commandBuffer)
+{
+    begin(commandBuffer);
+    //Render each stage
+    currentSubpassIndex = 0;
+    for(auto& subpass : vSubpasses)
+    {
+        subpass->render(commandBuffer);
+        if((vSubpasses.size() - 1) > currentSubpassIndex)
+            commandBuffer.nextSubpass(vk::SubpassContents::eInline);
+        currentSubpassIndex++;
+    }
+    end(commandBuffer);
+}
+
+void CFramebufferNew::setRenderArea(int32_t offset_x, int32_t offset_y, uint32_t width, uint32_t height)
+{
+    setRenderArea(vk::Offset2D{offset_x, offset_y}, vk::Extent2D{width, height});
+}
+
+void CFramebufferNew::setRenderArea(vk::Offset2D offset, vk::Extent2D extent)
+{
+    setRenderArea(vk::Rect2D{offset, extent});
+}
+
+void CFramebufferNew::setRenderArea(vk::Rect2D&& area)
+{
+    renderArea = std::move(area);
+}
+
+void CFramebufferNew::pushSubpass(std::shared_ptr<CSubpass>&& subpass)
+{
+    vSubpasses.emplace_back(std::move(subpass));
+}
+
+void CFramebufferNew::addImage(const std::string& name, vk::Format format, vk::ImageUsageFlags usageFlags)
+{
+    vk::ClearValue clearValue{};
+    vk::AttachmentDescription attachmentDescription{};
+    attachmentDescription.format = format;
+    attachmentDescription.samples = vk::SampleCountFlagBits::e1;
+    attachmentDescription.loadOp = vk::AttachmentLoadOp::eClear;
+    attachmentDescription.storeOp = vk::AttachmentStoreOp::eDontCare;
+    attachmentDescription.stencilLoadOp = vk::AttachmentLoadOp::eDontCare;
+    attachmentDescription.stencilStoreOp = vk::AttachmentStoreOp::eDontCare;
+    attachmentDescription.initialLayout = vk::ImageLayout::eUndefined;
+
+    if(isColorAttachment(usageFlags))
+    {
+        if(isSampled(usageFlags) && !isInputAttachment(usageFlags))
+        {
+            attachmentDescription.storeOp = vk::AttachmentStoreOp::eStore;
+            attachmentDescription.finalLayout = vk::ImageLayout::eShaderReadOnlyOptimal;
+        }
+        else if(isInputAttachment(usageFlags) && !isSampled(usageFlags))
+        {
+            attachmentDescription.finalLayout = vk::ImageLayout::eColorAttachmentOptimal;
+        }
+        else
+        {
+            assert(false && "Cannot use sampled image with input attachment.");
+        }
+        clearValue.setColor(vk::ClearColorValue{std::array<float, 4>{0.0f, 0.0f, 0.0f, 1.0f}});
+    }
+    else if(isDepthAttachment(usageFlags))
+    {
+        attachmentDescription.finalLayout = vk::ImageLayout::eDepthStencilAttachmentOptimal;
+        clearValue.setDepthStencil(vk::ClearDepthStencilValue{1.0f, 0});
+    }
+
+    vAttachDesc.emplace_back(attachmentDescription);
+    vClearValues.emplace_back(clearValue);
+    vFbAttachments.emplace_back(FFramebufferAttachmentInfo{name, format, usageFlags});
+}
+
+vk::Framebuffer& CFramebufferNew::getCurrentFramebuffer()
+{
+    return getFramebuffer(getCurrentFrameProxy());
+}
+
+void CFramebufferNew::createRenderPass()
+{
+    vk::RenderPassCreateInfo renderPassCI = {};
+    renderPassCI.attachmentCount = static_cast<uint32_t>(vAttachDesc.size());
+    renderPassCI.pAttachments = vAttachDesc.data();
+    renderPassCI.subpassCount = static_cast<uint32_t>(vSubpassDesc.size());
+    renderPassCI.pSubpasses = vSubpassDesc.data();
+    renderPassCI.dependencyCount = static_cast<uint32_t>(vSubpassDep.size());
+    renderPassCI.pDependencies = vSubpassDep.data();
+    vk::Result res = CDevice::inst()->create(renderPassCI, &renderPass);
+    assert(res == vk::Result::eSuccess && "Cannot create render pass.");
+}
+
+void CFramebufferNew::createFramebuffer()
+{
+    auto framesInFlight = CDevice::inst()->getFramesInFlight();
+    for(size_t frame = 0; frame < framesInFlight; frame++)
+    {
+        std::vector<vk::ImageView> imageViews{};
+        for(auto& attachment : vFbAttachments)
+        {
+            if(attachment.usageFlags & vk::ImageUsageFlagBits::eDepthStencilAttachment)
+            {
+                if(vFramebufferDepth.empty())
+                    vFramebufferDepth.emplace_back(createImage(attachment.format, attachment.usageFlags, renderArea.extent));
+            }
+            else
+            {
+                if(attachment.format == CDevice::inst()->getImageFormat())
+                {
+                    imageViews.push_back(CDevice::inst()->getImageViews()[frame]);
+                }
+                else
+                {
+                    auto image = createImage(attachment.format, attachment.usageFlags, renderArea.extent);
+                    mFramebufferImages[frame].emplace(attachment.name, image);
+                    imageViews.push_back(image->getDescriptor().imageView);
+                }
+            }
+        }
+
+        if(!vFramebufferDepth.empty())
+            imageViews.push_back(vFramebufferDepth.front()->getDescriptor().imageView);
+
+        vk::FramebufferCreateInfo framebufferCI = {};
+        framebufferCI.pNext = nullptr;
+        framebufferCI.renderPass = renderPass;
+        framebufferCI.pAttachments = imageViews.data();
+        framebufferCI.attachmentCount = static_cast<uint32_t>(imageViews.size());
+        framebufferCI.width = renderArea.extent.width;
+        framebufferCI.height = renderArea.extent.height;
+        framebufferCI.layers = 1;
+
+        vk::Framebuffer framebuffer{VK_NULL_HANDLE};
+        vk::Result res = CDevice::inst()->create(framebufferCI, &framebuffer);
+        assert(res == vk::Result::eSuccess && "Cannot create framebuffer.");
+        vFramebuffers.emplace_back(framebuffer);
+    }
+}
+
+std::shared_ptr<CImage> CFramebufferNew::createImage(vk::Format format, vk::ImageUsageFlags usageFlags, vk::Extent2D extent)
+{
+    auto texture = std::make_shared<CImage2D>();
+    bool translate_layout{false};
+
+    vk::ImageAspectFlags aspectMask{};
+    vk::ImageLayout imageLayout{};
+
+    if(isColorAttachment(usageFlags))
+    {
+        aspectMask = vk::ImageAspectFlagBits::eColor;
+        imageLayout = vk::ImageLayout::eShaderReadOnlyOptimal;
+    }
+    else if(isDepthAttachment(usageFlags))
+    {
+        aspectMask = vk::ImageAspectFlagBits::eDepth;
+        imageLayout = vk::ImageLayout::eDepthStencilAttachmentOptimal;
+    }
+    else
+    {
+        aspectMask = vk::ImageAspectFlagBits::eColor;
+        imageLayout = vk::ImageLayout::eGeneral;
+        translate_layout = true;
+    }
+
+    texture->create(extent, format, imageLayout, usageFlags, aspectMask, vk::Filter::eNearest, vk::SamplerAddressMode::eRepeat, 
+    vk::SampleCountFlagBits::e1, translate_layout);
+    return texture;
+}
+
+uint32_t CFramebufferNew::getCurrentFrameProxy()
+{
+    return CDevice::inst()->getCurrentFrame();
+}
+
+//Finish generation descriptions
+//Finish generation barriers

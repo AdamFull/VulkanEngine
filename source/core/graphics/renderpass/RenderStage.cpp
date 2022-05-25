@@ -6,19 +6,17 @@ using namespace Engine::Core::Render;
 
 void CRenderStage::render(vk::CommandBuffer& commandBuffer)
 {
-    pRenderPass->render(commandBuffer);
+    pFramebuffer->render(commandBuffer);
 }
 
 void CRenderStage::cleanup()
 {
-    pRenderPass->cleanup();
     pFramebuffer->cleanup();
 }
 
 void CRenderStage::reCreate()
 {
     screenExtent = CDevice::inst()->getExtent(detectExtent);
-    pRenderPass->setRenderArea(vk::Offset2D{0, 0}, screenExtent);
-    pRenderPass->reCreate();
-    pFramebuffer->reCreate(pRenderPass->get(), screenExtent);
+    pFramebuffer->setRenderArea(vk::Offset2D{0, 0}, screenExtent);
+    pFramebuffer->reCreate();
 }

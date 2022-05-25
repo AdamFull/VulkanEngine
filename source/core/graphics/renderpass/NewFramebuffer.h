@@ -78,12 +78,16 @@ namespace Engine
                 const uint32_t getSubpassCount() const { return vSubpasses.size(); }
                 vk::SubpassDescription& getCurrentDescription() { return vSubpassDesc.at(currentSubpassIndex); }
                 uint32_t getCurrentSubpass() { return currentSubpassIndex; }
+                vk::RenderPass& getRenderPass() { return renderPass; }
 
                 //Framebuffer part
                 void addImage(const std::string& name, vk::Format format, vk::ImageUsageFlags usageFlags);
 
                 vk::Framebuffer& getFramebuffer(uint32_t index) { return vFramebuffers[index]; }
                 vk::Framebuffer& getCurrentFramebuffer();
+                std::unordered_map<std::string, std::shared_ptr<CImage>>& getImages(uint32_t index) { return mFramebufferImages[index]; }
+                std::unordered_map<std::string, std::shared_ptr<CImage>>& getCurrentImages();
+                std::shared_ptr<CImage>& getDepthImage() { return vFramebufferDepth.front(); }
             private:
                 void createRenderPass();
                 void createFramebuffer();

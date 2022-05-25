@@ -8,8 +8,8 @@ using namespace Engine::Resources::Material;
 
 void CImguiPass::create()
 {
-    auto& renderPass = CRenderSystem::inst()->getCurrentStage()->getRenderPass()->get();
-    auto subpass = CRenderSystem::inst()->getCurrentStage()->getRenderPass()->getCurrentSubpass();
+    auto& renderPass = CRenderSystem::inst()->getCurrentStage()->getFramebuffer()->getRenderPass();
+    auto subpass = CRenderSystem::inst()->getCurrentStage()->getFramebuffer()->getCurrentSubpass();
     CEditorUI::inst()->create(renderPass, subpass);
     CSubpass::create();
 }

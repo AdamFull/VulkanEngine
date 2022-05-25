@@ -178,7 +178,7 @@ vk::AccessFlags dstAccessMask, vk::DependencyFlags depFlags)
     dep.srcAccessMask = srcAccessMask;  //
     dep.dstAccessMask = dstAccessMask;
     dep.dependencyFlags = depFlags;
-    vSubpassDep.emplace_back();
+    vSubpassDep.emplace_back(dep);
 }
 
 void CFramebufferNew::setRenderArea(int32_t offset_x, int32_t offset_y, uint32_t width, uint32_t height)
@@ -252,6 +252,11 @@ void CFramebufferNew::addImage(const std::string& name, vk::Format format, vk::I
 vk::Framebuffer& CFramebufferNew::getCurrentFramebuffer()
 {
     return getFramebuffer(getCurrentFrameProxy());
+}
+
+std::unordered_map<std::string, std::shared_ptr<CImage>>& CFramebufferNew::getCurrentImages()
+{
+    return getImages(getCurrentFrameProxy());
 }
 
 void CFramebufferNew::createRenderPass()

@@ -22,6 +22,7 @@ void CPostProcessStage::create()
     pFramebuffer->setRenderArea(vk::Offset2D{0, 0}, screenExtent);
     pFramebuffer->addOutputReference(0, 0);
     pFramebuffer->addImage("output_color", vk::Format::eR8G8B8A8Srgb, vk::ImageUsageFlagBits::eColorAttachment | vk::ImageUsageFlagBits::eTransferDst | vk::ImageUsageFlagBits::eSampled);
+    pFramebuffer->addDescription(0);
     pFramebuffer->addSubpassDependency(VK_SUBPASS_EXTERNAL, 0, vk::PipelineStageFlagBits::eFragmentShader, vk::PipelineStageFlagBits::eColorAttachmentOutput,
     vk::AccessFlagBits::eShaderRead, vk::AccessFlagBits::eColorAttachmentWrite);
     pFramebuffer->addSubpassDependency(0, VK_SUBPASS_EXTERNAL, vk::PipelineStageFlagBits::eColorAttachmentOutput, vk::PipelineStageFlagBits::eFragmentShader,

@@ -15,7 +15,7 @@ void CShadowMappingStage::create()
     detectExtent = true;
     screenExtent = CDevice::inst()->getExtent(detectExtent);
 
-    outReferences.emplace(0, std::vector<vk::AttachmentReference>{});
+    /*outReferences.emplace(0, std::vector<vk::AttachmentReference>{});
     depthReference = vk::AttachmentReference{0, vk::ImageLayout::eDepthStencilAttachmentOptimal};
 
     pRenderPass = Render::CRenderPass::Builder().
@@ -35,13 +35,13 @@ void CShadowMappingStage::create()
 
     pRenderPass->setRenderArea(vk::Offset2D{0, 0}, screenExtent);
     pFramebuffer->create(pRenderPass->get(), screenExtent);
-    pRenderPass->create();
+    pRenderPass->create();*/
 }
 
 void CShadowMappingStage::rebuild()
 {
-    screenExtent = CDevice::inst()->getExtent(detectExtent);
+    /*screenExtent = CDevice::inst()->getExtent(detectExtent);
     pRenderPass->setRenderArea(vk::Offset2D{0, 0}, screenExtent);
     pRenderPass->reCreate();
-    pFramebuffer->reCreate(pRenderPass->get(), screenExtent);
+    pFramebuffer->reCreate(pRenderPass->get(), screenExtent);*/
 }

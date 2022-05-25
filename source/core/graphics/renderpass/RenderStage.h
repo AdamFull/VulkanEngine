@@ -1,6 +1,5 @@
 #pragma once
-#include "RenderPass.hpp"
-#include "Framebuffer.hpp"
+#include "NewFramebuffer.h"
 
 namespace Engine
 {
@@ -19,17 +18,11 @@ namespace Engine
                 virtual void render(vk::CommandBuffer& commandBuffer);
                 virtual void cleanup();
 
-                std::unique_ptr<CRenderPass>& getRenderPass() { return pRenderPass; }
-                std::unique_ptr<CFramebuffer>& getFramebuffer() { return pFramebuffer; }
+                std::unique_ptr<CFramebufferNew>& getFramebuffer() { return pFramebuffer; }
             protected:
-                std::unique_ptr<CRenderPass> pRenderPass;
-                std::unique_ptr<CFramebuffer> pFramebuffer;
+                std::unique_ptr<CFramebufferNew> pFramebuffer;
                 vk::Extent2D screenExtent;
                 bool detectExtent{false};
-
-                vk::AttachmentReference depthReference{};
-                std::map<size_t, std::vector<vk::AttachmentReference>> outReferences;
-                std::map<size_t, std::vector<vk::AttachmentReference>> inReferences;
             };
         }
     }

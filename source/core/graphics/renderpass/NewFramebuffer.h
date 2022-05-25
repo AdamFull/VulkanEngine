@@ -14,6 +14,19 @@ namespace Engine
                 vk::ImageUsageFlags usageFlags;
             };
 
+            enum class ERPAttachmentType
+            {
+                eInput,
+                eOutput,
+                eDepth
+            };
+
+            enum class EBarrierType
+            {
+                eBeginWithDepthWrite,
+                eEndWithDepthWrite
+            };
+
             class CSubpass;
             class CFramebufferNew
             {
@@ -27,6 +40,33 @@ namespace Engine
                 void begin(vk::CommandBuffer &commandBuffer);
                 void end(vk::CommandBuffer &commandBuffer);
                 void render(vk::CommandBuffer& commandBuffer);
+
+                template<class... _Args>
+                void addInputReference(uint32_t index, _Args... args) 
+                {
+                    std::array<uint32_t, sizeof...(_Args)> unpacked{std::forward<_Args>(args)...};  
+                    std::vector<vk::AttachmentReference> references;
+                    for(auto& arg : unpacked)
+                        references.emplace_back(vk::AttachmentReference{arg, vk::ImageLayout::eShaderReadOnlyOptimal});
+                    mInputReferences.emplace(index, references);
+                }
+
+                template<class... _Args>
+                void addOutputReference(uint32_t index, _Args... args) 
+                {
+                    std::array<uint32_t, sizeof...(_Args)> unpacked{std::forward<_Args>(args)...};  
+                    std::vector<vk::AttachmentReference> references;
+                    for(auto& arg : unpacked)
+                        references.emplace_back(vk::AttachmentReference{arg, vk::ImageLayout::eColorAttachmentOptimal});
+                    mOutputReferences.emplace(index, references);
+                }
+
+                void addDescription(uint32_t subpass, bool bUseDepth = false);
+                void addBarrier(uint32_t src, uint32_t dst, EBarrierType type);
+                //Temporary while thinking about barrier generation
+                void addSubpassDependency(uint32_t src, uint32_t dst, vk::PipelineStageFlags srcStageMask = vk::PipelineStageFlagBits::eColorAttachmentOutput, 
+                    vk::PipelineStageFlags dstStageMask = vk::PipelineStageFlagBits::eFragmentShader, vk::AccessFlags srcAccessMask = vk::AccessFlagBits::eColorAttachmentWrite, 
+                    vk::AccessFlags dstAccessMask = vk::AccessFlagBits::eMemoryRead, vk::DependencyFlags depFlags = vk::DependencyFlagBits::eByRegion);
 
                 void setRenderArea(int32_t offset_x, int32_t offset_y, uint32_t width, uint32_t height);
                 void setRenderArea(vk::Offset2D offset, vk::Extent2D extent);
@@ -69,6 +109,9 @@ namespace Engine
                 std::vector<vk::SubpassDescription> vSubpassDesc;
                 std::vector<vk::SubpassDependency> vSubpassDep;
                 std::vector<vk::ClearValue> vClearValues;
+                std::map<uint32_t, std::vector<vk::AttachmentReference>> mInputReferences;
+                std::map<uint32_t, std::vector<vk::AttachmentReference>> mOutputReferences;
+                vk::AttachmentReference depthReference;
 
                 //Framebuffer part
                 std::vector<vk::Framebuffer> vFramebuffers;

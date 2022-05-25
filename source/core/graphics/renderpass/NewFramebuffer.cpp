@@ -10,6 +10,15 @@ using namespace Engine::Core::Render;
 
 void CFramebufferNew::create()
 {
+    //Looking for depth attachment
+    uint32_t depthIndex{};
+    for(auto& attachment : vFbAttachments)
+    {
+        if(isDepthAttachment(attachment.usageFlags))
+            depthReference = vk::AttachmentReference{depthIndex, vk::ImageLayout::eDepthStencilAttachmentOptimal};
+        depthIndex++;
+    }
+
     createRenderPass();
     createFramebuffer();
 
@@ -111,6 +120,67 @@ void CFramebufferNew::render(vk::CommandBuffer& commandBuffer)
     end(commandBuffer);
 }
 
+void CFramebufferNew::addDescription(uint32_t subpass, bool bUseDepth)
+{
+    
+    vk::SubpassDescription description{};
+    description.pipelineBindPoint = vk::PipelineBindPoint::eGraphics;
+
+    auto attachmentRef = mOutputReferences.find(subpass);
+    if(attachmentRef != mOutputReferences.end())
+    {
+        description.colorAttachmentCount = static_cast<uint32_t>(attachmentRef->second.size());
+        description.pColorAttachments = attachmentRef->second.data();
+    }
+    
+    auto inputRef = mInputReferences.find(subpass);
+    if(inputRef != mInputReferences.end())
+    {
+        description.inputAttachmentCount = static_cast<uint32_t>(inputRef->second.size());
+        description.pInputAttachments = inputRef->second.data();
+    }
+    description.pDepthStencilAttachment = bUseDepth ? &depthReference : nullptr;
+    vSubpassDesc.emplace_back(description);
+}
+
+void CFramebufferNew::addBarrier(uint32_t src, uint32_t dst, EBarrierType type)
+{
+    vk::SubpassDependency dep{};
+    dep.srcSubpass = src;
+    dep.dstSubpass = dst;
+    dep.dependencyFlags = vk::DependencyFlagBits::eByRegion;
+
+    switch (type)
+    {
+    case EBarrierType::eBeginWithDepthWrite: {
+        dep.srcStageMask = vk::PipelineStageFlagBits::eFragmentShader;
+        dep.srcAccessMask = vk::AccessFlagBits::eShaderRead;
+        dep.dstStageMask = vk::PipelineStageFlagBits::eColorAttachmentOutput | vk::PipelineStageFlagBits::eEarlyFragmentTests;
+        dep.dstAccessMask = vk::AccessFlagBits::eColorAttachmentWrite | vk::AccessFlagBits::eDepthStencilAttachmentRead | vk::AccessFlagBits::eDepthStencilAttachmentWrite;
+    }break;
+    case EBarrierType::eEndWithDepthWrite: {
+        dep.srcStageMask = vk::PipelineStageFlagBits::eColorAttachmentOutput | vk::PipelineStageFlagBits::eEarlyFragmentTests;
+        dep.srcAccessMask = vk::AccessFlagBits::eColorAttachmentWrite | vk::AccessFlagBits::eDepthStencilAttachmentWrite;
+        dep.dstStageMask = vk::PipelineStageFlagBits::eColorAttachmentOutput;
+        dep.dstAccessMask = vk::AccessFlagBits::eColorAttachmentWrite;
+    }break;
+    }
+}
+
+void CFramebufferNew::addSubpassDependency(uint32_t src, uint32_t dst, vk::PipelineStageFlags srcStageMask, vk::PipelineStageFlags dstStageMask, vk::AccessFlags srcAccessMask, 
+vk::AccessFlags dstAccessMask, vk::DependencyFlags depFlags)
+{
+    vk::SubpassDependency dep{};
+    dep.srcSubpass = src;
+    dep.dstSubpass = dst;
+    dep.srcStageMask = srcStageMask;    //Pipeline stage what we waiting
+    dep.dstStageMask = dstStageMask;    //Pipeline stage where we waiting
+    dep.srcAccessMask = srcAccessMask;  //
+    dep.dstAccessMask = dstAccessMask;
+    dep.dependencyFlags = depFlags;
+    vSubpassDep.emplace_back();
+}
+
 void CFramebufferNew::setRenderArea(int32_t offset_x, int32_t offset_y, uint32_t width, uint32_t height)
 {
     setRenderArea(vk::Offset2D{offset_x, offset_y}, vk::Extent2D{width, height});
@@ -156,7 +226,15 @@ void CFramebufferNew::addImage(const std::string& name, vk::Format format, vk::I
         }
         else
         {
-            assert(false && "Cannot use sampled image with input attachment.");
+            if(format == CDevice::inst()->getImageFormat())
+            {
+                attachmentDescription.storeOp = vk::AttachmentStoreOp::eStore;
+                attachmentDescription.finalLayout = vk::ImageLayout::ePresentSrcKHR;
+            }
+            else
+            {
+                assert(false && "Cannot use sampled image with input attachment.");
+            }
         }
         clearValue.setColor(vk::ClearColorValue{std::array<float, 4>{0.0f, 0.0f, 0.0f, 1.0f}});
     }

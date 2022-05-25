@@ -29,10 +29,7 @@ void CBlurPass::render(vk::CommandBuffer& commandBuffer)
 {
     auto imageIndex = CDevice::inst()->getCurrentFrame();
 
-    if(direction < 0)
-        pMaterial->addTexture("samplerBrightness", CRenderSystem::inst()->getPrevStage()->getFramebuffer()->getCurrentImages()[imageReferenceName]);
-    else
-        pMaterial->addTexture("samplerBrightness", CRenderSystem::inst()->getCurrentStage()->getFramebuffer()->getCurrentImages()[imageReferenceName]);
+    pMaterial->addTexture("samplerBrightness", CRenderSystem::inst()->getCurrentImages()[imageReferenceName]);
 
     auto& pUBOH = pMaterial->getPushConstant("ubo");
     pUBOH->set("blurScale", GlobalVariables::blurScale);

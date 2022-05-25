@@ -23,12 +23,16 @@ namespace Engine
             std::unique_ptr<Render::CRenderStage>& getCurrentStage() { return vStages.at(currentStageIndex); }
             std::unique_ptr<Render::CRenderStage>& getPrevStage() { return vStages.at(currentStageIndex - 1); }
 
+            std::unordered_map<std::string, std::shared_ptr<CImage>>& getImages(uint32_t index) { return mImages[index]; }
+            std::unordered_map<std::string, std::shared_ptr<CImage>>& getCurrentImages() { return getImages(imageIndex); }
+
             const size_t getTotalFramesCounted() const { return totalFrameNumberCounter; }
 
             vk::CommandBuffer& getCurrentCommandBuffer();
         private:
             vk::CommandBuffer beginFrame();
             vk::Result endFrame();
+            void updateFramebufferImages();
 
             std::shared_ptr<CCommandBuffer> commandBuffers;
             uint32_t imageIndex{0};
@@ -40,6 +44,7 @@ namespace Engine
             size_t totalFrameNumberCounter{0};
 
             std::vector<std::unique_ptr<Render::CRenderStage>> vStages;
+            std::map<uint32_t, std::unordered_map<std::string, std::shared_ptr<CImage>>> mImages;
         };
     }
 }

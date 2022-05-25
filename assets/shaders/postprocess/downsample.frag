@@ -1,24 +1,27 @@
 #version 450
 
-layout (binding = 0) uniform sampler2D samplerBrightness;
-
-layout(push_constant) uniform FDownsampleUbo 
-{
-	float scale;
-} ubo;
+layout(binding = 0) uniform sampler2D downsample_tex;
 
 layout (location = 0) in vec2 inUV;
-
 layout (location = 0) out vec4 outColor;
+
+#define offset 5
 
 void main()
 {
-    vec2 pixeloffset = vec2(1.0f/1024.0f, 1.0f/720.0f);      
-    vec3 downscalecolor = vec3(0.0f);
-    downscalecolor += texture(samplerBrightness, vec2(inUV.x - 4.0f * pixeloffset.x, inUV.y)).xyz;         
-    downscalecolor += texture(samplerBrightness, vec2(inUV.x + 4.0f * pixeloffset.x, inUV.y)).xyz;         
-    downscalecolor += texture(samplerBrightness, vec2(inUV.x, inUV.y - 4.0f * pixeloffset.y)).xyz;         
-    downscalecolor += texture(samplerBrightness, vec2(inUV.x, inUV.y + 4.0f * pixeloffset.y)).xyz;         
-    downscalecolor *= 0.25f;
-    outColor = vec4(downscalecolor, 1.0f);
+    vec3 color = vec3(0);
+    vec2 texSize = textureSize(downsample_tex, 0);
+    float aspect = texSize.x/texSize.y;
+
+    color += texture(downsample_tex, inUV).rgb;
+    color += textureOffset(downsample_tex, inUV, ivec2(-offset, 0)).rgb;
+    color += textureOffset(downsample_tex, inUV, ivec2(-offset, offset)).rgb;
+    color += textureOffset(downsample_tex, inUV, ivec2(0, offset)).rgb;
+    color += textureOffset(downsample_tex, inUV, ivec2(offset, offset)).rgb;
+    color += textureOffset(downsample_tex, inUV, ivec2(offset, 0)).rgb;
+    color += textureOffset(downsample_tex, inUV, ivec2(offset, -offset)).rgb;
+    color += textureOffset(downsample_tex, inUV, ivec2(0, -offset)).rgb;
+    color += textureOffset(downsample_tex, inUV, ivec2(-offset, -offset)).rgb;
+    color /= 9;
+    outColor = vec4(color, 1.0);
 }

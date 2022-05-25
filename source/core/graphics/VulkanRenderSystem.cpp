@@ -40,6 +40,8 @@ void CRenderSystem::create()
         stage->create();
         currentStageIndex++;
     }
+
+    updateFramebufferImages();
 }
 
 void CRenderSystem::reCreate()
@@ -56,6 +58,7 @@ void CRenderSystem::reCreate()
         stage->reCreate();
         currentStageIndex++;
     }
+    updateFramebufferImages();
 }
 
 void CRenderSystem::rebuildViewport()
@@ -68,6 +71,7 @@ void CRenderSystem::rebuildViewport()
         stage->rebuild();
         currentStageIndex++;
     }
+    updateFramebufferImages();
 }
 
 void CRenderSystem::render()
@@ -142,4 +146,28 @@ vk::Result CRenderSystem::endFrame()
     commandBuffers->end();
     frameStarted = false;
     return commandBuffers->submit(imageIndex);
+}
+
+void CRenderSystem::updateFramebufferImages()
+{
+    mImages.clear();
+    auto framesInFlight = CDevice::inst()->getFramesInFlight();
+    for(auto& stage : vStages)
+    {
+        for(uint32_t fb = 0; fb < stage->getFramebufferCount(); fb++)
+        {
+            auto& framebuffer = stage->getFramebuffer(fb);
+            for(uint32_t frame = 0; frame < framesInFlight; frame++)
+            {
+                auto& thisImages = mImages[frame];
+                for(auto& [name, image] : framebuffer->getImages(frame))
+                {
+                    auto foundImage = thisImages.find(name);
+                    if(foundImage != thisImages.end())
+                        throw std::runtime_error("Image already exists.");
+                    thisImages.emplace(name, image);
+                }
+            }
+        }
+    }
 }

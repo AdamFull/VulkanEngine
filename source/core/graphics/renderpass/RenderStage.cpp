@@ -4,19 +4,44 @@
 using namespace Engine::Core;
 using namespace Engine::Core::Render;
 
+void CRenderStage::create()
+{
+    framebufferIndex = 0;
+    for(auto& framebuffer : vFramebuffer)
+    {
+        framebuffer->create();
+        framebufferIndex++;
+    }
+}
+
 void CRenderStage::render(vk::CommandBuffer& commandBuffer)
 {
-    pFramebuffer->render(commandBuffer);
+    framebufferIndex = 0;
+    for(auto& framebuffer : vFramebuffer)
+    {
+        framebuffer->render(commandBuffer);
+        framebufferIndex++;
+    }
 }
 
 void CRenderStage::cleanup()
 {
-    pFramebuffer->cleanup();
+    framebufferIndex = 0;
+    for(auto& framebuffer : vFramebuffer)
+    {
+        framebuffer->cleanup();
+        framebufferIndex++;
+    }
 }
 
 void CRenderStage::reCreate()
 {
     screenExtent = CDevice::inst()->getExtent(detectExtent);
-    pFramebuffer->setRenderArea(vk::Offset2D{0, 0}, screenExtent);
-    pFramebuffer->reCreate();
+    framebufferIndex = 0;
+    for(auto& framebuffer : vFramebuffer)
+    {
+        framebuffer->setRenderArea(vk::Offset2D{0, 0}, screenExtent);
+        framebuffer->reCreate();
+        framebufferIndex++;
+    }
 }

@@ -99,8 +99,8 @@ void CEditorUI::reCreate()
 {
     ImGui_ImplVulkan_Shutdown();
     ImGui_ImplGlfw_Shutdown();
-    auto& renderPass = CRenderSystem::inst()->getCurrentStage()->getFramebuffer()->getRenderPass();
-    auto subpass = CRenderSystem::inst()->getCurrentStage()->getFramebuffer()->getCurrentSubpass();
+    auto& renderPass = CRenderSystem::inst()->getCurrentStage()->getCurrentFramebuffer()->getRenderPass();
+    auto subpass = CRenderSystem::inst()->getCurrentStage()->getCurrentFramebuffer()->getCurrentSubpass();
 
     ImGui_ImplGlfw_InitForVulkan(CWindowHandle::inst()->getWindowInstance(), true);
     ImGui_ImplVulkan_InitInfo init_info = {};

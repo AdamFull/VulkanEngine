@@ -22,7 +22,7 @@ void CThroughPass::reCreate()
 void CThroughPass::render(vk::CommandBuffer& commandBuffer)
 {
     auto imageIndex = CDevice::inst()->getCurrentFrame();
-    pMaterial->addTexture("samplerColor", CRenderSystem::inst()->getPrevStage()->getFramebuffer()->getCurrentImages()["output_color"]);
+    pMaterial->addTexture("samplerColor", CRenderSystem::inst()->getCurrentImages()["output_color"]);
 
     pMaterial->update();
     pMaterial->bind();

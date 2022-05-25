@@ -18,13 +18,11 @@ layout (input_attachment_index = 2, binding = 5) uniform subpassInput depth_tex;
 layout (location = 0) in vec2 inUV;
 
 layout (location = 0) out vec4 outFragcolor;
-layout (location = 1) out vec4 outBrightness;
 
 layout(push_constant) uniform UBOLightning
 {
 	mat4 invViewProjection;
 	vec4 viewPos;
-	float bloom_threshold;
 	int pointLightCount;
 	int directionalLightCount;
 	int spotLightCount;
@@ -140,12 +138,6 @@ void main()
 	{
 		fragcolor = albedo;
 	}
-
-	float brightness = dot(fragcolor.rgb, vec3(0.2126, 0.7152, 0.0722));
-	if(brightness > ubo.bloom_threshold)
-        outBrightness = vec4(fragcolor.rgb, 1.0) * (calculateLightning ? 1.0 : 0.0);
-    else
-        outBrightness = vec4(0.0, 0.0, 0.0, 1.0);
    
-  	outFragcolor = vec4(fragcolor, 1.0f );	
+  	outFragcolor = vec4(fragcolor, 1.0);	
 }

@@ -41,7 +41,7 @@ void CGraphicsPipeline::createPipeline()
 	specializationInfo.pData = &specializationData;
 
     
-    auto attachmentCount = CRenderSystem::inst()->getCurrentStage()->getFramebuffer()->getCurrentDescription().colorAttachmentCount;
+    auto attachmentCount = CRenderSystem::inst()->getCurrentStage()->getCurrentFramebuffer()->getCurrentDescription().colorAttachmentCount;
     std::vector<vk::PipelineColorBlendAttachmentState> colorBlendAttachments;
     for(uint32_t i = 0; i < attachmentCount; i++)
     {

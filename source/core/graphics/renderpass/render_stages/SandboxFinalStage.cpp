@@ -14,14 +14,15 @@ void CSandboxFinalStage::create()
 {
     screenExtent = CDevice::inst()->getExtent();
 
-    pFramebuffer = std::make_unique<CFramebufferNew>();
-    pFramebuffer->setRenderArea(vk::Offset2D{0, 0}, screenExtent);
-    pFramebuffer->addOutputReference(0, 0);
-    pFramebuffer->addImage("present_khr", CDevice::inst()->getImageFormat(), vk::ImageUsageFlagBits::eColorAttachment);
-    pFramebuffer->addDescription(0);
-    pFramebuffer->addSubpassDependency(VK_SUBPASS_EXTERNAL, 0, vk::PipelineStageFlagBits::eFragmentShader, vk::PipelineStageFlagBits::eColorAttachmentOutput,
+    auto framebuffer_1 = std::make_unique<CFramebufferNew>();
+    framebuffer_1->setRenderArea(vk::Offset2D{0, 0}, screenExtent);
+    framebuffer_1->addOutputReference(0, 0);
+    framebuffer_1->addImage("present_khr", CDevice::inst()->getImageFormat(), vk::ImageUsageFlagBits::eColorAttachment);
+    framebuffer_1->addDescription(0);
+    framebuffer_1->addSubpassDependency(VK_SUBPASS_EXTERNAL, 0, vk::PipelineStageFlagBits::eFragmentShader, vk::PipelineStageFlagBits::eColorAttachmentOutput,
     vk::AccessFlagBits::eShaderRead, vk::AccessFlagBits::eColorAttachmentWrite);
 
-    pFramebuffer->pushSubpass(std::make_shared<CImguiPass>());
-    pFramebuffer->create();
+    framebuffer_1->pushSubpass(std::make_shared<CImguiPass>());
+    vFramebuffer.emplace_back(std::move(framebuffer_1));
+    CRenderStage::create();
 }

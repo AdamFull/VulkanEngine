@@ -46,8 +46,8 @@ void CPBRCompositionPass::reCreate()
 
 void CPBRCompositionPass::render(vk::CommandBuffer& commandBuffer)
 {
-    auto& images = CRenderSystem::inst()->getCurrentStage()->getFramebuffer()->getCurrentImages();
-    auto& depthImage = CRenderSystem::inst()->getCurrentStage()->getFramebuffer()->getDepthImage();
+    auto& images = CRenderSystem::inst()->getCurrentImages();
+    auto& depthImage = CRenderSystem::inst()->getCurrentStage()->getCurrentFramebuffer()->getDepthImage();
     pMaterial->addTexture("brdflut_tex", *brdf);
     pMaterial->addTexture("irradiance_tex", *irradiance);
     pMaterial->addTexture("prefiltred_tex", *prefiltered);
@@ -81,7 +81,6 @@ void CPBRCompositionPass::render(vk::CommandBuffer& commandBuffer)
     auto& pUBO = pMaterial->getPushConstant("ubo");
     pUBO->set("invViewProjection", invViewProjection);
     pUBO->set("viewPos", camera->viewPos);
-    pUBO->set("bloom_threshold", GlobalVariables::bloomThreshold);
     pUBO->set("pointLightCount", point_count);
     pUBO->set("directionalLightCount", directional_count);
     pUBO->set("spotLightCount", spot_count);

@@ -29,28 +29,28 @@ void main()
 
 #if BLUR_TYPE == 5
 	vec2 off1 = vec2(1.3333333333333333f) * direction;
-	colour += texture(samplerBrightness, inUV) * 0.29411764705882354;
-	colour += texture(samplerBrightness, inUV + (off1 / sizeColour)) * 0.35294117647058826f;
-	colour += texture(samplerBrightness, inUV - (off1 / sizeColour)) * 0.35294117647058826f;
+	colour += texture(samplerBrightness, inUV) * 0.29411764705882354 * ubo.blurScale;
+	colour += texture(samplerBrightness, inUV + (off1 / sizeColour)) * 0.35294117647058826f * ubo.blurScale;
+	colour += texture(samplerBrightness, inUV - (off1 / sizeColour)) * 0.35294117647058826f * ubo.blurScale;
 #elif BLUR_TYPE == 9
 	vec2 off1 = vec2(1.3846153846f) * direction;
 	vec2 off2 = vec2(3.2307692308f) * direction;
-	colour += texture(samplerBrightness, inUV) * 0.2270270270f;
-	colour += texture(samplerBrightness, inUV + (off1 / sizeColour)) * 0.3162162162f;
-	colour += texture(samplerBrightness, inUV - (off1 / sizeColour)) * 0.3162162162f;
-	colour += texture(samplerBrightness, inUV + (off2 / sizeColour)) * 0.0702702703f;
-	colour += texture(samplerBrightness, inUV - (off2 / sizeColour)) * 0.0702702703f;
+	colour += texture(samplerBrightness, inUV) * 0.2270270270f * ubo.blurScale;
+	colour += texture(samplerBrightness, inUV + (off1 / sizeColour)) * 0.3162162162f * ubo.blurScale;
+	colour += texture(samplerBrightness, inUV - (off1 / sizeColour)) * 0.3162162162f * ubo.blurScale;
+	colour += texture(samplerBrightness, inUV + (off2 / sizeColour)) * 0.0702702703f * ubo.blurScale;
+	colour += texture(samplerBrightness, inUV - (off2 / sizeColour)) * 0.0702702703f * ubo.blurScale;
 #elif BLUR_TYPE == 13
 	vec2 off1 = vec2(1.411764705882353f) * direction;
 	vec2 off2 = vec2(3.2941176470588234f) * direction;
 	vec2 off3 = vec2(5.176470588235294f) * direction;
-	colour += texture(samplerBrightness, inUV) * 0.1964825501511404f;
-	colour += texture(samplerBrightness, inUV + (off1 / sizeColour)) * 0.2969069646728344f;
-	colour += texture(samplerBrightness, inUV - (off1 / sizeColour)) * 0.2969069646728344f;
-	colour += texture(samplerBrightness, inUV + (off2 / sizeColour)) * 0.09447039785044732f;
-	colour += texture(samplerBrightness, inUV - (off2 / sizeColour)) * 0.09447039785044732f;
-	colour += texture(samplerBrightness, inUV + (off3 / sizeColour)) * 0.010381362401148057f;
-	colour += texture(samplerBrightness, inUV - (off3 / sizeColour)) * 0.010381362401148057f;
+	colour += texture(samplerBrightness, inUV) * 0.1964825501511404f * ubo.blurScale;
+	colour += texture(samplerBrightness, inUV + (off1 / sizeColour)) * 0.2969069646728344f * ubo.blurScale;
+	colour += texture(samplerBrightness, inUV - (off1 / sizeColour)) * 0.2969069646728344f * ubo.blurScale;
+	colour += texture(samplerBrightness, inUV + (off2 / sizeColour)) * 0.09447039785044732f * ubo.blurScale;
+	colour += texture(samplerBrightness, inUV - (off2 / sizeColour)) * 0.09447039785044732f * ubo.blurScale;
+	colour += texture(samplerBrightness, inUV + (off3 / sizeColour)) * 0.010381362401148057f * ubo.blurScale;
+	colour += texture(samplerBrightness, inUV - (off3 / sizeColour)) * 0.010381362401148057f * ubo.blurScale;
 #endif
 	outColor = colour;
 }

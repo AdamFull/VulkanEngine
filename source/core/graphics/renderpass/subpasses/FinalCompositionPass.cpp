@@ -30,8 +30,8 @@ void CFinalCompositionPass::render(vk::CommandBuffer& commandBuffer)
 {
     auto imageIndex = CDevice::inst()->getCurrentFrame();
 
-    pMaterial->addTexture("samplerColor", CRenderSystem::inst()->getPrevStage()->getFramebuffer()->getCurrentImages()["output_color"]);
-    pMaterial->addTexture("samplerBrightness", CRenderSystem::inst()->getPrevStage()->getFramebuffer()->getCurrentImages()["brightness_buffer"]); //bloom_image
+    pMaterial->addTexture("samplerColor", CRenderSystem::inst()->getCurrentImages()["composition_tex"]);
+    pMaterial->addTexture("samplerBrightness", CRenderSystem::inst()->getCurrentImages()[blurImageSample]); //bloom_image
     //May be move to CompositionObject
 
     //TODO: push constant ranges here

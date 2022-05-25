@@ -11,13 +11,13 @@ namespace Engine
             {
             public:
                 CDownsamplePass() = default;
+                CDownsamplePass(const std::string& textureName) : targetTextureName(textureName) {}
                 void create() override;
                 void reCreate() override;
                 void render(vk::CommandBuffer& commandBuffer) override;
                 void cleanup() override;
             private:
-                int direction{-1};
-                std::string imageReferenceName{""};
+                std::string targetTextureName{};
             };
         }
     }

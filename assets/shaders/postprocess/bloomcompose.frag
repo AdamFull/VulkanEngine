@@ -20,6 +20,7 @@ void main()
 {
     vec3 fragcolor = texture(samplerColor, inUV).rgb;
     vec3 brightness = texture(samplerBrightness, inUV).rgb;
+    fragcolor = mix(fragcolor, brightness, 0.4);
     //Exposure
     fragcolor = vec3(1.0) - exp(-fragcolor * ubo.exposure);
     //Gamma correction

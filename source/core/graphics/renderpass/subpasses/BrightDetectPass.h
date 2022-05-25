@@ -7,17 +7,14 @@ namespace Engine
     {
         namespace Render
         {
-            class CFinalCompositionPass : public CSubpass
+            class CBrightDetectPass : public CSubpass
             {
             public:
-                CFinalCompositionPass() = default;
-                CFinalCompositionPass(const std::string& blurImage) : blurImageSample(blurImage) {}
+                CBrightDetectPass() = default;
                 void create() override;
                 void reCreate() override;
                 void render(vk::CommandBuffer& commandBuffer) override;
                 void cleanup() override;
-            private:
-                std::string blurImageSample{};
             };
         }
     }

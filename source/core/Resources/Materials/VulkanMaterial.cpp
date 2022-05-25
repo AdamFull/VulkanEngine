@@ -20,8 +20,8 @@ void CMaterialBase::create()
     //Material loads render pass and subpass number from attached render stage
     //Material should be in render stage because render stage contains specific render pass and subpass
     uint32_t images = CDevice::inst()->getFramesInFlight();
-    auto& renderPass = CRenderSystem::inst()->getCurrentStage()->getFramebuffer()->getRenderPass();
-    auto subpass = CRenderSystem::inst()->getCurrentStage()->getFramebuffer()->getCurrentSubpass();
+    auto& renderPass = CRenderSystem::inst()->getCurrentStage()->getCurrentFramebuffer()->getRenderPass();
+    auto subpass = CRenderSystem::inst()->getCurrentStage()->getCurrentFramebuffer()->getCurrentSubpass();
     m_pPipeline->create(renderPass, subpass);
     m_pDescriptorSet = std::make_unique<CDescriptorHandler>();
     m_pDescriptorSet->create(m_pPipeline);
@@ -68,8 +68,8 @@ vk::DescriptorImageInfo& CMaterialBase::getTexture(const std::string& attachment
 
 void CMaterialBase::reCreate()
 {
-    auto& renderPass = CRenderSystem::inst()->getCurrentStage()->getFramebuffer()->getRenderPass();
-    auto subpass = CRenderSystem::inst()->getCurrentStage()->getFramebuffer()->getCurrentSubpass();
+    auto& renderPass = CRenderSystem::inst()->getCurrentStage()->getCurrentFramebuffer()->getRenderPass();
+    auto subpass = CRenderSystem::inst()->getCurrentStage()->getCurrentFramebuffer()->getCurrentSubpass();
     m_pPipeline->reCreate(renderPass, subpass);
 }
 

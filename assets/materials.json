@@ -1,6 +1,21 @@
 {
     "materials":
     {
+        "voxelization":
+        {
+            "vertexType": "default",
+            "bindPoint": "graphics",
+            "culling": "front",
+            "frontface": "clockwise",
+            "depth": true,
+            "dynamicStates": ["viewport", "scissor"],
+            "stages": [
+                "shaders/main/voxel/voxelization.vert",
+                "shaders/main/voxel/voxelization.geom",
+                "shaders/main/voxel/voxelization.frag"
+            ],
+            "defines": {}
+        },
         "default":
         {
             "vertexType": "default",

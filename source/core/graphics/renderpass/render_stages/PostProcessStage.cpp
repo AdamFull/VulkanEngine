@@ -37,7 +37,7 @@ void CPostProcessStage::create()
         vFramebuffer.emplace_back(std::move(framebuffer_0));
 
         auto framebuffer_1 = std::make_unique<CFramebufferNew>();
-        framebuffer_1->setRenderArea(vk::Offset2D{0, 0}, vk::Extent2D(screenExtent.width/2, screenExtent.height/2));
+        framebuffer_1->setRenderArea(vk::Offset2D{0, 0}, vk::Extent2D(screenExtent.width/16, screenExtent.height/16));
         framebuffer_1->addOutputReference(0, 0);
         framebuffer_1->addImage("downsampled_image", vk::Format::eR8G8B8A8Srgb, vk::ImageUsageFlagBits::eColorAttachment | vk::ImageUsageFlagBits::eSampled);
         framebuffer_1->addDescription(0);
@@ -49,7 +49,7 @@ void CPostProcessStage::create()
         vFramebuffer.emplace_back(std::move(framebuffer_1));
 
         auto framebuffer_2 = std::make_unique<CFramebufferNew>();
-        framebuffer_2->setRenderArea(vk::Offset2D{0, 0}, vk::Extent2D(screenExtent.width/4, screenExtent.height/4));
+        framebuffer_2->setRenderArea(vk::Offset2D{0, 0}, vk::Extent2D(screenExtent.width/8, screenExtent.height/8));
         framebuffer_2->addOutputReference(0, 0);
         framebuffer_2->addImage("spdownsampled_image", vk::Format::eR8G8B8A8Srgb, vk::ImageUsageFlagBits::eColorAttachment | vk::ImageUsageFlagBits::eSampled);
         framebuffer_2->addDescription(0);
@@ -61,9 +61,9 @@ void CPostProcessStage::create()
         vFramebuffer.emplace_back(std::move(framebuffer_2));
 
         auto framebuffer_3 = std::make_unique<CFramebufferNew>();
-        framebuffer_3->setRenderArea(vk::Offset2D{0, 0}, vk::Extent2D(screenExtent.width/8, screenExtent.height/8));
+        framebuffer_3->setRenderArea(vk::Offset2D{0, 0}, screenExtent);
         framebuffer_3->addOutputReference(0, 0);
-        framebuffer_3->addImage("horisontal_blur_pass", vk::Format::eR8G8B8A8Srgb, vk::ImageUsageFlagBits::eColorAttachment | vk::ImageUsageFlagBits::eTransferDst | vk::ImageUsageFlagBits::eSampled);
+        framebuffer_3->addImage("horisontal_blur_pass", vk::Format::eR8G8B8A8Unorm, vk::ImageUsageFlagBits::eColorAttachment | vk::ImageUsageFlagBits::eTransferDst | vk::ImageUsageFlagBits::eSampled);
         framebuffer_3->addDescription(0);
         framebuffer_3->addSubpassDependency(VK_SUBPASS_EXTERNAL, 0, vk::PipelineStageFlagBits::eFragmentShader, vk::PipelineStageFlagBits::eColorAttachmentOutput,
         vk::AccessFlagBits::eShaderRead, vk::AccessFlagBits::eColorAttachmentWrite);
@@ -73,9 +73,9 @@ void CPostProcessStage::create()
         vFramebuffer.emplace_back(std::move(framebuffer_3));
 
         auto framebuffer_4 = std::make_unique<CFramebufferNew>();
-        framebuffer_4->setRenderArea(vk::Offset2D{0, 0}, vk::Extent2D(screenExtent.width/16, screenExtent.height/16));
+        framebuffer_4->setRenderArea(vk::Offset2D{0, 0}, screenExtent);
         framebuffer_4->addOutputReference(0, 0);
-        framebuffer_4->addImage("vertical_blur_pass", vk::Format::eR8G8B8A8Srgb, vk::ImageUsageFlagBits::eColorAttachment | vk::ImageUsageFlagBits::eTransferDst | vk::ImageUsageFlagBits::eSampled);
+        framebuffer_4->addImage("vertical_blur_pass", vk::Format::eR8G8B8A8Unorm, vk::ImageUsageFlagBits::eColorAttachment | vk::ImageUsageFlagBits::eTransferDst | vk::ImageUsageFlagBits::eSampled);
         framebuffer_4->addDescription(0);
         framebuffer_4->addSubpassDependency(VK_SUBPASS_EXTERNAL, 0, vk::PipelineStageFlagBits::eFragmentShader, vk::PipelineStageFlagBits::eColorAttachmentOutput,
         vk::AccessFlagBits::eShaderRead, vk::AccessFlagBits::eColorAttachmentWrite);

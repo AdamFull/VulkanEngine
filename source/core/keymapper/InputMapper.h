@@ -35,7 +35,7 @@ namespace Engine
          * @param args Action keys
          */
         template<class ...Args>
-        void createAction(std::string srActionName, Args &&...args)
+        void createAction(const std::string& srActionName, Args &&...args)
         {
             //static_assert(std::is_same_v<Args, EActionKey>&&..., "Type that you send to CreateAction is not supported.");
             std::array<EActionKey, sizeof...(Args)> aKeys = { { args... } };
@@ -46,7 +46,7 @@ namespace Engine
         }
 
         template<class ...Args>
-        void bindAction(std::string srActionName, EKeyState eState, Args &&...args)
+        void bindAction(const std::string& srActionName, EKeyState eState, Args &&...args)
         {
             auto it = m_mInputActions.find(srActionName);
             if(it != m_mInputActions.end())
@@ -65,7 +65,7 @@ namespace Engine
         }
 
         template<class ...Args>
-        void bindAxis(std::string srAxisName, Args &&...args)
+        void bindAxis(const std::string& srAxisName, Args &&...args)
         {
             auto it = m_mInputAxis.find(srAxisName);
             if(it != m_mInputAxis.end())
@@ -86,8 +86,8 @@ namespace Engine
         void mouseMovementInput(float xpos, float ypos);
         void mouseWheelInput(float xpos, float ypos);
 
-        void handleActions(std::string srActionName, EActionKey eKey, const EKeyState& eKeyState);
-        void handleAxis(std::string srAxisName,  glm::vec2 fValue);
+        void handleActions(const std::string& srActionName, EActionKey eKey, const EKeyState& eKeyState);
+        void handleAxis(const std::string& srAxisName, const glm::vec2& fValue);
 
         FInputAction makeBindAction(EKeyState eState, utl::function<void(EActionKey, EKeyState)>&& dCallback);
         FInputAxis makeBindAxis(utl::function<void(float, float)>&& dCallback);

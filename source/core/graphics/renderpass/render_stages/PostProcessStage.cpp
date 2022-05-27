@@ -20,7 +20,7 @@ void CPostProcessStage::create()
     screenExtent = CDevice::inst()->getExtent(detectExtent);
 
     std::string bloomTexture{"composition_tex"};
-    bool enable_bloom{false};
+    bool enable_bloom{true};
     if(enable_bloom)
     {
         //Add linear filter

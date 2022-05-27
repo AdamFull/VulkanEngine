@@ -123,7 +123,7 @@ void CInputMapper::handleActions(const std::string &srActionName, EActionKey eKe
     }
 }
 
-void CInputMapper::handleAxis(const std::string &srActionName, glm::vec2 fValue)
+void CInputMapper::handleAxis(const std::string& srActionName, const glm::vec2& fValue)
 {
     auto it = m_mInputAxis.find(srActionName);
     if (it != m_mInputAxis.end())

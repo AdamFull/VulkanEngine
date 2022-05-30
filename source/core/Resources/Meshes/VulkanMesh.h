@@ -78,7 +78,7 @@ namespace Engine
                  * @param ubo Uniform buffer data
                  * @param instanceCount Draw instances count
                  */
-                virtual void render(vk::CommandBuffer commandBuffer, glm::mat4& model, uint32_t instanceCount = 1);
+                virtual void render(vk::CommandBuffer commandBuffer, const glm::mat4& model, uint32_t instanceCount = 1);
 
                 /**
                  * @brief Cleans all attached objects in mesh

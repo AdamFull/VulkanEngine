@@ -20,7 +20,7 @@ void CMeshBase::reCreate()
         fragment->reCreate();
 }
 
-void CMeshBase::render(vk::CommandBuffer commandBuffer, glm::mat4& model, uint32_t instanceCount)
+void CMeshBase::render(vk::CommandBuffer commandBuffer, const glm::mat4& model, uint32_t instanceCount)
 {
     for (auto& fragment : m_vFragments)
     {

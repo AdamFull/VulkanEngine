@@ -53,7 +53,7 @@ void CMeshObjectBase::render(vk::CommandBuffer &commandBuffer, uint32_t imageInd
     {
         auto camera = CCameraManager::inst()->getCurrentCamera();
         auto transform = getTransform();
-        auto model = transform.getModel();
+        auto& model = transform.getModel();
 
         //Check frustum for instances
         uint32_t instanceCount{0};

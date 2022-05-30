@@ -12,6 +12,7 @@ struct FTransform
     glm::vec3 pos{};
     glm::vec3 rot{};
     glm::vec3 scale{1.f, 1.f, 1.f};
+    glm::mat4 model{1.f}, normal{1.0};
     glm::vec3 direction{ 0.0f, 0.0f, 1.0f };
 
     FTransform &operator+=(const FTransform &rhs)
@@ -22,73 +23,28 @@ struct FTransform
         return *this;
     }
 
-    /**
-     * @brief Get the Forward Vector of render object
-     * 
-     * @return const glm::vec3 Forward vector 
-     */
-    const glm::vec3 getForwardVector() const
-    {
-        glm::vec3 camFront;
-		camFront.x = -cos(glm::radians(rot.x)) * sin(glm::radians(rot.y));
-		camFront.y = sin(glm::radians(rot.x));
-		camFront.z = cos(glm::radians(rot.x)) * cos(glm::radians(rot.y));
-		camFront = glm::normalize(camFront);
-        return camFront;
-    }
+    glm::vec3 getPosition() const;
+    void setPosition(const glm::vec3& position);
 
-    /**
-     * @brief Get the Right Vector of render object
-     * 
-     * @return const glm::vec3 Right vector
-     */
-    const glm::vec3 getRightVector() const
-    {
-        auto camFront = getForwardVector();
-        return glm::normalize(glm::cross(camFront, glm::vec3(0.0f, 1.0f, 0.0f)));
-    }
-
-    /**
-     * @brief Get the Up Vector of render object
-     * 
-     * @return const glm::vec3 Up vector
-     */
-    const glm::vec3 getUpVector() const
-    {
-        return glm::vec3{0.f, 1.f, 0.f};
-    }
+    glm::vec3 getRotation() const;
+    void setRotation(const glm::vec3& rotation);
+    
+    glm::vec3 getScale() const;
+    void setScale(const glm::vec3& _scale);
 
     /**
      * @brief Get render object model matrix
      * 
      * @return glm::mat4 Model matrix
      */
-    inline glm::mat4 getModel()
-    {
-        glm::mat4 translation{1.0};
-        translation = glm::translate(translation, pos);
-        // glm::radians(rot.x)
-        if (rot.x != 0)
-            translation = glm::rotate(translation, rot.x, glm::vec3(1.0, 0.0, 0.0));
-        if (rot.y != 0)
-            translation = glm::rotate(translation, rot.y, glm::vec3(0.0, 1.0, 0.0));
-        if (rot.z != 0)
-            translation = glm::rotate(translation, rot.z, glm::vec3(0.0, 0.0, 1.0));
-
-        translation = glm::scale(translation, scale);
-
-        return translation;
-    }
+    const glm::mat4& getModel();
 
     /**
      * @brief Get render object normal matrix
      * 
      * @return glm::mat4 Normal matrix
      */
-    inline glm::mat4 getNormal()
-    {
-        return glm::transpose(getModel());
-    }
+    const glm::mat4& getNormal();
 };
 
 REGISTER_SERIALIZATION_BLOCK_H(FTransform);

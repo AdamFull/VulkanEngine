@@ -21,15 +21,15 @@ void CDeferredStage::create()
     framebuffer_1->setFlipViewport(VK_TRUE);
     framebuffer_1->setRenderArea(vk::Offset2D{0, 0}, screenExtent);
 
-    framebuffer_1->addOutputReference(0, 1, 2);
-    framebuffer_1->addOutputReference(1, 0);
-    framebuffer_1->addInputReference(1, 1, 2, 3);
+    framebuffer_1->addOutputReference(0U, 1U, 2U);
+    framebuffer_1->addOutputReference(1U, 0U);
+    framebuffer_1->addInputReference(1U, 1U, 2U, 3U);
     framebuffer_1->addImage("composition_tex", vk::Format::eR32G32B32A32Sfloat, vk::ImageUsageFlagBits::eColorAttachment | vk::ImageUsageFlagBits::eSampled);
     framebuffer_1->addImage("packed_tex", vk::Format::eR32G32B32A32Uint, vk::ImageUsageFlagBits::eColorAttachment | vk::ImageUsageFlagBits::eInputAttachment);
     framebuffer_1->addImage("emission_tex", vk::Format::eR8G8B8A8Snorm, vk::ImageUsageFlagBits::eColorAttachment | vk::ImageUsageFlagBits::eInputAttachment);
     framebuffer_1->addImage("depth_image", CImage::getDepthFormat(), vk::ImageUsageFlagBits::eDepthStencilAttachment | vk::ImageUsageFlagBits::eInputAttachment);
-    framebuffer_1->addDescription(0, true);
-    framebuffer_1->addDescription(1);
+    framebuffer_1->addDescription(0U, true);
+    framebuffer_1->addDescription(1U);
     framebuffer_1->addSubpassDependency(VK_SUBPASS_EXTERNAL, 0, vk::PipelineStageFlagBits::eFragmentShader,
     vk::PipelineStageFlagBits::eColorAttachmentOutput | vk::PipelineStageFlagBits::eEarlyFragmentTests,
     vk::AccessFlagBits::eShaderRead, vk::AccessFlagBits::eColorAttachmentWrite | vk::AccessFlagBits::eDepthStencilAttachmentRead | vk::AccessFlagBits::eDepthStencilAttachmentWrite);

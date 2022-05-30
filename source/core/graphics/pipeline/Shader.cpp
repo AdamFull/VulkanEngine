@@ -31,6 +31,7 @@ namespace spirv_cross
             return BufferPackingScalar;
         else if(buffer_is_packing_standard(type, BufferPackingScalarEnhancedLayout))
             return BufferPackingScalarEnhancedLayout;
+        return BufferPackingStd140;
     }
 
     uint32_t CompilerGLSLExt::get_packed_base_size(const SPIRType &type)

@@ -24,7 +24,7 @@ namespace Engine
                  * @param bLoadMaterial Use included material
                  * @return true when model was loaded successfully
                  */
-                static bool load(const std::string& srPath, std::shared_ptr<Mesh::CMeshFragment> pMesh, bool bLoadMaterial = false);
+                static bool load(const std::string& srPath, ref_ptr<Mesh::CMeshFragment> pMesh, bool bLoadMaterial = false);
 
             private:
                 /**

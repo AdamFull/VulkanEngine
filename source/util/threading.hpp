@@ -155,7 +155,7 @@ namespace Engine
 		template<class _Ty, class... _Types, typename _Kty = std::invoke_result_t<std::decay_t<_Ty>, std::decay_t<_Types>...>, typename = std::enable_if_t<!std::is_void_v<_Ty>>>
 		CFuture<_Kty> submit(_Ty&& work, _Types&& ...args)
 		{
-			auto task_promise = std::make_shared<std::promise<_Kty>>();
+			auto task_promise = make_ref<std::promise<_Kty>>();
 			auto _future = task_promise->get_future();
 
 			_workers.at(_current)->push([work = std::forward<_Ty>(work), args..., task_promise]()
@@ -187,7 +187,7 @@ namespace Engine
 		 */
         void wait();
     private:
-        std::vector<std::unique_ptr<CWorker>> _workers;
+        std::vector<scope_ptr<CWorker>> _workers;
         size_t _total{0}, _current{0};
     };
 }

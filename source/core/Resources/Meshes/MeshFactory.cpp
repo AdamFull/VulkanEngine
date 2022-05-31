@@ -8,25 +8,25 @@
 using namespace Engine::Resources;
 using namespace Engine::Resources::Mesh;
 
-std::map<EMeshType, std::function<std::shared_ptr<CMeshFragment>(FMeshCreateInfo)>>
+std::map<EMeshType, std::function<ref_ptr<CMeshFragment>(FMeshCreateInfo)>>
     CMeshFactory::m_mFactory{
         {EMeshType::eStatic, [](FMeshCreateInfo info)
          {
-             auto mesh = std::make_shared<CMeshFragment>();
+             auto mesh = make_ref<CMeshFragment>();
              return mesh;
          }},
         {EMeshType::eSkeletal, [](FMeshCreateInfo info)
          {
-             auto mesh = std::make_shared<CMeshFragment>();
+             auto mesh = make_ref<CMeshFragment>();
              return mesh;
          }},
         {EMeshType::eGLTF, [](FMeshCreateInfo info)
          {
-             auto mesh = std::make_shared<CMeshFragment>();
+             auto mesh = make_ref<CMeshFragment>();
              return mesh;
          }}};
 
-std::shared_ptr<CMeshFragment> CMeshFactory::create(FMeshCreateInfo info)
+ref_ptr<CMeshFragment> CMeshFactory::create(FMeshCreateInfo info)
 {
     auto mesh = m_mFactory[info.eType](info);
     Loaders::CMeshLoader::load(info.srSrc, mesh, info.bUseIncludedMaterial);
@@ -35,7 +35,7 @@ std::shared_ptr<CMeshFragment> CMeshFactory::create(FMeshCreateInfo info)
     {
         /*for (auto &matInfo : info.vMaterials)
         {
-            std::shared_ptr<Material::CMaterialBase> material = Material::CMaterialFactory::create(matInfo);
+            ref_ptr<Material::CMaterialBase> material = Material::CMaterialFactory::create(matInfo);
             CResourceManager::inst()->addExisting(matInfo.srName, material);
             mesh->setMaterial(material);
         }*/

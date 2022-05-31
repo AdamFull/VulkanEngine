@@ -23,7 +23,7 @@ namespace Engine
                 virtual void render(vk::CommandBuffer& commandBuffer) {}
                 virtual void cleanup();
             protected:
-                std::shared_ptr<Resources::Material::CMaterialBase> pMaterial;
+                ref_ptr<Resources::Material::CMaterialBase> pMaterial;
             };
         }
     }

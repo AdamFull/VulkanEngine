@@ -54,7 +54,7 @@ void GLTFLoader::load(const std::string& srPath, const std::string& srName)
     bool fileLoaded = gltfContext.LoadASCIIFromFile(&gltfModel, &error, &warning, fpath.string());
     current_primitive = 0;
 
-    m_pMesh = std::make_shared<CMeshBase>();
+    m_pMesh = make_ref<CMeshBase>();
     srModelName = srName;
 
     if (fileLoaded)
@@ -87,9 +87,9 @@ void GLTFLoader::load(const std::string& srPath, const std::string& srName)
     }
 }
 
-void GLTFLoader::loadNode(std::shared_ptr<GLTFSceneNode> pParent, const tinygltf::Node &node, uint32_t nodeIndex, const tinygltf::Model &model, float globalscale)
+void GLTFLoader::loadNode(ref_ptr<GLTFSceneNode> pParent, const tinygltf::Node &node, uint32_t nodeIndex, const tinygltf::Model &model, float globalscale)
 {
-    auto component = std::make_shared<GLTFSceneNode>();
+    auto component = make_ref<GLTFSceneNode>();
     component->m_index = nodeIndex;
     component->setName(node.name);
     if(pParent)
@@ -126,10 +126,10 @@ void GLTFLoader::loadNode(std::shared_ptr<GLTFSceneNode> pParent, const tinygltf
     m_vLinearNodes.push_back(component);
 }
 
-void GLTFLoader::loadMeshFragment(std::shared_ptr<GLTFSceneNode> sceneNode, const tinygltf::Node &node, const tinygltf::Model &model)
+void GLTFLoader::loadMeshFragment(ref_ptr<GLTFSceneNode>& sceneNode, const tinygltf::Node &node, const tinygltf::Model &model)
 {
     const tinygltf::Mesh mesh = model.meshes[node.mesh];
-    auto nativeMesh = std::make_shared<CMeshFragment>();
+    auto nativeMesh = make_ref<CMeshFragment>();
     nativeMesh->setName(srModelName + "_" + mesh.name);
     for (size_t j = 0; j < mesh.primitives.size(); j++)
     {
@@ -477,7 +477,7 @@ void GLTFLoader::loadAnimations(const tinygltf::Model &model)
 
 void GLTFLoader::loadMaterials(const tinygltf::Model &model)
 {
-    auto get_texture = [&](const tinygltf::ParameterMap& mat, const std::string& srTexture)
+    auto get_texture = [&](const tinygltf::ParameterMap& mat, const std::string& srTexture) -> ref_ptr<CImage>&
     {
         if (mat.find(srTexture) != mat.end())
         {
@@ -485,7 +485,7 @@ void GLTFLoader::loadMaterials(const tinygltf::Model &model)
             return vTextures.at(index);
         }
         
-        return CResourceManager::inst()->get<Core::CImage>("no_texture");
+        return CResourceManager::inst()->get<CImage>("no_texture");
     };
 
     uint32_t material_index{0};
@@ -500,7 +500,7 @@ void GLTFLoader::loadMaterials(const tinygltf::Model &model)
         ss << material_index;
 
         FMaterialParams params;
-        std::shared_ptr<CMaterialBase> nativeMaterial = CMaterialLoader::inst()->create("default");
+        ref_ptr<CMaterialBase> nativeMaterial = CMaterialLoader::inst()->create("default");
         nativeMaterial->setName(ss.str());
 
         nativeMaterial->addTexture("color_tex", get_texture(mat.values, "baseColorTexture"));
@@ -564,7 +564,7 @@ void GLTFLoader::loadTextures(const tinygltf::Model &model)
     }
 }
 
-std::shared_ptr<CImage> GLTFLoader::loadTexture(const tinygltf::Image &image, const std::string& path)
+ref_ptr<CImage> GLTFLoader::loadTexture(const tinygltf::Image &image, const std::string& path)
 {
     bool isKtx = false;
     // Image points to an external ktx file
@@ -576,7 +576,7 @@ std::shared_ptr<CImage> GLTFLoader::loadTexture(const tinygltf::Image &image, co
 
     vk::Format format;
     ktxTexture *texture;
-    auto nativeTexture = std::make_shared<CImage2D>();
+    auto nativeTexture = make_ref<CImage2D>();
     if (!isKtx)
     {
         auto isAlbedo = image.name.find("albedo") != std::string::npos;
@@ -626,7 +626,7 @@ void GLTFLoader::loadSkins(const tinygltf::Model &model)
 {
     for (auto& source : model.skins)
     {
-        auto pSkin = std::make_shared<Skin>();
+        auto pSkin = make_ref<Skin>();
         pSkin->name = source.name;
 
         // Find skeleton root node

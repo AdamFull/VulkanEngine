@@ -8,7 +8,7 @@ using namespace Engine::Core::Window;
 using namespace Engine::Resources::Material;
 
 template<>
-std::unique_ptr<CDevice> utl::singleton<CDevice>::_instance{nullptr};
+scope_ptr<CDevice> utl::singleton<CDevice>::_instance{nullptr};
 
 std::vector<const char*> str_vector_to_char_ptr_vector(const std::vector<std::string>& from)
 {
@@ -113,7 +113,7 @@ void CDevice::create(const FDeviceCreateInfo& deviceCI)
     createDevice(deviceCI);
     createPipelineCache();
     createSwapchain();
-    m_pCommandPool = std::make_unique<CCommandPool>();
+    m_pCommandPool = make_scope<CCommandPool>();
 
     viewportExtent = swapchainExtent;
 }
@@ -139,7 +139,7 @@ void CDevice::tryRebuildSwapchain()
     if(bSwapChainRebuild)
     {
         vkDevice.waitIdle();
-        m_pCommandPool = std::make_unique<CCommandPool>();
+        m_pCommandPool = make_scope<CCommandPool>();
         cleanupSwapchain();
         createSwapchain();
         currentFrame = 0;

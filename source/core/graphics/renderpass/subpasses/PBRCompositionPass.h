@@ -19,15 +19,15 @@ namespace Engine
                 void cleanup() override;
 
             protected:
-                static std::shared_ptr<CImage> ComputeBRDFLUT(uint32_t size);
-                static std::shared_ptr<CImage> ComputeIrradiance(const std::shared_ptr<CImage> &source, uint32_t size);
-                static std::shared_ptr<CImage> ComputePrefiltered(const std::shared_ptr<CImage> &source, uint32_t size);
+                static ref_ptr<CImage> ComputeBRDFLUT(uint32_t size);
+                static ref_ptr<CImage> ComputeIrradiance(const ref_ptr<CImage> &source, uint32_t size);
+                static ref_ptr<CImage> ComputePrefiltered(const ref_ptr<CImage> &source, uint32_t size);
             private:
-                std::shared_ptr<CImage> m_pSkybox;
+                ref_ptr<CImage> m_pSkybox;
 
-                CFuture<std::shared_ptr<CImage>> brdf;
-                CFuture<std::shared_ptr<CImage>> irradiance;
-                CFuture<std::shared_ptr<CImage>> prefiltered;
+                CFuture<ref_ptr<CImage>> brdf;
+                CFuture<ref_ptr<CImage>> irradiance;
+                CFuture<ref_ptr<CImage>> prefiltered;
 
                 std::array<Scene::FPointLight, 32> point_lights;
                 int32_t point_count{0};

@@ -2,9 +2,10 @@
 #include "graphics/VulkanHighLevel.h"
 
 using namespace Engine::Core;
+using namespace Engine::Core::Pipeline;
 using namespace Engine::Core::Descriptor;
 
-void CDescriptorSet::create(vk::PipelineBindPoint bindPoint, vk::PipelineLayout layout, vk::DescriptorPool pool, vk::DescriptorSetLayout setLayout)
+void CDescriptorSet::create(vk::PipelineBindPoint bindPoint, vk::PipelineLayout& layout, vk::DescriptorPool& pool, vk::DescriptorSetLayout& setLayout)
 {
     pipelineBindPoint = bindPoint;
     pipelineLayout = layout;
@@ -22,7 +23,7 @@ void CDescriptorSet::create(vk::PipelineBindPoint bindPoint, vk::PipelineLayout 
     assert(res == vk::Result::eSuccess && "Cannot create descriptor sets.");
 }
 
-void CDescriptorSet::create(std::shared_ptr<Pipeline::CPipelineBase> pPipeline)
+void CDescriptorSet::create(ref_ptr<Pipeline::CPipelineBase>& pPipeline)
 {
     create(pPipeline->getBindPoint(), pPipeline->getPipelineLayout(), pPipeline->getDescriptorPool(), pPipeline->getDescriptorSetLayout());
 }

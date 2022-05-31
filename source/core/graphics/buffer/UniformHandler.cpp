@@ -14,7 +14,7 @@ void CUniformHandler::create(const CUniformBlock &_uniformBlock)
     
     for(uint32_t i = 0; i < framesInFlight; i++)
     {
-        auto uniform = std::make_unique<CVulkanBuffer>();
+        auto uniform = make_scope<CVulkanBuffer>();
         uniform->create(uniformBlock->getSize(), 1, vk::BufferUsageFlagBits::eUniformBuffer, vk::MemoryPropertyFlagBits::eHostVisible | vk::MemoryPropertyFlagBits::eHostCoherent);
         vBuffers.emplace_back(std::move(uniform));
     }

@@ -6,6 +6,7 @@
 #include "filesystem/FilesystemHelper.h"
 
 using namespace Engine;
+using namespace Engine::Controllers;
 using namespace Engine::Core;
 using namespace Engine::Core::Scene;
 
@@ -17,7 +18,7 @@ void CApplication::create()
     Core::FEngineCreateInfo createInfo = FilesystemHelper::getConfigAs<Core::FEngineCreateInfo>("engine/config.json");
     UHLInstance->create(createInfo);
 
-    m_pCameraController = std::make_unique<Controllers::CCameraEditorController>();
+    m_pCameraController = make_scope<CCameraEditorController>();
     m_pCameraController->create();
 
     CSceneManager::inst()->load(createInfo.engine.scene);

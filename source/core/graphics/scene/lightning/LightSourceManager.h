@@ -15,12 +15,12 @@ namespace Engine
             {
             public:
                 template<class _Ty>
-                std::shared_ptr<_Ty> createSource() {}
+                ref_ptr<_Ty> createSource() {}
 
                 template<>
-                std::shared_ptr<Scene::CLightSourcePoint> createSource()
+                ref_ptr<Scene::CLightSourcePoint> createSource()
                 {
-                    auto pNewSource = std::make_shared<Scene::CLightSourcePoint>();
+                    auto pNewSource = make_ref<Scene::CLightSourcePoint>();
                     std::stringstream ss{};
                     ss << "PointLight_" << vPointLights.size();
                     pNewSource->setName(ss.str());
@@ -29,9 +29,9 @@ namespace Engine
                 }
 
                 template<>
-                std::shared_ptr<Scene::CLightSourceDirectional> createSource()
+                ref_ptr<Scene::CLightSourceDirectional> createSource()
                 {
-                    auto pNewSource = std::make_shared<Scene::CLightSourceDirectional>();
+                    auto pNewSource = make_ref<Scene::CLightSourceDirectional>();
                     std::stringstream ss{};
                     ss << "DirectionalLight_" << vDirectionalLights.size();
                     pNewSource->setName(ss.str());
@@ -40,9 +40,9 @@ namespace Engine
                 }
 
                 template<>
-                std::shared_ptr<Scene::CLightSourceSpot> createSource()
+                ref_ptr<Scene::CLightSourceSpot> createSource()
                 {
-                    auto pNewSource = std::make_shared<Scene::CLightSourceSpot>();
+                    auto pNewSource = make_ref<Scene::CLightSourceSpot>();
                     std::stringstream ss{};
                     ss << "SpotLight_" << vSpotLights.size();
                     pNewSource->setName(ss.str());
@@ -90,9 +90,9 @@ namespace Engine
                 }
 
             private:
-                std::vector<std::shared_ptr<Scene::CLightSourcePoint>> vPointLights;
-                std::vector<std::shared_ptr<Scene::CLightSourceDirectional>> vDirectionalLights;
-                std::vector<std::shared_ptr<Scene::CLightSourceSpot>> vSpotLights;
+                std::vector<ref_ptr<Scene::CLightSourcePoint>> vPointLights;
+                std::vector<ref_ptr<Scene::CLightSourceDirectional>> vDirectionalLights;
+                std::vector<ref_ptr<Scene::CLightSourceSpot>> vSpotLights;
             };            
         }
     }

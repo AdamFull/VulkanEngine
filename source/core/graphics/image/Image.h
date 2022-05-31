@@ -221,7 +221,7 @@ namespace Engine
              * @param region Image copy region
              * @param dstLayout Destination image layout
              */
-            void copyImageToDst(vk::CommandBuffer& commandBuffer, std::shared_ptr<CImage> m_pDst, vk::ImageCopy& region, vk::ImageLayout dstLayout);
+            void copyImageToDst(vk::CommandBuffer& commandBuffer, ref_ptr<CImage>& pDst, vk::ImageCopy& region, vk::ImageLayout dstLayout);
 
             /**
              * @brief Set specific image layout

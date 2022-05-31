@@ -17,7 +17,7 @@ void CDeferredStage::create()
     detectExtent = true;
     screenExtent = CDevice::inst()->getExtent(detectExtent);
 
-    auto framebuffer_1 = std::make_unique<CFramebufferNew>();
+    auto framebuffer_1 = make_scope<CFramebufferNew>();
     framebuffer_1->setFlipViewport(VK_TRUE);
     framebuffer_1->setRenderArea(vk::Offset2D{0, 0}, screenExtent);
 
@@ -38,8 +38,8 @@ void CDeferredStage::create()
     framebuffer_1->addSubpassDependency(1, VK_SUBPASS_EXTERNAL, vk::PipelineStageFlagBits::eBottomOfPipe, vk::PipelineStageFlagBits::eFragmentShader,
     vk::AccessFlagBits::eMemoryRead | vk::AccessFlagBits::eMemoryWrite, vk::AccessFlagBits::eShaderRead);
 
-    framebuffer_1->pushSubpass(std::make_shared<CGBufferPass>());
-    framebuffer_1->pushSubpass(std::make_shared<CPBRCompositionPass>());
+    framebuffer_1->pushSubpass(make_scope<CGBufferPass>());
+    framebuffer_1->pushSubpass(make_scope<CPBRCompositionPass>());
     vFramebuffer.emplace_back(std::move(framebuffer_1));
     CRenderStage::create();
 }

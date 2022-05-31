@@ -52,9 +52,9 @@ namespace Engine
                  * @brief Create material by name. All material create info stores in file "materials.json"
                  * 
                  * @param name Material name
-                 * @return std::shared_ptr<Material::CMaterialBase> Smart pointer to material object
+                 * @return ref_ptr<Material::CMaterialBase> Smart pointer to material object
                  */
-                std::shared_ptr<Material::CMaterialBase> create(const std::string &name);
+                ref_ptr<Material::CMaterialBase> create(const std::string &name);
 
             private:
                 /**
@@ -69,7 +69,7 @@ namespace Engine
                  */
                 void save();
 
-                std::map<std::string, std::shared_ptr<Material::CMaterialBase>> mMaterialCache;
+                std::map<std::string, ref_ptr<Material::CMaterialBase>> mMaterialCache;
                 FMaterialInfo data;
             };
         }

@@ -47,14 +47,14 @@ namespace Engine
                  * 
                  * @param material Material smart pointer object
                  */
-                inline void addMaterial(std::shared_ptr<Material::CMaterialBase> material) { vMaterials.emplace_back(material); }
+                inline void addMaterial(ref_ptr<Material::CMaterialBase>&& material) { vMaterials.emplace_back(material); }
 
                 /**
                  * @brief Get loaded mesh
                  * 
-                 * @return const std::shared_ptr<Mesh::CMeshBase> Loaded mesh smart pointer object
+                 * @return const ref_ptr<Mesh::CMeshBase> Loaded mesh smart pointer object
                  */
-                inline const std::shared_ptr<Mesh::CMeshBase> getMesh() const { return m_pMesh; }
+                inline const ref_ptr<Mesh::CMeshBase> getMesh() const { return m_pMesh; }
 
             private:
                 /**
@@ -66,7 +66,7 @@ namespace Engine
                  * @param model Current node mesh data
                  * @param globalscale Override global node scale
                  */
-                void loadNode(std::shared_ptr<GLTFSceneNode> pParent, const tinygltf::Node &node, uint32_t nodeIndex, const tinygltf::Model &model, float globalscale);
+                void loadNode(ref_ptr<GLTFSceneNode> pParent, const tinygltf::Node &node, uint32_t nodeIndex, const tinygltf::Model &model, float globalscale);
 
                 /**
                  * @brief Loads mesh fragment from scene node
@@ -75,7 +75,7 @@ namespace Engine
                  * @param node Current scene node
                  * @param model Current node mesh data
                  */
-                void loadMeshFragment(std::shared_ptr<GLTFSceneNode> sceneNode, const tinygltf::Node &node, const tinygltf::Model &model);
+                void loadMeshFragment(ref_ptr<GLTFSceneNode>& sceneNode, const tinygltf::Node &node, const tinygltf::Model &model);
 
                 /**
                  * @brief Recalculates tangents for fragment vertices and indices
@@ -112,9 +112,9 @@ namespace Engine
                  * 
                  * @param model Current node mesh data
                  * @param path Texture path
-                 * @return std::shared_ptr<Core::CImage> Smart pointer texture object
+                 * @return ref_ptr<Core::CImage> Smart pointer texture object
                  */
-                std::shared_ptr<Core::CImage> loadTexture(const tinygltf::Image &model, const std::string& path);
+                ref_ptr<Core::CImage> loadTexture(const tinygltf::Image &model, const std::string& path);
 
                 /**
                  * @brief Load mesh skinning data
@@ -124,14 +124,14 @@ namespace Engine
                 void loadSkins(const tinygltf::Model &model);
 
                 uint32_t current_primitive;
-                std::shared_ptr<Mesh::CMeshBase> m_pMesh;
-                //std::shared_ptr<Light::Point> m_pPointLights;
-                //std::shared_ptr<Camera::Base> m_pCameras;
-                std::vector<std::shared_ptr<Core::CImage>> vTextures;
-                std::vector<std::shared_ptr<Material::CMaterialBase>> vMaterials;
+                ref_ptr<Mesh::CMeshBase> m_pMesh;
+                //ref_ptr<Light::Point> m_pPointLights;
+                //ref_ptr<Camera::Base> m_pCameras;
+                std::vector<ref_ptr<Core::CImage>> vTextures;
+                std::vector<ref_ptr<Material::CMaterialBase>> vMaterials;
 
-                std::vector<std::shared_ptr<GLTFSceneNode>> m_vNodes;
-                std::vector<std::shared_ptr<GLTFSceneNode>> m_vLinearNodes;
+                std::vector<ref_ptr<GLTFSceneNode>> m_vNodes;
+                std::vector<ref_ptr<GLTFSceneNode>> m_vLinearNodes;
 
                 std::string srParentPath{""};
 

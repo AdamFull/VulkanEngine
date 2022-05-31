@@ -29,18 +29,18 @@ std::string &GLTFSceneNode::getUUID()
     return m_srUUID;
 }
 
-std::shared_ptr<GLTFSceneNode> &GLTFSceneNode::getParent()
+ref_ptr<GLTFSceneNode> &GLTFSceneNode::getParent()
 {
     return m_pParent;
 }
 
-std::map<std::string, std::shared_ptr<GLTFSceneNode>> &GLTFSceneNode::getChilds()
+std::map<std::string, ref_ptr<GLTFSceneNode>> &GLTFSceneNode::getChilds()
 {
     return m_mChilds;
 }
 
 // Deep search
-std::shared_ptr<GLTFSceneNode> GLTFSceneNode::find(const std::string& srName)
+ref_ptr<GLTFSceneNode> GLTFSceneNode::find(const std::string& srName)
 {
     auto it_id = m_mUUID.find(srName);
     if (it_id != m_mUUID.end())
@@ -54,14 +54,14 @@ std::shared_ptr<GLTFSceneNode> GLTFSceneNode::find(const std::string& srName)
     return nullptr;
 }
 
-void GLTFSceneNode::addChild(std::shared_ptr<GLTFSceneNode> child)
+void GLTFSceneNode::addChild(ref_ptr<GLTFSceneNode> child)
 {
     m_mChilds.emplace(child->m_srUUID, child);
     m_mUUID.emplace(child->m_srName, child->m_srUUID);
     child->setParent(shared_from_this());
 }
 
-void GLTFSceneNode::setParent(std::shared_ptr<GLTFSceneNode> parent)
+void GLTFSceneNode::setParent(ref_ptr<GLTFSceneNode> parent)
 {
     m_pParentOld = m_pParent;
     m_pParent = parent;
@@ -69,12 +69,12 @@ void GLTFSceneNode::setParent(std::shared_ptr<GLTFSceneNode> parent)
     if (m_pParentOld)
         m_pParentOld->detach(shared_from_this());
 }
-void GLTFSceneNode::attach(std::shared_ptr<GLTFSceneNode> child)
+void GLTFSceneNode::attach(ref_ptr<GLTFSceneNode> child)
 {
     addChild(child);
 }
 
-void GLTFSceneNode::detach(std::shared_ptr<GLTFSceneNode> child)
+void GLTFSceneNode::detach(ref_ptr<GLTFSceneNode> child)
 {
     auto it = m_mChilds.find(child->m_srUUID);
     if (it != m_mChilds.end())

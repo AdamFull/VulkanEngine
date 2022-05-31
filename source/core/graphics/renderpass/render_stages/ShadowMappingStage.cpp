@@ -30,7 +30,7 @@ void CShadowMappingStage::create()
 
     pRenderPass->pushSubpass(std::make_shared<CShadowPass>());
 
-    pFramebuffer = std::make_unique<CFramebuffer>();
+    pFramebuffer = make_scope<CFramebuffer>();
     pFramebuffer->addImage("shadowmap", CImage::getDepthFormat(), vk::ImageUsageFlagBits::eDepthStencilAttachment | vk::ImageUsageFlagBits::eSampled);
 
     pRenderPass->setRenderArea(vk::Offset2D{0, 0}, screenExtent);

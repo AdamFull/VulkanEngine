@@ -37,7 +37,7 @@ void CMeshBase::cleanup()
         fragment->cleanup();
 }
 
-void CMeshBase::addFragment(std::shared_ptr<CMeshFragment> fragment)
+void CMeshBase::addFragment(ref_ptr<CMeshFragment> fragment)
 {
     m_vFragments.push_back(fragment);
 }

@@ -7,7 +7,7 @@ using namespace Engine::Core;
 using namespace Engine::Core::Window;
 
 template<>
-std::unique_ptr<CVulkanHighLevel> utl::singleton<CVulkanHighLevel>::_instance{nullptr};
+scope_ptr<CVulkanHighLevel> utl::singleton<CVulkanHighLevel>::_instance{nullptr};
 
 //TODO: remove this class
 void CVulkanHighLevel::create(FEngineCreateInfo createInfo)

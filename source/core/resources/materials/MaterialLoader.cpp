@@ -147,14 +147,14 @@ using namespace Engine::Core;
 using namespace Engine::Core::Pipeline;
 
 template<>
-std::unique_ptr<CMaterialLoader> utl::singleton<CMaterialLoader>::_instance{nullptr};
+scope_ptr<CMaterialLoader> utl::singleton<CMaterialLoader>::_instance{nullptr};
 
 CMaterialLoader::CMaterialLoader()
 {
     load();
 }
 
-std::shared_ptr<CMaterialBase> CMaterialLoader::create(const std::string& name)
+ref_ptr<CMaterialBase> CMaterialLoader::create(const std::string& name)
 {
     //TODO: Check ability to store same materials
     auto it = data.creationInfo.find(name);
@@ -169,7 +169,7 @@ std::shared_ptr<CMaterialBase> CMaterialLoader::create(const std::string& name)
             case FMaterialInfo::EVertexType::eImgui: vertexInput = CVertexInput(FVertexUI::getBindingDescription(), FVertexUI::getAttributeDescriptions()); break;
         }
 
-        std::shared_ptr<CMaterialBase> material = std::make_unique<CMaterialBase>();
+        ref_ptr<CMaterialBase> material = make_scope<CMaterialBase>();
         material->m_pPipeline = CPipelineBase::Builder().
         setVertexInput(std::move(vertexInput)).
         setCulling(ci.culling).

@@ -4,7 +4,7 @@
 using namespace Engine::Core::Scene;
 
 template<>
-std::unique_ptr<CSceneManager> utl::singleton<CSceneManager>::_instance{nullptr};
+scope_ptr<CSceneManager> utl::singleton<CSceneManager>::_instance{nullptr};
 
 void CSceneManager::load(const std::string& scene_name)
 {

@@ -488,9 +488,9 @@ void CImage::blitImage(vk::CommandBuffer& commandBuffer, vk::ImageLayout dstLayo
     commandBuffer.blitImage(_image, _imageLayout, _image, dstLayout, 1, &blit, vk::Filter::eLinear);
 }
 
-void CImage::copyImageToDst(vk::CommandBuffer& commandBuffer, std::shared_ptr<CImage> m_pDst, vk::ImageCopy& region, vk::ImageLayout dstLayout)
+void CImage::copyImageToDst(vk::CommandBuffer& commandBuffer, ref_ptr<CImage>& pDst, vk::ImageCopy& region, vk::ImageLayout dstLayout)
 {
-    copyTo(commandBuffer, _image, m_pDst->_image, _imageLayout, dstLayout, region);
+    copyTo(commandBuffer, _image, pDst->_image, _imageLayout, dstLayout, region);
 }
 
 void CImage::writeImageData(ktxTexture *info, vk::Format format, vk::ImageAspectFlags aspect)

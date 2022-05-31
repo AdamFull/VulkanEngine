@@ -4,11 +4,12 @@
 #include "graphics/VulkanHighLevel.h"
 
 using namespace Engine::Core;
+using namespace Engine::Core::Pipeline;
 using namespace Engine::Core::Descriptor;
 
-void CDescriptorHandler::create(std::shared_ptr<Pipeline::CPipelineBase> pipeline)
+void CDescriptorHandler::create(ref_ptr<CPipelineBase> pipeline)
 {
-    pDescriptorSet = std::make_unique<CDescriptorSet>();
+    pDescriptorSet = make_scope<CDescriptorSet>();
     pDescriptorSet->create(pipeline);
     pPipeline = pipeline;
 }

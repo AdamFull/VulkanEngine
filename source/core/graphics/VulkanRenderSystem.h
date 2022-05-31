@@ -19,12 +19,12 @@ namespace Engine
 
             void rebuildViewport();
 
-            std::unique_ptr<Render::CRenderStage>& getStage(uint32_t stageIndex) { return vStages.at(stageIndex); }
-            std::unique_ptr<Render::CRenderStage>& getCurrentStage() { return vStages.at(currentStageIndex); }
-            std::unique_ptr<Render::CRenderStage>& getPrevStage() { return vStages.at(currentStageIndex - 1); }
+            scope_ptr<Render::CRenderStage>& getStage(uint32_t stageIndex) { return vStages.at(stageIndex); }
+            scope_ptr<Render::CRenderStage>& getCurrentStage() { return vStages.at(currentStageIndex); }
+            scope_ptr<Render::CRenderStage>& getPrevStage() { return vStages.at(currentStageIndex - 1); }
 
-            std::unordered_map<std::string, std::shared_ptr<CImage>>& getImages(uint32_t index) { return mImages[index]; }
-            std::unordered_map<std::string, std::shared_ptr<CImage>>& getCurrentImages() { return getImages(imageIndex); }
+            std::unordered_map<std::string, ref_ptr<CImage>>& getImages(uint32_t index) { return mImages[index]; }
+            std::unordered_map<std::string, ref_ptr<CImage>>& getCurrentImages() { return getImages(imageIndex); }
 
             const size_t getTotalFramesCounted() const { return totalFrameNumberCounter; }
 
@@ -34,7 +34,7 @@ namespace Engine
             vk::Result endFrame();
             void updateFramebufferImages();
 
-            std::shared_ptr<CCommandBuffer> commandBuffers;
+            ref_ptr<CCommandBuffer> commandBuffers;
             uint32_t imageIndex{0};
             bool frameStarted{false};
             vk::Extent2D screenExtent{};
@@ -43,8 +43,8 @@ namespace Engine
 
             size_t totalFrameNumberCounter{0};
 
-            std::vector<std::unique_ptr<Render::CRenderStage>> vStages;
-            std::map<uint32_t, std::unordered_map<std::string, std::shared_ptr<CImage>>> mImages;
+            std::vector<scope_ptr<Render::CRenderStage>> vStages;
+            std::map<uint32_t, std::unordered_map<std::string, ref_ptr<CImage>>> mImages;
         };
     }
 }

@@ -14,16 +14,16 @@ namespace Engine
              */
             struct CMaterialFactory
             {
-                using material_t = std::unique_ptr<CMaterialBase>;
+                using material_t = scope_ptr<CMaterialBase>;
 
             public:
                 /**
                  * @brief Creating material uses name of material for load data from MaterialLoader
                  * 
                  * @param info Material create info
-                 * @return std::shared_ptr<CMaterialBase> Material smart pointer object
+                 * @return ref_ptr<CMaterialBase> Material smart pointer object
                  */
-                static std::shared_ptr<CMaterialBase> create(FMaterialCreateInfo info);
+                static ref_ptr<CMaterialBase> create(FMaterialCreateInfo info);
             };
         }
     }

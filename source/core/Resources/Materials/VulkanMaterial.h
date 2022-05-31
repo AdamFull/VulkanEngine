@@ -64,7 +64,7 @@ namespace Engine
                  * @param attachment Texture attachment name
                  * @param pTexture Texture smart object pointer
                  */
-                void addTexture(const std::string& attachment, std::shared_ptr<Core::CImage> pTexture);
+                void addTexture(const std::string& attachment, ref_ptr<Core::CImage>& pTexture);
 
                 /**
                  * @brief Add buffer descriptor
@@ -129,21 +129,21 @@ namespace Engine
                 /**
                  * @brief Get material pipeline object
                  * 
-                 * @return std::shared_ptr<Core::Pipeline::CPipelineBase> Pipeline smart pointer object
+                 * @return ref_ptr<Core::Pipeline::CPipelineBase> Pipeline smart pointer object
                  */
-                inline std::shared_ptr<Core::Pipeline::CPipelineBase> getPipeline() { return m_pPipeline; }
+                inline ref_ptr<Core::Pipeline::CPipelineBase> getPipeline() { return m_pPipeline; }
 
-                std::shared_ptr<Core::CHandler>& getUniformBuffer(const std::string& name) { return mBuffers[name]; }
-                std::shared_ptr<Core::CPushHandler>& getPushConstant(const std::string& name) { return mPushConstants[name]; }
+                ref_ptr<Core::CHandler>& getUniformBuffer(const std::string& name) { return mBuffers[name]; }
+                ref_ptr<Core::CPushHandler>& getPushConstant(const std::string& name) { return mPushConstants[name]; }
 
             protected:
                 FMaterialParams m_fMatParams{};
                 std::string m_srName;
 
-                std::unique_ptr<Core::Descriptor::CDescriptorHandler> m_pDescriptorSet;
-                std::map<std::string, std::shared_ptr<Core::CHandler>> mBuffers;
-                std::map<std::string, std::shared_ptr<Core::CPushHandler>> mPushConstants;
-                std::shared_ptr<Core::Pipeline::CPipelineBase> m_pPipeline;
+                scope_ptr<Core::Descriptor::CDescriptorHandler> m_pDescriptorSet;
+                std::map<std::string, ref_ptr<Core::CHandler>> mBuffers;
+                std::map<std::string, ref_ptr<Core::CPushHandler>> mPushConstants;
+                ref_ptr<Core::Pipeline::CPipelineBase> m_pPipeline;
                 std::map<std::string, vk::DescriptorImageInfo> m_mTextures;
                 std::map<std::string, vk::DescriptorBufferInfo> m_mBuffers;
             };

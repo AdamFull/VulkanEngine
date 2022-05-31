@@ -21,7 +21,7 @@ namespace Engine
                 uint32_t vertexCount;
                 bool bUseMaterial{false};
                 //TODO: check for material duplicates
-                std::shared_ptr<Material::CMaterialBase> material;
+                ref_ptr<Material::CMaterialBase> material;
 
                 struct Dimensions
                 {

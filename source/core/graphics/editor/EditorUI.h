@@ -37,34 +37,34 @@ namespace Engine
             vk::DescriptorPool& getDescriptorPool() { return descriptorPool; }
 
             template<class _Ty>
-            std::shared_ptr<_Ty> getWindow() {}
+            ref_ptr<_Ty> getWindow() {}
 
             template<>
-            std::shared_ptr<Editor::CHierarchyWindow> getWindow()
+            ref_ptr<Editor::CHierarchyWindow> getWindow()
             {
                 return std::dynamic_pointer_cast<Editor::CHierarchyWindow>(vWindows[EEditorWindowType::eHierarchy]);
             }
 
             template<>
-            std::shared_ptr<Editor::CInspectorWindow> getWindow()
+            ref_ptr<Editor::CInspectorWindow> getWindow()
             {
                 return std::dynamic_pointer_cast<Editor::CInspectorWindow>(vWindows[EEditorWindowType::eInspector]);
             }
 
             template<>
-            std::shared_ptr<Editor::CViewportWindow> getWindow()
+            ref_ptr<Editor::CViewportWindow> getWindow()
             {
                 return std::dynamic_pointer_cast<Editor::CViewportWindow>(vWindows[EEditorWindowType::eViewport]);
             }
 
             template<>
-            std::shared_ptr<Editor::CWorldSettingsWindow> getWindow()
+            ref_ptr<Editor::CWorldSettingsWindow> getWindow()
             {
                 return std::dynamic_pointer_cast<Editor::CWorldSettingsWindow>(vWindows[EEditorWindowType::eWorld]);
             }
 
             template<>
-            std::shared_ptr<Editor::CContentBrowserWindow> getWindow()
+            ref_ptr<Editor::CContentBrowserWindow> getWindow()
             {
                 return std::dynamic_pointer_cast<Editor::CContentBrowserWindow>(vWindows[EEditorWindowType::eContentBrowser]);
             }
@@ -74,7 +74,7 @@ namespace Engine
 
             void initializeWindowBackend();
 
-            std::map<EEditorWindowType, std::shared_ptr<Editor::CWindowBase>> vWindows;
+            std::map<EEditorWindowType, ref_ptr<Editor::CWindowBase>> vWindows;
             bool bEnabled = true;
             vk::DescriptorPool descriptorPool{};
 

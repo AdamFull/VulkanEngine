@@ -4,16 +4,16 @@
 
 using namespace Engine::Core::Pipeline;
 
-std::unique_ptr<CPipelineBase> CPipelineBase::Builder::build(vk::PipelineBindPoint bindPoint)
+scope_ptr<CPipelineBase> CPipelineBase::Builder::build(vk::PipelineBindPoint bindPoint)
 {
-    std::unique_ptr<CPipelineBase> pPipeline;
+    scope_ptr<CPipelineBase> pPipeline;
     
     switch (bindPoint)
     {
-    case vk::PipelineBindPoint::eCompute: pPipeline = std::make_unique<CComputePipeline>(); break;
-    case vk::PipelineBindPoint::eGraphics: pPipeline = std::make_unique<CGraphicsPipeline>(); break;
-    case vk::PipelineBindPoint::eRayTracingKHR: pPipeline = std::make_unique<CComputePipeline>(); break;
-    case vk::PipelineBindPoint::eSubpassShadingHUAWEI: pPipeline = std::make_unique<CComputePipeline>(); break;
+    case vk::PipelineBindPoint::eCompute: pPipeline = make_scope<CComputePipeline>(); break;
+    case vk::PipelineBindPoint::eGraphics: pPipeline = make_scope<CGraphicsPipeline>(); break;
+    case vk::PipelineBindPoint::eRayTracingKHR: pPipeline = make_scope<CComputePipeline>(); break;
+    case vk::PipelineBindPoint::eSubpassShadingHUAWEI: pPipeline = make_scope<CComputePipeline>(); break;
     }
 
     pPipeline->m_bindPoint = bindPoint;
@@ -84,7 +84,7 @@ void CPipelineBase::bind(vk::CommandBuffer &commandBuffer)
 
 void CPipelineBase::loadShader(const std::vector<std::string> &vShaders)
 {
-    m_pShader = std::make_unique<CShader>();
+    m_pShader = make_scope<CShader>();
     std::stringstream defineBlock;
     for (const auto &[defineName, defineValue] : m_vDefines)
         defineBlock << "#define " << defineName << " " << defineValue << '\n';

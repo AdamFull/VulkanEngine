@@ -52,10 +52,10 @@ namespace utl
     class singleton : public non_copy_movable
     {
     protected:
-        static std::unique_ptr<_Ty> _instance;
+        static scope_ptr<_Ty> _instance;
 
     public:
-        static std::unique_ptr<_Ty> &inst()
+        static scope_ptr<_Ty> &inst()
         {
             if (!_instance)
                 _instance.reset(new _Ty());

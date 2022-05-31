@@ -16,9 +16,9 @@ namespace Engine
             struct Skin
             {
                 std::string name;
-                std::shared_ptr<GLTFSceneNode> skeletonRoot = nullptr;
+                ref_ptr<GLTFSceneNode> skeletonRoot = nullptr;
                 std::vector<glm::mat4> inverseBindMatrices;
-                std::vector<std::shared_ptr<GLTFSceneNode>> joints;
+                std::vector<ref_ptr<GLTFSceneNode>> joints;
             };
 
             /**
@@ -32,37 +32,37 @@ namespace Engine
                  * @brief Find node in scene tree
                  * 
                  * @param srName Scene node name
-                 * @return std::shared_ptr<GLTFSceneNode> Found scene node smart pointer
+                 * @return ref_ptr<GLTFSceneNode> Found scene node smart pointer
                  */
-                std::shared_ptr<GLTFSceneNode> find(const std::string& srName);
+                ref_ptr<GLTFSceneNode> find(const std::string& srName);
 
                 /**
                  * @brief Add node child
                  * 
                  * @param child New node child
                  */
-                void addChild(std::shared_ptr<GLTFSceneNode> child);
+                void addChild(ref_ptr<GLTFSceneNode> child);
 
                 /**
                  * @brief Set the Parent object
                  * 
                  * @param parent New node parent
                  */
-                void setParent(std::shared_ptr<GLTFSceneNode> parent);
+                void setParent(ref_ptr<GLTFSceneNode> parent);
 
                 /**
                  * @brief Attach child method. Works with addChild method
                  * 
                  * @param child New child
                  */
-                void attach(std::shared_ptr<GLTFSceneNode> child);
+                void attach(ref_ptr<GLTFSceneNode> child);
 
                 /**
                  * @brief Removes child and forgets his parent
                  * 
                  * @param child Detaching child object
                  */
-                void detach(std::shared_ptr<GLTFSceneNode> child);
+                void detach(ref_ptr<GLTFSceneNode> child);
 
                 /**
                  * @brief Get node name
@@ -81,16 +81,16 @@ namespace Engine
                 /**
                  * @brief Get node parent
                  * 
-                 * @return std::shared_ptr<GLTFSceneNode>& Node parent spart pointer object
+                 * @return ref_ptr<GLTFSceneNode>& Node parent spart pointer object
                  */
-                std::shared_ptr<GLTFSceneNode> &getParent();
+                ref_ptr<GLTFSceneNode> &getParent();
 
                 /**
                  * @brief Get node childs
                  * 
-                 * @return std::map<std::string, std::shared_ptr<GLTFSceneNode>>& The map reference of node childs
+                 * @return std::map<std::string, ref_ptr<GLTFSceneNode>>& The map reference of node childs
                  */
-                std::map<std::string, std::shared_ptr<GLTFSceneNode>> &getChilds();
+                std::map<std::string, ref_ptr<GLTFSceneNode>> &getChilds();
 
                 /**
                  * @brief Get node relative Transform object
@@ -157,16 +157,16 @@ namespace Engine
 
                 uint32_t m_index;
 		
-                std::shared_ptr<Mesh::CMeshFragment> m_pMesh;
-                std::unique_ptr<Skin> m_pSkin;
+                ref_ptr<Mesh::CMeshFragment> m_pMesh;
+                scope_ptr<Skin> m_pSkin;
             protected:
                 std::string m_srName;
                 std::string m_srUUID;
                 FTransform m_transform;
 
-                std::shared_ptr<GLTFSceneNode> m_pParent;
-                std::shared_ptr<GLTFSceneNode> m_pParentOld;
-                std::map<std::string, std::shared_ptr<GLTFSceneNode>> m_mChilds;
+                ref_ptr<GLTFSceneNode> m_pParent;
+                ref_ptr<GLTFSceneNode> m_pParentOld;
+                std::map<std::string, ref_ptr<GLTFSceneNode>> m_mChilds;
                 std::map<std::string, std::string> m_mUUID;
             };
         }

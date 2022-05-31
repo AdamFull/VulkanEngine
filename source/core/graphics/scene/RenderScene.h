@@ -17,12 +17,12 @@ namespace Engine
                 void create();
                 void reCreate();
                 void cleanup();
-                void attachObject(std::shared_ptr<Core::Scene::CRenderObject> object);
-                inline std::shared_ptr<Core::Scene::CRenderObject>& getRoot() { return m_pRoot; }
+                void attachObject(ref_ptr<Core::Scene::CRenderObject>& object);
+                inline ref_ptr<Core::Scene::CRenderObject>& getRoot() { return m_pRoot; }
                 void createObjects();
                 void render(float fDeltaTime);
             private:
-                std::shared_ptr<Core::Scene::CRenderObject> m_pRoot;
+                ref_ptr<Core::Scene::CRenderObject> m_pRoot;
             };
         }
     }

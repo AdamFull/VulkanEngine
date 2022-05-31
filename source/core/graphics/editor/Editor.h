@@ -9,18 +9,18 @@ namespace Engine
         class CEditor : public utl::singleton<CEditor>
         {
         public:
-            void selectObject(std::shared_ptr<Scene::CRenderObject>& object);
+            void selectObject(ref_ptr<Scene::CRenderObject>& object);
             void selectObject(uint64_t objectId);
-            void deselectObject(std::shared_ptr<Scene::CRenderObject>& object);
+            void deselectObject(ref_ptr<Scene::CRenderObject>& object);
             void deselectObject(uint64_t objectId);
             void deselectAll();
 
-            bool isSelected(std::shared_ptr<Scene::CRenderObject>& object);
+            bool isSelected(ref_ptr<Scene::CRenderObject>& object);
             bool isSelected(uint64_t objectId);
 
-            std::shared_ptr<Scene::CRenderObject> getLastSelection();
+            ref_ptr<Scene::CRenderObject> getLastSelection();
         private:
-            std::unordered_map<std::string, std::shared_ptr<Scene::CRenderObject>> mSelectedObjects;
+            std::unordered_map<std::string, ref_ptr<Scene::CRenderObject>> mSelectedObjects;
         };
     }
 }

@@ -13,7 +13,7 @@ namespace Engine
             public:
                 CDescriptorHandler() = default;
 
-                void create(std::shared_ptr<Pipeline::CPipelineBase> pPipeline);
+                void create(ref_ptr<Pipeline::CPipelineBase> pPipeline);
                 void cleanup();
                 void update();
                 void bind(const vk::CommandBuffer &commandBuffer) const;
@@ -23,8 +23,8 @@ namespace Engine
                 void set(const std::string& srUniformName, vk::DescriptorImageInfo& imageInfo);
                 void set(const std::string& srUniformName, vk::WriteDescriptorSet& writeInfo);
             private:
-                std::shared_ptr<Pipeline::CPipelineBase> pPipeline;
-                std::unique_ptr<CDescriptorSet> pDescriptorSet;
+                ref_ptr<Pipeline::CPipelineBase> pPipeline;
+                scope_ptr<CDescriptorSet> pDescriptorSet;
                 std::vector<vk::WriteDescriptorSet> vWriteDescriptorSets;
             };
         }

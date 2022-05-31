@@ -9,12 +9,12 @@ using namespace Engine::Resources::Material;
 using namespace Engine::Resources::Mesh;
 
 template <>
-std::unique_ptr<CResourceManager> utl::singleton<CResourceManager>::_instance{nullptr};
+scope_ptr<CResourceManager> utl::singleton<CResourceManager>::_instance{nullptr};
 
 void CResourceManager::create()
 {
     //Creating empty texture
-    auto pEmptyTexture = std::make_shared<CImage>();
+    auto pEmptyTexture = make_ref<CImage>();
     pEmptyTexture->create("empty.png");
     addExisting("no_texture", pEmptyTexture);
 }

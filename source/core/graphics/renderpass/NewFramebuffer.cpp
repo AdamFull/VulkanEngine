@@ -3,7 +3,6 @@
 #include "graphics/image/Image.h"
 #include "graphics/image/Image2D.h"
 #include "graphics/image/ImageLoader.h"
-#include "Subpass.h"
 
 using namespace Engine::Core;
 using namespace Engine::Core::Render;
@@ -196,7 +195,7 @@ void CFramebufferNew::setRenderArea(vk::Rect2D&& area)
     renderArea = std::move(area);
 }
 
-void CFramebufferNew::pushSubpass(std::shared_ptr<CSubpass>&& subpass)
+void CFramebufferNew::pushSubpass(scope_ptr<CSubpass>&& subpass)
 {
     vSubpasses.emplace_back(std::move(subpass));
 }
@@ -254,7 +253,7 @@ vk::Framebuffer& CFramebufferNew::getCurrentFramebuffer()
     return getFramebuffer(getCurrentFrameProxy());
 }
 
-std::unordered_map<std::string, std::shared_ptr<CImage>>& CFramebufferNew::getCurrentImages()
+std::unordered_map<std::string, ref_ptr<CImage>>& CFramebufferNew::getCurrentImages()
 {
     return getImages(getCurrentFrameProxy());
 }
@@ -319,9 +318,9 @@ void CFramebufferNew::createFramebuffer()
     }
 }
 
-std::shared_ptr<CImage> CFramebufferNew::createImage(vk::Format format, vk::ImageUsageFlags usageFlags, vk::Extent2D extent)
+ref_ptr<CImage> CFramebufferNew::createImage(vk::Format format, vk::ImageUsageFlags usageFlags, vk::Extent2D extent)
 {
-    auto texture = std::make_shared<CImage2D>();
+    auto texture = make_ref<CImage2D>();
     bool translate_layout{false};
 
     vk::ImageAspectFlags aspectMask{};

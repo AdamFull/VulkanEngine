@@ -102,9 +102,9 @@ void CPBRCompositionPass::cleanup()
     CSubpass::cleanup();
 }
 
-std::shared_ptr<CImage> CPBRCompositionPass::ComputeBRDFLUT(uint32_t size)
+ref_ptr<CImage> CPBRCompositionPass::ComputeBRDFLUT(uint32_t size)
 {
-    auto brdfImage = std::make_shared<CImage2D>();
+    auto brdfImage = make_ref<CImage2D>();
     brdfImage->create(vk::Extent2D{size, size}, vk::Format::eR16G16Sfloat, vk::ImageLayout::eGeneral,
     vk::ImageUsageFlagBits::eTransferSrc | vk::ImageUsageFlagBits::eTransferDst | vk::ImageUsageFlagBits::eSampled | vk::ImageUsageFlagBits::eColorAttachment | vk::ImageUsageFlagBits::eStorage);
 
@@ -112,7 +112,7 @@ std::shared_ptr<CImage> CPBRCompositionPass::ComputeBRDFLUT(uint32_t size)
     auto commandBuffer = cmdBuf.getCommandBuffer();
     auto descriptor = Descriptor::CDescriptorHandler();
 
-    std::shared_ptr<Pipeline::CPipelineBase> computePipeline = Pipeline::CPipelineBase::Builder().
+    ref_ptr<Pipeline::CPipelineBase> computePipeline = Pipeline::CPipelineBase::Builder().
     addShaderStage("shaders/generators/brdflut.comp").
     build(vk::PipelineBindPoint::eCompute);
     computePipeline->create();
@@ -131,9 +131,9 @@ std::shared_ptr<CImage> CPBRCompositionPass::ComputeBRDFLUT(uint32_t size)
     return brdfImage;
 }
 
-std::shared_ptr<CImage> CPBRCompositionPass::ComputeIrradiance(const std::shared_ptr<CImage> &source, uint32_t size)
+ref_ptr<CImage> CPBRCompositionPass::ComputeIrradiance(const ref_ptr<CImage> &source, uint32_t size)
 {
-    auto irradianceCubemap = std::make_shared<CImageCubemap>();
+    auto irradianceCubemap = make_ref<CImageCubemap>();
     irradianceCubemap->create(vk::Extent2D{size, size}, vk::Format::eR32G32B32A32Sfloat, vk::ImageLayout::eGeneral,
     vk::ImageUsageFlagBits::eTransferSrc | vk::ImageUsageFlagBits::eTransferDst | vk::ImageUsageFlagBits::eSampled | vk::ImageUsageFlagBits::eColorAttachment | vk::ImageUsageFlagBits::eStorage);
 
@@ -141,7 +141,7 @@ std::shared_ptr<CImage> CPBRCompositionPass::ComputeIrradiance(const std::shared
     auto commandBuffer = cmdBuf.getCommandBuffer();
     auto descriptor = Descriptor::CDescriptorHandler();
     
-    std::shared_ptr<Pipeline::CPipelineBase> computePipeline = Pipeline::CPipelineBase::Builder().
+    ref_ptr<Pipeline::CPipelineBase> computePipeline = Pipeline::CPipelineBase::Builder().
     addShaderStage("shaders/generators/irradiancecube.comp").
     build(vk::PipelineBindPoint::eCompute);
     computePipeline->create();
@@ -161,9 +161,9 @@ std::shared_ptr<CImage> CPBRCompositionPass::ComputeIrradiance(const std::shared
     return irradianceCubemap;
 }
 
-std::shared_ptr<CImage> CPBRCompositionPass::ComputePrefiltered(const std::shared_ptr<CImage> &source, uint32_t size)
+ref_ptr<CImage> CPBRCompositionPass::ComputePrefiltered(const ref_ptr<CImage>& source, uint32_t size)
 {
-    auto prefilteredCubemap = std::make_shared<CImageCubemap>();
+    auto prefilteredCubemap = make_ref<CImageCubemap>();
     prefilteredCubemap->create(vk::Extent2D{size, size}, vk::Format::eR16G16B16A16Sfloat, vk::ImageLayout::eGeneral,
     vk::ImageUsageFlagBits::eTransferSrc | vk::ImageUsageFlagBits::eTransferDst | vk::ImageUsageFlagBits::eSampled | vk::ImageUsageFlagBits::eColorAttachment | vk::ImageUsageFlagBits::eStorage,
     vk::ImageAspectFlagBits::eColor, vk::Filter::eLinear, vk::SamplerAddressMode::eClampToEdge, vk::SampleCountFlagBits::e1, true, false, true);
@@ -172,7 +172,7 @@ std::shared_ptr<CImage> CPBRCompositionPass::ComputePrefiltered(const std::share
     auto descriptor = Descriptor::CDescriptorHandler();
     auto push = CPushHandler();
     
-    std::shared_ptr<Pipeline::CPipelineBase> computePipeline = Pipeline::CPipelineBase::Builder().
+    ref_ptr<Pipeline::CPipelineBase> computePipeline = Pipeline::CPipelineBase::Builder().
     addShaderStage("shaders/generators/prefilteredmap.comp").
     build(vk::PipelineBindPoint::eCompute);
     computePipeline->create();

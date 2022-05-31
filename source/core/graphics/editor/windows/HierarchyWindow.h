@@ -15,7 +15,7 @@ namespace Engine
                 void draw() override;
 
             private:
-                void buildHierarchy(std::shared_ptr<Scene::CRenderObject> pObject);
+                void buildHierarchy(ref_ptr<Scene::CRenderObject>& pObject);
             };
         }
     }

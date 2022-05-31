@@ -98,7 +98,7 @@ namespace Engine
                  * 
                  * @param fragment Mesh base fragment
                  */
-                void addFragment(std::shared_ptr<CMeshFragment> fragment);
+                void addFragment(ref_ptr<CMeshFragment> fragment);
 
                 /**
                  * @brief Get the Animations object
@@ -129,7 +129,7 @@ namespace Engine
                 inline std::string getName() { return m_srName; }
 
             protected:
-                std::vector<std::shared_ptr<CMeshFragment>> m_vFragments;
+                std::vector<ref_ptr<CMeshFragment>> m_vFragments;
                 std::vector<FAnimation> m_vAnimations;
                 std::string m_srName;
                 float fRepeat;

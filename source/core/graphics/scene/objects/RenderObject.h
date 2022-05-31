@@ -43,18 +43,18 @@ namespace Engine
                 bool wasRendered() const { return bWasRendered; }
 
                 // Deep search
-                std::shared_ptr<CRenderObject> find(std::string name);
-                std::shared_ptr<CRenderObject> find(uint64_t id);
-                void addChild(std::shared_ptr<CRenderObject> child);
-                void setParent(std::shared_ptr<CRenderObject> parent);
-                void attach(std::shared_ptr<CRenderObject> child);
-                void detach(std::shared_ptr<CRenderObject> child);
+                ref_ptr<CRenderObject> find(std::string name);
+                ref_ptr<CRenderObject> find(uint64_t id);
+                void addChild(ref_ptr<CRenderObject>& child);
+                void setParent(ref_ptr<CRenderObject> parent);
+                void attach(ref_ptr<CRenderObject>&& child);
+                void detach(ref_ptr<CRenderObject> child);
 
                 uint64_t getId() const { return objectId; }
                 std::string &getName();
                 // std::string &GetUUID();
-                std::shared_ptr<CRenderObject> &getParent();
-                std::unordered_map<std::string, std::shared_ptr<CRenderObject>> &getChilds();
+                ref_ptr<CRenderObject>& getParent();
+                std::unordered_map<std::string, ref_ptr<CRenderObject>> &getChilds();
 
                 FTransform getTransform();
                 FTransform getLocalTransform() { return transform; }
@@ -99,9 +99,9 @@ namespace Engine
                 ECullingType eCullingType{ECullingType::eBySphere};
                 ERenderObjectType eObjectType{ERenderObjectType::eNone};
 
-                std::shared_ptr<CRenderObject> pParent;
-                std::shared_ptr<CRenderObject> pParentOld;
-                std::unordered_map<std::string, std::shared_ptr<CRenderObject>> mChilds;
+                ref_ptr<CRenderObject> pParent;
+                ref_ptr<CRenderObject> pParentOld;
+                std::unordered_map<std::string, ref_ptr<CRenderObject>> mChilds;
             };
         }
     }

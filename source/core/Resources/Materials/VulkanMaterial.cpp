@@ -23,16 +23,16 @@ void CMaterialBase::create()
     auto& renderPass = CRenderSystem::inst()->getCurrentStage()->getCurrentFramebuffer()->getRenderPass();
     auto subpass = CRenderSystem::inst()->getCurrentStage()->getCurrentFramebuffer()->getCurrentSubpass();
     m_pPipeline->create(renderPass, subpass);
-    m_pDescriptorSet = std::make_unique<CDescriptorHandler>();
+    m_pDescriptorSet = make_scope<CDescriptorHandler>();
     m_pDescriptorSet->create(m_pPipeline);
 
     for(auto& [name, uniform] : m_pPipeline->getShader()->getUniformBlocks())
     {
-        std::shared_ptr<CHandler> pUniform;
+        ref_ptr<CHandler> pUniform;
         switch(uniform.getDescriptorType())
         {
-            case vk::DescriptorType::eUniformBuffer: pUniform = std::make_shared<CUniformHandler>(); break;
-            case vk::DescriptorType::eStorageBuffer: pUniform = std::make_shared<CStorageHandler>(); break;
+            case vk::DescriptorType::eUniformBuffer: pUniform = make_ref<CUniformHandler>(); break;
+            case vk::DescriptorType::eStorageBuffer: pUniform = make_ref<CStorageHandler>(); break;
         }
         pUniform->create(uniform);
         mBuffers.emplace(name, pUniform);
@@ -40,7 +40,7 @@ void CMaterialBase::create()
 
     for(auto& [name, uniform] : m_pPipeline->getShader()->getPushBlocks())
     {
-        auto pUniform = std::make_shared<CPushHandler>();
+        auto pUniform = make_ref<CPushHandler>();
         pUniform->create(uniform, m_pPipeline);
         mPushConstants.emplace(name, pUniform);
     }
@@ -51,7 +51,7 @@ void CMaterialBase::addTexture(const std::string& attachment, vk::DescriptorImag
     m_mTextures[attachment] = descriptor;
 }
 
-void CMaterialBase::addTexture(const std::string& attachment, std::shared_ptr<Core::CImage> pTexture)
+void CMaterialBase::addTexture(const std::string& attachment, ref_ptr<CImage>& pTexture)
 {
     m_mTextures[attachment] = pTexture->getDescriptor();
 }

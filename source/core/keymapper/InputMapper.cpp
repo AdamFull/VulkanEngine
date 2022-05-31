@@ -6,7 +6,7 @@
 using namespace Engine;
 
 template <>
-std::unique_ptr<CInputMapper> utl::singleton<CInputMapper>::_instance{nullptr};
+scope_ptr<CInputMapper> utl::singleton<CInputMapper>::_instance{nullptr};
 
 CInputMapper::CInputMapper()
 {

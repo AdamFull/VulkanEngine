@@ -9,7 +9,7 @@
 using namespace Engine::Core;
 
 template<>
-std::unique_ptr<CRenderSystem> utl::singleton<CRenderSystem>::_instance{nullptr};
+scope_ptr<CRenderSystem> utl::singleton<CRenderSystem>::_instance{nullptr};
 
 CRenderSystem::~CRenderSystem()
 {
@@ -20,17 +20,17 @@ void CRenderSystem::create()
 {
     auto engineMode = UHLInstance->getCI().engine.mode;
     screenExtent = CDevice::inst()->getExtent();
-    commandBuffers = std::make_shared<CCommandBuffer>(false, vk::QueueFlagBits::eGraphics, vk::CommandBufferLevel::ePrimary, CDevice::inst()->getFramesInFlight());
+    commandBuffers = make_ref<CCommandBuffer>(false, vk::QueueFlagBits::eGraphics, vk::CommandBufferLevel::ePrimary, CDevice::inst()->getFramesInFlight());
 
-    vStages.emplace_back(std::make_unique<Render::CDeferredStage>());
-    vStages.emplace_back(std::make_unique<Render::CPostProcessStage>());
+    vStages.emplace_back(make_scope<Render::CDeferredStage>());
+    vStages.emplace_back(make_scope<Render::CPostProcessStage>());
     switch (engineMode)
     {
     case ELaunchMode::eGame:{
-        vStages.emplace_back(std::make_unique<Render::CPresentFinalStage>());
+        vStages.emplace_back(make_scope<Render::CPresentFinalStage>());
     } break;
     case ELaunchMode::eEditor:{
-        vStages.emplace_back(std::make_unique<Render::CSandboxFinalStage>());
+        vStages.emplace_back(make_scope<Render::CSandboxFinalStage>());
     } break;
     }
 
@@ -48,7 +48,7 @@ void CRenderSystem::reCreate()
 {
     CDevice::inst()->tryRebuildSwapchain();
     screenExtent = CDevice::inst()->getExtent();
-    commandBuffers = std::make_shared<CCommandBuffer>(false, vk::QueueFlagBits::eGraphics, vk::CommandBufferLevel::ePrimary, CDevice::inst()->getFramesInFlight());
+    commandBuffers = make_ref<CCommandBuffer>(false, vk::QueueFlagBits::eGraphics, vk::CommandBufferLevel::ePrimary, CDevice::inst()->getFramesInFlight());
     imageIndex = 0;
     Window::CWindowHandle::m_bWasResized = false;
 

@@ -2,14 +2,14 @@
 
 using namespace Engine::Core;
 
-std::unique_ptr<CVBO> CVBO::_instance{nullptr};
+scope_ptr<CVBO> CVBO::_instance{nullptr};
 
 CVBO::CVBO()
 {
-    pVBO = std::make_unique<CVertexBufferObject>();
+    pVBO = make_scope<CVertexBufferObject>();
 }
 
-std::unique_ptr<CVertexBufferObject>& CVBO::inst()
+scope_ptr<CVertexBufferObject>& CVBO::inst()
 {
     if(!_instance)
         _instance.reset(new CVBO());

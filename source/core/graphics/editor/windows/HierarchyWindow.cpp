@@ -74,7 +74,7 @@ void CHierarchyWindow::draw()
     }
 }
 
-void CHierarchyWindow::buildHierarchy(std::shared_ptr<CRenderObject> pObject)
+void CHierarchyWindow::buildHierarchy(ref_ptr<CRenderObject>& pObject)
 {
     auto& childs = pObject->getChilds();
     uint32_t flags = ImGuiTreeNodeFlags_OpenOnArrow;

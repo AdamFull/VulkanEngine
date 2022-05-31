@@ -54,7 +54,7 @@ namespace Engine
                     inline Builder& setShaderStages(const std::vector<std::string>& stages) { m_vStages = stages; return *this; }
                     inline Builder& addDefine(const std::string& name, const std::string& value) { m_vDefines.emplace(std::make_pair(name, value)); return *this; }
                     inline Builder& setDefines(const std::map<std::string, std::string>& defines) { m_vDefines = defines; return *this; }
-                    std::unique_ptr<CPipelineBase> build(vk::PipelineBindPoint bindPoint);
+                    scope_ptr<CPipelineBase> build(vk::PipelineBindPoint bindPoint);
                 private:
                     CVertexInput m_vertexInput;
                     uint32_t m_colorAttachments{1};
@@ -148,9 +148,9 @@ namespace Engine
                 /**
                  * @brief Get shader object
                  * 
-                 * @return std::unique_ptr<CShader>& Shader smart pointer
+                 * @return scope_ptr<CShader>& Shader smart pointer
                  */
-                inline std::unique_ptr<CShader>& getShader() { return m_pShader; }
+                inline scope_ptr<CShader>& getShader() { return m_pShader; }
 
             protected:
                 /**
@@ -185,7 +185,7 @@ namespace Engine
 
                 std::vector<std::string> vShaderCache;
                 std::map<std::string, std::string> m_vDefines;
-                std::unique_ptr<CShader> m_pShader;
+                scope_ptr<CShader> m_pShader;
                 bool bIsClean{false};
 
                 CVertexInput m_vertexInput;

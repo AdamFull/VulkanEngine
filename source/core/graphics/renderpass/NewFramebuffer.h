@@ -1,4 +1,5 @@
 #pragma once
+#include "Subpass.h"
 
 namespace Engine
 {
@@ -27,7 +28,6 @@ namespace Engine
                 eEndWithDepthWrite
             };
 
-            class CSubpass;
             class CFramebufferNew
             {
             public:
@@ -74,7 +74,7 @@ namespace Engine
 
                 void setFlipViewport(vk::Bool32 value) { flipViewport = value; }
 
-                void pushSubpass(std::shared_ptr<CSubpass>&& subpass);
+                void pushSubpass(scope_ptr<CSubpass>&& subpass);
                 const uint32_t getSubpassCount() const { return vSubpasses.size(); }
                 vk::SubpassDescription& getCurrentDescription() { return vSubpassDesc.at(currentSubpassIndex); }
                 uint32_t getCurrentSubpass() { return currentSubpassIndex; }
@@ -85,13 +85,13 @@ namespace Engine
 
                 vk::Framebuffer& getFramebuffer(uint32_t index) { return vFramebuffers[index]; }
                 vk::Framebuffer& getCurrentFramebuffer();
-                std::unordered_map<std::string, std::shared_ptr<CImage>>& getImages(uint32_t index) { return mFramebufferImages[index]; }
-                std::unordered_map<std::string, std::shared_ptr<CImage>>& getCurrentImages();
-                std::shared_ptr<CImage>& getDepthImage() { return vFramebufferDepth.front(); }
+                std::unordered_map<std::string, ref_ptr<CImage>>& getImages(uint32_t index) { return mFramebufferImages[index]; }
+                std::unordered_map<std::string, ref_ptr<CImage>>& getCurrentImages();
+                ref_ptr<CImage>& getDepthImage() { return vFramebufferDepth.front(); }
             private:
                 void createRenderPass();
                 void createFramebuffer();
-                static std::shared_ptr<CImage> createImage(vk::Format format, vk::ImageUsageFlags usageFlags, vk::Extent2D extent);
+                static ref_ptr<CImage> createImage(vk::Format format, vk::ImageUsageFlags usageFlags, vk::Extent2D extent);
 
                 uint32_t getCurrentFrameProxy();
                 static bool isColorAttachment(vk::ImageUsageFlags usageFlags) { return static_cast<bool>(usageFlags & vk::ImageUsageFlagBits::eColorAttachment); }
@@ -105,7 +105,7 @@ namespace Engine
 
                 //Renderpass part
                 vk::RenderPass renderPass{nullptr};
-                std::vector<std::shared_ptr<CSubpass>> vSubpasses;
+                std::vector<scope_ptr<CSubpass>> vSubpasses;
                 vk::Bool32 flipViewport{VK_FALSE};
                 uint32_t currentSubpassIndex{0};
 
@@ -120,8 +120,8 @@ namespace Engine
                 //Framebuffer part
                 std::vector<vk::Framebuffer> vFramebuffers;
                 std::vector<FFramebufferAttachmentInfo> vFbAttachments;
-                std::map<uint32_t, std::unordered_map<std::string, std::shared_ptr<CImage>>> mFramebufferImages;
-                std::vector<std::shared_ptr<CImage>> vFramebufferDepth;
+                std::map<uint32_t, std::unordered_map<std::string, ref_ptr<CImage>>> mFramebufferImages;
+                std::vector<ref_ptr<CImage>> vFramebufferDepth;
             };
         }
     }

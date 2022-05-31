@@ -90,12 +90,12 @@ namespace Engine
             }
 
             // Getters
-            std::unique_ptr<CVulkanBuffer>& getBuffer();
+            scope_ptr<CVulkanBuffer>& getBuffer();
         private:
             uint32_t getCurrentFrameProxy();
         protected:
             std::optional<Pipeline::CUniformBlock> uniformBlock;
-            std::vector<std::unique_ptr<CVulkanBuffer>> vBuffers;
+            std::vector<scope_ptr<CVulkanBuffer>> vBuffers;
             std::vector<bool> vMapped;
             bool bIsClean{false};
             EHandlerStatus status{EHandlerStatus::eNone};

@@ -14,11 +14,13 @@
 using namespace Engine;
 using namespace Engine::Resources;
 using namespace Engine::Core::Scene;
+using namespace Resources::Material;
+using namespace Resources::Loaders;
 
-std::unique_ptr<CRenderScene> CSceneFactory::create(std::string srScenePath)
+scope_ptr<CRenderScene> CSceneFactory::create(std::string srScenePath)
 {
     FSceneCreateInfo info = FilesystemHelper::getConfigAs<FSceneCreateInfo>(srScenePath);
-    auto pRenderScene = std::make_unique<CRenderScene>();
+    auto pRenderScene = make_scope<CRenderScene>();
     pRenderScene->create();
 
     auto pRoot = pRenderScene->getRoot();
@@ -30,7 +32,7 @@ std::unique_ptr<CRenderScene> CSceneFactory::create(std::string srScenePath)
     return pRenderScene;
 }
 
-void CSceneFactory::createComponents(std::shared_ptr<Core::Scene::CRenderObject> pRoot, std::vector<FSceneObject> sceneObjects)
+void CSceneFactory::createComponents(ref_ptr<CRenderObject>& pRoot, std::vector<FSceneObject> sceneObjects)
 {
     for (auto &object : sceneObjects)
     {
@@ -38,9 +40,9 @@ void CSceneFactory::createComponents(std::shared_ptr<Core::Scene::CRenderObject>
     }
 }
 
-std::shared_ptr<Core::Scene::CRenderObject> CSceneFactory::createComponent(FSceneObject info)
+ref_ptr<CRenderObject> CSceneFactory::createComponent(FSceneObject info)
 {
-    std::shared_ptr<Core::Scene::CRenderObject> object;
+    ref_ptr<CRenderObject> object;
 
     switch (info.eObjectType)
     {
@@ -69,36 +71,36 @@ std::shared_ptr<Core::Scene::CRenderObject> CSceneFactory::createComponent(FScen
 
 // Create mesh component factory!!!!!!!!!!!!!
 
-std::shared_ptr<Core::Scene::CRenderObject> CSceneFactory::createCamera(FSceneObject info)
+ref_ptr<CRenderObject> CSceneFactory::createCamera(FSceneObject info)
 {
-    auto camera = std::make_shared<Core::Scene::CCameraComponent>();
+    auto camera = make_ref<CCameraComponent>();
     camera->setTransform(info.fTransform);
     camera->setName(info.srName);
-    Core::Scene::CCameraManager::inst()->attach(camera);
+    CCameraManager::inst()->attach(camera);
     return camera;
 }
 
-std::shared_ptr<Core::Scene::CRenderObject> CSceneFactory::createStaticMesh(FSceneObject info)
+ref_ptr<CRenderObject> CSceneFactory::createStaticMesh(FSceneObject info)
 {
     return nullptr;
 }
 
 //Todo: do smth with code reusing
-std::shared_ptr<Core::Scene::CRenderObject> CSceneFactory::createSkybox(FSceneObject info)
+ref_ptr<CRenderObject> CSceneFactory::createSkybox(FSceneObject info)
 {
-    auto loader = std::make_shared<Resources::Loaders::GLTFLoader>(info.mesh.bUseIncludedMaterial, true, info.srName, info.srUseVolume);
+    auto loader = make_ref<GLTFLoader>(info.mesh.bUseIncludedMaterial, true, info.srName, info.srUseVolume);
 
     if (!info.mesh.bUseIncludedMaterial)
     {
         for (auto &matInfo : info.mesh.vMaterials)
         {
-            auto material = Resources::Material::CMaterialFactory::create(matInfo);
-            loader->addMaterial(material);
+            auto material = CMaterialFactory::create(matInfo);
+            loader->addMaterial(std::move(material));
             CResourceManager::inst()->addExisting(material->getName(), material);
         }
     }
 
-    auto mesh = std::make_shared<Core::Scene::CMeshObjectBase>();
+    auto mesh = make_ref<CMeshObjectBase>();
     loader->load(info.mesh.srSrc, info.srName);
     mesh->setTransform(info.fTransform);
     mesh->setName(info.srName);
@@ -110,20 +112,20 @@ std::shared_ptr<Core::Scene::CRenderObject> CSceneFactory::createSkybox(FSceneOb
     return mesh;
 }
 
-std::shared_ptr<Core::Scene::CRenderObject> CSceneFactory::createGLTFMesh(FSceneObject info)
+ref_ptr<CRenderObject> CSceneFactory::createGLTFMesh(FSceneObject info)
 {
-    auto loader = std::make_shared<Resources::Loaders::GLTFLoader>(info.mesh.bUseIncludedMaterial, true, info.srName, info.srUseVolume);
+    auto loader = make_ref<GLTFLoader>(info.mesh.bUseIncludedMaterial, true, info.srName, info.srUseVolume);
     if (!info.mesh.bUseIncludedMaterial)
     {
         for (auto &matInfo : info.mesh.vMaterials)
         {
-            auto material = Resources::Material::CMaterialFactory::create(matInfo);
-            loader->addMaterial(material);
+            auto material = CMaterialFactory::create(matInfo);
+            loader->addMaterial(std::move(material));
             CResourceManager::inst()->addExisting(material->getName(), material);
         }
     }
 
-    auto mesh = std::make_shared<Core::Scene::CMeshObjectBase>();
+    auto mesh = make_ref<CMeshObjectBase>();
     mesh->setInstances(info.vInstances);
     loader->load(info.mesh.srSrc, info.srName);
     mesh->setTransform(info.fTransform);
@@ -138,7 +140,7 @@ std::shared_ptr<Core::Scene::CRenderObject> CSceneFactory::createGLTFMesh(FScene
     return mesh;
 }
 
-std::shared_ptr<Core::Scene::CRenderObject> CSceneFactory::createLightSource(FSceneObject info)
+ref_ptr<CRenderObject> CSceneFactory::createLightSource(FSceneObject info)
 {
     switch (info.light.eType)
     {

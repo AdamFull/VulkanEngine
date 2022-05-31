@@ -20,7 +20,7 @@ namespace Engine
                 void drawViewport(float offsetx, float offsety);
                 void drawManipulator(float offsetx, float offsety, float sizex, float sizey);
                 void drawOverlay(float offsetx, float offsety);
-                std::shared_ptr<Descriptor::CDescriptorSet> pDescriptorSet;
+                ref_ptr<Descriptor::CDescriptorSet> pDescriptorSet;
                 std::vector<VkDescriptorSet> descriptors;
                 float overlayX{300.0}, overlayY{50.f};
             };

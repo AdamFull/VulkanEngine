@@ -31,6 +31,6 @@ namespace Engine
          */
         void run();
     private:
-        std::unique_ptr<Controllers::CCameraController> m_pCameraController;
+        scope_ptr<Controllers::CCameraController> m_pCameraController;
     };
 }

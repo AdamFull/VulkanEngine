@@ -17,7 +17,6 @@ namespace engine
                     {"width", type.width},
                     {"height", type.height},
                     {"fullscreen", type.fullscreen},
-                    {"windowed", type.windowed},
                     {"backend", {type.backend}}
                 };
             }
@@ -28,7 +27,6 @@ namespace engine
                 ParseArgument(json, type.width, "width", true);
                 ParseArgument(json, type.height, "height", true);
                 ParseArgument(json, type.fullscreen, "fullscreen");
-                ParseArgument(json, type.windowed, "windowed");
                 ParseArgument(json, type.backend, "backend", true);
             }
         }
@@ -68,19 +66,20 @@ void CWindowHandle::create(FWindowCreateInfo createInfo)
     frameBufferUpdated();
 
     glfwWindowHint(GLFW_RESIZABLE, GLFW_TRUE);
-    glfwWindowHint(GLFW_MAXIMIZED, GLFW_TRUE);
+    //glfwWindowHint(GLFW_MAXIMIZED, GLFW_TRUE);
     glfwWindowHint(GLFW_DECORATED, GLFW_TRUE);
     glfwWindowHint(GLFW_VISIBLE, GLFW_TRUE);
 
-    if(createInfo.windowed)
-        pWindow = glfwCreateWindow(createInfo.width, createInfo.height, createInfo.name.c_str(), nullptr, nullptr);
-    else
+    if(createInfo.fullscreen)
+    {
+        glfwSetInputMode(pWindow, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
         pWindow = glfwCreateWindow(createInfo.width, createInfo.height, createInfo.name.c_str(), pPrimaryMonitor, nullptr);
+    }
+    else
+        pWindow = glfwCreateWindow(createInfo.width, createInfo.height, createInfo.name.c_str(), nullptr, nullptr);
 
     glfwSetWindowUserPointer(pWindow, this);
     glfwSetInputMode(pWindow, GLFW_STICKY_KEYS, GLFW_TRUE);
-    if(createInfo.fullscreen)
-        glfwSetInputMode(pWindow, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
 
     glfwSetWindowSizeCallback(pWindow, &WinCallbacks::WinSizeChangeCallback);
     glfwSetWindowFocusCallback(pWindow, &WinCallbacks::WinInputFocusChangeCallback);

@@ -10,7 +10,6 @@ namespace engine::core::window
         uint32_t width{0};
         uint32_t height{0};
         bool fullscreen{true};
-        bool windowed{true};
         std::string name;
         std::string backend;
     };

@@ -5,7 +5,6 @@
         "width": 1280,
         "height": 720,
         "fullscreen": false,
-        "windowed": true,
         "backend": ""
     },
     "device":

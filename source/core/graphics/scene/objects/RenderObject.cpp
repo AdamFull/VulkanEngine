@@ -2,8 +2,8 @@
 #include "graphics/VulkanDevice.hpp"
 #include "graphics/scene/objects/components/camera/CameraManager.h"
 
-using namespace Engine::Core::Scene;
-using namespace Engine::Resources;
+using namespace engine::core::scene;
+using namespace engine::resources;
 
 static uint64_t _objectIdCounter{0};
 

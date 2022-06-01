@@ -2,10 +2,10 @@
 #include "graphics/VulkanHighLevel.h"
 #include "resources/materials/MaterialLoader.h"
 
-using namespace Engine::Core::Render;
-using namespace Engine::Core::Scene;
-using namespace Engine::Resources;
-using namespace Engine::Resources::Material;
+using namespace engine::core::render;
+using namespace engine::core::scene;
+using namespace engine::resources;
+using namespace engine::resources::material;
 
 void CThroughPass::create()
 {

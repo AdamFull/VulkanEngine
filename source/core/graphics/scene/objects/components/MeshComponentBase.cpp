@@ -7,9 +7,9 @@
 #include "resources/ResourceManager.h"
 #include "GlobalVariables.h"
 
-using namespace Engine::Core::Scene;
-using namespace Engine::Resources;
-using namespace Engine::Core;
+using namespace engine::core::scene;
+using namespace engine::resources;
+using namespace engine::core;
 
 CMeshObjectBase::CMeshObjectBase()
 {

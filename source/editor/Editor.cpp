@@ -1,7 +1,8 @@
 #include "Editor.h"
 
-using namespace Engine::Core;
-using namespace Engine::Core::Scene;
+using namespace engine::core;
+using namespace engine::editor;
+using namespace engine::core::scene;
 
 template<>
 scope_ptr<CEditor> utl::singleton<CEditor>::_instance{nullptr};

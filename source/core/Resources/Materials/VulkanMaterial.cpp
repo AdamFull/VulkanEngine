@@ -5,10 +5,11 @@
 #include "graphics/buffer/UniformHandler.hpp"
 #include "graphics/buffer/StorageHandler.h"
 
-using namespace Engine::Core;
-using namespace Engine::Resources::Material;
-using namespace Engine::Core::Descriptor;
-using namespace Engine::Core::Pipeline;
+using namespace engine::core;
+using namespace engine::core::render;
+using namespace engine::resources::material;
+using namespace engine::core::descriptor;
+using namespace engine::core::pipeline;
 
 CMaterialBase::~CMaterialBase()
 {

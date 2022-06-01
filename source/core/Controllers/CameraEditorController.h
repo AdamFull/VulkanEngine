@@ -1,9 +1,9 @@
 #pragma once
 #include "CameraController.h"
 
-namespace Engine
+namespace engine
 {
-    namespace Controllers
+    namespace controllers
     {
         class CCameraEditorController : public CCameraController
         {

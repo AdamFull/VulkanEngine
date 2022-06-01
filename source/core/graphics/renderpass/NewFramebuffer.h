@@ -1,12 +1,12 @@
 #pragma once
 #include "Subpass.h"
 
-namespace Engine
+namespace engine
 {
-    namespace Core
+    namespace core
     {
         class CImage;
-        namespace Render
+        namespace render
         {
             struct FFramebufferAttachmentInfo
             {
@@ -31,42 +31,42 @@ namespace Engine
             class CFramebufferNew
             {
             public:
-                //Common part
+                // Common part
                 void create();
                 void reCreate();
                 void cleanup();
 
-                //Renderpass part
+                // Renderpass part
                 void begin(vk::CommandBuffer &commandBuffer);
                 void end(vk::CommandBuffer &commandBuffer);
-                void render(vk::CommandBuffer& commandBuffer);
+                void render(vk::CommandBuffer &commandBuffer);
 
-                template<class... _Args>
-                void addInputReference(uint32_t index, _Args... args) 
+                template <class... _Args>
+                void addInputReference(uint32_t index, _Args... args)
                 {
-                    std::array<uint32_t, sizeof...(_Args)> unpacked{std::forward<_Args>(args)...};  
+                    std::array<uint32_t, sizeof...(_Args)> unpacked{std::forward<_Args>(args)...};
                     std::vector<vk::AttachmentReference> references;
-                    for(auto& arg : unpacked)
+                    for (auto &arg : unpacked)
                         references.emplace_back(vk::AttachmentReference{arg, vk::ImageLayout::eShaderReadOnlyOptimal});
                     mInputReferences.emplace(index, references);
                 }
 
-                template<class... _Args>
-                void addOutputReference(uint32_t index, _Args... args) 
+                template <class... _Args>
+                void addOutputReference(uint32_t index, _Args... args)
                 {
-                    std::array<uint32_t, sizeof...(_Args)> unpacked{std::forward<_Args>(args)...};  
+                    std::array<uint32_t, sizeof...(_Args)> unpacked{std::forward<_Args>(args)...};
                     std::vector<vk::AttachmentReference> references;
-                    for(auto& arg : unpacked)
+                    for (auto &arg : unpacked)
                         references.emplace_back(vk::AttachmentReference{arg, vk::ImageLayout::eColorAttachmentOptimal});
                     mOutputReferences.emplace(index, references);
                 }
 
                 void addDescription(uint32_t subpass, bool bUseDepth = false);
                 void addBarrier(uint32_t src, uint32_t dst, EBarrierType type);
-                //Temporary while thinking about barrier generation
-                void addSubpassDependency(uint32_t src, uint32_t dst, vk::PipelineStageFlags srcStageMask = vk::PipelineStageFlagBits::eColorAttachmentOutput, 
-                    vk::PipelineStageFlags dstStageMask = vk::PipelineStageFlagBits::eFragmentShader, vk::AccessFlags srcAccessMask = vk::AccessFlagBits::eColorAttachmentWrite, 
-                    vk::AccessFlags dstAccessMask = vk::AccessFlagBits::eMemoryRead, vk::DependencyFlags depFlags = vk::DependencyFlagBits::eByRegion);
+                // Temporary while thinking about barrier generation
+                void addSubpassDependency(uint32_t src, uint32_t dst, vk::PipelineStageFlags srcStageMask = vk::PipelineStageFlagBits::eColorAttachmentOutput,
+                                          vk::PipelineStageFlags dstStageMask = vk::PipelineStageFlagBits::eFragmentShader, vk::AccessFlags srcAccessMask = vk::AccessFlagBits::eColorAttachmentWrite,
+                                          vk::AccessFlags dstAccessMask = vk::AccessFlagBits::eMemoryRead, vk::DependencyFlags depFlags = vk::DependencyFlagBits::eByRegion);
 
                 void setRenderArea(int32_t offset_x, int32_t offset_y, uint32_t width, uint32_t height);
                 void setRenderArea(vk::Offset2D offset, vk::Extent2D extent);
@@ -74,20 +74,21 @@ namespace Engine
 
                 void setFlipViewport(vk::Bool32 value) { flipViewport = value; }
 
-                void pushSubpass(scope_ptr<CSubpass>&& subpass);
+                void pushSubpass(scope_ptr<CSubpass> &&subpass);
                 const uint32_t getSubpassCount() const { return vSubpasses.size(); }
-                vk::SubpassDescription& getCurrentDescription() { return vSubpassDesc.at(currentSubpassIndex); }
+                vk::SubpassDescription &getCurrentDescription() { return vSubpassDesc.at(currentSubpassIndex); }
                 uint32_t getCurrentSubpass() { return currentSubpassIndex; }
-                vk::RenderPass& getRenderPass() { return renderPass; }
+                vk::RenderPass &getRenderPass() { return renderPass; }
 
-                //Framebuffer part
-                void addImage(const std::string& name, vk::Format format, vk::ImageUsageFlags usageFlags);
+                // Framebuffer part
+                void addImage(const std::string &name, vk::Format format, vk::ImageUsageFlags usageFlags);
 
-                vk::Framebuffer& getFramebuffer(uint32_t index) { return vFramebuffers[index]; }
-                vk::Framebuffer& getCurrentFramebuffer();
-                std::unordered_map<std::string, ref_ptr<CImage>>& getImages(uint32_t index) { return mFramebufferImages[index]; }
-                std::unordered_map<std::string, ref_ptr<CImage>>& getCurrentImages();
-                ref_ptr<CImage>& getDepthImage() { return vFramebufferDepth.front(); }
+                vk::Framebuffer &getFramebuffer(uint32_t index) { return vFramebuffers[index]; }
+                vk::Framebuffer &getCurrentFramebuffer();
+                std::unordered_map<std::string, ref_ptr<CImage>> &getImages(uint32_t index) { return mFramebufferImages[index]; }
+                std::unordered_map<std::string, ref_ptr<CImage>> &getCurrentImages();
+                ref_ptr<CImage> &getDepthImage() { return vFramebufferDepth.front(); }
+
             private:
                 void createRenderPass();
                 void createFramebuffer();
@@ -98,12 +99,13 @@ namespace Engine
                 static bool isDepthAttachment(vk::ImageUsageFlags usageFlags) { return static_cast<bool>(usageFlags & vk::ImageUsageFlagBits::eDepthStencilAttachment); }
                 static bool isSampled(vk::ImageUsageFlags usageFlags) { return static_cast<bool>(usageFlags & vk::ImageUsageFlagBits::eSampled); }
                 static bool isInputAttachment(vk::ImageUsageFlags usageFlags) { return static_cast<bool>(usageFlags & vk::ImageUsageFlagBits::eInputAttachment); }
+
             private:
-                //Common part
+                // Common part
                 bool bIsClean{false};
                 vk::Rect2D renderArea;
 
-                //Renderpass part
+                // Renderpass part
                 vk::RenderPass renderPass{nullptr};
                 std::vector<scope_ptr<CSubpass>> vSubpasses;
                 vk::Bool32 flipViewport{VK_FALSE};
@@ -117,7 +119,7 @@ namespace Engine
                 std::map<uint32_t, std::vector<vk::AttachmentReference>> mOutputReferences;
                 vk::AttachmentReference depthReference;
 
-                //Framebuffer part
+                // Framebuffer part
                 std::vector<vk::Framebuffer> vFramebuffers;
                 std::vector<FFramebufferAttachmentInfo> vFbAttachments;
                 std::map<uint32_t, std::unordered_map<std::string, ref_ptr<CImage>>> mFramebufferImages;

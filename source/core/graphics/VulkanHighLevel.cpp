@@ -3,8 +3,9 @@
 #include <glslang/Public/ShaderLang.h>
 #include "VulkanDevice.hpp"
 
-using namespace Engine::Core;
-using namespace Engine::Core::Window;
+using namespace engine::core;
+using namespace engine::core::render;
+using namespace engine::core::window;
 
 template<>
 scope_ptr<CVulkanHighLevel> utl::singleton<CVulkanHighLevel>::_instance{nullptr};
@@ -28,9 +29,9 @@ void CVulkanHighLevel::cleanup()
     CDevice::inst()->cleanup();
 }
 
-namespace Engine
+namespace engine
 {
-    namespace Core
+    namespace core
     {
         NLOHMANN_JSON_SERIALIZE_ENUM
         (

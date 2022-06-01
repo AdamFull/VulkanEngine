@@ -6,7 +6,9 @@
 #include "graphics/renderpass/render_stages/PresentFinalStage.h"
 #include "graphics/renderpass/render_stages/SandboxFinalStage.h"
 
-using namespace Engine::Core;
+using namespace engine::core;
+using namespace engine::core::window;
+using namespace engine::core::render;
 
 template<>
 scope_ptr<CRenderSystem> utl::singleton<CRenderSystem>::_instance{nullptr};
@@ -22,15 +24,15 @@ void CRenderSystem::create()
     screenExtent = CDevice::inst()->getExtent();
     commandBuffers = make_ref<CCommandBuffer>(false, vk::QueueFlagBits::eGraphics, vk::CommandBufferLevel::ePrimary, CDevice::inst()->getFramesInFlight());
 
-    vStages.emplace_back(make_scope<Render::CDeferredStage>());
-    vStages.emplace_back(make_scope<Render::CPostProcessStage>());
+    vStages.emplace_back(make_scope<CDeferredStage>());
+    vStages.emplace_back(make_scope<CPostProcessStage>());
     switch (engineMode)
     {
     case ELaunchMode::eGame:{
-        vStages.emplace_back(make_scope<Render::CPresentFinalStage>());
+        vStages.emplace_back(make_scope<CPresentFinalStage>());
     } break;
     case ELaunchMode::eEditor:{
-        vStages.emplace_back(make_scope<Render::CSandboxFinalStage>());
+        vStages.emplace_back(make_scope<CSandboxFinalStage>());
     } break;
     }
 
@@ -50,7 +52,7 @@ void CRenderSystem::reCreate()
     screenExtent = CDevice::inst()->getExtent();
     commandBuffers = make_ref<CCommandBuffer>(false, vk::QueueFlagBits::eGraphics, vk::CommandBufferLevel::ePrimary, CDevice::inst()->getFramesInFlight());
     imageIndex = 0;
-    Window::CWindowHandle::m_bWasResized = false;
+    CWindowHandle::m_bWasResized = false;
 
     currentStageIndex = 0;
     for(auto& stage : vStages)
@@ -98,7 +100,7 @@ void CRenderSystem::render()
     catch (vk::OutOfDateKHRError err) { resultPresent = vk::Result::eErrorOutOfDateKHR; }
     catch (vk::SystemError err) { throw std::runtime_error("failed to present swap chain image!"); }
 
-    if (resultPresent == vk::Result::eSuboptimalKHR || resultPresent == vk::Result::eErrorOutOfDateKHR || Window::CWindowHandle::m_bWasResized)
+    if (resultPresent == vk::Result::eSuboptimalKHR || resultPresent == vk::Result::eErrorOutOfDateKHR || CWindowHandle::m_bWasResized)
     {
         CDevice::inst()->setRebuildFlag();
     }

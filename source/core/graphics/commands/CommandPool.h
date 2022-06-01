@@ -1,9 +1,9 @@
 #pragma once
 #include <thread>
 
-namespace Engine
+namespace engine
 {
-    namespace Core
+    namespace core
     {
         class CCommandPool
         {

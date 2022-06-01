@@ -1,6 +1,6 @@
 #include "GlobalVariables.h"
 
-namespace Engine
+namespace engine
 {
     float GlobalVariables::bloomThreshold{1.0};
 

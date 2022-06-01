@@ -4,9 +4,9 @@
 #define TINYOBJLOADER_IMPLEMENTATION
 #include "external/tiny_obj_loader.h"
 
-using namespace Engine::Resources::Loaders;
+using namespace engine::resources::loaders;
 
-void ObjLoader::Load(std::string srPath, ref_ptr<Core::Scene::CRenderObject>& pRoot)
+void ObjLoader::Load(std::string srPath, ref_ptr<core::scene::CRenderObject>& pRoot)
 {
     /*tinyobj::attrib_t attrib;
     std::vector<tinyobj::shape_t> shapes;

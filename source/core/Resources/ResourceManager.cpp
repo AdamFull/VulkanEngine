@@ -3,10 +3,10 @@
 #include "graphics/VulkanHighLevel.h"
 #include "graphics/image/Image2D.h"
 
-using namespace Engine::Core;
-using namespace Engine::Resources;
-using namespace Engine::Resources::Material;
-using namespace Engine::Resources::Mesh;
+using namespace engine::core;
+using namespace engine::resources;
+using namespace engine::resources::material;
+using namespace engine::resources::mesh;
 
 template <>
 scope_ptr<CResourceManager> utl::singleton<CResourceManager>::_instance{nullptr};

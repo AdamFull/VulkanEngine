@@ -4,7 +4,7 @@
 #include <util/helpers.hpp>
 #include "KeycodeConfig.h"
 
-namespace Engine
+namespace engine
 {
     struct FInputAction
     {

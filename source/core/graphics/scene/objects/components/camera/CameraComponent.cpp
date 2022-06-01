@@ -1,7 +1,8 @@
 #include "CameraComponent.h"
 #include "graphics/VulkanHighLevel.h"
 
-using namespace Engine::Core::Scene;
+//TODO: requires optimisations
+using namespace engine::core::scene;
 
 CCameraComponent::CCameraComponent()
 {

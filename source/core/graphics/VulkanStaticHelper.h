@@ -2,9 +2,9 @@
 #include "data_types/VulkanQueueFamilies.h"
 #include "data_types/VulkanSwapChainSipportDetails.h"
 
-namespace Engine
+namespace engine
 {
-    namespace Core
+    namespace core
     {
         class VulkanStaticHelper
         {

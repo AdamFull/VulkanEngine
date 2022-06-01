@@ -1,6 +1,6 @@
 #include "graphics/VulkanHighLevel.h"
 
-using namespace Engine::Core;
+using namespace engine::core;
 
 void CVertexBufferObject::create()
 {

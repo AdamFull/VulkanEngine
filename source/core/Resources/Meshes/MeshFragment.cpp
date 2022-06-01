@@ -7,8 +7,8 @@
 #include <glm/gtx/matrix_decompose.hpp>
 #include "graphics/scene/objects/components/camera/CameraManager.h"
 
-using namespace Engine::Resources::Mesh;
-using namespace Engine::Core::Scene;
+using namespace engine::resources::mesh;
+using namespace engine::core::scene;
 
 void FPrimitive::setDimensions(glm::vec3 min, glm::vec3 max)
 {

@@ -1,6 +1,6 @@
 #include "WinCallbacks.h"
 
-using namespace Engine::Core::Window;
+using namespace engine::core::window;
 
 std::vector<utl::function<void(int, int)>> WinCallbacks::sizeChangeCallbacks;
 std::vector<utl::function<void(int)>> WinCallbacks::focusChangeCallbacks;

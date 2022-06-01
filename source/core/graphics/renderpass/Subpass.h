@@ -3,15 +3,15 @@
 #include "graphics/image/Image.h"
 #include "graphics/scene/objects/RenderObject.h"
 
-namespace Engine
+namespace engine
 {
-    namespace Resources
+    namespace resources
     {
-        namespace Material { class CMaterialBase; }
+        namespace material{ class CMaterialBase; }
     }
-    namespace Core
+    namespace core
     {
-        namespace Render
+        namespace render
         {
             class CSubpass
             {
@@ -23,7 +23,7 @@ namespace Engine
                 virtual void render(vk::CommandBuffer& commandBuffer) {}
                 virtual void cleanup();
             protected:
-                ref_ptr<Resources::Material::CMaterialBase> pMaterial;
+                ref_ptr<resources::material::CMaterialBase> pMaterial;
             };
         }
     }

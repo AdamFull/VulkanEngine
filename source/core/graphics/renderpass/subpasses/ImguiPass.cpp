@@ -1,10 +1,11 @@
 #include "ImguiPass.h"
 #include "graphics/VulkanHighLevel.h"
 
-using namespace Engine::Core::Render;
-using namespace Engine::Core::Scene;
-using namespace Engine::Resources;
-using namespace Engine::Resources::Material;
+using namespace engine::editor;
+using namespace engine::core::render;
+using namespace engine::core::scene;
+using namespace engine::resources;
+using namespace engine::resources::material;
 
 void CImguiPass::create()
 {

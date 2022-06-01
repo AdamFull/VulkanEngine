@@ -1,8 +1,8 @@
 #include "LightSourceSpot.h"
 
-using namespace Engine::Resources;
-using namespace Engine::Core;
-using namespace Engine::Core::Scene;
+using namespace engine::resources;
+using namespace engine::core;
+using namespace engine::core::scene;
 
 CLightSourceSpot::CLightSourceSpot()
 {

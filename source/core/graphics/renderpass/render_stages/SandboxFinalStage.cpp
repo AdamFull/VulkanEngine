@@ -2,8 +2,8 @@
 #include "graphics/renderpass/subpasses/ImguiPass.h"
 #include "graphics/VulkanHighLevel.h"
 
-using namespace Engine::Core;
-using namespace Engine::Core::Render;
+using namespace engine::core;
+using namespace engine::core::render;
 
 CSandboxFinalStage::~CSandboxFinalStage()
 {

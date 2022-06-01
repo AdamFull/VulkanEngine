@@ -34,11 +34,11 @@ namespace vk
     )
 }
 
-namespace Engine
+namespace engine
 {
-    namespace Core
+    namespace core
     {
-        namespace Pipeline
+        namespace pipeline
         {
             void to_json(nlohmann::json &json, const FShaderCache::FCachedShader &type)
             {
@@ -76,7 +76,7 @@ namespace Engine
     }
 }
 
-using namespace Engine::Core::Pipeline;
+using namespace engine::core::pipeline;
 
 template<>
 scope_ptr<CShaderCache> utl::singleton<CShaderCache>::_instance{nullptr};

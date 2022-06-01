@@ -3,11 +3,11 @@
 #include "resources/ResourceCunstruct.h"
 #include "serializer/Serialization.hpp"
 
-namespace Engine
+namespace engine
 {
-    namespace Core
+    namespace core
     {
-        namespace Scene
+        namespace scene
         {
             enum class ESceneObjectType
             {
@@ -30,7 +30,7 @@ namespace Engine
                 ECullingType eType{ECullingType::eBySphere};
                 bool bEnableCulling{true};
                 float fSphereRadius{2.f};
-                //Add bounding box support
+                // Add bounding box support
             };
 
             struct FSceneObject
@@ -38,9 +38,9 @@ namespace Engine
                 std::string srName;
                 ESceneObjectType eObjectType;
                 std::string srUseVolume;
-                Resources::FMeshCreateInfo mesh;
-                Resources::FLightCreateinfo light;
-                Resources::FTextureCreateInfo texture;
+                resources::FMeshCreateInfo mesh;
+                resources::FLightCreateinfo light;
+                resources::FTextureCreateInfo texture;
                 FTransform fTransform;
                 std::vector<glm::vec4> vInstances;
                 std::vector<FSceneObject> vSceneObjects;

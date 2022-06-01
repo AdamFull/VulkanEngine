@@ -3,9 +3,9 @@
 #include "VulkanBuffer.h"
 #include <util/helpers.hpp>
 
-namespace Engine
+namespace engine
 {
-    namespace Core
+    namespace core
     {
         enum class EHandlerStatus
         {
@@ -19,7 +19,7 @@ namespace Engine
         public:
             CHandler() = default;
             virtual ~CHandler();
-            virtual void create(const Pipeline::CUniformBlock &uniformBlock);
+            virtual void create(const pipeline::CUniformBlock &uniformBlock);
             void reCreate();
             void cleanup();
             void flush();
@@ -94,7 +94,7 @@ namespace Engine
         private:
             uint32_t getCurrentFrameProxy();
         protected:
-            std::optional<Pipeline::CUniformBlock> uniformBlock;
+            std::optional<pipeline::CUniformBlock> uniformBlock;
             std::vector<scope_ptr<CVulkanBuffer>> vBuffers;
             std::vector<bool> vMapped;
             bool bIsClean{false};

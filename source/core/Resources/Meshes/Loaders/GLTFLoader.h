@@ -3,17 +3,14 @@
 #include "resources/meshes/VulkanMesh.h"
 #include "graphics/data_types/VulkanVertex.hpp"
 
-namespace Engine
+namespace engine
 {
-    namespace Core
+    namespace core { class CImage; }
+    namespace resources
     {
-        class CImage;
-    }
-    namespace Resources
-    {
-        namespace Material { class CMaterialBase; }
+        namespace material { class CMaterialBase; }
 
-        namespace Loaders
+        namespace loaders
         {
             class GLTFSceneNode;
             
@@ -47,14 +44,14 @@ namespace Engine
                  * 
                  * @param material Material smart pointer object
                  */
-                inline void addMaterial(ref_ptr<Material::CMaterialBase>&& material) { vMaterials.emplace_back(material); }
+                inline void addMaterial(ref_ptr<material::CMaterialBase>&& material) { vMaterials.emplace_back(material); }
 
                 /**
                  * @brief Get loaded mesh
                  * 
                  * @return const ref_ptr<Mesh::CMeshBase> Loaded mesh smart pointer object
                  */
-                inline const ref_ptr<Mesh::CMeshBase> getMesh() const { return m_pMesh; }
+                inline const ref_ptr<mesh::CMeshBase> getMesh() const { return m_pMesh; }
 
             private:
                 /**
@@ -84,7 +81,7 @@ namespace Engine
                  * @param indices Input index data
                  * @param startIndex Index in global VBO
                  */
-                void recalculateTangents(std::vector<Core::FVertex>& vertices, std::vector<uint32_t>& indices, uint64_t startIndex);
+                void recalculateTangents(std::vector<core::FVertex>& vertices, std::vector<uint32_t>& indices, uint64_t startIndex);
 
                 /**
                  * @brief Loads mesh attached animations
@@ -114,7 +111,7 @@ namespace Engine
                  * @param path Texture path
                  * @return ref_ptr<Core::CImage> Smart pointer texture object
                  */
-                ref_ptr<Core::CImage> loadTexture(const tinygltf::Image &model, const std::string& path);
+                ref_ptr<core::CImage> loadTexture(const tinygltf::Image &model, const std::string& path);
 
                 /**
                  * @brief Load mesh skinning data
@@ -124,11 +121,11 @@ namespace Engine
                 void loadSkins(const tinygltf::Model &model);
 
                 uint32_t current_primitive;
-                ref_ptr<Mesh::CMeshBase> m_pMesh;
+                ref_ptr<mesh::CMeshBase> m_pMesh;
                 //ref_ptr<Light::Point> m_pPointLights;
                 //ref_ptr<Camera::Base> m_pCameras;
-                std::vector<ref_ptr<Core::CImage>> vTextures;
-                std::vector<ref_ptr<Material::CMaterialBase>> vMaterials;
+                std::vector<ref_ptr<core::CImage>> vTextures;
+                std::vector<ref_ptr<material::CMaterialBase>> vMaterials;
 
                 std::vector<ref_ptr<GLTFSceneNode>> m_vNodes;
                 std::vector<ref_ptr<GLTFSceneNode>> m_vLinearNodes;

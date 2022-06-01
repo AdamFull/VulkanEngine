@@ -1,11 +1,11 @@
 #pragma once
 #include "graphics/scene/objects/RenderObject.h"
 
-namespace Engine
+namespace engine
 {
-    namespace Core
+    namespace core
     {
-        namespace Scene
+        namespace scene
         {
             class CSceneRootComponent : public CRenderObject
             {

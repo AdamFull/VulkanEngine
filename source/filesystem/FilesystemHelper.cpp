@@ -1,7 +1,7 @@
 #include "FilesystemHelper.h"
 #include <codecvt>
 
-namespace Engine
+namespace engine
 {
     std::string FilesystemHelper::readFile(const fs::path& srPath)
     {

@@ -1,11 +1,11 @@
 #pragma once
 #include "LightSourceBase.h"
 
-namespace Engine
+namespace engine
 {
-    namespace Core
+    namespace core
     {
-        namespace Scene
+        namespace scene
         {
             class CLightSourcePoint : public CLightSourceBase
             {
@@ -15,6 +15,7 @@ namespace Engine
 
                 void setAttenuation(float value) { fAttenuation = value; }
                 const float getAttenuation() const { return fAttenuation; }
+
             protected:
                 float fAttenuation{1.f};
             };

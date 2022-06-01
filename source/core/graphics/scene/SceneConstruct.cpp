@@ -1,11 +1,11 @@
 #include "SceneConstruct.h"
 #include "serializer/GLMSerialization.h"
 
-namespace Engine
+namespace engine
 {
-    namespace Core
+    namespace core
     {
-        namespace Scene
+        namespace scene
         {
             /*SCENE*/
             NLOHMANN_JSON_SERIALIZE_ENUM

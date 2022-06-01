@@ -1,8 +1,8 @@
 #include "RenderStage.h"
 #include "graphics/VulkanDevice.hpp"
 
-using namespace Engine::Core;
-using namespace Engine::Core::Render;
+using namespace engine::core;
+using namespace engine::core::render;
 
 void CRenderStage::create()
 {

@@ -1,7 +1,7 @@
 #include "CommandBuffer.h"
 #include "graphics/VulkanHighLevel.h"
 
-using namespace Engine::Core;
+using namespace engine::core;
 
 CCommandBuffer::CCommandBuffer(bool _begin, vk::QueueFlagBits queueType, vk::CommandBufferLevel bufferLevel, uint32_t count) :
 commandPool(CDevice::inst()->getCommandPool()), queueType(queueType)

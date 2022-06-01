@@ -4,8 +4,8 @@
 #include "graphics/image/Image2D.h"
 #include "graphics/image/ImageLoader.h"
 
-using namespace Engine::Core;
-using namespace Engine::Core::Render;
+using namespace engine::core;
+using namespace engine::core::render;
 
 void CFramebufferNew::create()
 {

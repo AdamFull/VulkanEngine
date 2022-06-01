@@ -2,8 +2,8 @@
 #include "graphics/VulkanDevice.hpp"
 #include "resources/ResourceManager.h"
 
-using namespace Engine::Core::Scene;
-using namespace Engine::Resources;
+using namespace engine::core::scene;
+using namespace engine::resources;
 
 void CSceneRootComponent::create()
 {

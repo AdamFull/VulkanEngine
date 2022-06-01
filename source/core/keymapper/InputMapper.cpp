@@ -3,17 +3,20 @@
 #include "graphics/Window/WinCallbacks.h"
 #include "EngineMath.hpp"
 
-using namespace Engine;
+using namespace engine;
+using namespace engine::math;
+using namespace engine::core;
+using namespace engine::core::window;
 
 template <>
 scope_ptr<CInputMapper> utl::singleton<CInputMapper>::_instance{nullptr};
 
 CInputMapper::CInputMapper()
 {
-    Core::Window::WinCallbacks::SubscribeKeyInput(this, &CInputMapper::keyBoardInput);
-    Core::Window::WinCallbacks::SubscribeMousePosition(this, &CInputMapper::mouseMovementInput);
-    Core::Window::WinCallbacks::SubscribeMouseScroll(this, &CInputMapper::mouseWheelInput);
-    Core::Window::WinCallbacks::SubscribeMouseButton(this, &CInputMapper::mouseButtonInput);
+    WinCallbacks::SubscribeKeyInput(this, &CInputMapper::keyBoardInput);
+    WinCallbacks::SubscribeMousePosition(this, &CInputMapper::mouseMovementInput);
+    WinCallbacks::SubscribeMouseScroll(this, &CInputMapper::mouseWheelInput);
+    WinCallbacks::SubscribeMouseButton(this, &CInputMapper::mouseButtonInput);
 }
 
 CInputMapper::~CInputMapper()
@@ -45,16 +48,16 @@ void CInputMapper::mouseButtonInput(int button, int action, int mods)
 
 void CInputMapper::mouseMovementInput(float xpos, float ypos)
 {
-    float xmax = static_cast<float>(Core::Window::CWindowHandle::m_iWidth);
-    float ymax = static_cast<float>(Core::Window::CWindowHandle::m_iHeight);
+    float xmax = static_cast<float>(CWindowHandle::m_iWidth);
+    float ymax = static_cast<float>(CWindowHandle::m_iHeight);
 
     m_mAxisStates[EActionKey::eCursorOriginal] = {xpos, ypos};
     // Calculate on screen position
     fPosOld = m_mAxisStates[EActionKey::eCursorPos];
     m_mAxisStates[EActionKey::eCursorPos] =
         {
-            Math::RangeToRange<float>(xpos, 0.0, xmax, -1.0, 1.0),
-            Math::RangeToRange<float>(ypos, 0.0, ymax, -1.0, 1.0)};
+            rangeToRange<float>(xpos, 0.0, xmax, -1.0, 1.0),
+            rangeToRange<float>(ypos, 0.0, ymax, -1.0, 1.0)};
 
     // Calculate cursor pos delta
     m_mAxisStates[EActionKey::eCursorDelta] = (m_mAxisStates[EActionKey::eCursorPos] - fPosOld) * m_fDeltaTime;

@@ -2,7 +2,7 @@
 #include "keymapper/KeycodeConfig.h"
 #include "controllers/CameraEditorController.h"
 
-namespace Engine
+namespace engine
 {
     /**
      * @brief Main application class
@@ -31,6 +31,6 @@ namespace Engine
          */
         void run();
     private:
-        scope_ptr<Controllers::CCameraController> m_pCameraController;
+        scope_ptr<controllers::CCameraController> m_pCameraController;
     };
 }

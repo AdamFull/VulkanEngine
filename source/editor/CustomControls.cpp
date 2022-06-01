@@ -3,7 +3,7 @@
 #include <glm/gtc/type_ptr.hpp>
 #include <imgui/imgui_internal.h>
 
-using namespace Engine;
+using namespace engine;
 
 constexpr const float _columnWidth{100.f};
 

@@ -1,21 +1,21 @@
 #pragma once
 #include "graphics/renderpass/Subpass.h"
 
-namespace Engine
+namespace engine
 {
-    namespace Core
-    {
-        namespace Render
-        {
-            class CBrightDetectPass : public CSubpass
-            {
-            public:
-                CBrightDetectPass() = default;
-                void create() override;
-                void reCreate() override;
-                void render(vk::CommandBuffer& commandBuffer) override;
-                void cleanup() override;
-            };
-        }
-    }
+	namespace core
+	{
+		namespace render
+		{
+			class CBrightDetectPass : public CSubpass
+			{
+			public:
+				CBrightDetectPass() = default;
+				void create() override;
+				void reCreate() override;
+				void render(vk::CommandBuffer &commandBuffer) override;
+				void cleanup() override;
+			};
+		}
+	}
 }

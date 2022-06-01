@@ -2,16 +2,16 @@
 #include "graphics/scene/objects/components/camera/CameraComponent.h"
 #include <util/helpers.hpp>
 
-namespace Engine
+namespace engine
 {
-    namespace Core
+    namespace core
     {
-        namespace Scene
+        namespace scene
         {
             class CCameraManager : public utl::singleton<CCameraManager>
             {
             public:
-                ref_ptr<CCameraComponent>& getCurrentCamera();
+                ref_ptr<CCameraComponent> &getCurrentCamera();
                 void setCurrentCameraIndex(size_t index);
                 void attach(ref_ptr<CCameraComponent> newCamera);
 

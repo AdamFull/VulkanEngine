@@ -1,6 +1,6 @@
 #include "GlobalVertexBuffer.h"
 
-using namespace Engine::Core;
+using namespace engine::core;
 
 scope_ptr<CVBO> CVBO::_instance{nullptr};
 

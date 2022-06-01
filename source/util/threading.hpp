@@ -2,7 +2,7 @@
 #include "function.hpp"
 #include "helpers.hpp"
 
-namespace Engine
+namespace engine
 {
 	/**
 	 * @brief Future class for returning data from thread

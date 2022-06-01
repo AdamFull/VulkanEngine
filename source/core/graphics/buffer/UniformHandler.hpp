@@ -3,15 +3,15 @@
 #include "Handler.h"
 #include <util/helpers.hpp>
 
-namespace Engine
+namespace engine
 {
-    namespace Core
+    namespace core
     {
         class CUniformHandler : public CHandler
         {
         public:
             CUniformHandler() = default;
-            void create(const Pipeline::CUniformBlock &uniformBlock) override;
+            void create(const pipeline::CUniformBlock &uniformBlock) override;
         };
     }
 }

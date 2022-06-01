@@ -1,20 +1,12 @@
 #pragma once
 #include "graphics/scene/objects/RenderObject.h"
 
-namespace Engine
+namespace engine
 {
-    namespace Core
+    namespace core
     {
-        namespace Scene
+        namespace scene
         {
-            struct FPointLightUA
-            {
-                 glm::vec3 position;
-                 glm::vec3 color;
-                float radius;
-                float intencity;
-            };
-
             struct FPointLight
             {
                 alignas(16) glm::vec3 position;
@@ -49,9 +41,10 @@ namespace Engine
                 float getIntencity() { return fIntencity; }
                 inline void setIntencity(float intencity) { fIntencity = intencity; }
 
-                Resources::ELightSourceType getLightType() { return eLightType; }
+                resources::ELightSourceType getLightType() { return eLightType; }
+
             protected:
-                Resources::ELightSourceType eLightType;
+                resources::ELightSourceType eLightType;
                 glm::vec3 vColor{};
                 float fIntencity{1.f};
             };

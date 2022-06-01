@@ -2,11 +2,11 @@
 #include "resources/ResourceCunstruct.h"
 #include "MaterialLoader.h"
 
-namespace Engine
+namespace engine
 {
-    namespace Resources
+    namespace resources
     {
-        namespace Material
+        namespace material
         {
             /**
              * @brief Factory that creates material from create info

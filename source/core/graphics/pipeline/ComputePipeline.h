@@ -1,26 +1,26 @@
 #pragma once
 #include "Pipeline.h"
 
-namespace Engine
+namespace engine
 {
-    namespace Core
-    {
-        namespace Pipeline
-        {
-            /**
-             * @brief Compite pipeline class. Just contain data for creation compute pipeline
-             * 
-             */
-            class CComputePipeline : public CPipelineBase
-            {
-            public:
-                CComputePipeline() = default;
+	namespace core
+	{
+		namespace pipeline
+		{
+			/**
+			 * @brief Compite pipeline class. Just contain data for creation compute pipeline
+			 *
+			 */
+			class CComputePipeline : public CPipelineBase
+			{
+			public:
+				CComputePipeline() = default;
 
-                void create() override;
+				void create() override;
 
-            protected:
-                void createPipeline() override;
-            };
-        }
-    }
+			protected:
+				void createPipeline() override;
+			};
+		}
+	}
 }

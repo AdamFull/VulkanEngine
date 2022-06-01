@@ -29,13 +29,13 @@ bool loadImageDataFuncEmpty(tinygltf::Image *image, const int imageIndex, std::s
     return tinygltf::LoadImageData(image, imageIndex, error, warning, req_width, req_height, bytes, size, userData);
 }
 
-using namespace Engine;
-using namespace Engine::Core;
-using namespace Engine::Core::Loaders;
-using namespace Engine::Resources;
-using namespace Engine::Resources::Material;
-using namespace Engine::Resources::Mesh;
-using namespace Engine::Resources::Loaders;
+using namespace engine;
+using namespace engine::core;
+using namespace engine::core::loaders;
+using namespace engine::resources;
+using namespace engine::resources::material;
+using namespace engine::resources::mesh;
+using namespace engine::resources::loaders;
 
 GLTFLoader::GLTFLoader(bool loadMaterials, bool useMaterials, const std::string& modelName, const std::string& volumeName) :
 bLoadMaterials(loadMaterials), bUseMaterials(useMaterials), srModelName(modelName), srVolumeName(volumeName)
@@ -134,7 +134,7 @@ void GLTFLoader::loadMeshFragment(ref_ptr<GLTFSceneNode>& sceneNode, const tinyg
     for (size_t j = 0; j < mesh.primitives.size(); j++)
     {
         std::vector<uint32_t> indexBuffer;
-        std::vector<Core::FVertex> vertexBuffer;
+        std::vector<FVertex> vertexBuffer;
 
         const tinygltf::Primitive &primitive = mesh.primitives[j];
         if (primitive.indices < 0)
@@ -223,7 +223,7 @@ void GLTFLoader::loadMeshFragment(ref_ptr<GLTFSceneNode>& sceneNode, const tinyg
 
             for (size_t v = 0; v < posAccessor.count; v++)
             {
-                Core::FVertex vert{};
+                FVertex vert{};
                 vert.pos = glm::vec4(glm::make_vec3(&bufferPos[v * 3]), 1.0f);
                 vert.normal = glm::normalize(glm::vec3(bufferNormals ? glm::make_vec3(&bufferNormals[v * 3]) : glm::vec3(0.0f)));
                 //vert.normal = glm::vec3(0.f);
@@ -329,7 +329,7 @@ void GLTFLoader::loadMeshFragment(ref_ptr<GLTFSceneNode>& sceneNode, const tinyg
     CResourceManager::inst()->addExisting(nativeMesh->getName(), nativeMesh);
 }
 
-void GLTFLoader::recalculateTangents(std::vector<Core::FVertex>& vertices, std::vector<uint32_t>& indices, uint64_t startIndex)
+void GLTFLoader::recalculateTangents(std::vector<FVertex>& vertices, std::vector<uint32_t>& indices, uint64_t startIndex)
 {
     for(auto index = 0; index < indices.size(); index+=3)
     {
@@ -626,7 +626,7 @@ void GLTFLoader::loadSkins(const tinygltf::Model &model)
 {
     for (auto& source : model.skins)
     {
-        auto pSkin = make_ref<Skin>();
+        auto pSkin = make_ref<FSkin>();
         pSkin->name = source.name;
 
         // Find skeleton root node

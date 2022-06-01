@@ -4,7 +4,7 @@
 
 int main()
 {
-    Engine::CApplication app;
+    engine::CApplication app;
     app.create();
 
     //try

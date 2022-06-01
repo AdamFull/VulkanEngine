@@ -3,7 +3,7 @@
 #define STB_IMAGE_IMPLEMENTATION
 #include "external/tinygltf/stb_image.h"
 
-using namespace Engine::Core::Loaders;
+using namespace engine::core::loaders;
 
 bool CImageLoader::load(char const *filename, ktxTexture **target, vk::Format *format, const fs::path& parentPath)
 {

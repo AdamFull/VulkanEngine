@@ -17,11 +17,12 @@
 
 #include "graphics/VulkanHighLevel.h"
 
-using namespace Engine::Core;
-using namespace Engine::Core::Editor;
-using namespace Engine::Core::Window;
-using namespace Engine::Resources;
-using namespace Engine::Resources::Material;
+using namespace engine::editor;
+using namespace engine::core;
+using namespace engine::core::render;
+using namespace engine::core::window;
+using namespace engine::resources;
+using namespace engine::resources::material;
 
 template<>
 scope_ptr<CEditorUI> utl::singleton<CEditorUI>::_instance{nullptr};

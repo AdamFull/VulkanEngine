@@ -1,15 +1,9 @@
 #pragma once
 #include "keymapper/KeycodeConfig.h"
 
-namespace Engine
+namespace engine
 {
-    namespace Core
-    {
-        
-        
-    }
-
-    namespace Controllers
+    namespace controllers
     {
         class CCameraController
         {

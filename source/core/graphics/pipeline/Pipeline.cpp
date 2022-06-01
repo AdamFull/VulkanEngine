@@ -2,7 +2,7 @@
 #include "graphics/VulkanHighLevel.h"
 #include "filesystem/FilesystemHelper.h"
 
-using namespace Engine::Core::Pipeline;
+using namespace engine::core::pipeline;
 
 scope_ptr<CPipelineBase> CPipelineBase::Builder::build(vk::PipelineBindPoint bindPoint)
 {

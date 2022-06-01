@@ -2,14 +2,14 @@
 #include "graphics/scene/objects/components/camera/CameraManager.h"
 #include "graphics/VulkanHighLevel.h"
 #include "keymapper/InputMapper.h"
-#include "graphics/editor/EditorUI.h"
 
 #include "resources/ResourceCunstruct.h"
 
-using namespace Engine;
-using namespace Engine::Core;
-using namespace Engine::Core::Scene;
-using namespace Engine::Resources;
+using namespace engine;
+using namespace engine::core;
+using namespace engine::core::render;
+using namespace engine::core::scene;
+using namespace engine::resources;
 
 void CRenderScene::create()
 {

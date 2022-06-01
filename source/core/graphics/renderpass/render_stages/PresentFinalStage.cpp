@@ -2,8 +2,8 @@
 #include "graphics/VulkanHighLevel.h"
 #include "graphics/renderpass/subpasses/ThroughPass.h"
 
-using namespace Engine::Core;
-using namespace Engine::Core::Render;
+using namespace engine::core;
+using namespace engine::core::render;
 
 CPresentFinalStage::~CPresentFinalStage()
 {

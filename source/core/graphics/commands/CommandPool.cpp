@@ -1,7 +1,7 @@
 #include "CommandPool.h"
 #include "graphics/VulkanHighLevel.h"
 
-using namespace Engine::Core;
+using namespace engine::core;
 
 CCommandPool::CCommandPool(const std::thread::id &threadId) : threadId(threadId) 
 {

@@ -1,6 +1,6 @@
 #include "WindowBase.h"
 
-using namespace Engine::Core::Editor;
+using namespace engine::editor;
 void CWindowBase::draw()
 {
 }

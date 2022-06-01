@@ -1,8 +1,8 @@
 #include "ImageCubemap.h"
 #include "graphics/VulkanStaticHelper.h"
 
-using namespace Engine::Core;
-using namespace Engine::Core::Loaders;
+using namespace engine::core;
+using namespace engine::core::loaders;
 
 void CImageCubemap::create(const vk::Extent2D& extent, vk::Format format, vk::ImageLayout layout, vk::ImageUsageFlags usage, 
 vk::ImageAspectFlags aspect, vk::Filter filter, vk::SamplerAddressMode addressMode, vk::SampleCountFlagBits samples, 

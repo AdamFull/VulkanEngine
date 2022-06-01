@@ -5,22 +5,22 @@
 #include "graphics/scene/objects/components/light/LightSourceSpot.h"
 #include <util/helpers.hpp>
 
-namespace Engine
+namespace engine
 {
-    namespace Core
+    namespace core
     {
-        namespace Scene
+        namespace scene
         {
             class CLightSourceManager : public utl::singleton<CLightSourceManager>
             {
             public:
-                template<class _Ty>
+                template <class _Ty>
                 ref_ptr<_Ty> createSource() {}
 
-                template<>
-                ref_ptr<Scene::CLightSourcePoint> createSource()
+                template <>
+                ref_ptr<CLightSourcePoint> createSource()
                 {
-                    auto pNewSource = make_ref<Scene::CLightSourcePoint>();
+                    auto pNewSource = make_ref<CLightSourcePoint>();
                     std::stringstream ss{};
                     ss << "PointLight_" << vPointLights.size();
                     pNewSource->setName(ss.str());
@@ -28,10 +28,10 @@ namespace Engine
                     return vPointLights.back();
                 }
 
-                template<>
-                ref_ptr<Scene::CLightSourceDirectional> createSource()
+                template <>
+                ref_ptr<CLightSourceDirectional> createSource()
                 {
-                    auto pNewSource = make_ref<Scene::CLightSourceDirectional>();
+                    auto pNewSource = make_ref<CLightSourceDirectional>();
                     std::stringstream ss{};
                     ss << "DirectionalLight_" << vDirectionalLights.size();
                     pNewSource->setName(ss.str());
@@ -39,10 +39,10 @@ namespace Engine
                     return vDirectionalLights.back();
                 }
 
-                template<>
-                ref_ptr<Scene::CLightSourceSpot> createSource()
+                template <>
+                ref_ptr<CLightSourceSpot> createSource()
                 {
-                    auto pNewSource = make_ref<Scene::CLightSourceSpot>();
+                    auto pNewSource = make_ref<CLightSourceSpot>();
                     std::stringstream ss{};
                     ss << "SpotLight_" << vSpotLights.size();
                     pNewSource->setName(ss.str());
@@ -50,50 +50,50 @@ namespace Engine
                     return vSpotLights.back();
                 }
 
-                template<class _Ty>
-                std::vector<_Ty> getSources(){}
+                template <class _Ty>
+                std::vector<_Ty> getSources() {}
 
-                template<>
+                template <>
                 std::vector<FPointLight> getSources()
                 {
                     std::vector<FPointLight> vOutput{};
-                    for(auto& source : vPointLights)
+                    for (auto &source : vPointLights)
                     {
-                        if(source->isEnabled() && source->wasRendered())
+                        if (source->isEnabled() && source->wasRendered())
                             vOutput.emplace_back(source->getLight());
                     }
                     return vOutput;
                 }
 
-                template<>
+                template <>
                 std::vector<FDirectionalLight> getSources()
                 {
                     std::vector<FDirectionalLight> vOutput{};
-                    for(auto& source : vDirectionalLights)
+                    for (auto &source : vDirectionalLights)
                     {
-                        if(source->isEnabled() && source->wasRendered())
+                        if (source->isEnabled() && source->wasRendered())
                             vOutput.emplace_back(source->getLight());
                     }
                     return vOutput;
                 }
 
-                template<>
+                template <>
                 std::vector<FSpotLight> getSources()
                 {
                     std::vector<FSpotLight> vOutput{};
-                    for(auto& source : vSpotLights)
+                    for (auto &source : vSpotLights)
                     {
-                        if(source->isEnabled() && source->wasRendered())
+                        if (source->isEnabled() && source->wasRendered())
                             vOutput.emplace_back(source->getLight());
                     }
                     return vOutput;
                 }
 
             private:
-                std::vector<ref_ptr<Scene::CLightSourcePoint>> vPointLights;
-                std::vector<ref_ptr<Scene::CLightSourceDirectional>> vDirectionalLights;
-                std::vector<ref_ptr<Scene::CLightSourceSpot>> vSpotLights;
-            };            
+                std::vector<ref_ptr<CLightSourcePoint>> vPointLights;
+                std::vector<ref_ptr<CLightSourceDirectional>> vDirectionalLights;
+                std::vector<ref_ptr<CLightSourceSpot>> vSpotLights;
+            };
         }
     }
 }

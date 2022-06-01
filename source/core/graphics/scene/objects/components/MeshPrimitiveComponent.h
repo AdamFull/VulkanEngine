@@ -1,16 +1,10 @@
 #pragma once
 #include "graphics/scene/objects/RenderObject.h"
 
-namespace Engine
+namespace engine::core::scene
 {
-    namespace Core
+    class CMeshPrimitive : public CRenderObject
     {
-        namespace Scene
-        {
-            class CMeshPrimitive : public CRenderObject
-            {
-            public:
-            };
-        }
-    }
+    public:
+    };
 }

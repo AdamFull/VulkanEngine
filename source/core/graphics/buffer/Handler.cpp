@@ -1,8 +1,8 @@
 #include "Handler.h"
 #include "graphics/VulkanHighLevel.h"
 
-using namespace Engine::Core;
-using namespace Engine::Core::Pipeline;
+using namespace engine::core;
+using namespace engine::core::pipeline;
 
 CHandler::~CHandler()
 {

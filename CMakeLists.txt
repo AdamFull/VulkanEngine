@@ -75,15 +75,18 @@ endif()
 include_directories(${CMAKE_CURRENT_SOURCE_DIR}/core)
 
 file(GLOB_RECURSE CPP_FILES_CORE ${CMAKE_CURRENT_SOURCE_DIR}/source/core/*.cpp)
+file(GLOB_RECURSE CPP_FILES_EDITOR ${CMAKE_CURRENT_SOURCE_DIR}/source/editor/*.cpp)
 file(GLOB_RECURSE CPP_FILES_UTIL ${CMAKE_CURRENT_SOURCE_DIR}/source/util/*.cpp)
 file(GLOB_RECURSE CPP_FILES_FS ${CMAKE_CURRENT_SOURCE_DIR}/source/filesystem/*.cpp)
 file(GLOB_RECURSE CPP_FILES_SERIALIZE ${CMAKE_CURRENT_SOURCE_DIR}/source/serializer/*.cpp)
-file(GLOB_RECURSE HPP_FILES ${CMAKE_CURRENT_SOURCE_DIR}/source/*.h)
+file(GLOB_RECURSE H_FILES ${CMAKE_CURRENT_SOURCE_DIR}/source/*.h)
+file(GLOB_RECURSE HPP_FILES ${CMAKE_CURRENT_SOURCE_DIR}/source/*.hpp)
 file(GLOB_RECURSE CPP_FILES_IMGUI ${CMAKE_CURRENT_SOURCE_DIR}/source/external/imgui/*.cpp)
 
 set(CPP_FILES
 	${CMAKE_CURRENT_SOURCE_DIR}/main.cpp
 	${CPP_FILES_CORE}
+	${CPP_FILES_EDITOR}
 	${CPP_FILES_UTIL}
 	${CPP_FILES_FS}
 	${CPP_FILES_SERIALIZE}
@@ -95,9 +98,6 @@ set(IMGUI_INCLUDE_DIR ${CMAKE_CURRENT_SOURCE_DIR}/external/imgui)
 add_subdirectory(${CMAKE_CURRENT_SOURCE_DIR}/external/ktx)
 set(KTX_INCLUDE_DIR ${CMAKE_CURRENT_SOURCE_DIR}/external/ktx/include)
 
-# set(ENABLE_GLSLANG_WEBMIN OFF)
-# add_subdirectory(${CMAKE_CURRENT_SOURCE_DIR}/source/external/glslang)
-# set(GLSLANG_INCLUDE_DIR ${CMAKE_CURRENT_SOURCE_DIR}/source/external/glslang)
 
 find_package(glfw3 REQUIRED)
 find_package(glslang REQUIRED)
@@ -105,7 +105,7 @@ find_package(spirv_cross_core CONFIG REQUIRED)
 find_package(spirv_cross_glsl CONFIG REQUIRED)
 find_package(glm REQUIRED)
 
-add_executable(${PROJECT_NAME} ${CPP_FILES} ${HPP_FILES})
+add_executable(${PROJECT_NAME} ${CPP_FILES} ${H_FILES} ${HPP_FILES})
 
 # Link the debug and release libraries to the project
 target_link_libraries( ${PROJECT_NAME} PUBLIC 

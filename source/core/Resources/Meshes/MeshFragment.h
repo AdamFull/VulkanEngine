@@ -3,11 +3,11 @@
 #include "graphics/buffer/VulkanBuffer.h"
 #include "graphics/data_types/VulkanVertex.hpp"
 
-namespace Engine
+namespace engine
 {
-    namespace Resources
+    namespace resources
     {
-        namespace Mesh
+        namespace mesh
         {
             /**
              * @brief Mesh fragment that contain vertex and index positions and attached to fragment material
@@ -21,7 +21,7 @@ namespace Engine
                 uint32_t vertexCount;
                 bool bUseMaterial{false};
                 //TODO: check for material duplicates
-                ref_ptr<Material::CMaterialBase> material;
+                ref_ptr<material::CMaterialBase> material;
 
                 struct Dimensions
                 {

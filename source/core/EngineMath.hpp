@@ -1,10 +1,13 @@
 #pragma once
 
-namespace Engine::Math
+namespace engine
 {
-    template<class Type>
-    Type RangeToRange(Type input, Type in_min , Type in_max, Type out_min, Type out_max)
+    namespace math
     {
-        return (input - in_min) * (out_max - out_min) / (in_max - in_min) + out_min;
+        template<class _Ty>
+        _Ty rangeToRange(_Ty input, _Ty in_min , _Ty in_max, _Ty out_min, _Ty out_max)
+        {
+            return (input - in_min) * (out_max - out_min) / (in_max - in_min) + out_min;
+        }
     }
 }

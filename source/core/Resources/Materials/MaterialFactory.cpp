@@ -2,8 +2,9 @@
 #include "resources/ResourceManager.h"
 #include "graphics/VulkanHighLevel.h"
 
-using namespace Engine::Resources;
-using namespace Engine::Resources::Material;
+using namespace engine::core;
+using namespace engine::resources;
+using namespace engine::resources::material;
 
 ref_ptr<CMaterialBase> CMaterialFactory::create(FMaterialCreateInfo info)
 {
@@ -11,7 +12,7 @@ ref_ptr<CMaterialBase> CMaterialFactory::create(FMaterialCreateInfo info)
 
     for (auto &texInfo : info.vTextures)
     {
-        ref_ptr<Core::CImage> texture = make_ref<Core::CImage>();
+        auto texture = make_ref<CImage>();
         texture->create(texInfo.srSrc);
         CResourceManager::inst()->addExisting(texInfo.srName, texture);
         material->addTexture(texInfo.attachment, texture);

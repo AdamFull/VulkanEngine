@@ -2,12 +2,12 @@
 #include "Resources/ResourceManager.h"
 #include "graphics/scene/objects/components/SceneRootComponent.h"
 
-namespace Engine
+namespace engine
 {
-    namespace Resources { class CResourceManager; }
-    namespace Core
+    namespace resources { class CResourceManager; }
+    namespace core
     {
-        namespace Scene
+        namespace scene
         {
             class CRenderScene
             {
@@ -17,12 +17,12 @@ namespace Engine
                 void create();
                 void reCreate();
                 void cleanup();
-                void attachObject(ref_ptr<Core::Scene::CRenderObject>& object);
-                inline ref_ptr<Core::Scene::CRenderObject>& getRoot() { return m_pRoot; }
+                void attachObject(ref_ptr<CRenderObject>& object);
+                inline ref_ptr<CRenderObject>& getRoot() { return m_pRoot; }
                 void createObjects();
                 void render(float fDeltaTime);
             private:
-                ref_ptr<Core::Scene::CRenderObject> m_pRoot;
+                ref_ptr<CRenderObject> m_pRoot;
             };
         }
     }

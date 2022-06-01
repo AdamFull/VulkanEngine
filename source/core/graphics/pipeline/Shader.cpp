@@ -9,7 +9,8 @@
 //Spirv cross reflection doc
 //https://github.com/KhronosGroup/SPIRV-Cross/wiki/Reflection-API-user-guide
 
-using namespace Engine::Core::Pipeline;
+using namespace engine;
+using namespace engine::core::pipeline;
 
 namespace spirv_cross
 {
@@ -65,7 +66,7 @@ public:
 	IncludeResult *includeLocal(const char *headerName, const char *includerName, size_t inclusionDepth) override 
     {
 		auto directory = fs::path(includerName).parent_path();
-		auto fileLoaded = Engine::FilesystemHelper::readFile((directory / headerName).string());
+		auto fileLoaded = FilesystemHelper::readFile((directory / headerName).string());
 
 		if (fileLoaded.empty()) 
         {
@@ -82,7 +83,7 @@ public:
 
 	IncludeResult *includeSystem(const char *headerName, const char *includerName, size_t inclusionDepth) override 
     {
-		auto fileLoaded = Engine::FilesystemHelper::readFile(headerName);
+		auto fileLoaded = FilesystemHelper::readFile(headerName);
 
 		if (fileLoaded.empty()) {
 			std::stringstream ss;

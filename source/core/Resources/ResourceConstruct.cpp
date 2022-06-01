@@ -1,9 +1,9 @@
 #include "ResourceCunstruct.h"
 #include "serializer/GLMSerialization.h"
 
-namespace Engine
+namespace engine
 {
-    namespace Resources
+    namespace resources
     {
         /*RESOURCES*/
         NLOHMANN_JSON_SERIALIZE_ENUM

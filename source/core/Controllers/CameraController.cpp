@@ -1,6 +1,6 @@
 #include "CameraController.h"
 
-using namespace Engine::Controllers;
+using namespace engine::controllers;
 
 void CCameraController::create()
 {

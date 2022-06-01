@@ -3,9 +3,9 @@
 #include "VulkanBuffer.h"
 #include <util/helpers.hpp>
 
-namespace Engine
+namespace engine
 {
-    namespace Core
+    namespace core
     {
         class CVertexBufferObject : public utl::non_copy_movable
         {

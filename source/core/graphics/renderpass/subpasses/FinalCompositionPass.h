@@ -1,21 +1,22 @@
 #pragma once
 #include "graphics/renderpass/Subpass.h"
 
-namespace Engine
+namespace engine
 {
-    namespace Core
+    namespace core
     {
-        namespace Render
+        namespace render
         {
             class CFinalCompositionPass : public CSubpass
             {
             public:
                 CFinalCompositionPass() = default;
-                CFinalCompositionPass(const std::string& blurImage) : blurImageSample(blurImage) {}
+                CFinalCompositionPass(const std::string &blurImage) : blurImageSample(blurImage) {}
                 void create() override;
                 void reCreate() override;
-                void render(vk::CommandBuffer& commandBuffer) override;
+                void render(vk::CommandBuffer &commandBuffer) override;
                 void cleanup() override;
+
             private:
                 std::string blurImageSample{};
             };

@@ -5,13 +5,14 @@
 #include "graphics/scene/objects/components/light/LightSourceDirectional.h"
 #include "graphics/scene/objects/components/light/LightSourcePoint.h"
 #include "graphics/scene/objects/components/light/LightSourceSpot.h"
-#include "graphics/editor/Editor.h"
+#include "editor/Editor.h"
 #include <glm/gtc/type_ptr.hpp>
-#include "graphics/editor/CustomControls.h"
+#include "editor/CustomControls.h"
 
-using namespace Engine::Core;
-using namespace Engine::Core::Scene;
-using namespace Engine::Core::Editor;
+using namespace engine::core;
+using namespace engine::editor;
+using namespace engine::core::scene;
+using namespace engine::resources;
 
 constexpr const size_t culling_types_count{3};
 constexpr const char* cull_type_point{"point"};
@@ -151,7 +152,7 @@ void CInspectorWindow::draw()
                 auto pLight = std::dynamic_pointer_cast<CLightSourceBase>(selected);
                 switch (pLight->getLightType())
                 {
-                    case Resources::ELightSourceType::eDirectional:
+                    case ELightSourceType::eDirectional:
                     {
                         ImGui::Text("Directional light");
                         ImGui::Separator();
@@ -161,7 +162,7 @@ void CInspectorWindow::draw()
                         if(FControls::DragFloatVec3("Direction", direction, 0.01, 0.1))
                             pDirectional->setDirection(direction);
                     } break;
-                    case Resources::ELightSourceType::ePoint: {
+                    case ELightSourceType::ePoint: {
                         ImGui::Text("Point light");
                         ImGui::Separator();
 
@@ -170,7 +171,7 @@ void CInspectorWindow::draw()
                         if(FControls::DragFloat("Attenuation", &attenuation, 0.01, 0.1))
                             pPoint->setAttenuation(attenuation);
                     } break;
-                    case Resources::ELightSourceType::eSpot: {
+                    case ELightSourceType::eSpot: {
                         ImGui::Text("Spot light");
                         ImGui::Separator();
 

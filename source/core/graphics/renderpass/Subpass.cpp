@@ -1,6 +1,6 @@
 #include "Subpass.h"
 
-using namespace Engine::Core::Render;
+using namespace engine::core::render;
 
 void CSubpass::cleanup()
 {

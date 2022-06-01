@@ -2,7 +2,7 @@
 #include <glm/glm.hpp>
 #include "util/Transform.hpp"
 
-namespace Engine
+namespace engine
 {
     struct FControls
     {

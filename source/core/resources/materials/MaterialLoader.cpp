@@ -80,11 +80,11 @@ namespace vk
     )
 }
 
-namespace Engine
+namespace engine
 {
-    namespace Resources
+    namespace resources
     {
-        namespace Material
+        namespace material
         {
             NLOHMANN_JSON_SERIALIZE_ENUM
             (
@@ -141,10 +141,10 @@ namespace Engine
     }
 }
 
-using namespace Engine::Resources;
-using namespace Engine::Resources::Material;
-using namespace Engine::Core;
-using namespace Engine::Core::Pipeline;
+using namespace engine::resources;
+using namespace engine::resources::material;
+using namespace engine::core;
+using namespace engine::core::pipeline;
 
 template<>
 scope_ptr<CMaterialLoader> utl::singleton<CMaterialLoader>::_instance{nullptr};

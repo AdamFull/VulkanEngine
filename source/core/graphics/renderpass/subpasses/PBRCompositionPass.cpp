@@ -17,11 +17,13 @@
 #include "graphics/buffer/PushHandler.hpp"
 #include "GlobalVariables.h"
 
-using namespace Engine::Core;
-using namespace Engine::Core::Render;
-using namespace Engine::Resources;
-using namespace Engine::Resources::Material;
-using namespace Engine::Core::Scene;
+using namespace engine::core;
+using namespace engine::core::descriptor;
+using namespace engine::core::pipeline;
+using namespace engine::core::render;
+using namespace engine::resources;
+using namespace engine::resources::material;
+using namespace engine::core::scene;
 
 
 void CPBRCompositionPass::create()
@@ -110,9 +112,9 @@ ref_ptr<CImage> CPBRCompositionPass::ComputeBRDFLUT(uint32_t size)
 
     auto cmdBuf = CCommandBuffer(true, vk::QueueFlagBits::eCompute);
     auto commandBuffer = cmdBuf.getCommandBuffer();
-    auto descriptor = Descriptor::CDescriptorHandler();
+    auto descriptor = CDescriptorHandler();
 
-    ref_ptr<Pipeline::CPipelineBase> computePipeline = Pipeline::CPipelineBase::Builder().
+    ref_ptr<CPipelineBase> computePipeline = CPipelineBase::Builder().
     addShaderStage("shaders/generators/brdflut.comp").
     build(vk::PipelineBindPoint::eCompute);
     computePipeline->create();
@@ -139,9 +141,9 @@ ref_ptr<CImage> CPBRCompositionPass::ComputeIrradiance(const ref_ptr<CImage> &so
 
     auto cmdBuf = CCommandBuffer(true, vk::QueueFlagBits::eCompute);
     auto commandBuffer = cmdBuf.getCommandBuffer();
-    auto descriptor = Descriptor::CDescriptorHandler();
+    auto descriptor = CDescriptorHandler();
     
-    ref_ptr<Pipeline::CPipelineBase> computePipeline = Pipeline::CPipelineBase::Builder().
+    ref_ptr<CPipelineBase> computePipeline = CPipelineBase::Builder().
     addShaderStage("shaders/generators/irradiancecube.comp").
     build(vk::PipelineBindPoint::eCompute);
     computePipeline->create();
@@ -169,10 +171,10 @@ ref_ptr<CImage> CPBRCompositionPass::ComputePrefiltered(const ref_ptr<CImage>& s
     vk::ImageAspectFlagBits::eColor, vk::Filter::eLinear, vk::SamplerAddressMode::eClampToEdge, vk::SampleCountFlagBits::e1, true, false, true);
 
     auto cmdBuf = CCommandBuffer(true, vk::QueueFlagBits::eCompute);
-    auto descriptor = Descriptor::CDescriptorHandler();
+    auto descriptor = CDescriptorHandler();
     auto push = CPushHandler();
     
-    ref_ptr<Pipeline::CPipelineBase> computePipeline = Pipeline::CPipelineBase::Builder().
+    ref_ptr<CPipelineBase> computePipeline = CPipelineBase::Builder().
     addShaderStage("shaders/generators/prefilteredmap.comp").
     build(vk::PipelineBindPoint::eCompute);
     computePipeline->create();

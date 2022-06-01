@@ -2,11 +2,11 @@
 #include "util/Transform.hpp"
 #include "graphics/scene/SceneConstruct.h"
 
-namespace Engine
+namespace engine
 {
-    namespace Core
+    namespace core
     {
-        namespace Scene
+        namespace scene
         {
             enum class ERenderObjectType
             {
@@ -45,15 +45,15 @@ namespace Engine
                 // Deep search
                 ref_ptr<CRenderObject> find(std::string name);
                 ref_ptr<CRenderObject> find(uint64_t id);
-                void addChild(ref_ptr<CRenderObject>& child);
+                void addChild(ref_ptr<CRenderObject> &child);
                 void setParent(ref_ptr<CRenderObject> parent);
-                void attach(ref_ptr<CRenderObject>&& child);
+                void attach(ref_ptr<CRenderObject> &&child);
                 void detach(ref_ptr<CRenderObject> child);
 
                 uint64_t getId() const { return objectId; }
                 std::string &getName();
                 // std::string &GetUUID();
-                ref_ptr<CRenderObject>& getParent();
+                ref_ptr<CRenderObject> &getParent();
                 std::unordered_map<std::string, ref_ptr<CRenderObject>> &getChilds();
 
                 FTransform getTransform();
@@ -67,12 +67,16 @@ namespace Engine
 
                 void setCullingRadius(float radius) { fCullingRadius = radius; }
                 void setCullable(bool cullable) { bEnableCulling = cullable; }
-                void setBounds(glm::vec3 begin, glm::vec3 end) { boundingBox.first = begin; boundingBox.second = end; }
+                void setBounds(glm::vec3 begin, glm::vec3 end)
+                {
+                    boundingBox.first = begin;
+                    boundingBox.second = end;
+                }
                 void setCyllingType(ECullingType type) { eCullingType = type; }
 
                 const float getCullingRadius() const { return fCullingRadius; }
                 const bool isCullable() const { return bEnableCulling; }
-                const std::pair<glm::vec3, glm::vec3> getBounds() const { return boundingBox; } 
+                const std::pair<glm::vec3, glm::vec3> getBounds() const { return boundingBox; }
                 const ECullingType getCullingType() const { return eCullingType; }
                 void setCullingType(ECullingType eType) { eCullingType = eType; }
 

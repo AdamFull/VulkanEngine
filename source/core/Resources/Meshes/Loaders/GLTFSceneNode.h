@@ -1,19 +1,19 @@
 #pragma once
 #include "util/Transform.hpp"
 
-namespace Engine
+namespace engine
 {
-    namespace Resources
+    namespace resources
     {
-        namespace Mesh { class CMeshFragment; }
-        namespace Loaders
+        namespace mesh { class CMeshFragment; }
+        namespace loaders
         {
             class GLTFSceneNode;
             /**
              * @brief Skinning mesh data
              * 
              */
-            struct Skin
+            struct FSkin
             {
                 std::string name;
                 ref_ptr<GLTFSceneNode> skeletonRoot = nullptr;
@@ -157,8 +157,8 @@ namespace Engine
 
                 uint32_t m_index;
 		
-                ref_ptr<Mesh::CMeshFragment> m_pMesh;
-                scope_ptr<Skin> m_pSkin;
+                ref_ptr<mesh::CMeshFragment> m_pMesh;
+                scope_ptr<FSkin> m_pSkin;
             protected:
                 std::string m_srName;
                 std::string m_srUUID;

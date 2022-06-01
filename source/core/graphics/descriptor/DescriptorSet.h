@@ -1,12 +1,12 @@
 #pragma once
 #include <util/helpers.hpp>
 
-namespace Engine
+namespace engine
 {
-    namespace Core
+    namespace core
     {
-        namespace Pipeline { class CPipelineBase; }
-        namespace Descriptor
+        namespace pipeline { class CPipelineBase; }
+        namespace descriptor
         {
             /**
              * @brief Descriptor set class implementation
@@ -18,7 +18,7 @@ namespace Engine
                 CDescriptorSet() = default;
 
                 void create(vk::PipelineBindPoint bindPoint, vk::PipelineLayout& layout, vk::DescriptorPool& pool, vk::DescriptorSetLayout& setLayout);
-                void create(ref_ptr<Pipeline::CPipelineBase>& pPipeline);
+                void create(ref_ptr<pipeline::CPipelineBase>& pPipeline);
                 void cleanup();
                 void update(std::vector<vk::WriteDescriptorSet> &vWrites);
                 void update(vk::WriteDescriptorSet &writes);

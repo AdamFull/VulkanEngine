@@ -9,9 +9,9 @@
 #include "materials/MaterialFactory.h"
 //Old code in this includer, remove
 
-namespace Engine
+namespace engine
 {
-    namespace Resources
+    namespace resources
     {
         /**
          * @brief Resource manager just holding inside all created resources while engine works
@@ -66,7 +66,7 @@ namespace Engine
             /**
              * @brief Add existing texture object to resource manager
              */
-            void addExisting(const std::string& srResourceName, ref_ptr<Core::CImage>& pResource)
+            void addExisting(const std::string& srResourceName, ref_ptr<core::CImage>& pResource)
             {
                 auto it = m_mTextures.find(srResourceName);
                 if (it != m_mTextures.end())
@@ -77,7 +77,7 @@ namespace Engine
             /**
              * @brief Add existing texture2D object to resource manager
              */
-            void addExisting(const std::string& srResourceName, ref_ptr<Core::CImage2D>& pResource)
+            void addExisting(const std::string& srResourceName, ref_ptr<core::CImage2D>& pResource)
             {
                 auto it = m_mTextures.find(srResourceName);
                 if (it != m_mTextures.end())
@@ -92,9 +92,9 @@ namespace Engine
              * @return ref_ptr<Core::CImage> Smart pointer to resource object
              */
             template <>
-            ref_ptr<Core::CImage>& add(const FTextureCreateInfo& info)
+            ref_ptr<core::CImage>& add(const FTextureCreateInfo& info)
             {
-                ref_ptr<Core::CImage> texture = make_scope<Core::CImage>();
+                ref_ptr<core::CImage> texture = make_scope<core::CImage>();
                 texture->create(info.srSrc);
                 addExisting(info.srName, texture);
                 return pNullImage;
@@ -107,9 +107,9 @@ namespace Engine
              * @return ref_ptr<Core::CImage> Smart pointer to resource object
              */
             template <>
-            ref_ptr<Core::CImage2D>& add(const FTextureCreateInfo& info)
+            ref_ptr<core::CImage2D>& add(const FTextureCreateInfo& info)
             {
-                ref_ptr<Core::CImage> texture = make_scope<Core::CImage2D>();
+                ref_ptr<core::CImage> texture = make_scope<core::CImage2D>();
                 texture->create(info.srSrc);
                 addExisting(info.srName, texture);
                 return pNullImage2D;
@@ -122,7 +122,7 @@ namespace Engine
              * @return ref_ptr<Core::CImage> Smart pointer to resource object
              */
             template <>
-            ref_ptr<Core::CImage>& get(const std::string& srResourceName)
+            ref_ptr<core::CImage>& get(const std::string& srResourceName)
             {
                 auto it = m_mTextures.find(srResourceName);
                 if (it != m_mTextures.end())
@@ -134,7 +134,7 @@ namespace Engine
             /**
              * @brief Add existing Material object to resource manager
              */
-            void addExisting(const std::string& srResourceName, ref_ptr<Material::CMaterialBase> pResource)
+            void addExisting(const std::string& srResourceName, ref_ptr<material::CMaterialBase> pResource)
             {
                 auto it = m_mMaterials.find(srResourceName);
                 if (it != m_mMaterials.end())
@@ -149,9 +149,9 @@ namespace Engine
              * @return ref_ptr<Material::CMaterialBase> Smart pointer to resource object
              */
             template <>
-            ref_ptr<Material::CMaterialBase>& add(const FMaterialCreateInfo& info)
+            ref_ptr<material::CMaterialBase>& add(const FMaterialCreateInfo& info)
             {
-                ref_ptr<Material::CMaterialBase> material = Material::CMaterialFactory::create(info);
+                ref_ptr<material::CMaterialBase> material = material::CMaterialFactory::create(info);
                 addExisting(info.srName, material);
                 return pNullMat;
             }
@@ -163,7 +163,7 @@ namespace Engine
              * @return ref_ptr<Material::CMaterialBase> Smart pointer to resource object
              */
             template <>
-            ref_ptr<Material::CMaterialBase>& get(const std::string& srResourceName)
+            ref_ptr<material::CMaterialBase>& get(const std::string& srResourceName)
             {
                 auto it = m_mMaterials.find(srResourceName);
                 if (it != m_mMaterials.end())
@@ -175,7 +175,7 @@ namespace Engine
             /**
              * @brief Add existing Mesh object to resource manager
              */
-            void addExisting(const std::string& srResourceName, ref_ptr<Mesh::CMeshFragment> pResource)
+            void addExisting(const std::string& srResourceName, ref_ptr<mesh::CMeshFragment> pResource)
             {
                 auto it = m_mMeshes.find(srResourceName);
                 if (it != m_mMeshes.end())
@@ -190,9 +190,9 @@ namespace Engine
              * @return ref_ptr<Mesh::CMeshFragment> Smart pointer to resource object
              */
             template <>
-            ref_ptr<Mesh::CMeshFragment>& add(const FMeshCreateInfo& info)
+            ref_ptr<mesh::CMeshFragment>& add(const FMeshCreateInfo& info)
             {
-                ref_ptr<Mesh::CMeshFragment> mesh = Mesh::CMeshFactory::create(info);
+                ref_ptr<mesh::CMeshFragment> mesh = mesh::CMeshFactory::create(info);
                 addExisting(info.srName, mesh);
                 return pNullFrag;
             }
@@ -204,7 +204,7 @@ namespace Engine
              * @return ref_ptr<Mesh::CMeshFragment> Smart pointer to resource object
              */
             template <>
-            ref_ptr<Mesh::CMeshFragment>& get(const std::string& srResourceName)
+            ref_ptr<mesh::CMeshFragment>& get(const std::string& srResourceName)
             {
                 auto it = m_mMeshes.find(srResourceName);
                 if (it != m_mMeshes.end())
@@ -213,14 +213,14 @@ namespace Engine
             }
 
         private:
-            std::map<std::string, ref_ptr<Core::CImage>> m_mTextures;
-            std::map<std::string, ref_ptr<Material::CMaterialBase>> m_mMaterials;
-            std::map<std::string, ref_ptr<Mesh::CMeshFragment>> m_mMeshes;
+            std::map<std::string, ref_ptr<core::CImage>> m_mTextures;
+            std::map<std::string, ref_ptr<material::CMaterialBase>> m_mMaterials;
+            std::map<std::string, ref_ptr<mesh::CMeshFragment>> m_mMeshes;
 
-            ref_ptr<Core::CImage> pNullImage{ nullptr };
-            ref_ptr<Core::CImage2D> pNullImage2D{ nullptr };
-            ref_ptr<Material::CMaterialBase> pNullMat{ nullptr };
-            ref_ptr<Mesh::CMeshFragment> pNullFrag{ nullptr };
+            ref_ptr<core::CImage> pNullImage{ nullptr };
+            ref_ptr<core::CImage2D> pNullImage2D{ nullptr };
+            ref_ptr<material::CMaterialBase> pNullMat{ nullptr };
+            ref_ptr<mesh::CMeshFragment> pNullFrag{ nullptr };
         };
     }
 }

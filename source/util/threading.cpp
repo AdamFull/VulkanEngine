@@ -1,6 +1,6 @@
 #include "threading.hpp"
 
-using namespace Engine;
+using namespace engine;
 
 template <>
 scope_ptr<CThreadPool> utl::singleton<CThreadPool>::_instance{nullptr};

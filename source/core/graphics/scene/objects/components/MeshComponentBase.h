@@ -1,18 +1,15 @@
 #pragma once
 #include "graphics/scene/objects/RenderObject.h"
 
-namespace Engine
+namespace engine
 {
-    namespace Resources
+    namespace resources::mesh
     {
-        namespace Mesh
-        {
-            class CMeshBase;
-        }
+        class CMeshBase;
     }
-    namespace Core
+    namespace core
     {
-        namespace Scene
+        namespace scene
         {
             class CMeshObjectBase : public CRenderObject
             {
@@ -25,13 +22,13 @@ namespace Engine
                 void cleanup() override;
                 void destroy() override;
 
-                virtual void setMesh(ref_ptr<Resources::Mesh::CMeshBase> mesh) { m_pMesh = mesh; }
+                virtual void setMesh(ref_ptr<resources::mesh::CMeshBase> mesh) { m_pMesh = mesh; }
                 virtual void setIndex(uint32_t index) { m_iIndex = index; }
                 void setInstances(const std::vector<glm::vec4> &vInstances);
 
             protected:
                 std::vector<glm::vec4> m_vInstances;
-                ref_ptr<Resources::Mesh::CMeshBase> m_pMesh;
+                ref_ptr<resources::mesh::CMeshBase> m_pMesh;
                 uint32_t m_iIndex{0};
             };
         }

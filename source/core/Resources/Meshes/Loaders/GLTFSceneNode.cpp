@@ -1,7 +1,7 @@
 #include "GLTFSceneNode.h"
 
-using namespace Engine::Resources::Mesh;
-using namespace Engine::Resources::Loaders;
+using namespace engine::resources::mesh;
+using namespace engine::resources::loaders;
 
 void GLTFSceneNode::setName(const std::string& srName)
 {

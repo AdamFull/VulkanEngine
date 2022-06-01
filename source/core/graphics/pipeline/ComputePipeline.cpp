@@ -1,7 +1,7 @@
 #include "ComputePipeline.h"
 #include "graphics/VulkanHighLevel.h"
 
-using namespace Engine::Core::Pipeline;
+using namespace engine::core::pipeline;
 
 void CComputePipeline::create()
 {

@@ -1,20 +1,20 @@
 #pragma once
 
-namespace Engine
+namespace engine
 {
-    namespace Core
+    namespace core
     {
-        namespace Scene { class CRenderObject; }
+        namespace scene { class CRenderObject; }
     }
 
-    namespace Resources
+    namespace resources
     {
-        namespace Loaders
+        namespace loaders
         {
             struct ObjLoader
             {
             public:
-                static void Load(std::string srPath, ref_ptr<Core::Scene::CRenderObject>& pRoot);
+                static void Load(std::string srPath, ref_ptr<core::scene::CRenderObject>& pRoot);
             };
         }
     }

@@ -1,8 +1,8 @@
 #include "MeshLoader.h"
 
-using namespace Engine::Resources::Loaders;
+using namespace engine::resources::loaders;
 
-bool CMeshLoader::load(const std::string& srPath, ref_ptr<Mesh::CMeshFragment> pMesh, bool bLoadMaterial)
+bool CMeshLoader::load(const std::string& srPath, ref_ptr<mesh::CMeshFragment> pMesh, bool bLoadMaterial)
 {
     fs::path filepath{srPath};
 
@@ -20,7 +20,7 @@ bool CMeshLoader::load(const std::string& srPath, ref_ptr<Mesh::CMeshFragment> p
     return false;
 }
 
-void CMeshLoader::calculateTangents(std::vector<Core::FVertex> &vertices, std::vector<uint32_t> indices)
+void CMeshLoader::calculateTangents(std::vector<core::FVertex> &vertices, std::vector<uint32_t> indices)
 {
 #pragma omp parallel for
     for (int i = 0; i < vertices.size(); i++)
@@ -35,7 +35,7 @@ void CMeshLoader::calculateTangents(std::vector<Core::FVertex> &vertices, std::v
     }
 }
 
-glm::vec4 CMeshLoader::generateNormals(std::vector<Core::FVertex> &vertices, std::vector<uint32_t> indices)
+glm::vec4 CMeshLoader::generateNormals(std::vector<core::FVertex> &vertices, std::vector<uint32_t> indices)
 {
     return glm::vec4{};
 }

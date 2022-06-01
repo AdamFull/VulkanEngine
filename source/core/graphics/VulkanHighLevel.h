@@ -14,14 +14,14 @@
 #include "pipeline/ComputePipeline.h"
 #include <util/helpers.hpp>
 
-#define UHLInstance Engine::Core::CVulkanHighLevel::inst()
+#define UHLInstance engine::core::CVulkanHighLevel::inst()
 
-namespace Engine
+namespace engine
 {
-    namespace Core
+    namespace core
     {
         enum class ELaunchMode
-        {   
+        {
             eNone,
             eGame,
             eEditor
@@ -35,7 +35,7 @@ namespace Engine
 
         struct FEngineCreateInfo
         {
-            Window::FWindowCreateInfo window;
+            window::FWindowCreateInfo window;
             FDeviceCreateInfo device;
             FEngineModeCreateInfo engine;
         };
@@ -48,7 +48,7 @@ namespace Engine
             // TODO: Dont forget about clean textures
             void cleanup();
 
-            const FEngineCreateInfo& getCI() const { return ci; }
+            const FEngineCreateInfo &getCI() const { return ci; }
 
         private:
             FEngineCreateInfo ci{};

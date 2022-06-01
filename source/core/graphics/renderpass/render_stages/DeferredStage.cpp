@@ -4,8 +4,8 @@
 #include "graphics/renderpass/subpasses/GBufferPass.h"
 #include "graphics/renderpass/subpasses/PBRCompositionPass.h"
 
-using namespace Engine::Core;
-using namespace Engine::Core::Render;
+using namespace engine::core;
+using namespace engine::core::render;
 
 CDeferredStage::~CDeferredStage()
 {

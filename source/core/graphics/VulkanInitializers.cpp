@@ -1,6 +1,6 @@
 #include "VulkanInitializers.h"
 
-using namespace Engine::Core;
+using namespace engine::core;
 
 vk::PipelineInputAssemblyStateCreateInfo Initializers::PipelineInputAssemblyStateCI(vk::PrimitiveTopology topology, vk::Bool32 primitiveRestart)
 {

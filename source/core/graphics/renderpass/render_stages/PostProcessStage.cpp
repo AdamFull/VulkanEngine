@@ -6,8 +6,8 @@
 #include "graphics/renderpass/subpasses/DownsamplePass.h"
 #include "graphics/renderpass/subpasses/FinalCompositionPass.h"
 
-using namespace Engine::Core;
-using namespace Engine::Core::Render;
+using namespace engine::core;
+using namespace engine::core::render;
 
 CPostProcessStage::~CPostProcessStage()
 {

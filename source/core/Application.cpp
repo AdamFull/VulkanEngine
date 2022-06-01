@@ -5,17 +5,19 @@
 #include "graphics/scene/SceneManager.h"
 #include "filesystem/FilesystemHelper.h"
 
-using namespace Engine;
-using namespace Engine::Controllers;
-using namespace Engine::Core;
-using namespace Engine::Core::Scene;
+using namespace engine;
+using namespace engine::controllers;
+using namespace engine::core;
+using namespace engine::core::render;
+using namespace engine::core::window;
+using namespace engine::core::scene;
 
 void CApplication::create()
 {
     CInputMapper::inst()->createAction("ServiceHandles", EActionKey::eEscape, EActionKey::eF1);
     CInputMapper::inst()->bindAction("ServiceHandles", EKeyState::eRelease, this, &CApplication::serviceHandle);
 
-    Core::FEngineCreateInfo createInfo = FilesystemHelper::getConfigAs<Core::FEngineCreateInfo>("engine/config.json");
+    FEngineCreateInfo createInfo = FilesystemHelper::getConfigAs<FEngineCreateInfo>("engine/config.json");
     UHLInstance->create(createInfo);
 
     m_pCameraController = make_scope<CCameraEditorController>();
@@ -46,11 +48,11 @@ void CApplication::run()
     auto& currentScene = CSceneManager::inst()->getScene();
     currentScene->createObjects();
     float delta_time{0.001f};
-    while (!Core::Window::CWindowHandle::inst()->isShouldClose())
+    while (!CWindowHandle::inst()->isShouldClose())
     {
         auto startTime = std::chrono::high_resolution_clock::now();
 
-        Core::Window::CWindowHandle::inst()->pollEvents();
+        CWindowHandle::inst()->pollEvents();
         m_pCameraController->update(delta_time);
 
         currentScene->render(delta_time);

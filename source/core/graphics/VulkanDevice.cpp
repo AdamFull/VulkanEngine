@@ -3,9 +3,9 @@
 #include "VulkanStaticHelper.h"
 #include "Resources/Materials/MaterialLoader.h"
 
-using namespace Engine::Core;
-using namespace Engine::Core::Window;
-using namespace Engine::Resources::Material;
+using namespace engine::core;
+using namespace engine::core::window;
+using namespace engine::resources::material;
 
 template<>
 scope_ptr<CDevice> utl::singleton<CDevice>::_instance{nullptr};
@@ -847,9 +847,9 @@ namespace vk
     }
 }
 
-namespace Engine
+namespace engine
 {
-    namespace Core
+    namespace core
     {
         void to_json(nlohmann::json &json, const FDeviceCreateInfo &type)
         {

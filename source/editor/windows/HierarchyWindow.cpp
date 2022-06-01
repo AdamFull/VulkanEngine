@@ -1,10 +1,10 @@
 #include "HierarchyWindow.h"
 #include "graphics/scene/objects/RenderObject.h"
 #include "graphics/scene/SceneManager.h"
-#include "graphics/editor/Editor.h"
+#include "editor/Editor.h"
 
-using namespace Engine::Core::Scene;
-using namespace Engine::Core::Editor;
+using namespace engine::editor;
+using namespace engine::core::scene;
 
 void CHierarchyWindow::draw()
 {

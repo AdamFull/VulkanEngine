@@ -2,11 +2,11 @@
 #include "RenderScene.h"
 #include "util/helpers.hpp"
 
-namespace Engine
+namespace engine
 {
-    namespace Core
+    namespace core
     {
-        namespace Scene
+        namespace scene
         {
             class CSceneManager : public utl::singleton<CSceneManager>
             {

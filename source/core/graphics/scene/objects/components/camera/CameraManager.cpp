@@ -1,6 +1,7 @@
 #include "CameraManager.h"
 
-using namespace Engine::Core::Scene;
+//TODO: move camera manager to another place
+using namespace engine::core::scene;
 
 template<>
 scope_ptr<CCameraManager> utl::singleton<CCameraManager>::_instance{nullptr};

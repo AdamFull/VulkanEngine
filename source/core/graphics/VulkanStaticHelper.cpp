@@ -2,7 +2,7 @@
 #include "util/ulog.hpp"
 #include "external/ktx/lib/vk_format.h"
 
-using namespace Engine::Core;
+using namespace engine::core;
 
 bool VulkanStaticHelper::checkValidationLayerSupport(const std::vector<const char*>& validationLayers)
 {

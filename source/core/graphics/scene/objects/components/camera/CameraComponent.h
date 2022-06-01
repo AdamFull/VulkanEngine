@@ -1,11 +1,11 @@
 #pragma once
 #include "graphics/scene/objects/RenderObject.h"
 
-namespace Engine
+namespace engine
 {
-    namespace Core
+    namespace core
     {
-        namespace Scene
+        namespace scene
         {
             class CCameraComponent : public CRenderObject
             {
@@ -34,37 +34,37 @@ namespace Engine
 
                 /**
                  * @brief Check is point in frustum
-                 * 
+                 *
                  * @param pos Point position
                  * @return true when point is in frustum
                  */
-                bool checkPoint(const glm::vec3& pos);
+                bool checkPoint(const glm::vec3 &pos);
 
                 /**
                  * @brief Check is sphere intersects with frustum
-                 * 
+                 *
                  * @param pos Sphere center position
                  * @param radius Sphere radius
                  * @return true when sphere intersects with camera frustum
                  */
-                bool checkSphere(const glm::vec3& pos, float radius);
+                bool checkSphere(const glm::vec3 &pos, float radius);
 
                 /**
                  * @brief Check is bounding box intersects with frustum
-                 * 
+                 *
                  * @param start Bounding box start point
                  * @param end Bounding box end boint
                  * @return true when bounding box intersects with camera frustum
                  */
-                bool checkBox(const glm::vec3& start, const glm::vec3& end);
+                bool checkBox(const glm::vec3 &start, const glm::vec3 &end);
 
                 const float getFieldOfView() const { return fieldOfView; }
                 const float getNearPlane() const { return near; }
                 const float getFarPlane() const { return far; }
 
-                void  setFieldOfView(float value) { fieldOfView = value; }
-                void  setNearPlane(float value) { near = value; }
-                void  setFarPlane(float value) { far = value; }
+                void setFieldOfView(float value) { fieldOfView = value; }
+                void setNearPlane(float value) { near = value; }
+                void setFarPlane(float value) { far = value; }
 
                 glm::vec4 viewPos{};
 
@@ -76,9 +76,9 @@ namespace Engine
                 glm::vec3 direction{-1.0, 0.0, 0.0};
                 bool bEnableControls{true};
 
-                //Frustum
+                // Frustum
                 std::array<std::array<float, 4>, 6> frustumSides{};
-                //TODO: set projection type
+                // TODO: set projection type
             };
         }
     }

@@ -1,13 +1,13 @@
 #include "WindowHandle.h"
 #include "WinCallbacks.h"
 
-using namespace Engine::Core::Window;
+using namespace engine::core::window;
 
-namespace Engine
+namespace engine
 {
-    namespace Core
+    namespace core
     {
-        namespace Window
+        namespace window
         {
             void to_json(nlohmann::json &json, const FWindowCreateInfo &type)
             {

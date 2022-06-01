@@ -2,7 +2,8 @@
 #include "graphics/VulkanHighLevel.h"
 #include "graphics/VulkanInitializers.h"
 
-using namespace Engine::Core::Pipeline;
+using namespace engine::core::render;
+using namespace engine::core::pipeline;
 
 void CGraphicsPipeline::create(vk::RenderPass& renderPass, uint32_t subpass)
 {

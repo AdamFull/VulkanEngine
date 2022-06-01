@@ -1,11 +1,11 @@
 #pragma once
 #include "graphics/renderpass/RenderStage.h"
 
-namespace Engine
+namespace engine
 {
-    namespace Core
+    namespace core
     {
-        namespace Render
+        namespace render
         {
             class CDeferredStage : public CRenderStage
             {

@@ -1,7 +1,7 @@
 #include "SceneManager.h"
 #include "SceneFactory.h"
 
-using namespace Engine::Core::Scene;
+using namespace engine::core::scene;
 
 template<>
 scope_ptr<CSceneManager> utl::singleton<CSceneManager>::_instance{nullptr};

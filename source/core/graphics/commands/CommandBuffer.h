@@ -1,9 +1,9 @@
 #pragma once
 #include "CommandPool.h"
 
-namespace Engine
+namespace engine
 {
-    namespace Core
+    namespace core
     {
         class CCommandBuffer
         {

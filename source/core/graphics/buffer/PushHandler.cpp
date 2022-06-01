@@ -2,8 +2,8 @@
 #include "graphics/VulkanHighLevel.h"
 #include "graphics/buffer/VulkanBuffer.h"
 
-using namespace Engine::Core;
-using namespace Engine::Core::Pipeline;
+using namespace engine::core;
+using namespace engine::core::pipeline;
 
 CPushHandler::~CPushHandler()
 {

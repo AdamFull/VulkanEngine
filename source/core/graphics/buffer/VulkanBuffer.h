@@ -1,9 +1,9 @@
 #pragma once
 #include <util/helpers.hpp>
 
-namespace Engine
+namespace engine
 {
-    namespace Core
+    namespace core
     {
         class CVulkanBuffer : public utl::non_copy_movable
         {

@@ -2,9 +2,9 @@
 #include <glm/glm.hpp>
 #include "serializer/Serialization.hpp"
 
-namespace Engine
+namespace engine
 {
-    namespace Resources
+    namespace resources
     {
         enum class ETextureType
         {

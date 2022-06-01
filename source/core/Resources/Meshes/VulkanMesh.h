@@ -1,11 +1,11 @@
 #pragma once
 #include "MeshFragment.h"
 
-namespace Engine
+namespace engine
 {
-    namespace Resources
+    namespace resources
     {
-        namespace Mesh
+        namespace mesh
         {
             /**
              * @brief Animation channel description

@@ -1,18 +1,18 @@
 #pragma once
 #include "graphics/renderpass/Subpass.h"
 
-namespace Engine
+namespace engine
 {
-    namespace Core
+    namespace core
     {
-        namespace Render
+        namespace render
         {
             class CThroughPass : public CSubpass
             {
             public:
                 void create() override;
                 void reCreate() override;
-                void render(vk::CommandBuffer& commandBuffer) override;
+                void render(vk::CommandBuffer &commandBuffer) override;
                 void cleanup() override;
             };
         }

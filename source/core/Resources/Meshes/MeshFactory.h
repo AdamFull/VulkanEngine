@@ -1,11 +1,11 @@
 #pragma once
 #include "Resources/ResourceCunstruct.h"
 
-namespace Engine
+namespace engine
 {
-    namespace Resources
+    namespace resources
     {
-        namespace Mesh
+        namespace mesh
         {
             class CMeshFragment;
             /**

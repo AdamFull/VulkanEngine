@@ -7,15 +7,12 @@
 
 #include "resources/ResourceCunstruct.h"
 
-namespace Engine
+namespace engine
 {
-    namespace Core
+    namespace core { class Image; }
+    namespace resources
     {
-        class Image;
-    }
-    namespace Resources
-    {
-        namespace Material
+        namespace material
         {
             struct FMaterialParams
             {
@@ -64,7 +61,7 @@ namespace Engine
                  * @param attachment Texture attachment name
                  * @param pTexture Texture smart object pointer
                  */
-                void addTexture(const std::string& attachment, ref_ptr<Core::CImage>& pTexture);
+                void addTexture(const std::string& attachment, ref_ptr<core::CImage>& pTexture);
 
                 /**
                  * @brief Add buffer descriptor
@@ -131,19 +128,19 @@ namespace Engine
                  * 
                  * @return ref_ptr<Core::Pipeline::CPipelineBase> Pipeline smart pointer object
                  */
-                inline ref_ptr<Core::Pipeline::CPipelineBase> getPipeline() { return m_pPipeline; }
+                inline ref_ptr<core::pipeline::CPipelineBase> getPipeline() { return m_pPipeline; }
 
-                ref_ptr<Core::CHandler>& getUniformBuffer(const std::string& name) { return mBuffers[name]; }
-                ref_ptr<Core::CPushHandler>& getPushConstant(const std::string& name) { return mPushConstants[name]; }
+                ref_ptr<core::CHandler>& getUniformBuffer(const std::string& name) { return mBuffers[name]; }
+                ref_ptr<core::CPushHandler>& getPushConstant(const std::string& name) { return mPushConstants[name]; }
 
             protected:
                 FMaterialParams m_fMatParams{};
                 std::string m_srName;
 
-                scope_ptr<Core::Descriptor::CDescriptorHandler> m_pDescriptorSet;
-                std::map<std::string, ref_ptr<Core::CHandler>> mBuffers;
-                std::map<std::string, ref_ptr<Core::CPushHandler>> mPushConstants;
-                ref_ptr<Core::Pipeline::CPipelineBase> m_pPipeline;
+                scope_ptr<core::descriptor::CDescriptorHandler> m_pDescriptorSet;
+                std::map<std::string, ref_ptr<core::CHandler>> mBuffers;
+                std::map<std::string, ref_ptr<core::CPushHandler>> mPushConstants;
+                ref_ptr<core::pipeline::CPipelineBase> m_pPipeline;
                 std::map<std::string, vk::DescriptorImageInfo> m_mTextures;
                 std::map<std::string, vk::DescriptorBufferInfo> m_mBuffers;
             };

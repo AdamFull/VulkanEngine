@@ -3,11 +3,11 @@
 #include "VulkanMaterial.h"
 #include <util/helpers.hpp>
 
-namespace Engine
+namespace engine
 {
-    namespace Resources
+    namespace resources
     {
-        namespace Material
+        namespace material
         {
             struct FMaterialInfo
             {
@@ -54,7 +54,7 @@ namespace Engine
                  * @param name Material name
                  * @return ref_ptr<Material::CMaterialBase> Smart pointer to material object
                  */
-                ref_ptr<Material::CMaterialBase> create(const std::string &name);
+                ref_ptr<CMaterialBase> create(const std::string &name);
 
             private:
                 /**
@@ -69,7 +69,7 @@ namespace Engine
                  */
                 void save();
 
-                std::map<std::string, ref_ptr<Material::CMaterialBase>> mMaterialCache;
+                std::map<std::string, ref_ptr<CMaterialBase>> mMaterialCache;
                 FMaterialInfo data;
             };
         }

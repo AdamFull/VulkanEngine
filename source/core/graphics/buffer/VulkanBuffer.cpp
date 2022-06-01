@@ -1,7 +1,7 @@
 #include "VulkanBuffer.h"
 #include "graphics/VulkanHighLevel.h"
 
-using namespace Engine::Core;
+using namespace engine::core;
 
 CVulkanBuffer::~CVulkanBuffer()
 {

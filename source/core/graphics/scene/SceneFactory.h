@@ -3,24 +3,25 @@
 #include "RenderScene.h"
 #include "graphics/scene/objects/RenderObject.h"
 
-namespace Engine
+namespace engine
 {
-    namespace Core
+    namespace core
     {
-        namespace Scene
+        namespace scene
         {
             struct CSceneFactory
             {
                 static scope_ptr<CRenderScene> create(std::string srScenePath);
-            private:
-                static void createComponents(ref_ptr<Core::Scene::CRenderObject>& pRoot, std::vector<FSceneObject> sceneObjects);
-                static ref_ptr<Core::Scene::CRenderObject> createComponent(FSceneObject info);
 
-                static ref_ptr<Core::Scene::CRenderObject> createCamera(FSceneObject info);
-                static ref_ptr<Core::Scene::CRenderObject> createStaticMesh(FSceneObject info);
-                static ref_ptr<Core::Scene::CRenderObject> createSkybox(FSceneObject info);
-                static ref_ptr<Core::Scene::CRenderObject> createGLTFMesh(FSceneObject info);
-                static ref_ptr<Core::Scene::CRenderObject> createLightSource(FSceneObject info);
+            private:
+                static void createComponents(ref_ptr<core::scene::CRenderObject> &pRoot, std::vector<FSceneObject> sceneObjects);
+                static ref_ptr<core::scene::CRenderObject> createComponent(FSceneObject info);
+
+                static ref_ptr<core::scene::CRenderObject> createCamera(FSceneObject info);
+                static ref_ptr<core::scene::CRenderObject> createStaticMesh(FSceneObject info);
+                static ref_ptr<core::scene::CRenderObject> createSkybox(FSceneObject info);
+                static ref_ptr<core::scene::CRenderObject> createGLTFMesh(FSceneObject info);
+                static ref_ptr<core::scene::CRenderObject> createLightSource(FSceneObject info);
             };
         }
     }

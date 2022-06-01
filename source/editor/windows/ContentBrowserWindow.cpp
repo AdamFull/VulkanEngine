@@ -1,7 +1,7 @@
 #include "ContentBrowserWindow.h"
 #include "filesystem/FilesystemHelper.h"
 
-using namespace Engine::Core::Editor;
+using namespace engine::editor;
 
 CContentBrowserWindow::CContentBrowserWindow()
 {

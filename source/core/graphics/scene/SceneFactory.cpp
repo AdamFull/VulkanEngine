@@ -11,11 +11,11 @@
 #include "graphics/scene/lightning/LightSourceManager.h"
 #include "resources/ResourceManager.h"
 
-using namespace Engine;
-using namespace Engine::Resources;
-using namespace Engine::Core::Scene;
-using namespace Resources::Material;
-using namespace Resources::Loaders;
+using namespace engine;
+using namespace engine::resources;
+using namespace engine::core::scene;
+using namespace resources::material;
+using namespace resources::loaders;
 
 scope_ptr<CRenderScene> CSceneFactory::create(std::string srScenePath)
 {
@@ -145,7 +145,7 @@ ref_ptr<CRenderObject> CSceneFactory::createLightSource(FSceneObject info)
     switch (info.light.eType)
     {
     case ELightSourceType::ePoint:{
-        auto lightSource = CLightSourceManager::inst()->createSource<Core::Scene::CLightSourcePoint>();
+        auto lightSource = CLightSourceManager::inst()->createSource<CLightSourcePoint>();
         lightSource->setTransform(info.fTransform);
         lightSource->setColor(info.light.vColor);
         lightSource->setAttenuation(info.light.fAttenuation);
@@ -153,14 +153,14 @@ ref_ptr<CRenderObject> CSceneFactory::createLightSource(FSceneObject info)
         return lightSource;
         }break;
     case ELightSourceType::eDirectional:{
-        auto lightSource = CLightSourceManager::inst()->createSource<Core::Scene::CLightSourceDirectional>();
+        auto lightSource = CLightSourceManager::inst()->createSource<CLightSourceDirectional>();
         lightSource->setTransform(info.fTransform);
         lightSource->setColor(info.light.vColor);
         lightSource->setIntencity(info.light.fIntencity);
         return lightSource;
         }break;
     case ELightSourceType::eSpot:{
-        auto lightSource = CLightSourceManager::inst()->createSource<Core::Scene::CLightSourceSpot>();
+        auto lightSource = CLightSourceManager::inst()->createSource<CLightSourceSpot>();
         lightSource->setTransform(info.fTransform);
         lightSource->setColor(info.light.vColor);
         lightSource->setIntencity(info.light.fIntencity);

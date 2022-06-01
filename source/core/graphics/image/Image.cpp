@@ -1,9 +1,8 @@
 #include "Image.h"
 #include "graphics/VulkanHighLevel.h"
-#include "graphics/editor/imgui_impl_vulkan.h"
 
-using namespace Engine::Core;
-using namespace Engine::Core::Loaders;
+using namespace engine::core;
+using namespace engine::core::loaders;
 
 //Maybe add to image generation of attachment description and 
 
@@ -497,7 +496,7 @@ void CImage::writeImageData(ktxTexture *info, vk::Format format, vk::ImageAspect
 {
     vk::DeviceSize imgSize = info->dataSize;
 
-    Core::CVulkanBuffer stagingBuffer;
+    CVulkanBuffer stagingBuffer;
     stagingBuffer.create(imgSize, 1, vk::BufferUsageFlagBits::eTransferSrc, vk::MemoryPropertyFlagBits::eHostVisible | vk::MemoryPropertyFlagBits::eHostCoherent);
     auto result = stagingBuffer.mapMem();
     stagingBuffer.write((void *)info->pData);
@@ -572,13 +571,4 @@ vk::DescriptorImageInfo& CImage::getDescriptor()
         updateDescriptor();
     }
     return _descriptor;
-}
-
-vk::DescriptorSet& CImage::getDescriptorSet()
-{
-    if(!descriptorSet)
-    {
-        descriptorSet = ImGui_ImplVulkan_AddTexture(_descriptor.sampler, _descriptor.imageView, _descriptor.imageLayout);
-    }
-    return descriptorSet;
 }

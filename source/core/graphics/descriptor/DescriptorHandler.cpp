@@ -3,9 +3,9 @@
 #include "graphics/pipeline/Pipeline.h"
 #include "graphics/VulkanHighLevel.h"
 
-using namespace Engine::Core;
-using namespace Engine::Core::Pipeline;
-using namespace Engine::Core::Descriptor;
+using namespace engine::core;
+using namespace engine::core::pipeline;
+using namespace engine::core::descriptor;
 
 void CDescriptorHandler::create(ref_ptr<CPipelineBase> pipeline)
 {

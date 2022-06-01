@@ -2,8 +2,8 @@
 #include "util/uuid.hpp"
 #include "graphics/VulkanDevice.hpp"
 
-using namespace Engine::Core;
-using namespace Engine::Resources::Mesh;
+using namespace engine::core;
+using namespace engine::resources::mesh;
 
 void CMeshBase::create()
 {

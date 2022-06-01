@@ -5,17 +5,18 @@
 #include <glm/gtc/type_ptr.hpp>
 #include <glm/gtc/matrix_transform.hpp>
 #include <glm/gtx/matrix_decompose.hpp>
-#include "graphics/editor/imgui_impl_vulkan.h"
+#include "editor/imgui_impl_vulkan.h"
 #include "graphics/VulkanHighLevel.h"
-#include "graphics/descriptor/DescriptorSet.h"
 #include "Resources/ResourceManager.h"
 #include <graphics/scene/objects/components/camera/CameraManager.h>
-#include "graphics/editor/Editor.h"
+#include "editor/Editor.h"
 
-using namespace Engine::Core;
-using namespace Engine::Core::Descriptor;
-using namespace Engine::Core::Editor;
-using namespace Engine::Resources;
+using namespace engine::editor;
+using namespace engine::core;
+using namespace engine::core::render;
+using namespace engine::core::scene;
+using namespace engine::core::descriptor;
+using namespace engine::resources;
 
 static const float identityMatrix[16] =
     { 1.f, 0.f, 0.f, 0.f,
@@ -28,7 +29,7 @@ ImGuizmo::OPERATION mCurrentGizmoOperation{ImGuizmo::TRANSLATE};
 void CViewportWindow::create()
 {
     auto pBackend = (ImGui_ImplVulkan_Data*)ImGui::GetIO().BackendRendererUserData;
-    pDescriptorSet = make_ref<CDescriptorSet>();
+    pDescriptorSet = make_scope<CDescriptorSet>();
     pDescriptorSet->create(vk::PipelineBindPoint::eGraphics, pBackend->PipelineLayout, CEditorUI::inst()->getDescriptorPool(), pBackend->DescriptorSetLayout);
 }
 
@@ -101,7 +102,7 @@ void CViewportWindow::drawManipulator(float offsetx, float offsety, float sizex,
     auto selected = CEditor::inst()->getLastSelection();
     if(selected)
     {
-        auto camera = Core::Scene::CCameraManager::inst()->getCurrentCamera();
+        auto camera = CCameraManager::inst()->getCurrentCamera();
         camera->setControl(ImGui::IsWindowHovered(ImGuiFocusedFlags_RootAndChildWindows));
 
         ImGuizmo::SetOrthographic(false);

@@ -2,9 +2,9 @@
 #include "graphics/pipeline/Pipeline.h"
 #include <util/helpers.hpp>
 
-namespace Engine
+namespace engine
 {
-    namespace Core
+    namespace core
     {
         class CVulkanBuffer;
         class CPushHandler : public utl::non_copy_movable
@@ -12,8 +12,8 @@ namespace Engine
         public:
             CPushHandler() = default;
             ~CPushHandler();
-            void create(const Pipeline::CPushConstBlock &pushBlock, ref_ptr<Pipeline::CPipelineBase>& pipeline);
-            void reCreate(ref_ptr<Pipeline::CPipelineBase>& pipeline);
+            void create(const pipeline::CPushConstBlock &pushBlock, ref_ptr<pipeline::CPipelineBase>& pipeline);
+            void reCreate(ref_ptr<pipeline::CPipelineBase>& pipeline);
             void cleanup();
             void flush(vk::CommandBuffer& commandBuffer);
 
@@ -44,10 +44,10 @@ namespace Engine
         private:
             uint32_t getCurrentFrameProxy();
 
-            std::optional<Pipeline::CPushConstBlock> pushBlock;
+            std::optional<pipeline::CPushConstBlock> pushBlock;
             std::vector<scope_ptr<CVulkanBuffer>> vBuffers;
             std::vector<scope_ptr<char[]>> vData;
-            ref_ptr<Pipeline::CPipelineBase> pPipeline;
+            ref_ptr<pipeline::CPipelineBase> pPipeline;
             bool bIsClean{false};
         };
     }

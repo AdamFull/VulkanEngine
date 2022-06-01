@@ -3,8 +3,8 @@
 #include "graphics/scene/objects/components/camera/CameraManager.h"
 #include "util/Transform.hpp"
 
-using namespace Engine::Controllers;
-using namespace Engine::Core::Scene;
+using namespace engine::controllers;
+using namespace engine::core::scene;
 
 void CCameraEditorController::create()
 {

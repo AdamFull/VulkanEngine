@@ -1,9 +1,9 @@
 #include "WorldSettingsWindow.h"
 #include <glm/gtc/type_ptr.hpp>
-#include "graphics/editor/CustomControls.h"
+#include "editor/CustomControls.h"
 #include <GlobalVariables.h>
 
-using namespace Engine::Core::Editor;
+using namespace engine::editor;
 
 void CWorldSettingsWindow::draw()
 {

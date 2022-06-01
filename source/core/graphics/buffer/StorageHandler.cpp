@@ -1,8 +1,8 @@
 #include "StorageHandler.h"
 #include "graphics/VulkanHighLevel.h"
 
-using namespace Engine::Core;
-using namespace Engine::Core::Pipeline;
+using namespace engine::core;
+using namespace engine::core::pipeline;
 
 void CStorageHandler::create(const CUniformBlock &_uniformBlock)
 {

@@ -5,8 +5,9 @@
 #include "resources/materials/VulkanMaterial.h"
 #include "MeshLoader.h"
 
-using namespace Engine::Resources;
-using namespace Engine::Resources::Mesh;
+using namespace engine::resources;
+using namespace engine::resources::loaders;
+using namespace engine::resources::mesh;
 
 std::map<EMeshType, std::function<ref_ptr<CMeshFragment>(FMeshCreateInfo)>>
     CMeshFactory::m_mFactory{
@@ -29,7 +30,7 @@ std::map<EMeshType, std::function<ref_ptr<CMeshFragment>(FMeshCreateInfo)>>
 ref_ptr<CMeshFragment> CMeshFactory::create(FMeshCreateInfo info)
 {
     auto mesh = m_mFactory[info.eType](info);
-    Loaders::CMeshLoader::load(info.srSrc, mesh, info.bUseIncludedMaterial);
+    CMeshLoader::load(info.srSrc, mesh, info.bUseIncludedMaterial);
 
     if (!info.bUseIncludedMaterial)
     {

@@ -750,6 +750,12 @@ vk::ShaderStageFlagBits CShader::getShaderStage(const std::filesystem::path &mod
 		return vk::ShaderStageFlagBits::eGeometry;
 	if (fileExt == ".frag")
 		return vk::ShaderStageFlagBits::eFragment;
+    if (fileExt == ".rchit")
+		return vk::ShaderStageFlagBits::eClosestHitKHR;
+    if (fileExt == ".rmiss")
+		return vk::ShaderStageFlagBits::eMissKHR;
+    if (fileExt == ".rgen")
+        return vk::ShaderStageFlagBits::eRaygenKHR;
 	return vk::ShaderStageFlagBits::eAll;
 }
 

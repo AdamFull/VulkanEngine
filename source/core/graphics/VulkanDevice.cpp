@@ -113,7 +113,6 @@ void CDevice::create(const FDeviceCreateInfo& deviceCI)
     createDevice(deviceCI);
     createPipelineCache();
     createSwapchain();
-    m_pCommandPool = make_scope<CCommandPool>();
 
     viewportExtent = swapchainExtent;
 }
@@ -122,7 +121,8 @@ void CDevice::cleanup()
 {
     cleanupSwapchain();
     destroy(&pipelineCache);
-    m_pCommandPool->cleanup();
+    
+    commandPools.clear();
     
     // surface is created by glfw, therefore not using a Unique handle
     destroy(&vkSurface);
@@ -139,13 +139,26 @@ void CDevice::tryRebuildSwapchain()
     if(bSwapChainRebuild)
     {
         vkDevice.waitIdle();
-        m_pCommandPool = make_scope<CCommandPool>();
+        commandPools.clear();
         cleanupSwapchain();
         createSwapchain();
         currentFrame = 0;
         viewportExtent = swapchainExtent;
         bSwapChainRebuild = false;
     }
+}
+
+void CDevice::updateCommandPools()
+{
+    for (auto it = commandPools.begin(); it != commandPools.end();) 
+    {
+		if ((*it).second.use_count() <= 1) 
+        {
+			it = commandPools.erase(it);
+			continue;
+		}
+		++it;
+	}
 }
 
 vk::Result CDevice::acquireNextImage(uint32_t *imageIndex)
@@ -600,6 +613,16 @@ void CDevice::copyOnDeviceBuffer(vk::Buffer srcBuffer, vk::Buffer dstBuffer, vk:
     commandBuffer.copyBuffer(srcBuffer, dstBuffer, copyRegion);
 
     cmdBuf.submitIdle();
+}
+
+const ref_ptr<CCommandPool>& CDevice::getCommandPool(const std::thread::id &threadId)
+{
+    auto it = commandPools.find(threadId);
+    if(it != commandPools.end())
+		return it->second;
+
+    commandPools.emplace(threadId, make_ref<CCommandPool>(threadId));
+	return commandPools[threadId];
 }
 
 vk::Extent2D CDevice::getExtent(bool automatic)

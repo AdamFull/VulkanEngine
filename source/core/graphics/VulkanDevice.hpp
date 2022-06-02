@@ -39,6 +39,7 @@ namespace engine
             void create(const FDeviceCreateInfo &deviceCI);
             void cleanup();
             void tryRebuildSwapchain();
+            void updateCommandPools();
 
             vk::Result acquireNextImage(uint32_t *imageIndex);
             vk::Result submitCommandBuffers(const vk::CommandBuffer *commandBuffer, uint32_t *imageIndex, vk::QueueFlagBits queueBit);
@@ -71,7 +72,7 @@ namespace engine
             /**************************************************Getters********************************************/
             inline vk::Instance &getVkInstance() { return vkInstance; }
             inline vk::SurfaceKHR &getSurface() { return vkSurface; }
-            inline ref_ptr<CCommandPool> getCommandPool() { return m_pCommandPool; }
+            const ref_ptr<CCommandPool> &getCommandPool(const std::thread::id &threadId = std::this_thread::get_id());
 
             inline vk::PhysicalDevice &getPhysical() { return vkPhysical; }
             inline vk::Device &getLogical() { return vkDevice; }
@@ -281,7 +282,7 @@ namespace engine
             vk::Instance vkInstance{VK_NULL_HANDLE}; // Main vulkan instance
             VkDebugUtilsMessengerEXT m_vkDebugUtils{NULL};
             vk::SurfaceKHR vkSurface{VK_NULL_HANDLE}; // Vulkan's drawing surface
-            ref_ptr<CCommandPool> m_pCommandPool{};
+            std::map<std::thread::id, ref_ptr<CCommandPool>> commandPools;
             vk::AllocationCallbacks *pAllocator{nullptr};
 
             vk::PhysicalDevice vkPhysical;

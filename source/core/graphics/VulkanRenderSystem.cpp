@@ -109,6 +109,8 @@ void CRenderSystem::render()
         totalFrameNumberCounter++;
     else
         totalFrameNumberCounter = 1;
+
+    CDevice::inst()->updateCommandPools();
 }
 
 void CRenderSystem::cleanup()

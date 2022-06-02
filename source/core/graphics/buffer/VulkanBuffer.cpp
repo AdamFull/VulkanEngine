@@ -16,10 +16,16 @@ void CVulkanBuffer::create(vk::DeviceSize instanceSize, uint32_t instanceCount,
     alignmentSize = getAlignment(instanceSize, minOffsetAlignment);
     bufferSize = alignmentSize * instanceCount;
 
+    auto queueFamilies = CDevice::inst()->findQueueFamilies();
+
+    std::array queueFamily = { *queueFamilies.graphicsFamily, *queueFamilies.presentFamily, *queueFamilies.computeFamily};
+
     vk::BufferCreateInfo bufferInfo = {};
     bufferInfo.size = bufferSize;
     bufferInfo.usage = usageFlags;
     bufferInfo.sharingMode = vk::SharingMode::eExclusive;
+    bufferInfo.queueFamilyIndexCount = static_cast<uint32_t>(queueFamily.size());
+	bufferInfo.pQueueFamilyIndices = queueFamily.data();
 
     vk::Result res = CDevice::inst()->create(bufferInfo, &buffer);
     assert(res == vk::Result::eSuccess && "On device buffer was not created");

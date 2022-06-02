@@ -166,7 +166,6 @@ vk::Result CDevice::acquireNextImage(uint32_t *imageIndex)
     vk::Result res = vkDevice.waitForFences(1, &vInFlightFences[currentFrame], VK_TRUE, std::numeric_limits<uint64_t>::max());
     assert(res == vk::Result::eSuccess && "Waiting for fences error.");
     res = vkDevice.acquireNextImageKHR(swapChain, std::numeric_limits<uint64_t>::max(), vImageAvailableSemaphores[currentFrame], nullptr, imageIndex);
-    assert(res == vk::Result::eSuccess && "Cannot aquire next frame.");
     return res;
 }
 

@@ -21,15 +21,23 @@ layout (location = 0) out vec4 outFragcolor;
 
 layout(push_constant) uniform UBOLightning
 {
-	mat4 invViewProjection;
 	vec4 viewPos;
 	int pointLightCount;
 	int directionalLightCount;
 	int spotLightCount;
 } ubo;
 
+layout(std140, binding = 6) uniform UBOMatrices
+{
+	mat4 view;
+	mat4 projection;
+	mat4 invView;
+	mat4 invProjection;
+	mat4 invViewProjection;
+} matrices;
+
 //Lights
-layout(std140, binding = 9) uniform UBOLights
+layout(std140, binding = 7) uniform UBOLights
 {
 	PointLight pointLights[32];
 	DirectionalLight directionalLights[32];
@@ -42,7 +50,7 @@ void main()
 
 	//Load depth and world position
 	float depth = subpassLoad(depth_tex).r;
-	vec3 inWorldPos = getPositionFromDepth(inUV, depth, ubo.invViewProjection);
+	vec3 inWorldPos = getPositionFromDepth(inUV, depth, matrices.invViewProjection);
 
 	vec3 normal = vec3(0.0);
 	vec3 albedo = vec3(0.0);
@@ -129,7 +137,7 @@ void main()
 		// Ambient part
 		vec3 kD = 1.0f - F;
 		kD *= 1.0f - metalic;	  
-		vec3 ambient = (kD * diffuse + specular); //* vec3(occlusion);
+		vec3 ambient = (kD * diffuse + specular) * vec3(occlusion);
 		// Ambient part
 		fragcolor = (ambient + Lo);
 		fragcolor += emission * 2.0f;

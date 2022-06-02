@@ -62,7 +62,9 @@ void CPBRCompositionPass::render(vk::CommandBuffer& commandBuffer)
 
     auto camera = CCameraManager::inst()->getCurrentCamera();
     auto view = camera->getView();
+    auto invView = glm::inverse(view);
     auto projection = camera->getProjection();
+    auto invProjection = glm::inverse(projection);
     auto invViewProjection = glm::inverse(projection * view);
     
     auto vPointLights = CLightSourceManager::inst()->getSources<FPointLight>();
@@ -81,12 +83,18 @@ void CPBRCompositionPass::render(vk::CommandBuffer& commandBuffer)
     spot_count = vSpotLights.size();
     
     auto& pUBO = pMaterial->getPushConstant("ubo");
-    pUBO->set("invViewProjection", invViewProjection);
     pUBO->set("viewPos", camera->viewPos);
     pUBO->set("pointLightCount", point_count);
     pUBO->set("directionalLightCount", directional_count);
     pUBO->set("spotLightCount", spot_count);
     pUBO->flush(commandBuffer);
+
+    auto& pUBOMatrices = pMaterial->getUniformBuffer("UBOMatrices");
+    pUBOMatrices->set("view", view);
+    pUBOMatrices->set("projection", projection);
+    pUBOMatrices->set("invView", invView);
+    pUBOMatrices->set("invProjection", invProjection);
+    pUBOMatrices->set("invViewProjection", invViewProjection);
 
     auto& pUBOLights = pMaterial->getUniformBuffer("UBOLights");
     pUBOLights->set("pointLights", point_lights);

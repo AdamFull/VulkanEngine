@@ -49,13 +49,6 @@ void CMeshFragment::reCreate()
 
 void CMeshFragment::render(vk::CommandBuffer commandBuffer, const glm::mat4& model, uint32_t instanceCount)
 {
-    glm::vec3 scale;
-    glm::quat rot;
-    glm::vec3 pos;
-    glm::vec3 skew;
-    glm::vec4 perspective;
-    glm::decompose(model, scale, rot, pos, skew, perspective);
-
     auto camera = CCameraManager::inst()->getCurrentCamera();
     auto view = camera->getView();
     auto projection = camera->getProjection();

@@ -129,7 +129,7 @@ void main()
 		// Ambient part
 		vec3 kD = 1.0f - F;
 		kD *= 1.0f - metalic;	  
-		vec3 ambient = (kD * diffuse + specular) * vec3(occlusion);
+		vec3 ambient = (kD * diffuse + specular); //* vec3(occlusion);
 		// Ambient part
 		fragcolor = (ambient + Lo);
 		fragcolor += emission * 2.0f;

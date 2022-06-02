@@ -2,8 +2,8 @@
     "window":
     {
         "name": "Vulkan",
-        "width": 1280,
-        "height": 720,
+        "width": 1920,
+        "height": 1080,
         "fullscreen": false,
         "backend": ""
     },
@@ -40,6 +40,6 @@
     "engine":
     {
         "mode": "editor",
-        "start_scene": "scene.json"
+        "start_scene": "sponza_scene.json"
     }
 }

@@ -18,7 +18,7 @@
                             "name": "skybox_cubemap_tex",
                             "type": "cubemap",
                             "attachment": "samplerCubeMap",
-                            "src": "textures/cubemaps/cubemap_vulkan.ktx"
+                            "src": "textures/cubemaps/sky_skybox.ktx"
                         }
                     ]
                 }
@@ -62,7 +62,7 @@
             {
                 "pos": {"x": 0.0, "y": 0.0, "z": 0.0},
                 "rot": {"x": 0.0, "y": 0.0, "z": 0.0},
-                "scale": {"x": 0.01, "y": 0.01, "z": 0.01}
+                "scale": {"x": 1.0, "y": 1.0, "z": 1.0}
             },
             "culling":
             {

@@ -223,6 +223,11 @@ void CFramebufferNew::addImage(const std::string& name, vk::Format format, vk::I
         {
             attachmentDescription.finalLayout = vk::ImageLayout::eColorAttachmentOptimal;
         }
+        else if(isInputAttachment(usageFlags) && isSampled(usageFlags))
+        {
+            attachmentDescription.storeOp = vk::AttachmentStoreOp::eStore;
+            attachmentDescription.finalLayout = vk::ImageLayout::eShaderReadOnlyOptimal;
+        }
         else
         {
             if(format == CDevice::inst()->getImageFormat())
@@ -231,15 +236,19 @@ void CFramebufferNew::addImage(const std::string& name, vk::Format format, vk::I
                 attachmentDescription.finalLayout = vk::ImageLayout::ePresentSrcKHR;
             }
             else
-            {
                 assert(false && "Cannot use sampled image with input attachment.");
-            }
         }
         clearValue.setColor(vk::ClearColorValue{std::array<float, 4>{0.0f, 0.0f, 0.0f, 1.0f}});
     }
     else if(isDepthAttachment(usageFlags))
     {
-        attachmentDescription.finalLayout = vk::ImageLayout::eDepthStencilAttachmentOptimal;
+        if(isSampled(usageFlags))
+        {
+            attachmentDescription.storeOp = vk::AttachmentStoreOp::eStore;
+            attachmentDescription.finalLayout = vk::ImageLayout::eDepthStencilReadOnlyOptimal;
+        }
+        else
+            attachmentDescription.finalLayout = vk::ImageLayout::eDepthStencilAttachmentOptimal;
         clearValue.setDepthStencil(vk::ClearDepthStencilValue{1.0f, 0});
     }
 
@@ -283,6 +292,7 @@ void CFramebufferNew::createFramebuffer()
             {
                 if(vFramebufferDepth.empty())
                     vFramebufferDepth.emplace_back(createImage(attachment.format, attachment.usageFlags, renderArea.extent));
+                mFramebufferImages[frame].emplace(attachment.name, vFramebufferDepth.back());
             }
             else
             {

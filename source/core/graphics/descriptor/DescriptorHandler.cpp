@@ -55,6 +55,8 @@ void CDescriptorHandler::set(const std::string& srUniformName, vk::DescriptorBuf
 void CDescriptorHandler::set(const std::string& srUniformName, vk::DescriptorImageInfo& imageInfo)
 {
     auto uniform = pPipeline->getShader()->getUniform(srUniformName);
+    if(!uniform)
+        return;
     auto descriptorType = uniform->getDescriptorType();
 
     vk::WriteDescriptorSet write{};

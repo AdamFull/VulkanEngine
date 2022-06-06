@@ -64,14 +64,6 @@ namespace engine
                 void addTexture(const std::string& attachment, ref_ptr<core::CImage>& pTexture);
 
                 /**
-                 * @brief Add buffer descriptor
-                 * 
-                 * @param attachment 
-                 * @param descriptor 
-                 */
-                void addBuffer(const std::string& attachment, vk::DescriptorBufferInfo& descriptor);
-
-                /**
                  * @brief Get texture descriptor
                  * 
                  * @param attachment Texture attachment name
@@ -128,7 +120,7 @@ namespace engine
                  * 
                  * @return ref_ptr<Core::Pipeline::CPipelineBase> Pipeline smart pointer object
                  */
-                inline ref_ptr<core::pipeline::CPipelineBase> getPipeline() { return m_pPipeline; }
+                inline ref_ptr<core::pipeline::CPipelineBase> getPipeline() { return pPipeline; }
 
                 ref_ptr<core::CHandler>& getUniformBuffer(const std::string& name) { return mBuffers[name]; }
                 ref_ptr<core::CPushHandler>& getPushConstant(const std::string& name) { return mPushConstants[name]; }
@@ -137,12 +129,11 @@ namespace engine
                 FMaterialParams m_fMatParams{};
                 std::string m_srName;
 
-                scope_ptr<core::descriptor::CDescriptorHandler> m_pDescriptorSet;
+                scope_ptr<core::descriptor::CDescriptorHandler> pDescriptorSet;
                 std::map<std::string, ref_ptr<core::CHandler>> mBuffers;
                 std::map<std::string, ref_ptr<core::CPushHandler>> mPushConstants;
-                ref_ptr<core::pipeline::CPipelineBase> m_pPipeline;
-                std::map<std::string, vk::DescriptorImageInfo> m_mTextures;
-                std::map<std::string, vk::DescriptorBufferInfo> m_mBuffers;
+                ref_ptr<core::pipeline::CPipelineBase> pPipeline;
+                std::map<std::string, vk::DescriptorImageInfo> mTextures;
             };
         }
     }

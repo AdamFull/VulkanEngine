@@ -170,7 +170,7 @@ ref_ptr<CMaterialBase> CMaterialLoader::create(const std::string& name)
         }
 
         ref_ptr<CMaterialBase> material = make_scope<CMaterialBase>();
-        material->m_pPipeline = CPipelineBase::Builder().
+        material->pPipeline = CPipelineBase::Builder().
         setVertexInput(std::move(vertexInput)).
         setCulling(ci.culling).
         setFontFace(ci.frontface).

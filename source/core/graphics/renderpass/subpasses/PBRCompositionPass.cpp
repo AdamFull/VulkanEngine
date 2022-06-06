@@ -49,22 +49,19 @@ void CPBRCompositionPass::reCreate()
 void CPBRCompositionPass::render(vk::CommandBuffer& commandBuffer)
 {
     auto& images = CRenderSystem::inst()->getCurrentImages();
-    auto& depthImage = CRenderSystem::inst()->getCurrentStage()->getCurrentFramebuffer()->getDepthImage();
     pMaterial->addTexture("brdflut_tex", *brdf);
     pMaterial->addTexture("irradiance_tex", *irradiance);
     pMaterial->addTexture("prefiltred_tex", *prefiltered);
     
     pMaterial->addTexture("packed_tex", images["packed_tex"]);
     pMaterial->addTexture("emission_tex", images["emission_tex"]);
-    pMaterial->addTexture("depth_tex", depthImage);
+    pMaterial->addTexture("depth_tex", images["depth_image"]);
 
     auto imageIndex = CDevice::inst()->getCurrentFrame();
 
     auto camera = CCameraManager::inst()->getCurrentCamera();
     auto view = camera->getView();
-    auto invView = glm::inverse(view);
     auto projection = camera->getProjection();
-    auto invProjection = glm::inverse(projection);
     auto invViewProjection = glm::inverse(projection * view);
     
     auto vPointLights = CLightSourceManager::inst()->getSources<FPointLight>();
@@ -83,18 +80,12 @@ void CPBRCompositionPass::render(vk::CommandBuffer& commandBuffer)
     spot_count = vSpotLights.size();
     
     auto& pUBO = pMaterial->getPushConstant("ubo");
+    pUBO->set("invViewProjection", invViewProjection);
     pUBO->set("viewPos", camera->viewPos);
     pUBO->set("pointLightCount", point_count);
     pUBO->set("directionalLightCount", directional_count);
     pUBO->set("spotLightCount", spot_count);
     pUBO->flush(commandBuffer);
-
-    auto& pUBOMatrices = pMaterial->getUniformBuffer("UBOMatrices");
-    pUBOMatrices->set("view", view);
-    pUBOMatrices->set("projection", projection);
-    pUBOMatrices->set("invView", invView);
-    pUBOMatrices->set("invProjection", invProjection);
-    pUBOMatrices->set("invViewProjection", invViewProjection);
 
     auto& pUBOLights = pMaterial->getUniformBuffer("UBOLights");
     pUBOLights->set("pointLights", point_lights);

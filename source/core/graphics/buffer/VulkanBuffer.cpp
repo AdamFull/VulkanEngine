@@ -65,7 +65,17 @@ void CVulkanBuffer::cleanup()
 
 vk::DescriptorBufferInfo CVulkanBuffer::getDescriptor(vk::DeviceSize size, vk::DeviceSize offset)
 {
-    return vk::DescriptorBufferInfo{buffer, offset, size};
+    vk::DescriptorBufferInfo bufferInfo;
+    bufferInfo.buffer = buffer;
+    bufferInfo.offset = 0;
+    bufferInfo.range = size;
+
+    if (offset != 0) {
+        bufferInfo.offset = offset;
+        bufferInfo.range = size;
+    }
+
+    return bufferInfo;
 }
 
 vk::DescriptorBufferInfo CVulkanBuffer::getDescriptor()
@@ -136,11 +146,6 @@ vk::Result CVulkanBuffer::flush(vk::DeviceSize size, vk::DeviceSize offset)
     return vkDevice.flushMappedMemoryRanges(1, &mappedRange);
 }
 
-vk::DescriptorBufferInfo CVulkanBuffer::descriptorInfo(vk::DeviceSize size, vk::DeviceSize offset)
-{
-    return vk::DescriptorBufferInfo{buffer, offset, size};
-}
-
 vk::Result CVulkanBuffer::invalidate(vk::DeviceSize size, vk::DeviceSize offset)
 {
     auto& vkDevice =  CDevice::inst()->getLogical();
@@ -161,11 +166,6 @@ void CVulkanBuffer::writeToIndex(void *idata, int index)
 vk::Result CVulkanBuffer::flushIndex(int index)
 {
     return flush(alignmentSize, index * alignmentSize);
-}
-
-vk::DescriptorBufferInfo CVulkanBuffer::descriptorInfoForIndex(int index)
-{
-    return descriptorInfo(alignmentSize, index * alignmentSize);
 }
 
 vk::Result CVulkanBuffer::invalidateIndex(int index)

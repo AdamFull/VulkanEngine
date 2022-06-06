@@ -138,6 +138,19 @@
                 "shaders/postprocess/throughpass.frag"
             ],
             "defines": {}
+        },
+        "screen_space_reflections":
+        {
+            "bindPoint": "graphics",
+            "culling": "back",
+            "frontface": "clockwise",
+            "depth": false,
+            "dynamicStates": ["viewport", "scissor"],
+            "stages": [
+                "shaders/main/screenspace.vert", 
+                "shaders/postprocess/screen_space_reflections.frag"
+            ],
+            "defines": {}
         }
     }
 }

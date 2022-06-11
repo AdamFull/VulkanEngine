@@ -120,5 +120,5 @@ void main()
     vec3 reflection = texture(color_tex, coords.xy).rgb * clamp(reflectionMultiplier, 0.0, 0.9) * F; 
 
     vec3 testSomething = vec3(depth);
-    outFragcolor = vec4(testSomething, 1.0);
+    outFragcolor = vec4(inWorldPos, 1.0);
 }

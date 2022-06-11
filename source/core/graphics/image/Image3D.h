@@ -18,8 +18,8 @@ namespace engine
 			void loadNoise(resources::ENoisePattern ePattern, uint32_t width, uint32_t height, uint32_t depth);
 
 		protected:
-			void generatePerlinNoise(ktxTexture *texture);
-			void generateFractalNoise(ktxTexture *texture, uint32_t octaves, float perceptation);
+            void generatePerlinNoise(scope_ptr<FImageCreateInfo>& texture);
+            void generateFractalNoise(scope_ptr<FImageCreateInfo>& texture, uint32_t octaves, float perceptation);
 		};
 	}
 }

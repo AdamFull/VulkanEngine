@@ -1,10 +1,14 @@
 #pragma once
 
+#ifdef VULKAN_API_SUPPORT
 #define GLFW_INCLUDE_VULKAN
-#define APP_NAME "Vulkan App"
+#include <vulkan/vulkan.hpp>
+#endif
+
+#ifdef OPENGL_API_SUPPORT
+#endif
 
 #include <GLFW/glfw3.h>
-#include <vulkan/vulkan.hpp>
 
 #define STB_IMAGE_STATIC
 

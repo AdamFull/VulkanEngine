@@ -15,7 +15,7 @@ void CResourceManager::create()
 {
     //Creating empty texture
     auto pEmptyTexture = make_ref<CImage>();
-    pEmptyTexture->create("empty.png");
+    pEmptyTexture->create("empty.ktx2");
     addExisting("no_texture", pEmptyTexture);
 }
 

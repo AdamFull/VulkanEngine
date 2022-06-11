@@ -17,9 +17,6 @@ namespace engine
             static vk::SurfaceFormatKHR chooseSwapSurfaceFormat(const std::vector<vk::SurfaceFormatKHR> &);
             static vk::PresentModeKHR chooseSwapPresentMode(const std::vector<vk::PresentModeKHR>);
 
-            static uint32_t vkFormatToGLFormat(vk::Format format);
-            static vk::Format GLFormatToVkFormat(uint32_t format);
-
             static bool hasStencilComponent(vk::Format format);
         };
     }

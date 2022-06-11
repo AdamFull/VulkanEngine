@@ -702,8 +702,7 @@ bool CDevice::isDeviceSuitable(const vk::PhysicalDevice &device, const std::vect
         swapChainAdequate = !swapChainSupport.formats.empty() && !swapChainSupport.presentModes.empty();
     }
 
-    vk::PhysicalDeviceFeatures supportedFeatures{};
-    supportedFeatures = device.getFeatures();
+    vk::PhysicalDeviceFeatures supportedFeatures = device.getFeatures();
 
     return indices.isComplete() && extensionsSupported && swapChainAdequate && supportedFeatures.samplerAnisotropy && supportedFeatures.sampleRateShading;
 }

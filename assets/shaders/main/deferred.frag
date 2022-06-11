@@ -12,8 +12,7 @@ layout (binding = 1) uniform samplerCube irradiance_tex;
 layout (binding = 2) uniform samplerCube prefiltred_tex;
 
 layout (input_attachment_index = 0, binding = 3) uniform usubpassInput packed_tex;
-layout (input_attachment_index = 1, binding = 4) uniform subpassInput emission_tex;
-layout (input_attachment_index = 2, binding = 5) uniform subpassInput depth_tex;
+layout (input_attachment_index = 1, binding = 4) uniform subpassInput depth_tex;
 
 layout (location = 0) in vec2 inUV;
 
@@ -53,10 +52,9 @@ void main()
 	unpackTextures(packed_data, normal, albedo, mrah);
 
 	albedo = pow(albedo, vec3(2.2f));
-	vec3 emission = pow(subpassLoad(emission_tex).rgb, vec3(2.2f));
 
-	float metalic = mrah.r;
-	float roughness = mrah.g;
+	float roughness = mrah.r;
+	float metalic = mrah.g;
 	float occlusion = mrah.b;
 	float height = mrah.a;
 
@@ -132,7 +130,6 @@ void main()
 		vec3 ambient = (kD * diffuse + specular) * vec3(occlusion);
 		// Ambient part
 		fragcolor = (ambient + Lo);
-		fragcolor += emission * 2.0f;
 	}
 	else
 	{

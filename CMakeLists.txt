@@ -1,4 +1,10 @@
 cmake_minimum_required(VERSION 3.19.1)
+# Initializing project
+project(IncenerateRenderEngine)
+
+option(VULKAN_API_SUPPORT "Enable vulkan api support" ON)
+option(AUTO_LOCATE_VULKAN "AUTO_LOCATE_VULKAN" ON)
+option(OPENGL_API_SUPPORT "Enable opengl api support" ON)
 
 include(FetchContent)
 
@@ -11,68 +17,6 @@ set(CMAKE_RUNTIME_OUTPUT_DIRECTORY_DEBUG ${CMAKE_CURRENT_SOURCE_DIR}/bin/debug)
 set(CMAKE_RUNTIME_OUTPUT_DIRECTORY_RELEASE ${CMAKE_CURRENT_SOURCE_DIR}/bin/release)
 set(CMAKE_RUNTIME_OUTPUT_DIRECTORY_MINSIZEREL ${CMAKE_CURRENT_SOURCE_DIR}/bin)
 set(CMAKE_RUNTIME_OUTPUT_DIRECTORY_RELWITHDEBINFO ${CMAKE_CURRENT_SOURCE_DIR}/bin)
-
-option(AUTO_LOCATE_VULKAN "AUTO_LOCATE_VULKAN" ON)
-if(AUTO_LOCATE_VULKAN)
-	message(STATUS "Attempting auto locate Vulkan using CMake......")
-	
-	# Find Vulkan Path using CMake's Vulkan Module
-	# This will return Boolean 'Vulkan_FOUND' indicating the status of find as success(ON) or fail(OFF).
-	# Include directory path - 'Vulkan_INCLUDE_DIRS' and 'Vulkan_LIBRARY' with required libraries.
-	find_package(Vulkan)
-	
-	# Try extracting VulkanSDK path from ${Vulkan_INCLUDE_DIRS}
-	if (NOT ${Vulkan_INCLUDE_DIRS} STREQUAL "")
-		set(VULKAN_PATH ${Vulkan_INCLUDE_DIRS})
-		STRING(REGEX REPLACE "/Include" "" VULKAN_PATH ${VULKAN_PATH})
-	endif()
-		 
-	if(NOT Vulkan_FOUND)
-		# CMake may fail to locate the libraries but could be able to 
-		# provide some path in Vulkan SDK include directory variable
-		# 'Vulkan_INCLUDE_DIRS', try to extract path from this.
-		message(STATUS "Failed to locate Vulkan SDK, retrying again...")
-		if(EXISTS "${VULKAN_PATH}")
-			message(STATUS "Successfully located the Vulkan SDK: ${VULKAN_PATH}")
-		else()
-			message("Error: Unable to locate Vulkan SDK. Please turn off auto locate option by specifying 'AUTO_LOCATE_VULKAN' as 'OFF'")
-			message("and specify manually path using 'VULKAN_SDK' and 'VULKAN_VERSION' variables in the CMakeLists.txt.")
-			return()
-		endif()
-	endif()
-else()
-	message(STATUS "Attempting to locate Vulkan SDK using manual path......")
-	set(VULKAN_SDK "F:/VulkanSDK")
-	set(VULKAN_VERSION "1.2.182.0")
-	set(VULKAN_PATH "${VULKAN_SDK}/${VULKAN_VERSION}")
-	message(STATUS "Using manual specified path: ${VULKAN_PATH}")
-
-	# Check if manual set path exists
-	if(NOT EXISTS "${VULKAN_PATH}")
-		message("Error: Unable to locate this Vulkan SDK path VULKAN_PATH: ${VULKAN_PATH}, please specify correct path.
-		For more information on correct installation process, please refer to subsection 'Getting started with Lunar-G SDK'
-		and 'Setting up first project with CMake' in Chapter 3, 'Shaking hands with the device' in this book 'Learning Vulkan', ISBN - 9781786469809.")
-	   return()
-	endif()
-endif()
-
-# Initializing project
-project(IncenerateRenderEngine)
-
-set(VULKAN_LIB_LIST "vulkan-1")
-
-list(APPEND VULKAN_LIB_LIST "glslang")
-list(APPEND VULKAN_LIB_LIST "SPIRV")
-
-if(${CMAKE_SYSTEM_NAME} MATCHES "Windows")
-	# Include Vulkan header files from Vulkan SDK
-	include_directories(AFTER ${VULKAN_PATH}/Include; ${VULKAN_PATH}/Third-Party/Include)
-
-	# Link directory for vulkan-1
-	link_directories(${VULKAN_PATH}/Bin;${VULKAN_PATH}/Lib;${VULKAN_PATH}/Third-Party/Bin;)
-endif()
-
-include_directories(${CMAKE_CURRENT_SOURCE_DIR}/core)
 
 file(GLOB_RECURSE CPP_FILES_CORE ${CMAKE_CURRENT_SOURCE_DIR}/source/core/*.cpp)
 file(GLOB_RECURSE CPP_FILES_EDITOR ${CMAKE_CURRENT_SOURCE_DIR}/source/editor/*.cpp)
@@ -93,11 +37,29 @@ set(CPP_FILES
 	${CPP_FILES_IMGUI}
 )
 
+add_executable(${PROJECT_NAME} ${CPP_FILES} ${H_FILES} ${HPP_FILES})
+
 add_subdirectory(${CMAKE_CURRENT_SOURCE_DIR}/external/imgui)
 set(IMGUI_INCLUDE_DIR ${CMAKE_CURRENT_SOURCE_DIR}/external/imgui)
-add_subdirectory(${CMAKE_CURRENT_SOURCE_DIR}/external/ktx)
-set(KTX_INCLUDE_DIR ${CMAKE_CURRENT_SOURCE_DIR}/external/ktx/include)
+add_subdirectory(${CMAKE_CURRENT_SOURCE_DIR}/external/KTX-Software)
+set(KTX_INCLUDE_DIR ${CMAKE_CURRENT_SOURCE_DIR}/external/KTX-Software/include)
 
+if(VULKAN_API_SUPPORT)
+	find_package(Vulkan REQUIRED)
+	message(${Vulkan_LIBRARIES})
+    target_compile_definitions(${PROJECT_NAME} PUBLIC VULKAN_API_SUPPORT)
+else()
+    set(VULKAN_LIBRARIES "")
+    set(VULKAN_INCLUDE_DIRS "")
+endif(VULKAN_API_SUPPORT)
+
+if(OPENGL_API_SUPPORT)
+    find_package(OpenGL REQUIRED)
+    target_compile_definitions(${PROJECT_NAME} PUBLIC OPENGL_API_SUPPORT)
+else()
+    set(OPENGL_LIBRARIES "")
+    set(OPENGL_INCLUDE_DIR "")
+endif(OPENGL_API_SUPPORT)
 
 find_package(glfw3 REQUIRED)
 find_package(glslang REQUIRED)
@@ -105,28 +67,30 @@ find_package(spirv_cross_core CONFIG REQUIRED)
 find_package(spirv_cross_glsl CONFIG REQUIRED)
 find_package(glm REQUIRED)
 
-add_executable(${PROJECT_NAME} ${CPP_FILES} ${H_FILES} ${HPP_FILES})
-
 # Link the debug and release libraries to the project
 target_link_libraries( ${PROJECT_NAME} PUBLIC 
-	glfw
-	${VULKAN_LIB_LIST} 
-	spirv-cross-core
-	spirv-cross-glsl
-	imgui
-	libktx
+    ${Vulkan_LIBRARIES}
+    ${OPENGL_LIBRARIES}
+    glfw
+	glslang
+	SPIRV
+    spirv-cross-core
+    spirv-cross-glsl
+    imgui
+    ktx
 )
 
 target_include_directories( ${PROJECT_NAME} PRIVATE 
-	${GLFW_INCLUDE_DIRS}
-	${CMAKE_CURRENT_SOURCE_DIR}
-	${CMAKE_CURRENT_SOURCE_DIR}/external/
-	${CMAKE_CURRENT_SOURCE_DIR}/source/
-	${CMAKE_CURRENT_SOURCE_DIR}/source/core/
-	${IMGUI_INCLUDE_DIR}
-	${KTX_INCLUDE_DIR}
-	${Vulkan_INCLUDE_DIRS}
-	${GLM_INCLUDE_DIR}
+    ${Vulkan_INCLUDE_DIR}
+    ${OPENGL_INCLUDE_DIR}
+    ${GLFW_INCLUDE_DIRS}
+    ${CMAKE_CURRENT_SOURCE_DIR}
+    ${CMAKE_CURRENT_SOURCE_DIR}/external/
+    ${CMAKE_CURRENT_SOURCE_DIR}/source/
+    ${CMAKE_CURRENT_SOURCE_DIR}/source/core/
+    ${IMGUI_INCLUDE_DIR}
+    ${KTX_INCLUDE_DIR}
+    ${GLM_INCLUDE_DIR}
 )
 
 target_precompile_headers( ${PROJECT_NAME} PUBLIC ${CMAKE_CURRENT_SOURCE_DIR}/common.h)

@@ -2,7 +2,6 @@
 #include "graphics/VulkanHighLevel.h"
 #include "graphics/image/Image.h"
 #include "graphics/image/Image2D.h"
-#include "graphics/image/ImageLoader.h"
 
 using namespace engine::core;
 using namespace engine::core::render;
@@ -245,7 +244,7 @@ void CFramebufferNew::addImage(const std::string& name, vk::Format format, vk::I
         if(isSampled(usageFlags))
         {
             attachmentDescription.storeOp = vk::AttachmentStoreOp::eStore;
-            attachmentDescription.finalLayout = vk::ImageLayout::eDepthStencilReadOnlyOptimal;
+            attachmentDescription.finalLayout = vk::ImageLayout::eShaderReadOnlyOptimal;
         }
         else
             attachmentDescription.finalLayout = vk::ImageLayout::eDepthStencilAttachmentOptimal;

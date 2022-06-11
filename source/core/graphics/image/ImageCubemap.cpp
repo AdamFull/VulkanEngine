@@ -2,18 +2,26 @@
 #include "graphics/VulkanStaticHelper.h"
 
 using namespace engine::core;
-using namespace engine::core::loaders;
 
 void CImageCubemap::create(const vk::Extent2D& extent, vk::Format format, vk::ImageLayout layout, vk::ImageUsageFlags usage, 
 vk::ImageAspectFlags aspect, vk::Filter filter, vk::SamplerAddressMode addressMode, vk::SampleCountFlagBits samples, 
 bool instantLayoutTransition, bool anisotropic, bool mipmaps)
 {
-    ktxTexture *texture;
-    vk::Format imageFormat;
-    CImageLoader::allocateRawDataAsKTXTexture(&texture, &imageFormat, extent.width, extent.height, 1, 2, VulkanStaticHelper::vkFormatToGLFormat(format), mipmaps);
+    scope_ptr<FImageCreateInfo> texture = make_scope<FImageCreateInfo>();
+    texture->baseWidth = extent.width;
+    texture->baseHeight = extent.height;
+    texture->baseDepth = 1;
+    texture->numDimensions = 2;
+    texture->generateMipmaps = mipmaps;
+    texture->numLevels = mipmaps ? static_cast<uint32_t>(std::floor(std::log2(std::max(extent.width, extent.height)))) + 1 : 1;
+    texture->isArray = false;
     texture->isCubemap = true;
-    initializeTexture(texture, imageFormat, usage, aspect, addressMode, filter, samples);
-    CImageLoader::close(&texture);
+    texture->numLayers = 1;
+    texture->numFaces = 6;
+    texture->dataSize = extent.width * extent.height * (texture->baseDepth > 1 ? texture->baseDepth : 4);
+
+    initializeTexture(texture, format, usage, aspect, addressMode, filter, samples);
+
     if(instantLayoutTransition)
         transitionImageLayout(layout, aspect, mipmaps);
     else

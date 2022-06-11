@@ -1,12 +1,14 @@
 #pragma once
 #include "resources/ResourceCunstruct.h"
 #include "graphics/buffer/VulkanBuffer.h"
-#include "ImageLoader.h"
+#include "ImageLoaderNew.h"
 
 namespace engine
 {
 	namespace core
 	{
+		//Image Format enum class
+
 		/**
 		 * @brief Base image implementation. Can be used as default image holder
 		 *
@@ -66,7 +68,7 @@ namespace engine
 			 * @param filter Image sampler filter
 			 * @param samples Image samples count
 			 */
-			void initializeTexture(ktxTexture *info, vk::Format format, vk::ImageUsageFlags flags, vk::ImageAspectFlags aspect, vk::SamplerAddressMode addressMode,
+            void initializeTexture(scope_ptr<FImageCreateInfo>& info, vk::Format format, vk::ImageUsageFlags flags, vk::ImageAspectFlags aspect, vk::SamplerAddressMode addressMode,
 								   vk::Filter filter, vk::SampleCountFlagBits samples);
 
 			/**
@@ -76,8 +78,8 @@ namespace engine
 			 * @param format Vulkan format
 			 * @param aspect Image aspect flags
 			 */
-			void writeImageData(ktxTexture *info, vk::Format format, vk::ImageAspectFlags aspect = vk::ImageAspectFlagBits::eColor);
-			void loadFromMemory(ktxTexture *info, vk::Format format,
+            void writeImageData(scope_ptr<FImageCreateInfo>& info, vk::Format format, vk::ImageAspectFlags aspect = vk::ImageAspectFlagBits::eColor);
+            void loadFromMemory(scope_ptr<FImageCreateInfo>& info, vk::Format format,
 								vk::ImageUsageFlags flags = vk::ImageUsageFlagBits::eTransferSrc | vk::ImageUsageFlagBits::eTransferDst | vk::ImageUsageFlagBits::eSampled,
 								vk::ImageAspectFlags aspect = vk::ImageAspectFlagBits::eColor, vk::SamplerAddressMode addressMode = vk::SamplerAddressMode::eRepeat,
 								vk::Filter filter = vk::Filter::eLinear);
@@ -91,6 +93,7 @@ namespace engine
 			 * @return vk::Format
 			 */
 			static vk::Format findSupportedFormat(const std::vector<vk::Format> &candidates, vk::ImageTiling tiling, vk::FormatFeatureFlags features);
+			static std::vector<vk::Format> findSupportedFormats(const std::vector<vk::Format> &candidates, vk::ImageTiling tiling, vk::FormatFeatureFlags features);
 
 			/**
 			 * @brief Returns supported depth format
@@ -98,6 +101,8 @@ namespace engine
 			 * @return vk::Format Depth format
 			 */
 			static vk::Format getDepthFormat();
+
+			static std::vector<vk::Format> getTextureCompressionFormats();
 
 			/**
 			 * @brief Creates vk::Image object
@@ -199,7 +204,7 @@ namespace engine
 			 * @param info Khronos texture object
 			 * @return true if dimension is supported
 			 */
-			static bool isSupportedDimension(ktxTexture *info);
+            static bool isSupportedDimension(scope_ptr<FImageCreateInfo>& info);
 
 			/**
 			 * @brief Blit image

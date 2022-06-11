@@ -2,7 +2,6 @@
 #include "graphics/VulkanHighLevel.h"
 
 using namespace engine::core;
-using namespace engine::core::loaders;
 
 //Maybe add to image generation of attachment description and 
 
@@ -26,13 +25,15 @@ void CImage::updateDescriptor()
 void CImage::create(const std::string& srPath, vk::ImageUsageFlags flags, vk::ImageAspectFlags aspect, 
 vk::SamplerAddressMode addressMode, vk::Filter filter)
 {
-    ktxTexture *texture;
-    vk::Format format;
-    CImageLoader::load(srPath.c_str(), &texture, &format);
+    scope_ptr<FImageCreateInfo> texture;
+    auto supportedFormats = getTextureCompressionFormats();
+    std::vector<EPixelFormat> supportedUniversal;
+    std::transform(supportedFormats.begin(), supportedFormats.end(), std::back_inserter(supportedUniversal),
+                   [](vk::Format format) -> EPixelFormat { return FPixel::getUniversalFormat(format); });
+    CImageLoaderNew::load(srPath.c_str(), texture, supportedUniversal);
+    auto format = FPixel::getVkFormat(texture->pixFormat);
 
     loadFromMemory(texture, format, flags, aspect, addressMode, filter);
-
-    CImageLoader::close(&texture);
 }
 
 void CImage::generateMipmaps(vk::Image &image, uint32_t mipLevels, vk::Format format, uint32_t width, uint32_t height, vk::ImageAspectFlags aspectFlags)
@@ -93,7 +94,7 @@ void CImage::setSampler(vk::Sampler& internalSampler)
     _sampler = internalSampler;
 }
 
-void CImage::initializeTexture(ktxTexture *info, vk::Format format, vk::ImageUsageFlags flags, vk::ImageAspectFlags aspect, vk::SamplerAddressMode addressMode, 
+void CImage::initializeTexture(scope_ptr<FImageCreateInfo>& info, vk::Format format, vk::ImageUsageFlags flags, vk::ImageAspectFlags aspect, vk::SamplerAddressMode addressMode,
 vk::Filter filter, vk::SampleCountFlagBits samples)
 {
     _format = format;
@@ -199,6 +200,25 @@ vk::Format CImage::findSupportedFormat(const std::vector<vk::Format> &candidates
     throw std::runtime_error("Failed to find supported format!");
 }
 
+std::vector<vk::Format> CImage::findSupportedFormats(const std::vector<vk::Format> &candidates, vk::ImageTiling tiling, vk::FormatFeatureFlags features)
+{
+    std::vector<vk::Format> vFormats;
+    auto& physicalDevice = CDevice::inst()->getPhysical();
+    assert(physicalDevice && "Trying to find supported format, but physical device is invalid.");
+    for (vk::Format format : candidates)
+    {
+        vk::FormatProperties props;
+        physicalDevice.getFormatProperties(format, &props);
+
+        if (tiling == vk::ImageTiling::eLinear && (props.linearTilingFeatures & features) == features)
+            vFormats.emplace_back(format);
+        else if (tiling == vk::ImageTiling::eOptimal && (props.optimalTilingFeatures & features) == features)
+            vFormats.emplace_back(format);
+    }
+
+    return vFormats;
+}
+
 vk::Format CImage::getDepthFormat()
 {
     return findSupportedFormat
@@ -211,6 +231,103 @@ vk::Format CImage::getDepthFormat()
         vk::ImageTiling::eOptimal, 
         vk::FormatFeatureFlagBits::eDepthStencilAttachment
     );
+}
+
+std::vector<vk::Format> CImage::getTextureCompressionFormats()
+{
+    std::vector<vk::Format> vFormats;
+
+    auto& vkPhysical = CDevice::inst()->getPhysical();
+    assert(vkPhysical && "Trying to create image, byt logical device is not valid.");
+    vk::PhysicalDeviceFeatures supportedFeatures = vkPhysical.getFeatures();
+
+    if (supportedFeatures.textureCompressionBC)
+	{
+        auto supportedCBC = findSupportedFormats
+        (
+            {
+                vk::Format::eBc1RgbUnormBlock, 
+                vk::Format::eBc1RgbSrgbBlock, 
+                vk::Format::eBc1RgbaUnormBlock,
+                vk::Format::eBc1RgbaSrgbBlock,
+                vk::Format::eBc2UnormBlock,
+                vk::Format::eBc2SrgbBlock,
+                vk::Format::eBc3UnormBlock,
+                vk::Format::eBc3SrgbBlock,
+                vk::Format::eBc4UnormBlock,
+                vk::Format::eBc4SnormBlock,
+                vk::Format::eBc5UnormBlock,
+                vk::Format::eBc5SnormBlock,
+                vk::Format::eBc6HUfloatBlock,
+                vk::Format::eBc6HSfloatBlock,
+                vk::Format::eBc7UnormBlock,
+                vk::Format::eBc7SrgbBlock
+            },
+            vk::ImageTiling::eOptimal, 
+            vk::FormatFeatureFlagBits::eSampledImage | vk::FormatFeatureFlagBits::eTransferDst
+        );
+        vFormats.insert(vFormats.end(), supportedCBC.begin(), supportedCBC.end());
+    }
+
+    if (supportedFeatures.textureCompressionASTC_LDR)
+    {
+        auto supportedCBC = findSupportedFormats
+        (
+            {
+                vk::Format::eAstc4x4UnormBlock, 
+                vk::Format::eAstc4x4SrgbBlock, 
+                vk::Format::eAstc5x4UnormBlock,
+                vk::Format::eAstc5x4SrgbBlock,
+                vk::Format::eAstc5x5UnormBlock,
+                vk::Format::eAstc5x5SrgbBlock,
+                vk::Format::eAstc6x5UnormBlock,
+                vk::Format::eAstc6x5SrgbBlock,
+                vk::Format::eAstc6x6UnormBlock,
+                vk::Format::eAstc6x6SrgbBlock,
+                vk::Format::eAstc8x5UnormBlock,
+                vk::Format::eAstc8x5SrgbBlock,
+                vk::Format::eAstc8x6UnormBlock,
+                vk::Format::eAstc8x6SrgbBlock,
+                vk::Format::eAstc8x8UnormBlock,
+                vk::Format::eAstc8x8SrgbBlock,
+                vk::Format::eAstc10x5UnormBlock,
+                vk::Format::eAstc10x5SrgbBlock,
+                vk::Format::eAstc10x6UnormBlock,
+                vk::Format::eAstc10x6SrgbBlock,
+                vk::Format::eAstc10x8UnormBlock,
+                vk::Format::eAstc10x8SrgbBlock,
+                vk::Format::eAstc10x10UnormBlock,
+                vk::Format::eAstc10x10SrgbBlock,
+                vk::Format::eAstc12x10UnormBlock,
+                vk::Format::eAstc12x10SrgbBlock,
+                vk::Format::eAstc12x12UnormBlock,
+                vk::Format::eAstc12x12SrgbBlock
+            },
+            vk::ImageTiling::eOptimal, 
+            vk::FormatFeatureFlagBits::eSampledImage | vk::FormatFeatureFlagBits::eTransferDst
+        );
+        vFormats.insert(vFormats.end(), supportedCBC.begin(), supportedCBC.end());
+    }
+
+    if (supportedFeatures.textureCompressionETC2)
+	{
+        auto supportedCBC = findSupportedFormats
+        (
+            {
+                vk::Format::eEtc2R8G8B8UnormBlock, 
+                vk::Format::eEtc2R8G8B8SrgbBlock, 
+                vk::Format::eEtc2R8G8B8A1UnormBlock,
+                vk::Format::eEtc2R8G8B8A1SrgbBlock,
+                vk::Format::eEtc2R8G8B8A8UnormBlock,
+                vk::Format::eEtc2R8G8B8A8SrgbBlock
+            },
+            vk::ImageTiling::eOptimal, 
+            vk::FormatFeatureFlagBits::eSampledImage | vk::FormatFeatureFlagBits::eTransferDst
+        );
+        vFormats.insert(vFormats.end(), supportedCBC.begin(), supportedCBC.end());
+    }
+
+    return vFormats;
 }
 
 void CImage::createImage(vk::Image &image, vk::DeviceMemory &memory, vk::ImageCreateInfo createInfo, vk::MemoryPropertyFlags properties)
@@ -394,7 +511,7 @@ void CImage::createSampler(vk::Sampler &sampler, uint32_t mip_levels, vk::Sample
     assert(res == vk::Result::eSuccess && "Texture sampler was not created");
 }
 
-bool CImage::isSupportedDimension(ktxTexture *info)
+bool CImage::isSupportedDimension(scope_ptr<FImageCreateInfo>& info)
 {
     auto& physicalDevice = CDevice::inst()->getPhysical();
     assert(physicalDevice && "Trying to check supported dibension, but physical device is invalid.");
@@ -492,14 +609,14 @@ void CImage::copyImageToDst(vk::CommandBuffer& commandBuffer, ref_ptr<CImage>& p
     copyTo(commandBuffer, _image, pDst->_image, _imageLayout, dstLayout, region);
 }
 
-void CImage::writeImageData(ktxTexture *info, vk::Format format, vk::ImageAspectFlags aspect)
+void CImage::writeImageData(scope_ptr<FImageCreateInfo>& info, vk::Format format, vk::ImageAspectFlags aspect)
 {
     vk::DeviceSize imgSize = info->dataSize;
 
     CVulkanBuffer stagingBuffer;
     stagingBuffer.create(imgSize, 1, vk::BufferUsageFlagBits::eTransferSrc, vk::MemoryPropertyFlagBits::eHostVisible | vk::MemoryPropertyFlagBits::eHostCoherent);
     auto result = stagingBuffer.mapMem();
-    stagingBuffer.write((void *)info->pData);
+    stagingBuffer.write((void *)info->pData.get());
 
     transitionImageLayout(vk::ImageLayout::eTransferDstOptimal, aspect);
 
@@ -526,11 +643,10 @@ void CImage::writeImageData(ktxTexture *info, vk::Format format, vk::ImageAspect
         std::vector<vk::BufferImageCopy> vRegions;
         for (uint32_t layer = 0; layer < _instCount; layer++)
         {
+            auto& layer_offsets = info->mipOffsets[layer];
             for (uint32_t level = 0; level < _mipLevels; level++)
             {
-                ktx_size_t offset;
-                KTX_error_code ret = ktxTexture_GetImageOffset(info, level, 0, layer, &offset);
-                assert(ret == KTX_SUCCESS);
+                size_t offset = layer_offsets.at(level);
                 vk::BufferImageCopy region = {};
                 region.imageSubresource.aspectMask = aspect;
                 region.imageSubresource.mipLevel = level;
@@ -550,7 +666,7 @@ void CImage::writeImageData(ktxTexture *info, vk::Format format, vk::ImageAspect
     }
 }
 
-void CImage::loadFromMemory(ktxTexture *info, vk::Format format, vk::ImageUsageFlags flags, vk::ImageAspectFlags aspect, 
+void CImage::loadFromMemory(scope_ptr<FImageCreateInfo>& info, vk::Format format, vk::ImageUsageFlags flags, vk::ImageAspectFlags aspect,
 vk::SamplerAddressMode addressMode, vk::Filter filter)
 {
     initializeTexture(info, format, flags, aspect, addressMode, filter, vk::SampleCountFlagBits::e1);

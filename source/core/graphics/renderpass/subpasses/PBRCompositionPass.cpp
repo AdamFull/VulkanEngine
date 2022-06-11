@@ -10,7 +10,6 @@
 #include "graphics/pipeline/Pipeline.h"
 #include "graphics/pipeline/ComputePipeline.h"
 #include "graphics/descriptor/DescriptorHandler.h"
-#include "graphics/image/ImageLoader.h"
 #include "graphics/image/Image.h"
 #include "graphics/image/Image2D.h"
 #include "graphics/image/ImageCubemap.h"
@@ -54,7 +53,6 @@ void CPBRCompositionPass::render(vk::CommandBuffer& commandBuffer)
     pMaterial->addTexture("prefiltred_tex", *prefiltered);
     
     pMaterial->addTexture("packed_tex", images["packed_tex"]);
-    pMaterial->addTexture("emission_tex", images["emission_tex"]);
     pMaterial->addTexture("depth_tex", images["depth_image"]);
 
     auto imageIndex = CDevice::inst()->getCurrentFrame();

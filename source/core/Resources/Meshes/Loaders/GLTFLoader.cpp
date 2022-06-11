@@ -8,7 +8,6 @@
 #include "resources/ResourceManager.h"
 #include "resources/meshes/MeshFragment.h"
 #include "resources/materials/MaterialLoader.h"
-#include "graphics/image/ImageLoader.h"
 #include "filesystem/FilesystemHelper.h"
 #include "graphics/VulkanHighLevel.h"
 #include "GLTFSceneNode.h"
@@ -31,7 +30,6 @@ bool loadImageDataFuncEmpty(tinygltf::Image *image, const int imageIndex, std::s
 
 using namespace engine;
 using namespace engine::core;
-using namespace engine::core::loaders;
 using namespace engine::resources;
 using namespace engine::resources::material;
 using namespace engine::resources::mesh;
@@ -505,8 +503,6 @@ void GLTFLoader::loadMaterials(const tinygltf::Model &model)
 
         nativeMaterial->addTexture("color_tex", get_texture(mat.values, "baseColorTexture"));
         nativeMaterial->addTexture("metalRough_tex", get_texture(mat.values, "metallicRoughnessTexture"));
-        //nativeMaterial->AddTexture(ETextureAttachmentType::eSpecularGlossiness, get_texture(mat.values, "specularGlossinessTexture"));
-        nativeMaterial->addTexture("height_tex", get_texture(mat.values, "displacementGeometryTexture"));
 
         if (mat.values.find("roughnessFactor") != mat.values.end())
             params.roughnessFactor = static_cast<float>(mat.values.at("roughnessFactor").Factor());
@@ -518,8 +514,6 @@ void GLTFLoader::loadMaterials(const tinygltf::Model &model)
             params.baseColorFactor = glm::make_vec4(mat.values.at("baseColorFactor").ColorFactor().data());
 
         nativeMaterial->addTexture("normal_tex", get_texture(mat.additionalValues, "normalTexture"));
-        nativeMaterial->addTexture("emissive_tex", get_texture(mat.additionalValues, "emissiveTexture"));
-        nativeMaterial->addTexture("ao_tex", get_texture(mat.additionalValues, "occlusionTexture"));
 
         if (mat.additionalValues.find("alphaMode") != mat.additionalValues.end())
         {
@@ -566,59 +560,8 @@ void GLTFLoader::loadTextures(const tinygltf::Model &model)
 
 ref_ptr<CImage> GLTFLoader::loadTexture(const tinygltf::Image &image, const std::string& path)
 {
-    bool isKtx = false;
-    // Image points to an external ktx file
-    if (image.uri.find_last_of(".") != std::string::npos)
-    {
-        if (image.uri.substr(image.uri.find_last_of(".") + 1) == "ktx")
-            isKtx = true;
-    }
-
-    vk::Format format;
-    ktxTexture *texture;
-    auto nativeTexture = make_ref<CImage2D>();
-    if (!isKtx)
-    {
-        auto isAlbedo = image.name.find("albedo") != std::string::npos;
-        CImageLoader::allocateRawDataAsKTXTexture(&texture, &format, image.width, image.height, 1, 2, isAlbedo ? GL_SRGB8_ALPHA8 : GL_RGBA8, true);
-        vk::DeviceSize bufferSize = 0;
-        bool deleteBuffer = false;
-        if (image.component == 3)
-        {
-            // Most devices don't support RGB only on Vulkan so convert if necessary
-            // TODO: Check actual format support and transform only if required
-            bufferSize = image.width * image.height * 4;
-            texture->pData = static_cast<unsigned char *>(calloc(bufferSize, sizeof(unsigned char)));
-            unsigned char *rgba = texture->pData;
-            unsigned char *rgb{nullptr};
-            memcpy(rgb, image.image.data(), bufferSize);
-
-#pragma omp parallel for
-            for (size_t i = 0; i < image.width * image.height; ++i)
-            {
-                for (int32_t j = 0; j < 3; ++j)
-                {
-                    rgba[j] = rgb[j];
-                }
-                rgba += 4;
-                rgb += 3;
-            }
-            deleteBuffer = true;
-        }
-        else
-        {
-            bufferSize = image.image.size();
-            texture->pData = static_cast<unsigned char *>(calloc(bufferSize, sizeof(unsigned char)));
-            memcpy(texture->pData, image.image.data(), bufferSize);
-        }
-    }
-    else
-    {
-        CImageLoader::load(image.uri.c_str(), &texture, &format, path);
-    }
-    nativeTexture->loadFromMemory(texture, format);
-    CImageLoader::close(&texture);
-
+    auto nativeTexture = make_ref<CImage>();
+    nativeTexture->create(image.uri.c_str());
     return nativeTexture;
 }
 

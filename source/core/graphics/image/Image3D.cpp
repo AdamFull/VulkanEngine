@@ -1,15 +1,22 @@
 #include "Image3D.h"
 
 using namespace engine::core;
-using namespace engine::core::loaders;
 using namespace engine::core::noise;
 using namespace engine::resources;
 
 void CImage3D::loadNoise(ENoisePattern ePattern, uint32_t width, uint32_t height, uint32_t depth)
 {
-    vk::Format format;
-    ktxTexture *texture;
-    CImageLoader::allocateRawDataAsKTXTexture(&texture, &format, width, height, depth, 3, 0x8229);
+    scope_ptr<FImageCreateInfo> texture = make_scope<FImageCreateInfo>();
+    texture->baseWidth = width;
+    texture->baseHeight = height;
+    texture->baseDepth = depth;
+    texture->numDimensions = 3;
+    texture->isArray = false;
+    texture->numLayers = 1;
+    texture->numFaces = 1;
+    texture->dataSize = width * height * (depth > 1 ? depth : 4);
+
+    auto format = vk::Format::eR8Unorm;
 
     //TODO: fix that
     //initializeTexture(texture, format);
@@ -25,15 +32,13 @@ void CImage3D::loadNoise(ENoisePattern ePattern, uint32_t width, uint32_t height
     }
 
     writeImageData(texture, format);
-
-    CImageLoader::close(&texture);
     updateDescriptor();
 }
 
-void CImage3D::generatePerlinNoise(ktxTexture *texture)
+void CImage3D::generatePerlinNoise(scope_ptr<FImageCreateInfo>& texture)
 {
     vk::DeviceSize imgSize = _extent.width * _extent.height * _extent.depth;
-    texture->pData = static_cast<unsigned char *>(calloc(imgSize, sizeof(unsigned char)));
+    //texture->pData.get() = static_cast<unsigned char *>(calloc(imgSize, sizeof(unsigned char)));
 
     PerlinNoise<float> perlinNoise;
 
@@ -58,10 +63,10 @@ void CImage3D::generatePerlinNoise(ktxTexture *texture)
     }
 }
 
-void CImage3D::generateFractalNoise(ktxTexture *texture, uint32_t octaves, float perceptation)
+void CImage3D::generateFractalNoise(scope_ptr<FImageCreateInfo>& texture, uint32_t octaves, float perceptation)
 {
     vk::DeviceSize imgSize = _extent.width * _extent.height * _extent.depth;
-    texture->pData = static_cast<unsigned char *>(calloc(imgSize, sizeof(unsigned char)));
+    //texture->pData.get() = static_cast<unsigned char *>(calloc(imgSize, sizeof(unsigned char)));
 
     PerlinNoise<float> perlinNoise;
     FractalNoise<float> fractalNoise(perlinNoise, octaves, perceptation);

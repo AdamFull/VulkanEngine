@@ -51,7 +51,7 @@ void main()
 	uvec4 packed_data = subpassLoad(packed_tex);
 	unpackTextures(packed_data, normal, albedo, mrah);
 
-	albedo = pow(albedo, vec3(2.2f));
+	//albedo = pow(albedo, vec3(2.2f));
 
 	float roughness = mrah.r;
 	float metalic = mrah.g;

@@ -1,9 +1,6 @@
 import subprocess, os, fnmatch
 
-#normalmap - linear + normal_map
-#another - srgb
-# toktx --t2 --uastc 4 --srgb --genmipmap --normal_map vintage-tile1_metallic-vintage-tile1_roughness.ktx2 vintage-tile1_metallic-vintage-tile1_roughness.png
-
+# cubemap toktx --t2 --uastc 4 --srgb --genmipmap --zcmp 20 --cubemap MegaSun4k.ktx2 px.png nx.png py.png ny.png pz.png nz.png
 target_dir = "../assets"
 target_ext = "*.png"
 uastc_quality = 4

@@ -111,7 +111,7 @@ namespace engine
                  * @param path Texture path
                  * @return ref_ptr<Core::CImage> Smart pointer texture object
                  */
-                ref_ptr<core::CImage> loadTexture(const tinygltf::Image &model, const std::string& path);
+                ref_ptr<core::CImage> loadTexture(const tinygltf::Image &model, const fs::path& path);
 
                 /**
                  * @brief Load mesh skinning data
@@ -130,7 +130,7 @@ namespace engine
                 std::vector<ref_ptr<GLTFSceneNode>> m_vNodes;
                 std::vector<ref_ptr<GLTFSceneNode>> m_vLinearNodes;
 
-                std::string srParentPath{""};
+                fs::path fsParentPath{""};
 
                 //Parameters
                 bool bLoadTextures;

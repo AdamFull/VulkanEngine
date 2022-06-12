@@ -18,7 +18,7 @@
                             "name": "skybox_cubemap_tex",
                             "type": "cubemap",
                             "attachment": "samplerCubeMap",
-                            "src": "textures/cubemaps/sky_skybox.ktx"
+                            "src": "textures/cubemaps/PlanetaryEarth4k.ktx2"
                         }
                     ]
                 }
@@ -87,24 +87,6 @@
                 "pos": {"x": -6.0, "y": 2.5, "z": -4.0},
                 "rot": {"x": 0.0, "y": 0.0, "z": 0.0},
                 "scale": {"x": 1.4, "y": 1.4, "z": 1.4}
-            }
-        },
-        {
-            "name": "SciFiPannels",
-            "type": "gltf_mesh",
-            "mesh": 
-            {
-                "name": "SciFiPannels",
-                "type": "static",
-                "src": "meshes/SciFiPannels/SciFiPannels.gltf",
-                "repeat": 2.0,
-                "use_included_material": true
-            },
-            "transform":
-            {
-                "pos": {"x": 3.0, "y": 5.0, "z": -2.0},
-                "rot": {"x": 0.0, "y": 0.0, "z": 0.0},
-                "scale": {"x": 1.0, "y": 1.0, "z": 1.0}
             }
         },
         {
@@ -214,18 +196,19 @@
             ]
         },
         {
-            "name": "DirectionalLight_1",
+            "name": "PointLight_0",
             "type": "light_source",
             "light":
             {
-                "type": "directional",
+                "type": "point",
                 "color": {"x": 1.0, "y": 1.0, "z": 1.0},
+                "attenuation": 200.0,
                 "intencity": 20.0
             },
             "transform":
             {
                 "pos": {"x": -20.0, "y": 100.0, "z": 10.0},
-                "rot": {"x": 0.0, "y": -1.0, "z": -1.0},
+                "rot": {"x": 0.0, "y": 0.0, "z": 0.0},
                 "scale": {"x": 1.0, "y": 1.0, "z": 1.0}
             }
         },

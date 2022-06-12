@@ -1,8 +1,5 @@
 #include "ImageLoaderNew.h"
 
-#define STB_IMAGE_IMPLEMENTATION
-#include "external/tinygltf/stb_image.h"
-
 #include "KTX-Software/include/ktx.h"
 #include "KTX-Software/include/ktxvulkan.h"
 
@@ -66,7 +63,8 @@ void CImageLoaderNew::loadKTX(const fs::path& fsPath, scope_ptr<FImageCreateInfo
     auto vkFormat = static_cast<vk::Format>(ktxTexture_GetVkFormat(kTexture));
     imageCI->pixFormat = FPixel::getUniversalFormat(vkFormat);
 
-    for (uint32_t layer = 0; layer < imageCI->numLayers; layer++)
+    auto numLayers = imageCI->isCubemap ? imageCI->numFaces : imageCI->numLayers;
+    for (uint32_t layer = 0; layer < numLayers; layer++)
     {
         for (uint32_t level = 0; level < imageCI->numLevels; level++)
         {
@@ -113,7 +111,8 @@ void CImageLoaderNew::loadKTX2(const fs::path& fsPath, scope_ptr<FImageCreateInf
     auto vkFormat = static_cast<vk::Format>(kTexture->vkFormat);
     imageCI->pixFormat = FPixel::getUniversalFormat(vkFormat);
 
-    for (uint32_t layer = 0; layer < imageCI->numLayers; layer++)
+    auto numLayers = imageCI->isCubemap ? imageCI->numFaces : imageCI->numLayers;
+    for (uint32_t layer = 0; layer < numLayers; layer++)
     {
         for (uint32_t level = 0; level < imageCI->numLevels; level++)
         {

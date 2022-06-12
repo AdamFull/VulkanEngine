@@ -1,6 +1,6 @@
 #define TINYGLTF_IMPLEMENTATION
-#define STB_IMAGE_IMPLEMENTATION
 #define TINYGLTF_NO_STB_IMAGE_WRITE
+#define TINYGLTF_NO_STB_IMAGE
 
 #include "GLTFLoader.h"
 #include <util/ulog.hpp>
@@ -20,12 +20,13 @@ bool loadImageDataFuncEmpty(tinygltf::Image *image, const int imageIndex, std::s
     if (image->uri.find_last_of(".") != std::string::npos)
     {
         if (image->uri.substr(image->uri.find_last_of(".") + 1) == "ktx")
-        {
             return true;
-        }
+        if (image->uri.substr(image->uri.find_last_of(".") + 1) == "ktx2")
+            return true;
+
     }
 
-    return tinygltf::LoadImageData(image, imageIndex, error, warning, req_width, req_height, bytes, size, userData);
+    return false;//tinygltf::LoadImageData(image, imageIndex, error, warning, req_width, req_height, bytes, size, userData);
 }
 
 using namespace engine;
@@ -48,7 +49,8 @@ void GLTFLoader::load(const std::string& srPath, const std::string& srName)
     std::string error, warning;
     gltfContext.SetImageLoader(loadImageDataFuncEmpty, nullptr);
     auto fpath = FilesystemHelper::getWorkDir() / srPath;
-    srParentPath = fpath.parent_path().string();
+    fsParentPath = fs::weakly_canonical(fpath.parent_path());
+    fsParentPath = fs::relative(fsParentPath, FilesystemHelper::getWorkDir());
     bool fileLoaded = gltfContext.LoadASCIIFromFile(&gltfModel, &error, &warning, fpath.string());
     current_primitive = 0;
 
@@ -502,7 +504,7 @@ void GLTFLoader::loadMaterials(const tinygltf::Model &model)
         nativeMaterial->setName(ss.str());
 
         nativeMaterial->addTexture("color_tex", get_texture(mat.values, "baseColorTexture"));
-        nativeMaterial->addTexture("metalRough_tex", get_texture(mat.values, "metallicRoughnessTexture"));
+        nativeMaterial->addTexture("rmah_tex", get_texture(mat.values, "metallicRoughnessTexture"));
 
         if (mat.values.find("roughnessFactor") != mat.values.end())
             params.roughnessFactor = static_cast<float>(mat.values.at("roughnessFactor").Factor());
@@ -550,7 +552,7 @@ void GLTFLoader::loadTextures(const tinygltf::Model &model)
             ss << image.name << "_";
         ss << std::to_string(index);
 
-        auto texture = loadTexture(image, srParentPath);
+        auto texture = loadTexture(image, fsParentPath);
         //texture->SetName(ss.str());
         vTextures.emplace_back(texture);
         CResourceManager::inst()->addExisting(ss.str(), texture);
@@ -558,10 +560,11 @@ void GLTFLoader::loadTextures(const tinygltf::Model &model)
     }
 }
 
-ref_ptr<CImage> GLTFLoader::loadTexture(const tinygltf::Image &image, const std::string& path)
+ref_ptr<CImage> GLTFLoader::loadTexture(const tinygltf::Image &image, const fs::path& path)
 {
     auto nativeTexture = make_ref<CImage>();
-    nativeTexture->create(image.uri.c_str());
+    auto realPath = fs::weakly_canonical(path / image.uri);
+    nativeTexture->create(realPath);
     return nativeTexture;
 }
 

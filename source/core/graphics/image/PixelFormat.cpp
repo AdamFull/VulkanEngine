@@ -191,6 +191,7 @@ EPixelFormat FPixel::getPixelFormat(EPixelBitFormat eBitFormat, EBitPerPixel eBi
 
 #ifdef VULKAN_API_SUPPORT
 utl::bimap<EPixelFormat, vk::Format> FPixel::vkFormatConverter{
+    {EPixelFormat::eUndefined, vk::Format::eUndefined},
     // 8 bits per component
     {EPixelFormat::eR8Unorm, vk::Format::eR8Unorm},
     {EPixelFormat::eR8G8Unorm, vk::Format::eR8G8Unorm},
@@ -373,6 +374,7 @@ EPixelFormat FPixel::getUniversalFormat(const vk::Format& format)
 #ifdef OPENGL_API_SUPPORT
 #include "KTX-Software/lib/gl_format.h"
 utl::bimap<EPixelFormat, uint32_t> FPixel::glFormatConverter{
+    {EPixelFormat::eUndefined, 0},
     //
     // 8 bits per component
     //

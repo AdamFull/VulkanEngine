@@ -53,7 +53,7 @@ namespace engine
 			 * @param addressMode Image sampler address mode
 			 * @param filter Image sampler filter
 			 */
-			void create(const std::string &srPath, vk::ImageUsageFlags flags = vk::ImageUsageFlagBits::eTransferSrc | vk::ImageUsageFlagBits::eTransferDst | vk::ImageUsageFlagBits::eSampled,
+			void create(const fs::path& srPath, vk::ImageUsageFlags flags = vk::ImageUsageFlagBits::eTransferSrc | vk::ImageUsageFlagBits::eTransferDst | vk::ImageUsageFlagBits::eSampled,
 						vk::ImageAspectFlags aspect = vk::ImageAspectFlagBits::eColor, vk::SamplerAddressMode addressMode = vk::SamplerAddressMode::eRepeat,
 						vk::Filter filter = vk::Filter::eLinear);
 

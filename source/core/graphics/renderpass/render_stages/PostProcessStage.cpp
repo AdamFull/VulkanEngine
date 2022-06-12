@@ -87,7 +87,7 @@ void CPostProcessStage::create()
         bloomTexture = "horisontal_blur_pass";
     }
     //bloomTexture = "output_reflections";
-    auto framebuffer_5 = make_scope<CFramebufferNew>();
+    /*auto framebuffer_5 = make_scope<CFramebufferNew>();
     framebuffer_5->setRenderArea(vk::Offset2D{0, 0}, screenExtent);
     framebuffer_5->addOutputReference(0U, 0U);
     framebuffer_5->addImage("output_color", vk::Format::eR32G32B32A32Sfloat, vk::ImageUsageFlagBits::eColorAttachment | vk::ImageUsageFlagBits::eSampled);
@@ -97,9 +97,9 @@ void CPostProcessStage::create()
     framebuffer_5->addSubpassDependency(0, VK_SUBPASS_EXTERNAL, vk::PipelineStageFlagBits::eColorAttachmentOutput, vk::PipelineStageFlagBits::eFragmentShader,
     vk::AccessFlagBits::eColorAttachmentWrite, vk::AccessFlagBits::eShaderRead);
     framebuffer_5->pushSubpass(make_scope<CScreenSpaceReflectionsPass>());
-    vFramebuffer.emplace_back(std::move(framebuffer_5));
+    vFramebuffer.emplace_back(std::move(framebuffer_5));*/
 
-    /*auto framebuffer_6 = make_scope<CFramebufferNew>();
+    auto framebuffer_6 = make_scope<CFramebufferNew>();
     framebuffer_6->setRenderArea(vk::Offset2D{0, 0}, screenExtent);
     framebuffer_6->addOutputReference(0U, 0U);
     framebuffer_6->addImage("output_color", vk::Format::eR32G32B32A32Sfloat, vk::ImageUsageFlagBits::eColorAttachment | vk::ImageUsageFlagBits::eTransferDst | vk::ImageUsageFlagBits::eSampled);
@@ -109,7 +109,7 @@ void CPostProcessStage::create()
     framebuffer_6->addSubpassDependency(0, VK_SUBPASS_EXTERNAL, vk::PipelineStageFlagBits::eColorAttachmentOutput, vk::PipelineStageFlagBits::eFragmentShader,
     vk::AccessFlagBits::eColorAttachmentWrite, vk::AccessFlagBits::eShaderRead);
     framebuffer_6->pushSubpass(make_scope<CFinalCompositionPass>(bloomTexture));
-    vFramebuffer.emplace_back(std::move(framebuffer_6));*/
+    vFramebuffer.emplace_back(std::move(framebuffer_6));
 
     CRenderStage::create();
 }

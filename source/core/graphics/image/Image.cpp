@@ -22,7 +22,7 @@ void CImage::updateDescriptor()
     _descriptor.imageLayout = _imageLayout;
 }
 
-void CImage::create(const std::string& srPath, vk::ImageUsageFlags flags, vk::ImageAspectFlags aspect, 
+void CImage::create(const fs::path& srPath, vk::ImageUsageFlags flags, vk::ImageAspectFlags aspect, 
 vk::SamplerAddressMode addressMode, vk::Filter filter)
 {
     scope_ptr<FImageCreateInfo> texture;
@@ -172,7 +172,7 @@ vk::Filter filter, vk::SampleCountFlagBits samples)
 
     if(!_sampler)
     {
-        //_addressMode = info->isArray || info->isCubemap || info->baseDepth > 1 ? vk::SamplerAddressMode::eClampToEdge : vk::SamplerAddressMode::eRepeat;
+        _addressMode = info->isArray || info->isCubemap || info->baseDepth > 1 ? vk::SamplerAddressMode::eClampToEdge : vk::SamplerAddressMode::eRepeat;
         createSampler(_sampler, _mipLevels, _addressMode, _filter);
     }
 }

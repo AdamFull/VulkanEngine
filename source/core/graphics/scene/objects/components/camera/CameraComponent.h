@@ -71,7 +71,7 @@ namespace engine
             private:
                 void normalizeFrustumSide(size_t side);
 
-                float dt{0.0}, fieldOfView{45.f}, near{0.01f}, far{2048.f}, sensitivity{3.f};
+                float dt{0.0}, fieldOfView{45.f}, near{0.1f}, far{1000.f}, sensitivity{3.f};
                 float angleH{0.f}, angleV{0.f};
                 glm::vec3 direction{-1.0, 0.0, 0.0};
                 bool bEnableControls{true};

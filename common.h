@@ -10,8 +10,6 @@
 
 #include <GLFW/glfw3.h>
 
-#define STB_IMAGE_STATIC
-
 #define _USE_MATH_DEFINES
 #include <cmath>
 

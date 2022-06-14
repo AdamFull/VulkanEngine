@@ -69,6 +69,20 @@ void CMeshFragment::render(vk::CommandBuffer commandBuffer, const glm::mat4& mod
                 
                 primitive.material->update();
                 primitive.material->bind();
+
+                auto& params = primitive.material->getParams();
+                auto& material = primitive.material->getPushConstant("ubo");
+                if(material)
+                {
+                    material->set("alphaCutoff", params.alphaCutoff);
+                    material->set("emissiveFactor", params.emissiveFactor);
+                    material->set("normalScale", params.normalScale);
+                    material->set("occlusionStrenth", params.occlusionStrenth);
+                    material->set("baseColorFactor", params.baseColorFactor);
+                    material->set("metallicFactor", params.metallicFactor);
+                    material->set("roughnessFactor", params.roughnessFactor);
+                    material->flush(commandBuffer);  
+                }
             }
             commandBuffer.drawIndexed(primitive.indexCount, instanceCount, primitive.firstIndex, 0, 0);
         }

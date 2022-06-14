@@ -152,7 +152,7 @@ void GLTFLoader::loadMeshFragment(ref_ptr<GLTFSceneNode>& sceneNode, const tinyg
         uint32_t vertexCount = 0;
         glm::vec3 posMin{};
         glm::vec3 posMax{};
-        bool hasSkin = false;
+        bool bHasSkin{false}, bHasNormals{false}, bHasTangents{false};
 
         // Vertices
         {
@@ -179,6 +179,7 @@ void GLTFLoader::loadMeshFragment(ref_ptr<GLTFSceneNode>& sceneNode, const tinyg
                 const tinygltf::Accessor &normAccessor = model.accessors[primitive.attributes.find("NORMAL")->second];
                 const tinygltf::BufferView &normView = model.bufferViews[normAccessor.bufferView];
                 bufferNormals = reinterpret_cast<const float *>(&(model.buffers[normView.buffer].data[normAccessor.byteOffset + normView.byteOffset]));
+                bHasNormals = true;
             }
 
             // Load UV coordinates
@@ -205,6 +206,7 @@ void GLTFLoader::loadMeshFragment(ref_ptr<GLTFSceneNode>& sceneNode, const tinyg
                 const tinygltf::Accessor &tangentAccessor = model.accessors[primitive.attributes.find("TANGENT")->second];
                 const tinygltf::BufferView &tangentView = model.bufferViews[tangentAccessor.bufferView];
                 bufferTangents = reinterpret_cast<const float *>(&(model.buffers[tangentView.buffer].data[tangentAccessor.byteOffset + tangentView.byteOffset]));
+                bHasTangents = true;
             }
 
             // Load joints
@@ -223,7 +225,7 @@ void GLTFLoader::loadMeshFragment(ref_ptr<GLTFSceneNode>& sceneNode, const tinyg
                 bufferWeights = reinterpret_cast<const float *>(&(model.buffers[uvView.buffer].data[uvAccessor.byteOffset + uvView.byteOffset]));
             }
 
-            hasSkin = (bufferJoints && bufferWeights);
+            bHasSkin = (bufferJoints && bufferWeights);
 
             vertexCount = static_cast<uint32_t>(posAccessor.count);
 
@@ -251,8 +253,8 @@ void GLTFLoader::loadMeshFragment(ref_ptr<GLTFSceneNode>& sceneNode, const tinyg
                 vert.tangent = bufferTangents ? glm::vec4(glm::make_vec4(&bufferTangents[v * 4])) : glm::vec4(0.0f);
                 //vert.tangent = glm::vec4(0.f);
                 // TODO: Add skinning
-                //vert.joint0 = hasSkin ? glm::vec4(glm::make_vec4(&bufferJoints[v * 4])) : glm::vec4(0.0f);
-                //vert.weight0 = hasSkin ? glm::make_vec4(&bufferWeights[v * 4]) : glm::vec4(0.0f);
+                //vert.joint0 = bHasSkin ? glm::vec4(glm::make_vec4(&bufferJoints[v * 4])) : glm::vec4(0.0f);
+                //vert.weight0 = bHasSkin ? glm::make_vec4(&bufferWeights[v * 4]) : glm::vec4(0.0f);
                 vertexBuffer.push_back(vert);
             }
         }
@@ -318,7 +320,12 @@ void GLTFLoader::loadMeshFragment(ref_ptr<GLTFSceneNode>& sceneNode, const tinyg
         if (bLoadMaterials)
         {
             if(!vMaterials.empty())
-                modelPrim.material = primitive.material > -1 ? vMaterials.at(primitive.material) : vMaterials.back();
+            {
+                auto& material = primitive.material > -1 ? vMaterials.at(primitive.material) : vMaterials.back();
+                if(bHasNormals) material->addDefinition("HAS_NORMALS", ""); 
+                if(bHasTangents) material->addDefinition("HAS_TANGENTS", ""); 
+                modelPrim.material = material;
+            }
         }
         else
         {
@@ -490,17 +497,6 @@ void GLTFLoader::loadAnimations(const tinygltf::Model &model)
 
 void GLTFLoader::loadMaterials(const tinygltf::Model &model)
 {
-    auto get_texture = [&](const tinygltf::ParameterMap& mat, const std::string& srTexture) -> ref_ptr<CImage>&
-    {
-        if (mat.find(srTexture) != mat.end())
-        {
-            auto index = mat.at(srTexture).TextureIndex();
-            return vTextures.at(index);
-        }
-        
-        return CResourceManager::inst()->get<CImage>("no_texture");
-    };
-
     uint32_t material_index{0};
     for (auto &mat : model.materials)
     {
@@ -516,8 +512,45 @@ void GLTFLoader::loadMaterials(const tinygltf::Model &model)
         ref_ptr<CMaterialBase> nativeMaterial = CMaterialLoader::inst()->create("default");
         nativeMaterial->setName(ss.str());
 
-        nativeMaterial->addTexture("color_tex", get_texture(mat.values, "baseColorTexture"));
-        nativeMaterial->addTexture("rmah_tex", get_texture(mat.values, "metallicRoughnessTexture"));
+        if (mat.values.find("baseColorTexture") != mat.values.end())
+        {
+            auto texture = mat.values.at("baseColorTexture");
+            nativeMaterial->addTexture("color_tex", vTextures.at(texture.TextureIndex()));
+            nativeMaterial->addDefinition("HAS_BASECOLORMAP", "");
+        }
+
+        if (mat.values.find("metallicRoughnessTexture") != mat.values.end())
+        {
+            auto texture = mat.values.at("metallicRoughnessTexture");
+            nativeMaterial->addTexture("rmah_tex", vTextures.at(texture.TextureIndex()));
+            nativeMaterial->addDefinition("HAS_METALLIC_ROUGHNESS", "");
+        }
+
+        if (mat.additionalValues.find("normalTexture") != mat.additionalValues.end())
+        {
+            auto texture = mat.additionalValues.at("normalTexture");
+            params.normalScale = static_cast<float>(texture.TextureScale());
+            nativeMaterial->addTexture("normal_tex", vTextures.at(texture.TextureIndex()));
+            nativeMaterial->addDefinition("HAS_NORMALMAP", "");
+        }
+
+        if (mat.additionalValues.find("occlusionTexture") != mat.additionalValues.end())
+        {
+            auto texture = mat.additionalValues.at("occlusionTexture");
+            params.occlusionStrenth = static_cast<float>(texture.TextureStrength());
+            nativeMaterial->addTexture("occlusion_tex", vTextures.at(texture.TextureIndex()));
+            nativeMaterial->addDefinition("HAS_OCCLUSIONMAP", "");
+        }
+
+        if (mat.additionalValues.find("emissiveTexture") != mat.additionalValues.end())
+        {
+            auto texture = mat.additionalValues.at("emissiveTexture");
+            params.emissiveFactor = glm::make_vec3(texture.ColorFactor().data()); 
+            nativeMaterial->addTexture("emissive_tex", vTextures.at(texture.TextureIndex()));
+            nativeMaterial->addDefinition("HAS_EMISSIVEMAP", "");
+        }
+
+        // TODO: add HAS_HEIGHTMAP
 
         if (mat.values.find("roughnessFactor") != mat.values.end())
             params.roughnessFactor = static_cast<float>(mat.values.at("roughnessFactor").Factor());
@@ -528,8 +561,6 @@ void GLTFLoader::loadMaterials(const tinygltf::Model &model)
         if (mat.values.find("baseColorFactor") != mat.values.end())
             params.baseColorFactor = glm::make_vec4(mat.values.at("baseColorFactor").ColorFactor().data());
 
-        nativeMaterial->addTexture("normal_tex", get_texture(mat.additionalValues, "normalTexture"));
-
         if (mat.additionalValues.find("alphaMode") != mat.additionalValues.end())
         {
             tinygltf::Parameter param = mat.additionalValues.at("alphaMode");
@@ -538,11 +569,15 @@ void GLTFLoader::loadMaterials(const tinygltf::Model &model)
             if (param.string_value == "MASK")
                 params.alphaMode = FMaterialParams::EAlphaMode::EMASK;
         }
-        if (mat.additionalValues.find("alphaCutoff") != mat.additionalValues.end())
-            params.alphaCutoff = static_cast<float>(mat.additionalValues.at("alphaCutoff").Factor());
 
-        if(mat.additionalValues.find("displacementGeometry") != mat.additionalValues.end())
-            params.alphaCutoff = static_cast<float>(mat.additionalValues.at("displacementGeometry").Factor());
+        if (mat.additionalValues.find("doubleSided") != mat.additionalValues.end())
+            bool doubleSided = mat.additionalValues.at("doubleSided").bool_value;
+
+        if (mat.additionalValues.find("alphaCutoff") != mat.additionalValues.end())
+            params.alphaCutoff = static_cast<float>(mat.additionalValues.at("alphaCutoff").Factor());             
+
+        //if(mat.additionalValues.find("displacementGeometry") != mat.additionalValues.end())
+        //    params.alphaCutoff = static_cast<float>(mat.additionalValues.at("displacementGeometry").Factor());
 
         nativeMaterial->setParams(std::move(params));
         vMaterials.emplace_back(nativeMaterial);

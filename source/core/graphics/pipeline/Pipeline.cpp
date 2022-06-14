@@ -77,6 +77,11 @@ void CPipelineBase::cleanup()
     }
 }
 
+void CPipelineBase::addDefine(const std::string& define, const std::string& value)
+{
+    m_vDefines.emplace(define, value);
+}
+
 void CPipelineBase::bind(vk::CommandBuffer &commandBuffer)
 {
     commandBuffer.bindPipeline(getBindPoint(), getPipeline());

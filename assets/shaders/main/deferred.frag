@@ -55,9 +55,8 @@ void main()
 
 	float roughness = mrah.r;
 	float metalic = mrah.g;
-	float occlusion = mrah.b;
-	float height = mrah.a;
 
+	float alphaRoughness = roughness * roughness;
 	bool calculateLightning = normal != vec3(0.0f);
 
 	vec3 fragcolor = vec3(0.0f);
@@ -84,7 +83,7 @@ void main()
 			float dist = length(L);
 			L = normalize(L);
 			float atten = clamp(1.0 - pow(dist, 2.0f)/pow(light.radius, 2.0f), 0.0f, 1.0f); atten *= atten;
-			Lo += atten * light.color.rgb * light.intencity * specularContribution(albedo, L, V, normal, F0, metalic, roughness);
+			Lo += atten * light.color.rgb * light.intencity * specularContribution(albedo, L, V, normal, F0, metalic, alphaRoughness);
 		}
 
 		//Adding directional lights
@@ -94,7 +93,7 @@ void main()
 			vec3 L = -light.direction;
 			float dist = length(L);
 			L = normalize(L);
-			Lo += light.color.rgb * light.intencity * specularContribution(albedo, L, V, normal, F0, metalic, roughness);
+			Lo += light.color.rgb * light.intencity * specularContribution(albedo, L, V, normal, F0, metalic, alphaRoughness);
 		}
 
 		//Adding spot lights
@@ -108,7 +107,7 @@ void main()
 				float dist = length(L);
 				L = normalize(L);
 				float atten = 1.0 - (1.0 - theta) * 1.0/(1.0 - light.cutoff);
-				Lo += light.color.rgb * atten * light.intencity * specularContribution(albedo, L, V, normal, F0, metalic, roughness);
+				Lo += light.color.rgb * atten * light.intencity * specularContribution(albedo, L, V, normal, F0, metalic, alphaRoughness);
 			}
 		}
 
@@ -127,9 +126,10 @@ void main()
 		// Ambient part
 		vec3 kD = 1.0f - F;
 		kD *= 1.0f - metalic;	  
-		vec3 ambient = (kD * diffuse + specular) * vec3(occlusion);
+		vec3 ambient = (kD * diffuse + specular);
 		// Ambient part
-		fragcolor = (ambient + Lo);
+		//fragcolor = (ambient + Lo);
+		fragcolor = vec3(metalic);
 	}
 	else
 	{

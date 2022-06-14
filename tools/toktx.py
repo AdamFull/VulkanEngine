@@ -4,7 +4,7 @@ import subprocess, os, fnmatch
 target_dir = "../assets"
 target_ext = []
 uastc_quality = 4
-compression_level = 20
+compression_level = 15
 
 def main():
     for root, dir, files in os.walk(target_dir):

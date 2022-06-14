@@ -25,6 +25,7 @@ void CMaterialBase::create()
         uint32_t images = CDevice::inst()->getFramesInFlight();
         auto& renderPass = CRenderSystem::inst()->getCurrentStage()->getCurrentFramebuffer()->getRenderPass();
         auto subpass = CRenderSystem::inst()->getCurrentStage()->getCurrentFramebuffer()->getCurrentSubpass();
+
         pPipeline->create(renderPass, subpass);
 
         for(auto instance = 0; instance < instances; instance++)
@@ -137,4 +138,9 @@ void CMaterialBase::setName(const std::string& srName)
 void CMaterialBase::setInstances(uint32_t instances)
 {
     this->instances = instances;
+}
+
+void CMaterialBase::addDefinition(const std::string& definition, const std::string& value)
+{
+    pPipeline->addDefine(definition, value);
 }

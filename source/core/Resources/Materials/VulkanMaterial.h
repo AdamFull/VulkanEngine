@@ -24,10 +24,13 @@ namespace engine
                 };
 
                 EAlphaMode alphaMode = EAlphaMode::EOPAQUE;
-                float alphaCutoff = 1.0f;
-                float metallicFactor = 1.0f;
-                float roughnessFactor = 1.0f;
-                glm::vec4 baseColorFactor = glm::vec4(1.0f);
+                float alphaCutoff{0.5f};
+                glm::vec3 emissiveFactor{0.f};
+                float normalScale{1.f};
+                float occlusionStrenth{1.f};
+                glm::vec4 baseColorFactor{1.0f};
+                float metallicFactor{1.f};
+                float roughnessFactor{1.f};                
             };
 
             struct FMaterialUniqueObjects
@@ -117,6 +120,8 @@ namespace engine
 
                 void setInstances(uint32_t instance);
 
+                void addDefinition(const std::string& definition, const std::string& value);
+
                 /**
                  * @brief Get material name
                  * 
@@ -130,6 +135,8 @@ namespace engine
                  * @return ref_ptr<Core::Pipeline::CPipelineBase> Pipeline smart pointer object
                  */
                 inline ref_ptr<core::pipeline::CPipelineBase> getPipeline() { return pPipeline; }
+
+                const FMaterialParams& getParams() { return m_fMatParams; }
 
                 ref_ptr<core::CHandler>& getUniformBuffer(const std::string& name) { return vInstances.at(currentInstance)->mBuffers[name]; }
                 std::map<std::string, ref_ptr<core::CHandler>>& getUniformBuffers() { return vInstances.at(currentInstance)->mBuffers; }

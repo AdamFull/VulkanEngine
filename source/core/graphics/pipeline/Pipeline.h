@@ -156,6 +156,8 @@ namespace engine
 				 */
 				virtual void cleanup();
 
+				void addDefine(const std::string& define, const std::string& value);
+
 				/**
 				 * @brief Get pipeline state object
 				 *

@@ -172,7 +172,7 @@ vk::Filter filter, vk::SampleCountFlagBits samples)
 
     if(!_sampler)
     {
-        _addressMode = info->isArray || info->isCubemap || info->baseDepth > 1 ? vk::SamplerAddressMode::eClampToEdge : vk::SamplerAddressMode::eRepeat;
+        //_addressMode = info->isArray || info->isCubemap || info->baseDepth > 1 ? vk::SamplerAddressMode::eClampToEdge : vk::SamplerAddressMode::eRepeat;
         createSampler(_sampler, _mipLevels, _addressMode, _filter);
     }
 }

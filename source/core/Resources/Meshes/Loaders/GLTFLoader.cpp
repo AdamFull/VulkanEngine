@@ -54,6 +54,11 @@ void GLTFLoader::load(const std::string& srPath, const std::string& srName)
     bool fileLoaded = gltfContext.LoadASCIIFromFile(&gltfModel, &error, &warning, fpath.string());
     current_primitive = 0;
 
+    if(!warning.empty())
+        utl::logger::log(utl::ELogLevel::eWarning, warning);
+    if(!error.empty())
+        utl::logger::log(utl::ELogLevel::eError, error);
+
     m_pMesh = make_ref<CMeshBase>();
     srModelName = srName;
 
@@ -128,6 +133,7 @@ void GLTFLoader::loadNode(ref_ptr<GLTFSceneNode> pParent, const tinygltf::Node &
 
 void GLTFLoader::loadMeshFragment(ref_ptr<GLTFSceneNode>& sceneNode, const tinygltf::Node &node, const tinygltf::Model &model)
 {
+    std::vector<int> materialUsages{};
     const tinygltf::Mesh mesh = model.meshes[node.mesh];
     auto nativeMesh = make_ref<CMeshFragment>();
     nativeMesh->setName(srModelName + "_" + mesh.name);
@@ -321,12 +327,19 @@ void GLTFLoader::loadMeshFragment(ref_ptr<GLTFSceneNode>& sceneNode, const tinyg
             current_primitive++;
         }
 
+        materialUsages.emplace_back(primitive.material);
         nativeMesh->addPrimitive(std::move(modelPrim));
-
         CVBO::inst()->addMeshData(std::move(vertexBuffer), std::move(indexBuffer));
     }
     sceneNode->m_pMesh = nativeMesh;
     CResourceManager::inst()->addExisting(nativeMesh->getName(), nativeMesh);
+
+    std::map<int32_t, int32_t> materialInstances{};
+    for(auto& number : materialUsages)
+        materialInstances[number]++;
+    
+    for(auto& [material, instances] : materialInstances)
+        vMaterials.at(material)->setInstances(instances);
 }
 
 void GLTFLoader::recalculateTangents(std::vector<FVertex>& vertices, std::vector<uint32_t>& indices, uint64_t startIndex)
@@ -540,23 +553,32 @@ void GLTFLoader::loadMaterials(const tinygltf::Model &model)
 
 void GLTFLoader::loadTextures(const tinygltf::Model &model)
 {
-    uint32_t index{0};
-    for (auto &image : model.images)
+    for(auto& texture : model.textures)
     {
-        // TODO: Create textures for materials
-        std::stringstream ss;
-        ss << srModelName << "_"
-           << "texture"
-           << "_";
-        if (!image.name.empty())
-            ss << image.name << "_";
-        ss << std::to_string(index);
+        auto image_index = texture.source;
+        if(image_index < 0 && !texture.extensions.empty())
+        {
+            auto basisu_support = texture.extensions.find("KHR_texture_basisu");
+            if(basisu_support != texture.extensions.end())
+            {
+                auto& extension = basisu_support->second;
+                auto source = extension.Get("source");
+                image_index = source.GetNumberAsInt();
+            }
+        }
 
-        auto texture = loadTexture(image, fsParentPath);
-        //texture->SetName(ss.str());
-        vTextures.emplace_back(texture);
-        CResourceManager::inst()->addExisting(ss.str(), texture);
-        index++;
+        auto& image = model.images.at(image_index);
+        std::string tex_name = image.name;
+        if (tex_name.empty())
+        {
+            std::stringstream ss;
+            ss << srModelName << "_" << "texture_" << image_index;
+            tex_name = ss.str();
+        }
+
+        auto texture_object = loadTexture(image, fsParentPath);
+        vTextures.emplace_back(texture_object);
+        CResourceManager::inst()->addExisting(tex_name, texture_object);
     }
 }
 

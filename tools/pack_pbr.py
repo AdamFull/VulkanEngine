@@ -1,14 +1,14 @@
 import os, sys
 from PIL import Image
 
-roughness_texture = "C:\\Users\\logot\\Documents\\GitHub\\VulkanEngine\\assets\\meshes\\WornShiny\\textures\\worn-shiny-metal-Roughness.png"
-metalness_texture = "C:\\Users\\logot\\Documents\\GitHub\\VulkanEngine\\assets\\meshes\\WornShiny\\textures\\worn-shiny-metal-Metallic.png"
-ao_texture = "C:\\Users\\logot\\Documents\\GitHub\\VulkanEngine\\assets\\meshes\\WornShiny\\textures\\worn-shiny-metal-ao.png"
-height_texture = "C:\\Users\\logot\\Documents\\GitHub\\VulkanEngine\\assets\\meshes\\WornShiny\\textures\\worn-shiny-metal-Height.png"
-output_texture = "C:\\Users\\logot\\Documents\\GitHub\\VulkanEngine\\assets\\meshes\\WornShiny\\textures\\worn-shiny-metal_rmah.png"
+roughmetal_texture = "C:\\Users\\logot\\Documents\\GitHub\\VulkanEngine\\assets\\meshes\\sponza\\textures\\ex\\upper_rounded_columns_mr.jpg"
+# metalness_texture = "C:\\Users\\logot\\Documents\\GitHub\\VulkanEngine\\assets\\meshes\\sponza\\textures\\ex\\flag_rods_metal.png"
+ao_texture = "C:\\Users\\logot\\Documents\\GitHub\\VulkanEngine\\assets\\meshes\\sponza\\textures\\ex\\upper_rounded_columns_occlusion.jpg"
+height_texture = "C:\\Users\\logot\\Documents\\GitHub\\VulkanEngine\\assets\\meshes\\sponza\\textures\\ex\\upper_rounded_columns_height.jpg"
+output_texture = "C:\\Users\\logot\\Documents\\GitHub\\VulkanEngine\\assets\\meshes\\sponza\\textures\ex\\upper_rounded_columns_rmah.png"
 
 def main():
-    empty = Image.new("RGB", (2048, 2048), (0, 0, 0))
+    empty = Image.new("RGB", (1024, 1024), (0, 0, 0))
     er, eg, eb = empty.split()
 
     roughness = er
@@ -16,13 +16,14 @@ def main():
     occlusion = er
     height = er
 
-    if os.path.exists(roughness_texture):
-        rough_tex = Image.open(roughness_texture)
-        roughness = rough_tex.split()[0]
+    if os.path.exists(roughmetal_texture):
+        rough_tex = Image.open(roughmetal_texture)
+        roughness = rough_tex.split()[1]
+        metallic = rough_tex.split()[2]
 
-    if os.path.exists(metalness_texture):
-        metal_tex = Image.open(metalness_texture)
-        metallic = metal_tex.split()[0]
+    # if os.path.exists(metalness_texture):
+    #     metal_tex = Image.open(metalness_texture)
+    #     metallic = metal_tex.split()[0]
 
     if os.path.exists(ao_texture):
         ao_tex = Image.open(ao_texture)

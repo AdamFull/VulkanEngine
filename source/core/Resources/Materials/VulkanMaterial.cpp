@@ -20,30 +20,41 @@ void CMaterialBase::create()
 {
     //Material loads render pass and subpass number from attached render stage
     //Material should be in render stage because render stage contains specific render pass and subpass
-    uint32_t images = CDevice::inst()->getFramesInFlight();
-    auto& renderPass = CRenderSystem::inst()->getCurrentStage()->getCurrentFramebuffer()->getRenderPass();
-    auto subpass = CRenderSystem::inst()->getCurrentStage()->getCurrentFramebuffer()->getCurrentSubpass();
-    pPipeline->create(renderPass, subpass);
-    pDescriptorSet = make_scope<CDescriptorHandler>();
-    pDescriptorSet->create(pPipeline);
-
-    for(auto& [name, uniform] : pPipeline->getShader()->getUniformBlocks())
+    if(!bIsCreated)
     {
-        ref_ptr<CHandler> pUniform;
-        switch(uniform.getDescriptorType())
+        uint32_t images = CDevice::inst()->getFramesInFlight();
+        auto& renderPass = CRenderSystem::inst()->getCurrentStage()->getCurrentFramebuffer()->getRenderPass();
+        auto subpass = CRenderSystem::inst()->getCurrentStage()->getCurrentFramebuffer()->getCurrentSubpass();
+        pPipeline->create(renderPass, subpass);
+
+        for(auto instance = 0; instance < instances; instance++)
         {
-            case vk::DescriptorType::eUniformBuffer: pUniform = make_ref<CUniformHandler>(); break;
-            case vk::DescriptorType::eStorageBuffer: pUniform = make_ref<CStorageHandler>(); break;
-        }
-        pUniform->create(uniform);
-        mBuffers.emplace(name, pUniform);
-    }
+            auto instance_ptr = make_scope<FMaterialUniqueObjects>();
+            instance_ptr->pDescriptorSet = make_scope<CDescriptorHandler>();
+            instance_ptr->pDescriptorSet->create(pPipeline);
 
-    for(auto& [name, uniform] : pPipeline->getShader()->getPushBlocks())
-    {
-        auto pUniform = make_ref<CPushHandler>();
-        pUniform->create(uniform, pPipeline);
-        mPushConstants.emplace(name, pUniform);
+            for(auto& [name, uniform] : pPipeline->getShader()->getUniformBlocks())
+            {
+                ref_ptr<CHandler> pUniform;
+                switch(uniform.getDescriptorType())
+                {
+                    case vk::DescriptorType::eUniformBuffer: pUniform = make_ref<CUniformHandler>(); break;
+                    case vk::DescriptorType::eStorageBuffer: pUniform = make_ref<CStorageHandler>(); break;
+                }
+                pUniform->create(uniform);
+                instance_ptr->mBuffers.emplace(name, pUniform);
+            }
+
+            for(auto& [name, uniform] : pPipeline->getShader()->getPushBlocks())
+            {
+                auto pUniform = make_ref<CPushHandler>();
+                pUniform->create(uniform, pPipeline);
+                instance_ptr->mPushConstants.emplace(name, pUniform);
+            }
+
+            vInstances.emplace_back(std::move(instance_ptr));
+        }
+        bIsCreated = true;
     }
 }
 
@@ -64,13 +75,19 @@ vk::DescriptorImageInfo& CMaterialBase::getTexture(const std::string& attachment
 
 void CMaterialBase::reCreate()
 {
-    auto& renderPass = CRenderSystem::inst()->getCurrentStage()->getCurrentFramebuffer()->getRenderPass();
-    auto subpass = CRenderSystem::inst()->getCurrentStage()->getCurrentFramebuffer()->getCurrentSubpass();
-    pPipeline->reCreate(renderPass, subpass);
+    if(!bIsReCreated)
+    {
+        auto& renderPass = CRenderSystem::inst()->getCurrentStage()->getCurrentFramebuffer()->getRenderPass();
+        auto subpass = CRenderSystem::inst()->getCurrentStage()->getCurrentFramebuffer()->getCurrentSubpass();
+        pPipeline->reCreate(renderPass, subpass);
+        bIsReCreated = true;
+    }
 }
 
 void CMaterialBase::update()
 {
+    auto& pDescriptorSet = getDescriptorSet();
+    auto& mBuffers = getUniformBuffers();
     pDescriptorSet->reset();
     for(auto& [name, uniform] : mBuffers)
     {
@@ -88,25 +105,36 @@ void CMaterialBase::update()
 void CMaterialBase::bind()
 {
     auto& commandBuffer = CRenderSystem::inst()->getCurrentCommandBuffer();
+    auto& pDescriptorSet = getDescriptorSet();
     pDescriptorSet->bind(commandBuffer);
     pPipeline->bind(commandBuffer);
+    bIsReCreated = false;
+    currentInstance = (currentInstance + 1) % instances;
 }
 
 void CMaterialBase::cleanup()
 {
     //Custom cleanup rules
-    if(pDescriptorSet)
-        pDescriptorSet->cleanup();
-    for(auto& [name, handler] : mBuffers)
-        handler->cleanup();
-    mBuffers.clear();
-    for(auto& [name, handler] : mPushConstants)
-        handler->cleanup();
-    mPushConstants.clear();
+    for(auto& instance : vInstances)
+    {
+        if(instance->pDescriptorSet)
+            instance->pDescriptorSet->cleanup();
+        for(auto& [name, handler] : instance->mBuffers)
+            handler->cleanup();
+        instance->mBuffers.clear();
+        for(auto& [name, handler] : instance->mPushConstants)
+            handler->cleanup();
+        instance->mPushConstants.clear();
+    }
     pPipeline->cleanup();
 }
 
 void CMaterialBase::setName(const std::string& srName)
 {
     m_srName = srName + uuid::generate();
+}
+
+void CMaterialBase::setInstances(uint32_t instances)
+{
+    this->instances = instances;
 }

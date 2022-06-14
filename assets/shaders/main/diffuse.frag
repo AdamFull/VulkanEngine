@@ -15,6 +15,7 @@ layout(location = 0) out uvec4 outPack;
 
 #include "../shader_util.glsl"
 
+
 void main() 
 {
 	vec3 normal_map = getTangentSpaceNormalMap(normal_tex, inTBN, inUV);

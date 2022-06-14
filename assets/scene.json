@@ -18,7 +18,7 @@
                             "name": "skybox_cubemap_tex",
                             "type": "cubemap",
                             "attachment": "samplerCubeMap",
-                            "src": "textures/cubemaps/PlanetaryEarth4k.ktx2"
+                            "src": "textures/cubemaps/CloudedSunGlow4k.ktx2"
                         }
                     ]
                 }

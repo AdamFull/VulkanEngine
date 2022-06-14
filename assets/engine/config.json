@@ -40,6 +40,6 @@
     "engine":
     {
         "mode": "editor",
-        "start_scene": "scene.json"
+        "start_scene": "sponza_scene.json"
     }
 }

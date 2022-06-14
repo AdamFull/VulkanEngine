@@ -30,6 +30,13 @@ namespace engine
                 glm::vec4 baseColorFactor = glm::vec4(1.0f);
             };
 
+            struct FMaterialUniqueObjects
+            {
+                scope_ptr<core::descriptor::CDescriptorHandler> pDescriptorSet;
+                std::map<std::string, ref_ptr<core::CHandler>> mBuffers;
+                std::map<std::string, ref_ptr<core::CPushHandler>> mPushConstants;
+            };
+
             /**
              * @brief Base material representation class
              * 
@@ -108,6 +115,8 @@ namespace engine
                  */
                 void setName(const std::string& srName);
 
+                void setInstances(uint32_t instance);
+
                 /**
                  * @brief Get material name
                  * 
@@ -122,16 +131,19 @@ namespace engine
                  */
                 inline ref_ptr<core::pipeline::CPipelineBase> getPipeline() { return pPipeline; }
 
-                ref_ptr<core::CHandler>& getUniformBuffer(const std::string& name) { return mBuffers[name]; }
-                ref_ptr<core::CPushHandler>& getPushConstant(const std::string& name) { return mPushConstants[name]; }
+                ref_ptr<core::CHandler>& getUniformBuffer(const std::string& name) { return vInstances.at(currentInstance)->mBuffers[name]; }
+                std::map<std::string, ref_ptr<core::CHandler>>& getUniformBuffers() { return vInstances.at(currentInstance)->mBuffers; }
+                ref_ptr<core::CPushHandler>& getPushConstant(const std::string& name) { return vInstances.at(currentInstance)->mPushConstants[name]; }
+                scope_ptr<core::descriptor::CDescriptorHandler>& getDescriptorSet() { return vInstances.at(currentInstance)->pDescriptorSet; }
 
             protected:
                 FMaterialParams m_fMatParams{};
                 std::string m_srName;
+                uint32_t instances{1};
+                uint32_t currentInstance{0};
+                bool bIsCreated{false}, bIsReCreated{false};
 
-                scope_ptr<core::descriptor::CDescriptorHandler> pDescriptorSet;
-                std::map<std::string, ref_ptr<core::CHandler>> mBuffers;
-                std::map<std::string, ref_ptr<core::CPushHandler>> mPushConstants;
+                std::vector<scope_ptr<FMaterialUniqueObjects>> vInstances;
                 ref_ptr<core::pipeline::CPipelineBase> pPipeline;
                 std::map<std::string, vk::DescriptorImageInfo> mTextures;
             };

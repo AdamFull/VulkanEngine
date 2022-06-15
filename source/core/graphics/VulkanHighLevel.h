@@ -12,7 +12,6 @@
 #include "pipeline/Pipeline.h"
 #include "pipeline/GraphicsPipeline.h"
 #include "pipeline/ComputePipeline.h"
-#include <util/helpers.hpp>
 
 #define UHLInstance engine::core::CVulkanHighLevel::inst()
 

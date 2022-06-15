@@ -1,6 +1,7 @@
 #include "CameraEditorController.h"
 #include "keymapper/InputMapper.h"
-#include "graphics/scene/objects/components/camera/CameraManager.h"
+#include "graphics/scene/objects/components/CameraManager.h"
+#include "graphics/scene/objects/RenderObject.h"
 #include "util/Transform.hpp"
 
 using namespace engine::controllers;
@@ -26,7 +27,8 @@ void CCameraEditorController::update(float fDeltaTime)
 
 void CCameraEditorController::cameraMovement(EActionKey eKey, EKeyState eState)
 {
-    auto camera = CCameraManager::inst()->getCurrentCamera();
+    auto cameraNode = CCameraManager::inst()->getCurrentCamera();
+    auto& camera = cameraNode->getCamera();
 
     switch (eKey)
     {
@@ -62,7 +64,9 @@ void CCameraEditorController::mouseRotation(float fX, float fY)
     if (!m_bRotatePass)
         return;
 
-    auto camera = CCameraManager::inst()->getCurrentCamera();
+    auto cameraNode = CCameraManager::inst()->getCurrentCamera();
+    auto& camera = cameraNode->getCamera();
+
     camera->lookAt(fX, fY);
     m_bRotatePass = false;
 }

@@ -2,7 +2,7 @@
 #include "util/threading.hpp"
 #include "graphics/renderpass/Subpass.h"
 #include "graphics/image/Image.h"
-#include "graphics/scene/objects/components/light/LightSourceBase.h"
+#include "graphics/scene/objects/components/LightComponent.h"
 
 namespace engine
 {
@@ -29,15 +29,6 @@ namespace engine
 				CFuture<ref_ptr<CImage>> brdf;
 				CFuture<ref_ptr<CImage>> irradiance;
 				CFuture<ref_ptr<CImage>> prefiltered;
-
-				std::array<scene::FPointLight, 32> point_lights;
-				int32_t point_count{0};
-
-				std::array<scene::FDirectionalLight, 32> directional_lights;
-				int32_t directional_count{0};
-
-				std::array<scene::FSpotLight, 32> spot_lights;
-				int32_t spot_count{0};
 			};
 		}
 	}

@@ -1,5 +1,4 @@
 #include "WorldSettingsWindow.h"
-#include <glm/gtc/type_ptr.hpp>
 #include "editor/CustomControls.h"
 #include <GlobalVariables.h>
 

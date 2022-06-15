@@ -1,6 +1,6 @@
 #pragma once
 #include "Resources/ResourceManager.h"
-#include "graphics/scene/objects/components/SceneRootComponent.h"
+#include "graphics/scene/objects/RenderObject.h"
 
 namespace engine
 {

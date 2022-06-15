@@ -12,7 +12,8 @@ layout (binding = 1) uniform samplerCube irradiance_tex;
 layout (binding = 2) uniform samplerCube prefiltred_tex;
 
 layout (input_attachment_index = 0, binding = 3) uniform usubpassInput packed_tex;
-layout (input_attachment_index = 1, binding = 4) uniform subpassInput depth_tex;
+layout (input_attachment_index = 1, binding = 4) uniform subpassInput emission_tex;
+layout (input_attachment_index = 2, binding = 5) uniform subpassInput depth_tex;
 
 layout (location = 0) in vec2 inUV;
 
@@ -22,17 +23,13 @@ layout(push_constant) uniform UBOLightning
 {
 	mat4 invViewProjection;
 	vec4 viewPos;
-	int pointLightCount;
-	int directionalLightCount;
-	int spotLightCount;
+	int lightCount;
 } ubo;
 
 //Lights
 layout(std140, binding = 14) uniform UBOLights
 {
-	PointLight pointLights[32];
-	DirectionalLight directionalLights[32];
-	SpotLight spotLights[32];
+	FLight lights[32];
 } lights;
 
 void main() 
@@ -51,12 +48,14 @@ void main()
 	uvec4 packed_data = subpassLoad(packed_tex);
 	unpackTextures(packed_data, normal, albedo, mrah);
 
+	vec3 emission = subpassLoad(emission_tex).rgb;
+
 	//albedo = pow(albedo, vec3(2.2f));
 
 	float roughness = mrah.r;
-	float metalic = mrah.g;
+	float metallic = mrah.g;
 
-	float alphaRoughness = roughness * roughness;
+	float alphaRoughness = roughness;
 	bool calculateLightning = normal != vec3(0.0f);
 
 	vec3 fragcolor = vec3(0.0f);
@@ -68,68 +67,68 @@ void main()
 		// Reflection vector
 		vec3 R = reflect(-V, normal);
 
-		vec3 F0 = vec3(0.04f); 
+		vec3 F0 = vec3(0.04f);
 		// Reflectance at normal incidence angle
-		F0 = mix(F0, albedo, metalic);
+		F0 = mix(F0, albedo, metallic);
 
 		// Light contribution
 		vec3 Lo = vec3(0.0f);
-
-		//Adding point lights
-		for(int i = 0; i < ubo.pointLightCount; i++) 
+		for(int i = 0; i < ubo.lightCount; i++) 
 		{
-			PointLight light = lights.pointLights[i];
-			vec3 L = light.position - inWorldPos;
-			float dist = length(L);
-			L = normalize(L);
-			float atten = clamp(1.0 - pow(dist, 2.0f)/pow(light.radius, 2.0f), 0.0f, 1.0f); atten *= atten;
-			Lo += atten * light.color.rgb * light.intencity * specularContribution(albedo, L, V, normal, F0, metalic, alphaRoughness);
-		}
+			FLight light = lights.lights[i];
 
-		//Adding directional lights
-		for(int i = 0; i < ubo.directionalLightCount; i++) 
-		{
-			DirectionalLight light = lights.directionalLights[i];
-			vec3 L = -light.direction;
-			float dist = length(L);
-			L = normalize(L);
-			Lo += light.color.rgb * light.intencity * specularContribution(albedo, L, V, normal, F0, metalic, alphaRoughness);
-		}
-
-		//Adding spot lights
-		for(int i = 0; i < ubo.spotLightCount; i++) 
-		{
-			SpotLight light = lights.spotLights[i];
-			vec3 L = normalize(inWorldPos - light.position);
-			float theta = dot(L, light.direction); 
-			if(theta > light.cutoff)
+			// Point light
+			if(light.type == 0)
 			{
+				vec3 L = light.position - inWorldPos;
 				float dist = length(L);
 				L = normalize(L);
-				float atten = 1.0 - (1.0 - theta) * 1.0/(1.0 - light.cutoff);
-				Lo += light.color.rgb * atten * light.intencity * specularContribution(albedo, L, V, normal, F0, metalic, alphaRoughness);
+				float atten = clamp(1.0 - pow(dist, 2.0f)/pow(light.radius, 2.0f), 0.0f, 1.0f); atten *= atten;
+				Lo += atten * light.color * light.intencity * specularContribution(albedo, L, V, normal, F0, metallic, alphaRoughness);
+			}
+
+			// Directional light
+			if(light.type == 1)
+			{
+				vec3 L = -light.direction;
+				float dist = length(L);
+				L = normalize(L);
+				//float atten = mix(1.0f, 1.0 / (1.0 + 0.1 * dot(MainLightPosition.xyz - P, MainLightPosition.xyz - P)), 1.0);
+				Lo += light.color.rgb * light.intencity * specularContribution(albedo, L, V, normal, F0, metallic, alphaRoughness);
+			}
+
+			// Spot light
+			if(light.type == 2)
+			{
+				vec3 L = normalize(inWorldPos - light.position);
+				float theta = dot(L, light.direction); 
+				//if(theta > light.cutoff)
+				//{
+				//	float dist = length(L);
+				//	L = normalize(L);
+				//	float atten = 1.0 - (1.0 - theta) * 1.0/(1.0 - light.cutoff);
+				//	Lo += light.color.rgb * atten * light.intencity * specularContribution(albedo, L, V, normal, F0, metallic, alphaRoughness);
+				//}
 			}
 		}
 
 		vec2 brdf = texture(brdflut_tex, vec2(max(dot(normal, V), 0.0f), roughness)).rg;
-		vec3 reflection = prefilteredReflection(R, roughness, prefiltred_tex);	
+		//vec3 reflection = prefilteredReflection(R, roughness, prefiltred_tex);
+		vec3 reflection = textureLod(prefiltred_tex, R,  roughness * 9.0).rgb;
 		vec3 irradiance = pow(texture(irradiance_tex, normal).rgb, vec3(2.2f));
 
-		// Diffuse based on irradiance
-		vec3 diffuse = irradiance * albedo;	
-
 		vec3 F = F_SchlickR(max(dot(normal, V), 0.0f), F0, roughness);
-
-		// Specular reflectance
-		vec3 specular = reflection * (F * brdf.r + brdf.g);
-
-		// Ambient part
 		vec3 kD = 1.0f - F;
-		kD *= 1.0f - metalic;	  
-		vec3 ambient = (kD * diffuse + specular);
+
+		vec3 diffuseBrdf = albedo * (1.0 - metallic);
+
+		// Diffuse based on irradiance
+		vec3 diffuse = kD * diffuseBrdf * irradiance;
+		vec3 specular = reflection * (F * brdf.x + brdf.y);
+
 		// Ambient part
-		//fragcolor = (ambient + Lo);
-		fragcolor = vec3(metalic);
+		fragcolor = diffuse + (emission * 4.0) + specular + Lo;
+		//fragcolor = diffuse;
 	}
 	else
 	{

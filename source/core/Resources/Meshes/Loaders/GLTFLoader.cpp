@@ -3,14 +3,11 @@
 #define TINYGLTF_NO_STB_IMAGE
 
 #include "GLTFLoader.h"
-#include <util/ulog.hpp>
-#include <glm/gtc/type_ptr.hpp>
 #include "resources/ResourceManager.h"
-#include "resources/meshes/MeshFragment.h"
 #include "resources/materials/MaterialLoader.h"
 #include "filesystem/FilesystemHelper.h"
 #include "graphics/VulkanHighLevel.h"
-#include "GLTFSceneNode.h"
+#include "graphics/scene/objects/RenderObject.h"
 
 
 // Based on https://github.com/SaschaWillems/Vulkan/blob/master/base/VulkanglTFModel.cpp
@@ -31,9 +28,9 @@ bool loadImageDataFuncEmpty(tinygltf::Image *image, const int imageIndex, std::s
 
 using namespace engine;
 using namespace engine::core;
+using namespace engine::core::scene;
 using namespace engine::resources;
 using namespace engine::resources::material;
-using namespace engine::resources::mesh;
 using namespace engine::resources::loaders;
 
 GLTFLoader::GLTFLoader(bool loadMaterials, bool useMaterials, const std::string& modelName, const std::string& volumeName) :
@@ -42,7 +39,11 @@ bLoadMaterials(loadMaterials), bUseMaterials(useMaterials), srModelName(modelNam
 
 }
 
-void GLTFLoader::load(const std::string& srPath, const std::string& srName)
+//TODO: load animations
+//TODO: load cameras
+//TODO: load lights
+//TODO: load skins
+void GLTFLoader::load(ref_ptr<core::scene::CRenderObject>& pParent, const std::string& srPath, const std::string& srName)
 {
     tinygltf::Model gltfModel;
     tinygltf::TinyGLTF gltfContext;
@@ -59,7 +60,6 @@ void GLTFLoader::load(const std::string& srPath, const std::string& srName)
     if(!error.empty())
         utl::logger::log(utl::ELogLevel::eError, error);
 
-    m_pMesh = make_ref<CMeshBase>();
     srModelName = srName;
 
     if (fileLoaded)
@@ -71,48 +71,53 @@ void GLTFLoader::load(const std::string& srPath, const std::string& srName)
         }
 
         const tinygltf::Scene &scene = gltfModel.scenes[gltfModel.defaultScene > -1 ? gltfModel.defaultScene : 0];
+        //pParent->setName(scene.name);
         for (size_t i = 0; i < scene.nodes.size(); i++)
         {
             const tinygltf::Node node = gltfModel.nodes[scene.nodes[i]];
-            loadNode(nullptr, node, scene.nodes[i], gltfModel, 1.0);
+            loadNode(pParent, node, scene.nodes[i], gltfModel, 1.0);
         }
 
         if (gltfModel.animations.size() > 0) 
             loadAnimations(gltfModel);
         loadSkins(gltfModel);
-
-        for(auto& node : m_vLinearNodes)
-        {
-            if(node->m_pMesh)
-            {
-                node->m_pMesh->setLocalMatrix(node->getTransform().getModel());
-                m_pMesh->addFragment(node->m_pMesh);
-            }
-        }
     }
 }
 
-void GLTFLoader::loadNode(ref_ptr<GLTFSceneNode> pParent, const tinygltf::Node &node, uint32_t nodeIndex, const tinygltf::Model &model, float globalscale)
+void GLTFLoader::loadNode(ref_ptr<CRenderObject>& pParent, const tinygltf::Node &node, uint32_t nodeIndex, const tinygltf::Model &model, float globalscale)
 {
-    auto component = make_ref<GLTFSceneNode>();
-    component->m_index = nodeIndex;
-    component->setName(node.name);
+    auto component = make_ref<CRenderObject>();
+    component->setIndex(nodeIndex);
+    component->setCullable(pParent->isCullable());
+
+    if(!node.name.empty())
+        component->setName(node.name);
+    else
+    {
+        std::stringstream ss;
+        ss << srModelName << "_" << nodeIndex;
+        component->setName(ss.str());
+    }
+
     if(pParent)
         pParent->addChild(component);
 
+    FTransform transform;
     // Loading position data
     if (node.translation.size() == 3)
-        component->getTransform().pos = glm::make_vec3(node.translation.data());
+        transform.pos = glm::make_vec3(node.translation.data());
     // Loading rotation data
     if (node.rotation.size() == 4)
     {
         glm::quat quat = glm::make_quat(node.rotation.data());
         glm::vec3 rot = glm::eulerAngles(quat) * 3.14159f / 180.f;
-        component->getTransform().rot = rot;
+        transform.rot = rot;
     }
     // Loading scale data
     if (node.scale.size() == 3)
-        component->getTransform().scale = glm::make_vec3(node.scale.data());
+        transform.scale = glm::make_vec3(node.scale.data());
+
+    component->setTransform(transform);
 
     // Node with children
     if (node.children.size() > 0)
@@ -125,18 +130,21 @@ void GLTFLoader::loadNode(ref_ptr<GLTFSceneNode> pParent, const tinygltf::Node &
 
     if (node.mesh > -1) loadMeshFragment(component, node, model);
     if(node.camera > -1);
-
-    if(!pParent)
-        m_vNodes.push_back(component);
-    m_vLinearNodes.push_back(component);
 }
 
-void GLTFLoader::loadMeshFragment(ref_ptr<GLTFSceneNode>& sceneNode, const tinygltf::Node &node, const tinygltf::Model &model)
+void GLTFLoader::loadMeshFragment(ref_ptr<CRenderObject>& sceneNode, const tinygltf::Node &node, const tinygltf::Model &model)
 {
-    std::vector<int> materialUsages{};
     const tinygltf::Mesh mesh = model.meshes[node.mesh];
-    auto nativeMesh = make_ref<CMeshFragment>();
-    nativeMesh->setName(srModelName + "_" + mesh.name);
+    auto nativeMesh = make_ref<CMeshComponent>();
+    if(!mesh.name.empty())
+        nativeMesh->setName(mesh.name);
+    else
+    {
+        std::stringstream ss{};
+        ss << srModelName << "_" << node.mesh;
+        nativeMesh->setName(ss.str());
+    }
+    
     for (size_t j = 0; j < mesh.primitives.size(); j++)
     {
         std::vector<uint32_t> indexBuffer;
@@ -322,6 +330,7 @@ void GLTFLoader::loadMeshFragment(ref_ptr<GLTFSceneNode>& sceneNode, const tinyg
             if(!vMaterials.empty())
             {
                 auto& material = primitive.material > -1 ? vMaterials.at(primitive.material) : vMaterials.back();
+                material->incrementUsageCount();
                 if(bHasNormals) material->addDefinition("HAS_NORMALS", ""); 
                 if(bHasTangents) material->addDefinition("HAS_TANGENTS", ""); 
                 modelPrim.material = material;
@@ -334,19 +343,13 @@ void GLTFLoader::loadMeshFragment(ref_ptr<GLTFSceneNode>& sceneNode, const tinyg
             current_primitive++;
         }
 
-        materialUsages.emplace_back(primitive.material);
         nativeMesh->addPrimitive(std::move(modelPrim));
         CVBO::inst()->addMeshData(std::move(vertexBuffer), std::move(indexBuffer));
     }
-    sceneNode->m_pMesh = nativeMesh;
-    CResourceManager::inst()->addExisting(nativeMesh->getName(), nativeMesh);
+    sceneNode->setMesh(std::move(nativeMesh));
+    //CResourceManager::inst()->addExisting(nativeMesh->getName(), nativeMesh);
 
     std::map<int32_t, int32_t> materialInstances{};
-    for(auto& number : materialUsages)
-        materialInstances[number]++;
-    
-    for(auto& [material, instances] : materialInstances)
-        vMaterials.at(material)->setInstances(instances);
 }
 
 void GLTFLoader::recalculateTangents(std::vector<FVertex>& vertices, std::vector<uint32_t>& indices, uint64_t startIndex)
@@ -394,8 +397,8 @@ void GLTFLoader::loadAnimations(const tinygltf::Model &model)
     {
         FAnimation animation{};
 		animation.name = anim.name;
-		if (anim.name.empty())
-			animation.name = std::to_string(m_pMesh->getAnimations().size());
+		//if (anim.name.empty())
+		//	animation.name = std::to_string(m_pMesh->getAnimations().size());
 
         for (auto &samp : anim.samplers)
         {
@@ -491,7 +494,8 @@ void GLTFLoader::loadAnimations(const tinygltf::Model &model)
 			animation.channels.push_back(channel);
 		}
 
-		m_pMesh->addAnimation(std::move(animation));
+        //TODO: save animations to mesh
+		//m_pMesh->addAnimation(std::move(animation));
     }
 }
 
@@ -545,10 +549,12 @@ void GLTFLoader::loadMaterials(const tinygltf::Model &model)
         if (mat.additionalValues.find("emissiveTexture") != mat.additionalValues.end())
         {
             auto texture = mat.additionalValues.at("emissiveTexture");
-            params.emissiveFactor = glm::make_vec3(texture.ColorFactor().data()); 
             nativeMaterial->addTexture("emissive_tex", vTextures.at(texture.TextureIndex()));
             nativeMaterial->addDefinition("HAS_EMISSIVEMAP", "");
         }
+
+        if (mat.additionalValues.find("emissiveFactor") != mat.additionalValues.end())
+            params.emissiveFactor = glm::make_vec3(mat.additionalValues.at("emissiveFactor").ColorFactor().data()); 
 
         // TODO: add HAS_HEIGHTMAP
 

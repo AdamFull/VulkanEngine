@@ -1,7 +1,7 @@
 #include "ScreenSpaceReflectionsPass.h"
 #include "graphics/VulkanHighLevel.h"
 #include "resources/materials/MaterialLoader.h"
-#include "graphics/scene/objects/components/camera/CameraManager.h"
+#include "graphics/scene/objects/components/CameraManager.h"
 
 using namespace engine::core::render;
 using namespace engine::core::scene;
@@ -27,7 +27,8 @@ void CScreenSpaceReflectionsPass::render(vk::CommandBuffer& commandBuffer)
     pMaterial->addTexture("packed_tex", images["packed_tex"]);
     pMaterial->addTexture("depth_tex", images["depth_image"]);
 
-    auto camera = CCameraManager::inst()->getCurrentCamera();
+    auto& cameraNode = CCameraManager::inst()->getCurrentCamera();
+    auto& camera = cameraNode->getCamera();
     auto view = camera->getView();
     auto projection = camera->getProjection();
     auto invViewProjection = glm::inverse(projection * view);

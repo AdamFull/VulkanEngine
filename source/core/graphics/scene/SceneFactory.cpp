@@ -1,14 +1,12 @@
 #include "SceneFactory.h"
 #include "filesystem/FilesystemHelper.h"
 
-#include "resources/meshes/MeshFactory.h"
 #include "resources/meshes/loaders/GLTFLoader.h"
 #include "resources/materials/MaterialFactory.h"
 #include "resources/materials/VulkanMaterial.h"
-#include "graphics/scene/objects/components/camera/CameraManager.h"
-#include "graphics/scene/objects/components/MeshComponentBase.h"
+#include "graphics/scene/objects/components/CameraManager.h"
 
-#include "graphics/scene/lightning/LightSourceManager.h"
+#include "graphics/scene/objects/components/LightSourceManager.h"
 #include "resources/ResourceManager.h"
 
 using namespace engine;
@@ -24,6 +22,7 @@ scope_ptr<CRenderScene> CSceneFactory::create(std::string srScenePath)
     pRenderScene->create();
 
     auto pRoot = pRenderScene->getRoot();
+    pRoot->setName("root");
     // TODO: check is skybox exists
     pRoot->attach(createComponent(info.skybox));
 
@@ -42,24 +41,26 @@ void CSceneFactory::createComponents(ref_ptr<CRenderObject>& pRoot, std::vector<
 
 ref_ptr<CRenderObject> CSceneFactory::createComponent(FSceneObject info)
 {
-    ref_ptr<CRenderObject> object;
+    ref_ptr<CRenderObject> object = make_ref<CRenderObject>();
+    object->setTransform(info.fTransform);
+    object->setName(info.srName);
+    object->setCullable(info.culling.bEnableCulling);
+    object->setCullingRadius(info.culling.fSphereRadius);
+    object->setCyllingType(info.culling.eType);
 
     switch (info.eObjectType)
     {
     case ESceneObjectType::eCamera:
-        object = createCamera(info);
-        break;
-    case ESceneObjectType::eMeshComponent:
-        object = createStaticMesh(info);
+        createCamera(object, info);
         break;
     case ESceneObjectType::eSkybox:
-        object = createSkybox(info);
+        createSkybox(object, info);
         break;
     case ESceneObjectType::eGltfMesh:
-        object = createGLTFMesh(info);
+        createGLTFMesh(object, info);
         break;
     case ESceneObjectType::eLightSource:
-        object = createLightSource(info);
+        createLightSource(object, info);
         break;
     }
 
@@ -71,22 +72,14 @@ ref_ptr<CRenderObject> CSceneFactory::createComponent(FSceneObject info)
 
 // Create mesh component factory!!!!!!!!!!!!!
 
-ref_ptr<CRenderObject> CSceneFactory::createCamera(FSceneObject info)
+void CSceneFactory::createCamera(ref_ptr<core::scene::CRenderObject>& pRoot, FSceneObject info)
 {
-    auto camera = make_ref<CCameraComponent>();
-    camera->setTransform(info.fTransform);
-    camera->setName(info.srName);
-    CCameraManager::inst()->attach(camera);
-    return camera;
-}
-
-ref_ptr<CRenderObject> CSceneFactory::createStaticMesh(FSceneObject info)
-{
-    return nullptr;
+    pRoot->setCamera(make_ref<CCameraComponent>());
+    CCameraManager::inst()->attach(pRoot);
 }
 
 //Todo: do smth with code reusing
-ref_ptr<CRenderObject> CSceneFactory::createSkybox(FSceneObject info)
+void CSceneFactory::createSkybox(ref_ptr<core::scene::CRenderObject>& pRoot, FSceneObject info)
 {
     auto loader = make_ref<GLTFLoader>(info.mesh.bUseIncludedMaterial, true, info.srName, info.srUseVolume);
 
@@ -100,19 +93,10 @@ ref_ptr<CRenderObject> CSceneFactory::createSkybox(FSceneObject info)
         }
     }
 
-    auto mesh = make_ref<CMeshObjectBase>();
-    loader->load(info.mesh.srSrc, info.srName);
-    mesh->setTransform(info.fTransform);
-    mesh->setName(info.srName);
-    mesh->setMesh(loader->getMesh());
-    mesh->setCullable(info.culling.bEnableCulling);
-    mesh->setCullingRadius(info.culling.fSphereRadius);
-    mesh->setCyllingType(info.culling.eType);
-
-    return mesh;
+    loader->load(pRoot, info.mesh.srSrc, info.srName);
 }
 
-ref_ptr<CRenderObject> CSceneFactory::createGLTFMesh(FSceneObject info)
+void CSceneFactory::createGLTFMesh(ref_ptr<core::scene::CRenderObject>& pRoot, FSceneObject info)
 {
     auto loader = make_ref<GLTFLoader>(info.mesh.bUseIncludedMaterial, true, info.srName, info.srUseVolume);
     if (!info.mesh.bUseIncludedMaterial)
@@ -125,47 +109,17 @@ ref_ptr<CRenderObject> CSceneFactory::createGLTFMesh(FSceneObject info)
         }
     }
 
-    auto mesh = make_ref<CMeshObjectBase>();
-    mesh->setInstances(info.vInstances);
-    loader->load(info.mesh.srSrc, info.srName);
-    mesh->setTransform(info.fTransform);
-    mesh->setName(info.srName);
-    auto& loaded = loader->getMesh();
-    loaded->textureRepeat(info.mesh.fRepeat);
-    mesh->setMesh(loaded);
-    mesh->setCullable(info.culling.bEnableCulling);
-    mesh->setCullingRadius(info.culling.fSphereRadius);
-    mesh->setCyllingType(info.culling.eType);
-
-    return mesh;
+    loader->load(pRoot, info.mesh.srSrc, info.srName);
 }
 
-ref_ptr<CRenderObject> CSceneFactory::createLightSource(FSceneObject info)
+void CSceneFactory::createLightSource(ref_ptr<core::scene::CRenderObject>& pRoot, FSceneObject info)
 {
-    switch (info.light.eType)
-    {
-    case ELightSourceType::ePoint:{
-        auto lightSource = CLightSourceManager::inst()->createSource<CLightSourcePoint>();
-        lightSource->setTransform(info.fTransform);
-        lightSource->setColor(info.light.vColor);
-        lightSource->setAttenuation(info.light.fAttenuation);
-        lightSource->setIntencity(info.light.fIntencity);
-        return lightSource;
-        }break;
-    case ELightSourceType::eDirectional:{
-        auto lightSource = CLightSourceManager::inst()->createSource<CLightSourceDirectional>();
-        lightSource->setTransform(info.fTransform);
-        lightSource->setColor(info.light.vColor);
-        lightSource->setIntencity(info.light.fIntencity);
-        return lightSource;
-        }break;
-    case ELightSourceType::eSpot:{
-        auto lightSource = CLightSourceManager::inst()->createSource<CLightSourceSpot>();
-        lightSource->setTransform(info.fTransform);
-        lightSource->setColor(info.light.vColor);
-        lightSource->setIntencity(info.light.fIntencity);
-        return lightSource;
-        }break;
-    }
-    return nullptr;
+    auto lightComponent = make_ref<CLightComponent>();
+    lightComponent->setName(info.srName);
+    lightComponent->setColor(info.light.vColor);
+    lightComponent->setRadius(info.light.fAttenuation);
+    lightComponent->setIntencity(info.light.fIntencity);
+    lightComponent->setType(info.light.eType);
+    pRoot->setLight(std::move(lightComponent));
+    CLightSourceManager::inst()->addLight(pRoot);
 }

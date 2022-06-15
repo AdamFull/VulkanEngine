@@ -6,7 +6,6 @@
 using namespace engine::core;
 using namespace engine::resources;
 using namespace engine::resources::material;
-using namespace engine::resources::mesh;
 
 template <>
 scope_ptr<CResourceManager> utl::singleton<CResourceManager>::_instance{nullptr};
@@ -39,7 +38,4 @@ void CResourceManager::load(std::string srResourcesPath)
 
     for (auto material : vMaterials)
         add<CMaterialBase>(material);
-
-    for (auto mesh : vMeshes)
-        add<CMeshFragment>(mesh);
 }

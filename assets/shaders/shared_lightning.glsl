@@ -1,27 +1,13 @@
 #define PI 3.1415926535897932384626433832795
 
-struct PointLight
+struct FLight
 {
 	vec3 position;
-	vec3 color;
-	float radius;
-	float intencity;
-};
-
-struct DirectionalLight
-{
-	vec3 color;
-	vec3 direction;
-	float intencity;
-};
-
-struct SpotLight
-{
-	vec3 position;
-	vec3 color;
-	vec3 direction;
-	float intencity;
-	float cutoff;
+    vec3 direction;
+    vec3 color;
+    float radius;
+    float intencity;
+    int type;
 };
 
 // From http://filmicworlds.com/blog/filmic-tonemapping-operators/
@@ -92,10 +78,10 @@ vec3 F_SchlickR(float cosTheta, vec3 F0, float roughness)
 vec3 specularContribution(vec3 diffuse, vec3 L, vec3 V, vec3 N, vec3 F0, float metallic, float roughness)
 {
 	// Precalculate vectors and dot products	
-	vec3 H = normalize(V + L);
+	vec3 H = normalize(L + V);
 	float dotNH = clamp(dot(N, H), 0.0f, 1.0f);
-	float dotNV = clamp(dot(N, V), 0.0f, 1.0f);
-	float dotNL = clamp(dot(N, L), 0.0f, 1.0f);
+	float dotNV = clamp(abs(dot(N, V)), 0.001f, 1.0f);
+	float dotNL = clamp(dot(N, L), 0.001f, 1.0f);
 
 	vec3 color = vec3(0.0f);
 
@@ -106,10 +92,10 @@ vec3 specularContribution(vec3 diffuse, vec3 L, vec3 V, vec3 N, vec3 F0, float m
 		// G = Geometric shadowing term (Microfacets shadowing)
 		float G = G_SchlicksmithGGX(dotNL, dotNV, roughness);
 		// F = Fresnel factor (Reflectance depending on angle of incidence)
-		vec3 F = F_Schlick(dotNV, F0);		
-		vec3 spec = D * F * G / (4.0f * dotNL * dotNV + 0.001f);		
+		vec3 F = F_Schlick(dotNV, F0);
+		vec3 spec = D * F * G / (4.0f * dotNL * dotNV);		
 		vec3 kD = (vec3(1.0f) - F) * (1.0f - metallic);			
-		color += (kD * diffuse / PI + spec) * dotNL;
+		color += ((kD * diffuse / PI) + spec) * dotNL;
 	}
 
 	return color;

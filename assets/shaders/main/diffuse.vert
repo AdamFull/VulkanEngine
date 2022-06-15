@@ -12,8 +12,7 @@ layout(location = 4) in vec4 inTangent;
 layout(location = 0) out vec2 outUV;
 layout(location = 1) out vec3 outColor;
 layout(location = 2) out vec3 outPosition;
-layout(location = 3) out vec3 outNormal;
-layout(location = 4) out vec4 outTangent;
+layout(location = 3) out mat3 outTBN;
 
 #include "../shader_util.glsl"
 
@@ -34,8 +33,11 @@ void main()
 	outUV = inTexCoord * 1.0;
   	outColor = inColor;
 	outPosition = inPosition;
-	outNormal = inNormal;
-	outTangent = inTangent;
+	
+#ifdef HAS_TANGENTS
+	mat3 normal = mat3(ubo.normal);
+	outTBN = calculateTBN(normal * inNormal, vec4(normal * inTangent.xyz, inTangent.w));
+#endif
   
   	gl_Position = ubo.projection * ubo.view * ubo.model * tmpPos;
 }

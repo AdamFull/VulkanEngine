@@ -1,5 +1,5 @@
 #include "RenderScene.h"
-#include "graphics/scene/objects/components/camera/CameraManager.h"
+#include "graphics/scene/objects/components/CameraManager.h"
 #include "graphics/VulkanHighLevel.h"
 #include "keymapper/InputMapper.h"
 
@@ -13,7 +13,7 @@ using namespace engine::resources;
 
 void CRenderScene::create()
 {
-    m_pRoot = make_ref<CSceneRootComponent>();
+    m_pRoot = make_ref<CRenderObject>();
     CResourceManager::inst()->create();
 }
 

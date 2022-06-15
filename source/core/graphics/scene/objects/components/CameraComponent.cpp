@@ -1,20 +1,21 @@
 #include "CameraComponent.h"
 #include "graphics/VulkanHighLevel.h"
+#include "graphics/scene/objects/RenderObject.h"
 
-//TODO: requires optimisations
 using namespace engine::core::scene;
 
-CCameraComponent::CCameraComponent()
+void CCameraComponent::create()
 {
-    eObjectType = ERenderObjectType::eCamera;
+    auto transform = pParent->getLocalTransform();
+    transform.rot = glm::vec3{-1.0, 0.0, 0.0};
+    pParent->setTransform(transform);
 }
 
 void CCameraComponent::update(float fDeltaTime)
 {
-    CRenderObject::update(fDeltaTime); 
     dt = fDeltaTime;
+    auto transform = pParent->getTransform();
     viewPos = glm::vec4(transform.pos, 0.0);
-    transform.rot = direction;
 
     auto view = getView();
     auto projection = getProjection();
@@ -87,7 +88,9 @@ void CCameraComponent::moveForward(bool bInv)
         return;
 
     float dir = bInv ? -1.f : 1.f;
+    auto transform = pParent->getLocalTransform();
     transform.pos += getForwardVector() * dir * dt * sensitivity;
+    pParent->setTransform(transform);
 }
 
 void CCameraComponent::moveRight(bool bInv)
@@ -96,7 +99,9 @@ void CCameraComponent::moveRight(bool bInv)
         return;
         
     float dir = bInv ? -1.f : 1.f;
+    auto transform = pParent->getLocalTransform();
     transform.pos += getRightVector() * dir * dt * sensitivity;
+    pParent->setTransform(transform);
 }
 
 void CCameraComponent::moveUp(bool bInv)
@@ -105,9 +110,12 @@ void CCameraComponent::moveUp(bool bInv)
         return;
         
     float dir = bInv ? -1.f : 1.f;
+    auto transform = pParent->getLocalTransform();
     transform.pos += getUpVector() * dir * dt * sensitivity;
+    pParent->setTransform(transform);
 }
 
+//TODO: make transform component as reference
 void CCameraComponent::lookAt(float dX, float dY)
 {
     if(!bEnableControls)
@@ -129,25 +137,28 @@ void CCameraComponent::lookAt(float dX, float dY)
     const float u{-sin(glm::radians(angleV))};
     const float v{cos(glm::radians(angleV)) * -sin(glm::radians(angleH))};
     
-    direction = glm::normalize(glm::vec3(w, u, v));
+    auto transform = pParent->getLocalTransform();
+    transform.rot = glm::normalize(glm::vec3(w, u, v));
+    pParent->setTransform(transform);
 }
 
 glm::mat4 CCameraComponent::getProjection() const
 {
     auto aspect = CDevice::inst()->getAspect(true);
-    auto perspective = glm::perspective(glm::radians(fieldOfView), aspect, near, far);
-    //perspective[1][1] *= -1.f;
+    auto perspective = glm::perspective(glm::radians(fieldOfView), aspect, nearPlane, farPlane);
     return perspective;
 }
 
 glm::mat4 CCameraComponent::getView() const
 {
-    return glm::lookAt(transform.pos, transform.pos + direction, getUpVector());
+    auto transform = pParent->getLocalTransform();
+    return glm::lookAt(transform.pos, transform.pos + transform.rot, getUpVector());
 }
 
 glm::vec3 CCameraComponent::getForwardVector() const
 {
-    return direction;
+    auto transform = pParent->getLocalTransform();
+    return transform.rot;
 }
 
 glm::vec3 CCameraComponent::getUpVector() const

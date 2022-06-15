@@ -1,6 +1,9 @@
 #pragma once
 #include "util/Transform.hpp"
 #include "graphics/scene/SceneConstruct.h"
+#include "graphics/scene/objects/components/MeshComponent.h"
+#include "graphics/scene/objects/components/CameraComponent.h"
+#include "graphics/scene/objects/components/LightComponent.h"
 
 namespace engine
 {
@@ -28,7 +31,7 @@ namespace engine
                 // Recreate render object
                 virtual void reCreate();
                 // Do render things
-                virtual void render(vk::CommandBuffer &commandBuffer, uint32_t imageIndex);
+                virtual void render(vk::CommandBuffer &commandBuffer);
                 // Update object
                 virtual void update(float fDeltaTime);
                 // Cleanup object( not deleting)
@@ -87,10 +90,36 @@ namespace engine
                 void setRotation(glm::vec3 rotation);
                 void setScale(glm::vec3 scale);
 
+                void setIndex(uint32_t index) { objectIndex = index; };
+                uint32_t getIndex() { return objectIndex; }
+
                 ERenderObjectType getObjectType() const { return eObjectType; }
+
+                void setMesh(ref_ptr<CMeshComponent>&& component) 
+                { 
+                    pMesh = std::move(component);
+                    pMesh->setParent(shared_from_this());
+                }
+
+                void setCamera(ref_ptr<CCameraComponent>&& component) 
+                { 
+                    pCamera = std::move(component);
+                    pCamera->setParent(shared_from_this());
+                }
+
+                void setLight(ref_ptr<CLightComponent>&& component) 
+                { 
+                    pLight = std::move(component);
+                    pLight->setParent(shared_from_this());
+                }
+
+                ref_ptr<CMeshComponent>& getMesh() { return pMesh; }
+                ref_ptr<CCameraComponent>& getCamera() { return pCamera; }
+                ref_ptr<CLightComponent>& getLight() { return pLight; }
 
             protected:
                 uint64_t objectId{0};
+                uint32_t objectIndex{0};
                 std::string srName;
                 FTransform transform;
                 bool bVisible{true};
@@ -98,10 +127,14 @@ namespace engine
                 bool bWasRendered{true};
                 bool bEnableCulling{true};
                 bool bHasInstances{false};
-                float fCullingRadius{1.1f};
+                float fCullingRadius{10.0f};
                 std::pair<glm::vec3, glm::vec3> boundingBox{};
                 ECullingType eCullingType{ECullingType::eBySphere};
                 ERenderObjectType eObjectType{ERenderObjectType::eNone};
+
+                ref_ptr<CMeshComponent> pMesh;
+                ref_ptr<CCameraComponent> pCamera;
+                ref_ptr<CLightComponent> pLight;
 
                 ref_ptr<CRenderObject> pParent;
                 ref_ptr<CRenderObject> pParentOld;

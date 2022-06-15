@@ -1,8 +1,8 @@
-vec3 getTangentSpaceNormalMap(sampler2D samplerNormal, mat3 TBN, vec2 uv)
+vec3 getTangentSpaceNormalMap(sampler2D samplerNormal, mat3 TBN, vec2 uv, float scale)
 {
 	vec3 normalColor = texture(samplerNormal, uv).rgb;
-	vec3 tangentNormal = normalColor * 2.0f - 1.0f;
-	return normalize(TBN * tangentNormal);
+    normalColor = normalize(TBN * ((2.0 * normalColor - 1.0) * vec3(scale, scale, 1.0)));
+	return normalColor;
 }
 
 // Calculate normal in tangent space

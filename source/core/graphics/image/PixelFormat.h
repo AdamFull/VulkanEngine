@@ -1,5 +1,4 @@
 #pragma once
-#include <util/bimap.hpp>
 
 namespace engine
 {

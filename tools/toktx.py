@@ -4,7 +4,7 @@ import subprocess, os, fnmatch
 target_dir = "../assets"
 target_ext = []
 uastc_quality = 4
-compression_level = 15
+compression_level = 20
 
 def main():
     for root, dir, files in os.walk(target_dir):
@@ -12,6 +12,7 @@ def main():
             if file.endswith((".png", ".jpg")):
                 file_path = os.path.abspath(os.path.normpath(os.path.join(root, file)))
                 outfile_path = os.path.splitext(file_path)[0] + '.ktx2'
+                print("Working on: ", os.path.basename(file_path))
 
                 packer_args = ["toktx", "--t2", f"--uastc", f"{uastc_quality}"]
                 additional_args = ["--srgb"]

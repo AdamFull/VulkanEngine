@@ -3,7 +3,6 @@
 #include "data_types/VulkanSwapChainSipportDetails.h"
 #include "serializer/Serialization.hpp"
 #include "graphics/commands/CommandBuffer.h"
-#include <util/helpers.hpp>
 
 namespace engine
 {

@@ -6,17 +6,17 @@ using namespace engine::core::scene;
 template<>
 scope_ptr<CCameraManager> utl::singleton<CCameraManager>::_instance{nullptr};
 
-ref_ptr<CCameraComponent>& CCameraManager::getCurrentCamera()
+ref_ptr<CRenderObject>& CCameraManager::getCurrentCamera()
 {
-    return m_vCameras.at(m_iCameraIndex);
+    return vCameras.at(iCameraIndex);
 }
 
 void CCameraManager::setCurrentCameraIndex(size_t index)
 {
-    m_iCameraIndex = index;
+    iCameraIndex = index;
 }
 
-void CCameraManager::attach(ref_ptr<CCameraComponent> newCamera)
+void CCameraManager::attach(ref_ptr<CRenderObject>& newCamera)
 {
-    m_vCameras.push_back(newCamera);
+    vCameras.push_back(newCamera);
 }

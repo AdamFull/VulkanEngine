@@ -1,5 +1,4 @@
 #pragma once
-#include <glm/glm.hpp>
 #include "serializer/Serialization.hpp"
 
 namespace engine

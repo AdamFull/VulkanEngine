@@ -1,5 +1,5 @@
 #pragma once
-#include "graphics/scene/objects/RenderObject.h"
+#include "SceneComponent.h"
 
 namespace engine
 {
@@ -7,16 +7,16 @@ namespace engine
     {
         namespace scene
         {
-            class CCameraComponent : public CRenderObject
+            class CCameraComponent : public CSceneComponent
             {
             public:
-                CCameraComponent();
-                explicit CCameraComponent(std::string name)
-                {
-                    srName = name;
-                }
-
+                void create() override;
+                void reCreate() override {}
+                void render(vk::CommandBuffer &commandBuffer) override {}
                 void update(float fDeltaTime) override;
+                void cleanup() override {}
+                void destroy() override {}
+
                 void setControl(bool bControl) { bEnableControls = bControl; }
 
                 void moveForward(bool bInv);
@@ -59,21 +59,20 @@ namespace engine
                 bool checkBox(const glm::vec3 &start, const glm::vec3 &end);
 
                 const float getFieldOfView() const { return fieldOfView; }
-                const float getNearPlane() const { return near; }
-                const float getFarPlane() const { return far; }
+                const float getNearPlane() const { return nearPlane; }
+                const float getFarPlane() const { return farPlane; }
 
                 void setFieldOfView(float value) { fieldOfView = value; }
-                void setNearPlane(float value) { near = value; }
-                void setFarPlane(float value) { far = value; }
+                void setNearPlane(float value) { nearPlane = value; }
+                void setFarPlane(float value) { farPlane = value; }
 
                 glm::vec4 viewPos{};
 
             private:
                 void normalizeFrustumSide(size_t side);
 
-                float dt{0.0}, fieldOfView{45.f}, near{0.1f}, far{1000.f}, sensitivity{3.f};
+                float dt{0.0}, fieldOfView{45.f}, nearPlane{0.1f}, farPlane{1000.f}, sensitivity{3.f};
                 float angleH{0.f}, angleV{0.f};
-                glm::vec3 direction{-1.0, 0.0, 0.0};
                 bool bEnableControls{true};
 
                 // Frustum

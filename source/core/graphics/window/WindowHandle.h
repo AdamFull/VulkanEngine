@@ -1,7 +1,5 @@
 #pragma once
-#include <GLFW/glfw3.h>
 #include "serializer/Serialization.hpp"
-#include <util/helpers.hpp>
 
 namespace engine::core::window
 {

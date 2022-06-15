@@ -1,19 +1,23 @@
 #pragma once
 #include "external/tinygltf/tiny_gltf.h"
-#include "resources/meshes/VulkanMesh.h"
 #include "graphics/data_types/VulkanVertex.hpp"
 
 namespace engine
 {
-    namespace core { class CImage; }
+    namespace core 
+    { 
+        class CImage; 
+        namespace scene 
+        {
+            class CRenderObject;
+        }
+    }
     namespace resources
     {
         namespace material { class CMaterialBase; }
 
         namespace loaders
-        {
-            class GLTFSceneNode;
-            
+        {            
             /**
              * @brief GLTF model loader
              * 
@@ -37,7 +41,7 @@ namespace engine
                  * @param srPath Path to model file
                  * @param srName Model name
                  */
-                void load(const std::string& srPath, const std::string& srName);
+                void load(ref_ptr<core::scene::CRenderObject>& pParent, const std::string& srPath, const std::string& srName);
 
                 /**
                  * @brief Add new material
@@ -45,13 +49,6 @@ namespace engine
                  * @param material Material smart pointer object
                  */
                 inline void addMaterial(ref_ptr<material::CMaterialBase>&& material) { vMaterials.emplace_back(material); }
-
-                /**
-                 * @brief Get loaded mesh
-                 * 
-                 * @return const ref_ptr<Mesh::CMeshBase> Loaded mesh smart pointer object
-                 */
-                inline const ref_ptr<mesh::CMeshBase> getMesh() const { return m_pMesh; }
 
             private:
                 /**
@@ -63,7 +60,7 @@ namespace engine
                  * @param model Current node mesh data
                  * @param globalscale Override global node scale
                  */
-                void loadNode(ref_ptr<GLTFSceneNode> pParent, const tinygltf::Node &node, uint32_t nodeIndex, const tinygltf::Model &model, float globalscale);
+                void loadNode(ref_ptr<core::scene::CRenderObject>& pParent, const tinygltf::Node &node, uint32_t nodeIndex, const tinygltf::Model &model, float globalscale);
 
                 /**
                  * @brief Loads mesh fragment from scene node
@@ -72,7 +69,7 @@ namespace engine
                  * @param node Current scene node
                  * @param model Current node mesh data
                  */
-                void loadMeshFragment(ref_ptr<GLTFSceneNode>& sceneNode, const tinygltf::Node &node, const tinygltf::Model &model);
+                void loadMeshFragment(ref_ptr<core::scene::CRenderObject>& sceneNode, const tinygltf::Node &node, const tinygltf::Model &model);
 
                 /**
                  * @brief Recalculates tangents for fragment vertices and indices
@@ -121,14 +118,10 @@ namespace engine
                 void loadSkins(const tinygltf::Model &model);
 
                 uint32_t current_primitive;
-                ref_ptr<mesh::CMeshBase> m_pMesh;
                 //ref_ptr<Light::Point> m_pPointLights;
                 //ref_ptr<Camera::Base> m_pCameras;
                 std::vector<ref_ptr<core::CImage>> vTextures;
                 std::vector<ref_ptr<material::CMaterialBase>> vMaterials;
-
-                std::vector<ref_ptr<GLTFSceneNode>> m_vNodes;
-                std::vector<ref_ptr<GLTFSceneNode>> m_vLinearNodes;
 
                 fs::path fsParentPath{""};
 

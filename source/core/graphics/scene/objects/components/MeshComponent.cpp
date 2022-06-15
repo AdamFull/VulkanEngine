@@ -1,13 +1,8 @@
-#include "MeshFragment.h"
-#include "util/uuid.hpp"
+#include "MeshComponent.h"
 #include "resources/materials/VulkanMaterial.h"
-#include "graphics/VulkanDevice.hpp"
 #include "graphics/VulkanHighLevel.h"
-#include <glm/gtc/type_ptr.hpp>
-#include <glm/gtx/matrix_decompose.hpp>
-#include "graphics/scene/objects/components/camera/CameraManager.h"
+#include "graphics/scene/objects/components/CameraManager.h"
 
-using namespace engine::resources::mesh;
 using namespace engine::core::scene;
 
 void FPrimitive::setDimensions(glm::vec3 min, glm::vec3 max)
@@ -19,43 +14,39 @@ void FPrimitive::setDimensions(glm::vec3 min, glm::vec3 max)
     dimensions.radius = glm::distance(min, max) / 2.0f;
 }
 
-void CMeshFragment::create()
+void CMeshComponent::create()
 {
-    for (auto &primitive : m_vPrimitives)
+    for (auto &primitive : vPrimitives)
     {
         if(primitive.material)
             primitive.material->create();
     }
 }
 
-void CMeshFragment::addPrimitive(FPrimitive &&primitive)
+void CMeshComponent::reCreate()
 {
-    m_vPrimitives.emplace_back(primitive);
-}
-
-FPrimitive& CMeshFragment::getPrimitive(uint32_t index)
-{
-    return m_vPrimitives.at(index);
-}
-
-void CMeshFragment::reCreate()
-{
-    for (auto &primitive : m_vPrimitives)
+    for (auto &primitive : vPrimitives)
     {
         if(primitive.material)
             primitive.material->reCreate();
     }
 }
 
-void CMeshFragment::render(vk::CommandBuffer commandBuffer, const glm::mat4& model, uint32_t instanceCount)
+void CMeshComponent::render(vk::CommandBuffer &commandBuffer)
 {
-    auto camera = CCameraManager::inst()->getCurrentCamera();
+    auto& cameraNode = CCameraManager::inst()->getCurrentCamera();
+    auto& camera = cameraNode->getCamera();
+
+    auto transform = pParent->getTransform();
     auto view = camera->getView();
     auto projection = camera->getProjection();
+    auto model = transform.getModel();
     auto normal = glm::transpose(glm::inverse(model));
-    for (auto &primitive : m_vPrimitives)
+
+    for (auto &primitive : vPrimitives)
     {
-        bool needToRender{true};
+        //TODO: load primitive position?
+        bool needToRender{true}; //= camera->checkSphere(transform.pos, primitive.dimensions.radius);
         if(needToRender)
         {
             if(primitive.material && primitive.bUseMaterial)
@@ -84,21 +75,31 @@ void CMeshFragment::render(vk::CommandBuffer commandBuffer, const glm::mat4& mod
                     material->flush(commandBuffer);  
                 }
             }
-            commandBuffer.drawIndexed(primitive.indexCount, instanceCount, primitive.firstIndex, 0, 0);
+            commandBuffer.drawIndexed(primitive.indexCount, 1, primitive.firstIndex, 0, 0);
         }
     }
 }
 
-void CMeshFragment::cleanup()
+void CMeshComponent::update(float fDeltaTime)
 {
-    for (auto &primitive : m_vPrimitives)
+    
+}
+
+void CMeshComponent::cleanup()
+{
+    for (auto &primitive : vPrimitives)
     {
         if(primitive.material)
             primitive.material->cleanup();
     }
 }
 
-void CMeshFragment::setName(const std::string& srName)
+void CMeshComponent::destroy()
 {
-    m_srName = srName + uuid::generate();
+
+}
+
+void CMeshComponent::addPrimitive(FPrimitive &&primitive)
+{
+    vPrimitives.emplace_back(primitive);
 }

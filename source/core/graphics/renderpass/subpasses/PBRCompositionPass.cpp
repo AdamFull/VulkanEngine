@@ -1,10 +1,9 @@
 #include "PBRCompositionPass.h"
-#include <glm/gtc/type_ptr.hpp>
 #include "resources/materials/MaterialLoader.h"
 #include "resources/ResourceManager.h"
 #include "graphics/scene/objects/RenderObject.h"
-#include "graphics/scene/objects/components/camera/CameraManager.h"
-#include "graphics/scene/lightning/LightSourceManager.h"
+#include "graphics/scene/objects/components/CameraManager.h"
+#include "graphics/scene/objects/components/LightSourceManager.h"
 #include "graphics/VulkanHighLevel.h"
 #include "graphics/VulkanInitializers.h"
 #include "graphics/pipeline/Pipeline.h"
@@ -53,42 +52,28 @@ void CPBRCompositionPass::render(vk::CommandBuffer& commandBuffer)
     pMaterial->addTexture("prefiltred_tex", *prefiltered);
     
     pMaterial->addTexture("packed_tex", images["packed_tex"]);
+    pMaterial->addTexture("emission_tex", images["emission_tex"]);
     pMaterial->addTexture("depth_tex", images["depth_image"]);
 
     auto imageIndex = CDevice::inst()->getCurrentFrame();
 
-    auto camera = CCameraManager::inst()->getCurrentCamera();
+    auto& cameraNode = CCameraManager::inst()->getCurrentCamera();
+    auto& camera = cameraNode->getCamera();
     auto view = camera->getView();
     auto projection = camera->getProjection();
     auto invViewProjection = glm::inverse(projection * view);
     
-    auto vPointLights = CLightSourceManager::inst()->getSources<FPointLight>();
-    for(std::size_t i = 0; i < vPointLights.size(); i++)
-        point_lights[i] = vPointLights.at(i);
-    point_count = vPointLights.size();
-
-    auto vDirectionalLights = CLightSourceManager::inst()->getSources<FDirectionalLight>();
-    for(std::size_t i = 0; i < vDirectionalLights.size(); i++)
-        directional_lights[i] = vDirectionalLights.at(i);
-    directional_count = vDirectionalLights.size();
-
-    auto vSpotLights = CLightSourceManager::inst()->getSources<FSpotLight>();
-    for(std::size_t i = 0; i < vSpotLights.size(); i++)
-        spot_lights[i] = vSpotLights.at(i);
-    spot_count = vSpotLights.size();
+    uint32_t light_count{0};
+    auto aLights = CLightSourceManager::inst()->getSources(light_count);
     
     auto& pUBO = pMaterial->getPushConstant("ubo");
     pUBO->set("invViewProjection", invViewProjection);
     pUBO->set("viewPos", camera->viewPos);
-    pUBO->set("pointLightCount", point_count);
-    pUBO->set("directionalLightCount", directional_count);
-    pUBO->set("spotLightCount", spot_count);
+    pUBO->set("lightCount", light_count);
     pUBO->flush(commandBuffer);
 
     auto& pUBOLights = pMaterial->getUniformBuffer("UBOLights");
-    pUBOLights->set("pointLights", point_lights);
-    pUBOLights->set("directionalLights", directional_lights);
-    pUBOLights->set("spotLights", spot_lights);
+    pUBOLights->set("lights", aLights);
     
     pMaterial->update();
     pMaterial->bind();

@@ -1,12 +1,7 @@
 #include "InspectorWindow.h"
 #include "graphics/scene/objects/RenderObject.h"
-#include "graphics/scene/objects/components/MeshComponentBase.h"
-#include "graphics/scene/objects/components/camera/CameraComponent.h"
-#include "graphics/scene/objects/components/light/LightSourceDirectional.h"
-#include "graphics/scene/objects/components/light/LightSourcePoint.h"
-#include "graphics/scene/objects/components/light/LightSourceSpot.h"
+#include "graphics/scene/objects/components/CameraComponent.h"
 #include "editor/Editor.h"
-#include <glm/gtc/type_ptr.hpp>
 #include "editor/CustomControls.h"
 
 using namespace engine::core;
@@ -125,16 +120,19 @@ void CInspectorWindow::draw()
             }
 
             ImGui::Separator();
-            auto objectType = selected->getObjectType();
-            switch (objectType)
+
+            if(selected->getMesh())
             {
-            case ERenderObjectType::eMesh:{
-                auto pMesh = std::dynamic_pointer_cast<CMeshObjectBase>(selected);
+                auto& pMesh = selected->getMesh();
                 ImGui::Text("Static Mesh");
                 ImGui::Separator();
-            }break;
-            case ERenderObjectType::eCamera:{
-                auto pCamera = std::dynamic_pointer_cast<CCameraComponent>(selected);
+
+                //TODO: show primitives and materials
+            }
+
+            if(selected->getCamera())
+            {
+                auto& pCamera = selected->getCamera();
                 ImGui::Text("Camera");
                 ImGui::Separator();
                 auto fov = pCamera->getFieldOfView();
@@ -146,54 +144,42 @@ void CInspectorWindow::draw()
                 auto farPlane = pCamera->getFarPlane();
                 if(FControls::DragFloat("Far plane", &farPlane, 0.01, 0.1))
                     pCamera->setFarPlane(farPlane);
-            }break;
-            case ERenderObjectType::eLight:{
+            }
+
+            if(selected->getLight())
+            {
                 //TODO: check light type
-                auto pLight = std::dynamic_pointer_cast<CLightSourceBase>(selected);
-                switch (pLight->getLightType())
+                auto& pLight = selected->getLight();
+                switch (pLight->getType())
                 {
                     case ELightSourceType::eDirectional:
                     {
                         ImGui::Text("Directional light");
                         ImGui::Separator();
-                        
-                        auto pDirectional = std::dynamic_pointer_cast<CLightSourceDirectional>(selected);
-                        auto direction = pDirectional->getDirection();
-                        if(FControls::DragFloatVec3("Direction", direction, 0.01, 0.1))
-                            pDirectional->setDirection(direction);
                     } break;
                     case ELightSourceType::ePoint: {
                         ImGui::Text("Point light");
                         ImGui::Separator();
-
-                        auto pPoint = std::dynamic_pointer_cast<CLightSourcePoint>(selected);
-                        auto attenuation = pPoint->getAttenuation();
-                        if(FControls::DragFloat("Attenuation", &attenuation, 0.01, 0.1))
-                            pPoint->setAttenuation(attenuation);
                     } break;
                     case ELightSourceType::eSpot: {
                         ImGui::Text("Spot light");
                         ImGui::Separator();
-
-                        auto pSpot = std::dynamic_pointer_cast<CLightSourceSpot>(selected);
-                        auto direction = pSpot->getDirection();
-                        if(FControls::DragFloatVec3("Direction", direction, 0.01, 0.1))
-                            pSpot->setDirection(direction);
-                        auto cutoff = pSpot->getCutoff();
-                        if(FControls::DragFloat("Cutoff", &cutoff, 0.01, 0.1))
-                            pSpot->setCutoff(cutoff);
                     } break;
                 }
-                
+
+                //TODO: add light type changing here
+
                 auto color = pLight->getColor();
                 if(FControls::ColorEdit3("Color", color))
                     pLight->setColor(color);
+
+                auto radius = pLight->getRadius();
+                if(FControls::DragFloat("Radius", &radius, 0.01, 0.1))
+                    pLight->setRadius(radius);
+
                 auto intencity = pLight->getIntencity();
                 if(FControls::DragFloat("Intencity", &intencity, 0.01, 0.1))
                     pLight->setIntencity(intencity);
-            }break;
-            
-            default: break;
             }
         }
 

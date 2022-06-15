@@ -29,7 +29,7 @@ namespace engine
             {
                 ECullingType eType{ECullingType::eBySphere};
                 bool bEnableCulling{true};
-                float fSphereRadius{2.f};
+                float fSphereRadius{10.f};
                 // Add bounding box support
             };
 

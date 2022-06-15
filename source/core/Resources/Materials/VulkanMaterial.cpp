@@ -140,6 +140,11 @@ void CMaterialBase::setInstances(uint32_t instances)
     this->instances = instances;
 }
 
+void CMaterialBase::incrementUsageCount()
+{
+    instances++;
+}
+
 void CMaterialBase::addDefinition(const std::string& definition, const std::string& value)
 {
     pPipeline->addDefine(definition, value);

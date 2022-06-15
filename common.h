@@ -10,6 +10,12 @@
 
 #include <GLFW/glfw3.h>
 
+#include <glm/glm.hpp>
+#include <glm/gtx/hash.hpp>
+#include <glm/gtc/type_ptr.hpp>
+#include <glm/gtc/matrix_transform.hpp>
+#include <glm/gtx/matrix_decompose.hpp>
+
 #define _USE_MATH_DEFINES
 #include <cmath>
 
@@ -47,6 +53,8 @@
 #include <filesystem>
 namespace fs = std::filesystem;
 
+constexpr const uint32_t max_light_count = 32;
+
 template<class _Ty>
 using scope_ptr = std::unique_ptr<_Ty>;
 
@@ -64,3 +72,8 @@ constexpr ref_ptr<_Ty> make_ref(_Args&& ...args)
 {
 	return std::make_shared<_Ty>(std::forward<_Args>(args)...);
 }
+
+#include <util/function.hpp>
+#include <util/helpers.hpp>
+#include <util/ulog.hpp>
+#include <util/bimap.hpp>

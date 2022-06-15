@@ -4,8 +4,6 @@
 #include "graphics/image/Image.h"
 #include "graphics/image/Image2D.h"
 #include "materials/VulkanMaterial.h"
-#include "meshes/MeshFragment.h"
-#include "meshes/MeshFactory.h"
 #include "materials/MaterialFactory.h"
 //Old code in this includer, remove
 
@@ -171,56 +169,13 @@ namespace engine
                 return pNullMat;
             }
 
-            /*******************************For mesh****************************/
-            /**
-             * @brief Add existing Mesh object to resource manager
-             */
-            void addExisting(const std::string& srResourceName, ref_ptr<mesh::CMeshFragment> pResource)
-            {
-                auto it = m_mMeshes.find(srResourceName);
-                if (it != m_mMeshes.end())
-                    assert(false && "Resource named: is already exists.");
-                m_mMeshes.emplace(srResourceName, pResource);
-            }
-
-            /**
-             * @brief Specialization for Mesh object (texture)
-             * 
-             * @param info Mesh creation info
-             * @return ref_ptr<Mesh::CMeshFragment> Smart pointer to resource object
-             */
-            template <>
-            ref_ptr<mesh::CMeshFragment>& add(const FMeshCreateInfo& info)
-            {
-                ref_ptr<mesh::CMeshFragment> mesh = mesh::CMeshFactory::create(info);
-                addExisting(info.srName, mesh);
-                return pNullFrag;
-            }
-
-            /**
-             * @brief Get smart pointer to created mesh
-             * 
-             * @param srResourceName Mesh name
-             * @return ref_ptr<Mesh::CMeshFragment> Smart pointer to resource object
-             */
-            template <>
-            ref_ptr<mesh::CMeshFragment>& get(const std::string& srResourceName)
-            {
-                auto it = m_mMeshes.find(srResourceName);
-                if (it != m_mMeshes.end())
-                    return it->second;
-                return pNullFrag;
-            }
-
         private:
             std::map<std::string, ref_ptr<core::CImage>> m_mTextures;
             std::map<std::string, ref_ptr<material::CMaterialBase>> m_mMaterials;
-            std::map<std::string, ref_ptr<mesh::CMeshFragment>> m_mMeshes;
 
             ref_ptr<core::CImage> pNullImage{ nullptr };
             ref_ptr<core::CImage2D> pNullImage2D{ nullptr };
             ref_ptr<material::CMaterialBase> pNullMat{ nullptr };
-            ref_ptr<mesh::CMeshFragment> pNullFrag{ nullptr };
         };
     }
 }

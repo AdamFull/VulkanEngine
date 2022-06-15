@@ -30,10 +30,10 @@ layout(binding = 6) uniform sampler2D height_tex;
 layout(location = 0) in vec2 inUV;
 layout(location = 1) in vec3 inColor;
 layout(location = 2) in vec3 inPosition;
-layout(location = 3) in vec3 inNormal;
-layout(location = 4) in vec4 inTangent;
+layout(location = 3) in mat3 inTBN;
 
 layout(location = 0) out uvec4 outPack;
+layout(location = 1) out vec4 outEmissive;
 
 #include "../shader_util.glsl"
 
@@ -61,7 +61,7 @@ const float minRoughness = 0.04;
 void main() 
 {
 	float alpha = ubo.alphaCutoff;
-
+//BASECOLOR
 	vec3 albedo_map = vec3(0.0);
 #ifdef HAS_BASECOLORMAP
 	albedo_map = texture(color_tex, inUV).rgb * ubo.baseColorFactor.rgb;
@@ -70,6 +70,7 @@ void main()
 #endif
 	albedo_map *= inColor;
 
+//METALLIC ROUGHNESS
 	vec4 pbr_map = vec4(0.0);
 	float roughness = ubo.roughnessFactor;
 	float metallic = ubo.metallicFactor;
@@ -82,6 +83,7 @@ void main()
     metallic = clamp(metallic, 0.0, 1.0);
 	pbr_map = vec4(roughness, metallic, 0.0, 0.0);
 
+//NORMALS
 	mat3 normal = mat3(data.normal);
 #ifndef HAS_TANGENTS
     vec3 pos_dx = dFdx(inPosition);
@@ -100,25 +102,31 @@ void main()
     vec3 b = normalize(cross(ng, t));
     mat3 tbn = mat3(t, b, ng);
 #else // HAS_TANGENTS
-    mat3 tbn = calculateTBN(normal * inNormal, vec4(normal * inTangent.xyz, inTangent.w));
+    mat3 tbn = inTBN;
 #endif //END HAS_TANGENTS
 
 	vec3 normal_map = vec3(0.0);
 #ifdef HAS_NORMALMAP
-	normal_map = getTangentSpaceNormalMap(normal_tex, tbn, inUV) * vec3(ubo.normalScale, ubo.normalScale, 1.0);
+	normal_map = getTangentSpaceNormalMap(normal_tex, tbn, inUV, ubo.normalScale);
 #else
 	normal_map = tbn[2].xyz;
 #endif
 
+	//normal_map *= (2.0 * float(gl_FrontFacing) - 1.0);
+
+//AMBIENT OCCLUSION
+	float ao = 1.0;
 #ifdef HAS_OCCLUSIONMAP
-	float ao = texture(occlusion_tex, inUV).r;
+	ao = texture(occlusion_tex, inUV).r;
     albedo_map = mix(albedo_map, albedo_map * ao, ubo.occlusionStrenth);
 #endif
 
+//EMISSION
+	vec4 emission = vec4(0.0);
 #ifdef HAS_EMISSIVEMAP
-    vec3 emissive = texture(emissive_tex, inUV).rgb * ubo.emissiveFactor;
-    albedo_map += emissive;
+    emission = vec4(texture(emissive_tex, inUV).rgb * ubo.emissiveFactor, 1.0);
 #endif
 
 	outPack = packTextures(normal_map, albedo_map, pbr_map);
+	outEmissive = emission;
 }

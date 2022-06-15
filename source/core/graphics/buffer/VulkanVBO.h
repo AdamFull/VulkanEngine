@@ -1,7 +1,6 @@
 #pragma once
 #include "graphics/data_types/VulkanVertex.hpp"
 #include "VulkanBuffer.h"
-#include <util/helpers.hpp>
 
 namespace engine
 {

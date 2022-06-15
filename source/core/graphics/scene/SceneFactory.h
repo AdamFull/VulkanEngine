@@ -17,11 +17,10 @@ namespace engine
                 static void createComponents(ref_ptr<core::scene::CRenderObject> &pRoot, std::vector<FSceneObject> sceneObjects);
                 static ref_ptr<core::scene::CRenderObject> createComponent(FSceneObject info);
 
-                static ref_ptr<core::scene::CRenderObject> createCamera(FSceneObject info);
-                static ref_ptr<core::scene::CRenderObject> createStaticMesh(FSceneObject info);
-                static ref_ptr<core::scene::CRenderObject> createSkybox(FSceneObject info);
-                static ref_ptr<core::scene::CRenderObject> createGLTFMesh(FSceneObject info);
-                static ref_ptr<core::scene::CRenderObject> createLightSource(FSceneObject info);
+                static void createCamera(ref_ptr<core::scene::CRenderObject>& pRoot, FSceneObject info);
+                static void createSkybox(ref_ptr<core::scene::CRenderObject>& pRoot, FSceneObject info);
+                static void createGLTFMesh(ref_ptr<core::scene::CRenderObject>& pRoot, FSceneObject info);
+                static void createLightSource(ref_ptr<core::scene::CRenderObject>& pRoot, FSceneObject info);
             };
         }
     }

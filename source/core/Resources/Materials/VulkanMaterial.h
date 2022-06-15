@@ -120,6 +120,8 @@ namespace engine
 
                 void setInstances(uint32_t instance);
 
+                void incrementUsageCount();
+
                 void addDefinition(const std::string& definition, const std::string& value);
 
                 /**

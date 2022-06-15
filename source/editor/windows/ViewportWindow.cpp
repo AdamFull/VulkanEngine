@@ -2,13 +2,10 @@
 #include <imgui.h>
 #include <imgui_internal.h>
 #include <ImGuizmo.h>
-#include <glm/gtc/type_ptr.hpp>
-#include <glm/gtc/matrix_transform.hpp>
-#include <glm/gtx/matrix_decompose.hpp>
 #include "editor/imgui_impl_vulkan.h"
 #include "graphics/VulkanHighLevel.h"
 #include "Resources/ResourceManager.h"
-#include <graphics/scene/objects/components/camera/CameraManager.h>
+#include "graphics/scene/objects/components/CameraManager.h"
 #include "editor/Editor.h"
 
 using namespace engine::editor;
@@ -102,7 +99,8 @@ void CViewportWindow::drawManipulator(float offsetx, float offsety, float sizex,
     auto selected = CEditor::inst()->getLastSelection();
     if(selected)
     {
-        auto camera = CCameraManager::inst()->getCurrentCamera();
+        auto& cameraNode = CCameraManager::inst()->getCurrentCamera();
+        auto& camera = cameraNode->getCamera();
         camera->setControl(ImGui::IsWindowHovered(ImGuiFocusedFlags_RootAndChildWindows));
 
         ImGuizmo::SetOrthographic(false);

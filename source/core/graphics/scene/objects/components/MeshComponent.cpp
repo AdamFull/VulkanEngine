@@ -90,6 +90,7 @@ void CMeshComponent::render(vk::CommandBuffer &commandBuffer)
                     material->set("baseColorFactor", params.baseColorFactor);
                     material->set("metallicFactor", params.metallicFactor);
                     material->set("roughnessFactor", params.roughnessFactor);
+                    material->set("viewDir", camera->viewPos);
                     material->flush(commandBuffer);  
                 }
             }

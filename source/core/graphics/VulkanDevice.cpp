@@ -208,7 +208,7 @@ vk::Result CDevice::submitCommandBuffers(const vk::CommandBuffer *commandBuffer,
     }
     catch (vk::SystemError err)
     {
-        throw std::runtime_error("failed to submit draw command buffer!");
+        //throw std::runtime_error("failed to submit draw command buffer!");
     }
 
     vk::PresentInfoKHR presentInfo = {};

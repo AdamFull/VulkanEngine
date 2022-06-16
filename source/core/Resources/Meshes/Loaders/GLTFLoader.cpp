@@ -638,6 +638,13 @@ void GLTFLoader::loadMaterials(const tinygltf::Model &model)
             nativeMaterial->addDefinition("HAS_OCCLUSIONMAP", "");
         }
 
+        if (mat.additionalValues.find("displacementGeometryTexture") != mat.additionalValues.end())
+        {
+            auto texture = mat.additionalValues.at("displacementGeometryTexture");
+            nativeMaterial->addTexture("height_tex", vTextures.at(texture.TextureIndex()));
+            nativeMaterial->addDefinition("HAS_HEIGHTMAP", "");
+        }
+
         if (mat.additionalValues.find("emissiveTexture") != mat.additionalValues.end())
         {
             auto texture = mat.additionalValues.at("emissiveTexture");

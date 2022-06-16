@@ -39,6 +39,7 @@ layout(location = 0) out uvec4 outPack;
 layout(location = 1) out vec4 outEmissive;
 
 #include "../shader_util.glsl"
+#include "../shared_shaders.glsl"
 
 layout(std140, binding = 0) uniform FUniformData 
 {
@@ -57,17 +58,24 @@ layout(push_constant) uniform UBOMaterial
 	vec4 baseColorFactor;
 	float metallicFactor;
 	float roughnessFactor;
+	vec3 viewDir;
 } ubo;
 
 const float minRoughness = 0.04;
 
+//https://github.com/bwasty/gltf-viewer/blob/master/src/shaders/pbr-frag.glsl
 void main() 
 {
+	vec2 texCoord = inUV;
+#ifdef HAS_HEIGHTMAP 
+	vec3 viewDir = normalize(ubo.viewDir - inPosition);;
+	texCoord = ParallaxMapping(height_tex, inUV, viewDir, 0.01, 8.0, 32.0);
+#endif
 	float alpha = ubo.alphaCutoff;
 //BASECOLOR
 	vec3 albedo_map = vec3(0.0);
 #ifdef HAS_BASECOLORMAP
-	albedo_map = texture(color_tex, inUV).rgb * ubo.baseColorFactor.rgb;
+	albedo_map = texture(color_tex, texCoord).rgb * ubo.baseColorFactor.rgb;
 #else
 	albedo_map = ubo.baseColorFactor.rgb;
 #endif
@@ -78,7 +86,7 @@ void main()
 	float roughness = ubo.roughnessFactor;
 	float metallic = ubo.metallicFactor;
 #ifdef HAS_METALLIC_ROUGHNESS
-	vec4 metalRough = texture(rmah_tex, inUV);
+	vec4 metalRough = texture(rmah_tex, texCoord);
 	roughness = roughness * metalRough.g;
 	metallic = metallic * pbr_map.b;
 #endif
@@ -91,8 +99,8 @@ void main()
 #ifndef HAS_TANGENTS
     vec3 pos_dx = dFdx(inPosition);
     vec3 pos_dy = dFdy(inPosition);
-    vec3 tex_dx = dFdx(vec3(inUV, 0.0));
-    vec3 tex_dy = dFdy(vec3(inUV, 0.0));
+    vec3 tex_dx = dFdx(vec3(texCoord, 0.0));
+    vec3 tex_dy = dFdy(vec3(texCoord, 0.0));
     vec3 t = normal * (tex_dy.t * pos_dx - tex_dx.t * pos_dy) / (tex_dx.s * tex_dy.t - tex_dy.s * tex_dx.t);
 
 #ifdef HAS_NORMALS
@@ -110,7 +118,7 @@ void main()
 
 	vec3 normal_map = vec3(0.0);
 #ifdef HAS_NORMALMAP
-	normal_map = getTangentSpaceNormalMap(normal_tex, tbn, inUV, ubo.normalScale);
+	normal_map = getTangentSpaceNormalMap(normal_tex, tbn, texCoord, ubo.normalScale);
 #else
 	normal_map = tbn[2].xyz;
 #endif
@@ -120,14 +128,14 @@ void main()
 //AMBIENT OCCLUSION
 	float ao = 1.0;
 #ifdef HAS_OCCLUSIONMAP
-	ao = texture(occlusion_tex, inUV).r;
+	ao = texture(occlusion_tex, texCoord).r;
     albedo_map = mix(albedo_map, albedo_map * ao, ubo.occlusionStrenth);
 #endif
 
 //EMISSION
 	vec4 emission = vec4(0.0);
 #ifdef HAS_EMISSIVEMAP
-    emission = vec4(texture(emissive_tex, inUV).rgb * ubo.emissiveFactor, 1.0);
+    emission = vec4(texture(emissive_tex, texCoord).rgb * ubo.emissiveFactor, 1.0);
 #endif
 
 	outPack = packTextures(normal_map, albedo_map, pbr_map);

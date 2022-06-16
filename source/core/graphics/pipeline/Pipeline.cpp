@@ -4,35 +4,6 @@
 
 using namespace engine::core::pipeline;
 
-scope_ptr<CPipelineBase> CPipelineBase::Builder::build(vk::PipelineBindPoint bindPoint)
-{
-    scope_ptr<CPipelineBase> pPipeline;
-    
-    switch (bindPoint)
-    {
-    case vk::PipelineBindPoint::eCompute: pPipeline = make_scope<CComputePipeline>(); break;
-    case vk::PipelineBindPoint::eGraphics: pPipeline = make_scope<CGraphicsPipeline>(); break;
-    case vk::PipelineBindPoint::eRayTracingKHR: pPipeline = make_scope<CComputePipeline>(); break;
-    case vk::PipelineBindPoint::eSubpassShadingHUAWEI: pPipeline = make_scope<CComputePipeline>(); break;
-    }
-
-    pPipeline->m_bindPoint = bindPoint;
-    pPipeline->m_vDefines = std::move(m_vDefines);
-    pPipeline->m_vStages = std::move(m_vStages);
-
-    if(bindPoint == vk::PipelineBindPoint::eGraphics)
-    {
-        pPipeline->m_vertexInput = std::move(m_vertexInput);
-        pPipeline->m_colorAttachments = m_colorAttachments;
-        pPipeline->m_culling = m_culling;
-        pPipeline->m_fontface = m_fontface;
-        pPipeline->m_enableDepth = m_enableDepth;
-        pPipeline->m_vDynamicStateEnables = m_vDynamicStateEnables;
-    }    
-    
-    return pPipeline;
-}
-
 CPipelineBase::~CPipelineBase()
 {
     cleanup();
@@ -77,9 +48,64 @@ void CPipelineBase::cleanup()
     }
 }
 
-void CPipelineBase::addDefine(const std::string& define, const std::string& value)
+void CPipelineBase::setBindPoint(vk::PipelineBindPoint bindPoint)
 {
-    m_vDefines.emplace(define, value);
+    m_bindPoint = bindPoint;
+}
+
+void CPipelineBase::setVertexInput(CVertexInput &&vertexInput)
+{
+	m_vertexInput = std::move(vertexInput);
+}
+
+void CPipelineBase::setColorAttachments(uint32_t attachments)
+{
+	m_colorAttachments = attachments;
+}
+
+void CPipelineBase::setCulling(vk::CullModeFlagBits culling)
+{
+	m_culling = culling;
+}
+
+void CPipelineBase::setFontFace(vk::FrontFace fontface)
+{
+	m_fontface = fontface;
+}
+
+void CPipelineBase::setDepthEnabled(vk::Bool32 enableDepth)
+{
+	m_enableDepth = enableDepth;
+}
+
+void CPipelineBase::addDynamicState(vk::DynamicState state)
+{
+	m_vDynamicStateEnables.emplace_back(state);
+}
+
+void CPipelineBase::setDynamicStates(const std::vector<vk::DynamicState> &states)
+{
+	m_vDynamicStateEnables = states;
+}
+
+void CPipelineBase::addShaderStage(const std::string &stage)
+{
+	m_vStages.emplace_back(stage);
+}
+
+void CPipelineBase::setShaderStages(const std::vector<std::string> &stages)
+{
+	m_vStages = stages;
+}
+
+void CPipelineBase::addDefine(const std::string &name, const std::string &value)
+{
+	m_vDefines.emplace(std::make_pair(name, value));
+}
+
+void CPipelineBase::setDefines(const std::map<std::string, std::string> &defines)
+{
+    m_vDefines = defines;
 }
 
 void CPipelineBase::bind(vk::CommandBuffer &commandBuffer)

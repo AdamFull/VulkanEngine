@@ -8,6 +8,8 @@
 #include "filesystem/FilesystemHelper.h"
 #include "graphics/VulkanHighLevel.h"
 #include "graphics/scene/objects/RenderObject.h"
+#include "graphics/scene/objects/components/CameraManager.h"
+#include "graphics/scene/objects/components/LightSourceManager.h"
 
 
 // Based on https://github.com/SaschaWillems/Vulkan/blob/master/base/VulkanglTFModel.cpp
@@ -88,7 +90,6 @@ void GLTFLoader::loadNode(ref_ptr<CRenderObject>& pParent, const tinygltf::Node 
 {
     auto component = make_ref<CRenderObject>();
     component->setIndex(nodeIndex);
-    component->setCullable(pParent->isCullable());
 
     if(!node.name.empty())
         component->setName(node.name);
@@ -102,22 +103,21 @@ void GLTFLoader::loadNode(ref_ptr<CRenderObject>& pParent, const tinygltf::Node 
     if(pParent)
         pParent->addChild(component);
 
-    FTransform transform;
+    //TODO: incorrect rotation
+    auto& transform = component->getLocalTransform();
     // Loading position data
     if (node.translation.size() == 3)
-        transform.pos = glm::make_vec3(node.translation.data());
+        transform.setPosition(glm::make_vec3(node.translation.data()));
     // Loading rotation data
     if (node.rotation.size() == 4)
     {
-        glm::quat quat = glm::make_quat(node.rotation.data());
-        glm::vec3 rot = glm::eulerAngles(quat) * 3.14159f / 180.f;
-        transform.rot = rot;
+        glm::quat quat = glm::conjugate(glm::make_quat(node.rotation.data()));
+        glm::vec3 rot = glm::eulerAngles(quat);
+        transform.setRotation(rot);
     }
     // Loading scale data
     if (node.scale.size() == 3)
-        transform.scale = glm::make_vec3(node.scale.data());
-
-    component->setTransform(transform);
+        transform.setScale(glm::make_vec3(node.scale.data()));
 
     // Node with children
     if (node.children.size() > 0)
@@ -129,7 +129,19 @@ void GLTFLoader::loadNode(ref_ptr<CRenderObject>& pParent, const tinygltf::Node 
     }
 
     if (node.mesh > -1) loadMeshFragment(component, node, model);
-    if(node.camera > -1);
+    if(node.camera > -1) loadCamera(component, node, model); 
+    if(node.skin > -1) loadSkin(component, node, model);
+
+    if(!node.extensions.empty())
+    {
+        auto light_support = node.extensions.find("KHR_lights_punctual");
+        if(light_support != node.extensions.end())
+        {
+            auto& extension = light_support->second;
+            auto source = extension.Get("light");
+            loadLight(component, source.GetNumberAsInt(), node, model);
+        }
+    }
 }
 
 void GLTFLoader::loadMeshFragment(ref_ptr<CRenderObject>& sceneNode, const tinygltf::Node &node, const tinygltf::Model &model)
@@ -141,7 +153,7 @@ void GLTFLoader::loadMeshFragment(ref_ptr<CRenderObject>& sceneNode, const tinyg
     else
     {
         std::stringstream ss{};
-        ss << srModelName << "_" << node.mesh;
+        ss << srModelName << "_mesh_" << node.mesh;
         nativeMesh->setName(ss.str());
     }
     
@@ -350,6 +362,86 @@ void GLTFLoader::loadMeshFragment(ref_ptr<CRenderObject>& sceneNode, const tinyg
     //CResourceManager::inst()->addExisting(nativeMesh->getName(), nativeMesh);
 
     std::map<int32_t, int32_t> materialInstances{};
+}
+
+void GLTFLoader::loadCamera(ref_ptr<core::scene::CRenderObject>& sceneNode, const tinygltf::Node &node, const tinygltf::Model &model)
+{
+    const tinygltf::Camera camera = model.cameras[node.camera];
+    auto nativeCamera = make_ref<CCameraComponent>();
+    if(!camera.name.empty())
+        nativeCamera->setName(camera.name);
+    else
+    {
+        std::stringstream ss{};
+        ss << srModelName << "_camera_" << node.camera;
+        nativeCamera->setName(ss.str());
+    }
+
+    if(camera.type == "orthographic")
+    {
+        camera.orthographic.xmag;
+        camera.orthographic.ymag;
+        nativeCamera->setNearPlane(camera.orthographic.znear);
+        nativeCamera->setFarPlane(camera.orthographic.zfar);
+    }
+    else if(camera.type == "perspective")
+    {
+        nativeCamera->setFieldOfView(camera.perspective.yfov);
+        nativeCamera->setNearPlane(camera.perspective.znear);
+        nativeCamera->setFarPlane(camera.perspective.zfar);
+    }
+
+    sceneNode->setCamera(std::move(nativeCamera));
+    CCameraManager::inst()->attach(sceneNode);
+}
+
+void GLTFLoader::loadSkin(ref_ptr<core::scene::CRenderObject>& sceneNode, const tinygltf::Node &node, const tinygltf::Model &model)
+{
+    const tinygltf::Skin skin = model.skins[node.skin];
+    /*auto nativeSkin = make_ref<CSkinComponent>();
+    if(!skin.name.empty())
+        nativeSkin->setName(skin.name);
+    else
+    {
+        std::stringstream ss{};
+        ss << srModelName << "_skin_" << node.skin;
+        nativeSkin->setName(ss.str());
+    }*/
+}
+
+void GLTFLoader::loadLight(ref_ptr<core::scene::CRenderObject>& sceneNode, uint32_t light_index, const tinygltf::Node &node, const tinygltf::Model &model)
+{
+    const tinygltf::Light light = model.lights[light_index];
+    auto nativeLight = make_ref<CLightComponent>();
+    if(!light.name.empty())
+        nativeLight->setName(light.name);
+    else
+    {
+        std::stringstream ss{};
+        ss << srModelName << "_light_" << light_index;
+        nativeLight->setName(ss.str());
+    }
+
+    if(light.color.empty())
+        nativeLight->setColor(glm::vec3(1.f));
+    else
+        nativeLight->setColor(glm::make_vec3(light.color.data()));
+
+    nativeLight->setIntencity(light.intensity);
+
+    if(light.type == "spot")
+    {
+        nativeLight->setType(ELightSourceType::eSpot);
+        nativeLight->setInnerAngle(light.spot.innerConeAngle);
+        nativeLight->setOuterAngle(light.spot.outerConeAngle);
+    }
+    else if(light.type == "point")
+        nativeLight->setType(ELightSourceType::ePoint);
+    else if(light.type == "directional")
+        nativeLight->setType(ELightSourceType::eDirectional);
+
+    sceneNode->setLight(std::move(nativeLight));
+    CLightSourceManager::inst()->addLight(sceneNode);
 }
 
 void GLTFLoader::recalculateTangents(std::vector<FVertex>& vertices, std::vector<uint32_t>& indices, uint64_t startIndex)
@@ -577,7 +669,15 @@ void GLTFLoader::loadMaterials(const tinygltf::Model &model)
         }
 
         if (mat.additionalValues.find("doubleSided") != mat.additionalValues.end())
-            bool doubleSided = mat.additionalValues.at("doubleSided").bool_value;
+        {
+            //TODO: save it somewhere
+            if(mat.additionalValues.at("doubleSided").bool_value)
+            {
+                auto& pipeline = nativeMaterial->getPipeline();
+                pipeline->setCulling(vk::CullModeFlagBits::eNone);
+            }
+        }
+            
 
         if (mat.additionalValues.find("alphaCutoff") != mat.additionalValues.end())
             params.alphaCutoff = static_cast<float>(mat.additionalValues.at("alphaCutoff").Factor());             

@@ -111,25 +111,27 @@ void CViewportWindow::drawManipulator(float offsetx, float offsety, float sizex,
         auto view = camera->getView();
         //Camera projection
         auto projection = camera->getProjection();
-        //projection = glm::scale(projection, glm::vec3(1.0, -1.0, 1.0));
         //Object transform
-        auto model = selected->getTransform().getModel();
+        auto transform = selected->getTransform();
+        auto model = transform.getModel();
+        glm::mat4 delta;
 
         //Manipulating
-        if(ImGuizmo::Manipulate(glm::value_ptr(view), glm::value_ptr(projection), mCurrentGizmoOperation, ImGuizmo::LOCAL, glm::value_ptr(model), nullptr, snap ? snapValues : nullptr))
+        if(ImGuizmo::Manipulate(glm::value_ptr(view), glm::value_ptr(projection), mCurrentGizmoOperation, ImGuizmo::LOCAL, glm::value_ptr(model), glm::value_ptr(delta), nullptr))
         {
             glm::vec3 scale;
             glm::quat rotation;
             glm::vec3 translation;
             glm::vec3 skew;
             glm::vec4 perspective;
-            glm::decompose(model, scale, rotation, translation, skew,perspective);
+            glm::decompose(delta, scale, rotation, translation, skew,perspective);
 
+            auto& localTransform = selected->getLocalTransform();
             switch (mCurrentGizmoOperation)
             {
-            case ImGuizmo::TRANSLATE: selected->setPosition(translation); break;
-            case ImGuizmo::ROTATE: selected->setRotation(glm::eulerAngles(glm::conjugate(rotation))); break;
-            case ImGuizmo::SCALE: selected->setScale(scale); break;
+            case ImGuizmo::TRANSLATE: localTransform.pos += translation; break;
+            case ImGuizmo::ROTATE: localTransform.rot += glm::eulerAngles(glm::conjugate(rotation)); break;
+            case ImGuizmo::SCALE: localTransform.scale *= scale; break;
             }
         }
     }

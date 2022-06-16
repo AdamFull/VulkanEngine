@@ -1,6 +1,5 @@
 #pragma once
 #include "util/Transform.hpp"
-#include "graphics/scene/SceneConstruct.h"
 #include "graphics/scene/objects/components/MeshComponent.h"
 #include "graphics/scene/objects/components/CameraComponent.h"
 #include "graphics/scene/objects/components/LightComponent.h"
@@ -43,11 +42,10 @@ namespace engine
                 bool isVisible() const { return bVisible; }
                 void setEnable(bool value) { bEnable = value; }
                 bool isEnabled() const { return bEnable; }
-                bool wasRendered() const { return bWasRendered; }
 
                 // Deep search
-                ref_ptr<CRenderObject> find(std::string name);
-                ref_ptr<CRenderObject> find(uint64_t id);
+                ref_ptr<CRenderObject>& find(std::string name);
+                ref_ptr<CRenderObject>& find(uint64_t id);
                 void addChild(ref_ptr<CRenderObject> &child);
                 void setParent(ref_ptr<CRenderObject> parent);
                 void attach(ref_ptr<CRenderObject> &&child);
@@ -56,32 +54,17 @@ namespace engine
                 uint64_t getId() const { return objectId; }
                 std::string &getName();
                 // std::string &GetUUID();
-                ref_ptr<CRenderObject> &getParent();
+                ref_ptr<CRenderObject>& getParent();
                 std::unordered_map<std::string, ref_ptr<CRenderObject>> &getChilds();
 
                 FTransform getTransform();
-                FTransform getLocalTransform() { return transform; }
+                FTransform& getLocalTransform() { return transform; }
                 const glm::vec3 getPosition() const;
-                const glm::vec3 getLocalPosition() const { return transform.pos; }
+                const glm::vec3 getLocalPosition() const { return transform.getPosition(); }
                 const glm::vec3 getRotation() const;
-                const glm::vec3 getLocalRotation() const { return transform.rot; }
+                const glm::vec3 getLocalRotation() const { return transform.getRotation(); }
                 const glm::vec3 getScale() const;
-                const glm::vec3 getLocalScale() const { return transform.scale; }
-
-                void setCullingRadius(float radius) { fCullingRadius = radius; }
-                void setCullable(bool cullable) { bEnableCulling = cullable; }
-                void setBounds(glm::vec3 begin, glm::vec3 end)
-                {
-                    boundingBox.first = begin;
-                    boundingBox.second = end;
-                }
-                void setCyllingType(ECullingType type) { eCullingType = type; }
-
-                const float getCullingRadius() const { return fCullingRadius; }
-                const bool isCullable() const { return bEnableCulling; }
-                const std::pair<glm::vec3, glm::vec3> getBounds() const { return boundingBox; }
-                const ECullingType getCullingType() const { return eCullingType; }
-                void setCullingType(ECullingType eType) { eCullingType = eType; }
+                const glm::vec3 getLocalScale() const { return transform.getScale(); }
 
                 void setName(std::string name);
 
@@ -92,8 +75,6 @@ namespace engine
 
                 void setIndex(uint32_t index) { objectIndex = index; };
                 uint32_t getIndex() { return objectIndex; }
-
-                ERenderObjectType getObjectType() const { return eObjectType; }
 
                 void setMesh(ref_ptr<CMeshComponent>&& component) 
                 { 
@@ -124,18 +105,12 @@ namespace engine
                 FTransform transform;
                 bool bVisible{true};
                 bool bEnable{true};
-                bool bWasRendered{true};
-                bool bEnableCulling{true};
-                bool bHasInstances{false};
-                float fCullingRadius{10.0f};
-                std::pair<glm::vec3, glm::vec3> boundingBox{};
-                ECullingType eCullingType{ECullingType::eBySphere};
-                ERenderObjectType eObjectType{ERenderObjectType::eNone};
 
                 ref_ptr<CMeshComponent> pMesh;
                 ref_ptr<CCameraComponent> pCamera;
                 ref_ptr<CLightComponent> pLight;
 
+                ref_ptr<CRenderObject> pNull{nullptr};
                 ref_ptr<CRenderObject> pParent;
                 ref_ptr<CRenderObject> pParentOld;
                 std::unordered_map<std::string, ref_ptr<CRenderObject>> mChilds;

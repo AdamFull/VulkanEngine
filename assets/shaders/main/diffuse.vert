@@ -12,7 +12,10 @@ layout(location = 4) in vec4 inTangent;
 layout(location = 0) out vec2 outUV;
 layout(location = 1) out vec3 outColor;
 layout(location = 2) out vec3 outPosition;
-layout(location = 3) out mat3 outTBN;
+#ifdef HAS_NORMALS
+layout(location = 3) out vec3 outNormal;
+#endif
+layout(location = 4) out mat3 outTBN;
 
 #include "../shader_util.glsl"
 
@@ -32,6 +35,9 @@ void main()
 
 	outUV = inTexCoord * 1.0;
   	outColor = inColor;
+#ifdef HAS_NORMALS
+	outNormal = inNormal;
+#endif
 	outPosition = inPosition;
 	
 #ifdef HAS_TANGENTS

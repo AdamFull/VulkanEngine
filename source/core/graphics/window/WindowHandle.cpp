@@ -66,7 +66,7 @@ void CWindowHandle::create(FWindowCreateInfo createInfo)
     frameBufferUpdated();
 
     glfwWindowHint(GLFW_RESIZABLE, GLFW_TRUE);
-    //glfwWindowHint(GLFW_MAXIMIZED, GLFW_TRUE);
+    glfwWindowHint(GLFW_MAXIMIZED, GLFW_TRUE);
     glfwWindowHint(GLFW_DECORATED, GLFW_TRUE);
     glfwWindowHint(GLFW_VISIBLE, GLFW_TRUE);
 

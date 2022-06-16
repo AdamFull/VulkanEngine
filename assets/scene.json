@@ -63,29 +63,6 @@
                 "pos": {"x": 0.0, "y": 0.0, "z": 0.0},
                 "rot": {"x": 0.0, "y": 0.0, "z": 0.0},
                 "scale": {"x": 1.0, "y": 1.0, "z": 1.0}
-            },
-            "culling":
-            {
-                "type": "sphere",
-                "radius": 50,
-                "enable": true
-            }
-        },
-        {
-            "name": "PointLight_0",
-            "type": "light_source",
-            "light":
-            {
-                "type": "point",
-                "color": {"x": 1.0, "y": 0.1, "z": 0.1},
-                "attenuation": 1.0,
-                "intencity": 10.0
-            },
-            "transform":
-            {
-                "pos": {"x": 0.0, "y": 50.0, "z": 0.0},
-                "rot": {"x": 0.0, "y": 0.0, "z": 0.0},
-                "scale": {"x": 1.0, "y": 1.0, "z": 1.0}
             }
         }
     ]

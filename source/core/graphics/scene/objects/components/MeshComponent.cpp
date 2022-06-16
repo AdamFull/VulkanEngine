@@ -42,11 +42,29 @@ void CMeshComponent::render(vk::CommandBuffer &commandBuffer)
     auto projection = camera->getProjection();
     auto model = transform.getModel();
     auto normal = glm::transpose(glm::inverse(model));
+    auto position = transform.getPosition();
 
     for (auto &primitive : vPrimitives)
     {
+        bool needToRender {true};
+        if (bEnableCulling)
+        {
+            switch (eCullingType)
+            {
+            case ECullingType::eByPoint:
+                needToRender = camera->checkPoint(position);
+            break;
+            case ECullingType::eBySphere:
+                needToRender = camera->checkSphere(position, primitive.dimensions.radius);
+            break;
+            case ECullingType::eByBox:
+                needToRender = camera->checkBox(position + primitive.dimensions.min * transform.getScale(), position + primitive.dimensions.max * transform.getScale());
+            break;
+            }
+        }
+        primitive.bWasCulled = needToRender;
+
         //TODO: load primitive position?
-        bool needToRender{true}; //= camera->checkSphere(transform.pos, primitive.dimensions.radius);
         if(needToRender)
         {
             if(primitive.material && primitive.bUseMaterial)
@@ -59,7 +77,7 @@ void CMeshComponent::render(vk::CommandBuffer &commandBuffer)
                 //pUBO->set("instancePos", instancePos);
                 
                 primitive.material->update();
-                primitive.material->bind();
+                primitive.material->bind(commandBuffer);
 
                 auto& params = primitive.material->getParams();
                 auto& material = primitive.material->getPushConstant("ubo");

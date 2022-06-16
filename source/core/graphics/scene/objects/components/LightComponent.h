@@ -13,8 +13,9 @@ namespace engine
                 alignas(16) glm::vec3 position{0.0};
                 alignas(16) glm::vec3 direction{0.0};
                 alignas(16) glm::vec3 color{0.0};
-                alignas(4) float radius{0.0};
                 alignas(4) float intencity{0.0};
+                alignas(4) float innerConeAngle{0.0};
+                alignas(4) float outerConeAngle{0.0};
                 alignas(4) int type{0};
             };
 
@@ -32,11 +33,14 @@ namespace engine
                 void setType(resources::ELightSourceType type);
                 resources::ELightSourceType getType();
 
-                void setRadius(float radius);
-                const float getRadius();
-
                 void setColor(const glm::vec3& color);
                 const glm::vec3& getColor();
+
+                void setInnerAngle(float angle);
+                const float getInnerAngle();
+
+                void setOuterAngle(float angle);
+                const float getOuterAngle();
 
                 void setIntencity(float intencity);
                 const float getIntencity();

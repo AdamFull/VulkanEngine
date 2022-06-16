@@ -10,24 +10,22 @@ struct FTransform
     glm::vec3 pos{};
     glm::vec3 rot{};
     glm::vec3 scale{1.f, 1.f, 1.f};
-    glm::mat4 model{1.f}, normal{1.0};
-    glm::vec3 direction{ 0.0f, 0.0f, 1.0f };
 
     FTransform &operator+=(const FTransform &rhs)
     {
-        this->pos += rhs.pos;
-        this->rot += rhs.rot;
         this->scale *= rhs.scale;
+        this->pos = this->pos * rhs.scale + rhs.pos;
+        this->rot += rhs.rot;
         return *this;
     }
 
-    glm::vec3 getPosition() const;
+    const glm::vec3& getPosition() const;
     void setPosition(const glm::vec3& position);
 
-    glm::vec3 getRotation() const;
+    const glm::vec3& getRotation() const;
     void setRotation(const glm::vec3& rotation);
     
-    glm::vec3 getScale() const;
+    const glm::vec3& getScale() const;
     void setScale(const glm::vec3& _scale);
 
     /**
@@ -35,14 +33,14 @@ struct FTransform
      * 
      * @return glm::mat4 Model matrix
      */
-    const glm::mat4& getModel();
+    const glm::mat4 getModel();
 
     /**
      * @brief Get render object normal matrix
      * 
      * @return glm::mat4 Normal matrix
      */
-    const glm::mat4& getNormal();
+    const glm::mat4 getNormal();
 };
 
 REGISTER_SERIALIZATION_BLOCK_H(FTransform);

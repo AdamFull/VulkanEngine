@@ -76,56 +76,61 @@ void CInspectorWindow::draw()
                 selected->setEnable(isEnabled);
 
             ImGui::Separator();
-            ImGui::Text("Culling");
-            ImGui::Separator();
-
-            auto isCullable = selected->isCullable();
-            if(FControls::CheckBox("Is cullable", &isCullable))
-                selected->setCullable(isCullable);
-
-            if(isCullable)
-            {
-                auto cullingType = selected->getCullingType();
-                const char* culling_type = toCullingName(cullingType);
-                if(ImGui::BeginCombo("Culling type", culling_type))
-                {
-                    for (int n = 0; n < culling_types_count; n++)
-                    {
-                        bool is_selected = (culling_type == culling_types[n]);
-                        if (ImGui::Selectable(culling_types[n], is_selected))
-                            culling_type = culling_types[n];
-                        if (is_selected)
-                            ImGui::SetItemDefaultFocus();
-                    }
-                    ImGui::EndCombo();
-                }
-                cullingType = toCullingType(culling_type);
-                selected->setCullingType(cullingType);
-
-                switch (cullingType)
-                {
-                    case ECullingType::eByPoint: {} break;
-                    case ECullingType::eBySphere:  {
-                        auto sphereRadius = selected->getCullingRadius();
-                        if(FControls::DragFloat("Sphere radius", &sphereRadius, 0.01, 0.01))
-                            selected->setCullingRadius(sphereRadius);
-                    } break;
-                    case ECullingType::eByBox: {
-                        auto bounds = selected->getBounds();
-                        if(FControls::DragFloatVec3("Box Begin", bounds.first, 0.01, 0.01) ||
-                        FControls::DragFloatVec3("Box End", bounds.second, 0.01, 0.01))
-                            selected->setBounds(bounds.first, bounds.second);
-                    } break;
-                }
-            }
-
-            ImGui::Separator();
 
             if(selected->getMesh())
             {
                 auto& pMesh = selected->getMesh();
                 ImGui::Text("Static Mesh");
                 ImGui::Separator();
+
+                auto isCullable = pMesh->isCullable();
+                if(FControls::CheckBox("Is cullable", &isCullable))
+                    pMesh->setCullable(isCullable);
+
+                if(isCullable)
+                {
+                    auto cullingType = pMesh->getCullingType();
+                    const char* culling_type = toCullingName(cullingType);
+                    if(ImGui::BeginCombo("Culling type", culling_type))
+                    {
+                        for (int n = 0; n < culling_types_count; n++)
+                        {
+                            bool is_selected = (culling_type == culling_types[n]);
+                            if (ImGui::Selectable(culling_types[n], is_selected))
+                                culling_type = culling_types[n];
+                            if (is_selected)
+                                ImGui::SetItemDefaultFocus();
+                        }
+                        ImGui::EndCombo();
+                    }
+                    cullingType = toCullingType(culling_type);
+                    pMesh->setCullingType(cullingType);
+                }
+
+                ImGui::Text("Primitives");
+                ImGui::Separator();
+
+                for(auto& primitive : pMesh->getPrimitives())
+                {
+                    if(isCullable)
+                    {
+                        FControls::CheckBox("Culling result:", &primitive.bWasCulled);
+
+                        auto cullingType = pMesh->getCullingType();
+                        switch (cullingType)
+                        {
+                            case ECullingType::eByPoint: {} break;
+                            case ECullingType::eBySphere:  {
+                                FControls::DragFloat("Sphere radius", &primitive.dimensions.radius, 0.01, 0.01);
+                            } break;
+                            case ECullingType::eByBox: {
+                                FControls::DragFloatVec3("Box Begin", primitive.dimensions.min, 0.01, 0.01);
+                                FControls::DragFloatVec3("Box End", primitive.dimensions.max, 0.01, 0.01);
+                            } break;
+                        }
+                    }
+                    ImGui::Separator();
+                }
 
                 //TODO: show primitives and materials
             }
@@ -172,10 +177,6 @@ void CInspectorWindow::draw()
                 auto color = pLight->getColor();
                 if(FControls::ColorEdit3("Color", color))
                     pLight->setColor(color);
-
-                auto radius = pLight->getRadius();
-                if(FControls::DragFloat("Radius", &radius, 0.01, 0.1))
-                    pLight->setRadius(radius);
 
                 auto intencity = pLight->getIntencity();
                 if(FControls::DragFloat("Intencity", &intencity, 0.01, 0.1))

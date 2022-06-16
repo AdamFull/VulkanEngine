@@ -1,5 +1,6 @@
 #pragma once
 #include "SceneComponent.h"
+#include "graphics/scene/SceneConstruct.h"
 
 namespace engine
 {
@@ -25,6 +26,7 @@ namespace engine
                 uint32_t firstVertex;
                 uint32_t vertexCount;
                 bool bUseMaterial{false};
+                bool bWasCulled{false};
                 //TODO: check for material duplicates
                 ref_ptr<resources::material::CMaterialBase> material;
 
@@ -106,9 +108,20 @@ namespace engine
                 void destroy() override;
 
                 void addPrimitive(FPrimitive &&primitive);
+                std::vector<FPrimitive>& getPrimitives() { return vPrimitives; }
+
+                const bool isCullable() const { return bEnableCulling; }
+                void setCullable(bool cullable) { bEnableCulling = cullable; }
+                
+                const ECullingType getCullingType() const { return eCullingType; }
+                void setCullingType(ECullingType eType) { eCullingType = eType; }
             protected:
                 std::vector<glm::vec4> vInstances;
                 std::vector<FPrimitive> vPrimitives;
+
+                bool bEnableCulling{true};
+                bool bHasInstances{false};
+                ECullingType eCullingType{ECullingType::eByBox};
             };
         }
     }

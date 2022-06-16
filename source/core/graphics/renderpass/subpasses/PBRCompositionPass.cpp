@@ -76,7 +76,7 @@ void CPBRCompositionPass::render(vk::CommandBuffer& commandBuffer)
     pUBOLights->set("lights", aLights);
     
     pMaterial->update();
-    pMaterial->bind();
+    pMaterial->bind(commandBuffer);
 
     commandBuffer.draw(3, 1, 0, 0);
 }
@@ -94,21 +94,16 @@ ref_ptr<CImage> CPBRCompositionPass::ComputeBRDFLUT(uint32_t size)
 
     auto cmdBuf = CCommandBuffer(true, vk::QueueFlagBits::eCompute);
     auto commandBuffer = cmdBuf.getCommandBuffer();
-    auto descriptor = CDescriptorHandler();
 
-    ref_ptr<CPipelineBase> computePipeline = CPipelineBase::Builder().
-    addShaderStage("shaders/generators/brdflut.comp").
-    build(vk::PipelineBindPoint::eCompute);
-    computePipeline->create();
-    computePipeline->bind(commandBuffer);
-
-    descriptor.create(computePipeline);
-    descriptor.set("outColour", brdfImage->getDescriptor());
-    descriptor.update();
-    descriptor.bind(commandBuffer);
+    auto generator = CMaterialLoader::inst()->create("brdflut_generator");
+    auto& pipeline = generator->getPipeline();
+    generator->create();
+    generator->addTexture("outColour", brdfImage->getDescriptor());
+    generator->update();
+    generator->bind(commandBuffer);
     
-    auto groupCountX = static_cast<uint32_t>(std::ceil(static_cast<float>(size) / static_cast<float>(*computePipeline->getShader()->getLocalSizes()[0])));
-	auto groupCountY = static_cast<uint32_t>(std::ceil(static_cast<float>(size) / static_cast<float>(*computePipeline->getShader()->getLocalSizes()[1])));
+    auto groupCountX = static_cast<uint32_t>(std::ceil(static_cast<float>(size) / static_cast<float>(*pipeline->getShader()->getLocalSizes()[0])));
+	auto groupCountY = static_cast<uint32_t>(std::ceil(static_cast<float>(size) / static_cast<float>(*pipeline->getShader()->getLocalSizes()[1])));
     commandBuffer.dispatch(groupCountX, groupCountY, 1);
     cmdBuf.submitIdle();
 
@@ -123,22 +118,17 @@ ref_ptr<CImage> CPBRCompositionPass::ComputeIrradiance(const ref_ptr<CImage> &so
 
     auto cmdBuf = CCommandBuffer(true, vk::QueueFlagBits::eCompute);
     auto commandBuffer = cmdBuf.getCommandBuffer();
-    auto descriptor = CDescriptorHandler();
     
-    ref_ptr<CPipelineBase> computePipeline = CPipelineBase::Builder().
-    addShaderStage("shaders/generators/irradiancecube.comp").
-    build(vk::PipelineBindPoint::eCompute);
-    computePipeline->create();
-    computePipeline->bind(commandBuffer);
+    auto generator = CMaterialLoader::inst()->create("irradiancecube_generator");
+    auto& pipeline = generator->getPipeline();
+    generator->create();
+    generator->addTexture("outColour", irradianceCubemap->getDescriptor());
+    generator->addTexture("samplerColour", source->getDescriptor());
+    generator->update();
+    generator->bind(commandBuffer);
 
-    descriptor.create(computePipeline);
-    descriptor.set("outColour", irradianceCubemap->getDescriptor());
-    descriptor.set("samplerColour", source->getDescriptor());
-    descriptor.update();
-    descriptor.bind(commandBuffer);
-
-    auto groupCountX = static_cast<uint32_t>(std::ceil(static_cast<float>(size) / static_cast<float>(*computePipeline->getShader()->getLocalSizes()[0])));
-	auto groupCountY = static_cast<uint32_t>(std::ceil(static_cast<float>(size) / static_cast<float>(*computePipeline->getShader()->getLocalSizes()[1])));
+    auto groupCountX = static_cast<uint32_t>(std::ceil(static_cast<float>(size) / static_cast<float>(*pipeline->getShader()->getLocalSizes()[0])));
+	auto groupCountY = static_cast<uint32_t>(std::ceil(static_cast<float>(size) / static_cast<float>(*pipeline->getShader()->getLocalSizes()[1])));
     commandBuffer.dispatch(groupCountX, groupCountY, 1);
     cmdBuf.submitIdle();
 
@@ -153,14 +143,11 @@ ref_ptr<CImage> CPBRCompositionPass::ComputePrefiltered(const ref_ptr<CImage>& s
     vk::ImageAspectFlagBits::eColor, vk::Filter::eLinear, vk::SamplerAddressMode::eClampToEdge, vk::SampleCountFlagBits::e1, true, false, true);
 
     auto cmdBuf = CCommandBuffer(true, vk::QueueFlagBits::eCompute);
-    auto descriptor = CDescriptorHandler();
-    auto push = CPushHandler();
     
-    ref_ptr<CPipelineBase> computePipeline = CPipelineBase::Builder().
-    addShaderStage("shaders/generators/prefilteredmap.comp").
-    build(vk::PipelineBindPoint::eCompute);
-    computePipeline->create();
-    push.create(*computePipeline->getShader()->getPushBlock("object"), computePipeline);
+    auto generator = CMaterialLoader::inst()->create("prefilteredmap_generator");
+    auto& pipeline = generator->getPipeline();
+    generator->create(); 
+    auto& push = generator->getPushConstant("object");   
 
     for (uint32_t i = 0; i < prefilteredCubemap->getMipLevels(); i++)
     {
@@ -179,31 +166,20 @@ ref_ptr<CImage> CPBRCompositionPass::ComputePrefiltered(const ref_ptr<CImage>& s
 
         cmdBuf.begin();
         auto commandBuffer = cmdBuf.getCommandBuffer();
-        computePipeline->bind(commandBuffer);
-        auto outColor = computePipeline->getShader()->getUniform("outColour");
 
         auto imageInfo = prefilteredCubemap->getDescriptor();
 		imageInfo.imageView = levelView;
 
-        vk::WriteDescriptorSet descriptorWrite = {};
-		descriptorWrite.dstSet = VK_NULL_HANDLE; // Will be set in the descriptor handler.
-		descriptorWrite.dstBinding = outColor->getBinding();
-		descriptorWrite.dstArrayElement = 0;
-		descriptorWrite.descriptorCount = 1;
-		descriptorWrite.descriptorType = outColor->getDescriptorType();
-		descriptorWrite.pImageInfo = &imageInfo;
+        push->set("roughness", static_cast<float>(i) / static_cast<float>(prefilteredCubemap->getMipLevels() - 1));
+        push->flush(commandBuffer);
 
-        push.set("roughness", static_cast<float>(i) / static_cast<float>(prefilteredCubemap->getMipLevels() - 1));
+        generator->addTexture("outColour", imageInfo);
+        generator->addTexture("samplerColour", source->getDescriptor());
+        generator->update();
+        generator->bind(commandBuffer);
 
-        descriptor.create(computePipeline);
-        descriptor.set("outColour", descriptorWrite);
-        descriptor.set("samplerColour", source->getDescriptor());
-        descriptor.update();
-        descriptor.bind(commandBuffer);
-        push.flush(commandBuffer);
-
-        auto groupCountX = static_cast<uint32_t>(std::ceil(static_cast<float>(size) / static_cast<float>(*computePipeline->getShader()->getLocalSizes()[0])));
-        auto groupCountY = static_cast<uint32_t>(std::ceil(static_cast<float>(size) / static_cast<float>(*computePipeline->getShader()->getLocalSizes()[1])));
+        auto groupCountX = static_cast<uint32_t>(std::ceil(static_cast<float>(size) / static_cast<float>(*pipeline->getShader()->getLocalSizes()[0])));
+        auto groupCountY = static_cast<uint32_t>(std::ceil(static_cast<float>(size) / static_cast<float>(*pipeline->getShader()->getLocalSizes()[1])));
         commandBuffer.dispatch(groupCountX, groupCountY, 1);
         cmdBuf.submitIdle();
 

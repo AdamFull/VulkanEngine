@@ -72,6 +72,24 @@ namespace engine
                 void loadMeshFragment(ref_ptr<core::scene::CRenderObject>& sceneNode, const tinygltf::Node &node, const tinygltf::Model &model);
 
                 /**
+                 * @brief 
+                 * 
+                 */
+                void loadCamera(ref_ptr<core::scene::CRenderObject>& sceneNode, const tinygltf::Node &node, const tinygltf::Model &model);
+
+                /**
+                 * @brief 
+                 * 
+                 */
+                void loadSkin(ref_ptr<core::scene::CRenderObject>& sceneNode, const tinygltf::Node &node, const tinygltf::Model &model);
+
+                /**
+                 * @brief 
+                 * 
+                 */
+                void loadLight(ref_ptr<core::scene::CRenderObject>& sceneNode, uint32_t light_index, const tinygltf::Node &node, const tinygltf::Model &model);
+
+                /**
                  * @brief Recalculates tangents for fragment vertices and indices
                  * 
                  * @param vertices Input vertex data

@@ -44,9 +44,6 @@ ref_ptr<CRenderObject> CSceneFactory::createComponent(FSceneObject info)
     ref_ptr<CRenderObject> object = make_ref<CRenderObject>();
     object->setTransform(info.fTransform);
     object->setName(info.srName);
-    object->setCullable(info.culling.bEnableCulling);
-    object->setCullingRadius(info.culling.fSphereRadius);
-    object->setCyllingType(info.culling.eType);
 
     switch (info.eObjectType)
     {
@@ -94,6 +91,9 @@ void CSceneFactory::createSkybox(ref_ptr<core::scene::CRenderObject>& pRoot, FSc
     }
 
     loader->load(pRoot, info.mesh.srSrc, info.srName);
+    auto& meshNode = pRoot->find("cube");
+    auto& skybox = meshNode->getMesh();
+    skybox->setCullable(false);
 }
 
 void CSceneFactory::createGLTFMesh(ref_ptr<core::scene::CRenderObject>& pRoot, FSceneObject info)
@@ -117,7 +117,6 @@ void CSceneFactory::createLightSource(ref_ptr<core::scene::CRenderObject>& pRoot
     auto lightComponent = make_ref<CLightComponent>();
     lightComponent->setName(info.srName);
     lightComponent->setColor(info.light.vColor);
-    lightComponent->setRadius(info.light.fAttenuation);
     lightComponent->setIntencity(info.light.fIntencity);
     lightComponent->setType(info.light.eType);
     pRoot->setLight(std::move(lightComponent));

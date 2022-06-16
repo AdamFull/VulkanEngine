@@ -1,6 +1,8 @@
 #include "MaterialLoader.h"
 #include "filesystem/FilesystemHelper.h"
 #include "graphics/data_types/VulkanVertex.hpp"
+#include "graphics/pipeline/ComputePipeline.h"
+#include "graphics/pipeline/GraphicsPipeline.h"
 
 namespace vk
 {
@@ -170,15 +172,28 @@ ref_ptr<CMaterialBase> CMaterialLoader::create(const std::string& name)
         }
 
         ref_ptr<CMaterialBase> material = make_scope<CMaterialBase>();
-        material->pPipeline = CPipelineBase::Builder().
-        setVertexInput(std::move(vertexInput)).
-        setCulling(ci.culling).
-        setFontFace(ci.frontface).
-        setDepthEnabled(ci.enableDepth).
-        setDynamicStates(ci.dynamicStateEnables).
-        setShaderStages(ci.stages).
-        setDefines(ci.defines).
-        build(ci.bindPoint);
+    
+        switch (ci.bindPoint)
+        {
+        case vk::PipelineBindPoint::eCompute: material->pPipeline = make_scope<CComputePipeline>(); break;
+        case vk::PipelineBindPoint::eGraphics: material->pPipeline = make_scope<CGraphicsPipeline>(); break;
+        case vk::PipelineBindPoint::eRayTracingKHR: material->pPipeline = make_scope<CComputePipeline>(); break;
+        case vk::PipelineBindPoint::eSubpassShadingHUAWEI: material->pPipeline = make_scope<CComputePipeline>(); break;
+        }
+
+        material->pPipeline->setBindPoint(ci.bindPoint);
+        material->pPipeline->setDefines(std::move(ci.defines));
+        material->pPipeline->setShaderStages(std::move(ci.stages));
+
+        if(ci.bindPoint == vk::PipelineBindPoint::eGraphics)
+        {
+            material->pPipeline->setVertexInput(std::move(vertexInput));
+            material->pPipeline->setCulling(ci.culling);
+            material->pPipeline->setFontFace(ci.frontface);
+            material->pPipeline->setDepthEnabled(ci.enableDepth);
+            material->pPipeline->setDynamicStates(ci.dynamicStateEnables);
+        }    
+
         return material;
     }
     

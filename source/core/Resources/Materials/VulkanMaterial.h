@@ -96,7 +96,7 @@ namespace engine
                  * @brief Bind material pipeline and descriptor sets`
                  * 
                  */
-                virtual void bind();
+                virtual void bind(vk::CommandBuffer& commandBuffer);
 
                 /**
                  * @brief Cleanup swapchain and descriptors
@@ -136,7 +136,7 @@ namespace engine
                  * 
                  * @return ref_ptr<Core::Pipeline::CPipelineBase> Pipeline smart pointer object
                  */
-                inline ref_ptr<core::pipeline::CPipelineBase> getPipeline() { return pPipeline; }
+                inline ref_ptr<core::pipeline::CPipelineBase>& getPipeline() { return pPipeline; }
 
                 const FMaterialParams& getParams() { return m_fMatParams; }
 

@@ -17,7 +17,9 @@ namespace engine
                 void cleanup() override {}
                 void destroy() override {}
 
-                void setControl(bool bControl) { bEnableControls = bControl; }
+                void setControl(bool value) { bEnableControls = value; }
+                void setActive(bool value) { bIsActive = value; }
+                bool getIsActive() { return bIsActive; }
 
                 void moveForward(bool bInv);
                 void moveRight(bool bInv);
@@ -73,10 +75,11 @@ namespace engine
 
                 float dt{0.0}, fieldOfView{45.f}, nearPlane{0.1f}, farPlane{1000.f}, sensitivity{3.f};
                 float angleH{0.f}, angleV{0.f};
-                bool bEnableControls{true};
+                bool bEnableControls{true}, bIsActive{false};
 
                 // Frustum
                 std::array<std::array<float, 4>, 6> frustumSides{};
+                std::array<float, 16> clip;
                 // TODO: set projection type
             };
         }

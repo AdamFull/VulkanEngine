@@ -14,19 +14,21 @@ void CLightSourceManager::addLight(ref_ptr<CRenderObject>& light)
     vLights.emplace_back(light);
 }
 
-std::array<scene::FLight, max_light_count> CLightSourceManager::getSources(uint32_t& light_count)
+std::array<scene::FLight, max_light_count>& CLightSourceManager::getSources(uint32_t& light_count)
 {
-    std::array<scene::FLight, max_light_count> lights{};
     light_count = 0;
 
     for(auto& light : vLights)
     {
-        auto& lightSource = light->getLight();
-        if(light_count > max_light_count)
-            break;
+        if(light->isEnabled())
+        {
+            auto& lightSource = light->getLight();
+            if(light_count > max_light_count)
+                break;
 
-        lights[light_count] = lightSource->getLight();
-        light_count++;
+            lights[light_count] = lightSource->getLight();
+            light_count++;
+        }
     }
 
     return lights;

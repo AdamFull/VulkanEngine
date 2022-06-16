@@ -38,7 +38,7 @@ void CBlurPass::render(vk::CommandBuffer& commandBuffer)
     pUBOH->flush(commandBuffer);
 
     pMaterial->update();
-    pMaterial->bind();
+    pMaterial->bind(commandBuffer);
     commandBuffer.draw(3, 1, 0, 0);
 }
 

@@ -29,7 +29,7 @@ void CRenderObject::create()
         child->create();
 
     if(pMesh) pMesh->create();
-    if(pCamera) pCamera->create();
+    if(pCamera && pCamera->getIsActive()) pCamera->create();
     if(pLight) pLight->create();
 }
 
@@ -39,7 +39,7 @@ void CRenderObject::reCreate()
         child->reCreate();
     
     if(pMesh) pMesh->reCreate();
-    if(pCamera) pCamera->reCreate();
+    if(pCamera && pCamera->getIsActive()) pCamera->reCreate();
     if(pLight) pLight->reCreate();
 }
 
@@ -49,38 +49,12 @@ void CRenderObject::render(vk::CommandBuffer &commandBuffer)
     auto& camera = cameraNode->getCamera();
     for (auto &[name, child] : mChilds)
     {
-        bWasRendered = child->isVisible();
-        if (child->isCullable() && child != cameraNode)
-        {
-            switch (child->getCullingType())
-            {
-            case ECullingType::eByPoint:
-            {
-                bWasRendered = bWasRendered && camera->checkPoint(child->getPosition());
-            }
-            break;
-            case ECullingType::eBySphere:
-            {
-                bWasRendered = bWasRendered && camera->checkSphere(child->getPosition(), child->getCullingRadius());
-            }
-            break;
-            case ECullingType::eByBox:
-            {
-                auto &bounds = child->getBounds();
-                bWasRendered = bWasRendered && camera->checkBox(child->getPosition() + bounds.first, child->getPosition() + bounds.second);
-            }
-            break;
-            }
-        }
-
-        if (bWasRendered && child->bEnable)
-        {
+        if (child->isVisible())
             child->render(commandBuffer);
-        }
     }
 
     if(pMesh) pMesh->render(commandBuffer);
-    if(pCamera) pCamera->render(commandBuffer);
+    if(pCamera && pCamera->getIsActive()) pCamera->render(commandBuffer);
     if(pLight) pLight->render(commandBuffer);
 }
 
@@ -93,7 +67,7 @@ void CRenderObject::update(float fDeltaTime)
     }
 
     if(pMesh) pMesh->update(fDeltaTime);
-    if(pCamera) pCamera->update(fDeltaTime);
+    if(pCamera && pCamera->getIsActive()) pCamera->update(fDeltaTime);
     if(pLight) pLight->update(fDeltaTime);
 }
 
@@ -103,7 +77,7 @@ void CRenderObject::cleanup()
         child->cleanup();
     
     if(pMesh) pMesh->cleanup();
-    if(pCamera) pCamera->cleanup();
+    if(pCamera && pCamera->getIsActive()) pCamera->cleanup();
     if(pLight) pLight->cleanup();
 }
 
@@ -113,7 +87,7 @@ void CRenderObject::destroy()
         child->destroy();
     
     if(pMesh) pMesh->destroy();
-    if(pCamera) pCamera->destroy();
+    if(pCamera && pCamera->getIsActive()) pCamera->destroy();
     if(pLight) pLight->destroy();
 }
 
@@ -151,18 +125,18 @@ std::unordered_map<std::string, ref_ptr<CRenderObject>> &CRenderObject::getChild
 }
 
 // Deep search
-ref_ptr<CRenderObject> CRenderObject::find(std::string srName)
+ref_ptr<CRenderObject>& CRenderObject::find(std::string srName)
 {
     auto it = mChilds.find(srName);
     if (it != mChilds.end())
         return it->second;
 
     for (auto &[name, child] : mChilds)
-        child->find(srName);
-    return nullptr;
+        return child->find(srName);
+    return pNull;
 }
 
-ref_ptr<CRenderObject> CRenderObject::find(uint64_t id)
+ref_ptr<CRenderObject>& CRenderObject::find(uint64_t id)
 {
     for(auto& [name, child] : mChilds)
     {
@@ -170,7 +144,7 @@ ref_ptr<CRenderObject> CRenderObject::find(uint64_t id)
             return child;
         return child->find(id);
     }
-    return nullptr;
+    return pNull;
 }
 
 void CRenderObject::addChild(ref_ptr<CRenderObject>& child)
@@ -211,15 +185,15 @@ FTransform CRenderObject::getTransform()
 
 const glm::vec3 CRenderObject::getPosition() const
 {
-    glm::vec3 position = transform.pos;
+    glm::vec3 position = transform.getPosition();
     if (pParent)
-        position += pParent->getPosition();
+        position += pParent->getPosition() * pParent->getScale();
     return position;
 }
 
 const glm::vec3 CRenderObject::getRotation() const
 {
-    glm::vec3 rotation = transform.rot;
+    glm::vec3 rotation = transform.getRotation();
     if (pParent)
         rotation += pParent->getRotation();
     return rotation;
@@ -227,7 +201,7 @@ const glm::vec3 CRenderObject::getRotation() const
 
 const glm::vec3 CRenderObject::getScale() const
 {
-    glm::vec3 scale = transform.scale;
+    glm::vec3 scale = transform.getScale();
     if (pParent)
         scale *= pParent->getScale();
     return scale;
@@ -240,15 +214,15 @@ void CRenderObject::setTransform(FTransform transformNew)
 
 void CRenderObject::setPosition(glm::vec3 position)
 {
-    transform.pos = position;
+    transform.setPosition(position);
 }
 
 void CRenderObject::setRotation(glm::vec3 rotation)
 {
-    transform.rot = rotation;
+    transform.setRotation(rotation);
 }
 
 void CRenderObject::setScale(glm::vec3 scale)
 {
-    transform.scale = scale;
+    transform.setScale(scale);
 }

@@ -30,7 +30,10 @@ layout(binding = 6) uniform sampler2D height_tex;
 layout(location = 0) in vec2 inUV;
 layout(location = 1) in vec3 inColor;
 layout(location = 2) in vec3 inPosition;
-layout(location = 3) in mat3 inTBN;
+#ifdef HAS_NORMALS
+layout(location = 3) in vec3 inNormal;
+#endif
+layout(location = 4) in mat3 inTBN;
 
 layout(location = 0) out uvec4 outPack;
 layout(location = 1) out vec4 outEmissive;

@@ -76,40 +76,52 @@ void main()
 		for(int i = 0; i < ubo.lightCount; i++) 
 		{
 			FLight light = lights.lights[i];
+			vec3 L = vec3(0.0);
+			float atten = 1.0;
 
 			// Point light
 			if(light.type == 0)
 			{
-				vec3 L = light.position - inWorldPos;
+				L = light.position - inWorldPos;
 				float dist = length(L);
 				L = normalize(L);
-				float atten = clamp(1.0 - pow(dist, 2.0f)/pow(light.radius, 2.0f), 0.0f, 1.0f); atten *= atten;
-				Lo += atten * light.color * light.intencity * specularContribution(albedo, L, V, normal, F0, metallic, alphaRoughness);
+				atten = clamp(1.0 - pow(dist, 2.0f)/pow(light.intencity, 2.0f), 0.0f, 1.0f); atten *= atten;
 			}
 
 			// Directional light
 			if(light.type == 1)
 			{
-				vec3 L = -light.direction;
+				L = -light.direction;
 				float dist = length(L);
 				L = normalize(L);
-				//float atten = mix(1.0f, 1.0 / (1.0 + 0.1 * dot(MainLightPosition.xyz - P, MainLightPosition.xyz - P)), 1.0);
-				Lo += light.color.rgb * light.intencity * specularContribution(albedo, L, V, normal, F0, metallic, alphaRoughness);
+				atten = light.intencity;
+				//atten = mix(1.0f, 1.0 / (1.0 + 0.1 * dot(MainLightPosition.xyz - P, MainLightPosition.xyz - P)), 1.0);
 			}
 
 			// Spot light
 			if(light.type == 2)
 			{
-				vec3 L = normalize(inWorldPos - light.position);
-				float theta = dot(L, light.direction); 
-				//if(theta > light.cutoff)
-				//{
-				//	float dist = length(L);
-				//	L = normalize(L);
-				//	float atten = 1.0 - (1.0 - theta) * 1.0/(1.0 - light.cutoff);
-				//	Lo += light.color.rgb * atten * light.intencity * specularContribution(albedo, L, V, normal, F0, metallic, alphaRoughness);
-				//}
+				float outputAtten = 0.0;
+				L = normalize(light.position - inWorldPos);
+				float dist = length(L);
+				L = normalize(L);
+				atten = 1.0 / (1.0 + light.intencity * dist + light.intencity * light.intencity * dist * dist);
+				float theta = dot(-L, normalize(light.direction));
+				if (theta < light.outerConeAngle)
+				{
+					outputAtten = 0.f;
+				}
+				else
+				{
+					// we are going to ramp from the outer cone value to the inner using
+					// smoothstep to create a smooth value for the falloff
+					float spotValue = smoothstep(light.outerConeAngle, light.innerConeAngle, theta);
+					outputAtten = pow(spotValue, 2.0);
+				}
+				atten *= outputAtten;
 			}
+
+			Lo += atten * light.color * specularContribution(albedo, L, V, normal, F0, metallic, alphaRoughness);
 		}
 
 		vec2 brdf = texture(brdflut_tex, vec2(max(dot(normal, V), 0.0f), roughness)).rg;

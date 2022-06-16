@@ -6,9 +6,9 @@ using namespace engine::core::scene;
 
 void CCameraComponent::create()
 {
-    auto transform = pParent->getLocalTransform();
+    auto& transform = pParent->getLocalTransform();
     transform.rot = glm::vec3{-1.0, 0.0, 0.0};
-    pParent->setTransform(transform);
+    //pParent->setTransform(transform);
 }
 
 void CCameraComponent::update(float fDeltaTime)
@@ -19,7 +19,7 @@ void CCameraComponent::update(float fDeltaTime)
 
     auto view = getView();
     auto projection = getProjection();
-    std::array<float, 16> clip;
+    
     clip[0] = view[0][0] * projection[0][0] + view[0][1] * projection[1][0] + view[0][2] * projection[2][0] + view[0][3] * projection[3][0];
 	clip[1] = view[0][0] * projection[0][1] + view[0][1] * projection[1][1] + view[0][2] * projection[2][1] + view[0][3] * projection[3][1];
 	clip[2] = view[0][0] * projection[0][2] + view[0][1] * projection[1][2] + view[0][2] * projection[2][2] + view[0][3] * projection[3][2];
@@ -88,9 +88,9 @@ void CCameraComponent::moveForward(bool bInv)
         return;
 
     float dir = bInv ? -1.f : 1.f;
-    auto transform = pParent->getLocalTransform();
+    auto& transform = pParent->getLocalTransform();
     transform.pos += getForwardVector() * dir * dt * sensitivity;
-    pParent->setTransform(transform);
+    //pParent->setTransform(transform);
 }
 
 void CCameraComponent::moveRight(bool bInv)
@@ -99,9 +99,9 @@ void CCameraComponent::moveRight(bool bInv)
         return;
         
     float dir = bInv ? -1.f : 1.f;
-    auto transform = pParent->getLocalTransform();
+    auto& transform = pParent->getLocalTransform();
     transform.pos += getRightVector() * dir * dt * sensitivity;
-    pParent->setTransform(transform);
+    //pParent->setTransform(transform);
 }
 
 void CCameraComponent::moveUp(bool bInv)
@@ -110,9 +110,9 @@ void CCameraComponent::moveUp(bool bInv)
         return;
         
     float dir = bInv ? -1.f : 1.f;
-    auto transform = pParent->getLocalTransform();
+    auto& transform = pParent->getLocalTransform();
     transform.pos += getUpVector() * dir * dt * sensitivity;
-    pParent->setTransform(transform);
+    //pParent->setTransform(transform);
 }
 
 //TODO: make transform component as reference
@@ -137,9 +137,9 @@ void CCameraComponent::lookAt(float dX, float dY)
     const float u{-sin(glm::radians(angleV))};
     const float v{cos(glm::radians(angleV)) * -sin(glm::radians(angleH))};
     
-    auto transform = pParent->getLocalTransform();
+    auto& transform = pParent->getLocalTransform();
     transform.rot = glm::normalize(glm::vec3(w, u, v));
-    pParent->setTransform(transform);
+    //pParent->setTransform(transform);
 }
 
 glm::mat4 CCameraComponent::getProjection() const
@@ -151,13 +151,13 @@ glm::mat4 CCameraComponent::getProjection() const
 
 glm::mat4 CCameraComponent::getView() const
 {
-    auto transform = pParent->getLocalTransform();
+    auto& transform = pParent->getLocalTransform();
     return glm::lookAt(transform.pos, transform.pos + transform.rot, getUpVector());
 }
 
 glm::vec3 CCameraComponent::getForwardVector() const
 {
-    auto transform = pParent->getLocalTransform();
+    auto& transform = pParent->getLocalTransform();
     return transform.rot;
 }
 

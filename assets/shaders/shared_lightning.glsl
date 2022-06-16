@@ -5,8 +5,9 @@ struct FLight
 	vec3 position;
     vec3 direction;
     vec3 color;
-    float radius;
-    float intencity;
+	float intencity;
+	float innerConeAngle;
+    float outerConeAngle;
     int type;
 };
 

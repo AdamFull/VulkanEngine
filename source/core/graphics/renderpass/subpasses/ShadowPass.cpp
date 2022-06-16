@@ -26,7 +26,7 @@ void CShadowPass::reCreate()
 void CShadowPass::render(vk::CommandBuffer& commandBuffer)
 {
     CVBO::inst()->bind(commandBuffer);
-    pMaterial->bind();
+    pMaterial->bind(commandBuffer);
     CSceneManager::inst()->getScene()->getRoot()->render(commandBuffer);
 }
 

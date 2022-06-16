@@ -1,6 +1,30 @@
 {
     "materials":
     {
+        "brdflut_generator":
+        {
+            "bindPoint": "compute",
+            "stages": [
+                "shaders/generators/brdflut.comp"
+            ],
+            "defines": {}
+        },
+        "irradiancecube_generator":
+        {
+            "bindPoint": "compute",
+            "stages": [
+                "shaders/generators/Irradiancecube.comp"
+            ],
+            "defines": {}
+        },
+        "prefilteredmap_generator":
+        {
+            "bindPoint": "compute",
+            "stages": [
+                "shaders/generators/prefilteredmap.comp"
+            ],
+            "defines": {}
+        },
         "default":
         {
             "vertexType": "default",

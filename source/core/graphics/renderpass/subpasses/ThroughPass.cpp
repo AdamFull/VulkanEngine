@@ -25,7 +25,7 @@ void CThroughPass::render(vk::CommandBuffer& commandBuffer)
     pMaterial->addTexture("samplerColor", CRenderSystem::inst()->getCurrentImages()["output_color"]);
 
     pMaterial->update();
-    pMaterial->bind();
+    pMaterial->bind(commandBuffer);
 
     commandBuffer.draw(3, 1, 0, 0);
 }

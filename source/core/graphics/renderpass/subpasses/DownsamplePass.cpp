@@ -32,7 +32,7 @@ void CDownsamplePass::render(vk::CommandBuffer& commandBuffer)
     pMaterial->addTexture("downsample_tex", CRenderSystem::inst()->getCurrentImages()[targetTextureName]);
 
     pMaterial->update();
-    pMaterial->bind();
+    pMaterial->bind(commandBuffer);
     commandBuffer.draw(3, 1, 0, 0);
 }
 

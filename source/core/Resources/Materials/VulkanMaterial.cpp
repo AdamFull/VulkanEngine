@@ -23,10 +23,17 @@ void CMaterialBase::create()
     if(!bIsCreated)
     {
         uint32_t images = CDevice::inst()->getFramesInFlight();
-        auto& renderPass = CRenderSystem::inst()->getCurrentStage()->getCurrentFramebuffer()->getRenderPass();
-        auto subpass = CRenderSystem::inst()->getCurrentStage()->getCurrentFramebuffer()->getCurrentSubpass();
-
-        pPipeline->create(renderPass, subpass);
+        if(pPipeline->getBindPoint() != vk::PipelineBindPoint::eCompute)
+        {
+            auto& renderPass = CRenderSystem::inst()->getCurrentStage()->getCurrentFramebuffer()->getRenderPass();
+            auto subpass = CRenderSystem::inst()->getCurrentStage()->getCurrentFramebuffer()->getCurrentSubpass();
+            pPipeline->create(renderPass, subpass);
+        }
+        else
+        {
+            pPipeline->create();
+        }
+        
 
         for(auto instance = 0; instance < instances; instance++)
         {
@@ -103,9 +110,8 @@ void CMaterialBase::update()
     pDescriptorSet->update();
 }
 
-void CMaterialBase::bind()
+void CMaterialBase::bind(vk::CommandBuffer& commandBuffer)
 {
-    auto& commandBuffer = CRenderSystem::inst()->getCurrentCommandBuffer();
     auto& pDescriptorSet = getDescriptorSet();
     pDescriptorSet->bind(commandBuffer);
     pPipeline->bind(commandBuffer);

@@ -35,82 +35,6 @@ namespace engine
 			class CPipelineBase
 			{
 			public:
-				friend class Builder;
-				/**
-				 * @brief Pipeline builder class
-				 *
-				 */
-				class Builder
-				{
-				public:
-					Builder() = default;
-					inline Builder &setVertexInput(CVertexInput &&vertexInput)
-					{
-						m_vertexInput = std::move(vertexInput);
-						return *this;
-					}
-					inline Builder &setColorAttachments(uint32_t attachments)
-					{
-						m_colorAttachments = attachments;
-						return *this;
-					}
-					inline Builder &setCulling(vk::CullModeFlagBits culling)
-					{
-						m_culling = culling;
-						return *this;
-					}
-					inline Builder &setFontFace(vk::FrontFace fontface)
-					{
-						m_fontface = fontface;
-						return *this;
-					}
-					inline Builder &setDepthEnabled(vk::Bool32 enableDepth)
-					{
-						m_enableDepth = enableDepth;
-						return *this;
-					}
-					inline Builder &addDynamicState(vk::DynamicState state)
-					{
-						m_vDynamicStateEnables.emplace_back(state);
-						return *this;
-					}
-					inline Builder &setDynamicStates(const std::vector<vk::DynamicState> &states)
-					{
-						m_vDynamicStateEnables = states;
-						return *this;
-					}
-					inline Builder &addShaderStage(const std::string &stage)
-					{
-						m_vStages.emplace_back(stage);
-						return *this;
-					}
-					inline Builder &setShaderStages(const std::vector<std::string> &stages)
-					{
-						m_vStages = stages;
-						return *this;
-					}
-					inline Builder &addDefine(const std::string &name, const std::string &value)
-					{
-						m_vDefines.emplace(std::make_pair(name, value));
-						return *this;
-					}
-					inline Builder &setDefines(const std::map<std::string, std::string> &defines)
-					{
-						m_vDefines = defines;
-						return *this;
-					}
-					scope_ptr<CPipelineBase> build(vk::PipelineBindPoint bindPoint);
-
-				private:
-					CVertexInput m_vertexInput;
-					uint32_t m_colorAttachments{1};
-					vk::CullModeFlagBits m_culling{vk::CullModeFlagBits::eNone};
-					vk::FrontFace m_fontface{vk::FrontFace::eCounterClockwise};
-					vk::Bool32 m_enableDepth{VK_FALSE};
-					std::vector<vk::DynamicState> m_vDynamicStateEnables{vk::DynamicState::eViewport, vk::DynamicState::eScissor};
-					std::vector<std::string> m_vStages;
-					std::map<std::string, std::string> m_vDefines;
-				};
 				CPipelineBase() = default;
 				virtual ~CPipelineBase();
 
@@ -156,7 +80,18 @@ namespace engine
 				 */
 				virtual void cleanup();
 
-				void addDefine(const std::string& define, const std::string& value);
+				void setBindPoint(vk::PipelineBindPoint bindPoint);
+				void setVertexInput(CVertexInput &&vertexInput);
+				void setColorAttachments(uint32_t attachments);
+				void setCulling(vk::CullModeFlagBits culling);
+				void setFontFace(vk::FrontFace fontface);
+				void setDepthEnabled(vk::Bool32 enableDepth);
+				void addDynamicState(vk::DynamicState state);
+				void setDynamicStates(const std::vector<vk::DynamicState> &states);
+				void addShaderStage(const std::string &stage);
+				void setShaderStages(const std::vector<std::string> &stages);
+				void addDefine(const std::string &name, const std::string &value);
+				void setDefines(const std::map<std::string, std::string> &defines);
 
 				/**
 				 * @brief Get pipeline state object

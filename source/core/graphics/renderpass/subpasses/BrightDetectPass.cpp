@@ -36,7 +36,7 @@ void CBrightDetectPass::render(vk::CommandBuffer& commandBuffer)
     pUBO->flush(commandBuffer);
 
     pMaterial->update();
-    pMaterial->bind();
+    pMaterial->bind(commandBuffer);
     commandBuffer.draw(3, 1, 0, 0);
 }
 

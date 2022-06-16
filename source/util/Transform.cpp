@@ -16,51 +16,91 @@ void from_json(const nlohmann::json &json, FTransform &type)
     ParseArgument(json, type.scale, "scale");
 }
 
-glm::vec3 FTransform::getPosition() const
+const glm::vec3& FTransform::getPosition() const
 {
-    return model[3];
+    return pos;
 }
 
-void FTransform::setPosition(const glm::vec3& position)
+void FTransform::setPosition(const glm::vec3 &position)
 {
-    model = glm::translate(model, position);
+    this->pos = position;
 }
 
-glm::vec3 FTransform::getRotation() const
+const glm::vec3& FTransform::getRotation() const
 {
-    return model[2];
+    return rot;
 }
 
-void FTransform::setRotation(const glm::vec3& rotation)
+void FTransform::setRotation(const glm::vec3 &rotation)
 {
-    if (rotation.x != 0)
-        model = glm::rotate(model, rotation.x, glm::vec3(1.0, 0.0, 0.0));
-    if (rotation.y != 0)
-        model = glm::rotate(model, rotation.y, glm::vec3(0.0, 1.0, 0.0));
-    if (rotation.z != 0)
-        model = glm::rotate(model, rotation.z, glm::vec3(0.0, 0.0, 1.0));
+    this->rot = rotation;
 }
 
-glm::vec3 FTransform::getScale() const
+const glm::vec3& FTransform::getScale() const
 {
-    return model[1];
+    return scale;
 }
 
-void FTransform::setScale(const glm::vec3& _scale)
+void FTransform::setScale(const glm::vec3& scale)
 {
-    model = glm::scale(model, _scale);
+    this->scale = scale;
 }
 
-const glm::mat4& FTransform::getModel()
+const glm::mat4 FTransform::getModel()
 {
-    setPosition(pos);
-    setRotation(rot);
-    setScale(scale);
-    return model;
+    const float c3 = glm::cos(rot.z);
+    const float s3 = glm::sin(rot.z);
+    const float c2 = glm::cos(rot.x);
+    const float s2 = glm::sin(rot.x);
+    const float c1 = glm::cos(rot.y);
+    const float s1 = glm::sin(rot.y);
+    return glm::mat4{
+        {
+            scale.x * (c1 * c3 + s1 * s2 * s3),
+            scale.x * (c2 * s3),
+            scale.x * (c1 * s2 * s3 - c3 * s1),
+            0.0f,
+        },
+        {
+            scale.y * (c3 * s1 * s2 - c1 * s3),
+            scale.y * (c2 * c3),
+            scale.y * (c1 * c3 * s2 + s1 * s3),
+            0.0f,
+        },
+        {
+            scale.z * (c2 * s1),
+            scale.z * (-s2),
+            scale.z * (c1 * c2),
+            0.0f,
+        },
+        {pos.x, pos.y, pos.z, 1.0f}};
 }
 
-const glm::mat4& FTransform::getNormal()
+const glm::mat4 FTransform::getNormal()
 {
-    normal = glm::transpose(getModel());
-    return normal;
+    const float c3 = glm::cos(rot.z);
+    const float s3 = glm::sin(rot.z);
+    const float c2 = glm::cos(rot.x);
+    const float s2 = glm::sin(rot.x);
+    const float c1 = glm::cos(rot.y);
+    const float s1 = glm::sin(rot.y);
+    const glm::vec3 invScale = 1.0f / scale;
+
+    return glm::mat3{
+        {
+            invScale.x * (c1 * c3 + s1 * s2 * s3),
+            invScale.x * (c2 * s3),
+            invScale.x * (c1 * s2 * s3 - c3 * s1),
+        },
+        {
+            invScale.y * (c3 * s1 * s2 - c1 * s3),
+            invScale.y * (c2 * c3),
+            invScale.y * (c1 * c3 * s2 + s1 * s3),
+        },
+        {
+            invScale.z * (c2 * s1),
+            invScale.z * (-s2),
+            invScale.z * (c1 * c2),
+        },
+    };
 }

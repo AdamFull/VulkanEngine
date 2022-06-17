@@ -83,7 +83,6 @@ namespace engine
                 auto realSize = size;
                 if (realSize == 0)
                     realSize = uniform->getSize();
-                auto aligned = sizeof(object);
                 
                 set(object, uniform->getOffset(), realSize);
             }

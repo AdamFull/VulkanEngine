@@ -3,18 +3,18 @@
 
 #include "diffuse_shared.glsl"
 
-layout(push_constant) uniform UBOMaterial
+layout(std140, binding = 7) uniform UBOMaterial
 {
-	float alphaCutoff;
+	vec4 baseColorFactor;
 	vec3 emissiveFactor;
+	float alphaCutoff;
 	float normalScale;
 	float occlusionStrenth;
-	vec4 baseColorFactor;
 	float metallicFactor;
 	float roughnessFactor;
-	float tessLevel;
-	float tessStrength;
-} ubo;
+	float tessellationFactor;
+	float tessellationStrength;
+} material;
 
 layout(std140, binding = 0) uniform FUniformData 
 {
@@ -23,6 +23,7 @@ layout(std140, binding = 0) uniform FUniformData
   	mat4 projection;
   	mat4 normal;
 	vec3 viewDir;
+	vec2 viewportDim;
 } data;
 
 #ifdef HAS_HEIGHTMAP
@@ -67,11 +68,11 @@ void main()
 
 	float height = 0.0;
 #ifdef HAS_HEIGHTMAP
-    gl_Position.xyz += normalize(outNormal) * (max(texture(height_tex, outUV.st).r, 0.0) * ubo.tessStrength);
+    gl_Position.xyz += normalize(outNormal) * (max(texture(height_tex, outUV.st).r, 0.0) * material.tessellationStrength); //TODO: pass here 
 #endif
 				
 	outPosition = (gl_Position).xyz;
-	//outLightVec = normalize(ubo.lightPos.xyz - outEyesPos);	
+	//outLightVec = normalize(material.lightPos.xyz - outEyesPos);	
 		
 	gl_Position = data.projection * data.view * data.model * gl_Position;
 }

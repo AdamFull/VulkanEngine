@@ -50,20 +50,21 @@ layout(std140, binding = 0) uniform FUniformData
   	mat4 projection;
   	mat4 normal;
 	vec3 viewDir;
+	vec2 viewportDim;
 } data;
 
-layout(push_constant) uniform UBOMaterial
+layout(std140, binding = 7) uniform UBOMaterial
 {
-	float alphaCutoff;
+	vec4 baseColorFactor;
 	vec3 emissiveFactor;
+	float alphaCutoff;
 	float normalScale;
 	float occlusionStrenth;
-	vec4 baseColorFactor;
 	float metallicFactor;
 	float roughnessFactor;
-	float tessLevel;
-	float tessStrength;
-} ubo;
+	float tessellationFactor;
+	float tessellationStrength;
+} material;
 
 const float minRoughness = 0.04;
 
@@ -75,20 +76,20 @@ void main()
 	vec3 viewDir = normalize(data.viewDir - inPosition);;
 	//texCoord = ParallaxMapping(height_tex, inUV, viewDir, 0.01, 8.0, 32.0);
 #endif
-	float alpha = ubo.alphaCutoff;
+	float alpha = material.alphaCutoff;
 //BASECOLOR
 	vec3 albedo_map = vec3(0.0);
 #ifdef HAS_BASECOLORMAP
-	albedo_map = texture(color_tex, texCoord).rgb * ubo.baseColorFactor.rgb;
+	albedo_map = texture(color_tex, texCoord).rgb * material.baseColorFactor.rgb;
 #else
-	albedo_map = ubo.baseColorFactor.rgb;
+	albedo_map = material.baseColorFactor.rgb;
 #endif
 	albedo_map *= inColor;
 
 //METALLIC ROUGHNESS
 	vec4 pbr_map = vec4(0.0);
-	float roughness = ubo.roughnessFactor;
-	float metallic = ubo.metallicFactor;
+	float roughness = material.roughnessFactor;
+	float metallic = material.metallicFactor;
 #ifdef HAS_METALLIC_ROUGHNESS
 	vec4 metalRough = texture(rmah_tex, texCoord);
 	roughness = roughness * metalRough.g;
@@ -122,7 +123,7 @@ void main()
 
 	vec3 normal_map = vec3(0.0);
 #ifdef HAS_NORMALMAP
-	normal_map = getTangentSpaceNormalMap(normal_tex, tbn, texCoord, ubo.normalScale);
+	normal_map = getTangentSpaceNormalMap(normal_tex, tbn, texCoord, material.normalScale);
 #else
 	normal_map = tbn[2].xyz;
 #endif
@@ -133,13 +134,13 @@ void main()
 	float ao = 1.0;
 #ifdef HAS_OCCLUSIONMAP
 	ao = texture(occlusion_tex, texCoord).r;
-    albedo_map = mix(albedo_map, albedo_map * ao, ubo.occlusionStrenth);
+    albedo_map = mix(albedo_map, albedo_map * ao, material.occlusionStrenth);
 #endif
 
 //EMISSION
 	vec4 emission = vec4(0.0);
 #ifdef HAS_EMISSIVEMAP
-    emission = vec4(texture(emissive_tex, texCoord).rgb * ubo.emissiveFactor, 1.0);
+    emission = vec4(texture(emissive_tex, texCoord).rgb * material.emissiveFactor, 1.0);
 #endif
 
 	outPack = packTextures(normal_map, albedo_map, pbr_map);

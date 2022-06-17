@@ -31,7 +31,7 @@ namespace engine
                 glm::vec4 baseColorFactor{1.0f};
                 float metallicFactor{1.f};
                 float roughnessFactor{1.f};
-                float tessLevel{1.f};
+                float tessellationFactor{1.f};
 	            float tessStrength{1.f};
             };
 
@@ -142,9 +142,9 @@ namespace engine
 
                 FMaterialParams& getParams() { return m_fMatParams; }
 
-                ref_ptr<core::CHandler>& getUniformBuffer(const std::string& name) { return vInstances.at(currentInstance)->mBuffers[name]; }
+                ref_ptr<core::CHandler>& getUniformBuffer(const std::string& name);
+                ref_ptr<core::CPushHandler>& getPushConstant(const std::string& name);
                 std::map<std::string, ref_ptr<core::CHandler>>& getUniformBuffers() { return vInstances.at(currentInstance)->mBuffers; }
-                ref_ptr<core::CPushHandler>& getPushConstant(const std::string& name) { return vInstances.at(currentInstance)->mPushConstants[name]; }
                 scope_ptr<core::descriptor::CDescriptorHandler>& getDescriptorSet() { return vInstances.at(currentInstance)->pDescriptorSet; }
 
             protected:
@@ -154,6 +154,8 @@ namespace engine
                 uint32_t currentInstance{0};
                 bool bIsCreated{false}, bIsReCreated{false};
 
+                ref_ptr<core::CHandler> pEmptyHamdler{nullptr};
+                ref_ptr<core::CPushHandler> pEmptyPushConstant{nullptr};
                 std::vector<scope_ptr<FMaterialUniqueObjects>> vInstances;
                 ref_ptr<core::pipeline::CPipelineBase> pPipeline;
                 std::map<std::string, vk::DescriptorImageInfo> mTextures;

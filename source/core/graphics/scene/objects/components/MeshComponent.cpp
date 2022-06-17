@@ -67,6 +67,7 @@ void CMeshComponent::render(vk::CommandBuffer &commandBuffer)
         //TODO: load primitive position?
         if(needToRender)
         {
+            //TODO: add automatic alignment in shader float = 4, 2x float = 8, 3x float = 16
             if(primitive.material && primitive.bUseMaterial)
             {
                 auto& pUBO = primitive.material->getUniformBuffer("FUniformData");
@@ -75,26 +76,27 @@ void CMeshComponent::render(vk::CommandBuffer &commandBuffer)
                 pUBO->set("projection", projection);
                 pUBO->set("normal", normal);
                 pUBO->set("viewDir", camera->viewPos);
+                auto ext = CDevice::inst()->getExtent(true);
+                pUBO->set("viewportDim", glm::vec2(ext.width, ext.height));
                 //pUBO->set("instancePos", instancePos);
-                
-                primitive.material->update();
-                primitive.material->bind(commandBuffer);
 
                 auto& params = primitive.material->getParams();
-                auto& material = primitive.material->getPushConstant("ubo");
+                auto& material = primitive.material->getUniformBuffer("UBOMaterial");
                 if(material)
                 {
-                    material->set("alphaCutoff", params.alphaCutoff);
+                    material->set("baseColorFactor", params.baseColorFactor);
                     material->set("emissiveFactor", params.emissiveFactor);
+                    material->set("alphaCutoff", params.alphaCutoff);
                     material->set("normalScale", params.normalScale);
                     material->set("occlusionStrenth", params.occlusionStrenth);
-                    material->set("baseColorFactor", params.baseColorFactor);
                     material->set("metallicFactor", params.metallicFactor);
                     material->set("roughnessFactor", params.roughnessFactor);
-                    material->set("tessLevel", params.tessLevel);
-                    material->set("tessStrength", params.tessStrength);
-                    material->flush(commandBuffer);  
+                    material->set("tessellationFactor", params.tessellationFactor);
+                    material->set("tessellationStrength", params.tessStrength);
                 }
+
+                primitive.material->update();
+                primitive.material->bind(commandBuffer);
             }
             commandBuffer.drawIndexed(primitive.indexCount, 1, primitive.firstIndex, 0, 0);
         }

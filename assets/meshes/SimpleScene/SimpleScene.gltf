@@ -2042,8 +2042,8 @@
 			},
 			"displacementGeometryTexture": {
 				"index": 2,
-				"level": 8,
-				"strength": 0.08
+				"factor": 1.75,
+				"strength": 0.02
 			}
 		},
 		{
@@ -2103,8 +2103,8 @@
 			},
 			"displacementGeometryTexture": {
 				"index": 15,
-				"level": 8,
-				"strength": 0.04
+				"factor": 1.75,
+				"strength": 0.02
 			}
 		},
 		{
@@ -2139,7 +2139,7 @@
 			},
 			"displacementGeometryTexture": {
 				"index": 23,
-				"level": 16,
+				"factor": 1.75,
 				"strength": 0.02
 			}
 		},
@@ -2161,8 +2161,8 @@
 			},
 			"displacementGeometryTexture": {
 				"index": 27,
-				"level": 8,
-				"strength": 0.08
+				"factor": 1.75,
+				"strength": 0.02
 			}
 		},
 		{
@@ -2198,8 +2198,8 @@
 			},
 			"displacementGeometryTexture": {
 				"index": 36,
-				"level": 32,
-				"strength": 0.04
+				"factor": 1.75,
+				"strength": 0.02
 			}
 		}
 	],

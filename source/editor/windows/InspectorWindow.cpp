@@ -141,7 +141,7 @@ void CInspectorWindow::draw()
                     FControls::DragFloat("Occlusion strenth", &params.occlusionStrenth, 0.005f, 0.005f);
                     FControls::DragFloat("Metallic factor", &params.metallicFactor, 0.005f, 0.005f);
                     FControls::DragFloat("Roughness factor", &params.roughnessFactor, 0.005f, 0.005f);
-                    FControls::DragFloat("Tesselation level", &params.tessLevel, 1.f, 0.f);
+                    FControls::DragFloat("Tesselation factor", &params.tessellationFactor, 0.005f, 0.f);
                     FControls::DragFloat("Tesselation Strength", &params.tessStrength, 0.005f, 0.005f);
                     FControls::ColorEdit4("Base color factor", params.baseColorFactor);
                     FControls::ColorEdit3("Emissive factor", params.emissiveFactor);

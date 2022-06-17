@@ -640,9 +640,9 @@ void GLTFLoader::loadMaterials(const tinygltf::Model &model)
         {
             auto texture = mat.additionalValues.at("displacementGeometryTexture");
 
-            const auto level = texture.json_double_value.find("level");
-            if(level != std::end(texture.json_double_value))
-                params.tessLevel = level->second;
+            const auto factor = texture.json_double_value.find("factor");
+            if(factor != std::end(texture.json_double_value))
+                params.tessellationFactor = factor->second;
             const auto strength = texture.json_double_value.find("strength");
             if(strength != std::end(texture.json_double_value))
                 params.tessStrength = strength->second;

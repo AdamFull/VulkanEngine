@@ -99,10 +99,10 @@ void CMaterialBase::update()
     pDescriptorSet->reset();
     for(auto& [name, uniform] : mBuffers)
     {
-        uniform->flush();
         auto& buffer = uniform->getBuffer();
         auto descriptor = buffer->getDescriptor();
         pDescriptorSet->set(name, descriptor);
+        uniform->flush();
     }
 
     for(auto& [key, texture] : mTextures)
@@ -154,4 +154,22 @@ void CMaterialBase::incrementUsageCount()
 void CMaterialBase::addDefinition(const std::string& definition, const std::string& value)
 {
     pPipeline->addDefine(definition, value);
+}
+
+ref_ptr<CHandler>& CMaterialBase::getUniformBuffer(const std::string& name) 
+{ 
+    auto& instance = vInstances.at(currentInstance);
+    auto uniformBlock = instance->mBuffers.find(name);
+    if(uniformBlock != instance->mBuffers.end())
+        return uniformBlock->second;
+    return pEmptyHamdler; 
+}
+
+ref_ptr<CPushHandler>& CMaterialBase::getPushConstant(const std::string& name) 
+{ 
+    auto& instance = vInstances.at(currentInstance);
+    auto pushBlock = instance->mPushConstants.find(name);
+    if(pushBlock != instance->mPushConstants.end())
+        return pushBlock->second;
+    return pEmptyPushConstant;
 }

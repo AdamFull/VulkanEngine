@@ -25,7 +25,7 @@ void CGraphicsPipeline::createPipeline()
     vertexInputCI.pVertexAttributeDescriptions = attributeDescription.data();
 
     auto inputAssembly = Initializers::PipelineInputAssemblyStateCI(bEnableTesselation ? vk::PrimitiveTopology::ePatchList : vk::PrimitiveTopology::eTriangleList, VK_FALSE);
-    auto rasterizer = Initializers::PipelineRasterizerStateCI(bEnableTesselation ? vk::PolygonMode::eLine : vk::PolygonMode::eFill, m_culling, m_fontface);
+    auto rasterizer = Initializers::PipelineRasterizerStateCI(vk::PolygonMode::eFill, m_culling, m_fontface); //bEnableTesselation ? vk::PolygonMode::eLine : 
     vk::PipelineMultisampleStateCreateInfo multisampling{};
     multisampling.rasterizationSamples = vk::SampleCountFlagBits::e1;
 

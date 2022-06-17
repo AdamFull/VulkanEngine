@@ -33,7 +33,9 @@ layout(location = 2) in vec3 inPosition;
 #ifdef HAS_NORMALS
 layout(location = 3) in vec3 inNormal;
 #endif
-layout(location = 4) in mat3 inTBN;
+#ifdef HAS_TANGENTS
+layout (location = 4) in vec4 inTangent;
+#endif
 
 layout(location = 0) out uvec4 outPack;
 layout(location = 1) out vec4 outEmissive;
@@ -47,6 +49,7 @@ layout(std140, binding = 0) uniform FUniformData
   	mat4 view;
   	mat4 projection;
   	mat4 normal;
+	vec3 viewDir;
 } data;
 
 layout(push_constant) uniform UBOMaterial
@@ -58,7 +61,8 @@ layout(push_constant) uniform UBOMaterial
 	vec4 baseColorFactor;
 	float metallicFactor;
 	float roughnessFactor;
-	vec3 viewDir;
+	float tessLevel;
+	float tessStrength;
 } ubo;
 
 const float minRoughness = 0.04;
@@ -68,8 +72,8 @@ void main()
 {
 	vec2 texCoord = inUV;
 #ifdef HAS_HEIGHTMAP 
-	vec3 viewDir = normalize(ubo.viewDir - inPosition);;
-	texCoord = ParallaxMapping(height_tex, inUV, viewDir, 0.01, 8.0, 32.0);
+	vec3 viewDir = normalize(data.viewDir - inPosition);;
+	//texCoord = ParallaxMapping(height_tex, inUV, viewDir, 0.01, 8.0, 32.0);
 #endif
 	float alpha = ubo.alphaCutoff;
 //BASECOLOR
@@ -113,7 +117,7 @@ void main()
     vec3 b = normalize(cross(ng, t));
     mat3 tbn = mat3(t, b, ng);
 #else // HAS_TANGENTS
-    mat3 tbn = inTBN;
+    mat3 tbn = calculateTBN(normal * inNormal, vec4(normal * inTangent.xyz, inTangent.w));
 #endif //END HAS_TANGENTS
 
 	vec3 normal_map = vec3(0.0);

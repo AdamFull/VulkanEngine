@@ -74,6 +74,7 @@ void CMeshComponent::render(vk::CommandBuffer &commandBuffer)
                 pUBO->set("view", view);
                 pUBO->set("projection", projection);
                 pUBO->set("normal", normal);
+                pUBO->set("viewDir", camera->viewPos);
                 //pUBO->set("instancePos", instancePos);
                 
                 primitive.material->update();
@@ -90,7 +91,8 @@ void CMeshComponent::render(vk::CommandBuffer &commandBuffer)
                     material->set("baseColorFactor", params.baseColorFactor);
                     material->set("metallicFactor", params.metallicFactor);
                     material->set("roughnessFactor", params.roughnessFactor);
-                    material->set("viewDir", camera->viewPos);
+                    material->set("tessLevel", params.tessLevel);
+                    material->set("tessStrength", params.tessStrength);
                     material->flush(commandBuffer);  
                 }
             }

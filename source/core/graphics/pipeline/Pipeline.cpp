@@ -108,6 +108,11 @@ void CPipelineBase::setDefines(const std::map<std::string, std::string> &defines
     m_vDefines = defines;
 }
 
+void CPipelineBase::setTesselationEnabled(bool value)
+{
+    bEnableTesselation = value;
+}
+
 void CPipelineBase::bind(vk::CommandBuffer &commandBuffer)
 {
     commandBuffer.bindPipeline(getBindPoint(), getPipeline());

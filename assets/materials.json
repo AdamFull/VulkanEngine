@@ -32,10 +32,13 @@
             "culling": "front",
             "frontface": "clockwise",
             "depth": true,
+            "tesselation": true,
             "dynamicStates": ["viewport", "scissor"],
             "stages": [
                 "shaders/main/diffuse.vert",
-                "shaders/main/diffuse.frag"
+                "shaders/main/diffuse.frag",
+                "shaders/main/diffuse.tesc",
+                "shaders/main/diffuse.tese"
             ],
             "defines": {}
         },

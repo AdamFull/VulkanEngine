@@ -1046,12 +1046,128 @@
 			"componentType": 5126,
 			"count": 1984,
 			"type": "VEC2"
+		},
+		{
+			"bufferView": 111,
+			"byteOffset": 0,
+			"componentType": 5126,
+			"count": 2,
+			"max": [
+				2.0
+			],
+			"min": [
+				0.0
+			],
+			"normalized": false,
+			"type": "SCALAR"
+		},
+		{
+			"bufferView": 112,
+			"byteOffset": 0,
+			"componentType": 5126,
+			"count": 2,
+			"max": [
+				0.0,
+				4.0,
+				0.0
+			],
+			"min": [
+				0.0,
+				4.0,
+				0.0
+			],
+			"normalized": false,
+			"type": "VEC3"
+		},
+		{
+			"bufferView": 113,
+			"byteOffset": 0,
+			"componentType": 5126,
+			"count": 2,
+			"max": [
+				2.0
+			],
+			"min": [
+				0.0
+			],
+			"normalized": false,
+			"type": "SCALAR"
+		},
+		{
+			"bufferView": 114,
+			"byteOffset": 0,
+			"componentType": 5126,
+			"count": 2,
+			"max": [
+				0.0,
+				14.0,
+				0.0
+			],
+			"min": [
+				0.0,
+				4.0,
+				0.0
+			],
+			"normalized": false,
+			"type": "VEC3"
+		},
+		{
+			"bufferView": 115,
+			"byteOffset": 0,
+			"componentType": 5126,
+			"count": 2,
+			"max": [
+				1.0
+			],
+			"min": [
+				0.0
+			],
+			"normalized": false,
+			"type": "SCALAR"
+		},
+		{
+			"bufferView": 116,
+			"byteOffset": 0,
+			"componentType": 5126,
+			"count": 2,
+			"max": [
+				0.0,
+				4.0,
+				0.0
+			],
+			"min": [
+				-10.0,
+				4.0,
+				0.0
+			],
+			"normalized": false,
+			"type": "VEC3"
+		}
+	],
+	"animations": [
+		{
+			"channels": [
+				{
+					"sampler": 0,
+					"target": {
+						"node": 28,
+						"path": "translation"
+					}
+				}
+			],
+			"samplers": [
+				{
+					"input": 113,
+					"interpolation": "LINEAR",
+					"output": 114
+				}
+			]
 		}
 	],
 	"asset": {
 		"copyright": "AdamFull",
 		"extras": {
-			"created": "Fri Jun 17 00:34:24 2022"
+			"created": "Fri Jun 17 00:48:57 2022"
 		},
 		"generator": "Gestaltor 2022.2.3 Tagliatelle Professional",
 		"version": "2.0"
@@ -1611,11 +1727,41 @@
 			"buffer": 0,
 			"byteLength": 15872,
 			"byteOffset": 859156
+		},
+		{
+			"buffer": 0,
+			"byteLength": 8,
+			"byteOffset": 875028
+		},
+		{
+			"buffer": 0,
+			"byteLength": 24,
+			"byteOffset": 875036
+		},
+		{
+			"buffer": 0,
+			"byteLength": 8,
+			"byteOffset": 875060
+		},
+		{
+			"buffer": 0,
+			"byteLength": 24,
+			"byteOffset": 875068
+		},
+		{
+			"buffer": 0,
+			"byteLength": 8,
+			"byteOffset": 875092
+		},
+		{
+			"buffer": 0,
+			"byteLength": 24,
+			"byteOffset": 875100
 		}
 	],
 	"buffers": [
 		{
-			"byteLength": 875028,
+			"byteLength": 875124,
 			"uri": "SimpleScene.bin"
 		}
 	],
@@ -1893,6 +2039,11 @@
 				"metallicRoughnessTexture": {
 					"index": 3
 				}
+			},
+			"displacementGeometryTexture": {
+				"index": 2,
+				"level": 8,
+				"strength": 0.08
 			}
 		},
 		{
@@ -1949,6 +2100,11 @@
 				"metallicRoughnessTexture": {
 					"index": 16
 				}
+			},
+			"displacementGeometryTexture": {
+				"index": 15,
+				"level": 8,
+				"strength": 0.04
 			}
 		},
 		{
@@ -1980,6 +2136,11 @@
 				"metallicRoughnessTexture": {
 					"index": 24
 				}
+			},
+			"displacementGeometryTexture": {
+				"index": 23,
+				"level": 16,
+				"strength": 0.02
 			}
 		},
 		{
@@ -1997,6 +2158,11 @@
 				"metallicRoughnessTexture": {
 					"index": 29
 				}
+			},
+			"displacementGeometryTexture": {
+				"index": 27,
+				"level": 8,
+				"strength": 0.08
 			}
 		},
 		{
@@ -2029,6 +2195,11 @@
 				"metallicRoughnessTexture": {
 					"index": 37
 				}
+			},
+			"displacementGeometryTexture": {
+				"index": 36,
+				"level": 32,
+				"strength": 0.04
 			}
 		}
 	],

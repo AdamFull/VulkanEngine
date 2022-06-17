@@ -24,8 +24,8 @@ void CGraphicsPipeline::createPipeline()
     vertexInputCI.pVertexBindingDescriptions = &bindingDescription;
     vertexInputCI.pVertexAttributeDescriptions = attributeDescription.data();
 
-    auto inputAssembly = Initializers::PipelineInputAssemblyStateCI(vk::PrimitiveTopology::eTriangleList, VK_FALSE);
-    auto rasterizer = Initializers::PipelineRasterizerStateCI(vk::PolygonMode::eFill, m_culling, m_fontface);
+    auto inputAssembly = Initializers::PipelineInputAssemblyStateCI(bEnableTesselation ? vk::PrimitiveTopology::ePatchList : vk::PrimitiveTopology::eTriangleList, VK_FALSE);
+    auto rasterizer = Initializers::PipelineRasterizerStateCI(bEnableTesselation ? vk::PolygonMode::eLine : vk::PolygonMode::eFill, m_culling, m_fontface);
     vk::PipelineMultisampleStateCreateInfo multisampling{};
     multisampling.rasterizationSamples = vk::SampleCountFlagBits::e1;
 
@@ -68,6 +68,9 @@ void CGraphicsPipeline::createPipeline()
     viewportState.viewportCount = 1;
     viewportState.scissorCount = 1;
 
+    vk::PipelineTessellationStateCreateInfo tessellationState{};
+    tessellationState.patchControlPoints = 3;
+
     auto shaderStages = m_pShader->getStageCreateInfo();
     auto foundStage = std::find_if(shaderStages.begin(), shaderStages.end(), [](const vk::PipelineShaderStageCreateInfo& ci){
         return ci.stage & vk::ShaderStageFlagBits::eFragment;
@@ -91,6 +94,9 @@ void CGraphicsPipeline::createPipeline()
     pipelineInfo.subpass = subpass;
     pipelineInfo.basePipelineHandle = nullptr;
     pipelineInfo.pDynamicState = &dynamicStateInfo;
+
+    if(bEnableTesselation)
+        pipelineInfo.pTessellationState = &tessellationState;
 
     auto result = CDevice::inst()->create(pipelineInfo, &pipeline);
     assert(pipeline && "Failed creating pipeline.");

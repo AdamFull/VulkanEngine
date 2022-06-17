@@ -107,6 +107,7 @@ namespace engine
                     {"culling", type.culling},
                     {"frontface", type.frontface},
                     {"depth", type.enableDepth},
+                    {"tesselation", type.enableTesselation},
                     {"dynamicStates", type.dynamicStateEnables},
                     {"stages", type.stages},
                     {"defines", type.defines},
@@ -121,6 +122,7 @@ namespace engine
                 ParseArgument(json, type.culling, "culling", false);
                 ParseArgument(json, type.frontface, "frontface", false);
                 ParseArgument(json, type.enableDepth, "depth", false);
+                ParseArgument(json, type.enableTesselation, "tesselation", false);
                 ParseArgument(json, type.dynamicStateEnables, "dynamicStates", false);
                 ParseArgument(json, type.stages, "stages", true);
                 ParseArgument(json, type.defines, "defines", false);
@@ -191,6 +193,7 @@ ref_ptr<CMaterialBase> CMaterialLoader::create(const std::string& name)
             material->pPipeline->setCulling(ci.culling);
             material->pPipeline->setFontFace(ci.frontface);
             material->pPipeline->setDepthEnabled(ci.enableDepth);
+            material->pPipeline->setTesselationEnabled(ci.enableTesselation);
             material->pPipeline->setDynamicStates(ci.dynamicStateEnables);
         }    
 

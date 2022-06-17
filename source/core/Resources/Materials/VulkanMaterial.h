@@ -30,7 +30,9 @@ namespace engine
                 float occlusionStrenth{1.f};
                 glm::vec4 baseColorFactor{1.0f};
                 float metallicFactor{1.f};
-                float roughnessFactor{1.f};                
+                float roughnessFactor{1.f};
+                float tessLevel{1.f};
+	            float tessStrength{1.f};
             };
 
             struct FMaterialUniqueObjects
@@ -138,7 +140,7 @@ namespace engine
                  */
                 inline ref_ptr<core::pipeline::CPipelineBase>& getPipeline() { return pPipeline; }
 
-                const FMaterialParams& getParams() { return m_fMatParams; }
+                FMaterialParams& getParams() { return m_fMatParams; }
 
                 ref_ptr<core::CHandler>& getUniformBuffer(const std::string& name) { return vInstances.at(currentInstance)->mBuffers[name]; }
                 std::map<std::string, ref_ptr<core::CHandler>>& getUniformBuffers() { return vInstances.at(currentInstance)->mBuffers; }

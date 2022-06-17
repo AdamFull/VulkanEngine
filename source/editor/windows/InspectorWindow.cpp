@@ -1,6 +1,7 @@
 #include "InspectorWindow.h"
 #include "graphics/scene/objects/RenderObject.h"
 #include "graphics/scene/objects/components/CameraComponent.h"
+#include "resources/materials/VulkanMaterial.h"
 #include "editor/Editor.h"
 #include "editor/CustomControls.h"
 
@@ -130,6 +131,20 @@ void CInspectorWindow::draw()
                         }
                     }
                     ImGui::Separator();
+                    ImGui::Text("Material");
+                    ImGui::Separator();
+
+                    auto& params = primitive.material->getParams();
+
+                    FControls::DragFloat("Alpha cutoff", &params.alphaCutoff, 0.005f, 0.005f);
+                    FControls::DragFloat("Scale normal", &params.normalScale, 0.005f, 0.005f);
+                    FControls::DragFloat("Occlusion strenth", &params.occlusionStrenth, 0.005f, 0.005f);
+                    FControls::DragFloat("Metallic factor", &params.metallicFactor, 0.005f, 0.005f);
+                    FControls::DragFloat("Roughness factor", &params.roughnessFactor, 0.005f, 0.005f);
+                    FControls::DragFloat("Tesselation level", &params.tessLevel, 1.f, 0.f);
+                    FControls::DragFloat("Tesselation Strength", &params.tessStrength, 0.005f, 0.005f);
+                    FControls::ColorEdit4("Base color factor", params.baseColorFactor);
+                    FControls::ColorEdit3("Emissive factor", params.emissiveFactor);
                 }
 
                 //TODO: show primitives and materials

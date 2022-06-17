@@ -11,39 +11,25 @@ layout(location = 4) in vec4 inTangent;
 
 layout(location = 0) out vec2 outUV;
 layout(location = 1) out vec3 outColor;
-layout(location = 2) out vec3 outPosition;
 #ifdef HAS_NORMALS
-layout(location = 3) out vec3 outNormal;
+layout(location = 2) out vec3 outNormal;
 #endif
-layout(location = 4) out mat3 outTBN;
+#ifdef HAS_TANGENTS
+layout (location = 3) out vec4 outTangent;
+#endif
 
 #include "../shader_util.glsl"
 
-layout(std140, binding = 0) uniform FUniformData 
-{
-  	mat4 model;
-  	mat4 view;
-  	mat4 projection;
-  	mat4 normal;
-  	//vec4 instancePos[256];
-  	//float repeat;
-} ubo;
-
 void main() 
 {
-  	vec4 tmpPos = vec4(inPosition, 1.0);
-
 	outUV = inTexCoord * 1.0;
   	outColor = inColor;
 #ifdef HAS_NORMALS
 	outNormal = inNormal;
 #endif
-	outPosition = inPosition;
-	
 #ifdef HAS_TANGENTS
-	mat3 normal = mat3(ubo.normal);
-	outTBN = calculateTBN(normal * inNormal, vec4(normal * inTangent.xyz, inTangent.w));
-#endif
-  
-  	gl_Position = ubo.projection * ubo.view * ubo.model * tmpPos;
+	outTangent = inTangent;
+#endif  
+  	//ubo.projection * ubo.view * ubo.model * tmpPos;
+	gl_Position = vec4(inPosition, 1.0);
 }

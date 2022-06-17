@@ -762,7 +762,7 @@ namespace vk
             {"draw_indirect_first_instance", type.drawIndirectFirstInstance},
             {"depth_clamp", type.depthClamp},
             {"depth_bias_clamp", type.depthBiasClamp},
-            {"full_mode_non_solid", type.fillModeNonSolid},
+            {"fill_mode_non_solid", type.fillModeNonSolid},
             {"depth_bounds", type.depthBounds},
             {"wide_lines", type.wideLines},
             {"large_points", type.largePoints},
@@ -822,7 +822,7 @@ namespace vk
         ParseArgument(json, type.drawIndirectFirstInstance, "draw_indirect_first_instance");
         ParseArgument(json, type.depthClamp, "depth_clamp");
         ParseArgument(json, type.depthBiasClamp, "depth_bias_clamp");
-        ParseArgument(json, type.fillModeNonSolid, "full_mode_non_solid");
+        ParseArgument(json, type.fillModeNonSolid, "fill_mode_non_solid");
         ParseArgument(json, type.depthBounds, "depth_bounds");
         ParseArgument(json, type.wideLines, "wide_lines");
         ParseArgument(json, type.largePoints, "large_points");

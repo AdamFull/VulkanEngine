@@ -79,6 +79,26 @@ bool FControls::ColorEdit3(const std::string& label, glm::vec3& value)
     return bValueChanged;
 }
 
+bool FControls::ColorEdit4(const std::string& label, glm::vec4& value)
+{
+    ImGuiColorEditFlags misc_flags{};
+    bool bValueChanged{false};
+
+    ImGui::PushID(label.c_str());
+
+    ImGui::Columns(2);
+	ImGui::SetColumnWidth(0, _columnWidth);
+    ImGui::Text(label.c_str());
+    ImGui::NextColumn();
+
+    bValueChanged = ImGui::ColorEdit4(("##" + label).c_str(), glm::value_ptr(value), misc_flags);
+
+    ImGui::Columns(1);
+    ImGui::PopID();
+
+    return bValueChanged;
+}
+
 bool FControls::DragFloatVec3(const std::string& label, glm::vec3& values, float step, float min, float max)
 {
     bool bValueChanged{false};

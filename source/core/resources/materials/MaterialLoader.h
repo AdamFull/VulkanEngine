@@ -24,6 +24,7 @@ namespace engine
                     vk::CullModeFlagBits culling{vk::CullModeFlagBits::eNone};
                     vk::FrontFace frontface{vk::FrontFace::eCounterClockwise};
                     vk::Bool32 enableDepth{VK_FALSE};
+                    vk::Bool32 enableTesselation{VK_FALSE};
                     std::vector<vk::DynamicState> dynamicStateEnables{vk::DynamicState::eViewport, vk::DynamicState::eScissor};
                     std::vector<std::string> stages;
                     std::map<std::string, std::string> defines;

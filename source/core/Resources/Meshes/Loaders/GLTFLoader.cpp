@@ -112,7 +112,7 @@ void GLTFLoader::loadNode(ref_ptr<CRenderObject>& pParent, const tinygltf::Node 
     if (node.rotation.size() == 4)
     {
         glm::quat quat = glm::conjugate(glm::make_quat(node.rotation.data()));
-        glm::vec3 rot = glm::eulerAngles(quat);
+        glm::vec3 rot = glm::eulerAngles(quat) * glm::vec3(-1.0, 1.0, 1.0);
         transform.setRotation(rot);
     }
     // Loading scale data
@@ -123,9 +123,7 @@ void GLTFLoader::loadNode(ref_ptr<CRenderObject>& pParent, const tinygltf::Node 
     if (node.children.size() > 0)
     {
         for (auto i = 0; i < node.children.size(); i++)
-        {
             loadNode(component, model.nodes[node.children[i]], node.children[i], model, globalscale);
-        }
     }
 
     if (node.mesh > -1) loadMeshFragment(component, node, model);

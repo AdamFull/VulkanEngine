@@ -95,32 +95,22 @@ void main()
 				float dist = length(L);
 				L = normalize(L);
 				atten = light.intencity;
-				//atten = mix(1.0f, 1.0 / (1.0 + 0.1 * dot(MainLightPosition.xyz - P, MainLightPosition.xyz - P)), 1.0);
 			}
 
 			// Spot light
 			if(light.type == 2)
 			{
-				float outputAtten = 0.0;
+				float spotAtten = 1.0;
 				L = normalize(light.position - inWorldPos);
 				float dist = length(L);
 				L = normalize(L);
-				atten = 1.0 / (1.0 + light.intencity * dist + light.intencity * light.intencity * dist * dist);
+				atten = clamp(1.0 - pow(dist, 2.0f)/pow(light.intencity, 2.0f), 0.0f, 1.0f); atten *= atten;
+				
 				float theta = dot(-L, normalize(light.direction));
-				if (theta < light.outerConeAngle)
-				{
-					outputAtten = 0.f;
-				}
-				else
-				{
-					// we are going to ramp from the outer cone value to the inner using
-					// smoothstep to create a smooth value for the falloff
-					float spotValue = smoothstep(light.outerConeAngle, light.innerConeAngle, theta);
-					outputAtten = pow(spotValue, 2.0);
-				}
-				atten *= outputAtten;
+				float epsilon = light.outerConeAngle - light.innerConeAngle;
+				spotAtten = clamp((theta - light.innerConeAngle) / epsilon, 0.0, 1.0);
+				atten *= spotAtten;
 			}
-
 			Lo += atten * light.color * specularContribution(albedo, L, V, normal, F0, metallic, alphaRoughness);
 		}
 

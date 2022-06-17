@@ -1051,7 +1051,7 @@
 	"asset": {
 		"copyright": "AdamFull",
 		"extras": {
-			"created": "Thu Jun 16 14:28:42 2022"
+			"created": "Fri Jun 17 00:34:24 2022"
 		},
 		"generator": "Gestaltor 2022.2.3 Tagliatelle Professional",
 		"version": "2.0"
@@ -1658,13 +1658,16 @@
 				},
 				{
 					"color": [
-						0.0,
 						1.0,
-						0.0
+						0.121980621042191,
+						0.003295948729686
 					],
 					"intensity": 10.0,
 					"name": "spotlight",
-					"spot": {},
+					"spot": {
+						"innerConeAngle": 0.3,
+						"outerConeAngle": 0.7853981634
+					},
 					"type": "spot"
 				}
 			]
@@ -1951,7 +1954,7 @@
 		{
 			"name": "light-gold",
 			"normalTexture": {
-				"index": 0
+				"index": 20
 			},
 			"pbrMetallicRoughness": {
 				"baseColorTexture": {
@@ -2826,15 +2829,15 @@
 			},
 			"name": "SpotLight",
 			"rotation": [
-				-0.7071067811865476,
 				0.0,
+				0.7071067811865476,
 				0.0,
 				0.7071067811865476
 			],
 			"translation": [
-				10.0,
-				4.0,
-				10.0
+				13.542582962661982,
+				0.8582043349742889,
+				7.552475795745849
 			]
 		}
 	],

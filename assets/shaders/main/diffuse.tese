@@ -30,7 +30,7 @@ layout(std140, binding = 0) uniform FUniformData
 layout(binding = 6) uniform sampler2D height_tex;
 #endif
 
-layout(triangles, fractional_odd_spacing , cw) in;
+layout(triangles, equal_spacing , cw) in;
 
 layout (location = 0) in vec2 inUV[];
 layout (location = 1) in vec3 inColor[];

@@ -102,7 +102,7 @@ void CMaterialBase::update()
         auto& buffer = uniform->getBuffer();
         auto& descriptor = buffer->getDescriptor();
         pDescriptorSet->set(name, descriptor);
-        //uniform->flush();
+        uniform->flush();
     }
 
     for(auto& [key, texture] : mTextures)

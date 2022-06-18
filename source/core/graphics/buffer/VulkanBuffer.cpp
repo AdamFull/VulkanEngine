@@ -63,9 +63,8 @@ void CVulkanBuffer::cleanup()
     }
 }
 
-vk::DescriptorBufferInfo CVulkanBuffer::getDescriptor(vk::DeviceSize size, vk::DeviceSize offset)
+vk::DescriptorBufferInfo& CVulkanBuffer::getDescriptor(vk::DeviceSize size, vk::DeviceSize offset)
 {
-    vk::DescriptorBufferInfo bufferInfo;
     bufferInfo.buffer = buffer;
     bufferInfo.offset = 0;
     bufferInfo.range = size;
@@ -78,7 +77,7 @@ vk::DescriptorBufferInfo CVulkanBuffer::getDescriptor(vk::DeviceSize size, vk::D
     return bufferInfo;
 }
 
-vk::DescriptorBufferInfo CVulkanBuffer::getDescriptor()
+vk::DescriptorBufferInfo& CVulkanBuffer::getDescriptor()
 {
     return getDescriptor(bufferSize, 0);
 }

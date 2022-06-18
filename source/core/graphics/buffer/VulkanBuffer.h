@@ -20,8 +20,8 @@ namespace engine
                           vk::BufferUsageFlags usageFlags, vk::MemoryPropertyFlags memoryPropertyFlags,
                           vk::DeviceSize minOffsetAlignment = 1);
 
-            vk::DescriptorBufferInfo getDescriptor(vk::DeviceSize size, vk::DeviceSize offset);
-            vk::DescriptorBufferInfo getDescriptor();
+            vk::DescriptorBufferInfo& getDescriptor(vk::DeviceSize size, vk::DeviceSize offset);
+            vk::DescriptorBufferInfo& getDescriptor();
 
             vk::Result mapMem(vk::DeviceSize size = VK_WHOLE_SIZE, vk::DeviceSize offset = 0);
             void unmapMem();
@@ -54,6 +54,7 @@ namespace engine
             vk::DeviceMemory deviceMemory = VK_NULL_HANDLE;
             bool bIsClean{false};
 
+            vk::DescriptorBufferInfo bufferInfo;
             vk::DeviceSize bufferSize;
             uint32_t instanceCount;
             vk::DeviceSize instanceSize;

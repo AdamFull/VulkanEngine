@@ -36,6 +36,7 @@ void CMeshComponent::render(vk::CommandBuffer &commandBuffer)
 {
     auto& cameraNode = CCameraManager::inst()->getCurrentCamera();
     auto& camera = cameraNode->getCamera();
+    auto& frustumSides = camera->getFrustumSides();
 
     auto transform = pParent->getTransform();
     auto view = camera->getView();
@@ -78,6 +79,7 @@ void CMeshComponent::render(vk::CommandBuffer &commandBuffer)
                 pUBO->set("viewDir", camera->viewPos);
                 auto ext = CDevice::inst()->getExtent(true);
                 pUBO->set("viewportDim", glm::vec2(ext.width, ext.height));
+                pUBO->set("frustumPlanes", frustumSides);
                 //pUBO->set("instancePos", instancePos);
 
                 auto& params = primitive.material->getParams();

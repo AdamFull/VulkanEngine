@@ -24,6 +24,7 @@ layout(std140, binding = 0) uniform FUniformData
   	mat4 normal;
 	vec3 viewDir;
 	vec2 viewportDim;
+	vec4 frustumPlanes[6];
 } data;
 
 #ifdef HAS_HEIGHTMAP

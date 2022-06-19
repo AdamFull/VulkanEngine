@@ -31,8 +31,8 @@ namespace engine
                 glm::vec4 baseColorFactor{1.0f};
                 float metallicFactor{1.f};
                 float roughnessFactor{1.f};
-                float tessellationFactor{1.f};
-	            float tessStrength{1.f};
+                float tessellationFactor{0.f};
+	            float tessStrength{0.f};
             };
 
             struct FMaterialUniqueObjects

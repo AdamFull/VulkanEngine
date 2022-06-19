@@ -61,12 +61,15 @@ namespace engine
                 bool checkBox(const glm::vec3 &start, const glm::vec3 &end);
 
                 const float getFieldOfView() const { return fieldOfView; }
-                const float getNearPlane() const { return nearPlane; }
-                const float getFarPlane() const { return farPlane; }
-
                 void setFieldOfView(float value) { fieldOfView = value; }
+
+                const float getNearPlane() const { return nearPlane; }
                 void setNearPlane(float value) { nearPlane = value; }
+
+                const float getFarPlane() const { return farPlane; }
                 void setFarPlane(float value) { farPlane = value; }
+
+                std::array<std::array<float, 4>, 6>& getFrustumSides() { return frustumSides; }
 
                 glm::vec4 viewPos{};
 

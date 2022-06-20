@@ -1,8 +1,6 @@
 #version 450
 #extension GL_GOOGLE_include_directive : require
 
-#include "diffuse_shared.glsl"
-
 layout(std140, binding = 7) uniform UBOMaterial
 {
 	vec4 baseColorFactor;
@@ -30,8 +28,10 @@ layout(std140, binding = 0) uniform FUniformData
 #ifdef HAS_HEIGHTMAP
 layout(binding = 6) uniform sampler2D height_tex;
 #endif
+
+#define VERTICES_COUNT 3
  
-layout (vertices = 3) out;
+layout (vertices = VERTICES_COUNT) out;
 
 layout (location = 0) in vec2 inUV[];
 layout (location = 1) in vec3 inColor[];
@@ -42,13 +42,13 @@ layout (location = 2) in vec3 inNormal[];
 layout (location = 3) in vec4 inTangent[];
 #endif
 
-layout (location = 0) out vec2 outUV[3];
-layout (location = 1) out vec3 outColor[3];
+layout (location = 0) out vec2 outUV[VERTICES_COUNT];
+layout (location = 1) out vec3 outColor[VERTICES_COUNT];
 #ifdef HAS_NORMALS
-layout (location = 2) out vec3 outNormal[3];
+layout (location = 2) out vec3 outNormal[VERTICES_COUNT];
 #endif
 #ifdef HAS_TANGENTS
-layout (location = 3) out vec4 outTangent[];
+layout (location = 3) out vec4 outTangent[VERTICES_COUNT];
 #endif
 
 // Calculate the tessellation factor based on screen space
@@ -78,7 +78,7 @@ float screenSpaceTessFactor(vec4 p0, vec4 p1)
 	// Return the tessellation factor based on the screen size 
 	// given by the distance of the two edge control points in screen space
 	// and a reference (min.) tessellation size for the edge set by the application
-	return clamp(distance(clip0, clip1) / 20.0 * material.tessellationFactor, 1.0, 64.0);
+	return clamp(distance(clip0, clip1) / 10.0 * material.tessellationFactor, 1.0, 64.0);
 }
 
 // Checks the current's patch visibility against the frustum using a sphere check
@@ -121,33 +121,27 @@ void main()
 		if (!frustumCheck())
 		{
 			gl_TessLevelInner[0] = 0.0;
-			gl_TessLevelInner[1] = 0.0;
 			gl_TessLevelOuter[0] = 0.0;
 			gl_TessLevelOuter[1] = 0.0;
 			gl_TessLevelOuter[2] = 0.0;
-			gl_TessLevelOuter[3] = 0.0;
 		}
 		else
 		{
 			if (material.tessellationFactor > 0.0)
 			{
-				gl_TessLevelOuter[0] = screenSpaceTessFactor(gl_in[3].gl_Position, gl_in[0].gl_Position);
-				gl_TessLevelOuter[1] = screenSpaceTessFactor(gl_in[0].gl_Position, gl_in[1].gl_Position);
-				gl_TessLevelOuter[2] = screenSpaceTessFactor(gl_in[1].gl_Position, gl_in[2].gl_Position);
-				gl_TessLevelOuter[3] = screenSpaceTessFactor(gl_in[2].gl_Position, gl_in[3].gl_Position);
-				gl_TessLevelInner[0] = mix(gl_TessLevelOuter[0], gl_TessLevelOuter[3], 0.5);
-				gl_TessLevelInner[1] = mix(gl_TessLevelOuter[2], gl_TessLevelOuter[1], 0.5);
+				gl_TessLevelOuter[0] = screenSpaceTessFactor(gl_in[1].gl_Position, gl_in[2].gl_Position);
+				gl_TessLevelOuter[1] = screenSpaceTessFactor(gl_in[2].gl_Position, gl_in[0].gl_Position);
+				gl_TessLevelOuter[2] = screenSpaceTessFactor(gl_in[0].gl_Position, gl_in[1].gl_Position);
+				gl_TessLevelInner[0] = gl_TessLevelOuter[2];
 			}
 			else
 			{
 				// Tessellation factor can be set to zero by example
 				// to demonstrate a simple passthrough
 				gl_TessLevelInner[0] = 1.0;
-				gl_TessLevelInner[1] = 1.0;
 				gl_TessLevelOuter[0] = 1.0;
 				gl_TessLevelOuter[1] = 1.0;
 				gl_TessLevelOuter[2] = 1.0;
-				gl_TessLevelOuter[3] = 1.0;
 			}
 		}
 	}

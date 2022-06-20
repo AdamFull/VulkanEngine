@@ -1,8 +1,6 @@
 #version 450
 #extension GL_GOOGLE_include_directive : require
 
-#include "diffuse_shared.glsl"
-
 layout(std140, binding = 7) uniform UBOMaterial
 {
 	vec4 baseColorFactor;
@@ -67,9 +65,9 @@ void main()
     outTangent = gl_TessCoord.x * inTangent[0] + gl_TessCoord.y * inTangent[1] + gl_TessCoord.z * inTangent[2]; 
 #endif
 
-	float height = 0.0;
 #ifdef HAS_HEIGHTMAP
-    gl_Position.xyz += normalize(outNormal) * (max(texture(height_tex, outUV.st).r, 0.0) * material.tessellationStrength); //TODO: pass here 
+	vec3 displace = normalize(outNormal) * (max(texture(height_tex, outUV.st).r - 0.5f, 0.0) * material.tessellationStrength);
+    gl_Position.xyz += displace;
 #endif
 				
 	outPosition = (gl_Position).xyz;

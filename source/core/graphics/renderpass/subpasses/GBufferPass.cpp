@@ -22,6 +22,7 @@ void CGBufferPass::reCreate()
 
 void CGBufferPass::render(vk::CommandBuffer& commandBuffer)
 {
+    CRenderSystem::inst()->setStageType(EStageType::eDeferred);
     CVBO::inst()->bind(commandBuffer);
     CSceneManager::inst()->getScene()->getRoot()->render(commandBuffer);
 }

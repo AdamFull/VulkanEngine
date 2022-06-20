@@ -28,6 +28,7 @@ void CFinalCompositionPass::reCreate()
 
 void CFinalCompositionPass::render(vk::CommandBuffer& commandBuffer)
 {
+    CRenderSystem::inst()->setStageType(EStageType::ePostProcess);
     auto imageIndex = CDevice::inst()->getCurrentFrame();
 
     pMaterial->addTexture("samplerColor", CRenderSystem::inst()->getCurrentImages()["composition_tex"]);

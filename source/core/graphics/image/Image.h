@@ -7,6 +7,16 @@ namespace engine
 {
 	namespace core
 	{
+		enum class EImageType
+		{
+			e2D,
+			e3D,
+			eCubeMap,
+			eArray2D,
+			eArray3D,
+			eArrayCube
+		};
+
 		//Image Format enum class
 
 		/**

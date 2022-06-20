@@ -1,6 +1,7 @@
 #include "graphics/VulkanHighLevel.h"
 #include "resources/ResourceManager.h"
 #include "graphics/scene/objects/RenderObject.h"
+#include "graphics/renderpass/render_stages/ShadowMappingStage.h"
 #include "graphics/renderpass/render_stages/DeferredStage.h"
 #include "graphics/renderpass/render_stages/PostProcessStage.h"
 #include "graphics/renderpass/render_stages/PresentFinalStage.h"
@@ -24,6 +25,7 @@ void CRenderSystem::create()
     screenExtent = CDevice::inst()->getExtent();
     commandBuffers = make_ref<CCommandBuffer>(false, vk::QueueFlagBits::eGraphics, vk::CommandBufferLevel::ePrimary, CDevice::inst()->getFramesInFlight());
 
+    vStages.emplace_back(make_scope<CShadowMappingStage>());
     vStages.emplace_back(make_scope<CDeferredStage>());
     vStages.emplace_back(make_scope<CPostProcessStage>());
     switch (engineMode)

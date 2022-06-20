@@ -25,7 +25,6 @@ namespace engine
                 uint32_t indexCount;
                 uint32_t firstVertex;
                 uint32_t vertexCount;
-                bool bUseMaterial{false};
                 bool bWasCulled{false};
                 //TODO: check for material duplicates
                 ref_ptr<resources::material::CMaterialBase> material;

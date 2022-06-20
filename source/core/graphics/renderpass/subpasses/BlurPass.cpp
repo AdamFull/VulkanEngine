@@ -27,6 +27,7 @@ void CBlurPass::reCreate()
 
 void CBlurPass::render(vk::CommandBuffer& commandBuffer)
 {
+    CRenderSystem::inst()->setStageType(EStageType::ePostProcess);
     auto imageIndex = CDevice::inst()->getCurrentFrame();
 
     pMaterial->addTexture("samplerBrightness", CRenderSystem::inst()->getCurrentImages()[imageReferenceName]);

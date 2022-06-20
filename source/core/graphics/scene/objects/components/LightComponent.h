@@ -10,6 +10,7 @@ namespace engine
         {
             struct FLight
             {
+                alignas(16) glm::mat4 view{1.0};
                 alignas(16) glm::vec3 position{0.0};
                 alignas(16) glm::vec3 direction{0.0};
                 alignas(16) glm::vec3 color{0.0};

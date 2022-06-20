@@ -9,6 +9,14 @@ namespace engine
     {
         namespace render
         {
+            enum class EStageType
+            {
+                eDeferred,
+                eShadow,
+                ePostProcess,
+                ePresent
+            };
+
             class CRenderSystem : public utl::singleton<CRenderSystem>
             {
             public:
@@ -30,12 +38,16 @@ namespace engine
 
                 const size_t getTotalFramesCounted() const { return totalFrameNumberCounter; }
 
+                void setStageType(EStageType eType) { eStageType = eType; }
+                EStageType getStageType() { return eStageType; }
+
                 vk::CommandBuffer& getCurrentCommandBuffer();
             private:
                 vk::CommandBuffer beginFrame();
                 vk::Result endFrame();
                 void updateFramebufferImages();
 
+                EStageType eStageType;
                 ref_ptr<CCommandBuffer> commandBuffers;
                 uint32_t imageIndex{ 0 };
                 bool frameStarted{ false };

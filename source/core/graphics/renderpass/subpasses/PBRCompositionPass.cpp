@@ -46,6 +46,7 @@ void CPBRCompositionPass::reCreate()
 
 void CPBRCompositionPass::render(vk::CommandBuffer& commandBuffer)
 {
+    CRenderSystem::inst()->setStageType(EStageType::eDeferred);
     auto& images = CRenderSystem::inst()->getCurrentImages();
     pMaterial->addTexture("brdflut_tex", *brdf);
     pMaterial->addTexture("irradiance_tex", *irradiance);
@@ -54,6 +55,7 @@ void CPBRCompositionPass::render(vk::CommandBuffer& commandBuffer)
     pMaterial->addTexture("packed_tex", images["packed_tex"]);
     pMaterial->addTexture("emission_tex", images["emission_tex"]);
     pMaterial->addTexture("depth_tex", images["depth_image"]);
+    pMaterial->addTexture("shadowmap_tex", images["shadowmap_tex"]);
 
     auto imageIndex = CDevice::inst()->getCurrentFrame();
 

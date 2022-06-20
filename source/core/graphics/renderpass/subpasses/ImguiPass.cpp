@@ -22,6 +22,7 @@ void CImguiPass::reCreate()
 
 void CImguiPass::render(vk::CommandBuffer& commandBuffer)
 {
+    CRenderSystem::inst()->setStageType(EStageType::ePresent);
     auto imageIndex = CDevice::inst()->getCurrentFrame();
     CEditorUI::inst()->newFrame();
     CEditorUI::inst()->drawFrame(commandBuffer, imageIndex);

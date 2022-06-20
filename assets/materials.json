@@ -139,17 +139,17 @@
             ],
             "defines": {}
         },
-        "shadow_pass": 
+        "directional_shadow_pass": 
         {
             "vertexType": "default",
             "bindPoint": "graphics",
-            "culling": "back",
+            "culling": "front",
             "frontface": "clockwise",
             "depth": false,
-            "dynamicStates": ["viewport", "scissor", ""],
+            "dynamicStates": ["viewport", "scissor", "depthBias"],
             "stages": [
-                "shaders/main/shadow.vert", 
-                "shaders/main/shadow.geom"
+                "shaders/main/shadows/directional_shadow.vert", 
+                "shaders/main/shadows/directional_shadow.geom"
             ],
             "defines": {}
         },

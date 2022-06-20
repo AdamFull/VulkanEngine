@@ -27,6 +27,7 @@ void CDownsamplePass::reCreate()
 
 void CDownsamplePass::render(vk::CommandBuffer& commandBuffer)
 {
+    CRenderSystem::inst()->setStageType(EStageType::ePostProcess);
     auto imageIndex = CDevice::inst()->getCurrentFrame();
 
     pMaterial->addTexture("downsample_tex", CRenderSystem::inst()->getCurrentImages()[targetTextureName]);

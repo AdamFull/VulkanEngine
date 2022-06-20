@@ -3,6 +3,7 @@
 #include "graphics/VulkanHighLevel.h"
 #include "graphics/scene/objects/components/CameraManager.h"
 
+using namespace engine::core::render;
 using namespace engine::core::scene;
 
 void FPrimitive::setDimensions(glm::vec3 min, glm::vec3 max)
@@ -69,7 +70,7 @@ void CMeshComponent::render(vk::CommandBuffer &commandBuffer)
         if(needToRender)
         {
             //TODO: add automatic alignment in shader float = 4, 2x float = 8, 3x float = 16
-            if(primitive.material && primitive.bUseMaterial)
+            if(primitive.material && CRenderSystem::inst()->getStageType() != EStageType::eShadow)
             {
                 auto& pUBO = primitive.material->getUniformBuffer("FUniformData");
                 pUBO->set("model", model);

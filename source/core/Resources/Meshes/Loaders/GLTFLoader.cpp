@@ -332,7 +332,6 @@ void GLTFLoader::loadMeshFragment(ref_ptr<CRenderObject>& sceneNode, const tinyg
         modelPrim.indexCount = indexCount;
         modelPrim.firstVertex = vertexStart;
         modelPrim.vertexCount = vertexCount;
-        modelPrim.bUseMaterial = bUseMaterials;
         modelPrim.setDimensions(posMin, posMax);
 
         if (bLoadMaterials)

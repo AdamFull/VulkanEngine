@@ -1,7 +1,9 @@
 #include "NewFramebuffer.h"
 #include "graphics/VulkanHighLevel.h"
-#include "graphics/image/Image.h"
 #include "graphics/image/Image2D.h"
+#include "graphics/image/Image2DArray.h"
+#include "graphics/image/Image3D.h"
+#include "graphics/image/ImageCubemap.h"
 
 using namespace engine::core;
 using namespace engine::core::render;
@@ -199,7 +201,7 @@ void CFramebufferNew::pushSubpass(scope_ptr<CSubpass>&& subpass)
     vSubpasses.emplace_back(std::move(subpass));
 }
 
-void CFramebufferNew::addImage(const std::string& name, vk::Format format, vk::ImageUsageFlags usageFlags)
+void CFramebufferNew::addImage(const std::string& name, vk::Format format, vk::ImageUsageFlags usageFlags, EImageType eImageType, uint32_t layers)
 {
     vk::ClearValue clearValue{};
     vk::AttachmentDescription attachmentDescription{};
@@ -244,7 +246,7 @@ void CFramebufferNew::addImage(const std::string& name, vk::Format format, vk::I
         if(isSampled(usageFlags))
         {
             attachmentDescription.storeOp = vk::AttachmentStoreOp::eStore;
-            attachmentDescription.finalLayout = vk::ImageLayout::eShaderReadOnlyOptimal;
+            attachmentDescription.finalLayout = vk::ImageLayout::eDepthStencilReadOnlyOptimal;
         }
         else
             attachmentDescription.finalLayout = vk::ImageLayout::eDepthStencilAttachmentOptimal;
@@ -253,7 +255,7 @@ void CFramebufferNew::addImage(const std::string& name, vk::Format format, vk::I
 
     vAttachDesc.emplace_back(attachmentDescription);
     vClearValues.emplace_back(clearValue);
-    vFbAttachments.emplace_back(FFramebufferAttachmentInfo{name, format, usageFlags});
+    vFbAttachments.emplace_back(FFramebufferAttachmentInfo{name, format, usageFlags, eImageType, layers});
 }
 
 vk::Framebuffer& CFramebufferNew::getCurrentFramebuffer()
@@ -289,8 +291,7 @@ void CFramebufferNew::createFramebuffer()
         {
             if(attachment.usageFlags & vk::ImageUsageFlagBits::eDepthStencilAttachment)
             {
-                if(vFramebufferDepth.empty())
-                    vFramebufferDepth.emplace_back(createImage(attachment.format, attachment.usageFlags, renderArea.extent));
+                vFramebufferDepth.emplace_back(createImage(attachment, renderArea.extent));
                 mFramebufferImages[frame].emplace(attachment.name, vFramebufferDepth.back());
             }
             else
@@ -301,7 +302,7 @@ void CFramebufferNew::createFramebuffer()
                 }
                 else
                 {
-                    auto image = createImage(attachment.format, attachment.usageFlags, renderArea.extent);
+                    auto image = createImage(attachment, renderArea.extent);
                     mFramebufferImages[frame].emplace(attachment.name, image);
                     imageViews.push_back(image->getDescriptor().imageView);
                 }
@@ -309,7 +310,7 @@ void CFramebufferNew::createFramebuffer()
         }
 
         if(!vFramebufferDepth.empty())
-            imageViews.push_back(vFramebufferDepth.front()->getDescriptor().imageView);
+            imageViews.push_back(vFramebufferDepth.back()->getDescriptor().imageView);
 
         vk::FramebufferCreateInfo framebufferCI = {};
         framebufferCI.pNext = nullptr;
@@ -327,23 +328,37 @@ void CFramebufferNew::createFramebuffer()
     }
 }
 
-ref_ptr<CImage> CFramebufferNew::createImage(vk::Format format, vk::ImageUsageFlags usageFlags, vk::Extent2D extent)
+ref_ptr<CImage> CFramebufferNew::createImage(const FFramebufferAttachmentInfo& attachment, vk::Extent2D extent)
 {
-    auto texture = make_ref<CImage2D>();
+    ref_ptr<CImage> texture;
+
+    switch (attachment.eType)
+    {
+    case EImageType::e2D: texture = make_ref<CImage2D>(); break;
+    case EImageType::e3D: texture = make_ref<CImage3D>(); break;
+    case EImageType::eArray2D: texture = make_ref<CImage2DArray>(); break;
+    case EImageType::eArray3D: break;
+    case EImageType::eCubeMap: texture = make_ref<CImageCubemap>(); break;
+    case EImageType::eArrayCube: break;
+    }
+
     bool translate_layout{false};
 
     vk::ImageAspectFlags aspectMask{};
     vk::ImageLayout imageLayout{};
 
-    if(isColorAttachment(usageFlags))
+    if(isColorAttachment(attachment.usageFlags))
     {
         aspectMask = vk::ImageAspectFlagBits::eColor;
         imageLayout = vk::ImageLayout::eShaderReadOnlyOptimal;
     }
-    else if(isDepthAttachment(usageFlags))
+    else if(isDepthAttachment(attachment.usageFlags))
     {
         aspectMask = vk::ImageAspectFlagBits::eDepth;
-        imageLayout = vk::ImageLayout::eDepthStencilAttachmentOptimal;
+        if(isSampled(attachment.usageFlags))
+            imageLayout = vk::ImageLayout::eDepthStencilReadOnlyOptimal;
+        else
+            imageLayout = vk::ImageLayout::eDepthStencilAttachmentOptimal;
     }
     else
     {
@@ -352,8 +367,30 @@ ref_ptr<CImage> CFramebufferNew::createImage(vk::Format format, vk::ImageUsageFl
         translate_layout = true;
     }
 
-    texture->create(extent, format, imageLayout, usageFlags, aspectMask, vk::Filter::eLinear, vk::SamplerAddressMode::eRepeat, 
-    vk::SampleCountFlagBits::e1, translate_layout);
+    switch (attachment.eType)
+    {
+    case EImageType::e2D: {
+        auto tex2d = std::dynamic_pointer_cast<CImage2D>(texture);
+        tex2d->create(extent, attachment.format, imageLayout, attachment.usageFlags, aspectMask, vk::Filter::eLinear, vk::SamplerAddressMode::eRepeat, vk::SampleCountFlagBits::e1, translate_layout);
+    } break;
+    case EImageType::e3D: {
+        //TODO: Add implementation
+    } break;
+    case EImageType::eArray2D: {
+        auto tex2darr = std::dynamic_pointer_cast<CImage2DArray>(texture);
+        tex2darr->create(attachment.layers, extent, attachment.format, imageLayout, attachment.usageFlags, aspectMask, vk::Filter::eLinear, vk::SamplerAddressMode::eRepeat, vk::SampleCountFlagBits::e1, translate_layout);
+    } break;
+    case EImageType::eArray3D: {
+        //TODO: Add implementation
+    } break;
+    case EImageType::eCubeMap: {
+        //TODO: Add implementation
+    } break;
+    case EImageType::eArrayCube: {
+        //TODO: Add implementation
+    } break;
+    }
+
     return texture;
 }
 

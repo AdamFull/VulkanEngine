@@ -21,6 +21,7 @@ void CThroughPass::reCreate()
 
 void CThroughPass::render(vk::CommandBuffer& commandBuffer)
 {
+    CRenderSystem::inst()->setStageType(EStageType::ePresent);
     auto imageIndex = CDevice::inst()->getCurrentFrame();
     pMaterial->addTexture("samplerColor", CRenderSystem::inst()->getCurrentImages()["output_color"]);
 

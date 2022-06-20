@@ -1,11 +1,11 @@
 #pragma once
 #include "Subpass.h"
+#include "graphics/image/Image.h"
 
 namespace engine
 {
     namespace core
     {
-        class CImage;
         namespace render
         {
             struct FFramebufferAttachmentInfo
@@ -13,6 +13,8 @@ namespace engine
                 std::string name;
                 vk::Format format;
                 vk::ImageUsageFlags usageFlags;
+                EImageType eType;
+                uint32_t layers;
             };
 
             enum class ERPAttachmentType
@@ -81,7 +83,7 @@ namespace engine
                 vk::RenderPass &getRenderPass() { return renderPass; }
 
                 // Framebuffer part
-                void addImage(const std::string &name, vk::Format format, vk::ImageUsageFlags usageFlags);
+                void addImage(const std::string &name, vk::Format format, vk::ImageUsageFlags usageFlags, EImageType eImageType = EImageType::e2D, uint32_t layers = 1);
 
                 vk::Framebuffer &getFramebuffer(uint32_t index) { return vFramebuffers[index]; }
                 vk::Framebuffer &getCurrentFramebuffer();
@@ -92,7 +94,7 @@ namespace engine
             private:
                 void createRenderPass();
                 void createFramebuffer();
-                static ref_ptr<CImage> createImage(vk::Format format, vk::ImageUsageFlags usageFlags, vk::Extent2D extent);
+                static ref_ptr<CImage> createImage(const FFramebufferAttachmentInfo& attachment, vk::Extent2D extent);
 
                 uint32_t getCurrentFrameProxy();
                 static bool isColorAttachment(vk::ImageUsageFlags usageFlags) { return static_cast<bool>(usageFlags & vk::ImageUsageFlagBits::eColorAttachment); }

@@ -2,6 +2,7 @@
 
 struct FLight
 {
+	mat4 view;
 	vec3 position;
     vec3 direction;
     vec3 color;

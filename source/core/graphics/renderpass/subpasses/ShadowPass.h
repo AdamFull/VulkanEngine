@@ -14,6 +14,8 @@ namespace engine
                 void reCreate() override;
                 void render(vk::CommandBuffer &commandBuffer) override;
                 void cleanup() override;
+            private:
+                std::array<glm::mat4, 16> aLightProjections;
             };
         }
     }

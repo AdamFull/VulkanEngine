@@ -27,6 +27,7 @@ void CBrightDetectPass::reCreate()
 
 void CBrightDetectPass::render(vk::CommandBuffer& commandBuffer)
 {
+    CRenderSystem::inst()->setStageType(EStageType::ePostProcess);
     auto imageIndex = CDevice::inst()->getCurrentFrame();
 
     pMaterial->addTexture("composition_tex", CRenderSystem::inst()->getCurrentImages()["composition_tex"]);

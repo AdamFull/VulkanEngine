@@ -12,9 +12,6 @@ namespace engine
 			public:
 				~CShadowMappingStage();
 				void create() override;
-				void rebuild() override;
-
-			private:
 			};
 		}
 	}

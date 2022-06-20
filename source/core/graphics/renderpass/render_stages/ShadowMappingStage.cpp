@@ -12,36 +12,22 @@ CShadowMappingStage::~CShadowMappingStage()
 
 void CShadowMappingStage::create()
 {
-    detectExtent = true;
-    screenExtent = CDevice::inst()->getExtent(detectExtent);
+    screenExtent = vk::Extent2D{512, 512};
 
-    /*outReferences.emplace(0, std::vector<vk::AttachmentReference>{});
-    depthReference = vk::AttachmentReference{0, vk::ImageLayout::eDepthStencilAttachmentOptimal};
+    auto framebuffer_0 = make_scope<CFramebufferNew>();
+    framebuffer_0->setFlipViewport(VK_TRUE);
+    framebuffer_0->setRenderArea(vk::Offset2D{0, 0}, screenExtent);
 
-    pRenderPass = Render::CRenderPass::Builder().
-    addAttachmentDescription(CImage::getDepthFormat(), vk::SampleCountFlagBits::e1, vk::AttachmentLoadOp::eClear, vk::AttachmentStoreOp::eStore, 
-    vk::AttachmentLoadOp::eDontCare, vk::AttachmentStoreOp::eDontCare, vk::ImageLayout::eUndefined, vk::ImageLayout::eShaderReadOnlyOptimal).
-    addSubpassDescription(vk::PipelineBindPoint::eGraphics, outReferences[0], &depthReference).
-    addSubpassDependency(VK_SUBPASS_EXTERNAL, 0, vk::PipelineStageFlagBits::eFragmentShader, vk::PipelineStageFlagBits::eColorAttachmentOutput,
-    vk::AccessFlagBits::eMemoryRead, vk::AccessFlagBits::eColorAttachmentWrite).
-    addSubpassDependency(0, VK_SUBPASS_EXTERNAL, vk::PipelineStageFlagBits::eColorAttachmentOutput, vk::PipelineStageFlagBits::eFragmentShader,
-    vk::AccessFlagBits::eColorAttachmentWrite, vk::AccessFlagBits::eShaderRead).
-    build();
+    //framebuffer_0->addOutputReference(0U, 0U);
+    framebuffer_0->addImage("shadowmap_tex", CImage::getDepthFormat(), vk::ImageUsageFlagBits::eDepthStencilAttachment | vk::ImageUsageFlagBits::eSampled, EImageType::eArray2D, 16);
+    framebuffer_0->addDescription(0U, true);
 
-    pRenderPass->pushSubpass(std::make_shared<CShadowPass>());
+    framebuffer_0->addSubpassDependency(VK_SUBPASS_EXTERNAL, 0, vk::PipelineStageFlagBits::eAllCommands, vk::PipelineStageFlagBits::eAllGraphics,
+    vk::AccessFlagBits::eMemoryRead | vk::AccessFlagBits::eMemoryWrite, vk::AccessFlagBits::eMemoryRead | vk::AccessFlagBits::eMemoryWrite);
+    framebuffer_0->addSubpassDependency(0, VK_SUBPASS_EXTERNAL, vk::PipelineStageFlagBits::eAllGraphics, vk::PipelineStageFlagBits::eAllCommands,
+    vk::AccessFlagBits::eMemoryRead | vk::AccessFlagBits::eMemoryWrite, vk::AccessFlagBits::eMemoryRead | vk::AccessFlagBits::eMemoryWrite);
 
-    pFramebuffer = make_scope<CFramebuffer>();
-    pFramebuffer->addImage("shadowmap", CImage::getDepthFormat(), vk::ImageUsageFlagBits::eDepthStencilAttachment | vk::ImageUsageFlagBits::eSampled);
-
-    pRenderPass->setRenderArea(vk::Offset2D{0, 0}, screenExtent);
-    pFramebuffer->create(pRenderPass->get(), screenExtent);
-    pRenderPass->create();*/
-}
-
-void CShadowMappingStage::rebuild()
-{
-    /*screenExtent = CDevice::inst()->getExtent(detectExtent);
-    pRenderPass->setRenderArea(vk::Offset2D{0, 0}, screenExtent);
-    pRenderPass->reCreate();
-    pFramebuffer->reCreate(pRenderPass->get(), screenExtent);*/
+    framebuffer_0->pushSubpass(make_scope<CShadowPass>());
+    vFramebuffer.emplace_back(std::move(framebuffer_0));
+    CRenderStage::create();
 }

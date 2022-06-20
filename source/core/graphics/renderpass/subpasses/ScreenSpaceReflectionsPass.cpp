@@ -22,6 +22,7 @@ void CScreenSpaceReflectionsPass::reCreate()
 
 void CScreenSpaceReflectionsPass::render(vk::CommandBuffer& commandBuffer)
 {
+    CRenderSystem::inst()->setStageType(EStageType::ePostProcess);
     auto& images = CRenderSystem::inst()->getCurrentImages();
     pMaterial->addTexture("color_tex", images["composition_tex"]);
     pMaterial->addTexture("packed_tex", images["packed_tex"]);

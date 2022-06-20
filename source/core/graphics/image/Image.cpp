@@ -114,9 +114,24 @@ vk::Filter filter, vk::SampleCountFlagBits samples)
     vk::ImageCreateInfo imageInfo{};
     // Select image type
     if (info->baseDepth > 1)
+    {
         imageInfo.imageType = vk::ImageType::e3D;
+    }
     else
-        imageInfo.imageType = typeFromKtx(info->numDimensions);
+    {
+        switch (info->numDimensions)
+        {
+        case 1:
+            imageInfo.imageType = vk::ImageType::e1D;
+            break;
+        case 2:
+            imageInfo.imageType = vk::ImageType::e2D;
+            break;
+        case 3:
+            imageInfo.imageType = vk::ImageType::e3D;
+            break;
+        }
+    }
 
     imageInfo.extent = _extent;
     imageInfo.mipLevels = _mipLevels;
@@ -137,7 +152,7 @@ vk::Filter filter, vk::SampleCountFlagBits samples)
     imageInfo.samples = _samples;
     imageInfo.sharingMode = vk::SharingMode::eExclusive;
 
-    if (info->isArray)
+    if (false)
         imageInfo.flags = vk::ImageCreateFlagBits::e2DArrayCompatible;
     else if (info->isCubemap)
         imageInfo.flags = vk::ImageCreateFlagBits::eCubeCompatible;

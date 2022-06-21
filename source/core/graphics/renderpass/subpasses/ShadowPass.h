@@ -12,6 +12,7 @@ namespace engine
             public:
                 void create() override;
                 void reCreate() override;
+                void beforeRender(vk::CommandBuffer& commandBuffer) override;
                 void render(vk::CommandBuffer &commandBuffer) override;
                 void cleanup() override;
             private:

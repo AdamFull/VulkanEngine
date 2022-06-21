@@ -77,3 +77,8 @@ constexpr ref_ptr<_Ty> make_ref(_Args&& ...args)
 #include <util/helpers.hpp>
 #include <util/ulog.hpp>
 #include <util/bimap.hpp>
+
+#define MAX_DIRECTIONAL_LIGHT_COUNT 1
+#define MAX_SPOT_LIGHT_COUNT 15
+#define MAX_POINT_LIGHT_COUNT 16
+#define SHADOW_CASCADE_COUNT 4

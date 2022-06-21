@@ -78,6 +78,13 @@ void CRenderSystem::rebuildViewport()
     updateFramebufferImages();
 }
 
+scope_ptr<CSubpass>& CRenderSystem::getCurrentRenderer()
+{
+    auto& stage = vStages.at(currentStageIndex);
+    auto& framebuffer = stage->getCurrentFramebuffer();
+    return framebuffer->getCurrentRenderer();
+}
+
 void CRenderSystem::render()
 {
     if(CDevice::inst()->getReduildFlag()) { reCreate(); }

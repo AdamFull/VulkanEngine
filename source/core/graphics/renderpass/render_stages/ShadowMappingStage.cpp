@@ -27,7 +27,7 @@ void CShadowMappingStage::create()
     framebuffer_0->addSubpassDependency(0, VK_SUBPASS_EXTERNAL, vk::PipelineStageFlagBits::eAllGraphics, vk::PipelineStageFlagBits::eAllCommands,
     vk::AccessFlagBits::eMemoryRead | vk::AccessFlagBits::eMemoryWrite, vk::AccessFlagBits::eMemoryRead | vk::AccessFlagBits::eMemoryWrite);
 
-    framebuffer_0->pushSubpass(make_scope<CShadowPass>());
+    framebuffer_0->addRenderer(make_scope<CShadowPass>());
     vFramebuffer.emplace_back(std::move(framebuffer_0));
     CRenderStage::create();
 }

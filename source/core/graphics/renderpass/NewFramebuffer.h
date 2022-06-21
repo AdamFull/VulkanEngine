@@ -76,7 +76,9 @@ namespace engine
 
                 void setFlipViewport(vk::Bool32 value) { flipViewport = value; }
 
-                void pushSubpass(scope_ptr<CSubpass> &&subpass);
+                void addRenderer(scope_ptr<CSubpass> &&subpass);
+                scope_ptr<CSubpass>& getCurrentRenderer() { return vSubpasses.at(currentSubpassIndex); }
+
                 const uint32_t getSubpassCount() const { return vSubpasses.size(); }
                 vk::SubpassDescription &getCurrentDescription() { return vSubpassDesc.at(currentSubpassIndex); }
                 uint32_t getCurrentSubpass() { return currentSubpassIndex; }

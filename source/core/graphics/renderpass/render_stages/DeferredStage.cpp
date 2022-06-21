@@ -38,8 +38,8 @@ void CDeferredStage::create()
     framebuffer_1->addSubpassDependency(1, VK_SUBPASS_EXTERNAL, vk::PipelineStageFlagBits::eBottomOfPipe, vk::PipelineStageFlagBits::eFragmentShader,
     vk::AccessFlagBits::eMemoryRead | vk::AccessFlagBits::eMemoryWrite, vk::AccessFlagBits::eShaderRead);
 
-    framebuffer_1->pushSubpass(make_scope<CGBufferPass>());
-    framebuffer_1->pushSubpass(make_scope<CPBRCompositionPass>());
+    framebuffer_1->addRenderer(make_scope<CGBufferPass>());
+    framebuffer_1->addRenderer(make_scope<CPBRCompositionPass>());
     vFramebuffer.emplace_back(std::move(framebuffer_1));
     CRenderStage::create();
 }

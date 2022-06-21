@@ -145,7 +145,7 @@
             "bindPoint": "graphics",
             "culling": "front",
             "frontface": "clockwise",
-            "depth": false,
+            "depth": true,
             "dynamicStates": ["viewport", "scissor", "depthBias"],
             "stages": [
                 "shaders/main/shadows/directional_shadow.vert", 

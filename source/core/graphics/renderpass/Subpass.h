@@ -20,8 +20,11 @@ namespace engine
 
                 virtual void create() {}
                 virtual void reCreate() {}
+                virtual void beforeRender(vk::CommandBuffer& commandBuffer) {}
                 virtual void render(vk::CommandBuffer& commandBuffer) {}
                 virtual void cleanup();
+
+                ref_ptr<resources::material::CMaterialBase>& getMaterial() { return pMaterial; }
             protected:
                 ref_ptr<resources::material::CMaterialBase> pMaterial;
             };

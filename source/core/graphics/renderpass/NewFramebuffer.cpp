@@ -107,6 +107,9 @@ void CFramebufferNew::end(vk::CommandBuffer &commandBuffer)
 
 void CFramebufferNew::render(vk::CommandBuffer& commandBuffer)
 {
+    for(auto& subpass : vSubpasses)
+        subpass->beforeRender(commandBuffer);
+
     begin(commandBuffer);
     //Render each stage
     currentSubpassIndex = 0;
@@ -196,7 +199,7 @@ void CFramebufferNew::setRenderArea(vk::Rect2D&& area)
     renderArea = std::move(area);
 }
 
-void CFramebufferNew::pushSubpass(scope_ptr<CSubpass>&& subpass)
+void CFramebufferNew::addRenderer(scope_ptr<CSubpass>&& subpass)
 {
     vSubpasses.emplace_back(std::move(subpass));
 }

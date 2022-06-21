@@ -15,6 +15,7 @@ using namespace engine::resources::material;
 void CShadowPass::create()
 {
     pMaterial = CMaterialLoader::inst()->create("directional_shadow_pass");
+    pMaterial->addDefinition("CASCADES_COUNT", std::to_string(SHADOW_CASCADE_COUNT));
     pMaterial->create();
     CSubpass::create();
 }
@@ -22,6 +23,11 @@ void CShadowPass::create()
 void CShadowPass::reCreate()
 {
     pMaterial->reCreate();
+}
+
+void CShadowPass::beforeRender(vk::CommandBuffer& commandBuffer)
+{
+    commandBuffer.setDepthBias(1.25f, 0.0f, 1.75f);
 }
 
 void CShadowPass::render(vk::CommandBuffer& commandBuffer)
@@ -34,7 +40,7 @@ void CShadowPass::render(vk::CommandBuffer& commandBuffer)
     for(auto& lightNode : lightObjects)
     {
         auto& light = lightNode->getLight();
-        if(light && (light->getType() == ELightSourceType::eDirectional || light->getType() == ELightSourceType::eSpot))
+        if(light && (/*light->getType() == ELightSourceType::eDirectional ||*/ light->getType() == ELightSourceType::eSpot))
         {
             auto& lightData = light->getLight();
             aLightProjections[light_count] = lightData.view;
@@ -44,14 +50,12 @@ void CShadowPass::render(vk::CommandBuffer& commandBuffer)
 
     auto& pUBOShadow = pMaterial->getUniformBuffer("UBOShadowmap");
     pUBOShadow->set("mvp", aLightProjections);
-    pUBOShadow->set("light_count", light_count);
 
     pMaterial->update();
     pMaterial->bind(commandBuffer);
 
-    commandBuffer.setDepthBias(1.25f, 0.0f, 1.75f);
     CSceneManager::inst()->getScene()->getRoot()->render(commandBuffer);
-    commandBuffer.setDepthBias(1.0f, 0.0f, 1.0f);
+    //commandBuffer.setDepthBias(1.0f, 0.0f, 1.0f);
 }
 
 void CShadowPass::cleanup()

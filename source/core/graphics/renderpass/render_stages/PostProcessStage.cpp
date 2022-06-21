@@ -34,7 +34,7 @@ void CPostProcessStage::create()
         vk::AccessFlagBits::eShaderRead, vk::AccessFlagBits::eColorAttachmentWrite);
         framebuffer_0->addSubpassDependency(0, VK_SUBPASS_EXTERNAL, vk::PipelineStageFlagBits::eColorAttachmentOutput, vk::PipelineStageFlagBits::eFragmentShader,
         vk::AccessFlagBits::eColorAttachmentWrite, vk::AccessFlagBits::eShaderRead);
-        framebuffer_0->pushSubpass(make_scope<CBrightDetectPass>());
+        framebuffer_0->addRenderer(make_scope<CBrightDetectPass>());
         vFramebuffer.emplace_back(std::move(framebuffer_0));
 
         auto framebuffer_1 = make_scope<CFramebufferNew>();
@@ -46,7 +46,7 @@ void CPostProcessStage::create()
         vk::AccessFlagBits::eShaderRead, vk::AccessFlagBits::eColorAttachmentWrite);
         framebuffer_1->addSubpassDependency(0, VK_SUBPASS_EXTERNAL, vk::PipelineStageFlagBits::eColorAttachmentOutput, vk::PipelineStageFlagBits::eFragmentShader,
         vk::AccessFlagBits::eColorAttachmentWrite, vk::AccessFlagBits::eShaderRead);
-        framebuffer_1->pushSubpass(make_scope<CDownsamplePass>("brightness_buffer"));
+        framebuffer_1->addRenderer(make_scope<CDownsamplePass>("brightness_buffer"));
         vFramebuffer.emplace_back(std::move(framebuffer_1));
 
         auto framebuffer_2 = make_scope<CFramebufferNew>();
@@ -58,7 +58,7 @@ void CPostProcessStage::create()
         vk::AccessFlagBits::eShaderRead, vk::AccessFlagBits::eColorAttachmentWrite);
         framebuffer_2->addSubpassDependency(0, VK_SUBPASS_EXTERNAL, vk::PipelineStageFlagBits::eColorAttachmentOutput, vk::PipelineStageFlagBits::eFragmentShader,
         vk::AccessFlagBits::eColorAttachmentWrite, vk::AccessFlagBits::eShaderRead);
-        framebuffer_2->pushSubpass(make_scope<CDownsamplePass>("downsampled_image"));
+        framebuffer_2->addRenderer(make_scope<CDownsamplePass>("downsampled_image"));
         vFramebuffer.emplace_back(std::move(framebuffer_2));
 
         auto framebuffer_3 = make_scope<CFramebufferNew>();
@@ -70,7 +70,7 @@ void CPostProcessStage::create()
         vk::AccessFlagBits::eShaderRead, vk::AccessFlagBits::eColorAttachmentWrite);
         framebuffer_3->addSubpassDependency(0, VK_SUBPASS_EXTERNAL, vk::PipelineStageFlagBits::eColorAttachmentOutput, vk::PipelineStageFlagBits::eFragmentShader,
         vk::AccessFlagBits::eColorAttachmentWrite, vk::AccessFlagBits::eShaderRead);
-        framebuffer_3->pushSubpass(make_scope<CBlurPass>(-1, "spdownsampled_image"));
+        framebuffer_3->addRenderer(make_scope<CBlurPass>(-1, "spdownsampled_image"));
         vFramebuffer.emplace_back(std::move(framebuffer_3));
 
         auto framebuffer_4 = make_scope<CFramebufferNew>();
@@ -82,7 +82,7 @@ void CPostProcessStage::create()
         vk::AccessFlagBits::eShaderRead, vk::AccessFlagBits::eColorAttachmentWrite);
         framebuffer_4->addSubpassDependency(0, VK_SUBPASS_EXTERNAL, vk::PipelineStageFlagBits::eColorAttachmentOutput, vk::PipelineStageFlagBits::eFragmentShader,
         vk::AccessFlagBits::eColorAttachmentWrite, vk::AccessFlagBits::eShaderRead);
-        framebuffer_4->pushSubpass(make_scope<CBlurPass>(1, "horisontal_blur_pass"));
+        framebuffer_4->addRenderer(make_scope<CBlurPass>(1, "horisontal_blur_pass"));
         vFramebuffer.emplace_back(std::move(framebuffer_4));
         bloomTexture = "horisontal_blur_pass";
     }
@@ -96,7 +96,7 @@ void CPostProcessStage::create()
     vk::AccessFlagBits::eShaderRead, vk::AccessFlagBits::eColorAttachmentWrite);
     framebuffer_5->addSubpassDependency(0, VK_SUBPASS_EXTERNAL, vk::PipelineStageFlagBits::eColorAttachmentOutput, vk::PipelineStageFlagBits::eFragmentShader,
     vk::AccessFlagBits::eColorAttachmentWrite, vk::AccessFlagBits::eShaderRead);
-    framebuffer_5->pushSubpass(make_scope<CScreenSpaceReflectionsPass>());
+    framebuffer_5->addRenderer(make_scope<CScreenSpaceReflectionsPass>());
     vFramebuffer.emplace_back(std::move(framebuffer_5));*/
 
     auto framebuffer_6 = make_scope<CFramebufferNew>();
@@ -108,7 +108,7 @@ void CPostProcessStage::create()
     vk::AccessFlagBits::eShaderRead, vk::AccessFlagBits::eColorAttachmentWrite);
     framebuffer_6->addSubpassDependency(0, VK_SUBPASS_EXTERNAL, vk::PipelineStageFlagBits::eColorAttachmentOutput, vk::PipelineStageFlagBits::eFragmentShader,
     vk::AccessFlagBits::eColorAttachmentWrite, vk::AccessFlagBits::eShaderRead);
-    framebuffer_6->pushSubpass(make_scope<CFinalCompositionPass>(bloomTexture));
+    framebuffer_6->addRenderer(make_scope<CFinalCompositionPass>(bloomTexture));
     vFramebuffer.emplace_back(std::move(framebuffer_6));
 
     CRenderStage::create();

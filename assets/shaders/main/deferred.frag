@@ -189,8 +189,8 @@ void main()
 		// Ambient part
 		fragcolor = diffuse + (emission * 4.0) + specular + Lo;
 		//fragcolor = diffuse;
-		//fragcolor = getShadow(vec3(1.0), inWorldPos);
-		fragcolor = texture(shadowmap_tex, vec3(inUV, 1)).rrr;
+		fragcolor = getShadow(fragcolor, inWorldPos);
+		//fragcolor = texture(shadowmap_tex, vec3(inUV, 0)).rrr;
 	}
 	else
 	{

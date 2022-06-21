@@ -56,19 +56,17 @@ const float CLightComponent::getIntencity()
     return lightData.intencity;
 }
 
-
-
 FLight& CLightComponent::getLight()
 {
     auto transform = pParent->getTransform();
     lightData.position = transform.getPosition();
     lightData.direction = transform.getRotation();
 
-    glm::mat4 shadowProj = glm::perspective(glm::radians(100.0f), 1.0f, 0.1f, 64.0f);
-	glm::mat4 shadowView = glm::lookAt(glm::vec3(lightData.position), glm::vec3(lightData.direction), glm::vec3(0.0f, 1.0f, 0.0f));
-	glm::mat4 shadowModel = glm::mat4(1.0f);
+    glm::mat4 shadowProj = glm::perspective(glm::radians(45.0f), 1.0f, 0.1f, 64.0f);
+	glm::mat4 shadowView = glm::lookAt(glm::vec3(lightData.position * glm::vec3(-1.f, -1.f, -1.f)), glm::vec3(lightData.direction), glm::vec3(0.0f, 1.0f, 0.0f));
+	//glm::mat4 shadowModel = glm::mat4(1.0f);
 
-    lightData.view = shadowProj * shadowView * shadowModel;
+    lightData.view = shadowProj * shadowView; //shadowModel;
 
     return lightData;
 }

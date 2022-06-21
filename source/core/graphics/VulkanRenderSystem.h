@@ -17,6 +17,7 @@ namespace engine
                 ePresent
             };
 
+            class CSubpass;
             class CRenderSystem : public utl::singleton<CRenderSystem>
             {
             public:
@@ -32,6 +33,8 @@ namespace engine
                 scope_ptr<CRenderStage>& getStage(uint32_t stageIndex) { return vStages.at(stageIndex); }
                 scope_ptr<CRenderStage>& getCurrentStage() { return vStages.at(currentStageIndex); }
                 scope_ptr<CRenderStage>& getPrevStage() { return vStages.at(currentStageIndex - 1); }
+
+                scope_ptr<CSubpass>& getCurrentRenderer();
 
                 std::unordered_map<std::string, ref_ptr<CImage>>& getImages(uint32_t index) { return mImages[index]; }
                 std::unordered_map<std::string, ref_ptr<CImage>>& getCurrentImages() { return getImages(imageIndex); }

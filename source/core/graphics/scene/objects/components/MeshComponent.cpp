@@ -101,6 +101,14 @@ void CMeshComponent::render(vk::CommandBuffer &commandBuffer)
                 primitive.material->update();
                 primitive.material->bind(commandBuffer);
             }
+            else
+            {
+                auto& renderer = CRenderSystem::inst()->getCurrentRenderer();
+                auto& material = renderer->getMaterial();
+                auto& pConst = material->getPushConstant("modelData");
+                pConst->set("model", model);
+                pConst->flush(commandBuffer);
+            }
             commandBuffer.drawIndexed(primitive.indexCount, 1, primitive.firstIndex, 0, 0);
         }
     }

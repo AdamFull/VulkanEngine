@@ -54,7 +54,7 @@ void CPBRCompositionPass::render(vk::CommandBuffer& commandBuffer)
     
     pMaterial->addTexture("packed_tex", images["packed_tex"]);
     pMaterial->addTexture("emission_tex", images["emission_tex"]);
-    pMaterial->addTexture("depth_tex", images["depth_image"]);
+    pMaterial->addTexture("depth_tex", images["depth_tex"]);
     pMaterial->addTexture("shadowmap_tex", images["shadowmap_tex"]);
 
     auto imageIndex = CDevice::inst()->getCurrentFrame();
@@ -68,11 +68,10 @@ void CPBRCompositionPass::render(vk::CommandBuffer& commandBuffer)
     uint32_t light_count{0};
     auto aLights = CLightSourceManager::inst()->getSources(light_count);
     
-    auto& pUBO = pMaterial->getPushConstant("ubo");
+    auto& pUBO = pMaterial->getUniformBuffer("UBODeferred");
     pUBO->set("invViewProjection", invViewProjection);
     pUBO->set("viewPos", camera->viewPos);
     pUBO->set("lightCount", light_count);
-    pUBO->flush(commandBuffer);
 
     auto& pUBOLights = pMaterial->getUniformBuffer("UBOLights");
     pUBOLights->set("lights", aLights);

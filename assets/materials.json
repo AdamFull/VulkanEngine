@@ -146,7 +146,7 @@
             "culling": "front",
             "frontface": "clockwise",
             "depth": true,
-            "dynamicStates": ["viewport", "scissor", "depthBias"],
+            "dynamicStates": ["viewport", "scissor"],
             "stages": [
                 "shaders/main/shadows/directional_shadow.vert", 
                 "shaders/main/shadows/directional_shadow.geom"

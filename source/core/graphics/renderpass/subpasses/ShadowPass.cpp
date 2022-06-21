@@ -15,7 +15,7 @@ using namespace engine::resources::material;
 void CShadowPass::create()
 {
     pMaterial = CMaterialLoader::inst()->create("directional_shadow_pass");
-    pMaterial->addDefinition("CASCADES_COUNT", std::to_string(SHADOW_CASCADE_COUNT));
+    pMaterial->addDefinition("CASCADES_COUNT", std::to_string(SHADOW_MAP_CASCADE_COUNT));
     pMaterial->create();
     CSubpass::create();
 }
@@ -27,7 +27,7 @@ void CShadowPass::reCreate()
 
 void CShadowPass::beforeRender(vk::CommandBuffer& commandBuffer)
 {
-    commandBuffer.setDepthBias(1.25f, 0.0f, 1.75f);
+    //commandBuffer.setDepthBias(1.25f, 0.0f, 1.75f);
 }
 
 void CShadowPass::render(vk::CommandBuffer& commandBuffer)
@@ -35,21 +35,20 @@ void CShadowPass::render(vk::CommandBuffer& commandBuffer)
     CRenderSystem::inst()->setStageType(EStageType::eShadow);
     CVBO::inst()->bind(commandBuffer);
 
-    uint32_t light_count{0};
     auto lightObjects = CLightSourceManager::inst()->getObjects();
+    std::array<glm::mat4, SHADOW_MAP_CASCADE_COUNT> aCascadeViewProjMat;
     for(auto& lightNode : lightObjects)
     {
         auto& light = lightNode->getLight();
-        if(light && (/*light->getType() == ELightSourceType::eDirectional ||*/ light->getType() == ELightSourceType::eSpot))
+        if(light && (light->getType() == ELightSourceType::eDirectional))
         {
             auto& lightData = light->getLight();
-            aLightProjections[light_count] = lightData.view;
-            light_count++;
+            aCascadeViewProjMat = lightData.aCascadeViewProjMat;
         }
     }
 
     auto& pUBOShadow = pMaterial->getUniformBuffer("UBOShadowmap");
-    pUBOShadow->set("mvp", aLightProjections);
+    pUBOShadow->set("cascadeViewProjMat", aCascadeViewProjMat);
 
     pMaterial->update();
     pMaterial->bind(commandBuffer);

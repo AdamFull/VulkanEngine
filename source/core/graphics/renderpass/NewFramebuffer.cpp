@@ -246,6 +246,7 @@ void CFramebufferNew::addImage(const std::string& name, vk::Format format, vk::I
     }
     else if(isDepthAttachment(usageFlags))
     {
+        attachmentDescription.loadOp = vk::AttachmentLoadOp::eDontCare;
         if(isSampled(usageFlags))
         {
             attachmentDescription.storeOp = vk::AttachmentStoreOp::eStore;
@@ -294,7 +295,8 @@ void CFramebufferNew::createFramebuffer()
         {
             if(attachment.usageFlags & vk::ImageUsageFlagBits::eDepthStencilAttachment)
             {
-                vFramebufferDepth.emplace_back(createImage(attachment, renderArea.extent));
+                if(vFramebufferDepth.empty())
+                    vFramebufferDepth.emplace_back(createImage(attachment, renderArea.extent));
                 mFramebufferImages[frame].emplace(attachment.name, vFramebufferDepth.back());
             }
             else

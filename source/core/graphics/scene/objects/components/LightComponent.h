@@ -10,7 +10,6 @@ namespace engine
         {
             struct FLight
             {
-                alignas(16) glm::mat4 view{1.0};
                 alignas(16) glm::vec3 position{0.0};
                 alignas(16) glm::vec3 direction{0.0};
                 alignas(16) glm::vec3 color{0.0};
@@ -18,6 +17,8 @@ namespace engine
                 alignas(4) float innerConeAngle{0.0};
                 alignas(4) float outerConeAngle{0.0};
                 alignas(4) int type{0};
+                std::array<float, SHADOW_MAP_CASCADE_COUNT> aCascadeSplits;
+                std::array<glm::mat4, SHADOW_MAP_CASCADE_COUNT> aCascadeViewProjMat;
             };
 
             class CLightComponent : public CSceneComponent
@@ -48,7 +49,9 @@ namespace engine
 
                 FLight& getLight();
             protected:
+                void updateCascades();
                 FLight lightData{};
+                float cascadeSplitLambda = 0.95f; //TODO: move to somewhere another place
             };
         }
     }

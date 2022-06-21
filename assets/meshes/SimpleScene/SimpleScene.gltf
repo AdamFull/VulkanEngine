@@ -393,7 +393,7 @@
 	"asset": {
 		"copyright": "2022 UX3D GmbH",
 		"extras": {
-			"created": "Mon Jun 20 09:40:22 2022"
+			"created": "Tue Jun 21 11:50:25 2022"
 		},
 		"generator": "Gestaltor 2022.2.3 Tagliatelle Professional",
 		"version": "2.0"
@@ -794,11 +794,6 @@
 				"metallicRoughnessTexture": {
 					"index": 3
 				}
-			},
-			"displacementGeometryTexture": {
-				"index": 2,
-				"factor": 1.75,
-				"strength": 0.04
 			}
 		},
 		{
@@ -855,11 +850,6 @@
 				"metallicRoughnessTexture": {
 					"index": 16
 				}
-			},
-			"displacementGeometryTexture": {
-				"index": 15,
-				"factor": 1.75,
-				"strength": 0.04
 			}
 		},
 		{
@@ -891,11 +881,6 @@
 				"metallicRoughnessTexture": {
 					"index": 24
 				}
-			},
-			"displacementGeometryTexture": {
-				"index": 23,
-				"factor": 1.75,
-				"strength": 0.04
 			}
 		},
 		{
@@ -913,11 +898,6 @@
 				"metallicRoughnessTexture": {
 					"index": 29
 				}
-			},
-			"displacementGeometryTexture": {
-				"index": 28,
-				"factor": 1.75,
-				"strength": 0.04
 			}
 		},
 		{
@@ -949,11 +929,6 @@
 				"metallicRoughnessTexture": {
 					"index": 37
 				}
-			},
-			"displacementGeometryTexture": {
-				"index": 36,
-				"factor": 1.75,
-				"strength": 0.04
 			}
 		}
 	],
@@ -1809,10 +1784,10 @@
 			},
 			"name": "directional_light",
 			"rotation": [
-				-0.008802020226532474,
-				0.008802020226532474,
-				-0.008649721041829908,
-				0.9998851090029104
+				0.004344188007631181,
+				-0.004344188007631181,
+				0.004382264668331837,
+				0.9999715255033443
 			],
 			"translation": [
 				0.0,

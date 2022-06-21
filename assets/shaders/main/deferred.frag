@@ -15,14 +15,13 @@ layout (input_attachment_index = 0, binding = 3) uniform usubpassInput packed_te
 layout (input_attachment_index = 1, binding = 4) uniform subpassInput emission_tex;
 layout (input_attachment_index = 2, binding = 5) uniform subpassInput depth_tex;
 layout (binding = 6) uniform sampler2DArray shadowmap_tex;
-
-#define SHADOW_FACTOR 0.25
+//layout (binding = 7) uniform sampler2DArray shadowArr;
 
 layout (location = 0) in vec2 inUV;
 
 layout (location = 0) out vec4 outFragcolor;
 
-layout(push_constant) uniform UBOLightning
+layout(std140, binding = 13) uniform UBODeferred
 {
 	mat4 invViewProjection;
 	vec4 viewPos;
@@ -34,61 +33,6 @@ layout(std140, binding = 14) uniform UBOLights
 {
 	FLight lights[32];
 } lights;
-
-float textureProj(vec4 P, float layer, vec2 offset)
-{
-	float shadow = 1.0;
-	vec4 shadowCoord = P / P.w;
-	shadowCoord.st = shadowCoord.st * 0.5 + 0.5;
-	
-	if (shadowCoord.z > -1.0 && shadowCoord.z < 1.0) 
-	{
-		float dist = texture(shadowmap_tex, vec3(shadowCoord.st + offset, layer)).r;
-		if (shadowCoord.w > 0.0 && dist < shadowCoord.z)
-			shadow = SHADOW_FACTOR;
-	}
-	return shadow;
-}
-
-float filterPCF(vec4 sc, float layer)
-{
-	ivec2 texDim = textureSize(shadowmap_tex, 0).xy;
-	float scale = 1.5;
-	float dx = scale * 1.0 / float(texDim.x);
-	float dy = scale * 1.0 / float(texDim.y);
-
-	float shadowFactor = 0.0;
-	int count = 0;
-	int range = 1;
-	
-	for (int x = -range; x <= range; x++)
-	{
-		for (int y = -range; y <= range; y++)
-		{
-			shadowFactor += textureProj(sc, layer, vec2(dx*x, dy*y));
-			count++;
-		}
-	
-	}
-	return shadowFactor / count;
-}
-
-vec3 getShadow(vec3 fragcolor, vec3 fragpos) {
-	for(int i = 0; i < 2; ++i)
-	{
-		vec4 shadowClip	= lights.lights[i].view * vec4(fragpos, 1.0);
-
-		float shadowFactor;
-		//#ifdef USE_PCF
-			shadowFactor= filterPCF(shadowClip, i);
-		//#else
-		//	shadowFactor = textureProj(shadowClip, i, vec2(0.0));
-		//#endif
-
-		fragcolor *= shadowFactor;
-	}
-	return fragcolor;
-}
 
 void main() 
 {
@@ -188,9 +132,15 @@ void main()
 
 		// Ambient part
 		fragcolor = diffuse + (emission * 4.0) + specular + Lo;
-		//fragcolor = diffuse;
-		fragcolor = getShadow(fragcolor, inWorldPos);
-		//fragcolor = texture(shadowmap_tex, vec3(inUV, 0)).rrr;
+		fragcolor = inWorldPos;
+		//float shadow = 1.f;
+		//for(int i = 0; i < ubo.lightCount; i++) 
+		//{
+		//	FLight light = lights.lights[i];
+		//	if(light.type == 1)
+		//		shadow = getCascadeShadow(shadowmap_tex, ubo.viewPos.xyz, inWorldPos, light);
+		//}
+		//fragcolor = vec3(1.0) * shadow;	
 	}
 	else
 	{

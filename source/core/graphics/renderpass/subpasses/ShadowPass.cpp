@@ -18,6 +18,10 @@ void CShadowPass::create()
     pMaterial->addDefinition("CASCADES_COUNT", std::to_string(SHADOW_MAP_CASCADE_COUNT));
     pMaterial->create();
     CSubpass::create();
+
+    //Cascade shadows for directional light
+    //Simple shadows for spot lights
+    //Omni shadows for point lights
 }
 
 void CShadowPass::reCreate()

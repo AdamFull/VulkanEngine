@@ -8,16 +8,19 @@ layout(location = 4) in vec4 inTangent;
 layout(binding = 0) uniform FUniformData 
 {
 	mat4 model;
-	mat4 view;
-	mat4 projection;
-	mat4 normal;
+  	mat4 view;
+  	mat4 projection;
+  	mat4 normal;
+	vec3 viewDir;
+	vec2 viewportDim;
+	vec4 frustumPlanes[6];
 } ubo;
 
 layout (location = 0) out vec3 outWorldPos;
 
 void main() 
 {
-	outWorldPos = inPosition;
+	outWorldPos = (ubo.model * vec4(inPosition, 1.0)).xyz;
 	mat4 viewModel = ubo.view * ubo.model;
 	viewModel[3] = vec4(0.0, 0.0, 0.0, 1.0);
 	gl_Position = ubo.projection * viewModel * vec4(inPosition, 1.0);

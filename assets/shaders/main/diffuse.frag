@@ -39,6 +39,7 @@ layout (location = 4) in vec4 inTangent;
 
 layout(location = 0) out uvec4 outPack;
 layout(location = 1) out vec4 outEmissive;
+layout(location = 2) out vec4 outPosition;
 
 #include "../shader_util.glsl"
 #include "../shared_shaders.glsl"
@@ -114,7 +115,6 @@ void main()
 #else
     vec3 ng = cross(pos_dx, pos_dy);
 #endif
-
     t = normalize(t - ng * dot(ng, t));
     vec3 b = normalize(cross(ng, t));
     mat3 tbn = mat3(t, b, ng);
@@ -146,4 +146,5 @@ void main()
 
 	outPack = packTextures(normal_map, albedo_map, pbr_map);
 	outEmissive = emission;
+	outPosition = vec4(inPosition, 1.0);
 }

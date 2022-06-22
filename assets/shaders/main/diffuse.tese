@@ -69,9 +69,10 @@ void main()
 	vec3 displace = normalize(outNormal) * (max(texture(height_tex, outUV.st).r - 0.5f, 0.0) * material.tessellationStrength);
     gl_Position.xyz += displace;
 #endif
-				
-	outPosition = (gl_Position).xyz;
+	
+	vec4 position = data.model * gl_Position;
+	outPosition = position.xyz;
 	//outLightVec = normalize(material.lightPos.xyz - outEyesPos);	
 		
-	gl_Position = data.projection * data.view * data.model * gl_Position;
+	gl_Position = data.projection * data.view * position;
 }

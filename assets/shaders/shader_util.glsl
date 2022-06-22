@@ -25,6 +25,20 @@ vec3 getPositionFromDepth(vec2 texcoord, float depth, mat4 invViewProjection)
     return homogenousLocation.xyz / homogenousLocation.w;
 }
 
+vec3 WorldPosFromDepth(vec2 texcoord, float depth, mat4 invProjMatrix, mat4 invViewMatrix) {
+    float z = depth * 2.0 - 1.0;
+
+    vec4 clipSpacePosition = vec4(texcoord * 2.0 - 1.0, z, 1.0);
+    vec4 viewSpacePosition = invProjMatrix * clipSpacePosition;
+
+    // Perspective division
+    viewSpacePosition /= viewSpacePosition.w;
+
+    vec4 worldSpacePosition = invViewMatrix * viewSpacePosition;
+
+    return worldSpacePosition.xyz;
+}
+
 uvec4 packTextures(vec3 normal_map, vec3 albedo_map, vec4 pbr_map)
 {
     uvec4 texture_pack;

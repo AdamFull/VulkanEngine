@@ -34,13 +34,6 @@ struct FTransform
      * @return glm::mat4 Model matrix
      */
     const glm::mat4 getModel();
-
-    /**
-     * @brief Get render object normal matrix
-     * 
-     * @return glm::mat4 Normal matrix
-     */
-    const glm::mat4 getNormal();
 };
 
 REGISTER_SERIALIZATION_BLOCK_H(FTransform);

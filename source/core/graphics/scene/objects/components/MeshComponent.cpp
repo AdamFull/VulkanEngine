@@ -42,9 +42,9 @@ void CMeshComponent::render(vk::CommandBuffer &commandBuffer)
     auto transform = pParent->getTransform();
     auto view = camera->getView();
     auto projection = camera->getProjection();
-    auto model = transform.getModel();
+    auto model = pParent->getModel();
     auto normal = glm::transpose(glm::inverse(model));
-    auto position = transform.getPosition();
+    auto position = pParent->getPosition();
 
     for (auto &primitive : vPrimitives)
     {

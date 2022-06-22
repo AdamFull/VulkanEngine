@@ -177,34 +177,35 @@ void CRenderObject::detach(ref_ptr<CRenderObject> child)
 
 FTransform CRenderObject::getTransform()
 {
-    FTransform t = transform;
+    auto t = transform;
     if (pParent)
         t += pParent->getTransform();
     return t;
 }
 
-const glm::vec3 CRenderObject::getPosition() const
+glm::mat4 CRenderObject::getModel()
 {
-    glm::vec3 position = transform.getPosition();
     if (pParent)
-        position += pParent->getPosition() * pParent->getScale();
-    return position;
+        return pParent->getModel() * transform.getModel();
+    return transform.getModel();
 }
 
-const glm::vec3 CRenderObject::getRotation() const
+glm::vec3 CRenderObject::getPosition()
 {
-    glm::vec3 rotation = transform.getRotation();
-    if (pParent)
-        rotation += pParent->getRotation();
-    return rotation;
+    FTransform global = this->getTransform();
+    return global.getPosition();
 }
 
-const glm::vec3 CRenderObject::getScale() const
+glm::vec3 CRenderObject::getRotation()
 {
-    glm::vec3 scale = transform.getScale();
-    if (pParent)
-        scale *= pParent->getScale();
-    return scale;
+    auto global =  this->getTransform();
+    return global.getRotation();
+}
+
+glm::vec3 CRenderObject::getScale()
+{
+    auto global =  this->getTransform();
+    return global.getScale();
 }
 
 void CRenderObject::setTransform(FTransform transformNew)

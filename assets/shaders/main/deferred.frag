@@ -13,8 +13,9 @@ layout (binding = 2) uniform samplerCube prefiltred_tex;
 
 layout (input_attachment_index = 0, binding = 3) uniform usubpassInput packed_tex;
 layout (input_attachment_index = 1, binding = 4) uniform subpassInput emission_tex;
-layout (input_attachment_index = 2, binding = 5) uniform subpassInput depth_tex;
-layout (binding = 6) uniform sampler2DArray shadowmap_tex;
+layout (input_attachment_index = 2, binding = 5) uniform subpassInput position_tex;
+layout (input_attachment_index = 3, binding = 6) uniform subpassInput depth_tex;
+layout (binding = 7) uniform sampler2DArray shadowmap_tex;
 //layout (binding = 7) uniform sampler2DArray shadowArr;
 
 layout (location = 0) in vec2 inUV;
@@ -24,6 +25,8 @@ layout (location = 0) out vec4 outFragcolor;
 layout(std140, binding = 13) uniform UBODeferred
 {
 	mat4 invViewProjection;
+	mat4 invProjection;
+	mat4 invView;
 	vec4 viewPos;
 	int lightCount;
 } ubo;
@@ -40,7 +43,9 @@ void main()
 
 	//Load depth and world position
 	float depth = subpassLoad(depth_tex).r;
-	vec3 inWorldPos = getPositionFromDepth(inUV, depth, ubo.invViewProjection);
+	//vec3 inWorldPos = getPositionFromDepth(inUV, depth, ubo.invViewProjection);
+	//vec3 inWorldPos = WorldPosFromDepth(inUV, depth, ubo.invProjection, ubo.invView);
+	vec3 inWorldPos = subpassLoad(position_tex).rgb;
 
 	vec3 normal = vec3(0.0);
 	vec3 albedo = vec3(0.0);
@@ -132,20 +137,21 @@ void main()
 
 		// Ambient part
 		fragcolor = diffuse + (emission * 4.0) + specular + Lo;
-		fragcolor = inWorldPos;
-		//float shadow = 1.f;
-		//for(int i = 0; i < ubo.lightCount; i++) 
-		//{
-		//	FLight light = lights.lights[i];
-		//	if(light.type == 1)
-		//		shadow = getCascadeShadow(shadowmap_tex, ubo.viewPos.xyz, inWorldPos, light);
-		//}
-		//fragcolor = vec3(1.0) * shadow;	
+		//fragcolor = inWorldPos;
+		float shadow = 1.f;
+		for(int i = 0; i < ubo.lightCount; i++) 
+		{
+			FLight light = lights.lights[i];
+			if(light.type == 1)
+				shadow = getCascadeShadow(shadowmap_tex, ubo.viewPos.xyz, inWorldPos, light);
+		}
+		fragcolor = vec3(1.0) * shadow;	
 	}
 	else
 	{
 		fragcolor = albedo;
 	}
    
-  	outFragcolor = vec4(fragcolor, 1.0);
+	
+  	outFragcolor = vec4(inWorldPos, 1.0);
 }

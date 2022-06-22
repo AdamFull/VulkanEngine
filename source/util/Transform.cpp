@@ -48,59 +48,18 @@ void FTransform::setScale(const glm::vec3& scale)
 
 const glm::mat4 FTransform::getModel()
 {
-    const float c3 = glm::cos(rot.z);
-    const float s3 = glm::sin(rot.z);
-    const float c2 = glm::cos(rot.x);
-    const float s2 = glm::sin(rot.x);
-    const float c1 = glm::cos(rot.y);
-    const float s1 = glm::sin(rot.y);
-    return glm::mat4{
-        {
-            scale.x * (c1 * c3 + s1 * s2 * s3),
-            scale.x * (c2 * s3),
-            scale.x * (c1 * s2 * s3 - c3 * s1),
-            0.0f,
-        },
-        {
-            scale.y * (c3 * s1 * s2 - c1 * s3),
-            scale.y * (c2 * c3),
-            scale.y * (c1 * c3 * s2 + s1 * s3),
-            0.0f,
-        },
-        {
-            scale.z * (c2 * s1),
-            scale.z * (-s2),
-            scale.z * (c1 * c2),
-            0.0f,
-        },
-        {pos.x, pos.y, pos.z, 1.0f}};
-}
+    glm::mat4 model{1.0};
 
-const glm::mat4 FTransform::getNormal()
-{
-    const float c3 = glm::cos(rot.z);
-    const float s3 = glm::sin(rot.z);
-    const float c2 = glm::cos(rot.x);
-    const float s2 = glm::sin(rot.x);
-    const float c1 = glm::cos(rot.y);
-    const float s1 = glm::sin(rot.y);
-    const glm::vec3 invScale = 1.0f / scale;
+    model = glm::translate(model, pos);
 
-    return glm::mat3{
-        {
-            invScale.x * (c1 * c3 + s1 * s2 * s3),
-            invScale.x * (c2 * s3),
-            invScale.x * (c1 * s2 * s3 - c3 * s1),
-        },
-        {
-            invScale.y * (c3 * s1 * s2 - c1 * s3),
-            invScale.y * (c2 * c3),
-            invScale.y * (c1 * c3 * s2 + s1 * s3),
-        },
-        {
-            invScale.z * (c2 * s1),
-            invScale.z * (-s2),
-            invScale.z * (c1 * c2),
-        },
-    };
+    if (rot.x != 0)
+        model = glm::rotate(model, rot.x, glm::vec3(1.0, 0.0, 0.0));
+    if (rot.y != 0)
+        model = glm::rotate(model, rot.y, glm::vec3(0.0, 1.0, 0.0));
+    if (rot.z != 0)
+        model = glm::rotate(model, rot.z, glm::vec3(0.0, 0.0, 1.0));
+
+    model = glm::scale(model, scale);
+    
+    return model;
 }

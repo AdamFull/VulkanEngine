@@ -59,11 +59,12 @@ namespace engine
 
                 FTransform getTransform();
                 FTransform& getLocalTransform() { return transform; }
-                const glm::vec3 getPosition() const;
+                glm::mat4 getModel();
+                glm::vec3 getPosition();
                 const glm::vec3 getLocalPosition() const { return transform.getPosition(); }
-                const glm::vec3 getRotation() const;
+                glm::vec3 getRotation();
                 const glm::vec3 getLocalRotation() const { return transform.getRotation(); }
-                const glm::vec3 getScale() const;
+                glm::vec3 getScale();
                 const glm::vec3 getLocalScale() const { return transform.getScale(); }
 
                 void setName(std::string name);

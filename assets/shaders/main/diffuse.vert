@@ -20,6 +20,19 @@ layout (location = 3) out vec4 outTangent;
 
 #include "../shader_util.glsl"
 
+layout(std140, binding = 0) uniform FUniformData 
+{
+  	mat4 model;
+  	mat4 view;
+  	mat4 projection;
+  	mat4 normal;
+	vec3 viewDir;
+	vec2 viewportDim;
+	vec4 frustumPlanes[6];
+} data;
+
+#define USE_TESSELLATION
+
 void main() 
 {
 	outUV = inTexCoord * 1.0;
@@ -29,7 +42,12 @@ void main()
 #endif
 #ifdef HAS_TANGENTS
 	outTangent = inTangent;
-#endif  
+#endif 
+
+#ifdef USE_TESSELLATION
   	//ubo.projection * ubo.view * ubo.model * tmpPos;
 	gl_Position = vec4(inPosition, 1.0);
+#else
+	gl_Position = data.projection * data.view * data.model * vec4(inPosition, 1.0);
+#endif
 }

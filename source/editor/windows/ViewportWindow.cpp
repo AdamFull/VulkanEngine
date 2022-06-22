@@ -112,8 +112,7 @@ void CViewportWindow::drawManipulator(float offsetx, float offsety, float sizex,
         //Camera projection
         auto projection = camera->getProjection();
         //Object transform
-        auto transform = selected->getTransform();
-        auto model = transform.getModel();
+        auto model = selected->getModel();
         glm::mat4 delta;
 
         //Manipulating

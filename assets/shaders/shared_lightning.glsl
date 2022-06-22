@@ -68,9 +68,9 @@ float getCascadeShadow(sampler2DArray shadomwap_tex, vec3 viewPosition, vec3 wor
 	}
 
 	// Depth compare for shadowing
-	vec4 shadowCoord = (biasMat * light.cascadeViewProjMat[cascadeIndex]) * vec4(worldPosition, 1.0);	
-	return cascadeShadowFilterPCF(shadomwap_tex, shadowCoord / shadowCoord.w, cascadeIndex);
-	//return cassadeShadowProjection(shadomwap_tex, (shadowCoord / shadowCoord.w) * 0.5 + 0.5, vec2(0.0), cascadeIndex);
+	vec4 shadowCoord = (biasMat * light.cascadeViewProjMat[1]) * vec4(worldPosition, 1.0);	
+	//return cascadeShadowFilterPCF(shadomwap_tex, shadowCoord / shadowCoord.w, 1);
+	return cassadeShadowProjection(shadomwap_tex, (shadowCoord / shadowCoord.w) * 0.5 + 0.5, vec2(0.0), 1);
 }
 
 // From http://filmicworlds.com/blog/filmic-tonemapping-operators/

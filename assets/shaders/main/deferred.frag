@@ -152,8 +152,8 @@ void main()
 			shadow = getCascadeShadow(shadowmap_tex, ubo.viewPos.xyz, inWorldPos, light);
 			//shadow = texture(shadowmap_tex, vec3(inUV, 0)).r;
 	}
-	fragcolor = texture(shadowmap_tex, vec3(inUV, 1)).rrr;
-	//fragcolor = vec3(1.0) * shadow;
+	//fragcolor = texture(shadowmap_tex, vec3(inUV, 1)).rrr;
+	fragcolor = vec3(1.0) * shadow;
    
   	outFragcolor = vec4(fragcolor, 1.0);
 }

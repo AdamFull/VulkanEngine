@@ -7,7 +7,10 @@ layout(location = 0) in vec3 inWorldPos;
 
 layout(location = 0) out uvec4 outPack;
 layout(location = 1) out vec4 outEmissive;
+
+#ifdef HAS_RENDER_POSITION
 layout(location = 2) out vec4 outPosition;
+#endif
 
 #include "../shader_util.glsl"
 #include "../shared_lightning.glsl"
@@ -20,5 +23,8 @@ void main()
 	vec3 albedo_map = texture(samplerCubeMap, inWorldPos).rgb;
 	outPack = packTextures(normal_map, albedo_map, vec4(0.0));
 	outEmissive = vec4(0.0);
+
+#ifdef HAS_RENDER_POSITION
 	outPosition = vec4(inWorldPos, 1.0);
+#endif
 }

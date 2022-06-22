@@ -184,8 +184,25 @@ ref_ptr<CMaterialBase> CMaterialLoader::create(const std::string& name)
         }
 
         material->pPipeline->setBindPoint(ci.bindPoint);
+
+        std::vector<std::string> stages;
+        if(ci.enableTesselation)
+        {
+            ci.defines.emplace("USE_TESSELLATION", "");
+            stages = ci.stages;
+        }
+        else
+        {
+            for(auto& stage : ci.stages)
+            {
+                auto ext = fs::path(stage).extension().string();
+                if(ext != ".tesc" && ext != ".tese")
+                    stages.emplace_back(stage);
+            }
+        }
+
         material->pPipeline->setDefines(std::move(ci.defines));
-        material->pPipeline->setShaderStages(std::move(ci.stages));
+        material->pPipeline->setShaderStages(std::move(stages));
 
         if(ci.bindPoint == vk::PipelineBindPoint::eGraphics)
         {

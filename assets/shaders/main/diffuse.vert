@@ -11,11 +11,12 @@ layout(location = 4) in vec4 inTangent;
 
 layout(location = 0) out vec2 outUV;
 layout(location = 1) out vec3 outColor;
+layout(location = 2) out vec3 outPosition;
 #ifdef HAS_NORMALS
-layout(location = 2) out vec3 outNormal;
+layout(location = 3) out vec3 outNormal;
 #endif
 #ifdef HAS_TANGENTS
-layout (location = 3) out vec4 outTangent;
+layout (location = 4) out vec4 outTangent;
 #endif
 
 #include "../shader_util.glsl"
@@ -31,8 +32,6 @@ layout(std140, binding = 0) uniform FUniformData
 	vec4 frustumPlanes[6];
 } data;
 
-#define USE_TESSELLATION
-
 void main() 
 {
 	outUV = inTexCoord * 1.0;
@@ -45,9 +44,11 @@ void main()
 #endif 
 
 #ifdef USE_TESSELLATION
-  	//ubo.projection * ubo.view * ubo.model * tmpPos;
+	outPosition = inPosition;
 	gl_Position = vec4(inPosition, 1.0);
 #else
-	gl_Position = data.projection * data.view * data.model * vec4(inPosition, 1.0);
+	vec4 position = data.model * vec4(inPosition, 1.0);
+	outPosition = position.xyz;
+	gl_Position = data.projection * data.view * position;
 #endif
 }

@@ -7,7 +7,7 @@ using namespace engine::core::scene;
 void CCameraComponent::create()
 {
     auto& transform = pParent->getLocalTransform();
-    transform.rot = glm::vec3{-1.0, 0.0, 0.0};
+    transform.rot = glm::vec3{0.5, -0.5, 0.5};
 }
 
 void CCameraComponent::update(float fDeltaTime)

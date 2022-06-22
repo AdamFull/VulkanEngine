@@ -21,13 +21,13 @@ void CDeferredStage::create()
     framebuffer_1->setFlipViewport(VK_TRUE);
     framebuffer_1->setRenderArea(vk::Offset2D{0, 0}, screenExtent);
 
-    framebuffer_1->addOutputReference(0U, 1U, 2U, 3U);
+    framebuffer_1->addOutputReference(0U, 1U, 2U); //framebuffer_1->addOutputReference(0U, 1U, 2U, 3U);
     framebuffer_1->addOutputReference(1U, 0U);
-    framebuffer_1->addInputReference(1U, 1U, 2U, 3U, 4U);
+    framebuffer_1->addInputReference(1U, 1U, 2U, 3U); //framebuffer_1->addInputReference(1U, 1U, 2U, 3U, 4U);
     framebuffer_1->addImage("composition_tex", vk::Format::eR32G32B32A32Sfloat, vk::ImageUsageFlagBits::eColorAttachment | vk::ImageUsageFlagBits::eSampled);
     framebuffer_1->addImage("packed_tex", vk::Format::eR32G32B32A32Uint, vk::ImageUsageFlagBits::eColorAttachment | vk::ImageUsageFlagBits::eInputAttachment);
     framebuffer_1->addImage("emission_tex", vk::Format::eB10G11R11UfloatPack32, vk::ImageUsageFlagBits::eColorAttachment | vk::ImageUsageFlagBits::eInputAttachment);
-    framebuffer_1->addImage("position_tex", vk::Format::eR32G32B32A32Sfloat, vk::ImageUsageFlagBits::eColorAttachment | vk::ImageUsageFlagBits::eInputAttachment);
+    //framebuffer_1->addImage("position_tex", vk::Format::eR32G32B32A32Sfloat, vk::ImageUsageFlagBits::eColorAttachment | vk::ImageUsageFlagBits::eInputAttachment);
     framebuffer_1->addImage("depth_tex", CImage::getDepthFormat(), vk::ImageUsageFlagBits::eDepthStencilAttachment | vk::ImageUsageFlagBits::eInputAttachment);
     framebuffer_1->addDescription(0U, true);
     framebuffer_1->addDescription(1U);

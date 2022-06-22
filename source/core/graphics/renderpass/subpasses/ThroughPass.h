@@ -10,10 +10,14 @@ namespace engine
             class CThroughPass : public CSubpass
             {
             public:
+                CThroughPass() = default;
+                CThroughPass(const std::string& srImage) : srImageSource(srImage) {}
                 void create() override;
                 void reCreate() override;
                 void render(vk::CommandBuffer &commandBuffer) override;
                 void cleanup() override;
+            private:
+                std::string srImageSource{};
             };
         }
     }

@@ -18,7 +18,7 @@ void CPipelineBase::create(vk::RenderPass& renderPass, uint32_t _subpass)
 
 void CPipelineBase::create()
 {
-    loadShader(m_vStages);
+    loadShaders();
     createDescriptorPool();
     createDescriptorSetLayout();
     createPipelineLayout();
@@ -118,18 +118,17 @@ void CPipelineBase::bind(vk::CommandBuffer &commandBuffer)
     commandBuffer.bindPipeline(getBindPoint(), getPipeline());
 }
 
-void CPipelineBase::loadShader(const std::vector<std::string> &vShaders)
+void CPipelineBase::loadShaders()
 {
     m_pShader = make_scope<CShader>();
     std::stringstream defineBlock;
     for (const auto &[defineName, defineValue] : m_vDefines)
         defineBlock << "#define " << defineName << " " << defineValue << '\n';
 
-    for (auto &value : vShaders)
+    for (auto &stage : m_vStages)
     {
-        vShaderCache.emplace_back(value);
-        auto shader_code = FilesystemHelper::readFile(value);
-        m_pShader->addStage(value, shader_code, defineBlock.str());
+        auto shader_code = FilesystemHelper::readFile(stage);
+        m_pShader->addStage(stage, shader_code, defineBlock.str());
     }
     m_pShader->finalizeReflection();
 }
@@ -174,8 +173,6 @@ void CPipelineBase::createPipelineLayout()
 
 void CPipelineBase::recreateShaders()
 {
-    std::vector<std::string> vCacheCopy = vShaderCache;
-    vShaderCache.clear();
     m_pShader->clear();
-    loadShader(vCacheCopy);
+    loadShaders();
 }

@@ -393,7 +393,7 @@
 	"asset": {
 		"copyright": "2022 UX3D GmbH",
 		"extras": {
-			"created": "Tue Jun 21 11:50:25 2022"
+			"created": "Wed Jun 22 13:36:25 2022"
 		},
 		"generator": "Gestaltor 2022.2.3 Tagliatelle Professional",
 		"version": "2.0"
@@ -544,7 +544,7 @@
 						1.0,
 						0.8
 					],
-					"intensity": 2.0,
+					"intensity": 5.0,
 					"name": "directional_light",
 					"type": "directional"
 				},
@@ -1784,10 +1784,10 @@
 			},
 			"name": "directional_light",
 			"rotation": [
-				0.004344188007631181,
-				-0.004344188007631181,
-				0.004382264668331837,
-				0.9999715255033443
+				0.29140898655759295,
+				-0.29140898655759295,
+				-0.17291137617899582,
+				0.8945743463205498
 			],
 			"translation": [
 				0.0,

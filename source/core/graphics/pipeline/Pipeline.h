@@ -62,9 +62,8 @@ namespace engine
 				/**
 				 * @brief Load shader method
 				 *
-				 * @param vShaders Vector with shader names
 				 */
-				virtual void loadShader(const std::vector<std::string> &vShaders);
+				virtual void loadShaders();
 
 				/**
 				 * @brief ReCreating pipeline woth new render pass and subpass
@@ -167,7 +166,6 @@ namespace engine
 				 */
 				virtual void recreateShaders();
 
-				std::vector<std::string> vShaderCache;
 				std::map<std::string, std::string> m_vDefines;
 				scope_ptr<CShader> m_pShader;
 				bool bIsClean{false};

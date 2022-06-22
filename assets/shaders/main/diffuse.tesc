@@ -35,20 +35,22 @@ layout (vertices = VERTICES_COUNT) out;
 
 layout (location = 0) in vec2 inUV[];
 layout (location = 1) in vec3 inColor[];
+layout (location = 2) in vec3 inPosition[];
 #ifdef HAS_NORMALS
-layout (location = 2) in vec3 inNormal[];
+layout (location = 3) in vec3 inNormal[];
 #endif
 #ifdef HAS_TANGENTS
-layout (location = 3) in vec4 inTangent[];
+layout (location = 4) in vec4 inTangent[];
 #endif
 
 layout (location = 0) out vec2 outUV[VERTICES_COUNT];
 layout (location = 1) out vec3 outColor[VERTICES_COUNT];
+layout (location = 2) out vec3 outPosition[VERTICES_COUNT];
 #ifdef HAS_NORMALS
-layout (location = 2) out vec3 outNormal[VERTICES_COUNT];
+layout (location = 3) out vec3 outNormal[VERTICES_COUNT];
 #endif
 #ifdef HAS_TANGENTS
-layout (location = 3) out vec4 outTangent[VERTICES_COUNT];
+layout (location = 4) out vec4 outTangent[VERTICES_COUNT];
 #endif
 
 // Calculate the tessellation factor based on screen space
@@ -104,18 +106,6 @@ bool frustumCheck()
 
 void main()
 {
-	/*float dist = distance(data.viewDir, (data.model * gl_in[gl_InvocationID].gl_Position).xyz);
-	float quadLevel = 1.2 * material.tessLevel * material.tessLevel;
-	float tessLod = clamp(quadLevel / dist, 1.0, 64.0);
-
-	if (gl_InvocationID == 0)
-	{
-		gl_TessLevelInner[0] = tessLod;
-		gl_TessLevelOuter[0] = tessLod;
-		gl_TessLevelOuter[1] = tessLod;
-		gl_TessLevelOuter[2] = tessLod;		
-	}*/
-
 	if (gl_InvocationID == 0)
 	{
 		if (!frustumCheck())
@@ -146,9 +136,10 @@ void main()
 		}
 	}
 
-	gl_out[gl_InvocationID].gl_Position =  gl_in[gl_InvocationID].gl_Position;
+	//gl_out[gl_InvocationID].gl_Position =  gl_in[gl_InvocationID].gl_Position;
     outUV[gl_InvocationID] = inUV[gl_InvocationID];
     outColor[gl_InvocationID] = inColor[gl_InvocationID];
+	outPosition[gl_InvocationID] = inPosition[gl_InvocationID];
 #ifdef HAS_NORMALS
 	outNormal[gl_InvocationID] = inNormal[gl_InvocationID];
 #endif

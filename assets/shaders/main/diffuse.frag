@@ -39,7 +39,10 @@ layout (location = 4) in vec4 inTangent;
 
 layout(location = 0) out uvec4 outPack;
 layout(location = 1) out vec4 outEmissive;
+
+#ifdef HAS_RENDER_POSITION
 layout(location = 2) out vec4 outPosition;
+#endif
 
 #include "../shader_util.glsl"
 #include "../shared_shaders.glsl"
@@ -146,5 +149,8 @@ void main()
 
 	outPack = packTextures(normal_map, albedo_map, pbr_map);
 	outEmissive = emission;
+
+#ifdef HAS_RENDER_POSITION
 	outPosition = vec4(inPosition, 1.0);
+#endif
 }

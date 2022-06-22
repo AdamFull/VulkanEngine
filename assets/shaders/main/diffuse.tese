@@ -33,11 +33,12 @@ layout(triangles, equal_spacing , cw) in;
 
 layout (location = 0) in vec2 inUV[];
 layout (location = 1) in vec3 inColor[];
+layout (location = 2) in vec3 inPosition[];
 #ifdef HAS_NORMALS
-layout (location = 2) in vec3 inNormal[];
+layout (location = 3) in vec3 inNormal[];
 #endif
 #ifdef HAS_TANGENTS
-layout (location = 3) in vec4 inTangent[];
+layout (location = 4) in vec4 inTangent[];
 #endif
  
 layout (location = 0) out vec2 outUV;
@@ -52,7 +53,8 @@ layout (location = 4) out vec4 outTangent;
 
 void main()
 {
-	gl_Position = (gl_TessCoord.x * gl_in[0].gl_Position) + (gl_TessCoord.y * gl_in[1].gl_Position) + (gl_TessCoord.z * gl_in[2].gl_Position); 
+	outPosition = gl_TessCoord.x * inPosition[0] + gl_TessCoord.y * inPosition[1] + gl_TessCoord.z * inPosition[2];
+	//gl_Position = (gl_TessCoord.x * gl_in[0].gl_Position) + (gl_TessCoord.y * gl_in[1].gl_Position) + (gl_TessCoord.z * gl_in[2].gl_Position); 
 
 	outUV = gl_TessCoord.x * inUV[0] + gl_TessCoord.y * inUV[1] + gl_TessCoord.z * inUV[2];
     outColor = gl_TessCoord.x * inColor[0] + gl_TessCoord.y * inColor[1] + gl_TessCoord.z * inColor[2];
@@ -67,12 +69,11 @@ void main()
 
 #ifdef HAS_HEIGHTMAP
 	vec3 displace = normalize(outNormal) * (max(texture(height_tex, outUV.st).r - 0.5f, 0.0) * material.tessellationStrength);
-    gl_Position.xyz += displace;
+    outPosition += displace;
 #endif
 	
-	vec4 position = data.model * gl_Position;
+	vec4 position = data.model * vec4(outPosition, 1.0);
 	outPosition = position.xyz;
-	//outLightVec = normalize(material.lightPos.xyz - outEyesPos);	
 		
 	gl_Position = data.projection * data.view * position;
 }

@@ -106,6 +106,9 @@ namespace engine
                 void cleanup() override;
                 void destroy() override;
 
+                bool isSkybox() { return bIsSkybox; }
+                void setIsSkybox(bool isSkybox) { bIsSkybox = isSkybox; }
+
                 void addPrimitive(FPrimitive &&primitive);
                 std::vector<FPrimitive>& getPrimitives() { return vPrimitives; }
 
@@ -117,6 +120,7 @@ namespace engine
             protected:
                 std::vector<glm::vec4> vInstances;
                 std::vector<FPrimitive> vPrimitives;
+                bool bIsSkybox{false};
 
                 bool bEnableCulling{true};
                 bool bHasInstances{false};

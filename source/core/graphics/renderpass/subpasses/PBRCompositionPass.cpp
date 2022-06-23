@@ -35,6 +35,7 @@ void CPBRCompositionPass::create()
     prefiltered = CThreadPool::inst()->submit(&CPBRCompositionPass::ComputePrefiltered, m_pSkybox, 512);
 
     pMaterial = CMaterialLoader::inst()->create("pbr_composition");
+    auto& pipeline = pMaterial->getPipeline();
     pMaterial->create();
     CSubpass::create();
 }
@@ -71,8 +72,13 @@ void CPBRCompositionPass::render(vk::CommandBuffer& commandBuffer)
     
     auto& pUBO = pMaterial->getUniformBuffer("UBODeferred");
     pUBO->set("invViewProjection", invViewProjection);
+    pUBO->set("view", view);
     pUBO->set("viewPos", camera->viewPos);
     pUBO->set("lightCount", light_count);
+
+    auto& pDebugUBO = pMaterial->getUniformBuffer("UBODebug");
+    pDebugUBO->set("target", GlobalVariables::debugTarget);
+    pDebugUBO->set("cascade", GlobalVariables::debugCascade);
 
     auto& pUBOLights = pMaterial->getUniformBuffer("UBOLights");
     pUBOLights->set("lights", aLights);

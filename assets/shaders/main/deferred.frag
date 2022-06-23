@@ -24,12 +24,19 @@ layout (location = 0) in vec2 inUV;
 
 layout (location = 0) out vec4 outFragcolor;
 
-layout(std140, binding = 13) uniform UBODeferred
+layout(std140, binding = 12) uniform UBODeferred
 {
 	mat4 invViewProjection;
+	mat4 view;
 	vec4 viewPos;
 	int lightCount;
 } ubo;
+
+layout(std140, binding = 13) uniform UBODebug
+{
+	int target;
+	int cascade;
+} debug;
 
 //Lights
 layout(std140, binding = 14) uniform UBOLights
@@ -44,8 +51,6 @@ void main()
 	//Load depth and world position
 	float depth = subpassLoad(depth_tex).r;
 	vec3 inWorldPos = getPositionFromDepth(inUV, depth, ubo.invViewProjection);
-	//vec3 inWorldPos = WorldPosFromDepth(inUV, depth, ubo.invProjection, ubo.invView);
-	//vec3 inWorldPos = subpassLoad(position_tex).rgb;
 
 	vec3 normal = vec3(0.0);
 	vec3 albedo = vec3(0.0);
@@ -83,6 +88,7 @@ void main()
 		for(int i = 0; i < ubo.lightCount; i++) 
 		{
 			FLight light = lights.lights[i];
+			float shadow_factor = 0.0;
 			vec3 L = vec3(0.0);
 			float atten = 1.0;
 
@@ -137,23 +143,72 @@ void main()
 
 		// Ambient part
 		fragcolor = diffuse + (emission * 4.0) + specular + Lo;
-		//fragcolor = inWorldPos;
 	}
 	else
 	{
 		fragcolor = albedo;
 	}
 
-	float shadow = 1.f;
-	for(int i = 0; i < ubo.lightCount; i++) 
+	//TODO: remove skybox from shadow render
+	if(debug.target == 0)
+		fragcolor = fragcolor;
+	else if(debug.target == 1)
+		fragcolor = vec3(depth);
+	else if(debug.target == 2)
+		fragcolor = inWorldPos;
+	else if(debug.target == 3)
+		fragcolor = normal;
+	else if(debug.target == 4)
+		fragcolor = albedo;
+	else if(debug.target == 5)
+		fragcolor = vec3(metallic);
+	else if(debug.target == 6)
+		fragcolor = vec3(roughness);
+	else if(debug.target == 7)
+		fragcolor = texture(shadowmap_tex, vec3(inUV, debug.cascade)).rrr;
+	else if(debug.target == 8 || debug.target == 9 || debug.target == 10)
 	{
-		FLight light = lights.lights[i];
-		if(light.type == 1)
-			shadow = getCascadeShadow(shadowmap_tex, ubo.viewPos.xyz, inWorldPos, light);
-			//shadow = texture(shadowmap_tex, vec3(inUV, 0)).r;
+		vec3 viewPos = (ubo.view * vec4(inWorldPos, 1.0)).xyz;
+		float shadow_factor = 1.0;
+		FLight light;
+		
+		for(int i = 0; i < ubo.lightCount; i++) 
+		{
+			light = lights.lights[i];
+			float shadow_factor = getCascadeShadow(shadowmap_tex, viewPos, inWorldPos, normal, light);
+		}
+
+		if(debug.target == 8)
+			fragcolor = vec3(1.0) * shadow_factor;
+		else if(debug.target == 9)
+			fragcolor = fragcolor * shadow_factor;
+		else if(debug.target == 10)
+		{
+			uint cascadeIndex = 0;
+			for(uint i = 0; i < 4 - 1; ++i) {
+				if(viewPos.z < light.cascadeSplits[i]) {	
+					cascadeIndex = i + 1;
+					break;
+				}
+			}
+
+			switch(cascadeIndex) 
+			{
+			case 0 : 
+				fragcolor *= vec3(1.0f, 0.25f, 0.25f);
+				break;
+			case 1 : 
+				fragcolor *= vec3(0.25f, 1.0f, 0.25f);
+				break;
+			case 2 : 
+				fragcolor *= vec3(0.25f, 0.25f, 1.0f);
+				break;
+			case 3 : 
+				fragcolor *= vec3(1.0f, 1.0f, 0.25f);
+				break;
+			}
+		}
 	}
-	//fragcolor = texture(shadowmap_tex, vec3(inUV, 1)).rrr;
-	fragcolor = vec3(1.0) * shadow;
    
   	outFragcolor = vec4(fragcolor, 1.0);
 }

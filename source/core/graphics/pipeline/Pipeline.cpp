@@ -113,6 +113,11 @@ void CPipelineBase::setTesselationEnabled(bool value)
     bEnableTesselation = value;
 }
 
+void CPipelineBase::addSpecializationInfo(vk::SpecializationInfo&& specInfo)
+{
+    vSpecInfos.emplace_back(std::move(specInfo));
+}
+
 void CPipelineBase::bind(vk::CommandBuffer &commandBuffer)
 {
     commandBuffer.bindPipeline(getBindPoint(), getPipeline());

@@ -4,11 +4,15 @@ namespace engine
 {
     struct GlobalVariables
     {
-        static alignas(4) float bloomThreshold;
+        static float bloomThreshold;
 
-        static alignas(4) float postprocessGamma;
-        static alignas(4) float postprocessExposure;
-        static alignas(4) float blurScale;
-        static alignas(4) float blurStrength;
+        static float postprocessGamma;
+        static float postprocessExposure;
+        static float blurScale;
+        static float blurStrength;
+
+        static int debugTarget;
+        static int debugCascade;
+        static float cascadeSplitLambda;
     };
 };

@@ -398,6 +398,7 @@ void CShader::clear()
 
 void CShader::finalizeReflection()
 {
+    //TODO: generate specialization info for shader
     //Preparing descriptors for uniform/storage buffers
     for (const auto &[uniformBlockName, uniformBlock] : mUniformBlocks) 
     {

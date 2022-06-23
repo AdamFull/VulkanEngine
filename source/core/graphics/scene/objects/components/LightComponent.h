@@ -28,7 +28,7 @@ namespace engine
                 void create() override {}
                 void reCreate() override {}
                 void render(vk::CommandBuffer &commandBuffer) override {}
-                void update(float fDeltaTime) override {}
+                void update(float fDeltaTime) override;
                 void cleanup() override {}
                 void destroy() override {}
 
@@ -51,7 +51,7 @@ namespace engine
             protected:
                 void updateCascades();
                 FLight lightData{};
-                float cascadeSplitLambda = 0.95f; //TODO: move to somewhere another place
+                float timer{0.0};
             };
         }
     }

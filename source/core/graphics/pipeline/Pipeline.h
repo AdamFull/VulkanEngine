@@ -92,6 +92,7 @@ namespace engine
 				void addDefine(const std::string &name, const std::string &value);
 				void setDefines(const std::map<std::string, std::string> &defines);
 				void setTesselationEnabled(bool value);
+				void addSpecializationInfo(vk::SpecializationInfo&& specInfo);
 
 				/**
 				 * @brief Get pipeline state object
@@ -176,6 +177,7 @@ namespace engine
 				vk::DescriptorPool descriptorPool{nullptr};
 				vk::PipelineLayout pipelineLayout{nullptr};
 
+				std::vector<vk::SpecializationInfo> vSpecInfos;
 				bool bEnableTesselation{false};
 				vk::RenderPass m_renderPass{nullptr};
 				vk::PipelineBindPoint m_bindPoint;

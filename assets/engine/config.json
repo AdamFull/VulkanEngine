@@ -29,7 +29,8 @@
             "geometry_shader": true,
             "fragment_stores_and_atomics": true,
             "logic_op": true,
-            "tesselation_shader": true
+            "tesselation_shader": true,
+            "depth_clamp": true
         },
         "graphics":
         {

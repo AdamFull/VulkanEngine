@@ -57,20 +57,30 @@ float cascadeShadowFilterPCF(sampler2DArray shadomwap_tex, vec4 sc, uint cascade
 	return shadowFactor / count;
 }
 
-float getCascadeShadow(sampler2DArray shadomwap_tex, vec3 viewPosition, vec3 worldPosition, FLight light)
+float getCascadeShadow(sampler2DArray shadomwap_tex, vec3 viewPosition, vec3 worldPosition, vec3 normal, FLight light)
 {
+	const int MAX_CASCADES = 4;
+
 	// Get cascade index for the current fragment's view position
 	uint cascadeIndex = 0;
-	for(uint i = 0; i < 3 /*TODO: CASCADES FROM DEFINE*/; ++i) 
-	{
-		if(viewPosition.z < light.cascadeSplits[i])
+	for(uint i = 0; i < MAX_CASCADES - 1; ++i) {
+		if(viewPosition.z < light.cascadeSplits[i]) {	
 			cascadeIndex = i + 1;
+			break;
+		}
 	}
-
+	
 	// Depth compare for shadowing
-	vec4 shadowCoord = (biasMat * light.cascadeViewProjMat[1]) * vec4(worldPosition, 1.0);	
-	//return cascadeShadowFilterPCF(shadomwap_tex, shadowCoord / shadowCoord.w, 1);
-	return cassadeShadowProjection(shadomwap_tex, (shadowCoord / shadowCoord.w) * 0.5 + 0.5, vec2(0.0), 1);
+	vec4 shadowCoord = (biasMat * light.cascadeViewProjMat[cascadeIndex]) * vec4(worldPosition, 1.0);	
+
+	float shadow = 0;
+	bool enablePCF = true;
+	if (enablePCF) {
+		shadow = cascadeShadowFilterPCF(shadomwap_tex, shadowCoord / shadowCoord.w, cascadeIndex);
+	} else {
+		shadow = cassadeShadowProjection(shadomwap_tex, shadowCoord / shadowCoord.w, vec2(0.0), cascadeIndex);
+	}
+	return shadow;
 }
 
 // From http://filmicworlds.com/blog/filmic-tonemapping-operators/

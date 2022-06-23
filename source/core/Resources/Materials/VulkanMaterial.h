@@ -147,6 +147,8 @@ namespace engine
                 std::map<std::string, ref_ptr<core::CHandler>>& getUniformBuffers() { return vInstances.at(currentInstance)->mBuffers; }
                 scope_ptr<core::descriptor::CDescriptorHandler>& getDescriptorSet() { return vInstances.at(currentInstance)->pDescriptorSet; }
 
+                size_t getTextureCount() { return mTextures.size(); }
+
             protected:
                 FMaterialParams m_fMatParams{};
                 std::string m_srName;

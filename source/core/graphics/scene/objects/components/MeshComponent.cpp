@@ -48,6 +48,9 @@ void CMeshComponent::render(vk::CommandBuffer &commandBuffer)
 
     for (auto &primitive : vPrimitives)
     {
+        auto isShadowPass = CRenderSystem::inst()->getStageType() == EStageType::eShadow;
+        auto isSkyboxInShadow = isShadowPass && bIsSkybox;
+
         bool needToRender {true};
         if (bEnableCulling)
         {
@@ -64,13 +67,18 @@ void CMeshComponent::render(vk::CommandBuffer &commandBuffer)
             break;
             }
         }
-        primitive.bWasCulled = needToRender;
+        
+        //For shadows rendering anyway
+        needToRender |= isShadowPass;
+
+        if(!isShadowPass)
+            primitive.bWasCulled = needToRender;
 
         //TODO: load primitive position?
-        if(needToRender)
+        if(needToRender && !isSkyboxInShadow)
         {
             //TODO: add automatic alignment in shader float = 4, 2x float = 8, 3x float = 16
-            if(primitive.material && CRenderSystem::inst()->getStageType() != EStageType::eShadow)
+            if(primitive.material && !isShadowPass)
             {
                 auto& pUBO = primitive.material->getUniformBuffer("FUniformData");
                 pUBO->set("model", model);

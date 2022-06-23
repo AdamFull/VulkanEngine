@@ -94,6 +94,7 @@ void CSceneFactory::createSkybox(ref_ptr<core::scene::CRenderObject>& pRoot, FSc
     auto& meshNode = pRoot->find("cube");
     auto& skybox = meshNode->getMesh();
     skybox->setCullable(false);
+    skybox->setIsSkybox(true);
 }
 
 void CSceneFactory::createGLTFMesh(ref_ptr<core::scene::CRenderObject>& pRoot, FSceneObject info)

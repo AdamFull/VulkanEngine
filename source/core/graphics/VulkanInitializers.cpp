@@ -14,7 +14,7 @@ vk::PipelineInputAssemblyStateCreateInfo Initializers::PipelineInputAssemblyStat
 vk::PipelineRasterizationStateCreateInfo Initializers::PipelineRasterizerStateCI(vk::PolygonMode polygonMode, vk::CullModeFlags cullMode, vk::FrontFace frontFace, vk::Bool32 bDepthBias)
 {
     vk::PipelineRasterizationStateCreateInfo createInfo{};
-    createInfo.depthClampEnable = VK_FALSE;
+    createInfo.depthClampEnable = VK_TRUE;
     createInfo.rasterizerDiscardEnable = VK_FALSE;
     createInfo.polygonMode = polygonMode;
     createInfo.lineWidth = 1.0f;

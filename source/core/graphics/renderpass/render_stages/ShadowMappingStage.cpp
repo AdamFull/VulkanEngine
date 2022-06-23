@@ -15,7 +15,7 @@ void CShadowMappingStage::create()
     screenExtent = vk::Extent2D{1024, 1024};
 
     auto framebuffer_0 = make_scope<CFramebufferNew>();
-    framebuffer_0->setFlipViewport(VK_TRUE);
+    //framebuffer_0->setFlipViewport(VK_TRUE);
     framebuffer_0->setRenderArea(vk::Offset2D{0, 0}, screenExtent);
 
     //framebuffer_0->addOutputReference(0U, 0U);

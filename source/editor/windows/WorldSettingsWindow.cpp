@@ -33,6 +33,16 @@ void CWorldSettingsWindow::draw()
         FControls::DragFloat("strength", &GlobalVariables::blurStrength, 0.001, 0.0, 5.0);
         ImGui::EndGroup();
 
+        ImGui::Separator();
+        ImGui::Text("Debug");
+        ImGui::Separator();
+
+        ImGui::BeginGroup();
+        ImGui::SliderInt("Target", &GlobalVariables::debugTarget, 0, 10);
+        ImGui::SliderInt("Cascade", &GlobalVariables::debugCascade, 0, 3);
+        FControls::DragFloat("Split", &GlobalVariables::cascadeSplitLambda, 0.001, 0.0, 5.0);
+        ImGui::EndGroup();
+
         ImGui::End();
     }
 }

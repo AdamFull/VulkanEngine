@@ -35,7 +35,7 @@ namespace engine
 			class CPipelineBase
 			{
 			public:
-				CPipelineBase() = default;
+				CPipelineBase();
 				virtual ~CPipelineBase();
 
 				/**

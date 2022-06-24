@@ -13,7 +13,6 @@ namespace engine
 				{
 					vk::ShaderStageFlagBits shaderStage;
 					std::vector<uint32_t> shaderCode;
-					std::array<std::optional<uint32_t>, 3> localSizes;
 					std::string hash{};
 
 					bool operator==(const FCachedShader &rhs) const
@@ -52,19 +51,17 @@ namespace engine
 				 * @param stage Shader pipeline stage
 				 * @param code Shader spir-v code
 				 * @param moduleCode Shader glsl code
-				 * @param localSizes Shader local sizes
 				 */
-				void add(const std::string &name, vk::ShaderStageFlagBits stage, const std::vector<uint32_t> &code, const std::string &moduleCode, std::array<std::optional<uint32_t>, 3> &localSizes);
+				void add(const std::string &name, vk::ShaderStageFlagBits stage, const std::vector<uint32_t> &code, const std::string &moduleCode);
 
 				/**
 				 * @brief Updates shader if already exists or when shader was changed
 				 *
 				 * @param name Shader name
 				 * @param code Shader spir-v code
-				 * @param localSizes Shader local sizes
 				 * @param hash Shader hash
 				 */
-				void update(const std::string &name, const std::vector<uint32_t> &code, std::array<std::optional<uint32_t>, 3> &localSizes, const std::string &hash);
+				void update(const std::string &name, const std::vector<uint32_t> &code, const std::string &hash);
 
 				/**
 				 * @brief Get shader from cache when shader exists

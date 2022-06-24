@@ -289,7 +289,7 @@ namespace engine
 				 *
 				 * @return uint32_t Constant binding
 				 */
-				uint32_t getBinding() const { return binding; }
+				uint32_t getConstantId() const { return constantId; }
 
 				/**
 				 * @brief Get constant size
@@ -299,24 +299,23 @@ namespace engine
 				size_t getSize() const { return size; }
 
 				/**
-				 * @brief Get constant stage flags
-				 *
-				 * @return vk::ShaderStageFlags Constant stage flags
+				 * @brief Get constant offset
+				 * 
+				 * @return size_t 
 				 */
-				vk::ShaderStageFlags getStageFlags() const { return stageFlags; }
+				size_t getOffset() const { return offset; }
 
 				/**
-				 * @brief Get constant type
+				 * @brief Get push block stages
 				 *
-				 * @return vk::Format Constant format
+				 * @return vk::ShaderStageFlags Push block shader stages
 				 */
-				vk::Format getType() const { return type; }
-
+				vk::ShaderStageFlags getStageFlags() const { return stageFlags; }
 			private:
-				uint32_t binding;
-				size_t size;
-				vk::ShaderStageFlags stageFlags;
-				vk::Format type;
+				uint32_t constantId{0};
+				size_t size{0};
+				size_t offset{0};
+				vk::ShaderStageFlags stageFlags{};
 			};
 
 			/**
@@ -341,6 +340,13 @@ namespace engine
 				void addStage(const std::filesystem::path &moduleName, const std::string &moduleCode, const std::string &preamble);
 
 				/**
+				 * @brief Set times of using descriptors for shader. Because some shaders can be multiple instanced and render can have multiple frames in flight.
+				 * 
+				 * @param multiplier number of multiplications
+				 */
+				void setDescriptorMultiplier(uint32_t multiplier) { descriptorMultiplier = multiplier; }
+
+				/**
 				 * @brief Clear shader reflection info
 				 *
 				 */
@@ -355,6 +361,7 @@ namespace engine
 				std::optional<CUniform> getUniform(const std::string &name) const;
 				std::optional<CUniformBlock> getUniformBlock(const std::string &name) const;
 				std::optional<CPushConstBlock> getPushBlock(const std::string &name) const;
+				std::optional<CConstant> getConstant(const std::string &name) const;
 				std::optional<CAttribute> getInputAttribute(const std::string &name, vk::ShaderStageFlagBits stage) const;
 				std::optional<CAttribute> getOutputAttribute(const std::string &name, vk::ShaderStageFlagBits stage) const;
 				std::vector<vk::PushConstantRange> getPushConstantRanges() const;
@@ -448,6 +455,11 @@ namespace engine
 				const std::vector<vk::PipelineShaderStageCreateInfo> &getStageCreateInfo() const { return vShaderModules; }
 
 			private:
+
+				void buildSpecializationInfo();
+
+				void createShaderModule(const std::vector<uint32_t>& spirv);
+
 				/**
 				 * @brief Build reflection for shader stage
 				 *
@@ -489,6 +501,16 @@ namespace engine
 				CUniform buildUnifrom(spirv_cross::CompilerGLSLExt *compiler, const spirv_cross::Resource &res, vk::ShaderStageFlagBits stageFlag, vk::DescriptorType descriptorType);
 
 				/**
+				 * @brief Helper for shader specialization constants parsing
+				 * 
+				 * @param compiler Spirv cross compiler object
+				 * @param res Spirv cross constant object
+				 * @param stageFlag Shader stage flag
+				 * @return CConstant 
+				 */
+				CConstant buildConstant(spirv_cross::CompilerGLSLExt* compiler, const spirv_cross::SpecializationConstant& res, vk::ShaderStageFlagBits stageFlag);
+
+				/**
 				 * @brief Helper for shader  attributes parsing
 				 *
 				 * @param compiler Spirv cross compiler object
@@ -522,19 +544,25 @@ namespace engine
 				 */
 				static size_t parseSize(const spirv_cross::SPIRType &type);
 
+				uint32_t descriptorMultiplier{1};
+
 				std::array<std::optional<uint32_t>, 3> localSizes;
+				uint32_t executionModeInvocations{0};
+				uint32_t executionModeOutputVertices{0};
 
 				std::unordered_map<std::string, CUniform> mUniforms;
 				std::unordered_map<std::string, CUniformBlock> mUniformBlocks;
 				std::unordered_map<std::string, CPushConstBlock> mPushBlocks;
+				std::unordered_map<std::string, CConstant> mConstants;
 				std::map<vk::ShaderStageFlagBits, std::unordered_map<std::string, CAttribute>> mInputAttributes;
 				std::map<vk::ShaderStageFlagBits, std::unordered_map<std::string, CAttribute>> mOutputAttributes;
-				std::unordered_map<std::string, CConstant> mConstants;
 
 				std::vector<vk::DescriptorSetLayoutBinding> vDescriptorSetLayouts;
 				uint32_t lastDescriptorBinding = 0;
 				std::vector<vk::DescriptorPoolSize> vDescriptorPools;
 
+				std::map<vk::ShaderStageFlagBits, std::vector<vk::SpecializationMapEntry>> mMapEntries;
+				std::map<vk::ShaderStageFlagBits, vk::SpecializationInfo> mSpecializationInfo{};
 				std::vector<vk::PipelineShaderStageCreateInfo> vShaderModules;
 				std::vector<vk::ShaderStageFlagBits> vShaderStage;
 			};

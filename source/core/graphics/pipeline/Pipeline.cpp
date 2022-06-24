@@ -4,6 +4,11 @@
 
 using namespace engine::core::pipeline;
 
+CPipelineBase::CPipelineBase()
+{
+    m_pShader = make_scope<CShader>();
+}
+
 CPipelineBase::~CPipelineBase()
 {
     cleanup();
@@ -125,7 +130,6 @@ void CPipelineBase::bind(vk::CommandBuffer &commandBuffer)
 
 void CPipelineBase::loadShaders()
 {
-    m_pShader = make_scope<CShader>();
     std::stringstream defineBlock;
     for (const auto &[defineName, defineValue] : m_vDefines)
         defineBlock << "#define " << defineName << " " << defineValue << '\n';

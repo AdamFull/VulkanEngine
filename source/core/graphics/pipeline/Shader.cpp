@@ -8,6 +8,7 @@
 
 //Spirv cross reflection doc
 //https://github.com/KhronosGroup/SPIRV-Cross/wiki/Reflection-API-user-guide
+//https://github.com/KhronosGroup/SPIRV-Cross/blob/master/main.cpp
 
 using namespace engine;
 using namespace engine::core::pipeline;
@@ -322,12 +323,6 @@ void CShader::addStage(const std::filesystem::path &moduleName, const std::strin
             assert(false && "Error while building shader reflection.");
         }
 
-        for (uint32_t dim = 0; dim < 3; ++dim) 
-        {
-            if (auto localSize = program.getLocalSize(dim); localSize > 1)
-                localSizes[dim] = localSize;
-        }
-
         glslang::SpvOptions spvOptions;
 #if defined(_DEBUG)
         spvOptions.generateDebugInfo = true;
@@ -341,36 +336,68 @@ void CShader::addStage(const std::filesystem::path &moduleName, const std::strin
 
         spv::SpvBuildLogger logger;
         GlslangToSpv(*program.getIntermediate(static_cast<EShLanguage>(language)), spirv, &logger, &spvOptions);
-        CShaderCache::inst()->add(moduleName.filename().string(), getShaderStage(moduleName), spirv, moduleCode, localSizes);
+        CShaderCache::inst()->add(moduleName.filename().string(), getShaderStage(moduleName), spirv, moduleCode);
     }
     else
     {
         vShaderStage.emplace_back(spirv_cache.value().shaderStage);
         spirv = spirv_cache.value().shaderCode;
-        localSizes = spirv_cache.value().localSizes;
     }
 
     buildReflection(spirv, vShaderStage.back());
+
+    createShaderModule(spirv);
+}
+
+void CShader::buildSpecializationInfo()
+{
+    //TODO: finish this
+    auto& currentStage = vShaderStage.back();
+
+    //Constants should be same type
+    for(auto& [name, constant] : mConstants)
+    {
+        if(constant.stageFlags & currentStage)
+        {
+            vk::SpecializationMapEntry mapEntry{};
+            mapEntry.constantID = constant.constantId;
+            mapEntry.offset = 0;
+            mapEntry.size = constant.size;
+            mMapEntries[currentStage].emplace_back(std::move(mapEntry));
+
+            vk::SpecializationInfo specializationInfo{};
+            specializationInfo.mapEntryCount = 1;
+            specializationInfo.pMapEntries = (--mMapEntries.end())->second.data();
+            specializationInfo.dataSize = constant.size;
+            //mSpecializationInfo.emplace(currentStage, std::move(specializationInfo));
+        }
+    }
+}
+
+void CShader::createShaderModule(const std::vector<uint32_t>& spirv)
+{
+    auto& currentStage = vShaderStage.back();
 
     try
     {
         vk::ShaderModuleCreateInfo shaderCI{};
         shaderCI.codeSize = spirv.size() * sizeof(uint32_t);
         shaderCI.pCode = spirv.data();
+
         vk::ShaderModule shaderModule{VK_NULL_HANDLE};
         vk::Result res = CDevice::inst()->create(shaderCI, &shaderModule);
         assert(res == vk::Result::eSuccess && "Cannot create shader module.");
 
-        vShaderModules.emplace_back
-        (
-            vk::PipelineShaderStageCreateInfo
-            {
-                vk::PipelineShaderStageCreateFlags(),
-                vShaderStage.back(),
-                shaderModule,
-                "main"
-            }
-        );
+        vk::PipelineShaderStageCreateInfo shaderStageCI{};
+        shaderStageCI.stage = currentStage;
+        shaderStageCI.module = shaderModule;
+        shaderStageCI.pName = "main";
+        
+        auto specInfo = mSpecializationInfo.find(currentStage);
+        if(specInfo != mSpecializationInfo.end())
+            shaderStageCI.pSpecializationInfo = &specInfo->second;
+
+        vShaderModules.emplace_back(std::move(shaderStageCI));
     }
     catch (vk::SystemError err)
     {
@@ -398,7 +425,7 @@ void CShader::clear()
 
 void CShader::finalizeReflection()
 {
-    //TODO: generate specialization info for shader
+    std::map<vk::DescriptorType, uint32_t> mDescriptorCounter;
     //Preparing descriptors for uniform/storage buffers
     for (const auto &[uniformBlockName, uniformBlock] : mUniformBlocks) 
     {
@@ -409,6 +436,7 @@ void CShader::finalizeReflection()
         descriptorSetLayoutBinding.stageFlags = uniformBlock.stageFlags;
         descriptorSetLayoutBinding.pImmutableSamplers = nullptr;
         vDescriptorSetLayouts.emplace_back(descriptorSetLayoutBinding);
+        mDescriptorCounter[uniformBlock.descriptorType]++;
     }
 
     for (const auto &[uniformName, uniform] : mUniforms) 
@@ -420,27 +448,11 @@ void CShader::finalizeReflection()
         descriptorSetLayoutBinding.stageFlags = uniform.stageFlags;
         descriptorSetLayoutBinding.pImmutableSamplers = nullptr;
         vDescriptorSetLayouts.emplace_back(descriptorSetLayoutBinding);
+        mDescriptorCounter[uniform.descriptorType]++;
     }
 
-    vDescriptorPools.resize(9);
-	vDescriptorPools[0].type = vk::DescriptorType::eCombinedImageSampler;
-	vDescriptorPools[0].descriptorCount = 4096;
-	vDescriptorPools[1].type = vk::DescriptorType::eUniformBuffer;
-	vDescriptorPools[1].descriptorCount = 2048;
-	vDescriptorPools[2].type = vk::DescriptorType::eStorageImage;
-	vDescriptorPools[2].descriptorCount = 2048;
-    vDescriptorPools[3].type = vk::DescriptorType::eUniformTexelBuffer;
-	vDescriptorPools[3].descriptorCount = 2048;
-    vDescriptorPools[4].type = vk::DescriptorType::eStorageTexelBuffer;
-	vDescriptorPools[4].descriptorCount = 2048;
-    vDescriptorPools[5].type = vk::DescriptorType::eStorageBuffer;
-	vDescriptorPools[5].descriptorCount = 2048;
-	vDescriptorPools[6].type = vk::DescriptorType::eSampledImage;
-	vDescriptorPools[6].descriptorCount = 2048;
-    vDescriptorPools[7].type = vk::DescriptorType::eSampler;
-	vDescriptorPools[7].descriptorCount = 2048;
-    vDescriptorPools[8].type = vk::DescriptorType::eInputAttachment;
-	vDescriptorPools[8].descriptorCount = 2048;
+    for(auto& [descriptorType, count] : mDescriptorCounter)
+        vDescriptorPools.emplace_back(vk::DescriptorPoolSize{descriptorType, count * descriptorMultiplier});
 
     // Sort descriptors by binding.
 	std::sort(vDescriptorSetLayouts.begin(), vDescriptorSetLayouts.end(), 
@@ -471,6 +483,13 @@ std::optional<CUniformBlock> CShader::getUniformBlock(const std::string &name) c
 std::optional<CPushConstBlock> CShader::getPushBlock(const std::string &name) const
 {
     if (auto it = mPushBlocks.find(name); it != mPushBlocks.end())
+		return it->second;
+	return std::nullopt;
+}
+
+std::optional<CConstant> CShader::getConstant(const std::string &name) const
+{
+    if (auto it = mConstants.find(name); it != mConstants.end())
 		return it->second;
 	return std::nullopt;
 }
@@ -564,6 +583,32 @@ void CShader::buildReflection(std::vector<uint32_t>& spirv, vk::ShaderStageFlagB
     auto active = compiler.get_active_interface_variables();
     auto resources = compiler.get_shader_resources(active);
     compiler.set_enabled_interface_variables(move(active));
+
+    auto entry_points = compiler.get_entry_points_and_stages();
+    for(auto& entry : entry_points)
+    {
+
+    }
+
+    auto& execution_modes = compiler.get_execution_mode_bitset();
+    execution_modes.for_each_bit([&](uint32_t i)
+    {
+        auto mode = static_cast<spv::ExecutionMode>(i);
+        switch (mode)
+		{
+            case spv::ExecutionMode::ExecutionModeInvocations:
+            {
+                executionModeInvocations = compiler.get_execution_mode_argument(mode, 0);
+            } break;
+            case spv::ExecutionMode::ExecutionModeLocalSize: {
+                for (uint32_t dim = 0; dim < 3; ++dim)
+                    localSizes[dim] = compiler.get_execution_mode_argument(mode, dim);
+            } break;
+            case spv::ExecutionMode::ExecutionModeOutputVertices: {
+                executionModeOutputVertices = compiler.get_execution_mode_argument(mode, 0);
+            } break;
+        }
+    });
     
     //Parsing uniform buffers
     for(const auto& res : resources.uniform_buffers)
@@ -642,7 +687,14 @@ void CShader::buildReflection(std::vector<uint32_t>& spirv, vk::ShaderStageFlagB
 
     auto constants = compiler.get_specialization_constants();
     for(const auto& constant : constants)
-        break;
+    {
+        auto constant_name = compiler.get_name(constant.id);
+        auto it = mConstants.find(constant_name);
+        if(it != mConstants.end())
+            it->second.stageFlags |= stageFlag;
+        else
+           mConstants.emplace(constant_name, buildConstant(&compiler, constant, stageFlag));
+    }
 
     uint32_t input_offset = 0;
     for(const auto& res : resources.stage_inputs)
@@ -719,6 +771,20 @@ CUniform CShader::buildUnifrom(spirv_cross::CompilerGLSLExt* compiler, const spi
     uniform.descriptorType = descriptorType;
     uniform.stageFlags = stageFlag;
     return uniform;
+}
+
+CConstant CShader::buildConstant(spirv_cross::CompilerGLSLExt* compiler, const spirv_cross::SpecializationConstant& res, vk::ShaderStageFlagBits stageFlag)
+{
+    CConstant constant{};
+    auto& value = compiler->get_constant(res.id);
+    const auto& type = compiler->get_type(value.constant_type);
+
+    constant.constantId = res.constant_id;
+    constant.size = parseSize(type);
+    constant.offset = 0;
+    constant.stageFlags = stageFlag;
+    
+    return constant;
 }
 
 CAttribute CShader::buildAttribute(spirv_cross::CompilerGLSLExt* compiler, const spirv_cross::Resource &res, uint32_t& offset)

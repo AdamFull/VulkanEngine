@@ -163,13 +163,13 @@ void CLightComponent::updateCascades()
 		glm::vec3 maxExtents = glm::vec3(radius);
 		glm::vec3 minExtents = -maxExtents;
 
-		glm::vec3 lightDir = glm::normalize(lightData.direction);
+		glm::vec3 lightDir = glm::normalize(-lightData.direction);
 		glm::mat4 lightViewMatrix = glm::lookAt(frustumCenter - lightDir * -minExtents.z, frustumCenter, glm::vec3(0.0f, 1.0f, 0.0f));
 		glm::mat4 lightOrthoMatrix = glm::ortho(minExtents.x, maxExtents.x, minExtents.y, maxExtents.y, 0.0f, maxExtents.z - minExtents.z);
 
 		// Store split distance and matrix in cascade
 		lightData.aCascadeSplits[i] = (nearClip + splitDist * clipRange) * -1.0f;
-		lightData.aCascadeViewProjMat[i] = lightOrthoMatrix * lightViewMatrix;
+		lightData.aCascadeViewProjMat[i] = glm::scale(lightOrthoMatrix * lightViewMatrix, glm::vec3(-1.0, 1.0, -1.0));
 
 		lastSplitDist = cascadeSplits[i];
 	}

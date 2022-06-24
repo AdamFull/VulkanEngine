@@ -23,6 +23,9 @@ void CMaterialBase::create()
     if(!bIsCreated)
     {
         uint32_t images = CDevice::inst()->getFramesInFlight();
+        auto& shader = pPipeline->getShader();
+        shader->setDescriptorMultiplier(images * instances);
+
         if(pPipeline->getBindPoint() != vk::PipelineBindPoint::eCompute)
         {
             auto& renderPass = CRenderSystem::inst()->getCurrentStage()->getCurrentFramebuffer()->getRenderPass();

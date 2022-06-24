@@ -39,6 +39,7 @@
 #include <functional>
 #include <sstream>
 #include <queue>
+#include <variant>
 
 #include <chrono>
 

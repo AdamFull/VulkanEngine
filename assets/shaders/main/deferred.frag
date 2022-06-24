@@ -9,6 +9,8 @@
 
 #define SHADOW_MAP_CASCADE_COUNT 4
 
+layout (constant_id = 0) const int testConstant = 0;
+
 layout (binding = 0) uniform sampler2D brdflut_tex;
 layout (binding = 1) uniform samplerCube irradiance_tex;
 layout (binding = 2) uniform samplerCube prefiltred_tex;
@@ -175,7 +177,7 @@ void main()
 		for(int i = 0; i < ubo.lightCount; i++) 
 		{
 			light = lights.lights[i];
-			float shadow_factor = getCascadeShadow(shadowmap_tex, viewPos, inWorldPos, normal, light);
+			shadow_factor = getCascadeShadow(shadowmap_tex, viewPos, inWorldPos, normal, light);
 		}
 
 		if(debug.target == 8)

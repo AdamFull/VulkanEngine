@@ -11,6 +11,7 @@ namespace engine
         static float blurScale;
         static float blurStrength;
 
+        static int shadingMode;
         static int debugTarget;
         static int debugCascade;
         static float cascadeSplitLambda;

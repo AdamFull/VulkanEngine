@@ -77,6 +77,7 @@ void CPBRCompositionPass::render(vk::CommandBuffer& commandBuffer)
     pUBO->set("lightCount", light_count);
 
     auto& pDebugUBO = pMaterial->getUniformBuffer("UBODebug");
+    pDebugUBO->set("shading_mode", GlobalVariables::shadingMode);
     pDebugUBO->set("target", GlobalVariables::debugTarget);
     pDebugUBO->set("cascade", GlobalVariables::debugCascade);
 

@@ -66,13 +66,25 @@ class CShaderIncluder : public glslang::TShader::Includer
 public:
 	IncludeResult *includeLocal(const char *headerName, const char *includerName, size_t inclusionDepth) override 
     {
-		auto directory = fs::path(includerName).parent_path();
-		auto fileLoaded = FilesystemHelper::readFile((directory / headerName).string());
+        fs::path local_path {};
+        if(inclusionDepth == 1)
+        {
+            directory = fs::path(includerName).parent_path();
+            local_path = directory;
+        }
+        else
+        {
+            directory = directory / fs::path(includerName).parent_path();
+            local_path = directory;
+        }
+
+        local_path = fs::weakly_canonical(directory / headerName);
+		auto fileLoaded = FilesystemHelper::readFile(local_path.string());
 
 		if (fileLoaded.empty()) 
         {
 			std::stringstream ss;
-			ss << "Shader Include could not be loaded: " << std::quoted(headerName);
+			ss << "In shader file: " << includerName << " Shader Include could not be loaded: " << std::quoted(headerName);
 			utl::logger::log(utl::ELogLevel::eError, ss.str());
 			return nullptr;
 		}
@@ -84,7 +96,8 @@ public:
 
 	IncludeResult *includeSystem(const char *headerName, const char *includerName, size_t inclusionDepth) override 
     {
-		auto fileLoaded = FilesystemHelper::readFile(headerName);
+        auto header = fs::path("shaders") / headerName;
+		auto fileLoaded = FilesystemHelper::readFile(header);
 
 		if (fileLoaded.empty()) {
 			std::stringstream ss;
@@ -106,6 +119,8 @@ public:
 			delete result;
 		}
 	}
+private:
+    fs::path directory{""};
 };
 
 EShLanguage getEshLanguage(vk::ShaderStageFlagBits stageFlag) 

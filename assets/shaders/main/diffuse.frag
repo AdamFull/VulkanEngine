@@ -45,7 +45,6 @@ layout(location = 2) out vec4 outPosition;
 #endif
 
 #include "../shader_util.glsl"
-#include "../shared_shaders.glsl"
 
 layout(std140, binding = 0) uniform FUniformData 
 {

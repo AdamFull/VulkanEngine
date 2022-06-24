@@ -13,7 +13,6 @@ layout(location = 2) out vec4 outPosition;
 #endif
 
 #include "../shader_util.glsl"
-#include "../shared_lightning.glsl"
 
 void main() 
 {

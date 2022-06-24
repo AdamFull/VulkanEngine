@@ -17,8 +17,6 @@ layout(push_constant) uniform FBloomUbo
     int direction;
 } ubo;
 
-#include "../shared_shaders.glsl"
-
 void main() 
 {
     vec2 sizeColour = textureSize(samplerBrightness, 0);

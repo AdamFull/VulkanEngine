@@ -4,8 +4,13 @@
 #extension GL_EXT_scalar_block_layout : enable
 #extension GL_GOOGLE_include_directive : require
 
-#include "../shared_lightning.glsl"
-#include "../shader_util.glsl"
+#include "light_models/frostbite.glsl"
+#include "light_models/sascha_williems.glsl"
+#include "light_models/unreal4.glsl"
+
+#include "../shadows/directional_shadows.glsl"
+#include "../lightning_base.glsl"
+#include "../../shader_util.glsl"
 
 #define SHADOW_MAP_CASCADE_COUNT 4
 
@@ -36,6 +41,7 @@ layout(std140, binding = 12) uniform UBODeferred
 
 layout(std140, binding = 13) uniform UBODebug
 {
+	int shading_mode;
 	int target;
 	int cascade;
 } debug;
@@ -69,7 +75,6 @@ void main()
 	float roughness = mrah.r;
 	float metallic = mrah.g;
 
-	float alphaRoughness = roughness;
 	bool calculateLightning = normal != vec3(0.0f);
 
 	vec3 fragcolor = vec3(0.0f);
@@ -126,7 +131,16 @@ void main()
 				spotAtten = clamp((theta - light.innerConeAngle) / epsilon, 0.0, 1.0);
 				atten *= spotAtten;
 			}
-			Lo += atten * light.color * specularContribution(albedo, L, V, normal, F0, metallic, alphaRoughness);
+
+			vec3 color = vec3(1.0);
+			if(debug.shading_mode == 0)
+				color = specularContribution(albedo, L, V, normal, F0, metallic, roughness);
+			else if(debug.shading_mode == 1)
+				color = evaluteUnreal4PBR(albedo, L, V, normal, F0, metallic, roughness);
+			else if(debug.shading_mode == 2)
+				color = evaluateFrostbitePBR(albedo, L, V, normal, metallic, roughness);
+
+			Lo += atten * light.color * color;
 		}
 
 		vec2 brdf = texture(brdflut_tex, vec2(max(dot(normal, V), 0.0f), roughness)).rg;

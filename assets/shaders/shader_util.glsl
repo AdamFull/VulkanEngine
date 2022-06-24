@@ -1,3 +1,19 @@
+#ifndef SHADER_UTIL
+#define SHADER_UTIL
+
+// From http://filmicworlds.com/blog/filmic-tonemapping-operators/
+vec3 Uncharted2Tonemap(vec3 color)
+{
+	float A = 0.15f;
+	float B = 0.50f;
+	float C = 0.10f;
+	float D = 0.20f;
+	float E = 0.02f;
+	float F = 0.30f;
+	float W = 11.2f;
+	return ((color*(A*color+C*B)+D*E)/(color*(A*color+B)+D*F))-E/F;
+}
+
 vec3 getTangentSpaceNormalMap(sampler2D samplerNormal, mat3 TBN, vec2 uv, float scale)
 {
 	vec3 normalColor = texture(samplerNormal, uv).rgb;
@@ -62,3 +78,5 @@ void unpackTextures(in uvec4 texture_pack, out vec3 normal_map, out vec3 albedo_
     normal_map = vec3(pack_R, pack_G.r);
     albedo_map = vec3(pack_G.g, pack_B);
 }
+
+#endif

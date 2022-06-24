@@ -1,7 +1,6 @@
 #version 450
 #extension GL_GOOGLE_include_directive : require
 
-#include "../shared_lightning.glsl"
 #include "../shader_util.glsl"
 
 layout (binding = 0) uniform sampler2D color_tex;

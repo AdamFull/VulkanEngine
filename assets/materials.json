@@ -51,7 +51,7 @@
             "dynamicStates": ["viewport", "scissor"],
             "stages": [
                 "shaders/main/screenspace.vert", 
-                "shaders/main/deferred.frag"
+                "shaders/main/pbr/lightning_pass.frag"
             ],
             "defines": {}
         },

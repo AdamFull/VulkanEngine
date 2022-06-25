@@ -15,7 +15,7 @@ using namespace engine::resources::material;
 void COmniShadowPass::create()
 {
     pMaterial = CMaterialLoader::inst()->create("omni_shadow_pass");
-    pMaterial->addDefinition("INVOCATION_COUNT", std::to_string(MAX_SPOT_LIGHT_COUNT));
+    pMaterial->addDefinition("INVOCATION_COUNT", std::to_string(MAX_POINT_LIGHT_COUNT));
     pMaterial->create();
     CSubpass::create();
 }
@@ -36,17 +36,18 @@ void COmniShadowPass::render(vk::CommandBuffer& commandBuffer)
     CVBO::inst()->bind(commandBuffer);
 
     auto lightObjects = CLightSourceManager::inst()->getObjects();
-    std::array<glm::mat4, MAX_SPOT_LIGHT_COUNT> aSpotViewProjMat;
+    std::array<std::array<glm::mat4, 6>, MAX_POINT_LIGHT_COUNT> aPointViewProjMat;
     uint32_t light_count{0};
     for(auto& lightNode : lightObjects)
     {
         auto& light = lightNode->getLight();
-        if(light && (light->getType() == ELightSourceType::eSpot))
-            aSpotViewProjMat[light_count] = light->getShadowView();
+        if(light && (light->getType() == ELightSourceType::ePoint))
+            aPointViewProjMat[light_count] = light->getShadowViews();
     }
 
     auto& pUBOShadow = pMaterial->getUniformBuffer("UBOShadowmap");
-    pUBOShadow->set("viewProjMat", aSpotViewProjMat);
+    pUBOShadow->set("viewProjMat", aPointViewProjMat);
+    pUBOShadow->set("passedLights", light_count);
 
     pMaterial->update();
     pMaterial->bind(commandBuffer);

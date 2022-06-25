@@ -14,7 +14,7 @@ using namespace engine::resources::material;
 
 void CDirectShadowPass::create()
 {
-    pMaterial = CMaterialLoader::inst()->create("direct_shadow_pass");
+    pMaterial = CMaterialLoader::inst()->create("directional_shadow_pass");
     pMaterial->addDefinition("INVOCATION_COUNT", std::to_string(MAX_SPOT_LIGHT_COUNT));
     pMaterial->create();
     CSubpass::create();
@@ -27,7 +27,7 @@ void CDirectShadowPass::reCreate()
 
 void CDirectShadowPass::beforeRender(vk::CommandBuffer& commandBuffer)
 {
-    commandBuffer.setDepthBias(1.25f, 0.0f, 1.75f);
+    //commandBuffer.setDepthBias(1.25f, 0.0f, 1.75f);
 }
 
 void CDirectShadowPass::render(vk::CommandBuffer& commandBuffer)

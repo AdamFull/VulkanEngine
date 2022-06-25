@@ -93,6 +93,11 @@ const glm::mat4& CLightComponent::getShadowView()
 	return shadowView;
 }
 
+const std::array<glm::mat4, 6>& CLightComponent::getShadowViews()
+{
+	return shadowViews;
+}
+
 const std::array<float, SHADOW_MAP_CASCADE_COUNT>& CLightComponent::getCascadeSplits()
 {
 	return aCascadeSplits;

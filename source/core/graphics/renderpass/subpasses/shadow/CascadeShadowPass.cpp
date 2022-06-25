@@ -14,7 +14,7 @@ using namespace engine::resources::material;
 
 void CCascadeShadowPass::create()
 {
-    pMaterial = CMaterialLoader::inst()->create("cascade_shadow_pass");
+    pMaterial = CMaterialLoader::inst()->create("directional_shadow_pass");
     pMaterial->addDefinition("INVOCATION_COUNT", std::to_string(SHADOW_MAP_CASCADE_COUNT));
     pMaterial->create();
     CSubpass::create();

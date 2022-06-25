@@ -42,31 +42,31 @@
             ],
             "defines": {}
         },
-        "cascade_shadow_pass": 
-        {
-            "vertexType": "default",
-            "bindPoint": "graphics",
-            "culling": "front",
-            "frontface": "clockwise",
-            "depth": true,
-            "dynamicStates": ["viewport", "scissor"],
-            "stages": [
-                "shaders/main/shadows/directional_shadow.vert", 
-                "shaders/main/shadows/directional_shadow.geom"
-            ],
-            "defines": {}
-        },
-        "direct_shadow_pass": 
+        "directional_shadow_pass": 
         {
             "vertexType": "default",
             "bindPoint": "graphics",
             "culling": "back",
             "frontface": "clockwise",
             "depth": true,
-            "dynamicStates": ["viewport", "scissor", "depthBias"],
+            "dynamicStates": ["viewport", "scissor"],
             "stages": [
-                "shaders/main/shadows/directional_shadow.vert", 
+                "shaders/main/shadows/shadow_base.vert", 
                 "shaders/main/shadows/directional_shadow.geom"
+            ],
+            "defines": {}
+        },
+        "omni_shadow_pass": 
+        {
+            "vertexType": "default",
+            "bindPoint": "graphics",
+            "culling": "none",
+            "frontface": "clockwise",
+            "depth": true,
+            "dynamicStates": ["viewport", "scissor"],
+            "stages": [
+                "shaders/main/shadows/shadow_base.vert", 
+                "shaders/main/shadows/omni_shadow.geom"
             ],
             "defines": {}
         },

@@ -158,7 +158,9 @@ namespace engine
                 {"name", type.srName},
                 {"type", type.eType},
                 {"color", type.vColor},
-                {"intencity", type.fIntencity}
+                {"intencity", type.fIntencity},
+                {"inner", type.fInnerAngle},
+                {"outer", type.fOuterAngle}
             };
         }
 
@@ -168,6 +170,8 @@ namespace engine
             ParseArgument(json, type.eType, "type", true);
             ParseArgument(json, type.vColor, "color", true);
             ParseArgument(json, type.fIntencity, "intencity");
+            ParseArgument(json, type.fInnerAngle, "inner");
+            ParseArgument(json, type.fOuterAngle, "outer");
         }
     }
 }

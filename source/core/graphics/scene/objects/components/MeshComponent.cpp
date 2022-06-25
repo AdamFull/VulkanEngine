@@ -17,6 +17,7 @@ void FPrimitive::setDimensions(glm::vec3 min, glm::vec3 max)
 
 void CMeshComponent::create()
 {
+    CSceneComponent::create();
     for (auto &primitive : vPrimitives)
     {
         if(primitive.material)
@@ -26,6 +27,7 @@ void CMeshComponent::create()
 
 void CMeshComponent::reCreate()
 {
+    CSceneComponent::reCreate();
     for (auto &primitive : vPrimitives)
     {
         if(primitive.material)
@@ -35,6 +37,8 @@ void CMeshComponent::reCreate()
 
 void CMeshComponent::render(vk::CommandBuffer &commandBuffer)
 {
+    CSceneComponent::render(commandBuffer);
+
     auto& cameraNode = CCameraManager::inst()->getCurrentCamera();
     auto& camera = cameraNode->getCamera();
     auto& frustumSides = camera->getFrustumSides();
@@ -124,11 +128,12 @@ void CMeshComponent::render(vk::CommandBuffer &commandBuffer)
 
 void CMeshComponent::update(float fDeltaTime)
 {
-    
+    CSceneComponent::update(fDeltaTime);
 }
 
 void CMeshComponent::cleanup()
 {
+    CSceneComponent::cleanup();
     for (auto &primitive : vPrimitives)
     {
         if(primitive.material)
@@ -138,7 +143,7 @@ void CMeshComponent::cleanup()
 
 void CMeshComponent::destroy()
 {
-
+    CSceneComponent::destroy();
 }
 
 void CMeshComponent::addPrimitive(FPrimitive &&primitive)

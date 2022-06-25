@@ -115,11 +115,21 @@ void CSceneFactory::createGLTFMesh(ref_ptr<core::scene::CRenderObject>& pRoot, F
 
 void CSceneFactory::createLightSource(ref_ptr<core::scene::CRenderObject>& pRoot, FSceneObject info)
 {
-    auto lightComponent = make_ref<CLightComponent>();
+    ref_ptr<CLightComponent> lightComponent;
+
+    switch (info.light.eType)
+    {
+    case ELightSourceType::eDirectional: lightComponent = make_ref<CLightComponentDirectional>(); break;
+    case ELightSourceType::ePoint: lightComponent = make_ref<CLightComponentPoint>(); break;
+    case ELightSourceType::eSpot: lightComponent = make_ref<CLightComponentSpot>(); break;
+    }
+
     lightComponent->setName(info.srName);
     lightComponent->setColor(info.light.vColor);
     lightComponent->setIntencity(info.light.fIntencity);
     lightComponent->setType(info.light.eType);
+    lightComponent->setInnerAngle(info.light.fInnerAngle);
+    lightComponent->setOuterAngle(info.light.fOuterAngle);
     pRoot->setLight(std::move(lightComponent));
     CLightSourceManager::inst()->addLight(pRoot);
 }

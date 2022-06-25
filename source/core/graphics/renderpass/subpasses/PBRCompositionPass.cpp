@@ -57,7 +57,8 @@ void CPBRCompositionPass::render(vk::CommandBuffer& commandBuffer)
     pMaterial->addTexture("emission_tex", images["emission_tex"]);
     pMaterial->addTexture("depth_tex", images["depth_tex"]);
     //pMaterial->addTexture("position_tex", images["position_tex"]);
-    pMaterial->addTexture("shadowmap_tex", images["shadowmap_tex"]);
+    //pMaterial->addTexture("cascade_shadowmap_tex", images["cascade_shadowmap_tex"]);
+    pMaterial->addTexture("direct_shadowmap_tex", images["direct_shadowmap_tex"]);
 
     auto imageIndex = CDevice::inst()->getCurrentFrame();
 
@@ -66,15 +67,23 @@ void CPBRCompositionPass::render(vk::CommandBuffer& commandBuffer)
     auto view = camera->getView();
     auto projection = camera->getProjection();
     auto invViewProjection = glm::inverse(projection * view);
-    
-    uint32_t light_count{0};
-    auto aLights = CLightSourceManager::inst()->getSources(light_count);
+
+    uint32_t directoonal_light_count{0};
+    auto aDirectionalLights = CLightSourceManager::inst()->getDirectionalSources(directoonal_light_count);
+
+    uint32_t point_light_count{0};
+    auto aPointLights = CLightSourceManager::inst()->getPointSources(point_light_count);
+
+    uint32_t spot_light_count{0};
+    auto aSpotLights = CLightSourceManager::inst()->getSpotSources(spot_light_count);
     
     auto& pUBO = pMaterial->getUniformBuffer("UBODeferred");
     pUBO->set("invViewProjection", invViewProjection);
     pUBO->set("view", view);
     pUBO->set("viewPos", camera->viewPos);
-    pUBO->set("lightCount", light_count);
+    pUBO->set("directionalLightCount", directoonal_light_count);
+    pUBO->set("spotLightCount", spot_light_count);
+    pUBO->set("pointLightCount", point_light_count);
 
     auto& pDebugUBO = pMaterial->getUniformBuffer("UBODebug");
     pDebugUBO->set("shading_mode", GlobalVariables::shadingMode);
@@ -82,7 +91,9 @@ void CPBRCompositionPass::render(vk::CommandBuffer& commandBuffer)
     pDebugUBO->set("cascade", GlobalVariables::debugCascade);
 
     auto& pUBOLights = pMaterial->getUniformBuffer("UBOLights");
-    pUBOLights->set("lights", aLights);
+    pUBOLights->set("directionalLights", aDirectionalLights);
+    pUBOLights->set("spotLights", aSpotLights);
+    pUBOLights->set("pointLights", aPointLights);
     
     pMaterial->update();
     pMaterial->bind(commandBuffer);

@@ -13,6 +13,13 @@ void CGraphicsPipeline::create(vk::RenderPass& renderPass, uint32_t subpass)
 
 void CGraphicsPipeline::createPipeline()
 {
+    vk::Bool32 depthBias{VK_FALSE};
+    for(auto& dynamicState : m_vDynamicStateEnables)
+    {
+        if(dynamicState == vk::DynamicState::eDepthBias)
+            depthBias = VK_TRUE;
+    }
+
     auto& bindingDescription = m_vertexInput.getInputBindingDescription();
     auto& attributeDescription = m_vertexInput.getInputAttributeDescription();
 
@@ -26,7 +33,7 @@ void CGraphicsPipeline::createPipeline()
 
     auto attachmentCount = CRenderSystem::inst()->getCurrentStage()->getCurrentFramebuffer()->getCurrentDescription().colorAttachmentCount;
     auto inputAssembly = Initializers::PipelineInputAssemblyStateCI(bEnableTesselation ? vk::PrimitiveTopology::ePatchList : vk::PrimitiveTopology::eTriangleList, VK_FALSE);
-    auto rasterizer = Initializers::PipelineRasterizerStateCI(vk::PolygonMode::eFill, m_culling, m_fontface); //bEnableTesselation ? vk::PolygonMode::eLine : 
+    auto rasterizer = Initializers::PipelineRasterizerStateCI(vk::PolygonMode::eFill, m_culling, m_fontface, depthBias); //bEnableTesselation ? vk::PolygonMode::eLine : 
     vk::PipelineMultisampleStateCreateInfo multisampling{};
     multisampling.rasterizationSamples = vk::SampleCountFlagBits::e1;
     

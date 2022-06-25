@@ -170,7 +170,6 @@ void CInspectorWindow::draw()
             {
                 //TODO: check light type
                 auto& pLight = selected->getLight();
-                auto& lightData = pLight->getLight();
                 switch (pLight->getType())
                 {
                     case ELightSourceType::eDirectional:
@@ -185,14 +184,24 @@ void CInspectorWindow::draw()
                     case ELightSourceType::eSpot: {
                         ImGui::Text("Spot light");
                         ImGui::Separator();
-                        FControls::DragFloat("inner angle", &lightData.innerConeAngle, 0.01);
-                        FControls::DragFloat("outer angle", &lightData.outerConeAngle, 0.01);
+                        auto innerConeAngle = pLight->getInnerAngle();
+                        if(FControls::DragFloat("inner angle", &innerConeAngle, 0.01))
+                            pLight->setInnerAngle(innerConeAngle);
+
+                        auto outerConeAngle = pLight->getOuterAngle();
+                        if(FControls::DragFloat("outer angle", &outerConeAngle, 0.01))
+                            pLight->setOuterAngle(outerConeAngle);
                     } break;
                 }
 
                 //TODO: add light type changing here
-                FControls::ColorEdit3("Color", lightData.color);
-                FControls::DragFloat("Intencity", &lightData.intencity, 0.01, 0.1);
+                auto lightColor = pLight->getColor();
+                if(FControls::ColorEdit3("Color", lightColor))
+                    pLight->setColor(lightColor);
+
+                auto lightIntencity = pLight->getIntencity();
+                if(FControls::DragFloat("Intencity", &lightIntencity, 0.01, 0.1))
+                    pLight->setIntencity(lightIntencity);
             }
         }
 

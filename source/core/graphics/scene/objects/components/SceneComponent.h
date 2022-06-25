@@ -10,12 +10,12 @@ namespace engine
             class CSceneComponent
             {
             public:
-                virtual void create() = 0;
-                virtual void reCreate() = 0;
-                virtual void render(vk::CommandBuffer &commandBuffer) = 0;
-                virtual void update(float fDeltaTime) = 0;
-                virtual void cleanup() = 0;
-                virtual void destroy() = 0;
+                virtual void create();
+                virtual void reCreate();
+                virtual void render(vk::CommandBuffer &commandBuffer);
+                virtual void update(float fDeltaTime);
+                virtual void cleanup();
+                virtual void destroy();
 
                 void setName(const std::string& name) { srName = name; }
                 const std::string& getName() { return srName; }
@@ -26,6 +26,7 @@ namespace engine
             protected:
                 ref_ptr<CRenderObject> pParent;
                 std::string srName{};
+                float componentTick{0.0};
             };
         }
     }

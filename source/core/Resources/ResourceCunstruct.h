@@ -152,6 +152,10 @@ namespace engine
             glm::vec4 vColor{};
             /// @brief  Light intencity
             float fIntencity{1.f};
+            /// @brief  Light intencity
+            float fInnerAngle{0.f};
+            /// @brief  Light intencity
+            float fOuterAngle{0.78f};
         };
 
         REGISTER_SERIALIZATION_BLOCK_H(FNoiseParam);

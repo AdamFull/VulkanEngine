@@ -76,8 +76,80 @@
             },
             "transform":
             {
-                "pos": {"x": 0.0, "y": 5.0, "z": 0.0},
+                "pos": {"x": 0.0, "y": 10.0, "z": 0.0},
                 "rot": {"x": 0.5, "y": -0.5, "z": 0.5},
+                "scale": {"x": 1.0, "y": 1.0, "z": 1.0}
+            }
+        },
+        {
+            "name": "spot_light_1",
+            "type": "light_source",
+            "light":
+            {
+                "type": "spot",
+                "color": {"x": 1.0, "y": 0.0, "z": 0.0},
+                "intencity": 7.0,
+                "inner": 0.47,
+                "outer": 0.78
+            },
+            "transform":
+            {
+                "pos": {"x": 0.0, "y": 2.0, "z": 0.0},
+                "rot": {"x": -4.0, "y": 0.0, "z": 4.0},
+                "scale": {"x": 1.0, "y": 1.0, "z": 1.0}
+            }
+        },
+        {
+            "name": "spot_light_2",
+            "type": "light_source",
+            "light":
+            {
+                "type": "spot",
+                "color": {"x": 0.0, "y": 1.0, "z": 0.0},
+                "intencity": 7.0,
+                "inner": 0.47,
+                "outer": 0.78
+            },
+            "transform":
+            {
+                "pos": {"x": 0.0, "y": 2.0, "z": 0.0},
+                "rot": {"x": -4.0, "y": 0.0, "z": -4.0},
+                "scale": {"x": 1.0, "y": 1.0, "z": 1.0}
+            }
+        },
+        {
+            "name": "spot_light_3",
+            "type": "light_source",
+            "light":
+            {
+                "type": "spot",
+                "color": {"x": 0.0, "y": 0.0, "z": 1.0},
+                "intencity": 7.0,
+                "inner": 0.47,
+                "outer": 0.78
+            },
+            "transform":
+            {
+                "pos": {"x": 0.0, "y": 2.0, "z": 0.0},
+                "rot": {"x": 4.0, "y": 0.0, "z": -4.0},
+                "scale": {"x": 1.0, "y": 1.0, "z": 1.0}
+            }
+        },
+        {
+            "name": "spot_light_4",
+            "type": "light_source",
+            "light":
+            {
+                "type": "spot",
+                "color": {"x": 1.0, "y": 1.0, "z": 0.0},
+                "intencity": 7.0,
+                "inner": 0.47,
+                "outer": 0.78
+            },
+            "transform":
+            {
+                "pos": {"x": 0.0, "y": 2.0, "z": 0.0},
+                "rot": {"x": 4.0, "y": 0.0, "z": 4.0},
                 "scale": {"x": 1.0, "y": 1.0, "z": 1.0}
             }
         }

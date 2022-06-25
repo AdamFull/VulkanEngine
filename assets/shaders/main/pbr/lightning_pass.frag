@@ -4,15 +4,16 @@
 #extension GL_EXT_scalar_block_layout : enable
 #extension GL_GOOGLE_include_directive : require
 
+#define SHADOW_MAP_CASCADE_COUNT 4
+
 #include "light_models/frostbite.glsl"
 #include "light_models/sascha_williems.glsl"
 #include "light_models/unreal4.glsl"
 
 #include "../shadows/directional_shadows.glsl"
+#include "../shadows/spot_shadows.glsl"
 #include "../lightning_base.glsl"
 #include "../../shader_util.glsl"
-
-#define SHADOW_MAP_CASCADE_COUNT 4
 
 layout (constant_id = 0) const int testConstant = 0;
 
@@ -24,7 +25,8 @@ layout (input_attachment_index = 0, binding = 3) uniform usubpassInput packed_te
 layout (input_attachment_index = 1, binding = 4) uniform subpassInput emission_tex;
 //layout (input_attachment_index = 2, binding = 5) uniform subpassInput position_tex;
 layout (input_attachment_index = 2, binding = 5) uniform subpassInput depth_tex;
-layout (binding = 7) uniform sampler2DArray shadowmap_tex;
+//layout (binding = 7) uniform sampler2DArray cascade_shadowmap_tex;
+layout (binding = 8) uniform sampler2DArray direct_shadowmap_tex;
 //layout (binding = 7) uniform sampler2DArray shadowArr;
 
 layout (location = 0) in vec2 inUV;
@@ -36,7 +38,9 @@ layout(std140, binding = 12) uniform UBODeferred
 	mat4 invViewProjection;
 	mat4 view;
 	vec4 viewPos;
-	int lightCount;
+	int directionalLightCount;
+	int spotLightCount;
+	int pointLightCount;
 } ubo;
 
 layout(std140, binding = 13) uniform UBODebug
@@ -49,8 +53,62 @@ layout(std140, binding = 13) uniform UBODebug
 //Lights
 layout(std140, binding = 14) uniform UBOLights
 {
-	FLight lights[32];
+	FDirectionalLight directionalLights[1];
+	FSpotLight spotLights[15];
+	FPointLight pointLights[16];
 } lights;
+
+vec3 lightContribution(vec3 albedo, vec3 L, vec3 V, vec3 N, vec3 F0, float metallic, float roughness)
+{
+	vec3 color = vec3(1.0);
+	if(debug.shading_mode == 0)
+		color = specularContribution(albedo, L, V, N, F0, metallic, roughness);
+	else if(debug.shading_mode == 1)
+		color = evaluteUnreal4PBR(albedo, L, V, N, F0, metallic, roughness);
+	else if(debug.shading_mode == 2)
+		color = evaluateFrostbitePBR(albedo, L, V, N, metallic, roughness);
+	return color;
+}
+
+vec3 calculateDirectionalLight(FDirectionalLight light, vec3 albedo, vec3 V, vec3 N, vec3 F0, float metallic, float roughness)
+{
+	vec3 L = -light.direction;
+	float dist = length(L);
+	L = normalize(L);
+
+	vec3 color = lightContribution(albedo, L, V, N, F0, metallic, roughness);
+	return light.color * light.intencity * color;
+}
+
+vec3 calculateSpotlight(FSpotLight light, int index, vec3 worldPosition, vec3 albedo, vec3 V, vec3 N, vec3 F0, float metallic, float roughness)
+{
+	vec3 L = normalize(light.position - worldPosition);
+	float dist = length(L);
+	L = normalize(L);
+
+	// Direction vector from source to target
+	vec3 dir = vec3(normalize(light.direction));
+	if(light.toTarget)
+		dir = normalize(light.position - light.direction);
+	float cosDir = dot(light.toTarget ? L : -L, dir);
+	float spotEffect = smoothstep(light.innerConeAngle, light.outerConeAngle, cosDir);
+	float heightAttenuation = smoothstep(100.0, 0.0f, dist);
+	vec3 color = lightContribution(albedo, L, V, N, F0, metallic, roughness);
+	float shadow_factor = getDirectionalShadow(direct_shadowmap_tex, worldPosition, light, index);
+
+	return light.color * light.intencity * color * spotEffect * heightAttenuation * shadow_factor;
+}
+
+vec3 calculatePointLight(FPointLight light, vec3 worldPosition, vec3 albedo, vec3 V, vec3 N, vec3 F0, float metallic, float roughness)
+{
+	vec3 L = light.position - worldPosition;
+	float dist = length(L);
+	L = normalize(L);
+	float atten = clamp(1.0 - pow(dist, 2.0f)/pow(light.intencity, 2.0f), 0.0f, 1.0f); atten *= atten;
+	vec3 color = lightContribution(albedo, L, V, N, F0, metallic, roughness);
+
+	return light.color * atten * color;
+}
 
 void main() 
 {
@@ -92,55 +150,26 @@ void main()
 
 		// Light contribution
 		vec3 Lo = vec3(0.0f);
-		for(int i = 0; i < ubo.lightCount; i++) 
+
+		//Directional light
+		for(int i = 0; i < ubo.directionalLightCount; i++)
 		{
-			FLight light = lights.lights[i];
-			float shadow_factor = 0.0;
-			vec3 L = vec3(0.0);
-			float atten = 1.0;
+			FDirectionalLight light = lights.directionalLights[i];
+			Lo += calculateDirectionalLight(light, albedo, V, normal, F0, metallic, roughness);
+		}
 
-			// Point light
-			if(light.type == 0)
-			{
-				L = light.position - inWorldPos;
-				float dist = length(L);
-				L = normalize(L);
-				atten = clamp(1.0 - pow(dist, 2.0f)/pow(light.intencity, 2.0f), 0.0f, 1.0f); atten *= atten;
-			}
+		//Spot light
+		for(int i = 0; i < ubo.spotLightCount; i++)
+		{
+			FSpotLight light = lights.spotLights[i];
+			Lo += calculateSpotlight(light, i, inWorldPos, albedo, V, normal, F0, metallic, roughness);
+		}
 
-			// Directional light
-			if(light.type == 1)
-			{
-				L = -light.direction;
-				float dist = length(L);
-				L = normalize(L);
-				atten = light.intencity;
-			}
-
-			// Spot light
-			if(light.type == 2)
-			{
-				float spotAtten = 1.0;
-				L = normalize(light.position - inWorldPos);
-				float dist = length(L);
-				L = normalize(L);
-				atten = clamp(1.0 - pow(dist, 2.0f)/pow(light.intencity, 2.0f), 0.0f, 1.0f); atten *= atten;
-				
-				float theta = dot(-L, normalize(light.direction));
-				float epsilon = light.outerConeAngle - light.innerConeAngle;
-				spotAtten = clamp((theta - light.innerConeAngle) / epsilon, 0.0, 1.0);
-				atten *= spotAtten;
-			}
-
-			vec3 color = vec3(1.0);
-			if(debug.shading_mode == 0)
-				color = specularContribution(albedo, L, V, normal, F0, metallic, roughness);
-			else if(debug.shading_mode == 1)
-				color = evaluteUnreal4PBR(albedo, L, V, normal, F0, metallic, roughness);
-			else if(debug.shading_mode == 2)
-				color = evaluateFrostbitePBR(albedo, L, V, normal, metallic, roughness);
-
-			Lo += atten * light.color * color;
+		//Point light
+		for(int i = 0; i < ubo.pointLightCount; i++) 
+		{
+			FPointLight light = lights.pointLights[i];
+			Lo += calculatePointLight(light, inWorldPos, albedo, V, normal, F0, metallic, roughness);
 		}
 
 		vec2 brdf = texture(brdflut_tex, vec2(max(dot(normal, V), 0.0f), roughness)).rg;
@@ -181,8 +210,17 @@ void main()
 	else if(debug.target == 6)
 		fragcolor = vec3(roughness);
 	else if(debug.target == 7)
-		fragcolor = texture(shadowmap_tex, vec3(inUV, debug.cascade)).rrr;
-	else if(debug.target == 8 || debug.target == 9 || debug.target == 10)
+		fragcolor = texture(direct_shadowmap_tex, vec3(inUV, debug.cascade)).rrr;
+	else if(debug.target == 8)
+	{
+		fragcolor = vec3(1.0);
+		for(int i = 0; i < ubo.spotLightCount; i++)
+		{
+			FSpotLight light = lights.spotLights[i];
+			fragcolor *= getDirectionalShadow(direct_shadowmap_tex, inWorldPos, light, i);
+		}
+	}
+	/*else if(debug.target == 8 || debug.target == 9 || debug.target == 10)
 	{
 		vec3 viewPos = (ubo.view * vec4(inWorldPos, 1.0)).xyz;
 		float shadow_factor = 1.0;
@@ -224,7 +262,7 @@ void main()
 				break;
 			}
 		}
-	}
+	}*/
    
   	outFragcolor = vec4(fragcolor, 1.0);
 }

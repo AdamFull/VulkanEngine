@@ -46,13 +46,11 @@ float cascadeShadowFilterPCF(sampler2DArray shadomwap_tex, vec4 sc, uint cascade
 	return shadowFactor / count;
 }
 
-float getCascadeShadow(sampler2DArray shadomwap_tex, vec3 viewPosition, vec3 worldPosition, vec3 normal, FLight light)
+float getCascadeShadow(sampler2DArray shadomwap_tex, vec3 viewPosition, vec3 worldPosition, vec3 normal, FDirectionalLight light)
 {
-	const int MAX_CASCADES = 4;
-
 	// Get cascade index for the current fragment's view position
 	uint cascadeIndex = 0;
-	for(uint i = 0; i < MAX_CASCADES - 1; ++i) {
+	for(uint i = 0; i < SHADOW_MAP_CASCADE_COUNT - 1; ++i) {
 		if(viewPosition.z < light.cascadeSplits[i]) {	
 			cascadeIndex = i + 1;
 			break;

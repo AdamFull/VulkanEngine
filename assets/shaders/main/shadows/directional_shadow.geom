@@ -2,23 +2,27 @@
 
 //#define DEBUG
 #ifdef DEBUG
-#define CASCADES_COUNT 4
+#define INVOCATION_COUNT 4
 #endif
 
-layout (triangles, invocations = CASCADES_COUNT) in;
+layout (triangles, invocations = INVOCATION_COUNT) in;
 layout (triangle_strip, max_vertices = 3) out;
 
 layout (binding = 0) uniform UBOShadowmap 
 {
-	mat4 cascadeViewProjMat[CASCADES_COUNT];
+	mat4 viewProjMat[INVOCATION_COUNT];
+	int passedLights;
 } uboshadow;
 
 void main() 
 {
+	if(gl_InvocationID > uboshadow.passedLights)
+		return;
+
 	for (int i = 0; i < gl_in.length(); i++)
 	{
 		gl_Layer = gl_InvocationID;
-		gl_Position = uboshadow.cascadeViewProjMat[gl_InvocationID] * gl_in[i].gl_Position;
+		gl_Position = uboshadow.viewProjMat[gl_InvocationID] * gl_in[i].gl_Position;
 		EmitVertex();
 	}
 	EndPrimitive();

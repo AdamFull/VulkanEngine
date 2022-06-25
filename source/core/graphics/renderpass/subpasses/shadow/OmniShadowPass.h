@@ -7,7 +7,7 @@ namespace engine
     {
         namespace render
         {
-            class CShadowPass : public CSubpass
+            class COmniShadowPass : public CSubpass
             {
             public:
                 void create() override;

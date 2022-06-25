@@ -42,6 +42,34 @@
             ],
             "defines": {}
         },
+        "cascade_shadow_pass": 
+        {
+            "vertexType": "default",
+            "bindPoint": "graphics",
+            "culling": "front",
+            "frontface": "clockwise",
+            "depth": true,
+            "dynamicStates": ["viewport", "scissor"],
+            "stages": [
+                "shaders/main/shadows/directional_shadow.vert", 
+                "shaders/main/shadows/directional_shadow.geom"
+            ],
+            "defines": {}
+        },
+        "direct_shadow_pass": 
+        {
+            "vertexType": "default",
+            "bindPoint": "graphics",
+            "culling": "none",
+            "frontface": "clockwise",
+            "depth": true,
+            "dynamicStates": ["viewport", "scissor", "depthBias"],
+            "stages": [
+                "shaders/main/shadows/directional_shadow.vert", 
+                "shaders/main/shadows/directional_shadow.geom"
+            ],
+            "defines": {}
+        },
         "pbr_composition": 
         {
             "bindPoint": "graphics",
@@ -136,20 +164,6 @@
             "stages": [
                 "shaders/main/screenspace.vert", 
                 "shaders/postprocess/bloomcompose.frag"
-            ],
-            "defines": {}
-        },
-        "directional_shadow_pass": 
-        {
-            "vertexType": "default",
-            "bindPoint": "graphics",
-            "culling": "front",
-            "frontface": "clockwise",
-            "depth": true,
-            "dynamicStates": ["viewport", "scissor"],
-            "stages": [
-                "shaders/main/shadows/directional_shadow.vert", 
-                "shaders/main/shadows/directional_shadow.geom"
             ],
             "defines": {}
         },

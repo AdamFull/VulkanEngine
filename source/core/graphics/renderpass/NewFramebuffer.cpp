@@ -376,14 +376,14 @@ ref_ptr<CImage> CFramebufferNew::createImage(const FFramebufferAttachmentInfo& a
     {
     case EImageType::e2D: {
         auto tex2d = std::dynamic_pointer_cast<CImage2D>(texture);
-        tex2d->create(extent, attachment.format, imageLayout, attachment.usageFlags, aspectMask, vk::Filter::eLinear, vk::SamplerAddressMode::eRepeat, vk::SampleCountFlagBits::e1, translate_layout);
+        tex2d->create(extent, attachment.format, imageLayout, attachment.usageFlags, aspectMask, vk::Filter::eNearest, vk::SamplerAddressMode::eRepeat, vk::SampleCountFlagBits::e1, translate_layout);
     } break;
     case EImageType::e3D: {
         //TODO: Add implementation
     } break;
     case EImageType::eArray2D: {
         auto tex2darr = std::dynamic_pointer_cast<CImage2DArray>(texture);
-        tex2darr->create(attachment.layers, extent, attachment.format, imageLayout, attachment.usageFlags, aspectMask, vk::Filter::eLinear, vk::SamplerAddressMode::eRepeat, vk::SampleCountFlagBits::e1, translate_layout);
+        tex2darr->create(attachment.layers, extent, attachment.format, imageLayout, attachment.usageFlags, aspectMask, vk::Filter::eNearest, vk::SamplerAddressMode::eRepeat, vk::SampleCountFlagBits::e1, translate_layout);
     } break;
     case EImageType::eArray3D: {
         //TODO: Add implementation

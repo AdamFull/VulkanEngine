@@ -25,6 +25,7 @@ void CImage::updateDescriptor()
 void CImage::create(const fs::path& srPath, vk::ImageUsageFlags flags, vk::ImageAspectFlags aspect, 
 vk::SamplerAddressMode addressMode, vk::Filter filter)
 {
+    enableAnisotropy = VK_TRUE;
     scope_ptr<FImageCreateInfo> texture;
     auto supportedFormats = getTextureCompressionFormats();
     std::vector<EPixelFormat> supportedUniversal;
@@ -187,8 +188,9 @@ vk::Filter filter, vk::SampleCountFlagBits samples)
 
     if(!_sampler)
     {
+        auto compareMode = info->isArray ? vk::CompareOp::eLess : vk::CompareOp::eAlways;
         //_addressMode = info->isArray || info->isCubemap || info->baseDepth > 1 ? vk::SamplerAddressMode::eClampToEdge : vk::SamplerAddressMode::eRepeat;
-        createSampler(_sampler, _mipLevels, _addressMode, _filter);
+        createSampler(_sampler, enableAnisotropy, _mipLevels, _addressMode, _filter, vk::CompareOp::eAlways);
     }
 }
 
@@ -495,13 +497,13 @@ void CImage::copyTo(vk::CommandBuffer& commandBuffer, vk::Image& src, vk::Image&
     commandBuffer.copyImage(src, srcLayout, dst, dstLayout, 1, &region);
 }
 
-void CImage::createSampler(vk::Sampler &sampler, uint32_t mip_levels, vk::SamplerAddressMode eAddressMode, vk::Filter magFilter)
+void CImage::createSampler(vk::Sampler &sampler, bool enableAnisotropy, uint32_t mip_levels, vk::SamplerAddressMode eAddressMode, vk::Filter magFilter, vk::CompareOp compareOp)
 {
     auto& physicalDevice = CDevice::inst()->getPhysical();
     assert(physicalDevice && "Trying to create sampler, but physical device is invalid.");
     vk::SamplerCreateInfo samplerInfo{};
     samplerInfo.magFilter = magFilter;
-    samplerInfo.minFilter = vk::Filter::eLinear;
+    samplerInfo.minFilter = magFilter;
     samplerInfo.addressModeU = eAddressMode;
     samplerInfo.addressModeV = eAddressMode;
     samplerInfo.addressModeW = eAddressMode;
@@ -509,12 +511,12 @@ void CImage::createSampler(vk::Sampler &sampler, uint32_t mip_levels, vk::Sample
     vk::PhysicalDeviceProperties properties{};
     properties = physicalDevice.getProperties();
 
-    samplerInfo.anisotropyEnable = VK_TRUE;
+    samplerInfo.anisotropyEnable = enableAnisotropy;
     samplerInfo.maxAnisotropy = properties.limits.maxSamplerAnisotropy;
     samplerInfo.borderColor = vk::BorderColor::eIntOpaqueBlack;
     samplerInfo.unnormalizedCoordinates = VK_FALSE;
-    samplerInfo.compareEnable = VK_TRUE;
-    samplerInfo.compareOp = vk::CompareOp::eAlways;
+    samplerInfo.compareEnable = VK_FALSE;
+    samplerInfo.compareOp = compareOp;
 
     samplerInfo.mipmapMode = vk::SamplerMipmapMode::eLinear;
     samplerInfo.mipLodBias = 0.0f;

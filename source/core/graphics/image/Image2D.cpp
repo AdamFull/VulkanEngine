@@ -7,6 +7,7 @@ void CImage2D::create(const vk::Extent2D& extent, vk::Format format, vk::ImageLa
 vk::ImageAspectFlags aspect, vk::Filter filter, vk::SamplerAddressMode addressMode, vk::SampleCountFlagBits samples, 
 bool instantLayoutTransition, bool anisotropic, bool mipmaps)
 {
+    enableAnisotropy = anisotropic;
     scope_ptr<FImageCreateInfo> texture = make_scope<FImageCreateInfo>();
     texture->baseWidth = extent.width;
     texture->baseHeight = extent.height;

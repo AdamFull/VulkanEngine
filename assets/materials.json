@@ -60,7 +60,7 @@
         {
             "vertexType": "default",
             "bindPoint": "graphics",
-            "culling": "none",
+            "culling": "back",
             "frontface": "clockwise",
             "depth": true,
             "dynamicStates": ["viewport", "scissor", "depthBias"],

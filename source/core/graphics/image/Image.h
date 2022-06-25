@@ -206,7 +206,7 @@ namespace engine
 			 * @param eAddressMode Sampler address mode
 			 * @param magFilter Sampler filter type
 			 */
-			static void createSampler(vk::Sampler &sampler, uint32_t mip_levels, vk::SamplerAddressMode eAddressMode, vk::Filter magFilter = vk::Filter::eLinear);
+			static void createSampler(vk::Sampler &sampler, bool enableAnisotropy, uint32_t mip_levels, vk::SamplerAddressMode eAddressMode, vk::Filter magFilter = vk::Filter::eLinear, vk::CompareOp compareOp = vk::CompareOp::eAlways);
 
 			/**
 			 * @brief Check is texture dimension is supported
@@ -387,6 +387,7 @@ namespace engine
 			uint32_t _instCount;
 			uint32_t _layerCount;
 			vk::Format _format;
+			bool enableAnisotropy{false};
 
 			vk::Filter _filter{vk::Filter::eLinear};
 			vk::SamplerAddressMode _addressMode;

@@ -28,7 +28,7 @@ layout (input_attachment_index = 1, binding = 4) uniform subpassInput emission_t
 layout (input_attachment_index = 2, binding = 5) uniform subpassInput depth_tex;
 //layout (binding = 7) uniform sampler2DArray cascade_shadowmap_tex;
 layout (binding = 8) uniform sampler2DArray direct_shadowmap_tex;
-//layout (binding = 7) uniform sampler2DArray shadowArr;
+//layout (binding = 9) uniform samplerCubeArray omni_shadowmap_tex;
 
 layout (location = 0) in vec2 inUV;
 
@@ -81,7 +81,8 @@ vec3 calculateDirectionalLight(FDirectionalLight light, vec3 albedo, vec3 V, vec
 	L = normalize(L);
 
 	vec3 color = lightContribution(albedo, L, V, N, F0, metallic, roughness);
-	return light.color * light.intencity * color;
+	//return light.color * light.intencity * color;
+	return vec3(0.0);
 }
 
 vec3 calculateSpotlight(FSpotLight light, int index, vec3 worldPosition, vec3 albedo, vec3 V, vec3 N, vec3 F0, float metallic, float roughness)
@@ -98,7 +99,7 @@ vec3 calculateSpotlight(FSpotLight light, int index, vec3 worldPosition, vec3 al
 	float spotEffect = smoothstep(light.innerConeAngle, light.outerConeAngle, cosDir);
 	float heightAttenuation = smoothstep(100.0, 0.0f, dist);
 	vec3 color = lightContribution(albedo, L, V, N, F0, metallic, roughness);
-	float shadow_factor = getDirectionalShadow(direct_shadowmap_tex, worldPosition, light, index, true);
+	float shadow_factor = getDirectionalShadow(direct_shadowmap_tex, worldPosition, N, light, index, true);
 
 	return light.color * light.intencity * color * spotEffect * heightAttenuation * shadow_factor;
 }
@@ -213,8 +214,8 @@ void main()
 		fragcolor = vec3(metallic);
 	else if(debug.target == 6)
 		fragcolor = vec3(roughness);
-	else if(debug.target == 7)
-		fragcolor = texture(direct_shadowmap_tex, vec3(inUV, debug.cascade)).rrr;
+	//else if(debug.target == 7)
+	//	fragcolor = vec3(texture(direct_shadowmap_tex, vec4(inUV, debug.cascade, 0.5)));
 	/*else if(debug.target == 8 || debug.target == 9 || debug.target == 10)
 	{
 		vec3 viewPos = (ubo.view * vec4(inWorldPos, 1.0)).xyz;

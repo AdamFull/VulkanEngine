@@ -187,11 +187,7 @@ vk::Filter filter, vk::SampleCountFlagBits samples)
     assert(res == vk::Result::eSuccess && "Cannot create image view");
 
     if(!_sampler)
-    {
-        auto compareMode = info->isArray ? vk::CompareOp::eLess : vk::CompareOp::eAlways;
-        //_addressMode = info->isArray || info->isCubemap || info->baseDepth > 1 ? vk::SamplerAddressMode::eClampToEdge : vk::SamplerAddressMode::eRepeat;
-        createSampler(_sampler, enableAnisotropy, _mipLevels, _addressMode, _filter, vk::CompareOp::eAlways);
-    }
+        createSampler(_sampler, _filter, _addressMode, enableAnisotropy, _mipLevels);
 }
 
 vk::Format CImage::findSupportedFormat(const std::vector<vk::Format> &candidates, vk::ImageTiling tiling, vk::FormatFeatureFlags features)
@@ -497,7 +493,7 @@ void CImage::copyTo(vk::CommandBuffer& commandBuffer, vk::Image& src, vk::Image&
     commandBuffer.copyImage(src, srcLayout, dst, dstLayout, 1, &region);
 }
 
-void CImage::createSampler(vk::Sampler &sampler, bool enableAnisotropy, uint32_t mip_levels, vk::SamplerAddressMode eAddressMode, vk::Filter magFilter, vk::CompareOp compareOp)
+void CImage::createSampler(vk::Sampler &sampler, vk::Filter magFilter, vk::SamplerAddressMode eAddressMode, bool anisotropy, uint32_t mipLevels)
 {
     auto& physicalDevice = CDevice::inst()->getPhysical();
     assert(physicalDevice && "Trying to create sampler, but physical device is invalid.");
@@ -511,17 +507,17 @@ void CImage::createSampler(vk::Sampler &sampler, bool enableAnisotropy, uint32_t
     vk::PhysicalDeviceProperties properties{};
     properties = physicalDevice.getProperties();
 
-    samplerInfo.anisotropyEnable = enableAnisotropy;
+    samplerInfo.anisotropyEnable = static_cast<vk::Bool32>(anisotropy);
     samplerInfo.maxAnisotropy = properties.limits.maxSamplerAnisotropy;
     samplerInfo.borderColor = vk::BorderColor::eIntOpaqueBlack;
     samplerInfo.unnormalizedCoordinates = VK_FALSE;
-    samplerInfo.compareEnable = VK_FALSE;
-    samplerInfo.compareOp = compareOp;
+    //samplerInfo.compareEnable = VK_FALSE;
+    //samplerInfo.compareOp = compareOp;
 
     samplerInfo.mipmapMode = vk::SamplerMipmapMode::eLinear;
     samplerInfo.mipLodBias = 0.0f;
     samplerInfo.minLod = 0.0f;
-    samplerInfo.maxLod = static_cast<float>(mip_levels);
+    samplerInfo.maxLod = static_cast<float>(mipLevels);
 
     // TODO: Result handle
    vk::Result res = CDevice::inst()->create(samplerInfo, &sampler);

@@ -13,7 +13,7 @@ float directionalShadowProjection(sampler2DArray shadomwap_tex, vec4 P, vec2 off
 		float dist = texture(shadomwap_tex, vec3(shadowCoord.st + offset, layer)).r;
 		if (shadowCoord.w > 0.0 && dist < shadowCoord.z) 
 		{
-			shadow = 0.1;
+			shadow = 0.05;
 		}
 	}
 	return shadow;
@@ -42,12 +42,11 @@ float directionalShadowFilterPCF(sampler2DArray shadomwap_tex, vec4 sc, int laye
 	return shadowFactor / count;
 }
 
-float getDirectionalShadow(sampler2DArray shadomwap_tex, vec3 fragpos, FSpotLight light, int layer) 
+float getDirectionalShadow(sampler2DArray shadomwap_tex, vec3 fragpos, FSpotLight light, int layer, bool enablePCF) 
 {
     float shadow = 1.0;
 	vec4 shadowClip	= light.shadowView * vec4(fragpos, 1.0);
 
-	bool enablePCF = false;
 	if (enablePCF) {
 		shadow = directionalShadowFilterPCF(shadomwap_tex, shadowClip, layer);
 	} else {

@@ -2,8 +2,8 @@
     "window":
     {
         "name": "Vulkan",
-        "width": 1920,
-        "height": 1080,
+        "width": 1280,
+        "height": 720,
         "fullscreen": false,
         "backend": ""
     },
@@ -17,7 +17,7 @@
             "engine_version": 4202496,
             "api_version": 4202496
         },
-        "validation": true,
+        "validation": false,
         "validation_layers": ["VK_LAYER_KHRONOS_validation"],
         "device_extensions": ["VK_KHR_swapchain", "VK_KHR_maintenance1"],
         "device_features":
@@ -41,7 +41,7 @@
     },
     "engine":
     {
-        "mode": "editor",
+        "mode": "game",
         "start_scene": "scene.json"
     }
 }

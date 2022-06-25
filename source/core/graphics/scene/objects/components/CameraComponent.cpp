@@ -119,7 +119,7 @@ void CCameraComponent::lookAt(float dX, float dY)
         
     float rotX = dX/2;
     float rotY = dY/2;
-    float sens = 100.f * sensitivity * 1.f / dt;
+    float sens = 100.f * sensitivity * 1.f;
 
     angleH += rotX*sens;
     if(angleV + rotY*sens > 89)

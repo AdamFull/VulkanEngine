@@ -18,18 +18,23 @@ Game engine architecture. Goog book for creating not bad game engine architectur
 - [x] ImGui integration
 - [x] GLTF support
 - [x] KTX support
+- [x] KTX2 support
+- [ ] DDS support
 - [x] Deferred shading
+- [x] All light types (Directional light, point light spot light)
 - [x] HDR
 - [x] Bloom
-- [x] PBR + IBL
+- [x] PBR
+- [x] IBL
 - [x] Compute shaders
 - [x] Multithreading
-- [ ] Deferred multisampling
-- [ ] Deferred shadow mapping
+- [ ] Multisampling
+- [x] Directional shadows
+- [ ] Point shadows
+- [ ] Cascade shadows(Only for directional)
 - [ ] Realtime reflections
 - [x] Instancing
-- [ ] Tescellation
+- [x] Tescellation
 - [ ] SSAO
 - [x] Parallax mapping
 - [ ] Global illumination
-- [ ] Ray tracing

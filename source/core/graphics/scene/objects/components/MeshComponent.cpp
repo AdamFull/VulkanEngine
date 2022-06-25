@@ -71,12 +71,7 @@ void CMeshComponent::render(vk::CommandBuffer &commandBuffer)
             break;
             }
         }
-        
-        //For shadows rendering anyway
-        needToRender |= isShadowPass;
-
-        if(!isShadowPass)
-            primitive.bWasCulled = needToRender;
+        primitive.bWasCulled = needToRender;
 
         //TODO: load primitive position?
         if(needToRender && !isSkyboxInShadow)

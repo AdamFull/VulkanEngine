@@ -14,7 +14,7 @@ CShadowMappingStage::~CShadowMappingStage()
 
 void CShadowMappingStage::create()
 {
-    screenExtent = vk::Extent2D{1024, 1024};
+    screenExtent = vk::Extent2D{512, 512};
 
     auto cascade_fb = make_scope<CFramebufferNew>();
     //cascade_fb->setFlipViewport(VK_TRUE);

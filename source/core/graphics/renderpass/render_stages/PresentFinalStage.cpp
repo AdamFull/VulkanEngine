@@ -22,7 +22,7 @@ void CPresentFinalStage::create()
     framebuffer_1->addSubpassDependency(VK_SUBPASS_EXTERNAL, 0, vk::PipelineStageFlagBits::eFragmentShader, vk::PipelineStageFlagBits::eColorAttachmentOutput,
     vk::AccessFlagBits::eShaderRead, vk::AccessFlagBits::eColorAttachmentWrite);
     
-    framebuffer_1->addRenderer(make_scope<CThroughPass>());
+    framebuffer_1->addRenderer(make_scope<CThroughPass>("output_color"));
     vFramebuffer.emplace_back(std::move(framebuffer_1));
     CRenderStage::create();
 }

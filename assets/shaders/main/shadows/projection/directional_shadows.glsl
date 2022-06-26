@@ -1,6 +1,6 @@
-#include "../lightning_base.glsl"
-#ifndef SPOT_SHADOWS
-#define SPOT_SHADOWS
+#include "../../lightning_base.glsl"
+#ifndef DIRECTIONAL_SHADOWS
+#define DIRECTIONAL_SHADOWS
 
 float directionalShadowProjection(sampler2DArray shadomwap_tex, vec4 P, vec2 offset, float bias, int layer)
 {
@@ -12,10 +12,9 @@ float directionalShadowProjection(sampler2DArray shadomwap_tex, vec4 P, vec2 off
 	{
 		float dist = texture(shadomwap_tex, vec3(shadowCoord.st + offset, layer)).r;
 		if (shadowCoord.w > 0.0 && dist < shadowCoord.z - bias) 
-			shadow = 0.05;
+			shadow = 0.0;
 	}
 	return shadow;
-	//return texture(shadomwap_tex, vec4(shadowCoord.st + offset, layer, shadowCoord.z - bias));
 }
 
 float directionalShadowFilterPCF(sampler2DArray shadomwap_tex, vec4 sc, float bias, int layer)
@@ -50,11 +49,10 @@ float getDirectionalShadow(sampler2DArray shadomwap_tex, vec3 fragpos, vec3 N, F
 	float bias = 0.001 * tan(acos(cosTheta));
 	bias = clamp(bias, 0.0, 0.01);
 
-	if (enablePCF) {
+	if (enablePCF)
 		shadow = directionalShadowFilterPCF(shadomwap_tex, shadowClip, bias, layer);
-	} else {
+	else
 		shadow = directionalShadowProjection(shadomwap_tex, shadowClip, vec2(0.0), bias, layer);
-	}
 
 	return shadow;
 }

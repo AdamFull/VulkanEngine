@@ -137,7 +137,9 @@ vk::Filter filter, vk::SampleCountFlagBits samples)
     imageInfo.extent = _extent;
     imageInfo.mipLevels = _mipLevels;
 
-    if (info->isArray)
+    if (info->isArray && info->isCubemap)
+        imageInfo.arrayLayers = info->numLayers * 6;
+    else if (info->isArray)
         imageInfo.arrayLayers = info->numLayers;
     else if (info->isCubemap)
         imageInfo.arrayLayers = 6;
@@ -153,9 +155,9 @@ vk::Filter filter, vk::SampleCountFlagBits samples)
     imageInfo.samples = _samples;
     imageInfo.sharingMode = vk::SharingMode::eExclusive;
 
-    if (false)
-        imageInfo.flags = vk::ImageCreateFlagBits::e2DArrayCompatible;
-    else if (info->isCubemap)
+    //if (info->isArray && info->isCubemap)
+    //    imageInfo.flags = vk::ImageCreateFlagBits::e2DArrayCompatible;
+    if (info->isCubemap)
         imageInfo.flags = vk::ImageCreateFlagBits::eCubeCompatible;
     else
         imageInfo.flags = vk::ImageCreateFlags{};
@@ -165,7 +167,9 @@ vk::Filter filter, vk::SampleCountFlagBits samples)
     createImage(_image, _deviceMemory, imageInfo, vk::MemoryPropertyFlagBits::eDeviceLocal);
 
     vk::ImageViewCreateInfo viewInfo{};
-    if (info->isArray)
+    if(info->isArray && info->isCubemap)
+        viewInfo.viewType = vk::ImageViewType::eCubeArray;
+    else if (info->isArray)
         viewInfo.viewType = vk::ImageViewType::e2DArray;
     else if (info->isCubemap)
         viewInfo.viewType = vk::ImageViewType::eCube;

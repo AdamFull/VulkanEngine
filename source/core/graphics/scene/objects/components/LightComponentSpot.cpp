@@ -15,7 +15,7 @@ void CLightComponentSpot::update(float fDeltaTime)
 
     auto transform = pParent->getTransform();
     glm::mat4 shadowProj = glm::perspective(this->innerConeAngle, 1.0f, 0.1f, 64.f);
-	glm::mat4 shadowView = glm::lookAt(glm::vec3(transform.pos), glm::vec3(transform.rot), glm::vec3(0.0f, 1.0f, 0.0f));
+	glm::mat4 shadowView = glm::lookAt(transform.pos, transform.rot, glm::vec3(0.0f, 1.0f, 0.0f));
 
     this->shadowView = shadowProj * shadowView;
 }

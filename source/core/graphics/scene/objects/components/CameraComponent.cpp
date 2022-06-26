@@ -7,7 +7,8 @@ using namespace engine::core::scene;
 void CCameraComponent::create()
 {
     auto& transform = pParent->getLocalTransform();
-    angleV = glm::degrees(glm::asin(-transform.rot.y));
+    //angleV = glm::degrees(glm::asin(-transform.rot.y));
+    angleV = glm::degrees(-transform.rot.y);
     angleH = glm::degrees(glm::atan(transform.rot.z/transform.rot.x));
 }
 
@@ -118,17 +119,16 @@ void CCameraComponent::lookAt(float dX, float dY)
     if(!bEnableControls)
         return;
         
-    float rotX = dX / 2;
-    float rotY = dY / 2;
-    float sens = 100.f * sensitivity * 1.f;
+    float rotX = dX / dt;
+    float rotY = dY / dt;
 
-    angleH += rotX * sens;
-    if(angleV + rotY * sens > 89)
+    angleH += rotX * sensitivity;
+    if(angleV + rotY * sensitivity > 89)
         angleV = 89;
-    else if(angleV + rotY * sens < -89)
+    else if(angleV + rotY * sensitivity < -89)
         angleV = -89;
     else
-        angleV += rotY * sens;
+        angleV += rotY * sensitivity;
 
     const float w{cos(glm::radians(angleV)) * -cos(glm::radians(angleH))};
     const float u{-sin(glm::radians(angleV))};

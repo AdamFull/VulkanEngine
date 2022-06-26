@@ -1,6 +1,6 @@
-#include "../lightning_base.glsl"
-#ifndef DIRECTIONAL_SHADOWS
-#define DIRECTIONAL_SHADOWS
+#include "../../lightning_base.glsl"
+#ifndef CASCADE_SHADOWS
+#define CASCADE_SHADOWS
 
 const mat4 biasMat = mat4( 
 	0.5, 0.0, 0.0, 0.0,
@@ -16,9 +16,8 @@ float cassadeShadowProjection(sampler2DArray shadomwap_tex, vec4 shadowCoord, ve
 
 	if ( shadowCoord.z > -1.0 && shadowCoord.z < 1.0 ) {
 		float dist = texture(shadomwap_tex, vec3(shadowCoord.st + offset, cascadeIndex)).r;
-		if (shadowCoord.w > 0 && dist < shadowCoord.z - bias) {
-			shadow = 0.3;
-		}
+		if (shadowCoord.w > 0 && dist < shadowCoord.z - bias)
+			shadow = 0.0;
 	}
 	return shadow;
 

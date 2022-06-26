@@ -1,4 +1,5 @@
 #include "LightComponentPoint.h"
+#include "graphics/scene/objects/RenderObject.h"
 
 using namespace engine::core::scene;
 using namespace engine::resources;
@@ -12,35 +13,14 @@ void CLightComponentPoint::update(float fDeltaTime)
 {
     CLightComponent::update(fDeltaTime);
 
-
-    glm::mat4 shadowProj = glm::perspective(glm::radians(45.0f), 1.0f, 0.1f, 64.f);
-    for(uint32_t face = 0; face < 6; face++)
-    {
-        glm::mat4 shadowView = glm::mat4(1.0f);
-        switch (face)
-        {
-        case 0: // POSITIVE_X
-            shadowView = glm::rotate(shadowView, glm::radians(90.0f), glm::vec3(0.0f, 1.0f, 0.0f));
-            shadowView = glm::rotate(shadowView, glm::radians(180.0f), glm::vec3(1.0f, 0.0f, 0.0f));
-            break;
-        case 1:	// NEGATIVE_X
-            shadowView = glm::rotate(shadowView, glm::radians(-90.0f), glm::vec3(0.0f, 1.0f, 0.0f));
-            shadowView = glm::rotate(shadowView, glm::radians(180.0f), glm::vec3(1.0f, 0.0f, 0.0f));
-            break;
-        case 2:	// POSITIVE_Y
-            shadowView = glm::rotate(shadowView, glm::radians(-90.0f), glm::vec3(1.0f, 0.0f, 0.0f));
-            break;
-        case 3:	// NEGATIVE_Y
-            shadowView = glm::rotate(shadowView, glm::radians(90.0f), glm::vec3(1.0f, 0.0f, 0.0f));
-            break;
-        case 4:	// POSITIVE_Z
-            shadowView = glm::rotate(shadowView, glm::radians(180.0f), glm::vec3(1.0f, 0.0f, 0.0f));
-            break;
-        case 5:	// NEGATIVE_Z
-            shadowView = glm::rotate(shadowView, glm::radians(180.0f), glm::vec3(0.0f, 0.0f, 1.0f));
-            break;
-        }
-
-        this->shadowViews[face] = shadowProj * shadowView;
-    }
+    //Based on https://learnopengl.com/Advanced-Lighting/Shadows/Point-Shadows
+    auto transform = pParent->getTransform();
+    glm::mat4 shadowProj = glm::perspective(glm::radians(90.0f), 1.0f, 0.1f, 25.f);
+    auto position = transform.pos;// * glm::vec3(1.0, -1.0, 1.0);
+    this->shadowViews[0] = shadowProj * glm::lookAt(position, position + glm::vec3( 1.0, 0.0, 0.0), glm::vec3(0.0,-1.0, 0.0)); // POSITIVE_X
+    this->shadowViews[1] = shadowProj * glm::lookAt(position, position + glm::vec3(-1.0, 0.0, 0.0), glm::vec3(0.0,-1.0, 0.0)); // NEGATIVE_X
+    this->shadowViews[2] = shadowProj * glm::lookAt(position, position + glm::vec3( 0.0, 1.0, 0.0), glm::vec3(0.0, 0.0, 1.0)); // POSITIVE_Y
+    this->shadowViews[3] = shadowProj * glm::lookAt(position, position + glm::vec3( 0.0,-1.0, 0.0), glm::vec3(0.0, 0.0,-1.0));	// NEGATIVE_Y
+    this->shadowViews[4] = shadowProj * glm::lookAt(position, position + glm::vec3( 0.0, 0.0, 1.0), glm::vec3(0.0,-1.0, 0.0));	// POSITIVE_Z
+    this->shadowViews[5] = shadowProj * glm::lookAt(position, position + glm::vec3( 0.0, 0.0,-1.0), glm::vec3(0.0,-1.0, 0.0));	// NEGATIVE_Z
 }

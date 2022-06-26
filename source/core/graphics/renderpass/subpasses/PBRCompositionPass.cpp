@@ -59,6 +59,7 @@ void CPBRCompositionPass::render(vk::CommandBuffer& commandBuffer)
     //pMaterial->addTexture("position_tex", images["position_tex"]);
     //pMaterial->addTexture("cascade_shadowmap_tex", images["cascade_shadowmap_tex"]);
     pMaterial->addTexture("direct_shadowmap_tex", images["direct_shadowmap_tex"]);
+    pMaterial->addTexture("omni_shadowmap_tex", images["omni_shadowmap_tex"]);
 
     auto imageIndex = CDevice::inst()->getCurrentFrame();
 

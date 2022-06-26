@@ -14,7 +14,7 @@ CShadowMappingStage::~CShadowMappingStage()
 
 void CShadowMappingStage::create()
 {
-    screenExtent = vk::Extent2D{256, 256};
+    screenExtent = vk::Extent2D{512, 512};
 
     //Cascade shadow pass
     auto cascade_fb = make_scope<CFramebufferNew>();
@@ -48,6 +48,7 @@ void CShadowMappingStage::create()
 
     //Point shadow pass
     auto omni_fb = make_scope<CFramebufferNew>();
+    //omni_fb->setFlipViewport(VK_TRUE);
     omni_fb->setRenderArea(vk::Offset2D{0, 0}, screenExtent);
 
     omni_fb->addImage("omni_shadowmap_tex", CImage::getDepthFormat(), vk::ImageUsageFlagBits::eDepthStencilAttachment | vk::ImageUsageFlagBits::eSampled, EImageType::eArrayCube, MAX_POINT_LIGHT_COUNT);
@@ -59,7 +60,7 @@ void CShadowMappingStage::create()
     vk::PipelineStageFlagBits::eFragmentShader, vk::AccessFlagBits::eColorAttachmentWrite | vk::AccessFlagBits::eDepthStencilAttachmentWrite, vk::AccessFlagBits::eShaderRead);
 
     omni_fb->addRenderer(make_scope<COmniShadowPass>());
-    //vFramebuffer.emplace_back(std::move(omni_fb));
+    vFramebuffer.emplace_back(std::move(omni_fb));
 
     CRenderStage::create();
 }

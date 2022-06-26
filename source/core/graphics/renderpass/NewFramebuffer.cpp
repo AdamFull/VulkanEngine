@@ -4,6 +4,7 @@
 #include "graphics/image/Image2DArray.h"
 #include "graphics/image/Image3D.h"
 #include "graphics/image/ImageCubemap.h"
+#include "graphics/image/ImageCubemapArray.h"
 
 using namespace engine::core;
 using namespace engine::core::render;
@@ -344,7 +345,7 @@ ref_ptr<CImage> CFramebufferNew::createImage(const FFramebufferAttachmentInfo& a
     case EImageType::eArray2D: texture = make_ref<CImage2DArray>(); break;
     case EImageType::eArray3D: break;
     case EImageType::eCubeMap: texture = make_ref<CImageCubemap>(); break;
-    case EImageType::eArrayCube: break;
+    case EImageType::eArrayCube: texture = make_ref<CImageCubemapArray>(); break;
     }
 
     bool translate_layout{false};
@@ -392,7 +393,8 @@ ref_ptr<CImage> CFramebufferNew::createImage(const FFramebufferAttachmentInfo& a
         //TODO: Add implementation
     } break;
     case EImageType::eArrayCube: {
-        //TODO: Add implementation
+        auto tex2darr = std::dynamic_pointer_cast<CImageCubemapArray>(texture);
+        tex2darr->create(attachment.layers, extent, attachment.format, imageLayout, attachment.usageFlags, aspectMask, vk::Filter::eNearest, vk::SamplerAddressMode::eRepeat, vk::SampleCountFlagBits::e1, translate_layout);
     } break;
     }
 

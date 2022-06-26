@@ -35,9 +35,9 @@ Game engine architecture. Goog book for creating not bad game engine architectur
 - [x] Compute shaders
 - [x] Multithreading
 - [ ] Multisampling
-- [x] Dynamic directional shadows(for spot light)
-- [ ] Point shadows
-- [ ] Cascade shadows(Only for directional)
+- [x] Dynamic directional shadows(for spot light, max 15)
+- [x] Omni shadows (single pass, max 16)
+- [ ] Cascade shadows(Only for directional, max 1)
 - [ ] Realtime reflections
 - [x] Instancing
 - [x] Tescellation

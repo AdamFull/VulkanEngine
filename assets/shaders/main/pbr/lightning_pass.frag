@@ -2,6 +2,7 @@
 #extension GL_ARB_separate_shader_objects : enable
 #extension GL_ARB_shading_language_420pack : enable
 #extension GL_EXT_scalar_block_layout : enable
+#extension GL_ARB_texture_cube_map_array : enable
 #extension GL_GOOGLE_include_directive : require
 
 
@@ -11,8 +12,10 @@
 #include "light_models/sascha_williems.glsl"
 #include "light_models/unreal4.glsl"
 
-#include "../shadows/directional_shadows.glsl"
-#include "../shadows/spot_shadows.glsl"
+#include "../shadows/projection/cascade_shadows.glsl"
+#include "../shadows/projection/directional_shadows.glsl"
+#include "../shadows/projection/omni_shadows.glsl"
+
 #include "../lightning_base.glsl"
 #include "../../shader_util.glsl"
 
@@ -28,7 +31,7 @@ layout (input_attachment_index = 1, binding = 4) uniform subpassInput emission_t
 layout (input_attachment_index = 2, binding = 5) uniform subpassInput depth_tex;
 //layout (binding = 7) uniform sampler2DArray cascade_shadowmap_tex;
 layout (binding = 8) uniform sampler2DArray direct_shadowmap_tex;
-//layout (binding = 9) uniform samplerCubeArray omni_shadowmap_tex;
+layout (binding = 9) uniform samplerCubeArray omni_shadowmap_tex;
 
 layout (location = 0) in vec2 inUV;
 
@@ -81,8 +84,7 @@ vec3 calculateDirectionalLight(FDirectionalLight light, vec3 albedo, vec3 V, vec
 	L = normalize(L);
 
 	vec3 color = lightContribution(albedo, L, V, N, F0, metallic, roughness);
-	//return light.color * light.intencity * color;
-	return vec3(0.0);
+	return light.color * light.intencity * color;
 }
 
 vec3 calculateSpotlight(FSpotLight light, int index, vec3 worldPosition, vec3 albedo, vec3 V, vec3 N, vec3 F0, float metallic, float roughness)
@@ -104,15 +106,16 @@ vec3 calculateSpotlight(FSpotLight light, int index, vec3 worldPosition, vec3 al
 	return light.color * light.intencity * color * spotEffect * heightAttenuation * shadow_factor;
 }
 
-vec3 calculatePointLight(FPointLight light, vec3 worldPosition, vec3 albedo, vec3 V, vec3 N, vec3 F0, float metallic, float roughness)
+vec3 calculatePointLight(FPointLight light, int index, vec3 worldPosition, vec3 albedo, vec3 V, vec3 N, vec3 F0, float metallic, float roughness)
 {
 	vec3 L = light.position - worldPosition;
 	float dist = length(L);
 	L = normalize(L);
 	float atten = clamp(1.0 - pow(dist, 2.0f)/pow(light.intencity, 2.0f), 0.0f, 1.0f); atten *= atten;
 	vec3 color = lightContribution(albedo, L, V, N, F0, metallic, roughness);
+	float shadow_factor = getOmniShadow(omni_shadowmap_tex, worldPosition, ubo.viewPos.xyz, N, light, index, true);
 
-	return light.color * atten * color;
+	return light.color * atten * color * shadow_factor;
 }
 
 void main() 
@@ -160,7 +163,7 @@ void main()
 		for(int i = 0; i < ubo.directionalLightCount; i++)
 		{
 			FDirectionalLight light = lights.directionalLights[i];
-			Lo += calculateDirectionalLight(light, albedo, V, normal, F0, metallic, roughness);
+			//Lo += calculateDirectionalLight(light, albedo, V, normal, F0, metallic, roughness);
 		}
 
 		//Spot light
@@ -174,7 +177,7 @@ void main()
 		for(int i = 0; i < ubo.pointLightCount; i++) 
 		{
 			FPointLight light = lights.pointLights[i];
-			Lo += calculatePointLight(light, inWorldPos, albedo, V, normal, F0, metallic, roughness);
+			Lo += calculatePointLight(light, i, inWorldPos, albedo, V, normal, F0, metallic, roughness);
 		}
 
 		vec2 brdf = texture(brdflut_tex, vec2(max(dot(normal, V), 0.0f), roughness)).rg;
@@ -214,8 +217,8 @@ void main()
 		fragcolor = vec3(metallic);
 	else if(debug.target == 6)
 		fragcolor = vec3(roughness);
-	//else if(debug.target == 7)
-	//	fragcolor = vec3(texture(direct_shadowmap_tex, vec4(inUV, debug.cascade, 0.5)));
+	else if(debug.target == 7)
+		fragcolor = texture(direct_shadowmap_tex, vec3(inUV, debug.cascade)).rrr;
 	/*else if(debug.target == 8 || debug.target == 9 || debug.target == 10)
 	{
 		vec3 viewPos = (ubo.view * vec4(inWorldPos, 1.0)).xyz;

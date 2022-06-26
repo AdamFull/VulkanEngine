@@ -40,7 +40,7 @@ void CWorldSettingsWindow::draw()
         ImGui::BeginGroup();
         ImGui::SliderInt("Shading", &GlobalVariables::shadingMode, 0, 2);
         ImGui::SliderInt("Target", &GlobalVariables::debugTarget, 0, 10);
-        ImGui::SliderInt("Cascade", &GlobalVariables::debugCascade, 0, 3);
+        ImGui::SliderInt("Cascade", &GlobalVariables::debugCascade, 0, 5);
         FControls::DragFloat("Split", &GlobalVariables::cascadeSplitLambda, 0.001, 0.0, 5.0);
         ImGui::EndGroup();
 

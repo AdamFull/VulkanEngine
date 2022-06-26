@@ -27,7 +27,7 @@ void COmniShadowPass::reCreate()
 
 void COmniShadowPass::beforeRender(vk::CommandBuffer& commandBuffer)
 {
-    commandBuffer.setDepthBias(1.25f, 0.0f, 1.75f);
+    //commandBuffer.setDepthBias(1.25f, 0.0f, 1.75f);
 }
 
 void COmniShadowPass::render(vk::CommandBuffer& commandBuffer)
@@ -36,18 +36,32 @@ void COmniShadowPass::render(vk::CommandBuffer& commandBuffer)
     CVBO::inst()->bind(commandBuffer);
 
     auto lightObjects = CLightSourceManager::inst()->getObjects();
-    std::array<std::array<glm::mat4, 6>, MAX_POINT_LIGHT_COUNT> aPointViewProjMat;
+    
     uint32_t light_count{0};
+    std::array<glm::mat4, MAX_POINT_LIGHT_COUNT * 6> aPointViewProjMat;
+    std::array<glm::vec4, MAX_POINT_LIGHT_COUNT> aLightPos;
     for(auto& lightNode : lightObjects)
     {
+        uint32_t array_shift = light_count * 6;
         auto& light = lightNode->getLight();
         if(light && (light->getType() == ELightSourceType::ePoint))
-            aPointViewProjMat[light_count] = light->getShadowViews();
+        {
+            for(uint32_t face = 0; face < 6; face++)
+            {
+                auto& shadowViews = light->getShadowViews();
+                aPointViewProjMat[face + array_shift] = shadowViews[face];
+            }
+                
+            aLightPos[light_count] = glm::vec4(light->getPosition(), 1.0);
+            light_count++;
+        }
     }
 
     auto& pUBOShadow = pMaterial->getUniformBuffer("UBOShadowmap");
     pUBOShadow->set("viewProjMat", aPointViewProjMat);
+    pUBOShadow->set("lightPos", aLightPos);
     pUBOShadow->set("passedLights", light_count);
+    pUBOShadow->set("farPlane", 25.f);
 
     pMaterial->update();
     pMaterial->bind(commandBuffer);

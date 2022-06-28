@@ -18,6 +18,7 @@ void CShadowMappingStage::create()
 
     //Cascade shadow pass
     auto cascade_fb = make_scope<CFramebufferNew>();
+    //cascade_fb->setFlipViewport(VK_TRUE);
     cascade_fb->setRenderArea(vk::Offset2D{0, 0}, screenExtent);
 
     cascade_fb->addImage("cascade_shadowmap_tex", CImage::getDepthFormat(), vk::ImageUsageFlagBits::eDepthStencilAttachment | vk::ImageUsageFlagBits::eSampled, EImageType::eArray2D, SHADOW_MAP_CASCADE_COUNT);
@@ -29,7 +30,7 @@ void CShadowMappingStage::create()
     vk::PipelineStageFlagBits::eFragmentShader, vk::AccessFlagBits::eColorAttachmentWrite | vk::AccessFlagBits::eDepthStencilAttachmentWrite, vk::AccessFlagBits::eShaderRead);
 
     cascade_fb->addRenderer(make_scope<CCascadeShadowPass>());
-    //vFramebuffer.emplace_back(std::move(cascade_fb));
+    vFramebuffer.emplace_back(std::move(cascade_fb));
 
     //Directional shadow pass
     auto direct_fb = make_scope<CFramebufferNew>();

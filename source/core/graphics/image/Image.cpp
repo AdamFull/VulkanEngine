@@ -191,7 +191,10 @@ vk::Filter filter, vk::SampleCountFlagBits samples)
     assert(res == vk::Result::eSuccess && "Cannot create image view");
 
     if(!_sampler)
-        createSampler(_sampler, _filter, _addressMode, enableAnisotropy, _mipLevels);
+    {
+        bool enableCompare = format == getDepthFormat();
+        createSampler(_sampler, _filter, _addressMode, enableAnisotropy, enableCompare, _mipLevels);
+    }
 }
 
 vk::Format CImage::findSupportedFormat(const std::vector<vk::Format> &candidates, vk::ImageTiling tiling, vk::FormatFeatureFlags features)
@@ -497,7 +500,7 @@ void CImage::copyTo(vk::CommandBuffer& commandBuffer, vk::Image& src, vk::Image&
     commandBuffer.copyImage(src, srcLayout, dst, dstLayout, 1, &region);
 }
 
-void CImage::createSampler(vk::Sampler &sampler, vk::Filter magFilter, vk::SamplerAddressMode eAddressMode, bool anisotropy, uint32_t mipLevels)
+void CImage::createSampler(vk::Sampler &sampler, vk::Filter magFilter, vk::SamplerAddressMode eAddressMode, bool anisotropy, bool compareOp, uint32_t mipLevels)
 {
     auto& physicalDevice = CDevice::inst()->getPhysical();
     assert(physicalDevice && "Trying to create sampler, but physical device is invalid.");
@@ -515,8 +518,9 @@ void CImage::createSampler(vk::Sampler &sampler, vk::Filter magFilter, vk::Sampl
     samplerInfo.maxAnisotropy = properties.limits.maxSamplerAnisotropy;
     samplerInfo.borderColor = vk::BorderColor::eIntOpaqueBlack;
     samplerInfo.unnormalizedCoordinates = VK_FALSE;
-    //samplerInfo.compareEnable = VK_FALSE;
-    //samplerInfo.compareOp = compareOp;
+
+    samplerInfo.compareEnable = static_cast<vk::Bool32>(compareOp);
+    samplerInfo.compareOp = vk::CompareOp::eLess;
 
     samplerInfo.mipmapMode = vk::SamplerMipmapMode::eLinear;
     samplerInfo.mipLodBias = 0.0f;

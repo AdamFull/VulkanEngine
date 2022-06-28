@@ -14,21 +14,15 @@ vec3 sampleOffsetDirections[20] = vec3[]
    vec3( 0,  1,  1), vec3( 0, -1,  1), vec3( 0, -1, -1), vec3( 0,  1, -1)
 );   
 
-float omniShadowProjection(samplerCubeArray shadomwap_tex, vec3 P, vec3 offset, float bias, int layer)
+float omniShadowProjection(samplerCubeArrayShadow shadomwap_tex, vec3 P, vec3 offset, float bias, int layer)
 {
-	float shadow = 1.0;
-
-	float closestDist = texture(shadomwap_tex, vec4(P + offset, layer)).r * 25.f;
-	float currentDist = length(P);
-	if (currentDist -  bias > closestDist) 
-		shadow = 0.0;
-
-	return shadow;
+	float currentDist = length(P) / 32.f;
+	return texture(shadomwap_tex, vec4(P, layer), currentDist - bias);
 }
 
-float omniShadowFilterPCF(samplerCubeArray shadomwap_tex, vec3 P, float viewDistance, float bias, int layer)
+float omniShadowFilterPCF(samplerCubeArrayShadow shadomwap_tex, vec3 P, float viewDistance, float bias, int layer)
 {
-	float far_plane = 25.0;
+	float far_plane = 32.0;
 	float shadowFactor = 0.0;
 	int samples  = 20;
 	float diskRadius = (1.0 + (viewDistance / far_plane)) / 25.0; 
@@ -38,15 +32,38 @@ float omniShadowFilterPCF(samplerCubeArray shadomwap_tex, vec3 P, float viewDist
 	return shadowFactor;
 }
 
-float getOmniShadow(samplerCubeArray shadomwap_tex, vec3 fragPos, vec3 viewPos, vec3 N, FPointLight light, int layer, bool enablePCF) 
+float omniShadowFilterPCF(samplerCubeArrayShadow shadomwap_tex, vec3 P, float bias, int layer)
+{
+	float shadowFactor = 0.0;
+	float samples = 4.0;
+	float offset  = 0.1;
+	for(float x = -offset; x < offset; x += offset / (samples * 0.5))
+	{
+		for(float y = -offset; y < offset; y += offset / (samples * 0.5))
+		{
+			for(float z = -offset; z < offset; z += offset / (samples * 0.5))
+			{
+				shadowFactor += omniShadowProjection(shadomwap_tex, P, vec3(x, y, z), bias, layer);
+			}
+		}
+	}
+	shadowFactor /= (samples * samples * samples);
+	return shadowFactor;
+}
+
+float getOmniShadow(samplerCubeArrayShadow shadomwap_tex, vec3 fragPos, vec3 viewPos, vec3 N, FPointLight light, int layer) 
 {
     float shadow = 1.0;
-	vec3 shadowClip = fragPos - light.position;
-	float viewDistance = length(viewPos - fragPos);
-	float bias = 0.15;
+	vec3 shadowClip = fragPos - light.position;	
 
+	//TODO: Fix acne
+	float cosTheta = CosTheta(N, normalize(light.position - fragPos));
+	float bias = 0.005 * tan(acos(cosTheta));
+	bias = clamp(bias, 0.0, 0.0025);
+
+	bool enablePCF = true;
 	if (enablePCF)
-		shadow = omniShadowFilterPCF(shadomwap_tex, shadowClip, viewDistance, bias, layer);
+		shadow = omniShadowFilterPCF(shadomwap_tex, shadowClip, bias, layer);
 	else
 		shadow = omniShadowProjection(shadomwap_tex, shadowClip, vec3(0.0), bias, layer);
 

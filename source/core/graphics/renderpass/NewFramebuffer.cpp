@@ -384,7 +384,7 @@ ref_ptr<CImage> CFramebufferNew::createImage(const FFramebufferAttachmentInfo& a
     } break;
     case EImageType::eArray2D: {
         auto tex2darr = std::dynamic_pointer_cast<CImage2DArray>(texture);
-        tex2darr->create(attachment.layers, extent, attachment.format, imageLayout, attachment.usageFlags, aspectMask, vk::Filter::eNearest, vk::SamplerAddressMode::eRepeat, vk::SampleCountFlagBits::e1, translate_layout);
+        tex2darr->create(attachment.layers, extent, attachment.format, imageLayout, attachment.usageFlags, aspectMask, vk::Filter::eLinear, vk::SamplerAddressMode::eClampToEdge, vk::SampleCountFlagBits::e1, translate_layout);
     } break;
     case EImageType::eArray3D: {
         //TODO: Add implementation
@@ -394,7 +394,7 @@ ref_ptr<CImage> CFramebufferNew::createImage(const FFramebufferAttachmentInfo& a
     } break;
     case EImageType::eArrayCube: {
         auto tex2darr = std::dynamic_pointer_cast<CImageCubemapArray>(texture);
-        tex2darr->create(attachment.layers, extent, attachment.format, imageLayout, attachment.usageFlags, aspectMask, vk::Filter::eNearest, vk::SamplerAddressMode::eRepeat, vk::SampleCountFlagBits::e1, translate_layout);
+        tex2darr->create(attachment.layers, extent, attachment.format, imageLayout, attachment.usageFlags, aspectMask, vk::Filter::eLinear, vk::SamplerAddressMode::eClampToEdge, vk::SampleCountFlagBits::e1, translate_layout);
     } break;
     }
 

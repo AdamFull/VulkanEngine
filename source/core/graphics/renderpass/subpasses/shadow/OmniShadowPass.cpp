@@ -6,6 +6,7 @@
 #include "resources/ResourceManager.h"
 #include "graphics/scene/SceneManager.h"
 #include "graphics/scene/objects/components/LightSourceManager.h"
+#include "GlobalVariables.h"
 
 using namespace engine::core::render;
 using namespace engine::core::scene;
@@ -27,7 +28,7 @@ void COmniShadowPass::reCreate()
 
 void COmniShadowPass::beforeRender(vk::CommandBuffer& commandBuffer)
 {
-    //commandBuffer.setDepthBias(1.25f, 0.0f, 1.75f);
+    //commandBuffer.setDepthBias(GlobalVariables::depthBiasConstant, 0.0f, GlobalVariables::depthBiasSlope);
 }
 
 void COmniShadowPass::render(vk::CommandBuffer& commandBuffer)

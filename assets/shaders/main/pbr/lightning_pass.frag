@@ -29,9 +29,9 @@ layout (input_attachment_index = 0, binding = 3) uniform usubpassInput packed_te
 layout (input_attachment_index = 1, binding = 4) uniform subpassInput emission_tex;
 //layout (input_attachment_index = 2, binding = 5) uniform subpassInput position_tex;
 layout (input_attachment_index = 2, binding = 5) uniform subpassInput depth_tex;
-//layout (binding = 7) uniform sampler2DArray cascade_shadowmap_tex;
-layout (binding = 8) uniform sampler2DArray direct_shadowmap_tex;
-layout (binding = 9) uniform samplerCubeArray omni_shadowmap_tex;
+layout (binding = 7) uniform sampler2DArrayShadow cascade_shadowmap_tex;
+layout (binding = 8) uniform sampler2DArrayShadow direct_shadowmap_tex;
+layout (binding = 9) uniform samplerCubeArrayShadow omni_shadowmap_tex;
 
 layout (location = 0) in vec2 inUV;
 
@@ -77,14 +77,17 @@ vec3 lightContribution(vec3 albedo, vec3 L, vec3 V, vec3 N, vec3 F0, float metal
 	return color;
 }
 
-vec3 calculateDirectionalLight(FDirectionalLight light, vec3 albedo, vec3 V, vec3 N, vec3 F0, float metallic, float roughness)
+vec3 calculateDirectionalLight(FDirectionalLight light, vec3 worldPosition, vec3 albedo, vec3 V, vec3 N, vec3 F0, float metallic, float roughness)
 {
 	vec3 L = -light.direction;
 	float dist = length(L);
 	L = normalize(L);
-
 	vec3 color = lightContribution(albedo, L, V, N, F0, metallic, roughness);
-	return light.color * light.intencity * color;
+
+	vec3 viewPosition = (ubo.view * vec4(worldPosition, 1.0)).xyz;
+	float shadow_factor = getCascadeShadow(cascade_shadowmap_tex, viewPosition, worldPosition, N, light);
+
+	return light.color * light.intencity * color * shadow_factor;
 }
 
 vec3 calculateSpotlight(FSpotLight light, int index, vec3 worldPosition, vec3 albedo, vec3 V, vec3 N, vec3 F0, float metallic, float roughness)
@@ -101,7 +104,8 @@ vec3 calculateSpotlight(FSpotLight light, int index, vec3 worldPosition, vec3 al
 	float spotEffect = smoothstep(light.innerConeAngle, light.outerConeAngle, cosDir);
 	float heightAttenuation = smoothstep(100.0, 0.0f, dist);
 	vec3 color = lightContribution(albedo, L, V, N, F0, metallic, roughness);
-	float shadow_factor = getDirectionalShadow(direct_shadowmap_tex, worldPosition, N, light, index, true);
+	
+	float shadow_factor = getDirectionalShadow(direct_shadowmap_tex, worldPosition, N, light, index);
 
 	return light.color * light.intencity * color * spotEffect * heightAttenuation * shadow_factor;
 }
@@ -113,7 +117,7 @@ vec3 calculatePointLight(FPointLight light, int index, vec3 worldPosition, vec3 
 	L = normalize(L);
 	float atten = clamp(1.0 - pow(dist, 2.0f)/pow(light.intencity, 2.0f), 0.0f, 1.0f); atten *= atten;
 	vec3 color = lightContribution(albedo, L, V, N, F0, metallic, roughness);
-	float shadow_factor = getOmniShadow(omni_shadowmap_tex, worldPosition, ubo.viewPos.xyz, N, light, index, true);
+	float shadow_factor = getOmniShadow(omni_shadowmap_tex, worldPosition, ubo.viewPos.xyz, N, light, index);
 
 	return light.color * atten * color * shadow_factor;
 }
@@ -163,7 +167,7 @@ void main()
 		for(int i = 0; i < ubo.directionalLightCount; i++)
 		{
 			FDirectionalLight light = lights.directionalLights[i];
-			//Lo += calculateDirectionalLight(light, albedo, V, normal, F0, metallic, roughness);
+			Lo += calculateDirectionalLight(light, inWorldPos, albedo, V, normal, F0, metallic, roughness);
 		}
 
 		//Spot light
@@ -218,50 +222,46 @@ void main()
 	else if(debug.target == 6)
 		fragcolor = vec3(roughness);
 	else if(debug.target == 7)
-		fragcolor = texture(direct_shadowmap_tex, vec3(inUV, debug.cascade)).rrr;
-	/*else if(debug.target == 8 || debug.target == 9 || debug.target == 10)
+		fragcolor = vec3(texture(cascade_shadowmap_tex, vec4(inUV, debug.cascade, 0.0)));
+	else if(debug.target == 8)
 	{
 		vec3 viewPos = (ubo.view * vec4(inWorldPos, 1.0)).xyz;
 		float shadow_factor = 1.0;
-		FLight light;
+		FDirectionalLight light;
 		
-		for(int i = 0; i < ubo.lightCount; i++) 
+		for(int i = 0; i < ubo.directionalLightCount; i++) 
 		{
-			light = lights.lights[i];
-			shadow_factor = getCascadeShadow(shadowmap_tex, viewPos, inWorldPos, normal, light);
+			light = lights.directionalLights[i];
+			//shadow_factor = getCascadeShadow(shadowmap_tex, viewPos, inWorldPos, normal, light);
 		}
 
-		if(debug.target == 8)
-			fragcolor = vec3(1.0) * shadow_factor;
-		else if(debug.target == 9)
-			fragcolor = fragcolor * shadow_factor;
-		else if(debug.target == 10)
+		float depthValue = abs(viewPos.z);
+		uint layer = SHADOW_MAP_CASCADE_COUNT - 1;
+		for (uint i = 0; i < SHADOW_MAP_CASCADE_COUNT; ++i)
 		{
-			uint cascadeIndex = 0;
-			for(uint i = 0; i < 4 - 1; ++i) {
-				if(viewPos.z < light.cascadeSplits[i]) {	
-					cascadeIndex = i + 1;
-					break;
-				}
-			}
-
-			switch(cascadeIndex) 
+			if (depthValue < light.cascadeSplits[i])
 			{
-			case 0 : 
-				fragcolor *= vec3(1.0f, 0.25f, 0.25f);
-				break;
-			case 1 : 
-				fragcolor *= vec3(0.25f, 1.0f, 0.25f);
-				break;
-			case 2 : 
-				fragcolor *= vec3(0.25f, 0.25f, 1.0f);
-				break;
-			case 3 : 
-				fragcolor *= vec3(1.0f, 1.0f, 0.25f);
+				layer = i;
 				break;
 			}
 		}
-	}*/
+
+		switch(layer) 
+		{
+		case 0 : 
+			fragcolor *= vec3(1.0f, 0.25f, 0.25f);
+			break;
+		case 1 : 
+			fragcolor *= vec3(0.25f, 1.0f, 0.25f);
+			break;
+		case 2 : 
+			fragcolor *= vec3(0.25f, 0.25f, 1.0f);
+			break;
+		case 3 : 
+			fragcolor *= vec3(1.0f, 1.0f, 0.25f);
+			break;
+		}
+	}
    
   	outFragcolor = vec4(fragcolor, 1.0);
 }

@@ -35,7 +35,7 @@ namespace engine
 
                 const glm::mat4& getShadowView();
                 const std::array<glm::mat4, 6>& getShadowViews();
-                const std::array<float, SHADOW_MAP_CASCADE_COUNT>& getCascadeSplits();
+                const glm::vec4& getCascadeSplits();
                 const std::array<glm::mat4, SHADOW_MAP_CASCADE_COUNT>& getCascadeViews();
             protected:
                 resources::ELightSourceType eType;
@@ -43,7 +43,7 @@ namespace engine
                 float innerConeAngle{0.1}, outerConeAngle{0.78}, intencity{1.0f};
                 glm::mat4 shadowView{};
                 std::array<glm::mat4, 6> shadowViews;
-                std::array<float, SHADOW_MAP_CASCADE_COUNT> aCascadeSplits;
+                glm::vec4 aCascadeSplits;
                 std::array<glm::mat4, SHADOW_MAP_CASCADE_COUNT> aCascadeViewProjMat;
             };
         }

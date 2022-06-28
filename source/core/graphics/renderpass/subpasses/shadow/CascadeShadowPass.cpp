@@ -48,6 +48,7 @@ void CCascadeShadowPass::render(vk::CommandBuffer& commandBuffer)
 
     auto& pUBOShadow = pMaterial->getUniformBuffer("UBOShadowmap");
     pUBOShadow->set("viewProjMat", aCascadeViewProjMat);
+    pUBOShadow->set("passedLights", SHADOW_MAP_CASCADE_COUNT);
 
     pMaterial->update();
     pMaterial->bind(commandBuffer);

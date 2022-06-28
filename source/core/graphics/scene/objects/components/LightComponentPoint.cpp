@@ -15,7 +15,7 @@ void CLightComponentPoint::update(float fDeltaTime)
 
     //Based on https://learnopengl.com/Advanced-Lighting/Shadows/Point-Shadows
     auto transform = pParent->getTransform();
-    glm::mat4 shadowProj = glm::perspective(glm::radians(90.0f), 1.0f, 0.1f, 25.f);
+    glm::mat4 shadowProj = glm::perspective(glm::radians(90.0f), 1.0f, 0.1f, 32.f);
     auto position = transform.pos;// * glm::vec3(1.0, -1.0, 1.0);
     this->shadowViews[0] = shadowProj * glm::lookAt(position, position + glm::vec3( 1.0, 0.0, 0.0), glm::vec3(0.0,-1.0, 0.0)); // POSITIVE_X
     this->shadowViews[1] = shadowProj * glm::lookAt(position, position + glm::vec3(-1.0, 0.0, 0.0), glm::vec3(0.0,-1.0, 0.0)); // NEGATIVE_X

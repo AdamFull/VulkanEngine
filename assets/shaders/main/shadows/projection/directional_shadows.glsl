@@ -2,22 +2,15 @@
 #ifndef DIRECTIONAL_SHADOWS
 #define DIRECTIONAL_SHADOWS
 
-float directionalShadowProjection(sampler2DArray shadomwap_tex, vec4 P, vec2 offset, float bias, int layer)
+float directionalShadowProjection(sampler2DArrayShadow shadomwap_tex, vec4 P, vec2 offset, float bias, int layer)
 {
 	float shadow = 1.0;
 	vec4 shadowCoord = P / P.w;
 	shadowCoord.st = shadowCoord.st * 0.5 + 0.5;
-
-	if (shadowCoord.z > -1.0 && shadowCoord.z < 1.0) 
-	{
-		float dist = texture(shadomwap_tex, vec3(shadowCoord.st + offset, layer)).r;
-		if (shadowCoord.w > 0.0 && dist < shadowCoord.z - bias) 
-			shadow = 0.0;
-	}
-	return shadow;
+	return texture(shadomwap_tex, vec4(shadowCoord.st + offset, layer, shadowCoord.z - bias));
 }
 
-float directionalShadowFilterPCF(sampler2DArray shadomwap_tex, vec4 sc, float bias, int layer)
+float directionalShadowFilterPCF(sampler2DArrayShadow shadomwap_tex, vec4 sc, float bias, int layer)
 {
 	ivec2 texDim = textureSize(shadomwap_tex, 0).xy;
 	float scale = 1.5;
@@ -40,20 +33,20 @@ float directionalShadowFilterPCF(sampler2DArray shadomwap_tex, vec4 sc, float bi
 	return shadowFactor / count;
 }
 
-float getDirectionalShadow(sampler2DArray shadomwap_tex, vec3 fragpos, vec3 N, FSpotLight light, int layer, bool enablePCF) 
+float getDirectionalShadow(sampler2DArrayShadow shadomwap_tex, vec3 fragpos, vec3 N, FSpotLight light, int layer) 
 {
     float shadow = 1.0;
 	vec4 shadowClip	= light.shadowView * vec4(fragpos, 1.0);
 
-	float cosTheta = CosTheta(N, light.position - light.direction);
-	float bias = 0.001 * tan(acos(cosTheta));
-	bias = clamp(bias, 0.0, 0.01);
+	float cosTheta = CosTheta(N, normalize(light.position - light.direction));
+	float bias = 0.000001 * tan(acos(cosTheta));
+	bias = clamp(bias, 0.0, 0.00001);
 
+	bool enablePCF = true;
 	if (enablePCF)
 		shadow = directionalShadowFilterPCF(shadomwap_tex, shadowClip, bias, layer);
 	else
 		shadow = directionalShadowProjection(shadomwap_tex, shadowClip, vec2(0.0), bias, layer);
-
 	return shadow;
 }
 

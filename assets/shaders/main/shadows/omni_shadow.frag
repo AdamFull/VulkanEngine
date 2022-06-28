@@ -9,7 +9,7 @@ void main()
     float lightDistance = length(inPosition.xyz - inLightPos.xyz);
     
     // map to [0;1] range by dividing by far_plane
-    lightDistance = lightDistance / 25.f;
+    lightDistance = lightDistance / 32.f;
     
     // write this as modified depth
     gl_FragDepth = lightDistance;

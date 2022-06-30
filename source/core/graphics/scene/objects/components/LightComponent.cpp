@@ -14,11 +14,6 @@ void CLightComponent::create()
 void CLightComponent::update(float fDeltaTime)
 {
 	CSceneComponent::update(fDeltaTime);
-
-	auto& transform = pParent->getLocalTransform();
-	float angle = glm::radians(componentTick * 360.0f);
-	float radius = 20.0f;
-	//transform.rot = glm::vec3(cos(angle) * radius, -radius, sin(angle) * radius);
 }
 
 void CLightComponent::setType(ELightSourceType type)
@@ -98,7 +93,7 @@ const std::array<glm::mat4, 6>& CLightComponent::getShadowViews()
 	return shadowViews;
 }
 
-const glm::vec4& CLightComponent::getCascadeSplits()
+const std::array<float, SHADOW_MAP_CASCADE_COUNT>& CLightComponent::getCascadeSplits()
 {
 	return aCascadeSplits;
 }

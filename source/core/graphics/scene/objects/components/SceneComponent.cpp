@@ -19,7 +19,7 @@ void CSceneComponent::render(vk::CommandBuffer &commandBuffer)
 
 void CSceneComponent::update(float fDeltaTime)
 {
-    componentTick += fDeltaTime * 0.025f;
+    componentTick += fDeltaTime * 0.03f;
 }
 
 void CSceneComponent::cleanup()

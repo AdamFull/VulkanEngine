@@ -300,7 +300,7 @@ namespace engine
             vk::Extent2D swapchainExtent;
             vk::SwapchainKHR swapChain{VK_NULL_HANDLE};
             size_t currentFrame{0};
-            uint32_t framesInFlight{3};
+            uint32_t framesInFlight{4};
             bool bSwapChainRebuild{};
 
             vk::Extent2D viewportExtent;

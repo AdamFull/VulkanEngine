@@ -9,7 +9,7 @@ namespace engine
         {
             struct FDirectionalLight
             {
-                alignas(16) glm::vec4 cascadeSplits;
+                alignas(8) std::array<float, SHADOW_MAP_CASCADE_COUNT> cascadeSplits;
                 alignas(16) std::array<glm::mat4, SHADOW_MAP_CASCADE_COUNT> cascadeViewProjMat;
                 alignas(16) glm::vec3 direction;
                 alignas(16) glm::vec3 color;
@@ -23,8 +23,8 @@ namespace engine
                 void create() override;
                 void update(float fDeltaTime) override;
             private:
-                glm::mat4 getLightSpaceMatrix(const float nearPlane, const float farPlane);
-                std::vector<glm::vec4> getFrustumCornersWorldSpace(const glm::mat4& proj, const glm::mat4& view);
+                glm::mat4 getLightSpaceMatrixEx(const float lastSplitDist, const float splitDist);
+                std::array<glm::vec3, 8> getFrostumCornersWorldSpaceEx(const glm::mat4& proj, const glm::mat4& view, float splitDist, float lastSplitDist);
                 void updateCascades();
             };
         }

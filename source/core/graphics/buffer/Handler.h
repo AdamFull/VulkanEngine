@@ -82,7 +82,7 @@ namespace engine
 
                 auto realSize = size;
                 if (realSize == 0)
-                    realSize = uniform->getSize();
+                    realSize = std::min(sizeof(object), uniform->getSize());
 
                 auto testSize = sizeof(object);
                 

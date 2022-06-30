@@ -14,7 +14,7 @@ CShadowMappingStage::~CShadowMappingStage()
 
 void CShadowMappingStage::create()
 {
-    screenExtent = vk::Extent2D{512, 512};
+    screenExtent = vk::Extent2D{SHADOW_MAP_RESOLUTION, SHADOW_MAP_RESOLUTION};
 
     //Cascade shadow pass
     auto cascade_fb = make_scope<CFramebufferNew>();

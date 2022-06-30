@@ -6,7 +6,7 @@
 #extension GL_GOOGLE_include_directive : require
 
 
-#define SHADOW_MAP_CASCADE_COUNT 4
+#define SHADOW_MAP_CASCADE_COUNT 5
 
 #include "light_models/frostbite.glsl"
 #include "light_models/sascha_williems.glsl"
@@ -29,7 +29,7 @@ layout (input_attachment_index = 0, binding = 3) uniform usubpassInput packed_te
 layout (input_attachment_index = 1, binding = 4) uniform subpassInput emission_tex;
 //layout (input_attachment_index = 2, binding = 5) uniform subpassInput position_tex;
 layout (input_attachment_index = 2, binding = 5) uniform subpassInput depth_tex;
-layout (binding = 7) uniform sampler2DArrayShadow cascade_shadowmap_tex;
+layout (binding = 7) uniform sampler2DArray cascade_shadowmap_tex;
 layout (binding = 8) uniform sampler2DArrayShadow direct_shadowmap_tex;
 layout (binding = 9) uniform samplerCubeArrayShadow omni_shadowmap_tex;
 
@@ -55,7 +55,7 @@ layout(std140, binding = 13) uniform UBODebug
 } debug;
 
 //Lights
-layout(std140, binding = 14) uniform UBOLights
+layout(std430, binding = 14) buffer UBOLights
 {
 	FDirectionalLight directionalLights[1];
 	FSpotLight spotLights[15];
@@ -221,46 +221,51 @@ void main()
 		fragcolor = vec3(metallic);
 	else if(debug.target == 6)
 		fragcolor = vec3(roughness);
-	else if(debug.target == 7)
-		fragcolor = vec3(texture(cascade_shadowmap_tex, vec4(inUV, debug.cascade, 0.0)));
-	else if(debug.target == 8)
+	else if(debug.target == 7 || debug.target == 8)
 	{
 		vec3 viewPos = (ubo.view * vec4(inWorldPos, 1.0)).xyz;
 		float shadow_factor = 1.0;
 		FDirectionalLight light;
 		
+		uint cascadeIndex = 0;
 		for(int i = 0; i < ubo.directionalLightCount; i++) 
 		{
 			light = lights.directionalLights[i];
-			//shadow_factor = getCascadeShadow(shadowmap_tex, viewPos, inWorldPos, normal, light);
+			for (uint i = 0; i < SHADOW_MAP_CASCADE_COUNT; ++i)
+			{
+				if (viewPos.z < light.cascadeSplits[i])
+					cascadeIndex = i + 1;
+			}
+			shadow_factor = texture(cascade_shadowmap_tex, vec3(inUV, cascadeIndex)).r;
 		}
 
-		float depthValue = abs(viewPos.z);
-		uint layer = SHADOW_MAP_CASCADE_COUNT - 1;
-		for (uint i = 0; i < SHADOW_MAP_CASCADE_COUNT; ++i)
+		if(debug.target == 7)
+			fragcolor = vec3(shadow_factor);
+		else if(debug.target == 8)
 		{
-			if (depthValue < light.cascadeSplits[i])
+			switch(cascadeIndex) 
 			{
-				layer = i;
+			case 0 : 
+				fragcolor *= vec3(1.0f, 0.25f, 0.25f);
+				break;
+			case 1 : 
+				fragcolor *= vec3(0.25f, 1.0f, 0.25f);
+				break;
+			case 2 : 
+				fragcolor *= vec3(0.25f, 0.25f, 1.0f);
+				break;
+			case 3 : 
+				fragcolor *= vec3(1.0f, 1.0f, 0.25f);
+				break;
+			case 4 : 
+				fragcolor *= vec3(0.25f, 1.0f, 1.0f);
 				break;
 			}
 		}
-
-		switch(layer) 
-		{
-		case 0 : 
-			fragcolor *= vec3(1.0f, 0.25f, 0.25f);
-			break;
-		case 1 : 
-			fragcolor *= vec3(0.25f, 1.0f, 0.25f);
-			break;
-		case 2 : 
-			fragcolor *= vec3(0.25f, 0.25f, 1.0f);
-			break;
-		case 3 : 
-			fragcolor *= vec3(1.0f, 1.0f, 0.25f);
-			break;
-		}
+	}
+	else if(debug.target == 8)
+	{
+		
 	}
    
   	outFragcolor = vec4(fragcolor, 1.0);

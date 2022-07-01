@@ -9,15 +9,6 @@ namespace engine
     {
         namespace render
         {
-            enum class EStageType
-            {
-                eDeferred,
-                eShadow,
-                ePostProcess,
-                ePresent
-            };
-
-            class CSubpass;
             class CRenderSystem : public utl::singleton<CRenderSystem>
             {
             public:

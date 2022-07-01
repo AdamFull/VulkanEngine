@@ -11,15 +11,6 @@ using namespace engine::core::render;
 
 void CFramebufferNew::create()
 {
-    //Looking for depth attachment
-    uint32_t depthIndex{};
-    for(auto& attachment : vFbAttachments)
-    {
-        if(isDepthAttachment(attachment.usageFlags))
-            depthReference = vk::AttachmentReference{depthIndex, vk::ImageLayout::eDepthStencilAttachmentOptimal};
-        depthIndex++;
-    }
-
     createRenderPass();
     createFramebuffer();
 
@@ -124,7 +115,7 @@ void CFramebufferNew::render(vk::CommandBuffer& commandBuffer)
     end(commandBuffer);
 }
 
-void CFramebufferNew::addDescription(uint32_t subpass, bool bUseDepth)
+void CFramebufferNew::addDescription(uint32_t subpass, const std::string& depthReference)
 {
     
     vk::SubpassDescription description{};
@@ -143,7 +134,7 @@ void CFramebufferNew::addDescription(uint32_t subpass, bool bUseDepth)
         description.inputAttachmentCount = static_cast<uint32_t>(inputRef->second.size());
         description.pInputAttachments = inputRef->second.data();
     }
-    description.pDepthStencilAttachment = bUseDepth ? &depthReference : nullptr;
+    description.pDepthStencilAttachment = !depthReference.empty() ? &mDepthReference.at(depthReference) : nullptr;
     vSubpassDesc.emplace_back(description);
 }
 
@@ -207,6 +198,7 @@ void CFramebufferNew::addRenderer(scope_ptr<CSubpass>&& subpass)
 
 void CFramebufferNew::addImage(const std::string& name, vk::Format format, vk::ImageUsageFlags usageFlags, EImageType eImageType, uint32_t layers)
 {
+    uint32_t reference{0};
     vk::ClearValue clearValue{};
     vk::AttachmentDescription attachmentDescription{};
     attachmentDescription.format = format;
@@ -256,11 +248,13 @@ void CFramebufferNew::addImage(const std::string& name, vk::Format format, vk::I
         else
             attachmentDescription.finalLayout = vk::ImageLayout::eDepthStencilAttachmentOptimal;
         clearValue.setDepthStencil(vk::ClearDepthStencilValue{1.0f, 0});
+        mDepthReference.emplace(name, vk::AttachmentReference{static_cast<uint32_t>(mFbAttachments.size()), vk::ImageLayout::eDepthStencilAttachmentOptimal});
     }
 
+    reference = static_cast<uint32_t>(mFbAttachments.size());
     vAttachDesc.emplace_back(attachmentDescription);
     vClearValues.emplace_back(clearValue);
-    vFbAttachments.emplace_back(FFramebufferAttachmentInfo{name, format, usageFlags, eImageType, layers});
+    mFbAttachments.emplace(name, FFramebufferAttachmentInfo{format, usageFlags, eImageType, reference, layers});
 }
 
 vk::Framebuffer& CFramebufferNew::getCurrentFramebuffer()
@@ -292,13 +286,13 @@ void CFramebufferNew::createFramebuffer()
     for(size_t frame = 0; frame < framesInFlight; frame++)
     {
         std::vector<vk::ImageView> imageViews{};
-        for(auto& attachment : vFbAttachments)
+        for(auto& [name, attachment] : mFbAttachments)
         {
             if(attachment.usageFlags & vk::ImageUsageFlagBits::eDepthStencilAttachment)
             {
-                if(vFramebufferDepth.empty())
-                    vFramebufferDepth.emplace_back(createImage(attachment, renderArea.extent));
-                mFramebufferImages[frame].emplace(attachment.name, vFramebufferDepth.back());
+                vFramebufferDepth.emplace_back(createImage(attachment, renderArea.extent));
+                mFramebufferImages[frame].emplace(name, vFramebufferDepth.back());
+                imageViews.push_back(vFramebufferDepth.back()->getDescriptor().imageView);
             }
             else
             {
@@ -309,14 +303,11 @@ void CFramebufferNew::createFramebuffer()
                 else
                 {
                     auto image = createImage(attachment, renderArea.extent);
-                    mFramebufferImages[frame].emplace(attachment.name, image);
+                    mFramebufferImages[frame].emplace(name, image);
                     imageViews.push_back(image->getDescriptor().imageView);
                 }
             }
         }
-
-        if(!vFramebufferDepth.empty())
-            imageViews.push_back(vFramebufferDepth.back()->getDescriptor().imageView);
 
         vk::FramebufferCreateInfo framebufferCI = {};
         framebufferCI.pNext = nullptr;

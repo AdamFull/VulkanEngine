@@ -83,4 +83,4 @@ constexpr ref_ptr<_Ty> make_ref(_Args&& ...args)
 #define MAX_SPOT_LIGHT_COUNT 15
 #define MAX_POINT_LIGHT_COUNT 16
 #define SHADOW_MAP_CASCADE_COUNT 5
-#define SHADOW_MAP_RESOLUTION 1024
+#define SHADOW_MAP_RESOLUTION 512

@@ -76,7 +76,7 @@ namespace engine
             private:
                 void normalizeFrustumSide(size_t side);
 
-                float dt{0.0}, fieldOfView{45.f}, nearPlane{0.1f}, farPlane{128.f}, sensitivity{15.f};
+                float dt{0.0}, fieldOfView{45.f}, nearPlane{0.5f}, farPlane{200.f}, sensitivity{15.f};
                 float angleH{0.f}, angleV{0.f};
                 bool bEnableControls{true}, bIsActive{false};
 

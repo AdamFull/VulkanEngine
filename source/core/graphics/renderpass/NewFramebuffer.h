@@ -1,6 +1,7 @@
 #pragma once
 #include "Subpass.h"
 #include "graphics/image/Image.h"
+#include "fifo_map.hpp"
 
 namespace engine
 {
@@ -10,10 +11,10 @@ namespace engine
         {
             struct FFramebufferAttachmentInfo
             {
-                std::string name;
                 vk::Format format;
                 vk::ImageUsageFlags usageFlags;
                 EImageType eType;
+                uint32_t reference;
                 uint32_t layers;
             };
 
@@ -46,24 +47,36 @@ namespace engine
                 template <class... _Args>
                 void addInputReference(uint32_t index, _Args... args)
                 {
-                    std::array<uint32_t, sizeof...(_Args)> unpacked{std::forward<_Args>(args)...};
+                    std::array<std::string, sizeof...(_Args)> unpacked{std::forward<_Args>(args)...};
                     std::vector<vk::AttachmentReference> references;
                     for (auto &arg : unpacked)
-                        references.emplace_back(vk::AttachmentReference{arg, vk::ImageLayout::eShaderReadOnlyOptimal});
+                    {
+                        auto attachment = mFbAttachments.find(arg);
+                        if(attachment != mFbAttachments.end())
+                            references.emplace_back(vk::AttachmentReference{attachment->second.reference, vk::ImageLayout::eShaderReadOnlyOptimal});
+                        else
+                            assert(false && "Attachment not found.");
+                    }   
                     mInputReferences.emplace(index, references);
                 }
 
                 template <class... _Args>
                 void addOutputReference(uint32_t index, _Args... args)
                 {
-                    std::array<uint32_t, sizeof...(_Args)> unpacked{std::forward<_Args>(args)...};
+                    std::array<std::string, sizeof...(_Args)> unpacked{std::forward<_Args>(args)...};
                     std::vector<vk::AttachmentReference> references;
                     for (auto &arg : unpacked)
-                        references.emplace_back(vk::AttachmentReference{arg, vk::ImageLayout::eColorAttachmentOptimal});
+                    {
+                        auto attachment = mFbAttachments.find(arg);
+                        if(attachment != mFbAttachments.end())
+                            references.emplace_back(vk::AttachmentReference{attachment->second.reference, vk::ImageLayout::eColorAttachmentOptimal});
+                        else
+                            assert(false && "Attachment not found.");
+                    }
                     mOutputReferences.emplace(index, references);
                 }
 
-                void addDescription(uint32_t subpass, bool bUseDepth = false);
+                void addDescription(uint32_t subpass, const std::string& depthReference = "");
                 void addBarrier(uint32_t src, uint32_t dst, EBarrierType type);
                 // Temporary while thinking about barrier generation
                 void addSubpassDependency(uint32_t src, uint32_t dst, vk::PipelineStageFlags srcStageMask = vk::PipelineStageFlagBits::eColorAttachmentOutput,
@@ -121,11 +134,11 @@ namespace engine
                 std::vector<vk::ClearValue> vClearValues;
                 std::map<uint32_t, std::vector<vk::AttachmentReference>> mInputReferences;
                 std::map<uint32_t, std::vector<vk::AttachmentReference>> mOutputReferences;
-                vk::AttachmentReference depthReference;
+                std::map<std::string, vk::AttachmentReference> mDepthReference;
 
                 // Framebuffer part
                 std::vector<vk::Framebuffer> vFramebuffers;
-                std::vector<FFramebufferAttachmentInfo> vFbAttachments;
+                nlohmann::fifo_map<std::string, FFramebufferAttachmentInfo> mFbAttachments;
                 std::map<uint32_t, std::unordered_map<std::string, ref_ptr<CImage>>> mFramebufferImages;
                 std::vector<ref_ptr<CImage>> vFramebufferDepth;
             };

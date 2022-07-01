@@ -221,7 +221,7 @@ void main()
 		fragcolor = vec3(metallic);
 	else if(debug.target == 6)
 		fragcolor = vec3(roughness);
-	else if(debug.target == 7 || debug.target == 8)
+	else if(debug.target == 7 || debug.target == 8 || debug.target == 9)
 	{
 		vec3 viewPos = (ubo.view * vec4(inWorldPos, 1.0)).xyz;
 		float shadow_factor = 1.0;
@@ -231,7 +231,7 @@ void main()
 		for(int i = 0; i < ubo.directionalLightCount; i++) 
 		{
 			light = lights.directionalLights[i];
-			for (uint i = 0; i < SHADOW_MAP_CASCADE_COUNT; ++i)
+			for (uint i = 0; i < SHADOW_MAP_CASCADE_COUNT - 1; ++i)
 			{
 				if (viewPos.z < light.cascadeSplits[i])
 					cascadeIndex = i + 1;
@@ -242,6 +242,8 @@ void main()
 		if(debug.target == 7)
 			fragcolor = vec3(shadow_factor);
 		else if(debug.target == 8)
+			fragcolor = texture(cascade_shadowmap_tex, vec3(inUV, debug.cascade)).rrr;
+		else if(debug.target == 9)
 		{
 			switch(cascadeIndex) 
 			{

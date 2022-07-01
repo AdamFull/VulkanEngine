@@ -50,7 +50,7 @@ float cascadeShadowFilterPCF(sampler2DArray shadomwap_tex, vec4 sc, uint cascade
 float getCascadeShadow(sampler2DArray shadomwap_tex, vec3 viewPosition, vec3 worldPosition, vec3 N, FDirectionalLight light)
 {
 	uint cascadeIndex = 0;
-	for (uint i = 0; i < SHADOW_MAP_CASCADE_COUNT; ++i)
+	for (uint i = 0; i < SHADOW_MAP_CASCADE_COUNT - 1; ++i)
 	{
 		if (viewPosition.z < light.cascadeSplits[i])
 			cascadeIndex = i + 1;

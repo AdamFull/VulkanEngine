@@ -15,5 +15,5 @@ namespace engine
     int GlobalVariables::shadingMode{0};
     int GlobalVariables::debugTarget{0};
     int GlobalVariables::debugCascade{0};
-    float GlobalVariables::cascadeSplitLambda{0.95f};
+    float GlobalVariables::cascadeSplitLambda{0.75f};
 }

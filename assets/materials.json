@@ -46,7 +46,7 @@
         {
             "vertexType": "default",
             "bindPoint": "graphics",
-            "culling": "front",
+            "culling": "none",
             "frontface": "clockwise",
             "depth": true,
             "dynamicStates": ["viewport", "scissor"],

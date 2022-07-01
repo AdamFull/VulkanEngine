@@ -141,7 +141,7 @@ void CLightComponentDirectional::updateCascadesEx()
 
 		// Store split distance and matrix in cascade
 		this->aCascadeSplits[i] = (nearClip + splitDist * clipRange) * -1.f;
-		this->aCascadeViewProjMat[i] = getLightSpaceMatrixEx(lastSplitDist, splitDist);
+		this->aCascadeViewProjMat[i] = glm::scale(getLightSpaceMatrixEx(lastSplitDist, splitDist), glm::vec3(-1.0, -1.0, -1.0));
 
 		lastSplitDist = cascadeSplits[i];
 	}

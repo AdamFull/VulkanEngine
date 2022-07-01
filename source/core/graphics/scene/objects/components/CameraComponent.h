@@ -27,8 +27,8 @@ namespace engine
 
                 void lookAt(float dX, float dY);
 
-                glm::mat4 getProjection() const;
-                glm::mat4 getView() const;
+                glm::mat4 getProjection(bool flipY = false) const;
+                glm::mat4 getView(bool flipY = false) const;
 
                 glm::vec3 getForwardVector() const;
                 glm::vec3 getUpVector() const;

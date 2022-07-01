@@ -516,7 +516,7 @@ void CImage::createSampler(vk::Sampler &sampler, vk::Filter magFilter, vk::Sampl
 
     samplerInfo.anisotropyEnable = static_cast<vk::Bool32>(anisotropy);
     samplerInfo.maxAnisotropy = properties.limits.maxSamplerAnisotropy;
-    samplerInfo.borderColor = vk::BorderColor::eIntOpaqueBlack;
+    samplerInfo.borderColor = vk::BorderColor::eIntOpaqueWhite;
     samplerInfo.unnormalizedCoordinates = VK_FALSE;
 
     samplerInfo.compareEnable = static_cast<vk::Bool32>(compareOp);

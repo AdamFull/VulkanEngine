@@ -138,17 +138,24 @@ void CCameraComponent::lookAt(float dX, float dY)
     transform.rot = glm::normalize(glm::vec3(w * -1.f, u, v * -1.f));
 }
 
-glm::mat4 CCameraComponent::getProjection() const
+glm::mat4 CCameraComponent::getProjection(bool flipY) const
 {
     auto aspect = CDevice::inst()->getAspect(true);
     auto perspective = glm::perspective(glm::radians(fieldOfView), aspect, nearPlane, farPlane);
+    if(flipY)
+        perspective[1][1] *= -1.f;
     return perspective;
 }
 
-glm::mat4 CCameraComponent::getView() const
+glm::mat4 CCameraComponent::getView(bool flipY) const
 {
     auto& transform = pParent->getLocalTransform();
-    return glm::lookAt(transform.pos, transform.pos + transform.rot, getUpVector());
+
+    auto position = transform.pos;
+    if(flipY)
+        position.y *= -1.f;
+
+    return glm::lookAt(position, position + transform.rot, getUpVector());
 }
 
 glm::vec3 CCameraComponent::getForwardVector() const

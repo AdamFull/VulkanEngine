@@ -29,7 +29,7 @@ Game engine architecture. Goog book for creating not bad game engine architectur
 - [x] Deferred shading
 - [x] All light types (Directional light, point light spot light)
 - [x] HDR
-- [x] Bloom
+- [ ] Bloom
 - [x] PBR(UE4)
 - [x] IBL
 - [x] Compute shaders
@@ -39,7 +39,7 @@ Game engine architecture. Goog book for creating not bad game engine architectur
 - [x] Omni shadows (single pass, max 16)
 - [ ] Cascade shadows(Only for directional, max 1)
 - [ ] Realtime reflections
-- [x] Instancing
+- [ ] Instancing
 - [x] Tescellation
 - [ ] SSAO
 - [x] Parallax mapping

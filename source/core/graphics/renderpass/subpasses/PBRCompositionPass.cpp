@@ -35,7 +35,6 @@ void CPBRCompositionPass::create()
     prefiltered = CThreadPool::inst()->submit(&CPBRCompositionPass::ComputePrefiltered, m_pSkybox, 512);
 
     pMaterial = CMaterialLoader::inst()->create("pbr_composition");
-    auto& pipeline = pMaterial->getPipeline();
     pMaterial->create();
     CSubpass::create();
 }
@@ -56,7 +55,8 @@ void CPBRCompositionPass::render(vk::CommandBuffer& commandBuffer)
     pMaterial->addTexture("packed_tex", images["packed_tex"]);
     pMaterial->addTexture("emission_tex", images["emission_tex"]);
     pMaterial->addTexture("depth_tex", images["depth_tex"]);
-    //pMaterial->addTexture("position_tex", images["position_tex"]);
+    pMaterial->addTexture("ssao_tex", images["ssao_tex"]);
+    
     pMaterial->addTexture("cascade_shadowmap_tex", images["cascade_shadowmap_tex"]);
     pMaterial->addTexture("direct_shadowmap_tex", images["direct_shadowmap_tex"]);
     pMaterial->addTexture("omni_shadowmap_tex", images["omni_shadowmap_tex"]);
@@ -107,9 +107,9 @@ void CPBRCompositionPass::cleanup()
     CSubpass::cleanup();
 }
 
-ref_ptr<CImage> CPBRCompositionPass::ComputeBRDFLUT(uint32_t size)
+utl::ref_ptr<CImage> CPBRCompositionPass::ComputeBRDFLUT(uint32_t size)
 {
-    auto brdfImage = make_ref<CImage2D>();
+    auto brdfImage = utl::make_ref<CImage2D>();
     brdfImage->create(vk::Extent2D{size, size}, vk::Format::eR16G16Sfloat, vk::ImageLayout::eGeneral,
     vk::ImageUsageFlagBits::eTransferSrc | vk::ImageUsageFlagBits::eTransferDst | vk::ImageUsageFlagBits::eSampled | vk::ImageUsageFlagBits::eColorAttachment | vk::ImageUsageFlagBits::eStorage);
 
@@ -131,9 +131,9 @@ ref_ptr<CImage> CPBRCompositionPass::ComputeBRDFLUT(uint32_t size)
     return brdfImage;
 }
 
-ref_ptr<CImage> CPBRCompositionPass::ComputeIrradiance(const ref_ptr<CImage> &source, uint32_t size)
+utl::ref_ptr<CImage> CPBRCompositionPass::ComputeIrradiance(const utl::ref_ptr<CImage> &source, uint32_t size)
 {
-    auto irradianceCubemap = make_ref<CImageCubemap>();
+    auto irradianceCubemap = utl::make_ref<CImageCubemap>();
     irradianceCubemap->create(vk::Extent2D{size, size}, vk::Format::eR32G32B32A32Sfloat, vk::ImageLayout::eGeneral,
     vk::ImageUsageFlagBits::eTransferSrc | vk::ImageUsageFlagBits::eTransferDst | vk::ImageUsageFlagBits::eSampled | vk::ImageUsageFlagBits::eColorAttachment | vk::ImageUsageFlagBits::eStorage);
 
@@ -156,9 +156,9 @@ ref_ptr<CImage> CPBRCompositionPass::ComputeIrradiance(const ref_ptr<CImage> &so
     return irradianceCubemap;
 }
 
-ref_ptr<CImage> CPBRCompositionPass::ComputePrefiltered(const ref_ptr<CImage>& source, uint32_t size)
+utl::ref_ptr<CImage> CPBRCompositionPass::ComputePrefiltered(const utl::ref_ptr<CImage>& source, uint32_t size)
 {
-    auto prefilteredCubemap = make_ref<CImageCubemap>();
+    auto prefilteredCubemap = utl::make_ref<CImageCubemap>();
     prefilteredCubemap->create(vk::Extent2D{size, size}, vk::Format::eR16G16B16A16Sfloat, vk::ImageLayout::eGeneral,
     vk::ImageUsageFlagBits::eTransferSrc | vk::ImageUsageFlagBits::eTransferDst | vk::ImageUsageFlagBits::eSampled | vk::ImageUsageFlagBits::eColorAttachment | vk::ImageUsageFlagBits::eStorage,
     vk::ImageAspectFlagBits::eColor, vk::Filter::eLinear, vk::SamplerAddressMode::eClampToEdge, vk::SampleCountFlagBits::e1, true, false, true);

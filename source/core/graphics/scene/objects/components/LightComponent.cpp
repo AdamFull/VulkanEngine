@@ -82,6 +82,16 @@ const float& CLightComponent::getIntencity()
 	return intencity;
 }
 
+void CLightComponent::setRadius(float radius)
+{
+	this->radius = radius;
+}
+
+const float& CLightComponent::getRadius()
+{
+	return radius;
+}
+
 
 const glm::mat4& CLightComponent::getShadowView()
 {

@@ -12,6 +12,7 @@ namespace engine
                 alignas(16) glm::vec3 position;
                 alignas(16) glm::vec3 color;
                 alignas(4) float intencity;
+                alignas(4) float radius;
             };
 
             class CLightComponentPoint : public CLightComponent

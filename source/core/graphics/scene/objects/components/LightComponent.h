@@ -33,6 +33,9 @@ namespace engine
                 void setIntencity(float intencity);
                 const float& getIntencity();
 
+                void setRadius(float radius);
+                const float& getRadius();
+
                 const glm::mat4& getShadowView();
                 const std::array<glm::mat4, 6>& getShadowViews();
                 const std::array<float, SHADOW_MAP_CASCADE_COUNT>& getCascadeSplits();
@@ -40,7 +43,7 @@ namespace engine
             protected:
                 resources::ELightSourceType eType;
                 glm::vec3 color;
-                float innerConeAngle{0.1}, outerConeAngle{0.78}, intencity{1.0f};
+                float innerConeAngle{0.1}, outerConeAngle{0.78}, intencity{1.0f}, radius{1.0f};
                 glm::mat4 shadowView{};
                 std::array<glm::mat4, 6> shadowViews;
                 std::array<float, SHADOW_MAP_CASCADE_COUNT> aCascadeSplits;

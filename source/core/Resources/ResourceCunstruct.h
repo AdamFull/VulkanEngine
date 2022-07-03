@@ -152,9 +152,11 @@ namespace engine
             glm::vec4 vColor{};
             /// @brief  Light intencity
             float fIntencity{1.f};
-            /// @brief  Light intencity
+            /// @brief  Light radius
+            float fRadius{1.f};
+            /// @brief  Light inner angle
             float fInnerAngle{0.f};
-            /// @brief  Light intencity
+            /// @brief  Light outer agle
             float fOuterAngle{0.78f};
         };
 

@@ -7,9 +7,9 @@ using namespace engine::core;
 using namespace engine::core::scene;
 
 template<>
-scope_ptr<CLightSourceManager> utl::singleton<CLightSourceManager>::_instance{nullptr};
+utl::scope_ptr<CLightSourceManager> utl::singleton<CLightSourceManager>::_instance{nullptr};
 
-void CLightSourceManager::addLight(ref_ptr<CRenderObject>& light)
+void CLightSourceManager::addLight(utl::ref_ptr<CRenderObject>& light)
 {
     vLights.emplace_back(light);
 }
@@ -46,6 +46,7 @@ point_lights_array& CLightSourceManager::getPointSources(uint32_t& light_count)
             light_data.position = lightSource->getPosition();
             light_data.color = lightSource->getColor();
             light_data.intencity = lightSource->getIntencity();
+            light_data.radius = lightSource->getRadius();
             light_count++;
         }
     }

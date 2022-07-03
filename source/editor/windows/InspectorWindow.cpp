@@ -180,10 +180,15 @@ void CInspectorWindow::draw()
                     case ELightSourceType::ePoint: {
                         ImGui::Text("Point light");
                         ImGui::Separator();
+
+                        auto radius = pLight->getRadius();
+                        if(FControls::DragFloat("radius", &radius, 0.01))
+                            pLight->setRadius(radius);
                     } break;
                     case ELightSourceType::eSpot: {
                         ImGui::Text("Spot light");
                         ImGui::Separator();
+
                         auto innerConeAngle = pLight->getInnerAngle();
                         if(FControls::DragFloat("inner angle", &innerConeAngle, 0.01))
                             pLight->setInnerAngle(innerConeAngle);

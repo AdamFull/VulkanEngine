@@ -28,6 +28,7 @@ struct FPointLight
 	vec3 position;
     vec3 color;
 	float intencity;
+	float radius;
 };
 
 #endif

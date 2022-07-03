@@ -44,7 +44,7 @@ layout(location = 1) out vec4 outEmissive;
 layout(location = 2) out vec4 outPosition;
 #endif
 
-#include "../shader_util.glsl"
+#include "../../shader_util.glsl"
 
 layout(std140, binding = 0) uniform FUniformData 
 {
@@ -134,10 +134,8 @@ void main()
 	//normal_map *= (2.0 * float(gl_FrontFacing) - 1.0);
 
 //AMBIENT OCCLUSION
-	float ao = 1.0;
 #ifdef HAS_OCCLUSIONMAP
-	ao = texture(occlusion_tex, texCoord).r;
-    albedo_map = mix(albedo_map, albedo_map * ao, material.occlusionStrenth);
+	pbr_map.b = texture(occlusion_tex, texCoord).r * material.occlusionStrenth;
 #endif
 
 //EMISSION

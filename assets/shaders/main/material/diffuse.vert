@@ -19,7 +19,7 @@ layout(location = 3) out vec3 outNormal;
 layout (location = 4) out vec4 outTangent;
 #endif
 
-#include "../shader_util.glsl"
+#include "../../shader_util.glsl"
 
 layout(std140, binding = 0) uniform FUniformData 
 {

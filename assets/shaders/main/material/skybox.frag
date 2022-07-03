@@ -12,7 +12,7 @@ layout(location = 1) out vec4 outEmissive;
 layout(location = 2) out vec4 outPosition;
 #endif
 
-#include "../shader_util.glsl"
+#include "../../shader_util.glsl"
 
 void main() 
 {

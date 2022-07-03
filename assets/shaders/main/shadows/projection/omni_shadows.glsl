@@ -58,8 +58,8 @@ float getOmniShadow(samplerCubeArrayShadow shadomwap_tex, vec3 fragPos, vec3 vie
 
 	//TODO: Fix acne
 	float cosTheta = CosTheta(N, normalize(light.position - fragPos));
-	float bias = 0.005 * tan(acos(cosTheta));
-	bias = clamp(bias, 0.0, 0.0025);
+	float bias = 0.1 * tan(acos(cosTheta));
+	bias = clamp(bias, 0.0, 0.003);
 
 	bool enablePCF = true;
 	if (enablePCF)

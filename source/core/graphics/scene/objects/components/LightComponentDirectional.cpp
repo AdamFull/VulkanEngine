@@ -27,6 +27,7 @@ glm::mat4 CLightComponentDirectional::getLightSpaceMatrixEx(const float lastSpli
     auto& cameraNode = CCameraManager::inst()->getCurrentCamera();
     auto& camera = cameraNode->getCamera();
 
+	auto aspect = CDevice::inst()->getAspect(true);
 	auto projection = camera->getProjection();
 	auto view = camera->getView();
 
@@ -50,11 +51,12 @@ glm::mat4 CLightComponentDirectional::getLightSpaceMatrixEx(const float lastSpli
 	glm::vec3 minExtents = -maxExtents;
 
 	auto cascadeExtents = (maxExtents - minExtents);
-	glm::vec3 lightDir = glm::normalize(-transform.rot);
-	glm::mat4 lightViewMatrix = glm::lookAt(frustumCenter - lightDir * -minExtents.z, frustumCenter, glm::vec3(0.0f, 1.0f, 0.0f));
-	glm::mat4 lightOrthoMatrix = glm::ortho(minExtents.x, maxExtents.x, minExtents.y, maxExtents.y, 0.0f, cascadeExtents.z);
+	glm::vec3 lightDir = glm::normalize(transform.rot);
 
-	glm::mat4 shadowMatrix = lightOrthoMatrix * lightViewMatrix;
+	glm::mat4 lightViewMatrix = glm::lookAt(frustumCenter - lightDir * -minExtents.z, frustumCenter, glm::vec3(0.0f, 1.0f, 0.0f));
+	glm::mat4 lightOrthoMatrix = glm::ortho(minExtents.x, maxExtents.x, minExtents.y, maxExtents.y, 0.5f, cascadeExtents.z);
+
+	/*glm::mat4 shadowMatrix = lightOrthoMatrix * lightViewMatrix;
 	glm::vec4 shadowOrigin = glm::vec4(0.0f, 0.0f, 0.0f, 1.0f);
 	shadowOrigin = shadowMatrix * shadowOrigin;
 	shadowOrigin = shadowOrigin * static_cast<float>(SHADOW_MAP_RESOLUTION) / 2.0f;
@@ -67,7 +69,7 @@ glm::mat4 CLightComponentDirectional::getLightSpaceMatrixEx(const float lastSpli
 
 	glm::mat4 shadowProj = lightOrthoMatrix;
 	shadowProj[3] += roundOffset;
-	lightOrthoMatrix = shadowProj;
+	lightOrthoMatrix = shadowProj;*/
 
 	return lightOrthoMatrix * lightViewMatrix;
 }
@@ -141,7 +143,7 @@ void CLightComponentDirectional::updateCascadesEx()
 
 		// Store split distance and matrix in cascade
 		this->aCascadeSplits[i] = (nearClip + splitDist * clipRange) * -1.f;
-		this->aCascadeViewProjMat[i] = glm::scale(getLightSpaceMatrixEx(lastSplitDist, splitDist), glm::vec3(-1.0, -1.0, -1.0));
+		this->aCascadeViewProjMat[i] = getLightSpaceMatrixEx(lastSplitDist, splitDist);
 
 		lastSplitDist = cascadeSplits[i];
 	}

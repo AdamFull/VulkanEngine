@@ -11,12 +11,12 @@ namespace engine
             class CCameraManager : public utl::singleton<CCameraManager>
             {
             public:
-                ref_ptr<CRenderObject> &getCurrentCamera();
+                utl::ref_ptr<CRenderObject> &getCurrentCamera();
                 void setCurrentCameraIndex(size_t index);
-                void attach(ref_ptr<CRenderObject>& newCamera);
+                void attach(utl::ref_ptr<CRenderObject>& newCamera);
 
             private:
-                std::vector<ref_ptr<CRenderObject>> vCameras;
+                std::vector<utl::ref_ptr<CRenderObject>> vCameras;
                 size_t iCameraIndex{0};
             };
         }

@@ -9,7 +9,7 @@ using namespace engine::core;
 using namespace engine::core::window;
 
 template <>
-scope_ptr<CInputMapper> utl::singleton<CInputMapper>::_instance{nullptr};
+utl::scope_ptr<CInputMapper> utl::singleton<CInputMapper>::_instance{nullptr};
 
 CInputMapper::CInputMapper()
 {

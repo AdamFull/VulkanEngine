@@ -3,7 +3,7 @@
 using namespace engine;
 
 template <>
-scope_ptr<CThreadPool> utl::singleton<CThreadPool>::_instance{nullptr};
+utl::scope_ptr<CThreadPool> utl::singleton<CThreadPool>::_instance{nullptr};
 
 CWorker::CWorker()
 {
@@ -69,7 +69,7 @@ void CThreadPool::set_worker_count(const size_t &count)
     _total = count;
     _workers.clear();
     for (auto i = 0; i < _total; i++)
-        _workers.emplace_back(make_scope<CWorker>());
+        _workers.emplace_back(utl::make_scope<CWorker>());
 }
 
 void CThreadPool::wait()

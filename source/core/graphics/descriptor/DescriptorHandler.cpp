@@ -7,9 +7,9 @@ using namespace engine::core;
 using namespace engine::core::pipeline;
 using namespace engine::core::descriptor;
 
-void CDescriptorHandler::create(ref_ptr<CPipelineBase> pipeline)
+void CDescriptorHandler::create(utl::ref_ptr<CPipelineBase> pipeline)
 {
-    pDescriptorSet = make_scope<CDescriptorSet>();
+    pDescriptorSet = utl::make_scope<CDescriptorSet>();
     pDescriptorSet->create(pipeline);
     pPipeline = pipeline;
 }

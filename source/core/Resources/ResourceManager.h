@@ -37,10 +37,10 @@ namespace engine
              * @tparam ResType Resource type
              * @tparam InfoType Type of resource info
              * @param info Resource info object
-             * @return ref_ptr<ResType> Smart pointer to resource object
+             * @return utl::ref_ptr<ResType> Smart pointer to resource object
              */
             template <class ResType, class InfoType>
-            ref_ptr<ResType>& add(const InfoType& info)
+            utl::ref_ptr<ResType>& add(const InfoType& info)
             {
                 assert(false && "Cannot find resource type");
                 return nullptr;
@@ -51,10 +51,10 @@ namespace engine
              * 
              * @tparam ResType Resource type
              * @param srResourceName Resource name
-             * @return ref_ptr<ResType> Smart pointer to resource object
+             * @return utl::ref_ptr<ResType> Smart pointer to resource object
              */
             template <class ResType>
-            ref_ptr<ResType>& get(const std::string& srResourceName)
+            utl::ref_ptr<ResType>& get(const std::string& srResourceName)
             {
                 assert(false && "Cannot find resource type");
                 return nullptr_ref(ResType);
@@ -64,7 +64,7 @@ namespace engine
             /**
              * @brief Add existing texture object to resource manager
              */
-            void addExisting(const std::string& srResourceName, ref_ptr<core::CImage>& pResource)
+            void addExisting(const std::string& srResourceName, utl::ref_ptr<core::CImage>& pResource)
             {
                 auto it = m_mTextures.find(srResourceName);
                 if (it != m_mTextures.end())
@@ -75,7 +75,7 @@ namespace engine
             /**
              * @brief Add existing texture2D object to resource manager
              */
-            void addExisting(const std::string& srResourceName, ref_ptr<core::CImage2D>& pResource)
+            void addExisting(const std::string& srResourceName, utl::ref_ptr<core::CImage2D>& pResource)
             {
                 auto it = m_mTextures.find(srResourceName);
                 if (it != m_mTextures.end())
@@ -87,12 +87,12 @@ namespace engine
              * @brief Specialization for image object (texture)
              * 
              * @param info Image create info 
-             * @return ref_ptr<Core::CImage> Smart pointer to resource object
+             * @return utl::ref_ptr<Core::CImage> Smart pointer to resource object
              */
             template <>
-            ref_ptr<core::CImage>& add(const FTextureCreateInfo& info)
+            utl::ref_ptr<core::CImage>& add(const FTextureCreateInfo& info)
             {
-                ref_ptr<core::CImage> texture = make_scope<core::CImage>();
+                utl::ref_ptr<core::CImage> texture = utl::make_scope<core::CImage>();
                 texture->create(info.srSrc);
                 addExisting(info.srName, texture);
                 return pNullImage;
@@ -102,12 +102,12 @@ namespace engine
              * @brief Specialization for image2D object (texture)
              * 
              * @param info Image create info 
-             * @return ref_ptr<Core::CImage> Smart pointer to resource object
+             * @return utl::ref_ptr<Core::CImage> Smart pointer to resource object
              */
             template <>
-            ref_ptr<core::CImage2D>& add(const FTextureCreateInfo& info)
+            utl::ref_ptr<core::CImage2D>& add(const FTextureCreateInfo& info)
             {
-                ref_ptr<core::CImage> texture = make_scope<core::CImage2D>();
+                utl::ref_ptr<core::CImage> texture = utl::make_scope<core::CImage2D>();
                 texture->create(info.srSrc);
                 addExisting(info.srName, texture);
                 return pNullImage2D;
@@ -117,10 +117,10 @@ namespace engine
              * @brief Get smart pointer to created image
              * 
              * @param srResourceName Image name
-             * @return ref_ptr<Core::CImage> Smart pointer to resource object
+             * @return utl::ref_ptr<Core::CImage> Smart pointer to resource object
              */
             template <>
-            ref_ptr<core::CImage>& get(const std::string& srResourceName)
+            utl::ref_ptr<core::CImage>& get(const std::string& srResourceName)
             {
                 auto it = m_mTextures.find(srResourceName);
                 if (it != m_mTextures.end())
@@ -132,7 +132,7 @@ namespace engine
             /**
              * @brief Add existing Material object to resource manager
              */
-            void addExisting(const std::string& srResourceName, ref_ptr<material::CMaterialBase> pResource)
+            void addExisting(const std::string& srResourceName, utl::ref_ptr<material::CMaterialBase> pResource)
             {
                 auto it = m_mMaterials.find(srResourceName);
                 if (it != m_mMaterials.end())
@@ -144,12 +144,12 @@ namespace engine
              * @brief Specialization for MaterialBase object (texture)
              * 
              * @param info Material creation info
-             * @return ref_ptr<Material::CMaterialBase> Smart pointer to resource object
+             * @return utl::ref_ptr<Material::CMaterialBase> Smart pointer to resource object
              */
             template <>
-            ref_ptr<material::CMaterialBase>& add(const FMaterialCreateInfo& info)
+            utl::ref_ptr<material::CMaterialBase>& add(const FMaterialCreateInfo& info)
             {
-                ref_ptr<material::CMaterialBase> material = material::CMaterialFactory::create(info);
+                utl::ref_ptr<material::CMaterialBase> material = material::CMaterialFactory::create(info);
                 addExisting(info.srName, material);
                 return pNullMat;
             }
@@ -158,10 +158,10 @@ namespace engine
              * @brief Get smart pointer to created material
              * 
              * @param srResourceName Material name
-             * @return ref_ptr<Material::CMaterialBase> Smart pointer to resource object
+             * @return utl::ref_ptr<Material::CMaterialBase> Smart pointer to resource object
              */
             template <>
-            ref_ptr<material::CMaterialBase>& get(const std::string& srResourceName)
+            utl::ref_ptr<material::CMaterialBase>& get(const std::string& srResourceName)
             {
                 auto it = m_mMaterials.find(srResourceName);
                 if (it != m_mMaterials.end())
@@ -170,12 +170,12 @@ namespace engine
             }
 
         private:
-            std::map<std::string, ref_ptr<core::CImage>> m_mTextures;
-            std::map<std::string, ref_ptr<material::CMaterialBase>> m_mMaterials;
+            std::map<std::string, utl::ref_ptr<core::CImage>> m_mTextures;
+            std::map<std::string, utl::ref_ptr<material::CMaterialBase>> m_mMaterials;
 
-            ref_ptr<core::CImage> pNullImage{ nullptr };
-            ref_ptr<core::CImage2D> pNullImage2D{ nullptr };
-            ref_ptr<material::CMaterialBase> pNullMat{ nullptr };
+            utl::ref_ptr<core::CImage> pNullImage{ nullptr };
+            utl::ref_ptr<core::CImage2D> pNullImage2D{ nullptr };
+            utl::ref_ptr<material::CMaterialBase> pNullMat{ nullptr };
         };
     }
 }

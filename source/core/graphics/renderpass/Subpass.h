@@ -46,9 +46,9 @@ namespace engine
 
                 void setUserRenderCode(utl::function<void(vk::CommandBuffer&)>&& pCode) { pUserDefinedCodeRender = std::move(pCode); }
 
-                ref_ptr<resources::material::CMaterialBase>& getMaterial() { return pMaterial; }
+                utl::ref_ptr<resources::material::CMaterialBase>& getMaterial() { return pMaterial; }
             protected:
-                ref_ptr<resources::material::CMaterialBase> pMaterial;
+                utl::ref_ptr<resources::material::CMaterialBase> pMaterial;
 
                 EStageType eType;
                 std::string srShader{};

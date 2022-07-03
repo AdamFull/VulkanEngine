@@ -77,7 +77,7 @@ namespace engine
 using namespace engine::core::pipeline;
 
 template<>
-scope_ptr<CShaderCache> utl::singleton<CShaderCache>::_instance{nullptr};
+utl::scope_ptr<CShaderCache> utl::singleton<CShaderCache>::_instance{nullptr};
 
 CShaderCache::CShaderCache()
 {

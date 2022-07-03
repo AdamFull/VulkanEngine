@@ -29,7 +29,7 @@ namespace engine
             uint32_t frameIndex{0};
             bool bIsClean{false};
 
-            ref_ptr<CCommandPool> commandPool;
+            utl::ref_ptr<CCommandPool> commandPool;
 
             vk::QueueFlagBits queueType;
             std::vector<vk::CommandBuffer, std::allocator<vk::CommandBuffer>> vCommandBuffers;

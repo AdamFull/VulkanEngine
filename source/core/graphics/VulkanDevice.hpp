@@ -71,7 +71,7 @@ namespace engine
             /**************************************************Getters********************************************/
             inline vk::Instance &getVkInstance() { return vkInstance; }
             inline vk::SurfaceKHR &getSurface() { return vkSurface; }
-            const ref_ptr<CCommandPool> &getCommandPool(const std::thread::id &threadId = std::this_thread::get_id());
+            const utl::ref_ptr<CCommandPool> &getCommandPool(const std::thread::id &threadId = std::this_thread::get_id());
 
             inline vk::PhysicalDevice &getPhysical() { return vkPhysical; }
             inline vk::Device &getLogical() { return vkDevice; }
@@ -281,7 +281,7 @@ namespace engine
             vk::Instance vkInstance{VK_NULL_HANDLE}; // Main vulkan instance
             VkDebugUtilsMessengerEXT m_vkDebugUtils{NULL};
             vk::SurfaceKHR vkSurface{VK_NULL_HANDLE}; // Vulkan's drawing surface
-            std::map<std::thread::id, ref_ptr<CCommandPool>> commandPools;
+            std::map<std::thread::id, utl::ref_ptr<CCommandPool>> commandPools;
             vk::AllocationCallbacks *pAllocator{nullptr};
 
             vk::PhysicalDevice vkPhysical;

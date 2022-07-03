@@ -44,18 +44,18 @@ namespace engine
                 bool isEnabled() const { return bEnable; }
 
                 // Deep search
-                ref_ptr<CRenderObject>& find(std::string name);
-                ref_ptr<CRenderObject>& find(uint64_t id);
-                void addChild(ref_ptr<CRenderObject> &child);
-                void setParent(ref_ptr<CRenderObject> parent);
-                void attach(ref_ptr<CRenderObject> &&child);
-                void detach(ref_ptr<CRenderObject> child);
+                utl::ref_ptr<CRenderObject>& find(std::string name);
+                utl::ref_ptr<CRenderObject>& find(uint64_t id);
+                void addChild(utl::ref_ptr<CRenderObject> &child);
+                void setParent(utl::ref_ptr<CRenderObject> parent);
+                void attach(utl::ref_ptr<CRenderObject> &&child);
+                void detach(utl::ref_ptr<CRenderObject> child);
 
                 uint64_t getId() const { return objectId; }
                 std::string &getName();
                 // std::string &GetUUID();
-                ref_ptr<CRenderObject>& getParent();
-                std::unordered_map<std::string, ref_ptr<CRenderObject>> &getChilds();
+                utl::ref_ptr<CRenderObject>& getParent();
+                std::unordered_map<std::string, utl::ref_ptr<CRenderObject>> &getChilds();
 
                 FTransform getTransform();
                 FTransform& getLocalTransform() { return transform; }
@@ -77,27 +77,27 @@ namespace engine
                 void setIndex(uint32_t index) { objectIndex = index; };
                 uint32_t getIndex() { return objectIndex; }
 
-                void setMesh(ref_ptr<CMeshComponent>&& component) 
+                void setMesh(utl::ref_ptr<CMeshComponent>&& component) 
                 { 
                     pMesh = std::move(component);
                     pMesh->setParent(shared_from_this());
                 }
 
-                void setCamera(ref_ptr<CCameraComponent>&& component) 
+                void setCamera(utl::ref_ptr<CCameraComponent>&& component) 
                 { 
                     pCamera = std::move(component);
                     pCamera->setParent(shared_from_this());
                 }
 
-                void setLight(ref_ptr<CLightComponent>&& component) 
+                void setLight(utl::ref_ptr<CLightComponent>&& component) 
                 { 
                     pLight = std::move(component);
                     pLight->setParent(shared_from_this());
                 }
 
-                ref_ptr<CMeshComponent>& getMesh() { return pMesh; }
-                ref_ptr<CCameraComponent>& getCamera() { return pCamera; }
-                ref_ptr<CLightComponent>& getLight() { return pLight; }
+                utl::ref_ptr<CMeshComponent>& getMesh() { return pMesh; }
+                utl::ref_ptr<CCameraComponent>& getCamera() { return pCamera; }
+                utl::ref_ptr<CLightComponent>& getLight() { return pLight; }
 
             protected:
                 uint64_t objectId{0};
@@ -107,14 +107,14 @@ namespace engine
                 bool bVisible{true};
                 bool bEnable{true};
 
-                ref_ptr<CMeshComponent> pMesh;
-                ref_ptr<CCameraComponent> pCamera;
-                ref_ptr<CLightComponent> pLight;
+                utl::ref_ptr<CMeshComponent> pMesh;
+                utl::ref_ptr<CCameraComponent> pCamera;
+                utl::ref_ptr<CLightComponent> pLight;
 
-                ref_ptr<CRenderObject> pNull{nullptr};
-                ref_ptr<CRenderObject> pParent;
-                ref_ptr<CRenderObject> pParentOld;
-                std::unordered_map<std::string, ref_ptr<CRenderObject>> mChilds;
+                utl::ref_ptr<CRenderObject> pNull{nullptr};
+                utl::ref_ptr<CRenderObject> pParent;
+                utl::ref_ptr<CRenderObject> pParentOld;
+                std::unordered_map<std::string, utl::ref_ptr<CRenderObject>> mChilds;
             };
         }
     }

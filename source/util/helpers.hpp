@@ -2,6 +2,24 @@
 
 namespace utl
 {
+    template<class _Ty>
+    using scope_ptr = std::unique_ptr<_Ty>;
+
+    template<class _Ty, class... _Args>
+    constexpr utl::scope_ptr<_Ty> make_scope(_Args&& ...args)
+    {
+        return std::make_unique<_Ty>(std::forward<_Args>(args)...);
+    }
+
+    template<class _Ty>
+    using ref_ptr = std::shared_ptr<_Ty>;
+
+    template<class _Ty, class... _Args>
+    constexpr utl::ref_ptr<_Ty> make_ref(_Args&& ...args)
+    {
+        return std::make_shared<_Ty>(std::forward<_Args>(args)...);
+    }
+
     /**
      * @brief Makes child non copyable
      * 
@@ -52,10 +70,10 @@ namespace utl
     class singleton : public non_copy_movable
     {
     protected:
-        static scope_ptr<_Ty> _instance;
+        static utl::scope_ptr<_Ty> _instance;
 
     public:
-        static scope_ptr<_Ty> &inst()
+        static utl::scope_ptr<_Ty> &inst()
         {
             if (!_instance)
                 _instance.reset(new _Ty());

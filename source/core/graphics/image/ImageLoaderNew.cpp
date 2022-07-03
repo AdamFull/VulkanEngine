@@ -5,7 +5,7 @@
 
 using namespace engine::core;
 
-void CImageLoaderNew::load(const fs::path& fsPath, scope_ptr<FImageCreateInfo>& imageCI, const std::vector<EPixelFormat>& supportedFormats, const fs::path &parentPath)
+void CImageLoaderNew::load(const fs::path& fsPath, utl::scope_ptr<FImageCreateInfo>& imageCI, const std::vector<EPixelFormat>& supportedFormats, const fs::path &parentPath)
 {
     auto fsFullPath = parentPath / fsPath;
     auto texFormat = getTextureFormat(fsPath);
@@ -36,10 +36,10 @@ EImageFormat CImageLoaderNew::getTextureFormat(const fs::path& fsPath)
     return EImageFormat::eUnknown;
 }
 
-void CImageLoaderNew::loadKTX(const fs::path& fsPath, scope_ptr<FImageCreateInfo>& imageCI)
+void CImageLoaderNew::loadKTX(const fs::path& fsPath, utl::scope_ptr<FImageCreateInfo>& imageCI)
 {
     ktxTexture* kTexture{nullptr};
-    imageCI = make_scope<FImageCreateInfo>();
+    imageCI = utl::make_scope<FImageCreateInfo>();
 
     auto ktxresult = ktxTexture_CreateFromNamedFile(fsPath.string().c_str(), KTX_TEXTURE_CREATE_LOAD_IMAGE_DATA_BIT, &kTexture);
     assert(ktxresult == KTX_SUCCESS && "Failed to open ktx texture.");
@@ -57,7 +57,7 @@ void CImageLoaderNew::loadKTX(const fs::path& fsPath, scope_ptr<FImageCreateInfo
     imageCI->numFaces = kTexture->numFaces;
 
     imageCI->dataSize = kTexture->dataSize;
-    imageCI->pData = make_scope<uint8_t[]>(imageCI->dataSize);
+    imageCI->pData = utl::make_scope<uint8_t[]>(imageCI->dataSize);
     std::memcpy(imageCI->pData.get(), kTexture->pData, imageCI->dataSize);
 
     auto vkFormat = static_cast<vk::Format>(ktxTexture_GetVkFormat(kTexture));
@@ -78,10 +78,10 @@ void CImageLoaderNew::loadKTX(const fs::path& fsPath, scope_ptr<FImageCreateInfo
     ktxTexture_Destroy(kTexture);
 }
 
-void CImageLoaderNew::loadKTX2(const fs::path& fsPath, scope_ptr<FImageCreateInfo>& imageCI, const std::vector<EPixelFormat>& supportedFormats)
+void CImageLoaderNew::loadKTX2(const fs::path& fsPath, utl::scope_ptr<FImageCreateInfo>& imageCI, const std::vector<EPixelFormat>& supportedFormats)
 {
     ktxTexture2* kTexture{nullptr};
-    imageCI = make_scope<FImageCreateInfo>();
+    imageCI = utl::make_scope<FImageCreateInfo>();
 
     auto ktxresult = ktxTexture_CreateFromNamedFile(fsPath.string().c_str(), KTX_TEXTURE_CREATE_LOAD_IMAGE_DATA_BIT, (ktxTexture**)&kTexture);
     assert(ktxresult == KTX_SUCCESS && "Failed to open ktx texture.");
@@ -105,7 +105,7 @@ void CImageLoaderNew::loadKTX2(const fs::path& fsPath, scope_ptr<FImageCreateInf
     }
 
     imageCI->dataSize = kTexture->dataSize;
-    imageCI->pData = make_scope<uint8_t[]>(imageCI->dataSize);
+    imageCI->pData = utl::make_scope<uint8_t[]>(imageCI->dataSize);
     std::memcpy(imageCI->pData.get(), kTexture->pData, imageCI->dataSize);
 
     auto vkFormat = static_cast<vk::Format>(kTexture->vkFormat);
@@ -126,7 +126,7 @@ void CImageLoaderNew::loadKTX2(const fs::path& fsPath, scope_ptr<FImageCreateInf
     ktxTexture_Destroy((ktxTexture*)kTexture);
 }
 
-void CImageLoaderNew::loadDDS(const fs::path& fsPath, scope_ptr<FImageCreateInfo>& imageCI)
+void CImageLoaderNew::loadDDS(const fs::path& fsPath, utl::scope_ptr<FImageCreateInfo>& imageCI)
 {
 
 }

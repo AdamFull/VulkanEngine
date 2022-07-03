@@ -9,7 +9,7 @@ void CImage2DArray::create(uint32_t layers, const vk::Extent2D &extent, vk::Form
 						bool instantLayoutTransition, bool anisotropic, bool mipmaps)
 {
     enableAnisotropy = anisotropic;
-    scope_ptr<FImageCreateInfo> texture = make_scope<FImageCreateInfo>();
+    utl::scope_ptr<FImageCreateInfo> texture = utl::make_scope<FImageCreateInfo>();
     texture->baseWidth = extent.width;
     texture->baseHeight = extent.height;
     texture->baseDepth = 1;

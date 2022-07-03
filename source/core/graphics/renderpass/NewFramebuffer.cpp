@@ -191,7 +191,7 @@ void CFramebufferNew::setRenderArea(vk::Rect2D&& area)
     renderArea = std::move(area);
 }
 
-void CFramebufferNew::addRenderer(scope_ptr<CSubpass>&& subpass)
+void CFramebufferNew::addRenderer(utl::scope_ptr<CSubpass>&& subpass)
 {
     vSubpasses.emplace_back(std::move(subpass));
 }
@@ -262,7 +262,7 @@ vk::Framebuffer& CFramebufferNew::getCurrentFramebuffer()
     return getFramebuffer(getCurrentFrameProxy());
 }
 
-std::unordered_map<std::string, ref_ptr<CImage>>& CFramebufferNew::getCurrentImages()
+std::unordered_map<std::string, utl::ref_ptr<CImage>>& CFramebufferNew::getCurrentImages()
 {
     return getImages(getCurrentFrameProxy());
 }
@@ -325,18 +325,18 @@ void CFramebufferNew::createFramebuffer()
     }
 }
 
-ref_ptr<CImage> CFramebufferNew::createImage(const FFramebufferAttachmentInfo& attachment, vk::Extent2D extent)
+utl::ref_ptr<CImage> CFramebufferNew::createImage(const FFramebufferAttachmentInfo& attachment, vk::Extent2D extent)
 {
-    ref_ptr<CImage> texture;
+    utl::ref_ptr<CImage> texture;
 
     switch (attachment.eType)
     {
-    case EImageType::e2D: texture = make_ref<CImage2D>(); break;
-    case EImageType::e3D: texture = make_ref<CImage3D>(); break;
-    case EImageType::eArray2D: texture = make_ref<CImage2DArray>(); break;
+    case EImageType::e2D: texture = utl::make_ref<CImage2D>(); break;
+    case EImageType::e3D: texture = utl::make_ref<CImage3D>(); break;
+    case EImageType::eArray2D: texture = utl::make_ref<CImage2DArray>(); break;
     case EImageType::eArray3D: break;
-    case EImageType::eCubeMap: texture = make_ref<CImageCubemap>(); break;
-    case EImageType::eArrayCube: texture = make_ref<CImageCubemapArray>(); break;
+    case EImageType::eCubeMap: texture = utl::make_ref<CImageCubemap>(); break;
+    case EImageType::eArrayCube: texture = utl::make_ref<CImageCubemapArray>(); break;
     }
 
     bool translate_layout{false};

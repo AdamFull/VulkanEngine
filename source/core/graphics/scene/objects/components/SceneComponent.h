@@ -20,11 +20,11 @@ namespace engine
                 void setName(const std::string& name) { srName = name; }
                 const std::string& getName() { return srName; }
 
-                void setParent(ref_ptr<CRenderObject> parent) { pParent = parent; }
-                ref_ptr<CRenderObject>& getParent() { return pParent; }
+                void setParent(utl::ref_ptr<CRenderObject> parent) { pParent = parent; }
+                utl::ref_ptr<CRenderObject>& getParent() { return pParent; }
                 
             protected:
-                ref_ptr<CRenderObject> pParent;
+                utl::ref_ptr<CRenderObject> pParent;
                 std::string srName{};
                 float componentTick{0.0};
             };

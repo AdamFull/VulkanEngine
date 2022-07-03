@@ -37,9 +37,9 @@ namespace engine
 
             struct FMaterialUniqueObjects
             {
-                scope_ptr<core::descriptor::CDescriptorHandler> pDescriptorSet;
-                std::map<std::string, ref_ptr<core::CHandler>> mBuffers;
-                std::map<std::string, ref_ptr<core::CPushHandler>> mPushConstants;
+                utl::scope_ptr<core::descriptor::CDescriptorHandler> pDescriptorSet;
+                std::map<std::string, utl::ref_ptr<core::CHandler>> mBuffers;
+                std::map<std::string, utl::ref_ptr<core::CPushHandler>> mPushConstants;
             };
 
             /**
@@ -73,7 +73,7 @@ namespace engine
                  * @param attachment Texture attachment name
                  * @param pTexture Texture smart object pointer
                  */
-                void addTexture(const std::string& attachment, ref_ptr<core::CImage>& pTexture);
+                void addTexture(const std::string& attachment, utl::ref_ptr<core::CImage>& pTexture);
 
                 /**
                  * @brief Get texture descriptor
@@ -136,16 +136,16 @@ namespace engine
                 /**
                  * @brief Get material pipeline object
                  * 
-                 * @return ref_ptr<Core::Pipeline::CPipelineBase> Pipeline smart pointer object
+                 * @return utl::ref_ptr<Core::Pipeline::CPipelineBase> Pipeline smart pointer object
                  */
-                inline ref_ptr<core::pipeline::CPipelineBase>& getPipeline() { return pPipeline; }
+                inline utl::ref_ptr<core::pipeline::CPipelineBase>& getPipeline() { return pPipeline; }
 
                 FMaterialParams& getParams() { return m_fMatParams; }
 
-                ref_ptr<core::CHandler>& getUniformBuffer(const std::string& name);
-                ref_ptr<core::CPushHandler>& getPushConstant(const std::string& name);
-                std::map<std::string, ref_ptr<core::CHandler>>& getUniformBuffers() { return vInstances.at(currentInstance)->mBuffers; }
-                scope_ptr<core::descriptor::CDescriptorHandler>& getDescriptorSet() { return vInstances.at(currentInstance)->pDescriptorSet; }
+                utl::ref_ptr<core::CHandler>& getUniformBuffer(const std::string& name);
+                utl::ref_ptr<core::CPushHandler>& getPushConstant(const std::string& name);
+                std::map<std::string, utl::ref_ptr<core::CHandler>>& getUniformBuffers() { return vInstances.at(currentInstance)->mBuffers; }
+                utl::scope_ptr<core::descriptor::CDescriptorHandler>& getDescriptorSet() { return vInstances.at(currentInstance)->pDescriptorSet; }
 
                 size_t getTextureCount() { return mTextures.size(); }
 
@@ -156,10 +156,10 @@ namespace engine
                 uint32_t currentInstance{0};
                 bool bIsCreated{false}, bIsReCreated{false};
 
-                ref_ptr<core::CHandler> pEmptyHamdler{nullptr};
-                ref_ptr<core::CPushHandler> pEmptyPushConstant{nullptr};
-                std::vector<scope_ptr<FMaterialUniqueObjects>> vInstances;
-                ref_ptr<core::pipeline::CPipelineBase> pPipeline;
+                utl::ref_ptr<core::CHandler> pEmptyHamdler{nullptr};
+                utl::ref_ptr<core::CPushHandler> pEmptyPushConstant{nullptr};
+                std::vector<utl::scope_ptr<FMaterialUniqueObjects>> vInstances;
+                utl::ref_ptr<core::pipeline::CPipelineBase> pPipeline;
                 std::map<std::string, vk::DescriptorImageInfo> mTextures;
             };
         }

@@ -114,18 +114,18 @@ std::string &CRenderObject::getName()
     return srName;
 }
 
-ref_ptr<CRenderObject> &CRenderObject::getParent()
+utl::ref_ptr<CRenderObject> &CRenderObject::getParent()
 {
     return pParent;
 }
 
-std::unordered_map<std::string, ref_ptr<CRenderObject>> &CRenderObject::getChilds()
+std::unordered_map<std::string, utl::ref_ptr<CRenderObject>> &CRenderObject::getChilds()
 {
     return mChilds;
 }
 
 // Deep search
-ref_ptr<CRenderObject>& CRenderObject::find(std::string srName)
+utl::ref_ptr<CRenderObject>& CRenderObject::find(std::string srName)
 {
     auto it = mChilds.find(srName);
     if (it != mChilds.end())
@@ -136,7 +136,7 @@ ref_ptr<CRenderObject>& CRenderObject::find(std::string srName)
     return pNull;
 }
 
-ref_ptr<CRenderObject>& CRenderObject::find(uint64_t id)
+utl::ref_ptr<CRenderObject>& CRenderObject::find(uint64_t id)
 {
     for(auto& [name, child] : mChilds)
     {
@@ -147,13 +147,13 @@ ref_ptr<CRenderObject>& CRenderObject::find(uint64_t id)
     return pNull;
 }
 
-void CRenderObject::addChild(ref_ptr<CRenderObject>& child)
+void CRenderObject::addChild(utl::ref_ptr<CRenderObject>& child)
 {
     mChilds.emplace(child->srName, child);
     child->setParent(shared_from_this());
 }
 
-void CRenderObject::setParent(ref_ptr<CRenderObject> parent)
+void CRenderObject::setParent(utl::ref_ptr<CRenderObject> parent)
 {
     pParentOld = pParent;
     pParent = parent;
@@ -161,12 +161,12 @@ void CRenderObject::setParent(ref_ptr<CRenderObject> parent)
     if (pParentOld)
         pParentOld->detach(shared_from_this());
 }
-void CRenderObject::attach(ref_ptr<CRenderObject>&& child)
+void CRenderObject::attach(utl::ref_ptr<CRenderObject>&& child)
 {
     addChild(child);
 }
 
-void CRenderObject::detach(ref_ptr<CRenderObject> child)
+void CRenderObject::detach(utl::ref_ptr<CRenderObject> child)
 {
     auto it = mChilds.find(child->srName);
     if (it != mChilds.end())

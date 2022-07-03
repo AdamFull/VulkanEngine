@@ -8,12 +8,12 @@ using namespace engine::resources;
 using namespace engine::resources::material;
 
 template <>
-scope_ptr<CResourceManager> utl::singleton<CResourceManager>::_instance{nullptr};
+utl::scope_ptr<CResourceManager> utl::singleton<CResourceManager>::_instance{nullptr};
 
 void CResourceManager::create()
 {
     //Creating empty texture
-    auto pEmptyTexture = make_ref<CImage>();
+    auto pEmptyTexture = utl::make_ref<CImage>();
     pEmptyTexture->create("empty.ktx2");
     addExisting("no_texture", pEmptyTexture);
 }

@@ -8,7 +8,7 @@ vk::ImageAspectFlags aspect, vk::Filter filter, vk::SamplerAddressMode addressMo
 bool instantLayoutTransition, bool anisotropic, bool mipmaps)
 {
     enableAnisotropy = anisotropic;
-    scope_ptr<FImageCreateInfo> texture = make_scope<FImageCreateInfo>();
+    utl::scope_ptr<FImageCreateInfo> texture = utl::make_scope<FImageCreateInfo>();
     texture->baseWidth = extent.width;
     texture->baseHeight = extent.height;
     texture->baseDepth = 1;

@@ -6,7 +6,7 @@
 
 using namespace engine::resources::loaders;
 
-void ObjLoader::Load(std::string srPath, ref_ptr<core::scene::CRenderObject>& pRoot)
+void ObjLoader::Load(std::string srPath, utl::ref_ptr<core::scene::CRenderObject>& pRoot)
 {
     /*tinyobj::attrib_t attrib;
     std::vector<tinyobj::shape_t> shapes;

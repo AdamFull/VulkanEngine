@@ -41,14 +41,14 @@ namespace engine
                  * @param srPath Path to model file
                  * @param srName Model name
                  */
-                void load(ref_ptr<core::scene::CRenderObject>& pParent, const std::string& srPath, const std::string& srName);
+                void load(utl::ref_ptr<core::scene::CRenderObject>& pParent, const std::string& srPath, const std::string& srName);
 
                 /**
                  * @brief Add new material
                  * 
                  * @param material Material smart pointer object
                  */
-                inline void addMaterial(ref_ptr<material::CMaterialBase>&& material) { vMaterials.emplace_back(material); }
+                inline void addMaterial(utl::ref_ptr<material::CMaterialBase>&& material) { vMaterials.emplace_back(material); }
 
             private:
                 /**
@@ -60,7 +60,7 @@ namespace engine
                  * @param model Current node mesh data
                  * @param globalscale Override global node scale
                  */
-                void loadNode(ref_ptr<core::scene::CRenderObject>& pParent, const tinygltf::Node &node, uint32_t nodeIndex, const tinygltf::Model &model, float globalscale);
+                void loadNode(utl::ref_ptr<core::scene::CRenderObject>& pParent, const tinygltf::Node &node, uint32_t nodeIndex, const tinygltf::Model &model, float globalscale);
 
                 /**
                  * @brief Loads mesh fragment from scene node
@@ -69,25 +69,25 @@ namespace engine
                  * @param node Current scene node
                  * @param model Current node mesh data
                  */
-                void loadMeshFragment(ref_ptr<core::scene::CRenderObject>& sceneNode, const tinygltf::Node &node, const tinygltf::Model &model);
+                void loadMeshFragment(utl::ref_ptr<core::scene::CRenderObject>& sceneNode, const tinygltf::Node &node, const tinygltf::Model &model);
 
                 /**
                  * @brief 
                  * 
                  */
-                void loadCamera(ref_ptr<core::scene::CRenderObject>& sceneNode, const tinygltf::Node &node, const tinygltf::Model &model);
+                void loadCamera(utl::ref_ptr<core::scene::CRenderObject>& sceneNode, const tinygltf::Node &node, const tinygltf::Model &model);
 
                 /**
                  * @brief 
                  * 
                  */
-                void loadSkin(ref_ptr<core::scene::CRenderObject>& sceneNode, const tinygltf::Node &node, const tinygltf::Model &model);
+                void loadSkin(utl::ref_ptr<core::scene::CRenderObject>& sceneNode, const tinygltf::Node &node, const tinygltf::Model &model);
 
                 /**
                  * @brief 
                  * 
                  */
-                void loadLight(ref_ptr<core::scene::CRenderObject>& sceneNode, uint32_t light_index, const tinygltf::Node &node, const tinygltf::Model &model);
+                void loadLight(utl::ref_ptr<core::scene::CRenderObject>& sceneNode, uint32_t light_index, const tinygltf::Node &node, const tinygltf::Model &model);
 
                 /**
                  * @brief Recalculates tangents for fragment vertices and indices
@@ -124,9 +124,9 @@ namespace engine
                  * 
                  * @param model Current node mesh data
                  * @param path Texture path
-                 * @return ref_ptr<Core::CImage> Smart pointer texture object
+                 * @return utl::ref_ptr<Core::CImage> Smart pointer texture object
                  */
-                ref_ptr<core::CImage> loadTexture(const tinygltf::Image &model, const fs::path& path);
+                utl::ref_ptr<core::CImage> loadTexture(const tinygltf::Image &model, const fs::path& path);
 
                 /**
                  * @brief Load mesh skinning data
@@ -136,10 +136,10 @@ namespace engine
                 void loadSkins(const tinygltf::Model &model);
 
                 uint32_t current_primitive;
-                //ref_ptr<Light::Point> m_pPointLights;
-                //ref_ptr<Camera::Base> m_pCameras;
-                std::vector<ref_ptr<core::CImage>> vTextures;
-                std::vector<ref_ptr<material::CMaterialBase>> vMaterials;
+                //utl::ref_ptr<Light::Point> m_pPointLights;
+                //utl::ref_ptr<Camera::Base> m_pCameras;
+                std::vector<utl::ref_ptr<core::CImage>> vTextures;
+                std::vector<utl::ref_ptr<material::CMaterialBase>> vMaterials;
 
                 fs::path fsParentPath{""};
 

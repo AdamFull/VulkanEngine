@@ -14,7 +14,7 @@ void CSandboxFinalStage::create()
 {
     screenExtent = CDevice::inst()->getExtent();
 
-    auto framebuffer_1 = make_scope<CFramebufferNew>();
+    auto framebuffer_1 = utl::make_scope<CFramebufferNew>();
     framebuffer_1->setRenderArea(vk::Offset2D{0, 0}, screenExtent);
     framebuffer_1->addImage("present_khr", CDevice::inst()->getImageFormat(), vk::ImageUsageFlagBits::eColorAttachment);
     framebuffer_1->addOutputReference(0U, "present_khr");
@@ -22,7 +22,7 @@ void CSandboxFinalStage::create()
     framebuffer_1->addSubpassDependency(VK_SUBPASS_EXTERNAL, 0, vk::PipelineStageFlagBits::eFragmentShader, vk::PipelineStageFlagBits::eColorAttachmentOutput,
     vk::AccessFlagBits::eShaderRead, vk::AccessFlagBits::eColorAttachmentWrite);
 
-    framebuffer_1->addRenderer(make_scope<CImguiPass>());
+    framebuffer_1->addRenderer(utl::make_scope<CImguiPass>());
     vFramebuffer.emplace_back(std::move(framebuffer_1));
     CRenderStage::create();
 }

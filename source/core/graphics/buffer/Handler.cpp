@@ -49,7 +49,7 @@ void CHandler::flush()
     }
 }
 
-scope_ptr<CVulkanBuffer>& CHandler::getBuffer()
+utl::scope_ptr<CVulkanBuffer>& CHandler::getBuffer()
 {
     uint32_t index = CDevice::inst()->getCurrentFrame();
     return vBuffers.at(index);

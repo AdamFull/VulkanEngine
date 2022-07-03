@@ -13,10 +13,10 @@ namespace engine
             public:
                 void load(const std::string &scene_name);
                 void unload();
-                scope_ptr<CRenderScene> &getScene() { return pCurrentScene; }
+                utl::scope_ptr<CRenderScene> &getScene() { return pCurrentScene; }
 
             private:
-                scope_ptr<CRenderScene> pCurrentScene;
+                utl::scope_ptr<CRenderScene> pCurrentScene;
             };
         }
     }

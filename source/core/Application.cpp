@@ -20,7 +20,7 @@ void CApplication::create()
     FEngineCreateInfo createInfo = FilesystemHelper::getConfigAs<FEngineCreateInfo>("engine/config.json");
     UHLInstance->create(createInfo);
 
-    m_pCameraController = make_scope<CCameraEditorController>();
+    m_pCameraController = utl::make_scope<CCameraEditorController>();
     m_pCameraController->create();
 
     CSceneManager::inst()->load(createInfo.engine.scene);

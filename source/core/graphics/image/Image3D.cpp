@@ -6,7 +6,7 @@ using namespace engine::resources;
 
 void CImage3D::loadNoise(ENoisePattern ePattern, uint32_t width, uint32_t height, uint32_t depth)
 {
-    scope_ptr<FImageCreateInfo> texture = make_scope<FImageCreateInfo>();
+    utl::scope_ptr<FImageCreateInfo> texture = utl::make_scope<FImageCreateInfo>();
     texture->baseWidth = width;
     texture->baseHeight = height;
     texture->baseDepth = depth;
@@ -35,7 +35,7 @@ void CImage3D::loadNoise(ENoisePattern ePattern, uint32_t width, uint32_t height
     updateDescriptor();
 }
 
-void CImage3D::generatePerlinNoise(scope_ptr<FImageCreateInfo>& texture)
+void CImage3D::generatePerlinNoise(utl::scope_ptr<FImageCreateInfo>& texture)
 {
     vk::DeviceSize imgSize = _extent.width * _extent.height * _extent.depth;
     //texture->pData.get() = static_cast<unsigned char *>(calloc(imgSize, sizeof(unsigned char)));
@@ -63,7 +63,7 @@ void CImage3D::generatePerlinNoise(scope_ptr<FImageCreateInfo>& texture)
     }
 }
 
-void CImage3D::generateFractalNoise(scope_ptr<FImageCreateInfo>& texture, uint32_t octaves, float perceptation)
+void CImage3D::generateFractalNoise(utl::scope_ptr<FImageCreateInfo>& texture, uint32_t octaves, float perceptation)
 {
     vk::DeviceSize imgSize = _extent.width * _extent.height * _extent.depth;
     //texture->pData.get() = static_cast<unsigned char *>(calloc(imgSize, sizeof(unsigned char)));

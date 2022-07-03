@@ -25,10 +25,10 @@ namespace engine
             bool bIsClean{false};
 
             std::vector<FVertex> vVertices;
-            scope_ptr<CVulkanBuffer> vertexBuffer;
+            utl::scope_ptr<CVulkanBuffer> vertexBuffer;
 
             std::vector<uint32_t> vIndices;
-            scope_ptr<CVulkanBuffer> indexBuffer;
+            utl::scope_ptr<CVulkanBuffer> indexBuffer;
         };
     }
 }

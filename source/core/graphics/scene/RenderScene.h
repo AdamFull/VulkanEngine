@@ -17,12 +17,12 @@ namespace engine
                 void create();
                 void reCreate();
                 void cleanup();
-                void attachObject(ref_ptr<CRenderObject>& object);
-                inline ref_ptr<CRenderObject>& getRoot() { return m_pRoot; }
+                void attachObject(utl::ref_ptr<CRenderObject>& object);
+                inline utl::ref_ptr<CRenderObject>& getRoot() { return m_pRoot; }
                 void createObjects();
                 void render(float fDeltaTime);
             private:
-                ref_ptr<CRenderObject> m_pRoot;
+                utl::ref_ptr<CRenderObject> m_pRoot;
             };
         }
     }

@@ -10,14 +10,14 @@ namespace engine
         class CVBO : public utl::non_copy_movable
         {
         protected:
-            static scope_ptr<CVBO> _instance;
+            static utl::scope_ptr<CVBO> _instance;
 
         public:
             CVBO();
-            static scope_ptr<CVertexBufferObject> &inst();
+            static utl::scope_ptr<CVertexBufferObject> &inst();
 
         private:
-            scope_ptr<CVertexBufferObject> pVBO;
+            utl::scope_ptr<CVertexBufferObject> pVBO;
         };
     }
 }

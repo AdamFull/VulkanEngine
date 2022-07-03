@@ -15,10 +15,10 @@ using namespace engine::core::scene;
 using namespace resources::material;
 using namespace resources::loaders;
 
-scope_ptr<CRenderScene> CSceneFactory::create(std::string srScenePath)
+utl::scope_ptr<CRenderScene> CSceneFactory::create(std::string srScenePath)
 {
     FSceneCreateInfo info = FilesystemHelper::getConfigAs<FSceneCreateInfo>(srScenePath);
-    auto pRenderScene = make_scope<CRenderScene>();
+    auto pRenderScene = utl::make_scope<CRenderScene>();
     pRenderScene->create();
 
     auto pRoot = pRenderScene->getRoot();
@@ -31,7 +31,7 @@ scope_ptr<CRenderScene> CSceneFactory::create(std::string srScenePath)
     return pRenderScene;
 }
 
-void CSceneFactory::createComponents(ref_ptr<CRenderObject>& pRoot, std::vector<FSceneObject> sceneObjects)
+void CSceneFactory::createComponents(utl::ref_ptr<CRenderObject>& pRoot, std::vector<FSceneObject> sceneObjects)
 {
     for (auto &object : sceneObjects)
     {
@@ -39,9 +39,9 @@ void CSceneFactory::createComponents(ref_ptr<CRenderObject>& pRoot, std::vector<
     }
 }
 
-ref_ptr<CRenderObject> CSceneFactory::createComponent(FSceneObject info)
+utl::ref_ptr<CRenderObject> CSceneFactory::createComponent(FSceneObject info)
 {
-    ref_ptr<CRenderObject> object = make_ref<CRenderObject>();
+    utl::ref_ptr<CRenderObject> object = utl::make_ref<CRenderObject>();
     object->setTransform(info.fTransform);
     object->setName(info.srName);
 
@@ -69,16 +69,16 @@ ref_ptr<CRenderObject> CSceneFactory::createComponent(FSceneObject info)
 
 // Create mesh component factory!!!!!!!!!!!!!
 
-void CSceneFactory::createCamera(ref_ptr<core::scene::CRenderObject>& pRoot, FSceneObject info)
+void CSceneFactory::createCamera(utl::ref_ptr<core::scene::CRenderObject>& pRoot, FSceneObject info)
 {
-    pRoot->setCamera(make_ref<CCameraComponent>());
+    pRoot->setCamera(utl::make_ref<CCameraComponent>());
     CCameraManager::inst()->attach(pRoot);
 }
 
 //Todo: do smth with code reusing
-void CSceneFactory::createSkybox(ref_ptr<core::scene::CRenderObject>& pRoot, FSceneObject info)
+void CSceneFactory::createSkybox(utl::ref_ptr<core::scene::CRenderObject>& pRoot, FSceneObject info)
 {
-    auto loader = make_ref<GLTFLoader>(info.mesh.bUseIncludedMaterial, true, info.srName, info.srUseVolume);
+    auto loader = utl::make_ref<GLTFLoader>(info.mesh.bUseIncludedMaterial, true, info.srName, info.srUseVolume);
 
     if (!info.mesh.bUseIncludedMaterial)
     {
@@ -97,9 +97,9 @@ void CSceneFactory::createSkybox(ref_ptr<core::scene::CRenderObject>& pRoot, FSc
     skybox->setIsSkybox(true);
 }
 
-void CSceneFactory::createGLTFMesh(ref_ptr<core::scene::CRenderObject>& pRoot, FSceneObject info)
+void CSceneFactory::createGLTFMesh(utl::ref_ptr<core::scene::CRenderObject>& pRoot, FSceneObject info)
 {
-    auto loader = make_ref<GLTFLoader>(info.mesh.bUseIncludedMaterial, true, info.srName, info.srUseVolume);
+    auto loader = utl::make_ref<GLTFLoader>(info.mesh.bUseIncludedMaterial, true, info.srName, info.srUseVolume);
     if (!info.mesh.bUseIncludedMaterial)
     {
         for (auto &matInfo : info.mesh.vMaterials)
@@ -113,20 +113,21 @@ void CSceneFactory::createGLTFMesh(ref_ptr<core::scene::CRenderObject>& pRoot, F
     loader->load(pRoot, info.mesh.srSrc, info.srName);
 }
 
-void CSceneFactory::createLightSource(ref_ptr<core::scene::CRenderObject>& pRoot, FSceneObject info)
+void CSceneFactory::createLightSource(utl::ref_ptr<core::scene::CRenderObject>& pRoot, FSceneObject info)
 {
-    ref_ptr<CLightComponent> lightComponent;
+    utl::ref_ptr<CLightComponent> lightComponent;
 
     switch (info.light.eType)
     {
-    case ELightSourceType::eDirectional: lightComponent = make_ref<CLightComponentDirectional>(); break;
-    case ELightSourceType::ePoint: lightComponent = make_ref<CLightComponentPoint>(); break;
-    case ELightSourceType::eSpot: lightComponent = make_ref<CLightComponentSpot>(); break;
+    case ELightSourceType::eDirectional: lightComponent = utl::make_ref<CLightComponentDirectional>(); break;
+    case ELightSourceType::ePoint: lightComponent = utl::make_ref<CLightComponentPoint>(); break;
+    case ELightSourceType::eSpot: lightComponent = utl::make_ref<CLightComponentSpot>(); break;
     }
 
     lightComponent->setName(info.srName);
     lightComponent->setColor(info.light.vColor);
     lightComponent->setIntencity(info.light.fIntencity);
+    lightComponent->setRadius(info.light.fRadius);
     lightComponent->setType(info.light.eType);
     lightComponent->setInnerAngle(info.light.fInnerAngle);
     lightComponent->setOuterAngle(info.light.fOuterAngle);

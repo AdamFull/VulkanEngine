@@ -10,6 +10,11 @@
 
 #include <GLFW/glfw3.h>
 
+#define GLM_FORCE_RADIANS
+#define GLM_FORCE_DEPTH_ZERO_TO_ONE
+#define GLM_ENABLE_EXPERIMENTAL
+#define GLM_FORCE_XYZW_ONLY
+
 #include <glm/glm.hpp>
 #include <glm/gtx/hash.hpp>
 #include <glm/gtc/type_ptr.hpp>
@@ -18,10 +23,6 @@
 
 #define _USE_MATH_DEFINES
 #include <cmath>
-
-#define GLM_FORCE_RADIANS
-#define GLM_FORCE_DEPTH_ZERO_TO_ONE
-#define GLM_ENABLE_EXPERIMENTAL
 
 #include <cassert>
 #include <memory>
@@ -56,31 +57,8 @@ namespace fs = std::filesystem;
 
 constexpr const uint32_t max_light_count = 32;
 
-template<class _Ty>
-using scope_ptr = std::unique_ptr<_Ty>;
-
-template<class _Ty, class... _Args>
-constexpr scope_ptr<_Ty> make_scope(_Args&& ...args)
-{
-	return std::make_unique<_Ty>(std::forward<_Args>(args)...);
-}
-
-template<class _Ty>
-using ref_ptr = std::shared_ptr<_Ty>;
-
-template<class _Ty, class... _Args>
-constexpr ref_ptr<_Ty> make_ref(_Args&& ...args)
-{
-	return std::make_shared<_Ty>(std::forward<_Args>(args)...);
-}
-
 #include <util/function.hpp>
 #include <util/helpers.hpp>
 #include <util/ulog.hpp>
 #include <util/bimap.hpp>
-
-#define MAX_DIRECTIONAL_LIGHT_COUNT 1
-#define MAX_SPOT_LIGHT_COUNT 15
-#define MAX_POINT_LIGHT_COUNT 16
-#define SHADOW_MAP_CASCADE_COUNT 5
-#define SHADOW_MAP_RESOLUTION 512
+#include "configuration.h"

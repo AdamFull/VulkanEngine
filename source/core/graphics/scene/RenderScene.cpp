@@ -13,7 +13,7 @@ using namespace engine::resources;
 
 void CRenderScene::create()
 {
-    m_pRoot = make_ref<CRenderObject>();
+    m_pRoot = utl::make_ref<CRenderObject>();
     CResourceManager::inst()->create();
 }
 
@@ -28,7 +28,7 @@ void CRenderScene::cleanup()
         m_pRoot->cleanup();
 }
 
-void CRenderScene::attachObject(ref_ptr<CRenderObject>& object)
+void CRenderScene::attachObject(utl::ref_ptr<CRenderObject>& object)
 {
     object->setParent(m_pRoot);
 }

@@ -12,7 +12,7 @@ using namespace engine::core::window;
 using namespace engine::core::render;
 
 template<>
-scope_ptr<CRenderSystem> utl::singleton<CRenderSystem>::_instance{nullptr};
+utl::scope_ptr<CRenderSystem> utl::singleton<CRenderSystem>::_instance{nullptr};
 
 CRenderSystem::~CRenderSystem()
 {
@@ -23,18 +23,18 @@ void CRenderSystem::create()
 {
     auto engineMode = UHLInstance->getCI().engine.mode;
     screenExtent = CDevice::inst()->getExtent();
-    commandBuffers = make_ref<CCommandBuffer>(false, vk::QueueFlagBits::eGraphics, vk::CommandBufferLevel::ePrimary, CDevice::inst()->getFramesInFlight());
+    commandBuffers = utl::make_ref<CCommandBuffer>(false, vk::QueueFlagBits::eGraphics, vk::CommandBufferLevel::ePrimary, CDevice::inst()->getFramesInFlight());
 
-    vStages.emplace_back(make_scope<CShadowMappingStage>());
-    vStages.emplace_back(make_scope<CDeferredStage>());
-    vStages.emplace_back(make_scope<CPostProcessStage>());
+    vStages.emplace_back(utl::make_scope<CShadowMappingStage>());
+    vStages.emplace_back(utl::make_scope<CDeferredStage>());
+    vStages.emplace_back(utl::make_scope<CPostProcessStage>());
     switch (engineMode)
     {
     case ELaunchMode::eGame:{
-        vStages.emplace_back(make_scope<CPresentFinalStage>());
+        vStages.emplace_back(utl::make_scope<CPresentFinalStage>());
     } break;
     case ELaunchMode::eEditor:{
-        vStages.emplace_back(make_scope<CSandboxFinalStage>());
+        vStages.emplace_back(utl::make_scope<CSandboxFinalStage>());
     } break;
     }
 
@@ -52,7 +52,7 @@ void CRenderSystem::reCreate()
 {
     CDevice::inst()->tryRebuildSwapchain();
     screenExtent = CDevice::inst()->getExtent();
-    commandBuffers = make_ref<CCommandBuffer>(false, vk::QueueFlagBits::eGraphics, vk::CommandBufferLevel::ePrimary, CDevice::inst()->getFramesInFlight());
+    commandBuffers = utl::make_ref<CCommandBuffer>(false, vk::QueueFlagBits::eGraphics, vk::CommandBufferLevel::ePrimary, CDevice::inst()->getFramesInFlight());
     imageIndex = 0;
     CWindowHandle::m_bWasResized = false;
 
@@ -78,7 +78,7 @@ void CRenderSystem::rebuildViewport()
     updateFramebufferImages();
 }
 
-scope_ptr<CSubpass>& CRenderSystem::getCurrentRenderer()
+utl::scope_ptr<CSubpass>& CRenderSystem::getCurrentRenderer()
 {
     auto& stage = vStages.at(currentStageIndex);
     auto& framebuffer = stage->getCurrentFramebuffer();

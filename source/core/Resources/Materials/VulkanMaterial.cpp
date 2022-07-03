@@ -40,17 +40,17 @@ void CMaterialBase::create()
 
         for(auto instance = 0; instance < instances; instance++)
         {
-            auto instance_ptr = make_scope<FMaterialUniqueObjects>();
-            instance_ptr->pDescriptorSet = make_scope<CDescriptorHandler>();
+            auto instance_ptr = utl::make_scope<FMaterialUniqueObjects>();
+            instance_ptr->pDescriptorSet = utl::make_scope<CDescriptorHandler>();
             instance_ptr->pDescriptorSet->create(pPipeline);
 
             for(auto& [name, uniform] : pPipeline->getShader()->getUniformBlocks())
             {
-                ref_ptr<CHandler> pUniform;
+                utl::ref_ptr<CHandler> pUniform;
                 switch(uniform.getDescriptorType())
                 {
-                    case vk::DescriptorType::eUniformBuffer: pUniform = make_ref<CUniformHandler>(); break;
-                    case vk::DescriptorType::eStorageBuffer: pUniform = make_ref<CStorageHandler>(); break;
+                    case vk::DescriptorType::eUniformBuffer: pUniform = utl::make_ref<CUniformHandler>(); break;
+                    case vk::DescriptorType::eStorageBuffer: pUniform = utl::make_ref<CStorageHandler>(); break;
                 }
                 pUniform->create(uniform);
                 instance_ptr->mBuffers.emplace(name, pUniform);
@@ -58,7 +58,7 @@ void CMaterialBase::create()
 
             for(auto& [name, uniform] : pPipeline->getShader()->getPushBlocks())
             {
-                auto pUniform = make_ref<CPushHandler>();
+                auto pUniform = utl::make_ref<CPushHandler>();
                 pUniform->create(uniform, pPipeline);
                 instance_ptr->mPushConstants.emplace(name, pUniform);
             }
@@ -74,7 +74,7 @@ void CMaterialBase::addTexture(const std::string& attachment, vk::DescriptorImag
     mTextures[attachment] = descriptor;
 }
 
-void CMaterialBase::addTexture(const std::string& attachment, ref_ptr<CImage>& pTexture)
+void CMaterialBase::addTexture(const std::string& attachment, utl::ref_ptr<CImage>& pTexture)
 {
     mTextures[attachment] = pTexture->getDescriptor();
 }
@@ -159,7 +159,7 @@ void CMaterialBase::addDefinition(const std::string& definition, const std::stri
     pPipeline->addDefine(definition, value);
 }
 
-ref_ptr<CHandler>& CMaterialBase::getUniformBuffer(const std::string& name) 
+utl::ref_ptr<CHandler>& CMaterialBase::getUniformBuffer(const std::string& name) 
 { 
     auto& instance = vInstances.at(currentInstance);
     auto uniformBlock = instance->mBuffers.find(name);
@@ -168,7 +168,7 @@ ref_ptr<CHandler>& CMaterialBase::getUniformBuffer(const std::string& name)
     return pEmptyHamdler; 
 }
 
-ref_ptr<CPushHandler>& CMaterialBase::getPushConstant(const std::string& name) 
+utl::ref_ptr<CPushHandler>& CMaterialBase::getPushConstant(const std::string& name) 
 { 
     auto& instance = vInstances.at(currentInstance);
     auto pushBlock = instance->mPushConstants.find(name);

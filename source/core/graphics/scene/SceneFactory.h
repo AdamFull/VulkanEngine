@@ -11,16 +11,16 @@ namespace engine
         {
             struct CSceneFactory
             {
-                static scope_ptr<CRenderScene> create(std::string srScenePath);
+                static utl::scope_ptr<CRenderScene> create(std::string srScenePath);
 
             private:
-                static void createComponents(ref_ptr<core::scene::CRenderObject> &pRoot, std::vector<FSceneObject> sceneObjects);
-                static ref_ptr<core::scene::CRenderObject> createComponent(FSceneObject info);
+                static void createComponents(utl::ref_ptr<core::scene::CRenderObject> &pRoot, std::vector<FSceneObject> sceneObjects);
+                static utl::ref_ptr<core::scene::CRenderObject> createComponent(FSceneObject info);
 
-                static void createCamera(ref_ptr<core::scene::CRenderObject>& pRoot, FSceneObject info);
-                static void createSkybox(ref_ptr<core::scene::CRenderObject>& pRoot, FSceneObject info);
-                static void createGLTFMesh(ref_ptr<core::scene::CRenderObject>& pRoot, FSceneObject info);
-                static void createLightSource(ref_ptr<core::scene::CRenderObject>& pRoot, FSceneObject info);
+                static void createCamera(utl::ref_ptr<core::scene::CRenderObject>& pRoot, FSceneObject info);
+                static void createSkybox(utl::ref_ptr<core::scene::CRenderObject>& pRoot, FSceneObject info);
+                static void createGLTFMesh(utl::ref_ptr<core::scene::CRenderObject>& pRoot, FSceneObject info);
+                static void createLightSource(utl::ref_ptr<core::scene::CRenderObject>& pRoot, FSceneObject info);
             };
         }
     }

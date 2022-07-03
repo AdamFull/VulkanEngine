@@ -25,7 +25,7 @@ using namespace engine::resources;
 using namespace engine::resources::material;
 
 template<>
-scope_ptr<CEditorUI> utl::singleton<CEditorUI>::_instance{nullptr};
+utl::scope_ptr<CEditorUI> utl::singleton<CEditorUI>::_instance{nullptr};
 
 CEditorUI::~CEditorUI()
 {
@@ -61,11 +61,11 @@ void CEditorUI::create(vk::RenderPass& renderPass, uint32_t subpass)
     ImGui::CreateContext();
     baseInitialize();
 
-    vWindows.emplace(EEditorWindowType::eHierarchy, make_ref<CHierarchyWindow>());
-    vWindows.emplace(EEditorWindowType::eInspector, make_ref<CInspectorWindow>());
-    vWindows.emplace(EEditorWindowType::eViewport, make_ref<CViewportWindow>());
-    vWindows.emplace(EEditorWindowType::eWorld, make_ref<CWorldSettingsWindow>());
-    vWindows.emplace(EEditorWindowType::eContentBrowser, make_ref<CContentBrowserWindow>());
+    vWindows.emplace(EEditorWindowType::eHierarchy, utl::make_ref<CHierarchyWindow>());
+    vWindows.emplace(EEditorWindowType::eInspector, utl::make_ref<CInspectorWindow>());
+    vWindows.emplace(EEditorWindowType::eViewport, utl::make_ref<CViewportWindow>());
+    vWindows.emplace(EEditorWindowType::eWorld, utl::make_ref<CWorldSettingsWindow>());
+    vWindows.emplace(EEditorWindowType::eContentBrowser, utl::make_ref<CContentBrowserWindow>());
 
     ImGui_ImplGlfw_InitForVulkan(CWindowHandle::inst()->getWindowInstance(), true);
     ImGui_ImplVulkan_InitInfo init_info = {};

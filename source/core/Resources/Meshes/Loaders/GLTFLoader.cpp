@@ -45,7 +45,7 @@ bLoadMaterials(loadMaterials), bUseMaterials(useMaterials), srModelName(modelNam
 //TODO: load cameras
 //TODO: load lights
 //TODO: load skins
-void GLTFLoader::load(ref_ptr<core::scene::CRenderObject>& pParent, const std::string& srPath, const std::string& srName)
+void GLTFLoader::load(utl::ref_ptr<core::scene::CRenderObject>& pParent, const std::string& srPath, const std::string& srName)
 {
     tinygltf::Model gltfModel;
     tinygltf::TinyGLTF gltfContext;
@@ -86,9 +86,9 @@ void GLTFLoader::load(ref_ptr<core::scene::CRenderObject>& pParent, const std::s
     }
 }
 
-void GLTFLoader::loadNode(ref_ptr<CRenderObject>& pParent, const tinygltf::Node &node, uint32_t nodeIndex, const tinygltf::Model &model, float globalscale)
+void GLTFLoader::loadNode(utl::ref_ptr<CRenderObject>& pParent, const tinygltf::Node &node, uint32_t nodeIndex, const tinygltf::Model &model, float globalscale)
 {
-    auto component = make_ref<CRenderObject>();
+    auto component = utl::make_ref<CRenderObject>();
     component->setIndex(nodeIndex);
 
     if(!node.name.empty())
@@ -142,10 +142,10 @@ void GLTFLoader::loadNode(ref_ptr<CRenderObject>& pParent, const tinygltf::Node 
     }
 }
 
-void GLTFLoader::loadMeshFragment(ref_ptr<CRenderObject>& sceneNode, const tinygltf::Node &node, const tinygltf::Model &model)
+void GLTFLoader::loadMeshFragment(utl::ref_ptr<CRenderObject>& sceneNode, const tinygltf::Node &node, const tinygltf::Model &model)
 {
     const tinygltf::Mesh mesh = model.meshes[node.mesh];
-    auto nativeMesh = make_ref<CMeshComponent>();
+    auto nativeMesh = utl::make_ref<CMeshComponent>();
     if(!mesh.name.empty())
         nativeMesh->setName(mesh.name);
     else
@@ -361,10 +361,10 @@ void GLTFLoader::loadMeshFragment(ref_ptr<CRenderObject>& sceneNode, const tinyg
     std::map<int32_t, int32_t> materialInstances{};
 }
 
-void GLTFLoader::loadCamera(ref_ptr<core::scene::CRenderObject>& sceneNode, const tinygltf::Node &node, const tinygltf::Model &model)
+void GLTFLoader::loadCamera(utl::ref_ptr<core::scene::CRenderObject>& sceneNode, const tinygltf::Node &node, const tinygltf::Model &model)
 {
     const tinygltf::Camera camera = model.cameras[node.camera];
-    auto nativeCamera = make_ref<CCameraComponent>();
+    auto nativeCamera = utl::make_ref<CCameraComponent>();
     if(!camera.name.empty())
         nativeCamera->setName(camera.name);
     else
@@ -392,10 +392,10 @@ void GLTFLoader::loadCamera(ref_ptr<core::scene::CRenderObject>& sceneNode, cons
     CCameraManager::inst()->attach(sceneNode);
 }
 
-void GLTFLoader::loadSkin(ref_ptr<core::scene::CRenderObject>& sceneNode, const tinygltf::Node &node, const tinygltf::Model &model)
+void GLTFLoader::loadSkin(utl::ref_ptr<core::scene::CRenderObject>& sceneNode, const tinygltf::Node &node, const tinygltf::Model &model)
 {
     const tinygltf::Skin skin = model.skins[node.skin];
-    /*auto nativeSkin = make_ref<CSkinComponent>();
+    /*auto nativeSkin = utl::make_ref<CSkinComponent>();
     if(!skin.name.empty())
         nativeSkin->setName(skin.name);
     else
@@ -406,10 +406,10 @@ void GLTFLoader::loadSkin(ref_ptr<core::scene::CRenderObject>& sceneNode, const 
     }*/
 }
 
-void GLTFLoader::loadLight(ref_ptr<core::scene::CRenderObject>& sceneNode, uint32_t light_index, const tinygltf::Node &node, const tinygltf::Model &model)
+void GLTFLoader::loadLight(utl::ref_ptr<core::scene::CRenderObject>& sceneNode, uint32_t light_index, const tinygltf::Node &node, const tinygltf::Model &model)
 {
     const tinygltf::Light light = model.lights[light_index];
-    auto nativeLight = make_ref<CLightComponent>();
+    auto nativeLight = utl::make_ref<CLightComponent>();
     if(!light.name.empty())
         nativeLight->setName(light.name);
     else
@@ -602,7 +602,7 @@ void GLTFLoader::loadMaterials(const tinygltf::Model &model)
         ss << material_index;
 
         FMaterialParams params;
-        ref_ptr<CMaterialBase> nativeMaterial = CMaterialLoader::inst()->create("default");
+        utl::ref_ptr<CMaterialBase> nativeMaterial = CMaterialLoader::inst()->create("default");
         nativeMaterial->setName(ss.str());
 
         if (mat.values.find("baseColorTexture") != mat.values.end())
@@ -735,9 +735,9 @@ void GLTFLoader::loadTextures(const tinygltf::Model &model)
     }
 }
 
-ref_ptr<CImage> GLTFLoader::loadTexture(const tinygltf::Image &image, const fs::path& path)
+utl::ref_ptr<CImage> GLTFLoader::loadTexture(const tinygltf::Image &image, const fs::path& path)
 {
-    auto nativeTexture = make_ref<CImage>();
+    auto nativeTexture = utl::make_ref<CImage>();
     auto realPath = fs::weakly_canonical(path / image.uri);
     nativeTexture->create(realPath);
     return nativeTexture;
@@ -747,7 +747,7 @@ void GLTFLoader::loadSkins(const tinygltf::Model &model)
 {
     for (auto& source : model.skins)
     {
-        auto pSkin = make_ref<FSkin>();
+        auto pSkin = utl::make_ref<FSkin>();
         pSkin->name = source.name;
 
         // Find skeleton root node

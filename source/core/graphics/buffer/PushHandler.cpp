@@ -10,18 +10,18 @@ CPushHandler::~CPushHandler()
     cleanup();
 }
 
-void CPushHandler::create(const CPushConstBlock &uniformBlock, ref_ptr<CPipelineBase>& pipeline)
+void CPushHandler::create(const CPushConstBlock &uniformBlock, utl::ref_ptr<CPipelineBase>& pipeline)
 {
     uint32_t images = CDevice::inst()->getFramesInFlight();
 
     pPipeline = pipeline;
 
     for(auto i = 0; i < images; i++)
-        vData.emplace_back(make_scope<char[]>(uniformBlock.getSize()));
+        vData.emplace_back(utl::make_scope<char[]>(uniformBlock.getSize()));
     pushBlock = uniformBlock;
 }
 
-void CPushHandler::reCreate(ref_ptr<CPipelineBase>& pipeline)
+void CPushHandler::reCreate(utl::ref_ptr<CPipelineBase>& pipeline)
 {
     create(pushBlock.value(), pipeline);
 }

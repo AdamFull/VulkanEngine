@@ -35,17 +35,17 @@ namespace engine
             std::map<uint32_t, std::vector<size_t>> mipOffsets;
 
             size_t dataSize{0UL};
-            scope_ptr<uint8_t[]> pData{nullptr};
+            utl::scope_ptr<uint8_t[]> pData{nullptr};
         };
 
 		class CImageLoaderNew
 		{
 		public:
-            static void load(const fs::path& fsPath, scope_ptr<FImageCreateInfo>& imageCI, const std::vector<EPixelFormat>& supportedFormats, const fs::path &parentPath = FilesystemHelper::getWorkDir());
+            static void load(const fs::path& fsPath, utl::scope_ptr<FImageCreateInfo>& imageCI, const std::vector<EPixelFormat>& supportedFormats, const fs::path &parentPath = FilesystemHelper::getWorkDir());
         private:
-            static void loadKTX(const fs::path& fsPath, scope_ptr<FImageCreateInfo>& imageCI);
-            static void loadKTX2(const fs::path& fsPath, scope_ptr<FImageCreateInfo>& imageCI, const std::vector<EPixelFormat>& supportedFormats);
-            static void loadDDS(const fs::path& fsPath, scope_ptr<FImageCreateInfo>& imageCI);
+            static void loadKTX(const fs::path& fsPath, utl::scope_ptr<FImageCreateInfo>& imageCI);
+            static void loadKTX2(const fs::path& fsPath, utl::scope_ptr<FImageCreateInfo>& imageCI, const std::vector<EPixelFormat>& supportedFormats);
+            static void loadDDS(const fs::path& fsPath, utl::scope_ptr<FImageCreateInfo>& imageCI);
             static void imageCreateInfoDeleter();
             static EImageFormat getTextureFormat(const fs::path& fsPath);
 		};

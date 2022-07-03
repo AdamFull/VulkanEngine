@@ -14,7 +14,7 @@ namespace engine
             struct ObjLoader
             {
             public:
-                static void Load(std::string srPath, ref_ptr<core::scene::CRenderObject>& pRoot);
+                static void Load(std::string srPath, utl::ref_ptr<core::scene::CRenderObject>& pRoot);
             };
         }
     }

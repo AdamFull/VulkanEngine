@@ -17,7 +17,7 @@ namespace engine
                 CDescriptorSet() = default;
 
                 void create(vk::PipelineBindPoint bindPoint, vk::PipelineLayout& layout, vk::DescriptorPool& pool, vk::DescriptorSetLayout& setLayout);
-                void create(ref_ptr<pipeline::CPipelineBase>& pPipeline);
+                void create(utl::ref_ptr<pipeline::CPipelineBase>& pPipeline);
                 void cleanup();
                 void update(std::vector<vk::WriteDescriptorSet> &vWrites);
                 void update(vk::WriteDescriptorSet &writes);

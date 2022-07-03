@@ -13,7 +13,7 @@ namespace engine
 			void draw() override;
 
 		private:
-			void buildHierarchy(ref_ptr<core::scene::CRenderObject> &pObject);
+			void buildHierarchy(utl::ref_ptr<core::scene::CRenderObject> &pObject);
 		};
 	}
 }

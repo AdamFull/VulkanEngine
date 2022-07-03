@@ -132,9 +132,9 @@ namespace engine
 				/**
 				 * @brief Get shader object
 				 *
-				 * @return scope_ptr<CShader>& Shader smart pointer
+				 * @return utl::scope_ptr<CShader>& Shader smart pointer
 				 */
-				inline scope_ptr<CShader> &getShader() { return m_pShader; }
+				inline utl::scope_ptr<CShader> &getShader() { return m_pShader; }
 
 			protected:
 				/**
@@ -168,7 +168,7 @@ namespace engine
 				virtual void recreateShaders();
 
 				std::map<std::string, std::string> m_vDefines;
-				scope_ptr<CShader> m_pShader;
+				utl::scope_ptr<CShader> m_pShader;
 				bool bIsClean{false};
 
 				CVertexInput m_vertexInput;

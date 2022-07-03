@@ -37,34 +37,34 @@ namespace engine
 			vk::DescriptorPool &getDescriptorPool() { return descriptorPool; }
 
 			template <class _Ty>
-			ref_ptr<_Ty> getWindow() {}
+			utl::ref_ptr<_Ty> getWindow() {}
 
 			template <>
-			ref_ptr<CHierarchyWindow> getWindow()
+			utl::ref_ptr<CHierarchyWindow> getWindow()
 			{
 				return std::dynamic_pointer_cast<CHierarchyWindow>(vWindows[EEditorWindowType::eHierarchy]);
 			}
 
 			template <>
-			ref_ptr<CInspectorWindow> getWindow()
+			utl::ref_ptr<CInspectorWindow> getWindow()
 			{
 				return std::dynamic_pointer_cast<CInspectorWindow>(vWindows[EEditorWindowType::eInspector]);
 			}
 
 			template <>
-			ref_ptr<CViewportWindow> getWindow()
+			utl::ref_ptr<CViewportWindow> getWindow()
 			{
 				return std::dynamic_pointer_cast<CViewportWindow>(vWindows[EEditorWindowType::eViewport]);
 			}
 
 			template <>
-			ref_ptr<CWorldSettingsWindow> getWindow()
+			utl::ref_ptr<CWorldSettingsWindow> getWindow()
 			{
 				return std::dynamic_pointer_cast<CWorldSettingsWindow>(vWindows[EEditorWindowType::eWorld]);
 			}
 
 			template <>
-			ref_ptr<CContentBrowserWindow> getWindow()
+			utl::ref_ptr<CContentBrowserWindow> getWindow()
 			{
 				return std::dynamic_pointer_cast<CContentBrowserWindow>(vWindows[EEditorWindowType::eContentBrowser]);
 			}
@@ -74,7 +74,7 @@ namespace engine
 
 			void initializeWindowBackend();
 
-			std::map<EEditorWindowType, ref_ptr<CWindowBase>> vWindows;
+			std::map<EEditorWindowType, utl::ref_ptr<CWindowBase>> vWindows;
 			bool bEnabled = true;
 			vk::DescriptorPool descriptorPool{};
 

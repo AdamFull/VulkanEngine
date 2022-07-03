@@ -26,7 +26,7 @@ ImGuizmo::OPERATION mCurrentGizmoOperation{ImGuizmo::TRANSLATE};
 void CViewportWindow::create()
 {
     auto pBackend = (ImGui_ImplVulkan_Data*)ImGui::GetIO().BackendRendererUserData;
-    pDescriptorSet = make_scope<CDescriptorSet>();
+    pDescriptorSet = utl::make_scope<CDescriptorSet>();
     pDescriptorSet->create(vk::PipelineBindPoint::eGraphics, pBackend->PipelineLayout, CEditorUI::inst()->getDescriptorPool(), pBackend->DescriptorSetLayout);
 }
 

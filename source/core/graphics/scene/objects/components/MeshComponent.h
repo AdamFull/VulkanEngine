@@ -27,7 +27,7 @@ namespace engine
                 uint32_t vertexCount;
                 bool bWasCulled{false};
                 //TODO: check for material duplicates
-                ref_ptr<resources::material::CMaterialBase> material;
+                utl::ref_ptr<resources::material::CMaterialBase> material;
 
                 struct Dimensions
                 {
@@ -91,9 +91,9 @@ namespace engine
             struct FSkin
             {
                 std::string name;
-                ref_ptr<CMeshComponent> skeletonRoot = nullptr;
+                utl::ref_ptr<CMeshComponent> skeletonRoot = nullptr;
                 std::vector<glm::mat4> inverseBindMatrices;
-                std::vector<ref_ptr<CMeshComponent>> joints;
+                std::vector<utl::ref_ptr<CMeshComponent>> joints;
             };
 
             class CMeshComponent : public CSceneComponent

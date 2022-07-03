@@ -23,7 +23,7 @@ void CDescriptorSet::create(vk::PipelineBindPoint bindPoint, vk::PipelineLayout&
     assert(res == vk::Result::eSuccess && "Cannot create descriptor sets.");
 }
 
-void CDescriptorSet::create(ref_ptr<pipeline::CPipelineBase>& pPipeline)
+void CDescriptorSet::create(utl::ref_ptr<pipeline::CPipelineBase>& pPipeline)
 {
     create(pPipeline->getBindPoint(), pPipeline->getPipelineLayout(), pPipeline->getDescriptorPool(), pPipeline->getDescriptorSetLayout());
 }

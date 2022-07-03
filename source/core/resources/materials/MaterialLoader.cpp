@@ -151,14 +151,14 @@ using namespace engine::core;
 using namespace engine::core::pipeline;
 
 template<>
-scope_ptr<CMaterialLoader> utl::singleton<CMaterialLoader>::_instance{nullptr};
+utl::scope_ptr<CMaterialLoader> utl::singleton<CMaterialLoader>::_instance{nullptr};
 
 CMaterialLoader::CMaterialLoader()
 {
     load();
 }
 
-ref_ptr<CMaterialBase> CMaterialLoader::create(const std::string& name)
+utl::ref_ptr<CMaterialBase> CMaterialLoader::create(const std::string& name)
 {
     //TODO: Check ability to store same materials
     auto it = data.creationInfo.find(name);
@@ -173,14 +173,14 @@ ref_ptr<CMaterialBase> CMaterialLoader::create(const std::string& name)
             case FMaterialInfo::EVertexType::eImgui: vertexInput = CVertexInput(FVertexUI::getBindingDescription(), FVertexUI::getAttributeDescriptions()); break;
         }
 
-        ref_ptr<CMaterialBase> material = make_scope<CMaterialBase>();
+        utl::ref_ptr<CMaterialBase> material = utl::make_scope<CMaterialBase>();
     
         switch (ci.bindPoint)
         {
-        case vk::PipelineBindPoint::eCompute: material->pPipeline = make_scope<CComputePipeline>(); break;
-        case vk::PipelineBindPoint::eGraphics: material->pPipeline = make_scope<CGraphicsPipeline>(); break;
-        case vk::PipelineBindPoint::eRayTracingKHR: material->pPipeline = make_scope<CComputePipeline>(); break;
-        case vk::PipelineBindPoint::eSubpassShadingHUAWEI: material->pPipeline = make_scope<CComputePipeline>(); break;
+        case vk::PipelineBindPoint::eCompute: material->pPipeline = utl::make_scope<CComputePipeline>(); break;
+        case vk::PipelineBindPoint::eGraphics: material->pPipeline = utl::make_scope<CGraphicsPipeline>(); break;
+        case vk::PipelineBindPoint::eRayTracingKHR: material->pPipeline = utl::make_scope<CComputePipeline>(); break;
+        case vk::PipelineBindPoint::eSubpassShadingHUAWEI: material->pPipeline = utl::make_scope<CComputePipeline>(); break;
         }
 
         material->pPipeline->setBindPoint(ci.bindPoint);

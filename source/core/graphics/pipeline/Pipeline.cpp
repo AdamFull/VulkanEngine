@@ -6,7 +6,7 @@ using namespace engine::core::pipeline;
 
 CPipelineBase::CPipelineBase()
 {
-    m_pShader = make_scope<CShader>();
+    m_pShader = utl::make_scope<CShader>();
 }
 
 CPipelineBase::~CPipelineBase()

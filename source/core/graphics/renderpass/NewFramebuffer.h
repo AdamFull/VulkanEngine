@@ -89,8 +89,8 @@ namespace engine
 
                 void setFlipViewport(vk::Bool32 value) { flipViewport = value; }
 
-                void addRenderer(scope_ptr<CSubpass> &&subpass);
-                scope_ptr<CSubpass>& getCurrentRenderer() { return vSubpasses.at(currentSubpassIndex); }
+                void addRenderer(utl::scope_ptr<CSubpass> &&subpass);
+                utl::scope_ptr<CSubpass>& getCurrentRenderer() { return vSubpasses.at(currentSubpassIndex); }
 
                 const uint32_t getSubpassCount() const { return vSubpasses.size(); }
                 vk::SubpassDescription &getCurrentDescription() { return vSubpassDesc.at(currentSubpassIndex); }
@@ -102,14 +102,14 @@ namespace engine
 
                 vk::Framebuffer &getFramebuffer(uint32_t index) { return vFramebuffers[index]; }
                 vk::Framebuffer &getCurrentFramebuffer();
-                std::unordered_map<std::string, ref_ptr<CImage>> &getImages(uint32_t index) { return mFramebufferImages[index]; }
-                std::unordered_map<std::string, ref_ptr<CImage>> &getCurrentImages();
-                ref_ptr<CImage> &getDepthImage() { return vFramebufferDepth.front(); }
+                std::unordered_map<std::string, utl::ref_ptr<CImage>> &getImages(uint32_t index) { return mFramebufferImages[index]; }
+                std::unordered_map<std::string, utl::ref_ptr<CImage>> &getCurrentImages();
+                utl::ref_ptr<CImage> &getDepthImage() { return vFramebufferDepth.front(); }
 
             private:
                 void createRenderPass();
                 void createFramebuffer();
-                static ref_ptr<CImage> createImage(const FFramebufferAttachmentInfo& attachment, vk::Extent2D extent);
+                static utl::ref_ptr<CImage> createImage(const FFramebufferAttachmentInfo& attachment, vk::Extent2D extent);
 
                 uint32_t getCurrentFrameProxy();
                 static bool isColorAttachment(vk::ImageUsageFlags usageFlags) { return static_cast<bool>(usageFlags & vk::ImageUsageFlagBits::eColorAttachment); }
@@ -124,7 +124,7 @@ namespace engine
 
                 // Renderpass part
                 vk::RenderPass renderPass{nullptr};
-                std::vector<scope_ptr<CSubpass>> vSubpasses;
+                std::vector<utl::scope_ptr<CSubpass>> vSubpasses;
                 vk::Bool32 flipViewport{VK_FALSE};
                 uint32_t currentSubpassIndex{0};
 
@@ -139,8 +139,8 @@ namespace engine
                 // Framebuffer part
                 std::vector<vk::Framebuffer> vFramebuffers;
                 nlohmann::fifo_map<std::string, FFramebufferAttachmentInfo> mFbAttachments;
-                std::map<uint32_t, std::unordered_map<std::string, ref_ptr<CImage>>> mFramebufferImages;
-                std::vector<ref_ptr<CImage>> vFramebufferDepth;
+                std::map<uint32_t, std::unordered_map<std::string, utl::ref_ptr<CImage>>> mFramebufferImages;
+                std::vector<utl::ref_ptr<CImage>> vFramebufferDepth;
             };
         }
     }

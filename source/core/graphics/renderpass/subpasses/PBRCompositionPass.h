@@ -19,16 +19,16 @@ namespace engine
 				void cleanup() override;
 
 			protected:
-				static ref_ptr<CImage> ComputeBRDFLUT(uint32_t size);
-				static ref_ptr<CImage> ComputeIrradiance(const ref_ptr<CImage> &source, uint32_t size);
-				static ref_ptr<CImage> ComputePrefiltered(const ref_ptr<CImage> &source, uint32_t size);
+				static utl::ref_ptr<CImage> ComputeBRDFLUT(uint32_t size);
+				static utl::ref_ptr<CImage> ComputeIrradiance(const utl::ref_ptr<CImage> &source, uint32_t size);
+				static utl::ref_ptr<CImage> ComputePrefiltered(const utl::ref_ptr<CImage> &source, uint32_t size);
 
 			private:
-				ref_ptr<CImage> m_pSkybox;
+				utl::ref_ptr<CImage> m_pSkybox;
 
-				CFuture<ref_ptr<CImage>> brdf;
-				CFuture<ref_ptr<CImage>> irradiance;
-				CFuture<ref_ptr<CImage>> prefiltered;
+				CFuture<utl::ref_ptr<CImage>> brdf;
+				CFuture<utl::ref_ptr<CImage>> irradiance;
+				CFuture<utl::ref_ptr<CImage>> prefiltered;
 			};
 		}
 	}

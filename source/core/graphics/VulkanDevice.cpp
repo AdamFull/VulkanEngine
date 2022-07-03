@@ -8,7 +8,7 @@ using namespace engine::core::window;
 using namespace engine::resources::material;
 
 template<>
-scope_ptr<CDevice> utl::singleton<CDevice>::_instance{nullptr};
+utl::scope_ptr<CDevice> utl::singleton<CDevice>::_instance{nullptr};
 
 std::vector<const char*> str_vector_to_char_ptr_vector(const std::vector<std::string>& from)
 {
@@ -614,13 +614,13 @@ void CDevice::copyOnDeviceBuffer(vk::Buffer srcBuffer, vk::Buffer dstBuffer, vk:
     cmdBuf.submitIdle();
 }
 
-const ref_ptr<CCommandPool>& CDevice::getCommandPool(const std::thread::id &threadId)
+const utl::ref_ptr<CCommandPool>& CDevice::getCommandPool(const std::thread::id &threadId)
 {
     auto it = commandPools.find(threadId);
     if(it != commandPools.end())
 		return it->second;
 
-    commandPools.emplace(threadId, make_ref<CCommandPool>(threadId));
+    commandPools.emplace(threadId, utl::make_ref<CCommandPool>(threadId));
 	return commandPools[threadId];
 }
 

@@ -1,0 +1,13 @@
+#pragma onec
+
+//Lightning and shadows
+#define MAX_DIRECTIONAL_LIGHT_COUNT 1
+#define MAX_SPOT_LIGHT_COUNT 15
+#define MAX_POINT_LIGHT_COUNT 16
+#define SHADOW_MAP_CASCADE_COUNT 5
+#define SHADOW_MAP_RESOLUTION 512
+
+//SSAO
+#define SSAO_KERNEL_SIZE 64
+#define SSAO_RADIUS 0.5f
+#define SSAO_NOISE_DIM 4

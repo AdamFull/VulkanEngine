@@ -26,13 +26,34 @@ void CImage::create(const fs::path& srPath, vk::ImageUsageFlags flags, vk::Image
 vk::SamplerAddressMode addressMode, vk::Filter filter)
 {
     enableAnisotropy = VK_TRUE;
-    scope_ptr<FImageCreateInfo> texture;
+    utl::scope_ptr<FImageCreateInfo> texture;
     auto supportedFormats = getTextureCompressionFormats();
     std::vector<EPixelFormat> supportedUniversal;
     std::transform(supportedFormats.begin(), supportedFormats.end(), std::back_inserter(supportedUniversal),
                    [](vk::Format format) -> EPixelFormat { return FPixel::getUniversalFormat(format); });
     CImageLoaderNew::load(srPath.c_str(), texture, supportedUniversal);
     auto format = FPixel::getVkFormat(texture->pixFormat);
+
+    loadFromMemory(texture, format, flags, aspect, addressMode, filter);
+}
+
+void CImage::create(void* pData, const vk::Extent3D &extent, vk::Format format, vk::ImageUsageFlags flags, vk::ImageAspectFlags aspect, 
+vk::SamplerAddressMode addressMode, vk::Filter filter, bool mipmaps)
+{
+    auto texture = utl::make_scope<FImageCreateInfo>();
+    texture->baseWidth = extent.width;
+    texture->baseHeight = extent.height;
+    texture->baseDepth = 1;
+    texture->numDimensions = 2;
+    texture->generateMipmaps = mipmaps;
+    texture->numLevels = mipmaps ? static_cast<uint32_t>(std::floor(std::log2(std::max(extent.width, extent.height)))) + 1 : 1;
+    texture->isArray = false;
+    texture->numLayers = 1;
+    texture->numFaces = 1;
+    texture->dataSize = extent.width * extent.height * extent.depth;
+    texture->pData = utl::make_scope<uint8_t[]>(texture->dataSize);
+    texture->mipOffsets.emplace(0, std::vector<size_t>{0});
+    std::memcpy(texture->pData.get(), pData, texture->dataSize);
 
     loadFromMemory(texture, format, flags, aspect, addressMode, filter);
 }
@@ -95,7 +116,7 @@ void CImage::setSampler(vk::Sampler& internalSampler)
     _sampler = internalSampler;
 }
 
-void CImage::initializeTexture(scope_ptr<FImageCreateInfo>& info, vk::Format format, vk::ImageUsageFlags flags, vk::ImageAspectFlags aspect, vk::SamplerAddressMode addressMode,
+void CImage::initializeTexture(utl::scope_ptr<FImageCreateInfo>& info, vk::Format format, vk::ImageUsageFlags flags, vk::ImageAspectFlags aspect, vk::SamplerAddressMode addressMode,
 vk::Filter filter, vk::SampleCountFlagBits samples)
 {
     _format = format;
@@ -532,7 +553,7 @@ void CImage::createSampler(vk::Sampler &sampler, vk::Filter magFilter, vk::Sampl
     assert(res == vk::Result::eSuccess && "Texture sampler was not created");
 }
 
-bool CImage::isSupportedDimension(scope_ptr<FImageCreateInfo>& info)
+bool CImage::isSupportedDimension(utl::scope_ptr<FImageCreateInfo>& info)
 {
     auto& physicalDevice = CDevice::inst()->getPhysical();
     assert(physicalDevice && "Trying to check supported dibension, but physical device is invalid.");
@@ -625,12 +646,12 @@ void CImage::blitImage(vk::CommandBuffer& commandBuffer, vk::ImageLayout dstLayo
     commandBuffer.blitImage(_image, _imageLayout, _image, dstLayout, 1, &blit, vk::Filter::eLinear);
 }
 
-void CImage::copyImageToDst(vk::CommandBuffer& commandBuffer, ref_ptr<CImage>& pDst, vk::ImageCopy& region, vk::ImageLayout dstLayout)
+void CImage::copyImageToDst(vk::CommandBuffer& commandBuffer, utl::ref_ptr<CImage>& pDst, vk::ImageCopy& region, vk::ImageLayout dstLayout)
 {
     copyTo(commandBuffer, _image, pDst->_image, _imageLayout, dstLayout, region);
 }
 
-void CImage::writeImageData(scope_ptr<FImageCreateInfo>& info, vk::Format format, vk::ImageAspectFlags aspect)
+void CImage::writeImageData(utl::scope_ptr<FImageCreateInfo>& info, vk::Format format, vk::ImageAspectFlags aspect)
 {
     vk::DeviceSize imgSize = info->dataSize;
 
@@ -661,33 +682,37 @@ void CImage::writeImageData(scope_ptr<FImageCreateInfo>& info, vk::Format format
     }
     else
     {
-        std::vector<vk::BufferImageCopy> vRegions;
-        for (uint32_t layer = 0; layer < _instCount; layer++)
+        if(!info->mipOffsets.empty())
         {
-            auto& layer_offsets = info->mipOffsets[layer];
-            for (uint32_t level = 0; level < _mipLevels; level++)
+            std::vector<vk::BufferImageCopy> vRegions;
+            for (uint32_t layer = 0; layer < _instCount; layer++)
             {
-                size_t offset = layer_offsets.at(level);
-                vk::BufferImageCopy region = {};
-                region.imageSubresource.aspectMask = aspect;
-                region.imageSubresource.mipLevel = level;
-                region.imageSubresource.baseArrayLayer = layer;
-                region.imageSubresource.layerCount = _layerCount;
-                region.imageExtent.width = info->baseWidth >> level;
-                region.imageExtent.height = info->baseHeight >> level;
-                region.imageExtent.depth = info->baseDepth;
-                region.bufferOffset = offset;
-                vRegions.push_back(region);
+                auto& layer_offsets = info->mipOffsets[layer];
+                for (uint32_t level = 0; level < _mipLevels; level++)
+                {
+                    size_t offset = layer_offsets.at(level);
+                    vk::BufferImageCopy region = {};
+                    region.imageSubresource.aspectMask = aspect;
+                    region.imageSubresource.mipLevel = level;
+                    region.imageSubresource.baseArrayLayer = layer;
+                    region.imageSubresource.layerCount = _layerCount;
+                    region.imageExtent.width = info->baseWidth >> level;
+                    region.imageExtent.height = info->baseHeight >> level;
+                    region.imageExtent.depth = info->baseDepth;
+                    region.bufferOffset = offset;
+                    vRegions.push_back(region);
+                }
             }
+
+            auto buffer = stagingBuffer.getBuffer();
+            copyBufferToImage(buffer, _image, vRegions);
         }
-        auto buffer = stagingBuffer.getBuffer();
-        copyBufferToImage(buffer, _image, vRegions);
 
         transitionImageLayout(vk::ImageLayout::eShaderReadOnlyOptimal, aspect);
     }
 }
 
-void CImage::loadFromMemory(scope_ptr<FImageCreateInfo>& info, vk::Format format, vk::ImageUsageFlags flags, vk::ImageAspectFlags aspect,
+void CImage::loadFromMemory(utl::scope_ptr<FImageCreateInfo>& info, vk::Format format, vk::ImageUsageFlags flags, vk::ImageAspectFlags aspect,
 vk::SamplerAddressMode addressMode, vk::Filter filter)
 {
     initializeTexture(info, format, flags, aspect, addressMode, filter, vk::SampleCountFlagBits::e1);

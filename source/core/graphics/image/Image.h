@@ -68,6 +68,21 @@ namespace engine
 						vk::Filter filter = vk::Filter::eLinear);
 
 			/**
+			 * @brief Create image from data
+			 *
+			 * @param data Image data
+			 * @param extent Image extent
+			 * @param format Image format
+			 * @param flags Image usage flags
+			 * @param aspect Image aspect flags
+			 * @param addressMode Image sampler address mode
+			 * @param filter Image sampler filter
+			 */
+			void create(void* pData, const vk::Extent3D &extent, vk::Format format = vk::Format::eR8G8B8A8Unorm, vk::ImageUsageFlags flags = vk::ImageUsageFlagBits::eTransferSrc | vk::ImageUsageFlagBits::eTransferDst | vk::ImageUsageFlagBits::eSampled,
+						vk::ImageAspectFlags aspect = vk::ImageAspectFlagBits::eColor, vk::SamplerAddressMode addressMode = vk::SamplerAddressMode::eRepeat,
+						vk::Filter filter = vk::Filter::eNearest, bool mipmap = false);
+
+			/**
 			 * @brief Initializes texture. Creates vk::Image, vk::ImageView and vk::Sampler
 			 *
 			 * @param info Khronos texture object
@@ -78,7 +93,7 @@ namespace engine
 			 * @param filter Image sampler filter
 			 * @param samples Image samples count
 			 */
-            void initializeTexture(scope_ptr<FImageCreateInfo>& info, vk::Format format, vk::ImageUsageFlags flags, vk::ImageAspectFlags aspect, vk::SamplerAddressMode addressMode,
+            void initializeTexture(utl::scope_ptr<FImageCreateInfo>& info, vk::Format format, vk::ImageUsageFlags flags, vk::ImageAspectFlags aspect, vk::SamplerAddressMode addressMode,
 								   vk::Filter filter, vk::SampleCountFlagBits samples);
 
 			/**
@@ -88,8 +103,8 @@ namespace engine
 			 * @param format Vulkan format
 			 * @param aspect Image aspect flags
 			 */
-            void writeImageData(scope_ptr<FImageCreateInfo>& info, vk::Format format, vk::ImageAspectFlags aspect = vk::ImageAspectFlagBits::eColor);
-            void loadFromMemory(scope_ptr<FImageCreateInfo>& info, vk::Format format,
+            void writeImageData(utl::scope_ptr<FImageCreateInfo>& info, vk::Format format, vk::ImageAspectFlags aspect = vk::ImageAspectFlagBits::eColor);
+            void loadFromMemory(utl::scope_ptr<FImageCreateInfo>& info, vk::Format format,
 								vk::ImageUsageFlags flags = vk::ImageUsageFlagBits::eTransferSrc | vk::ImageUsageFlagBits::eTransferDst | vk::ImageUsageFlagBits::eSampled,
 								vk::ImageAspectFlags aspect = vk::ImageAspectFlagBits::eColor, vk::SamplerAddressMode addressMode = vk::SamplerAddressMode::eRepeat,
 								vk::Filter filter = vk::Filter::eLinear);
@@ -214,7 +229,7 @@ namespace engine
 			 * @param info Khronos texture object
 			 * @return true if dimension is supported
 			 */
-            static bool isSupportedDimension(scope_ptr<FImageCreateInfo>& info);
+            static bool isSupportedDimension(utl::scope_ptr<FImageCreateInfo>& info);
 
 			/**
 			 * @brief Blit image
@@ -236,7 +251,7 @@ namespace engine
 			 * @param region Image copy region
 			 * @param dstLayout Destination image layout
 			 */
-			void copyImageToDst(vk::CommandBuffer &commandBuffer, ref_ptr<CImage> &pDst, vk::ImageCopy &region, vk::ImageLayout dstLayout);
+			void copyImageToDst(vk::CommandBuffer &commandBuffer, utl::ref_ptr<CImage> &pDst, vk::ImageCopy &region, vk::ImageLayout dstLayout);
 
 			/**
 			 * @brief Set specific image layout

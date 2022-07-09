@@ -49,13 +49,11 @@ void main()
 	uvec4 packed_data = texture(packed_tex, inUV);
 	unpackTextures(packed_data, normal, albedo, mrah);
 
-    normal = normalize(normal * 2.0 - 1.0);
-
     // Get a random vector using a noise lookup
 	ivec2 texDim = textureSize(depth_tex, 0); 
 	ivec2 noiseDim = textureSize(ssao_noise_tex, 0);
 	const vec2 noiseUV = vec2(float(texDim.x)/float(noiseDim.x), float(texDim.y)/(noiseDim.y)) * inUV;  
-	vec3 randomVec = texture(ssao_noise_tex, noiseUV).xyz * 2.0 - 1.0;
+	vec3 randomVec = texture(ssao_noise_tex, noiseUV).xyz;
 	
 	// Create TBN matrix
 	vec3 tangent = normalize(randomVec - normal * dot(randomVec, normal));

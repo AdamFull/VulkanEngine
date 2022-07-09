@@ -7,7 +7,8 @@
 using namespace engine::core::scene;
 using namespace engine::resources;
 
-//Based on https://learnopengl.com/Guest-Articles/2021/CSM
+// Based on https://johanmedestrom.wordpress.com/2016/03/18/opengl-cascaded-shadow-maps/
+// https://github.com/SaschaWillems/Vulkan/blob/master/examples/shadowmappingcascade/shadowmappingcascade.cpp
 
 void CLightComponentDirectional::create()
 {

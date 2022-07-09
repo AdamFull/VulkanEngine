@@ -60,7 +60,7 @@
         {
             "vertexType": "default",
             "bindPoint": "graphics",
-            "culling": "none",
+            "culling": "front",
             "frontface": "clockwise",
             "depth": true,
             "dynamicStates": ["viewport", "scissor"],
@@ -121,6 +121,19 @@
             "stages": [
                 "shaders/main/screenspace.vert", 
                 "shaders/main/ssao.frag"
+            ],
+            "defines": {}
+        },
+        "ssr_pass":
+        {
+            "bindPoint": "graphics",
+            "culling": "back",
+            "frontface": "clockwise",
+            "depth": false,
+            "dynamicStates": ["viewport", "scissor"],
+            "stages": [
+                "shaders/main/screenspace.vert", 
+                "shaders/main/ssr.frag"
             ],
             "defines": {}
         },
@@ -191,19 +204,6 @@
             "stages": [
                 "shaders/main/screenspace.vert", 
                 "shaders/postprocess/throughpass.frag"
-            ],
-            "defines": {}
-        },
-        "screen_space_reflections":
-        {
-            "bindPoint": "graphics",
-            "culling": "back",
-            "frontface": "clockwise",
-            "depth": false,
-            "dynamicStates": ["viewport", "scissor"],
-            "stages": [
-                "shaders/main/screenspace.vert", 
-                "shaders/postprocess/screen_space_reflections.frag"
             ],
             "defines": {}
         }

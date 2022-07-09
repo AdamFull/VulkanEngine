@@ -393,7 +393,7 @@
 	"asset": {
 		"copyright": "2022 UX3D GmbH",
 		"extras": {
-			"created": "Wed Jun 22 22:28:36 2022"
+			"created": "Mon Jul  4 06:10:09 2022"
 		},
 		"generator": "Gestaltor 2022.2.3 Tagliatelle Professional",
 		"version": "2.0"
@@ -776,6 +776,31 @@
 			"mimeType": "image/ktx2",
 			"name": "tidalpool2_normal-ogl",
 			"uri": "tidalpool2_normal-ogl.ktx2"
+		},
+		{
+			"mimeType": "image/ktx2",
+			"name": "worn-shiny-metal_metalRough",
+			"uri": "worn-shiny-metal_metalRough.ktx2"
+		},
+		{
+			"mimeType": "image/ktx2",
+			"name": "worn-shiny-metal-albedo",
+			"uri": "worn-shiny-metal-albedo.ktx2"
+		},
+		{
+			"mimeType": "image/ktx2",
+			"name": "worn-shiny-metal-ao",
+			"uri": "worn-shiny-metal-ao.ktx2"
+		},
+		{
+			"mimeType": "image/ktx2",
+			"name": "worn-shiny-metal-Height",
+			"uri": "worn-shiny-metal-Height.ktx2"
+		},
+		{
+			"mimeType": "image/ktx2",
+			"name": "worn-shiny-metal-Normal-ogl",
+			"uri": "worn-shiny-metal-Normal-ogl.ktx2"
 		}
 	],
 	"materials": [
@@ -853,16 +878,19 @@
 			}
 		},
 		{
-			"name": "light-gold",
+			"name": "worn-shiny",
 			"normalTexture": {
-				"index": 20
+				"index": 43
+			},
+			"occlusionTexture": {
+				"index": 41
 			},
 			"pbrMetallicRoughness": {
 				"baseColorTexture": {
-					"index": 18
+					"index": 40
 				},
 				"metallicRoughnessTexture": {
-					"index": 19
+					"index": 39
 				}
 			}
 		},
@@ -1126,7 +1154,7 @@
 			]
 		},
 		{
-			"name": "light-gold_plane",
+			"name": "worn-shiny_plane",
 			"primitives": [
 				{
 					"attributes": {
@@ -1142,7 +1170,7 @@
 			]
 		},
 		{
-			"name": "light-gold_cube",
+			"name": "worn-shiny_cube",
 			"primitives": [
 				{
 					"attributes": {
@@ -1158,7 +1186,7 @@
 			]
 		},
 		{
-			"name": "light-gold_sphere",
+			"name": "worn-shiny_sphere",
 			"primitives": [
 				{
 					"attributes": {
@@ -1552,7 +1580,7 @@
 				14
 			],
 			"mesh": 12,
-			"name": "light-gold_plane",
+			"name": "worn-shiny_plane",
 			"scale": [
 				2.0,
 				2.0,
@@ -1566,7 +1594,7 @@
 		},
 		{
 			"mesh": 13,
-			"name": "light-gold_cube",
+			"name": "worn-shiny_cube",
 			"scale": [
 				0.2,
 				0.2,
@@ -1580,7 +1608,7 @@
 		},
 		{
 			"mesh": 14,
-			"name": "light-gold_sphere",
+			"name": "worn-shiny_sphere",
 			"scale": [
 				0.2,
 				0.2,
@@ -1833,7 +1861,12 @@
 			"magFilter": 9728,
 			"minFilter": 9728,
 			"name": "default_sampler"
-		}
+		},
+		{},
+		{},
+		{},
+		{},
+		{}
 	],
 	"scene": 0,
 	"scenes": [
@@ -2203,6 +2236,31 @@
 			},
 			"name": "tidalpool2_normal-ogl",
 			"sampler": 0
+		},
+		{
+			"name": "worn-shiny-metal_metalRough",
+			"sampler": 1,
+			"source": 39
+		},
+		{
+			"name": "worn-shiny-metal-albedo",
+			"sampler": 2,
+			"source": 40
+		},
+		{
+			"name": "worn-shiny-metal-ao",
+			"sampler": 3,
+			"source": 41
+		},
+		{
+			"name": "worn-shiny-metal-Height",
+			"sampler": 4,
+			"source": 42
+		},
+		{
+			"name": "worn-shiny-metal-Normal-ogl",
+			"sampler": 5,
+			"source": 43
 		}
 	]
 }

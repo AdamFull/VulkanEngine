@@ -70,7 +70,7 @@ layout(std140, binding = 7) uniform UBOMaterial
 	float tessellationStrength;
 } material;
 
-const float minRoughness = 0.04;
+const float minRoughness = 0.0;
 
 //https://github.com/bwasty/gltf-viewer/blob/master/src/shaders/pbr-frag.glsl
 void main() 
@@ -97,31 +97,31 @@ void main()
 #ifdef HAS_METALLIC_ROUGHNESS
 	vec4 metalRough = texture(rmah_tex, texCoord);
 	roughness = roughness * metalRough.g;
-	metallic = metallic * pbr_map.b;
+	metallic = metallic * metalRough.b;
 #endif
 	roughness = clamp(roughness, minRoughness, 1.0);
     metallic = clamp(metallic, 0.0, 1.0);
 	pbr_map = vec4(roughness, metallic, 0.0, 0.0);
 
 //NORMALS
-	mat3 normal = mat3(data.normal);
+	mat4 normal = data.normal;
 #ifndef HAS_TANGENTS
     vec3 pos_dx = dFdx(inPosition);
     vec3 pos_dy = dFdy(inPosition);
     vec3 tex_dx = dFdx(vec3(texCoord, 0.0));
     vec3 tex_dy = dFdy(vec3(texCoord, 0.0));
-    vec3 t = normal * (tex_dy.t * pos_dx - tex_dx.t * pos_dy) / (tex_dx.s * tex_dy.t - tex_dy.s * tex_dx.t);
+    vec3 t = (tex_dy.t * pos_dx - tex_dx.t * pos_dy) / (tex_dx.s * tex_dy.t - tex_dy.s * tex_dx.t);
 
 #ifdef HAS_NORMALS
-    vec3 ng = normalize(normal * inNormal);
+    vec3 ng = normalize(normal * vec4(inNormal, 0.0));
 #else
     vec3 ng = cross(pos_dx, pos_dy);
 #endif
-    t = normalize(t - ng * dot(ng, t));
+    t = vec3(normal * vec4(normalize(t - ng * dot(ng, t)), 0.0));
     vec3 b = normalize(cross(ng, t));
     mat3 tbn = mat3(t, b, ng);
 #else // HAS_TANGENTS
-    mat3 tbn = calculateTBN(normal * inNormal, vec4(normal * inTangent.xyz, inTangent.w));
+    mat3 tbn = calculateTBN(vec3(normal * vec4(inNormal, 0)), vec4(vec3(normal * vec4(inTangent.xyz, 0.0)), inTangent.w));
 #endif //END HAS_TANGENTS
 
 	vec3 normal_map = vec3(0.0);

@@ -26,7 +26,7 @@ mat3 calculateTBN(vec3 normal, vec4 tangent)
 {
 	vec3 N = normalize(normal);
 	vec3 T = normalize(tangent.xyz);
-	vec3 B = normalize(cross(N, T) * tangent.w);
+    vec3 B = normalize(cross(N, T) * tangent.w);
 	
 	return mat3(T, B, N);
 }

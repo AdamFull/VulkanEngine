@@ -66,22 +66,6 @@
             }
         },
         {
-            "name": "directional_light",
-            "type": "light_source",
-            "light":
-            {
-                "type": "directional",
-                "color": {"x": 1.0, "y": 1.0, "z": 1.0},
-                "intencity": 5.0
-            },
-            "transform":
-            {
-                "pos": {"x": 0.0, "y": 10.0, "z": 0.0},
-                "rot": {"x": 0.5, "y": -0.5, "z": 0.5},
-                "scale": {"x": 1.0, "y": 1.0, "z": 1.0}
-            }
-        },
-        {
             "name": "spot_light_1",
             "type": "light_source",
             "light":

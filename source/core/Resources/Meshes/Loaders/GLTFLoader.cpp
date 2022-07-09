@@ -341,7 +341,7 @@ void GLTFLoader::loadMeshFragment(utl::ref_ptr<CRenderObject>& sceneNode, const 
                 auto& material = primitive.material > -1 ? vMaterials.at(primitive.material) : vMaterials.back();
                 material->incrementUsageCount();
                 if(bHasNormals) material->addDefinition("HAS_NORMALS", ""); 
-                if(bHasTangents) material->addDefinition("HAS_TANGENTS", ""); 
+                if(bHasTangents) material->addDefinition("HAS_TANGENTS", "");
                 modelPrim.material = material;
             }
         }

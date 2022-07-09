@@ -3,6 +3,7 @@
 #include "graphics/commands/CommandBuffer.h"
 #include "graphics/renderpass/subpasses/GBufferPass.h"
 #include "graphics/renderpass/subpasses/SSAOPass.h"
+#include "graphics/renderpass/subpasses/SSRPass.h"
 #include "graphics/renderpass/subpasses/PBRCompositionPass.h"
 
 using namespace engine::core;
@@ -36,20 +37,21 @@ void CDeferredStage::create()
     gbuffer_pass->addRenderer(utl::make_scope<CGBufferPass>());
     vFramebuffer.emplace_back(std::move(gbuffer_pass));
 
-    auto ssao_pass = utl::make_scope<CFramebufferNew>();
-    ssao_pass->setRenderArea(vk::Offset2D{0, 0}, screenExtent);
+    auto ssr_pass = utl::make_scope<CFramebufferNew>();
+    //ssr_pass->setFlipViewport(VK_TRUE);
+    ssr_pass->setRenderArea(vk::Offset2D{0, 0}, screenExtent);
 
-    ssao_pass->addImage("ssao_tex", vk::Format::eR8Unorm, vk::ImageUsageFlagBits::eColorAttachment | vk::ImageUsageFlagBits::eSampled);
-    ssao_pass->addOutputReference(0U, "ssao_tex");
-    ssao_pass->addDescription(0U);
+    ssr_pass->addImage("ssr_tex", vk::Format::eB10G11R11UfloatPack32, vk::ImageUsageFlagBits::eColorAttachment | vk::ImageUsageFlagBits::eSampled);
+    ssr_pass->addOutputReference(0U, "ssr_tex");
+    ssr_pass->addDescription(0U);
 
-    ssao_pass->addSubpassDependency(VK_SUBPASS_EXTERNAL, 0, vk::PipelineStageFlagBits::eColorAttachmentOutput, vk::PipelineStageFlagBits::eTopOfPipe,
+    ssr_pass->addSubpassDependency(VK_SUBPASS_EXTERNAL, 0, vk::PipelineStageFlagBits::eColorAttachmentOutput, vk::PipelineStageFlagBits::eTopOfPipe,
     vk::AccessFlagBits::eColorAttachmentWrite, vk::AccessFlagBits::eMemoryRead | vk::AccessFlagBits::eMemoryWrite);
-    ssao_pass->addSubpassDependency(0, VK_SUBPASS_EXTERNAL, vk::PipelineStageFlagBits::eBottomOfPipe, vk::PipelineStageFlagBits::eFragmentShader,
+    ssr_pass->addSubpassDependency(0, VK_SUBPASS_EXTERNAL, vk::PipelineStageFlagBits::eBottomOfPipe, vk::PipelineStageFlagBits::eFragmentShader,
     vk::AccessFlagBits::eMemoryRead | vk::AccessFlagBits::eMemoryWrite, vk::AccessFlagBits::eShaderRead);  
 
-    ssao_pass->addRenderer(utl::make_scope<CSSAOPass>());
-    vFramebuffer.emplace_back(std::move(ssao_pass));
+    ssr_pass->addRenderer(utl::make_scope<CSSRPass>());
+    vFramebuffer.emplace_back(std::move(ssr_pass));
 
     auto composition_pass = utl::make_scope<CFramebufferNew>();
     composition_pass->setFlipViewport(VK_TRUE);

@@ -60,6 +60,7 @@ float getOmniShadow(samplerCubeArrayShadow shadomwap_tex, vec3 fragPos, vec3 vie
 	float cosTheta = CosTheta(N, normalize(light.position - fragPos));
 	float bias = 0.1 * tan(acos(cosTheta));
 	bias = clamp(bias, 0.0, 0.003);
+	bias = 0.0025;
 
 	bool enablePCF = true;
 	if (enablePCF)

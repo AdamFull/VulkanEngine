@@ -29,7 +29,7 @@ layout (binding = 2) uniform samplerCube prefiltred_tex;
 layout (binding = 3) uniform usampler2D packed_tex;
 layout (binding = 4) uniform sampler2D emission_tex;
 layout (binding = 5) uniform sampler2D depth_tex;
-layout (binding = 6) uniform sampler2D ssao_tex;
+layout (binding = 6) uniform sampler2D ssr_tex;
 
 layout (binding = 7) uniform sampler2DArray cascade_shadowmap_tex;
 layout (binding = 8) uniform sampler2DArrayShadow direct_shadowmap_tex;
@@ -141,10 +141,8 @@ void main()
 	uvec4 packed_data = texture(packed_tex, inUV);
 	unpackTextures(packed_data, normal, albedo, mrah);
 
-	albedo = pow(albedo, vec3(2.2));
+	//albedo = pow(albedo, vec3(2.2));
 	vec3 emission = texture(emission_tex, inUV).rgb;
-
-	//albedo = pow(albedo, vec3(2.2f));
 
 	float roughness = mrah.r;
 	float metallic = mrah.g;
@@ -193,9 +191,8 @@ void main()
 		vec3 kD = (1.0f - F) * (1.0 - metallic);
 
 		vec2 brdf = texture(brdflut_tex, vec2(max(dot(normal, V), 0.0f), roughness)).rg;
-		vec3 reflection = prefilteredReflection(R, roughness, prefiltred_tex);
-		//vec3 reflection = textureLod(prefiltred_tex, R,  roughness * 9.0).rgb;
-		vec3 irradiance = texture(irradiance_tex, normal).rgb * (F * brdf.x + brdf.y);
+		vec3 reflection = prefilteredReflection(R, roughness, prefiltred_tex) * (F * brdf.x + brdf.y); 
+		vec3 irradiance = texture(irradiance_tex, normal).rgb;
 
 		vec3 diffuse = albedo * irradiance;
 
@@ -226,7 +223,7 @@ void main()
 	else if(debug.target == 6)
 		fragcolor = vec3(roughness);
 	else if(debug.target == 7)
-		fragcolor = vec3(occlusion);
+		fragcolor = texture(ssr_tex, inUV).rgb;
 	else if(debug.target == 8 || debug.target == 9 || debug.target == 10)
 	{
 		vec3 viewPos = (ubo.view * vec4(inWorldPos, 1.0)).xyz;

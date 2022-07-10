@@ -1,6 +1,9 @@
 #version 450
 #extension GL_ARB_separate_shader_objects : enable
 #extension GL_ARB_shading_language_420pack : enable
+#extension GL_GOOGLE_include_directive : require
+
+#include "../shader_util.glsl"
 
 layout (binding = 0) uniform sampler2D samplerColor;
 layout (binding = 1) uniform sampler2D samplerBrightness;
@@ -22,8 +25,9 @@ void main()
     vec3 brightness = texture(samplerBrightness, inUV).rgb;
     //fragcolor = mix(fragcolor, brightness, 0.4);
     //Exposure
-    fragcolor = vec3(1.0) - exp(-fragcolor * ubo.exposure);
+    fragcolor = Uncharted2Tonemap(fragcolor * ubo.exposure);
     //Gamma correction
-    fragcolor = pow(fragcolor, vec3(1.0 / ubo.gamma));
+    fragcolor = fragcolor * (1.0f / Uncharted2Tonemap(vec3(11.2f)));
+    fragcolor = pow(fragcolor, vec3(1.0f / ubo.gamma));
 	outColor = vec4(fragcolor, 1.0);
 }

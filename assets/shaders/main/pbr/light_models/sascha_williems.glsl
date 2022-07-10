@@ -3,10 +3,10 @@
 vec3 specularContribution(vec3 diffuse, vec3 L, vec3 V, vec3 N, vec3 F0, float metallic, float roughness)
 {
 	// Precalculate vectors and dot products	
-	vec3 H = normalize(L + V);
-	float dotNH = clamp(dot(N, H), 0.0f, 1.0f);
-	float dotNV = clamp(abs(dot(N, V)), 0.001f, 1.0f);
-	float dotNL = clamp(dot(N, L), 0.001f, 1.0f);
+	vec3 H = normalize (V + L);
+	float dotNH = clamp(dot(N, H), 0.0, 1.0);
+	float dotNV = clamp(dot(N, V), 0.0, 1.0);
+	float dotNL = clamp(dot(N, L), 0.0, 1.0);
 
 	vec3 color = vec3(0.0f);
 
@@ -18,9 +18,9 @@ vec3 specularContribution(vec3 diffuse, vec3 L, vec3 V, vec3 N, vec3 F0, float m
 		float G = G_SchlicksmithGGX(dotNL, dotNV, roughness);
 		// F = Fresnel factor (Reflectance depending on angle of incidence)
 		vec3 F = F_Schlick(dotNV, 1.0, F0);
-		vec3 spec = D * F * G / (4.0f * dotNL * dotNV);		
+		vec3 spec = D * F * G / (4.0 * dotNL * dotNV + 0.001);
 		vec3 kD = (vec3(1.0f) - F) * (1.0f - metallic);			
-		color += ((kD * diffuse / PI) + spec) * dotNL;
+		color += (kD * diffuse / PI + spec) * dotNL;
 	}
 
 	return color;

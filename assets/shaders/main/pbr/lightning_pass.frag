@@ -65,7 +65,7 @@ layout(std430, binding = 14) buffer UBOLights
 	FPointLight pointLights[16];
 } lights;
 
-#define SHADING_MODEL_UNREAL_ENGINE
+#define SHADING_MODEL_CUSTOM
 
 vec3 lightContribution(vec3 albedo, vec3 L, vec3 V, vec3 N, vec3 F0, float metallic, float roughness)
 {
@@ -141,7 +141,7 @@ void main()
 	uvec4 packed_data = texture(packed_tex, inUV);
 	unpackTextures(packed_data, normal, albedo, mrah);
 
-	//albedo = pow(albedo, vec3(2.2));
+	albedo = pow(albedo, vec3(2.2));
 	vec3 emission = texture(emission_tex, inUV).rgb;
 
 	float roughness = mrah.r;
@@ -187,17 +187,22 @@ void main()
 			Lo += calculatePointLight(light, i, inWorldPos, albedo, V, normal, F0, metallic, roughness);
 		}
 
-		vec3 F = F_SchlickR(max(dot(normal, V), 0.0f), F0, roughness);
-		vec3 kD = (1.0f - F) * (1.0 - metallic);
-
 		vec2 brdf = texture(brdflut_tex, vec2(max(dot(normal, V), 0.0f), roughness)).rg;
-		vec3 reflection = prefilteredReflection(R, roughness, prefiltred_tex) * (F * brdf.x + brdf.y); 
+		vec3 reflection = prefilteredReflection(R, roughness, prefiltred_tex); 
 		vec3 irradiance = texture(irradiance_tex, normal).rgb;
 
+		// Diffuse based on irradiance
 		vec3 diffuse = albedo * irradiance;
 
-		// Diffuse based on irradiance
-		vec3 ambient = (kD * diffuse + reflection) * occlusion;
+		vec3 F = F_SchlickR(max(dot(normal, V), 0.0f), F0, roughness);
+		
+		// Specular reflectance
+		vec3 specular = reflection * (F * brdf.x + brdf.y);
+
+		// Ambient part
+		vec3 kD = 1.0 - F;
+		kD *= 1.0 - metallic;	  
+		vec3 ambient = (kD * diffuse + specular) * occlusion;
 
 		// Ambient part
 		fragcolor = ambient + (emission * 4.0) + Lo;

@@ -4,3 +4,6 @@
 [submodule "external/KTX-Software"]
 	path = external/KTX-Software
 	url = https://github.com/KhronosGroup/KTX-Software.git
+[submodule "external/ChaiScript"]
+	path = external/ChaiScript
+	url = https://github.com/ChaiScript/ChaiScript.git

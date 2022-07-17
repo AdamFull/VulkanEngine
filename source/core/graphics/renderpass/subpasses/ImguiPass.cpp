@@ -30,5 +30,6 @@ void CImguiPass::render(vk::CommandBuffer& commandBuffer)
 
 void CImguiPass::cleanup()
 {
+    CEditorUI::inst()->cleanup();
     CSubpass::cleanup();
 }

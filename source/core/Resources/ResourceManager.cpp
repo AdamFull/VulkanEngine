@@ -18,6 +18,12 @@ void CResourceManager::create()
     addExisting("no_texture", pEmptyTexture);
 }
 
+void CResourceManager::cleanup()
+{
+    m_mTextures.clear();
+    m_mMaterials.clear();
+}
+
 void CResourceManager::load(std::string srResourcesPath)
 {
     //Not sure that this method still works

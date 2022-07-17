@@ -78,5 +78,6 @@ void CSSAOPass::render(vk::CommandBuffer &commandBuffer)
 
 void CSSAOPass::cleanup()
 {
+    pNoise = nullptr;
 	CSubpass::cleanup();
 }

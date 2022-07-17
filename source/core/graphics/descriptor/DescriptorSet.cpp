@@ -33,6 +33,7 @@ void CDescriptorSet::cleanup()
     //TODO: add destroy method
     auto& vkDevice = CDevice::inst()->getLogical();
     assert(vkDevice && "Trying to free descriptor sets, but device is invalid.");
+    if(!descriptorPool)
     vkDevice.freeDescriptorSets(descriptorPool, vDescriptorSets);
 }
 

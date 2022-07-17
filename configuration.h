@@ -1,4 +1,4 @@
-#pragma onec
+#pragma once
 
 //Lightning and shadows
 #define MAX_DIRECTIONAL_LIGHT_COUNT 1

@@ -37,7 +37,7 @@ void CVertexBufferObject::addMeshData(std::vector<FVertex> &&vertices, std::vect
 void CVertexBufferObject::createVertexBuffer()
 {
     vk::DeviceSize bufferSize = sizeof(vVertices[0]) * vVertices.size();
-    uint32_t vertexSize = sizeof(vVertices[0]);
+    auto vertexSize = sizeof(vVertices[0]);
 
     CVulkanBuffer stagingBuffer;
     stagingBuffer.create(vertexSize, vVertices.size(), vk::BufferUsageFlagBits::eTransferSrc, vk::MemoryPropertyFlagBits::eHostVisible | vk::MemoryPropertyFlagBits::eHostCoherent);
@@ -53,7 +53,7 @@ void CVertexBufferObject::createVertexBuffer()
 void CVertexBufferObject::createIndexBuffer()
 {
     vk::DeviceSize bufferSize = sizeof(vIndices[0]) * vIndices.size();
-    uint32_t indexSize = sizeof(vIndices[0]);
+    auto indexSize = sizeof(vIndices[0]);
 
     CVulkanBuffer stagingBuffer;
     stagingBuffer.create(indexSize, vIndices.size(), vk::BufferUsageFlagBits::eTransferSrc, vk::MemoryPropertyFlagBits::eHostVisible | vk::MemoryPropertyFlagBits::eHostCoherent);

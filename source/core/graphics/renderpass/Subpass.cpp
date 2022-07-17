@@ -38,4 +38,6 @@ void CSubpass::render(vk::CommandBuffer& commandBuffer)
 
 void CSubpass::cleanup()
 {
+    if(pMaterial)
+        pMaterial->cleanup();
 }

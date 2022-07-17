@@ -120,6 +120,7 @@ void CDevice::create(const FDeviceCreateInfo& deviceCI)
 void CDevice::cleanup()
 {
     cleanupSwapchain();
+    destroy(&swapChain);
     destroy(&pipelineCache);
     
     commandPools.clear();

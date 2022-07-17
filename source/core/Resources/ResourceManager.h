@@ -24,6 +24,8 @@ namespace engine
              */
             void create();
 
+            void cleanup();
+
             /**
              * @brief Loads resource manager from file
              * 

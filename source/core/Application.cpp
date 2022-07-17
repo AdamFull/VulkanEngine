@@ -27,7 +27,7 @@ void CApplication::create()
     CRenderSystem::inst()->create();
 }
 
-void CApplication::serviceHandle(EActionKey eKey, EKeyState eState)
+void CApplication::serviceHandle(EActionKey eKey, EKeyState)
 {
     switch (eKey)
     {

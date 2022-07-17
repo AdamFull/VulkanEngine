@@ -17,7 +17,7 @@
             "engine_version": 4202496,
             "api_version": 4202496
         },
-        "validation": false,
+        "validation": true,
         "validation_layers": ["VK_LAYER_KHRONOS_validation"],
         "device_extensions": ["VK_KHR_swapchain", "VK_KHR_maintenance1"],
         "device_features":

@@ -7,12 +7,21 @@ using namespace engine::core;
 
 CImage::~CImage()
 {
-    CDevice::inst()->destroy(&_image);
-    CDevice::inst()->destroy(&_view);
-    CDevice::inst()->destroy(&_deviceMemory);
+    cleanup();
+}
 
-    if(!_bUsingInternalSampler)
-        CDevice::inst()->destroy(&_sampler);
+void CImage::cleanup()
+{
+    if(!bIsClean)
+    {
+        CDevice::inst()->destroy(&_image);
+        CDevice::inst()->destroy(&_view);
+        CDevice::inst()->destroy(&_deviceMemory);
+
+        if(!_bUsingInternalSampler)
+            CDevice::inst()->destroy(&_sampler);
+        bIsClean = true;
+    }
 }
 
 void CImage::updateDescriptor()

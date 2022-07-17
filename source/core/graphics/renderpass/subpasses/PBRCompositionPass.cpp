@@ -104,6 +104,10 @@ void CPBRCompositionPass::render(vk::CommandBuffer& commandBuffer)
 
 void CPBRCompositionPass::cleanup()
 {
+    m_pSkybox = nullptr;
+    *brdf = nullptr;
+	*irradiance = nullptr;
+	*prefiltered = nullptr;
     CSubpass::cleanup();
 }
 

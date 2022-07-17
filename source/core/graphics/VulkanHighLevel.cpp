@@ -2,7 +2,10 @@
 #include "VulkanStaticHelper.h"
 #include <glslang/Public/ShaderLang.h>
 #include "VulkanDevice.hpp"
+#include "editor/EditorUI.h"
 
+using namespace engine::resources;
+using namespace engine::editor;
 using namespace engine::core;
 using namespace engine::core::render;
 using namespace engine::core::window;
@@ -25,6 +28,7 @@ void CVulkanHighLevel::cleanup()
 {
     CDevice::inst()->GPUWait();
     CRenderSystem::inst()->cleanup();
+    CResourceManager::inst()->cleanup();
     CVBO::inst()->cleanup();
     CDevice::inst()->cleanup();
 }

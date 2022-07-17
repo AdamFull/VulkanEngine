@@ -71,7 +71,7 @@ void CCameraEditorController::mouseRotation(float fX, float fY)
     m_bRotatePass = false;
 }
 
-void CCameraEditorController::cameraToPoint(float fX, float fY)
+void CCameraEditorController::cameraToPoint(float, float)
 {
     /*auto camera = CCameraManager::inst()->getCurrentCamera();
     FTransform transform = camera->getTransform();

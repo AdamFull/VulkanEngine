@@ -29,8 +29,7 @@ utl::scope_ptr<CEditorUI> utl::singleton<CEditorUI>::_instance{nullptr};
 
 CEditorUI::~CEditorUI()
 {
-    cleanup();
-    ImGui::DestroyContext();
+    
 }
 
 void CEditorUI::create(vk::RenderPass& renderPass, uint32_t subpass)
@@ -137,6 +136,7 @@ void CEditorUI::cleanup()
     ImGui_ImplVulkan_Shutdown();
     ImGui_ImplGlfw_Shutdown();
     CDevice::inst()->destroy(&descriptorPool);
+    ImGui::DestroyContext();
 }
 
 void CEditorUI::baseInitialize()

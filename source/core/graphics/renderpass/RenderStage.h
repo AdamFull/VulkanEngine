@@ -20,7 +20,7 @@ namespace engine
 
                 utl::scope_ptr<CFramebufferNew> &getFramebuffer(uint32_t index) { return vFramebuffer[index]; }
                 utl::scope_ptr<CFramebufferNew> &getCurrentFramebuffer() { return getFramebuffer(framebufferIndex); }
-                const uint32_t getFramebufferCount() const { return vFramebuffer.size(); }
+                const size_t getFramebufferCount() const { return vFramebuffer.size(); }
 
             protected:
                 std::vector<utl::scope_ptr<CFramebufferNew>> vFramebuffer;

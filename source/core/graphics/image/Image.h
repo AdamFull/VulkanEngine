@@ -29,6 +29,8 @@ namespace engine
 			CImage() = default;
 			virtual ~CImage();
 
+			void cleanup();
+
 			/**
 			 * @brief Update image descriptor
 			 *
@@ -394,6 +396,7 @@ namespace engine
 
 			vk::DescriptorImageInfo _descriptor;
 			bool _bUsingInternalSampler{false};
+			bool bIsClean{false};
 
 			vk::Extent3D _extent;
 			vk::SampleCountFlagBits _samples;

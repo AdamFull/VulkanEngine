@@ -129,6 +129,7 @@ void CRenderSystem::cleanup()
         commandBuffers->cleanup();
         for(auto& stage : vStages)
             stage->cleanup();
+        mImages.clear();
         bIsClean = true;
     }
 }

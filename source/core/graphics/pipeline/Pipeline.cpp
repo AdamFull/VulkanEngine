@@ -49,6 +49,8 @@ void CPipelineBase::cleanup()
             CDevice::inst()->destroy(&pipeline);
         if(pipelineLayout)
             CDevice::inst()->destroy(&pipelineLayout);
+        if(m_pShader)
+            m_pShader->clear();
         bIsClean = true;
     }
 }

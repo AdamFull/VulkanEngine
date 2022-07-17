@@ -12,7 +12,7 @@ namespace engine
             public:
                 void create() override;
                 void reCreate() override {}
-                void render(vk::CommandBuffer &commandBuffer) override {}
+                void render(vk::CommandBuffer&) override {}
                 void update(float fDeltaTime) override;
                 void cleanup() override {}
                 void destroy() override {}

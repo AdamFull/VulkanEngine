@@ -92,7 +92,7 @@ namespace engine
                 void addRenderer(utl::scope_ptr<CSubpass> &&subpass);
                 utl::scope_ptr<CSubpass>& getCurrentRenderer() { return vSubpasses.at(currentSubpassIndex); }
 
-                const uint32_t getSubpassCount() const { return vSubpasses.size(); }
+                const size_t getSubpassCount() const { return vSubpasses.size(); }
                 vk::SubpassDescription &getCurrentDescription() { return vSubpassDesc.at(currentSubpassIndex); }
                 uint32_t getCurrentSubpass() { return currentSubpassIndex; }
                 vk::RenderPass &getRenderPass() { return renderPass; }

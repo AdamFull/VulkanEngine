@@ -95,7 +95,7 @@ vec3 calculateDirectionalLight(FDirectionalLight light, vec3 worldPosition, vec3
 
 vec3 calculateSpotlight(FSpotLight light, int index, vec3 worldPosition, vec3 albedo, vec3 V, vec3 N, vec3 F0, float metallic, float roughness)
 {
-	vec3 L = normalize(light.position - worldPosition);
+	vec3 L = light.position - worldPosition;
 	float dist = length(L);
 	L = normalize(L);
 

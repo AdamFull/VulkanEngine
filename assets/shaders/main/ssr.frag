@@ -17,6 +17,7 @@ layout (location = 0) out vec4 outFragcolor;
 layout (std140, binding = 3) uniform UBOReflections
 {
 	mat4 invViewProjection;
+	mat4 viewProjection;
 	mat4 projection;
     mat4 invView;
     vec4 camPos;
@@ -32,6 +33,13 @@ const float maxDDepth = 1.0;
 const float maxDDepthInv = 1.0;
 const float reflectionSpecularFalloffExponent = 3.0;
 
+vec4 GetUV(vec3 hitCoord)
+{
+	vec4 projectedCoord = ubo.projection * vec4(hitCoord, 1.0);
+    projectedCoord.xy /= projectedCoord.w;
+    projectedCoord.xy = projectedCoord.xy * 0.5 + 0.5;
+    return projectedCoord;
+}
 
 vec3 getPosition(sampler2D testure_sampler, vec2 uv)
 {
@@ -44,10 +52,7 @@ vec3 BinarySearch(vec3 dir, inout vec3 hitCoord, out float dDepth)
     float depth;
     for(int i = 0; i < numBinarySearchSteps; i++)
     {
-        vec4 projectedCoord = ubo.projection * vec4(hitCoord, 1.0);
-        projectedCoord.xy /= projectedCoord.w;
-        projectedCoord.xy = projectedCoord.xy * 0.5 + 0.5;
-
+        vec4 projectedCoord = GetUV(hitCoord);
         depth = texture(depth_tex, projectedCoord.xy).r;
         dDepth = hitCoord.z - depth;
 
@@ -58,10 +63,7 @@ vec3 BinarySearch(vec3 dir, inout vec3 hitCoord, out float dDepth)
         hitCoord -= dir;    
     }
 
-    vec4 projectedCoord = ubo.projection * vec4(hitCoord, 1.0); 
-    projectedCoord.xy /= projectedCoord.w;
-    projectedCoord.xy = projectedCoord.xy * 0.5 + 0.5;
-
+    vec4 projectedCoord = GetUV(hitCoord);
     return vec3(projectedCoord.xy, depth);
 }
 
@@ -75,10 +77,7 @@ vec4 RayCast(vec3 dir, inout vec3 hitCoord, out float dDepth)
     {
         hitCoord += dir;
 
-        projectedCoord = ubo.projection * vec4(hitCoord, 1.0);
-        projectedCoord.xy /= projectedCoord.w;
-        projectedCoord.xy = projectedCoord.xy * 0.5 + 0.5;
-
+        projectedCoord = GetUV(hitCoord);
         depth = texture(depth_tex, projectedCoord.xy).r;
         dDepth = hitCoord.z - depth;
 
@@ -86,7 +85,7 @@ vec4 RayCast(vec3 dir, inout vec3 hitCoord, out float dDepth)
             return vec4(BinarySearch(dir, hitCoord, dDepth), 1.0);
     }
 
-    return vec4(projectedCoord.xy, depth, 0.0);
+    return vec4(0.0);
 }
 
 void main()
@@ -107,18 +106,18 @@ void main()
 	float occlusion = mrah.b;
 	float height = mrah.a;
 
-    vec3 viewPos = worldPos - ubo.camPos.xyz;
+    vec3 viewPos = normalize(worldPos - ubo.camPos.xyz);
 
     // Reflectance at normal incidence angle
     vec3 F0 = vec3(0.04f); 
 	F0 = mix(F0, albedo, metallic);
     vec3 F = F_SchlickR(max(dot(normal, viewPos), 0.0f), F0, roughness);
 
-    vec3 reflected = reflect(viewPos, normal);
+    vec3 reflected = normalize(reflect(viewPos, normalize(normal)));
     vec3 hitPos = viewPos;
     float dDepth;
 
-    vec4 coords = RayCast(reflected * max(minRayStep, -viewPos.z), hitPos, dDepth);
+    vec4 coords = RayCast(reflected, hitPos, dDepth);
     vec2 dCoords = abs(vec2(0.5, 0.5) - coords.xy);
     float screenEdgefactor = clamp(1.0 - (dCoords.x + dCoords.y), 0.0, 1.0);
     float reflectionMultiplier = pow(metallic, reflectionSpecularFalloffExponent) * screenEdgefactor * -reflected.z;
@@ -127,5 +126,5 @@ void main()
 	unpackTextures(packed_data_2, normal, albedo, mrah);
     vec3 reflection = albedo * clamp(reflectionMultiplier, 0.0, 0.9) * F;
 
-    outFragcolor = vec4(coords.xy, 0.0, 1.0);
+    outFragcolor = vec4(reflection, 1.0);
 }

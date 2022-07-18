@@ -7,7 +7,12 @@ using namespace engine::core::pipeline;
 
 CPushHandler::~CPushHandler()
 {
-    cleanup();
+
+}
+
+CPushHandler::CPushHandler(const pipeline::CPushConstBlock &pushBlock, utl::ref_ptr<pipeline::CPipelineBase>& pipeline)
+{
+    create(pushBlock, pipeline);
 }
 
 void CPushHandler::create(const CPushConstBlock &uniformBlock, utl::ref_ptr<CPipelineBase>& pipeline)
@@ -24,18 +29,6 @@ void CPushHandler::create(const CPushConstBlock &uniformBlock, utl::ref_ptr<CPip
 void CPushHandler::reCreate(utl::ref_ptr<CPipelineBase>& pipeline)
 {
     create(pushBlock.value(), pipeline);
-}
-
-void CPushHandler::cleanup()
-{
-    if(!bIsClean)
-    {
-        for(auto& buffer : vBuffers)
-            buffer->cleanup();
-        vBuffers.clear();
-        vData.clear();
-        bIsClean = true;
-    }
 }
 
 void CPushHandler::flush(vk::CommandBuffer& commandBuffer)

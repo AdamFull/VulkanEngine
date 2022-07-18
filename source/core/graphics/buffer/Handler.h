@@ -18,9 +18,7 @@ namespace engine
         public:
             CHandler() = default;
             virtual ~CHandler();
-            virtual void create(const pipeline::CUniformBlock &uniformBlock);
             void reCreate();
-            void cleanup();
             void flush();
 
             template<class T>
@@ -94,10 +92,11 @@ namespace engine
         private:
             uint32_t getCurrentFrameProxy();
         protected:
+            virtual void create(const pipeline::CUniformBlock &uniformBlock);
+
             std::optional<pipeline::CUniformBlock> uniformBlock;
             std::vector<utl::scope_ptr<CVulkanBuffer>> vBuffers;
             std::vector<bool> vMapped;
-            bool bIsClean{false};
             EHandlerStatus status{EHandlerStatus::eNone};
         };
     }

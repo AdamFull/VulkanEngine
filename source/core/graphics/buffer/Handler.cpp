@@ -6,7 +6,7 @@ using namespace engine::core::pipeline;
 
 CHandler::~CHandler()
 {
-    cleanup();
+    
 }
 
 void CHandler::create(const CUniformBlock &_uniformBlock)
@@ -18,17 +18,6 @@ void CHandler::create(const CUniformBlock &_uniformBlock)
 void CHandler::reCreate()
 {
     create(uniformBlock.value());
-}
-
-void CHandler::cleanup()
-{
-    if(!bIsClean)
-    {
-        for(auto& buffer : vBuffers)
-            buffer->cleanup();
-        vBuffers.clear();
-        bIsClean = true;
-    }
 }
 
 void CHandler::flush()

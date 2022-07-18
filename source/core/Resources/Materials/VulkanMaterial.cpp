@@ -49,17 +49,15 @@ void CMaterialBase::create()
                 utl::ref_ptr<CHandler> pUniform;
                 switch(uniform.getDescriptorType())
                 {
-                    case vk::DescriptorType::eUniformBuffer: pUniform = utl::make_ref<CUniformHandler>(); break;
-                    case vk::DescriptorType::eStorageBuffer: pUniform = utl::make_ref<CStorageHandler>(); break;
+                    case vk::DescriptorType::eUniformBuffer: pUniform = utl::make_ref<CUniformHandler>(uniform); break;
+                    case vk::DescriptorType::eStorageBuffer: pUniform = utl::make_ref<CStorageHandler>(uniform); break;
                 }
-                pUniform->create(uniform);
                 instance_ptr->mBuffers.emplace(name, pUniform);
             }
 
             for(auto& [name, uniform] : pPipeline->getShader()->getPushBlocks())
             {
-                auto pUniform = utl::make_ref<CPushHandler>();
-                pUniform->create(uniform, pPipeline);
+                auto pUniform = utl::make_ref<CPushHandler>(uniform, pPipeline);
                 instance_ptr->mPushConstants.emplace(name, pUniform);
             }
 
@@ -129,11 +127,6 @@ void CMaterialBase::cleanup()
     {
         if(instance->pDescriptorSet)
             instance->pDescriptorSet->cleanup();
-        for(auto& [name, handler] : instance->mBuffers)
-            handler->cleanup();
-        instance->mBuffers.clear();
-        for(auto& [name, handler] : instance->mPushConstants)
-            handler->cleanup();
         instance->mPushConstants.clear();
     }
     pPipeline->cleanup();

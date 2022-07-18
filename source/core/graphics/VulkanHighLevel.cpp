@@ -29,7 +29,6 @@ void CVulkanHighLevel::cleanup()
     CDevice::inst()->GPUWait();
     CRenderSystem::inst()->cleanup();
     CResourceManager::inst()->cleanup();
-    CVBO::inst()->cleanup();
     CDevice::inst()->cleanup();
 }
 

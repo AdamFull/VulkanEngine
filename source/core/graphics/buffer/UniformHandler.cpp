@@ -4,6 +4,11 @@
 using namespace engine::core;
 using namespace engine::core::pipeline;
 
+CUniformHandler::CUniformHandler(const pipeline::CUniformBlock &uniformBlock)
+{
+    create(uniformBlock);
+}
+
 void CUniformHandler::create(const CUniformBlock &_uniformBlock)
 {
     CHandler::create(_uniformBlock);
@@ -14,8 +19,7 @@ void CUniformHandler::create(const CUniformBlock &_uniformBlock)
     
     for(uint32_t i = 0; i < framesInFlight; i++)
     {
-        auto uniform = utl::make_scope<CVulkanBuffer>();
-        uniform->create(uniformBlock->getSize(), 1, 
+        auto uniform = utl::make_scope<CVulkanBuffer>(uniformBlock->getSize(), 1, 
         vk::BufferUsageFlagBits::eUniformBuffer, vk::MemoryPropertyFlagBits::eHostVisible | vk::MemoryPropertyFlagBits::eHostCoherent, 
         minOffsetAllignment);
         vBuffers.emplace_back(std::move(uniform));

@@ -664,8 +664,7 @@ void CImage::writeImageData(utl::scope_ptr<FImageCreateInfo>& info, vk::Format f
 {
     vk::DeviceSize imgSize = info->dataSize;
 
-    CVulkanBuffer stagingBuffer;
-    stagingBuffer.create(imgSize, 1, vk::BufferUsageFlagBits::eTransferSrc, vk::MemoryPropertyFlagBits::eHostVisible | vk::MemoryPropertyFlagBits::eHostCoherent);
+    CVulkanBuffer stagingBuffer(imgSize, 1, vk::BufferUsageFlagBits::eTransferSrc, vk::MemoryPropertyFlagBits::eHostVisible | vk::MemoryPropertyFlagBits::eHostCoherent);
     auto result = stagingBuffer.mapMem();
     stagingBuffer.write((void *)info->pData.get());
 

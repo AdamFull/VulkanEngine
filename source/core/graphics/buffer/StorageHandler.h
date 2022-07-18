@@ -10,6 +10,8 @@ namespace engine
         {
         public:
             CStorageHandler() = default;
+            CStorageHandler(const pipeline::CUniformBlock &uniformBlock);
+        protected:
             void create(const pipeline::CUniformBlock &uniformBlock) override;
         };
     }

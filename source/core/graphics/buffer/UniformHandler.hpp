@@ -10,6 +10,8 @@ namespace engine
         {
         public:
             CUniformHandler() = default;
+            CUniformHandler(const pipeline::CUniformBlock &uniformBlock);
+        private:
             void create(const pipeline::CUniformBlock &uniformBlock) override;
         };
     }

@@ -3,6 +3,13 @@
 
 using namespace engine::core;
 
+CVulkanBuffer::CVulkanBuffer(vk::DeviceSize instanceSize, uint32_t instanceCount,
+                        vk::BufferUsageFlags usageFlags, vk::MemoryPropertyFlags memoryPropertyFlags,
+                        vk::DeviceSize minOffsetAlignment)
+{
+    create(instanceSize, instanceCount, usageFlags, memoryPropertyFlags, minOffsetAlignment);
+}
+
 CVulkanBuffer::~CVulkanBuffer()
 {
     cleanup();

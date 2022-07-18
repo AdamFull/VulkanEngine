@@ -8,13 +8,10 @@ namespace engine
         {
         public:
             CVulkanBuffer() = default;
-            ~CVulkanBuffer();
-
-            void create(vk::DeviceSize instanceSize, uint32_t instanceCount,
+            CVulkanBuffer(vk::DeviceSize instanceSize, uint32_t instanceCount,
                         vk::BufferUsageFlags usageFlags, vk::MemoryPropertyFlags memoryPropertyFlags,
                         vk::DeviceSize minOffsetAlignment = 1);
-
-            void cleanup();
+            ~CVulkanBuffer();
 
             void reCreate(vk::DeviceSize instanceSize, uint32_t instanceCount,
                           vk::BufferUsageFlags usageFlags, vk::MemoryPropertyFlags memoryPropertyFlags,
@@ -46,6 +43,10 @@ namespace engine
             vk::DeviceSize getBufferSize() const { return bufferSize; }
 
         private:
+            void create(vk::DeviceSize instanceSize, uint32_t instanceCount,
+                        vk::BufferUsageFlags usageFlags, vk::MemoryPropertyFlags memoryPropertyFlags,
+                        vk::DeviceSize minOffsetAlignment = 1);
+            void cleanup();
             static vk::DeviceSize getAlignment(vk::DeviceSize instanceSize, vk::DeviceSize minOffsetAlignment);
             
         private:

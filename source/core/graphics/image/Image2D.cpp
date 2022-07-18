@@ -3,6 +3,18 @@
 
 using namespace engine::core;
 
+CImage2D::CImage2D(const fs::path& srPath, vk::ImageUsageFlags flags, vk::ImageAspectFlags aspect, vk::SamplerAddressMode addressMode, vk::Filter filter)
+{
+    CImage::create(srPath, flags, aspect, addressMode, filter);
+}
+
+CImage2D::CImage2D(const vk::Extent2D& extent, vk::Format format, vk::ImageLayout layout, vk::ImageUsageFlags usage, 
+vk::ImageAspectFlags aspect, vk::Filter filter, vk::SamplerAddressMode addressMode, vk::SampleCountFlagBits samples, 
+bool instantLayoutTransition, bool anisotropic, bool mipmaps)
+{
+    create(extent, format, layout, usage, aspect, filter, addressMode, samples, instantLayoutTransition, anisotropic, mipmaps);
+}
+
 void CImage2D::create(const vk::Extent2D& extent, vk::Format format, vk::ImageLayout layout, vk::ImageUsageFlags usage, 
 vk::ImageAspectFlags aspect, vk::Filter filter, vk::SamplerAddressMode addressMode, vk::SampleCountFlagBits samples, 
 bool instantLayoutTransition, bool anisotropic, bool mipmaps)

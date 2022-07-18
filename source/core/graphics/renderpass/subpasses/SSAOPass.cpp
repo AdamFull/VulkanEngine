@@ -33,8 +33,7 @@ void CSSAOPass::create()
     for (uint32_t i = 0; i < static_cast<uint32_t>(vSSAONoise.size()); i++)
 		vSSAONoise[i] = glm::vec4(rndDist(rndEngine) * 2.0f - 1.0f, rndDist(rndEngine) * 2.0f - 1.0f, 0.0f, 0.0f);
 
-    pNoise = utl::make_ref<CImage>();
-    pNoise->create(vSSAONoise.data(), vk::Extent3D{SSAO_NOISE_DIM, SSAO_NOISE_DIM, sizeof(glm::vec4)}, vk::Format::eR32G32B32A32Sfloat);
+    pNoise = utl::make_ref<CImage>(vSSAONoise.data(), vk::Extent3D{SSAO_NOISE_DIM, SSAO_NOISE_DIM, sizeof(glm::vec4)}, vk::Format::eR32G32B32A32Sfloat);
 
 	pMaterial = CMaterialLoader::inst()->create("ssao_pass");
 	pMaterial->addDefinition("SSAO_KERNEL_SIZE", std::to_string(SSAO_KERNEL_SIZE));

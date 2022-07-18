@@ -6,14 +6,22 @@ namespace engine
 	namespace core
 	{
 		/**
-		 * @brief Image2D implementation
+		 * @brief CImage2DArray implementation
 		 *
 		 */
 		class CImage2DArray : public CImage
 		{
 		public:
+			CImage2DArray() = default;
+			CImage2DArray(uint32_t layers, const vk::Extent2D &extent, vk::Format format = vk::Format::eR8G8B8A8Unorm, vk::ImageLayout layout = vk::ImageLayout::eShaderReadOnlyOptimal,
+						vk::ImageUsageFlags usage = vk::ImageUsageFlagBits::eColorAttachment | vk::ImageUsageFlagBits::eSampled, vk::ImageAspectFlags aspect = vk::ImageAspectFlagBits::eColor,
+						vk::Filter filter = vk::Filter::eLinear, vk::SamplerAddressMode addressMode = vk::SamplerAddressMode::eClampToEdge, vk::SampleCountFlagBits samples = vk::SampleCountFlagBits::e1,
+						bool instantLayoutTransition = true, bool anisotropic = false, bool mipmaps = false);
+			virtual ~CImage2DArray() = default;
+
+		protected:
 			/**
-			 * @brief Creates empty image2darray
+			 * @brief Creates empty CImage2DArray
 			 *
 			 * @param extent Texture extent
 			 * @param format Vulkan format
@@ -27,10 +35,8 @@ namespace engine
 			 * @param anisotropic Use anisotropic filtering
 			 * @param mipmaps Calculate mipmaps
 			 */
-			void create(uint32_t layers, const vk::Extent2D &extent, vk::Format format = vk::Format::eR8G8B8A8Unorm, vk::ImageLayout layout = vk::ImageLayout::eShaderReadOnlyOptimal,
-						vk::ImageUsageFlags usage = vk::ImageUsageFlagBits::eColorAttachment | vk::ImageUsageFlagBits::eSampled, vk::ImageAspectFlags aspect = vk::ImageAspectFlagBits::eColor,
-						vk::Filter filter = vk::Filter::eLinear, vk::SamplerAddressMode addressMode = vk::SamplerAddressMode::eClampToEdge, vk::SampleCountFlagBits samples = vk::SampleCountFlagBits::e1,
-						bool instantLayoutTransition = true, bool anisotropic = false, bool mipmaps = false);
+			void create(uint32_t layers, const vk::Extent2D &extent, vk::Format format, vk::ImageLayout layout, vk::ImageUsageFlags usage, vk::ImageAspectFlags aspect,
+						vk::Filter filter, vk::SamplerAddressMode addressMode, vk::SampleCountFlagBits samples, bool instantLayoutTransition, bool anisotropic, bool mipmaps);
 		};
 	}
 }

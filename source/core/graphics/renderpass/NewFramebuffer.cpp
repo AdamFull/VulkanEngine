@@ -328,17 +328,6 @@ void CFramebufferNew::createFramebuffer()
 utl::ref_ptr<CImage> CFramebufferNew::createImage(const FFramebufferAttachmentInfo& attachment, vk::Extent2D extent)
 {
     utl::ref_ptr<CImage> texture;
-
-    switch (attachment.eType)
-    {
-    case EImageType::e2D: texture = utl::make_ref<CImage2D>(); break;
-    case EImageType::e3D: texture = utl::make_ref<CImage3D>(); break;
-    case EImageType::eArray2D: texture = utl::make_ref<CImage2DArray>(); break;
-    case EImageType::eArray3D: break;
-    case EImageType::eCubeMap: texture = utl::make_ref<CImageCubemap>(); break;
-    case EImageType::eArrayCube: texture = utl::make_ref<CImageCubemapArray>(); break;
-    }
-
     bool translate_layout{false};
 
     vk::ImageAspectFlags aspectMask{};
@@ -366,27 +355,12 @@ utl::ref_ptr<CImage> CFramebufferNew::createImage(const FFramebufferAttachmentIn
 
     switch (attachment.eType)
     {
-    case EImageType::e2D: {
-        auto tex2d = std::dynamic_pointer_cast<CImage2D>(texture);
-        tex2d->create(extent, attachment.format, imageLayout, attachment.usageFlags, aspectMask, vk::Filter::eNearest, vk::SamplerAddressMode::eRepeat, vk::SampleCountFlagBits::e1, translate_layout);
-    } break;
-    case EImageType::e3D: {
-        //TODO: Add implementation
-    } break;
-    case EImageType::eArray2D: {
-        auto tex2darr = std::dynamic_pointer_cast<CImage2DArray>(texture);
-        tex2darr->create(attachment.layers, extent, attachment.format, imageLayout, attachment.usageFlags, aspectMask, vk::Filter::eLinear, vk::SamplerAddressMode::eClampToEdge, vk::SampleCountFlagBits::e1, translate_layout);
-    } break;
-    case EImageType::eArray3D: {
-        //TODO: Add implementation
-    } break;
-    case EImageType::eCubeMap: {
-        //TODO: Add implementation
-    } break;
-    case EImageType::eArrayCube: {
-        auto tex2darr = std::dynamic_pointer_cast<CImageCubemapArray>(texture);
-        tex2darr->create(attachment.layers, extent, attachment.format, imageLayout, attachment.usageFlags, aspectMask, vk::Filter::eLinear, vk::SamplerAddressMode::eClampToEdge, vk::SampleCountFlagBits::e1, translate_layout);
-    } break;
+    case EImageType::e2D: texture = utl::make_ref<CImage2D>(extent, attachment.format, imageLayout, attachment.usageFlags, aspectMask, vk::Filter::eNearest, vk::SamplerAddressMode::eRepeat, vk::SampleCountFlagBits::e1, translate_layout); break;
+    case EImageType::e3D: texture = utl::make_ref<CImage3D>(); break;
+    case EImageType::eArray2D: texture = utl::make_ref<CImage2DArray>(attachment.layers, extent, attachment.format, imageLayout, attachment.usageFlags, aspectMask, vk::Filter::eLinear, vk::SamplerAddressMode::eClampToEdge, vk::SampleCountFlagBits::e1, translate_layout); break;
+    case EImageType::eArray3D: break;
+    case EImageType::eCubeMap: texture = utl::make_ref<CImageCubemap>(); break;
+    case EImageType::eArrayCube: texture = utl::make_ref<CImageCubemapArray>(attachment.layers, extent, attachment.format, imageLayout, attachment.usageFlags, aspectMask, vk::Filter::eLinear, vk::SamplerAddressMode::eClampToEdge, vk::SampleCountFlagBits::e1, translate_layout); break;
     }
 
     return texture;

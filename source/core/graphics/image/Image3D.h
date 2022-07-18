@@ -14,10 +14,11 @@ namespace engine
 		{
 		public:
 			CImage3D() = default;
-
-			void loadNoise(resources::ENoisePattern ePattern, uint32_t width, uint32_t height, uint32_t depth);
+			CImage3D(resources::ENoisePattern ePattern, const vk::Extent3D& extent);
+			virtual ~CImage3D() = default;
 
 		protected:
+			void loadNoise(resources::ENoisePattern ePattern, const vk::Extent3D& extent);
             void generatePerlinNoise(utl::scope_ptr<FImageCreateInfo>& texture);
             void generateFractalNoise(utl::scope_ptr<FImageCreateInfo>& texture, uint32_t octaves, float perceptation);
 		};

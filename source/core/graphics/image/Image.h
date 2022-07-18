@@ -27,9 +27,13 @@ namespace engine
 		{
 		public:
 			CImage() = default;
+			CImage(const fs::path& srPath, vk::ImageUsageFlags flags = vk::ImageUsageFlagBits::eTransferSrc | vk::ImageUsageFlagBits::eTransferDst | vk::ImageUsageFlagBits::eSampled,
+						vk::ImageAspectFlags aspect = vk::ImageAspectFlagBits::eColor, vk::SamplerAddressMode addressMode = vk::SamplerAddressMode::eRepeat,
+						vk::Filter filter = vk::Filter::eLinear);
+			CImage(void* pData, const vk::Extent3D &extent, vk::Format format = vk::Format::eR8G8B8A8Unorm, vk::ImageUsageFlags flags = vk::ImageUsageFlagBits::eTransferSrc | vk::ImageUsageFlagBits::eTransferDst | vk::ImageUsageFlagBits::eSampled,
+						vk::ImageAspectFlags aspect = vk::ImageAspectFlagBits::eColor, vk::SamplerAddressMode addressMode = vk::SamplerAddressMode::eRepeat,
+						vk::Filter filter = vk::Filter::eNearest, bool mipmap = false);
 			virtual ~CImage();
-
-			void cleanup();
 
 			/**
 			 * @brief Update image descriptor
@@ -55,34 +59,6 @@ namespace engine
 			 * @param view Custom image view
 			 */
 			void setView(vk::ImageView &view);
-
-			/**
-			 * @brief Create image from file
-			 *
-			 * @param srPath Source file path
-			 * @param flags Image usage flags
-			 * @param aspect Image aspect flags
-			 * @param addressMode Image sampler address mode
-			 * @param filter Image sampler filter
-			 */
-			void create(const fs::path& srPath, vk::ImageUsageFlags flags = vk::ImageUsageFlagBits::eTransferSrc | vk::ImageUsageFlagBits::eTransferDst | vk::ImageUsageFlagBits::eSampled,
-						vk::ImageAspectFlags aspect = vk::ImageAspectFlagBits::eColor, vk::SamplerAddressMode addressMode = vk::SamplerAddressMode::eRepeat,
-						vk::Filter filter = vk::Filter::eLinear);
-
-			/**
-			 * @brief Create image from data
-			 *
-			 * @param data Image data
-			 * @param extent Image extent
-			 * @param format Image format
-			 * @param flags Image usage flags
-			 * @param aspect Image aspect flags
-			 * @param addressMode Image sampler address mode
-			 * @param filter Image sampler filter
-			 */
-			void create(void* pData, const vk::Extent3D &extent, vk::Format format = vk::Format::eR8G8B8A8Unorm, vk::ImageUsageFlags flags = vk::ImageUsageFlagBits::eTransferSrc | vk::ImageUsageFlagBits::eTransferDst | vk::ImageUsageFlagBits::eSampled,
-						vk::ImageAspectFlags aspect = vk::ImageAspectFlagBits::eColor, vk::SamplerAddressMode addressMode = vk::SamplerAddressMode::eRepeat,
-						vk::Filter filter = vk::Filter::eNearest, bool mipmap = false);
 
 			/**
 			 * @brief Initializes texture. Creates vk::Image, vk::ImageView and vk::Sampler
@@ -368,6 +344,36 @@ namespace engine
 			vk::ImageLayout getImageLayout() const { return _imageLayout; }
 
 		protected:
+			/**
+			 * @brief Create image from file
+			 *
+			 * @param srPath Source file path
+			 * @param flags Image usage flags
+			 * @param aspect Image aspect flags
+			 * @param addressMode Image sampler address mode
+			 * @param filter Image sampler filter
+			 */
+			void create(const fs::path& srPath, vk::ImageUsageFlags flags = vk::ImageUsageFlagBits::eTransferSrc | vk::ImageUsageFlagBits::eTransferDst | vk::ImageUsageFlagBits::eSampled,
+						vk::ImageAspectFlags aspect = vk::ImageAspectFlagBits::eColor, vk::SamplerAddressMode addressMode = vk::SamplerAddressMode::eRepeat,
+						vk::Filter filter = vk::Filter::eLinear);
+
+			/**
+			 * @brief Create image from data
+			 *
+			 * @param data Image data
+			 * @param extent Image extent
+			 * @param format Image format
+			 * @param flags Image usage flags
+			 * @param aspect Image aspect flags
+			 * @param addressMode Image sampler address mode
+			 * @param filter Image sampler filter
+			 */
+			void create(void* pData, const vk::Extent3D &extent, vk::Format format = vk::Format::eR8G8B8A8Unorm, vk::ImageUsageFlags flags = vk::ImageUsageFlagBits::eTransferSrc | vk::ImageUsageFlagBits::eTransferDst | vk::ImageUsageFlagBits::eSampled,
+						vk::ImageAspectFlags aspect = vk::ImageAspectFlagBits::eColor, vk::SamplerAddressMode addressMode = vk::SamplerAddressMode::eRepeat,
+						vk::Filter filter = vk::Filter::eNearest, bool mipmap = false);
+
+			void cleanup();
+
 			/**
 			 * @brief Generating mipmaps for image
 			 *

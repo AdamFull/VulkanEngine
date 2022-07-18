@@ -5,6 +5,17 @@ using namespace engine::core;
 
 //Maybe add to image generation of attachment description and 
 
+CImage::CImage(const fs::path& srPath, vk::ImageUsageFlags flags, vk::ImageAspectFlags aspect, vk::SamplerAddressMode addressMode, vk::Filter filter)
+{
+    create(srPath, flags, aspect, addressMode, filter);
+}
+
+CImage::CImage(void* pData, const vk::Extent3D &extent, vk::Format format, vk::ImageUsageFlags flags, vk::ImageAspectFlags aspect, 
+vk::SamplerAddressMode addressMode, vk::Filter filter, bool mipmaps)
+{
+    create(pData, extent, format, flags, aspect, addressMode, filter, mipmaps);
+}
+
 CImage::~CImage()
 {
     cleanup();

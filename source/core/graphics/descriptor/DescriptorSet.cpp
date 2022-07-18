@@ -5,6 +5,21 @@ using namespace engine::core;
 using namespace engine::core::pipeline;
 using namespace engine::core::descriptor;
 
+CDescriptorSet::CDescriptorSet(vk::PipelineBindPoint bindPoint, vk::PipelineLayout& layout, vk::DescriptorPool& pool, vk::DescriptorSetLayout& setLayout)
+{
+    create(bindPoint, layout, pool, setLayout);
+}
+
+CDescriptorSet::CDescriptorSet(utl::ref_ptr<pipeline::CPipelineBase>& pPipeline)
+{
+    create(pPipeline->getBindPoint(), pPipeline->getPipelineLayout(), pPipeline->getDescriptorPool(), pPipeline->getDescriptorSetLayout());
+}
+
+CDescriptorSet::~CDescriptorSet()
+{
+    cleanup();
+}
+
 void CDescriptorSet::create(vk::PipelineBindPoint bindPoint, vk::PipelineLayout& layout, vk::DescriptorPool& pool, vk::DescriptorSetLayout& setLayout)
 {
     pipelineBindPoint = bindPoint;
@@ -21,11 +36,6 @@ void CDescriptorSet::create(vk::PipelineBindPoint bindPoint, vk::PipelineLayout&
 
     vk::Result res = CDevice::inst()->create(allocInfo, vDescriptorSets.data());
     assert(res == vk::Result::eSuccess && "Cannot create descriptor sets.");
-}
-
-void CDescriptorSet::create(utl::ref_ptr<pipeline::CPipelineBase>& pPipeline)
-{
-    create(pPipeline->getBindPoint(), pPipeline->getPipelineLayout(), pPipeline->getDescriptorPool(), pPipeline->getDescriptorSetLayout());
 }
 
 void CDescriptorSet::cleanup()

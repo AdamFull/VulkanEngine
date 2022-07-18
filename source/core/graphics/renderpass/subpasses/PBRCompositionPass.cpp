@@ -104,17 +104,12 @@ void CPBRCompositionPass::render(vk::CommandBuffer& commandBuffer)
 
 void CPBRCompositionPass::cleanup()
 {
-    m_pSkybox = nullptr;
-    *brdf = nullptr;
-	*irradiance = nullptr;
-	*prefiltered = nullptr;
     CSubpass::cleanup();
 }
 
 utl::ref_ptr<CImage> CPBRCompositionPass::ComputeBRDFLUT(uint32_t size)
 {
-    auto brdfImage = utl::make_ref<CImage2D>();
-    brdfImage->create(vk::Extent2D{size, size}, vk::Format::eR16G16Sfloat, vk::ImageLayout::eGeneral,
+    auto brdfImage = utl::make_ref<CImage2D>(vk::Extent2D{size, size}, vk::Format::eR16G16Sfloat, vk::ImageLayout::eGeneral,
     vk::ImageUsageFlagBits::eTransferSrc | vk::ImageUsageFlagBits::eTransferDst | vk::ImageUsageFlagBits::eSampled | vk::ImageUsageFlagBits::eColorAttachment | vk::ImageUsageFlagBits::eStorage);
 
     auto cmdBuf = CCommandBuffer(true, vk::QueueFlagBits::eCompute);
@@ -137,8 +132,7 @@ utl::ref_ptr<CImage> CPBRCompositionPass::ComputeBRDFLUT(uint32_t size)
 
 utl::ref_ptr<CImage> CPBRCompositionPass::ComputeIrradiance(const utl::ref_ptr<CImage> &source, uint32_t size)
 {
-    auto irradianceCubemap = utl::make_ref<CImageCubemap>();
-    irradianceCubemap->create(vk::Extent2D{size, size}, vk::Format::eR32G32B32A32Sfloat, vk::ImageLayout::eGeneral,
+    auto irradianceCubemap = utl::make_ref<CImageCubemap>(vk::Extent2D{size, size}, vk::Format::eR32G32B32A32Sfloat, vk::ImageLayout::eGeneral,
     vk::ImageUsageFlagBits::eTransferSrc | vk::ImageUsageFlagBits::eTransferDst | vk::ImageUsageFlagBits::eSampled | vk::ImageUsageFlagBits::eColorAttachment | vk::ImageUsageFlagBits::eStorage);
 
     auto cmdBuf = CCommandBuffer(true, vk::QueueFlagBits::eCompute);
@@ -162,8 +156,7 @@ utl::ref_ptr<CImage> CPBRCompositionPass::ComputeIrradiance(const utl::ref_ptr<C
 
 utl::ref_ptr<CImage> CPBRCompositionPass::ComputePrefiltered(const utl::ref_ptr<CImage>& source, uint32_t size)
 {
-    auto prefilteredCubemap = utl::make_ref<CImageCubemap>();
-    prefilteredCubemap->create(vk::Extent2D{size, size}, vk::Format::eR16G16B16A16Sfloat, vk::ImageLayout::eGeneral,
+    auto prefilteredCubemap = utl::make_ref<CImageCubemap>(vk::Extent2D{size, size}, vk::Format::eR16G16B16A16Sfloat, vk::ImageLayout::eGeneral,
     vk::ImageUsageFlagBits::eTransferSrc | vk::ImageUsageFlagBits::eTransferDst | vk::ImageUsageFlagBits::eSampled | vk::ImageUsageFlagBits::eColorAttachment | vk::ImageUsageFlagBits::eStorage,
     vk::ImageAspectFlagBits::eColor, vk::Filter::eLinear, vk::SamplerAddressMode::eClampToEdge, vk::SampleCountFlagBits::e1, true, false, true);
 

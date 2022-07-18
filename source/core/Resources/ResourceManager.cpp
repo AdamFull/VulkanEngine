@@ -13,8 +13,7 @@ utl::scope_ptr<CResourceManager> utl::singleton<CResourceManager>::_instance{nul
 void CResourceManager::create()
 {
     //Creating empty texture
-    auto pEmptyTexture = utl::make_ref<CImage>();
-    pEmptyTexture->create("empty.ktx2");
+    auto pEmptyTexture = utl::make_ref<CImage>("empty.ktx2");
     addExisting("no_texture", pEmptyTexture);
 }
 

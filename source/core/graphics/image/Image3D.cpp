@@ -4,17 +4,22 @@ using namespace engine::core;
 using namespace engine::core::noise;
 using namespace engine::resources;
 
-void CImage3D::loadNoise(ENoisePattern ePattern, uint32_t width, uint32_t height, uint32_t depth)
+CImage3D::CImage3D(resources::ENoisePattern ePattern, const vk::Extent3D& extent)
+{
+    loadNoise(ePattern, extent);
+}
+
+void CImage3D::loadNoise(resources::ENoisePattern ePattern, const vk::Extent3D& extent)
 {
     utl::scope_ptr<FImageCreateInfo> texture = utl::make_scope<FImageCreateInfo>();
-    texture->baseWidth = width;
-    texture->baseHeight = height;
-    texture->baseDepth = depth;
+    texture->baseWidth = extent.width;
+    texture->baseHeight = extent.height;
+    texture->baseDepth = extent.depth;
     texture->numDimensions = 3;
     texture->isArray = false;
     texture->numLayers = 1;
     texture->numFaces = 1;
-    texture->dataSize = width * height * (depth > 1 ? depth : 4);
+    texture->dataSize = extent.width * extent.height * (extent.depth > 1 ? extent.depth : 4);
 
     auto format = vk::Format::eR8Unorm;
 

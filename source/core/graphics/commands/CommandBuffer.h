@@ -11,8 +11,6 @@ namespace engine
             explicit CCommandBuffer(bool _begin = true, vk::QueueFlagBits queueType = vk::QueueFlagBits::eGraphics, vk::CommandBufferLevel bufferLevel = vk::CommandBufferLevel::ePrimary, uint32_t count = 1);
             ~CCommandBuffer();
 
-            void cleanup();
-
             void begin(vk::CommandBufferUsageFlags usage = vk::CommandBufferUsageFlagBits::eOneTimeSubmit, uint32_t index = 0);
             void end();
 
@@ -25,6 +23,7 @@ namespace engine
             vk::CommandBuffer &getCommandBuffer() { return vCommandBuffers.at(frameIndex); }
             bool isRunning() const { return running; }
         private:
+            void cleanup();
             vk::Queue getQueue() const;
             uint32_t frameIndex{0};
             bool bIsClean{false};

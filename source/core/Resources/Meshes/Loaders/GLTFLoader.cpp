@@ -13,7 +13,7 @@
 
 
 // Based on https://github.com/SaschaWillems/Vulkan/blob/master/base/VulkanglTFModel.cpp
-bool loadImageDataFuncEmpty(tinygltf::Image *image, const int imageIndex, std::string *error, std::string *warning, int req_width, int req_height, const unsigned char *bytes, int size, void *userData)
+bool loadImageDataFuncEmpty(tinygltf::Image *image, const int imageIndex, std::string *err, std::string *warn, int req_width, int req_height, const unsigned char *bytes, int size, void *userData)
 {
     // KTX files will be handled by our own code
     if (image->uri.find_last_of(".") != std::string::npos)
@@ -737,9 +737,8 @@ void GLTFLoader::loadTextures(const tinygltf::Model &model)
 
 utl::ref_ptr<CImage> GLTFLoader::loadTexture(const tinygltf::Image &image, const fs::path& path)
 {
-    auto nativeTexture = utl::make_ref<CImage>();
     auto realPath = fs::weakly_canonical(path / image.uri);
-    nativeTexture->create(realPath);
+    auto nativeTexture = utl::make_ref<CImage>(realPath);
     return nativeTexture;
 }
 

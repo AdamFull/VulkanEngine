@@ -7,17 +7,15 @@ using namespace engine::core;
 using namespace engine::core::pipeline;
 using namespace engine::core::descriptor;
 
-void CDescriptorHandler::create(utl::ref_ptr<CPipelineBase> pipeline)
+CDescriptorHandler::CDescriptorHandler(utl::ref_ptr<pipeline::CPipelineBase>& pPipeline)
 {
-    pDescriptorSet = utl::make_scope<CDescriptorSet>();
-    pDescriptorSet->create(pipeline);
-    pPipeline = pipeline;
+    create(pPipeline);
 }
 
-void CDescriptorHandler::cleanup()
+void CDescriptorHandler::create(utl::ref_ptr<CPipelineBase>& pipeline)
 {
-    //Custom rules for delete object
-    pDescriptorSet->cleanup();
+    pDescriptorSet = utl::make_scope<CDescriptorSet>(pipeline);
+    pPipeline = pipeline;
 }
 
 void CDescriptorHandler::update()

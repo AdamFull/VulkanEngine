@@ -41,8 +41,7 @@ void CMaterialBase::create()
         for(auto instance = 0; instance < instances; instance++)
         {
             auto instance_ptr = utl::make_scope<FMaterialUniqueObjects>();
-            instance_ptr->pDescriptorSet = utl::make_scope<CDescriptorHandler>();
-            instance_ptr->pDescriptorSet->create(pPipeline);
+            instance_ptr->pDescriptorSet = utl::make_scope<CDescriptorHandler>(pPipeline);
 
             for(auto& [name, uniform] : pPipeline->getShader()->getUniformBlocks())
             {
@@ -122,13 +121,6 @@ void CMaterialBase::bind(vk::CommandBuffer& commandBuffer)
 
 void CMaterialBase::cleanup()
 {
-    //Custom cleanup rules
-    for(auto& instance : vInstances)
-    {
-        if(instance->pDescriptorSet)
-            instance->pDescriptorSet->cleanup();
-        instance->mPushConstants.clear();
-    }
     pPipeline->cleanup();
 }
 

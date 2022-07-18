@@ -94,8 +94,7 @@ namespace engine
             template <>
             utl::ref_ptr<core::CImage>& add(const FTextureCreateInfo& info)
             {
-                utl::ref_ptr<core::CImage> texture = utl::make_scope<core::CImage>();
-                texture->create(info.srSrc);
+                utl::ref_ptr<core::CImage> texture = utl::make_scope<core::CImage>(info.srSrc);
                 addExisting(info.srName, texture);
                 return pNullImage;
             }
@@ -109,8 +108,7 @@ namespace engine
             template <>
             utl::ref_ptr<core::CImage2D>& add(const FTextureCreateInfo& info)
             {
-                utl::ref_ptr<core::CImage> texture = utl::make_scope<core::CImage2D>();
-                texture->create(info.srSrc);
+                utl::ref_ptr<core::CImage> texture = utl::make_scope<core::CImage2D>(info.srSrc);
                 addExisting(info.srName, texture);
                 return pNullImage2D;
             }

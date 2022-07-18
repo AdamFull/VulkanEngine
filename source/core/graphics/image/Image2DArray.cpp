@@ -3,6 +3,14 @@
 
 using namespace engine::core;
 
+CImage2DArray::CImage2DArray(uint32_t layers, const vk::Extent2D &extent, vk::Format format, vk::ImageLayout layout,
+						vk::ImageUsageFlags usage, vk::ImageAspectFlags aspect, vk::Filter filter, 
+                        vk::SamplerAddressMode addressMode, vk::SampleCountFlagBits samples,
+						bool instantLayoutTransition, bool anisotropic, bool mipmaps)
+{
+    create(layers, extent, format, layout, usage, aspect, filter, addressMode, samples, instantLayoutTransition, anisotropic, mipmaps);
+}
+
 void CImage2DArray::create(uint32_t layers, const vk::Extent2D &extent, vk::Format format, vk::ImageLayout layout,
 						vk::ImageUsageFlags usage, vk::ImageAspectFlags aspect, vk::Filter filter, 
                         vk::SamplerAddressMode addressMode, vk::SampleCountFlagBits samples,

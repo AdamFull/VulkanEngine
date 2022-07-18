@@ -12,8 +12,7 @@ utl::ref_ptr<CMaterialBase> CMaterialFactory::create(FMaterialCreateInfo info)
 
     for (auto &texInfo : info.vTextures)
     {
-        auto texture = utl::make_ref<CImage>();
-        texture->create(texInfo.srSrc);
+        auto texture = utl::make_ref<CImage>(texInfo.srSrc);
         CResourceManager::inst()->addExisting(texInfo.srName, texture);
         material->addTexture(texInfo.attachment, texture);
     }

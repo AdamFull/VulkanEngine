@@ -15,10 +15,10 @@ namespace engine
             {
             public:
                 CDescriptorSet() = default;
+                CDescriptorSet(vk::PipelineBindPoint bindPoint, vk::PipelineLayout& layout, vk::DescriptorPool& pool, vk::DescriptorSetLayout& setLayout);
+                CDescriptorSet(utl::ref_ptr<pipeline::CPipelineBase>& pPipeline);
+                ~CDescriptorSet();
 
-                void create(vk::PipelineBindPoint bindPoint, vk::PipelineLayout& layout, vk::DescriptorPool& pool, vk::DescriptorSetLayout& setLayout);
-                void create(utl::ref_ptr<pipeline::CPipelineBase>& pPipeline);
-                void cleanup();
                 void update(std::vector<vk::WriteDescriptorSet> &vWrites);
                 void update(vk::WriteDescriptorSet &writes);
                 void bind(const vk::CommandBuffer &commandBuffer) const;
@@ -26,6 +26,8 @@ namespace engine
                 vk::DescriptorSet &get();
 
             private:
+                void create(vk::PipelineBindPoint bindPoint, vk::PipelineLayout& layout, vk::DescriptorPool& pool, vk::DescriptorSetLayout& setLayout);
+                void cleanup();
                 std::vector<vk::DescriptorSet> vDescriptorSets;
                 vk::PipelineBindPoint pipelineBindPoint;
                 vk::PipelineLayout pipelineLayout{nullptr};

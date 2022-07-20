@@ -4,9 +4,6 @@
 //TODO: move camera manager to another place
 using namespace engine::core::scene;
 
-template<>
-utl::scope_ptr<CCameraManager> utl::singleton<CCameraManager>::_instance{nullptr};
-
 utl::ref_ptr<CRenderObject>& CCameraManager::getCurrentCamera()
 {
     return vCameras.at(iCameraIndex);

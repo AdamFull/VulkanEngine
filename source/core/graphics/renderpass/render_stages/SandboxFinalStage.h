@@ -10,7 +10,6 @@ namespace engine
             class CSandboxFinalStage : public CRenderStage
             {
             public:
-                ~CSandboxFinalStage();
                 void create() override;
 
             private:

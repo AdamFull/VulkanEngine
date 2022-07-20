@@ -23,13 +23,13 @@ void CSSRPass::reCreate()
 
 void CSSRPass::render(vk::CommandBuffer &commandBuffer)
 {
-    CRenderSystem::inst()->setStageType(EStageType::eDeferred);
-    auto& images = CRenderSystem::inst()->getCurrentImages();
+    URenderer->setStageType(EStageType::eDeferred);
+    auto& images = URenderer->getCurrentImages();
 
     pMaterial->addTexture("packed_tex", images["packed_tex"]);
     pMaterial->addTexture("depth_tex", images["depth_tex"]);
 
-    auto& cameraNode = CCameraManager::inst()->getCurrentCamera();
+    auto& cameraNode = UCamera->getCurrentCamera();
     auto& camera = cameraNode->getCamera();
     auto view = camera->getView();
     auto projection = camera->getProjection();
@@ -49,9 +49,4 @@ void CSSRPass::render(vk::CommandBuffer &commandBuffer)
     pMaterial->bind(commandBuffer);
 
     commandBuffer.draw(3, 1, 0, 0);
-}
-
-void CSSRPass::cleanup()
-{
-    CSubpass::cleanup();
 }

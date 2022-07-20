@@ -14,7 +14,7 @@ using namespace engine::resources::material;
 
 void CFinalCompositionPass::create()
 {
-    auto framesInFlight = CDevice::inst()->getFramesInFlight();
+    auto framesInFlight = UDevice->getFramesInFlight();
 
     pMaterial = CMaterialLoader::inst()->create("post_process");
     pMaterial->create();
@@ -28,11 +28,11 @@ void CFinalCompositionPass::reCreate()
 
 void CFinalCompositionPass::render(vk::CommandBuffer& commandBuffer)
 {
-    CRenderSystem::inst()->setStageType(EStageType::ePostProcess);
-    auto imageIndex = CDevice::inst()->getCurrentFrame();
+    URenderer->setStageType(EStageType::ePostProcess);
+    auto imageIndex = UDevice->getCurrentFrame();
 
-    pMaterial->addTexture("samplerColor", CRenderSystem::inst()->getCurrentImages()["composition_tex"]);
-    pMaterial->addTexture("samplerBrightness", CRenderSystem::inst()->getCurrentImages()[blurImageSample]); //bloom_image
+    pMaterial->addTexture("samplerColor", URenderer->getCurrentImages()["composition_tex"]);
+    pMaterial->addTexture("samplerBrightness", URenderer->getCurrentImages()[blurImageSample]); //bloom_image
     //May be move to CompositionObject
 
     //TODO: push constant ranges here
@@ -45,9 +45,4 @@ void CFinalCompositionPass::render(vk::CommandBuffer& commandBuffer)
     pMaterial->bind(commandBuffer);
 
     commandBuffer.draw(3, 1, 0, 0);
-}
-
-void CFinalCompositionPass::cleanup()
-{
-    CSubpass::cleanup();
 }

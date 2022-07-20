@@ -10,7 +10,6 @@ namespace engine
 			class CPresentFinalStage : public CRenderStage
 			{
 			public:
-				~CPresentFinalStage();
 				void create() override;
 
 			private:

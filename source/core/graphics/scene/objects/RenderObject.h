@@ -33,10 +33,6 @@ namespace engine
                 virtual void render(vk::CommandBuffer &commandBuffer);
                 // Update object
                 virtual void update(float fDeltaTime);
-                // Cleanup object( not deleting)
-                virtual void cleanup();
-                // Destroy objects( deleting );
-                virtual void destroy();
 
                 void setVisible(bool value) { bVisible = value; }
                 bool isVisible() const { return bVisible; }

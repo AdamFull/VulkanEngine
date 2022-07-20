@@ -24,12 +24,9 @@ using namespace engine::core::window;
 using namespace engine::resources;
 using namespace engine::resources::material;
 
-template<>
-utl::scope_ptr<CEditorUI> utl::singleton<CEditorUI>::_instance{nullptr};
-
 CEditorUI::~CEditorUI()
 {
-    
+    cleanup();
 }
 
 void CEditorUI::create(vk::RenderPass& renderPass, uint32_t subpass)
@@ -54,7 +51,7 @@ void CEditorUI::create(vk::RenderPass& renderPass, uint32_t subpass)
     pool_info.maxSets = 1000 * IM_ARRAYSIZE(pool_sizes);
     pool_info.poolSizeCount = (uint32_t)IM_ARRAYSIZE(pool_sizes);
     pool_info.pPoolSizes = pool_sizes;
-    vk::Result res = CDevice::inst()->create(pool_info, &descriptorPool);
+    vk::Result res = UDevice->create(pool_info, &descriptorPool);
     assert(res == vk::Result::eSuccess && "Cannot create descriptor pool.");
 
     ImGui::CreateContext();
@@ -66,20 +63,20 @@ void CEditorUI::create(vk::RenderPass& renderPass, uint32_t subpass)
     vWindows.emplace(EEditorWindowType::eWorld, utl::make_ref<CWorldSettingsWindow>());
     vWindows.emplace(EEditorWindowType::eContentBrowser, utl::make_ref<CContentBrowserWindow>());
 
-    ImGui_ImplGlfw_InitForVulkan(CWindowHandle::inst()->getWindowInstance(), true);
+    ImGui_ImplGlfw_InitForVulkan(UWindow->getWindowInstance(), true);
     ImGui_ImplVulkan_InitInfo init_info = {};
-    init_info.Instance = CDevice::inst()->getVkInstance();
-    init_info.PhysicalDevice = CDevice::inst()->getPhysical();
-    init_info.Device = CDevice::inst()->getLogical();
-    init_info.QueueFamily = CDevice::inst()->findQueueFamilies().graphicsFamily.value();
-    init_info.Queue = CDevice::inst()->getGraphicsQueue();
+    init_info.Instance = UDevice->getVkInstance();
+    init_info.PhysicalDevice = UDevice->getPhysical();
+    init_info.Device = UDevice->getLogical();
+    init_info.QueueFamily = UDevice->findQueueFamilies().graphicsFamily.value();
+    init_info.Queue = UDevice->getGraphicsQueue();
 
     // pipeline cache is a potential future optimization, ignoring for now
-    init_info.PipelineCache = CDevice::inst()->getPipelineCache();
+    init_info.PipelineCache = UDevice->getPipelineCache();
     init_info.DescriptorPool = descriptorPool;
     init_info.Allocator = VK_NULL_HANDLE;
-    init_info.MinImageCount = CDevice::inst()->getFramesInFlight();
-    init_info.ImageCount = CDevice::inst()->getFramesInFlight();
+    init_info.MinImageCount = UDevice->getFramesInFlight();
+    init_info.ImageCount = UDevice->getFramesInFlight();
     init_info.MSAASamples = vk::SampleCountFlagBits::e1;
     init_info.Subpass = subpass;
     //init_info.CheckVkResultFn = check_vk_result;
@@ -93,29 +90,31 @@ void CEditorUI::create(vk::RenderPass& renderPass, uint32_t subpass)
 
     for (auto& [type, overlay] : vWindows)
         overlay->create();
+
+    bInitialized = true;
 }
 
 void CEditorUI::reCreate()
 {
     ImGui_ImplVulkan_Shutdown();
     ImGui_ImplGlfw_Shutdown();
-    auto& renderPass = CRenderSystem::inst()->getCurrentStage()->getCurrentFramebuffer()->getRenderPass();
-    auto subpass = CRenderSystem::inst()->getCurrentStage()->getCurrentFramebuffer()->getCurrentSubpass();
+    auto& renderPass = URenderer->getCurrentStage()->getCurrentFramebuffer()->getRenderPass();
+    auto subpass = URenderer->getCurrentStage()->getCurrentFramebuffer()->getCurrentSubpass();
 
-    ImGui_ImplGlfw_InitForVulkan(CWindowHandle::inst()->getWindowInstance(), true);
+    ImGui_ImplGlfw_InitForVulkan(UWindow->getWindowInstance(), true);
     ImGui_ImplVulkan_InitInfo init_info = {};
-    init_info.Instance = CDevice::inst()->getVkInstance();
-    init_info.PhysicalDevice = CDevice::inst()->getPhysical();
-    init_info.Device = CDevice::inst()->getLogical();
-    init_info.QueueFamily = CDevice::inst()->findQueueFamilies().graphicsFamily.value();
-    init_info.Queue = CDevice::inst()->getGraphicsQueue();
+    init_info.Instance = UDevice->getVkInstance();
+    init_info.PhysicalDevice = UDevice->getPhysical();
+    init_info.Device = UDevice->getLogical();
+    init_info.QueueFamily = UDevice->findQueueFamilies().graphicsFamily.value();
+    init_info.Queue = UDevice->getGraphicsQueue();
 
     // pipeline cache is a potential future optimization, ignoring for now
-    init_info.PipelineCache = CDevice::inst()->getPipelineCache();
+    init_info.PipelineCache = UDevice->getPipelineCache();
     init_info.DescriptorPool = descriptorPool;
     init_info.Allocator = VK_NULL_HANDLE;
     init_info.MinImageCount = 2;
-    init_info.ImageCount = CDevice::inst()->getFramesInFlight();
+    init_info.ImageCount = UDevice->getFramesInFlight();
     init_info.MSAASamples = vk::SampleCountFlagBits::e1;
     init_info.Subpass = subpass;
     //init_info.CheckVkResultFn = check_vk_result;
@@ -133,10 +132,13 @@ void CEditorUI::reCreate()
 
 void CEditorUI::cleanup()
 {
-    ImGui_ImplVulkan_Shutdown();
-    ImGui_ImplGlfw_Shutdown();
-    CDevice::inst()->destroy(&descriptorPool);
-    ImGui::DestroyContext();
+    if(bInitialized)
+    {
+        ImGui_ImplVulkan_Shutdown();
+        ImGui_ImplGlfw_Shutdown();
+        UDevice->destroy(&descriptorPool);
+        ImGui::DestroyContext();
+    }
 }
 
 void CEditorUI::baseInitialize()

@@ -10,7 +10,6 @@ namespace engine
 			class CPostProcessStage : public CRenderStage
 			{
 			public:
-				~CPostProcessStage();
 				void create() override;
 				void rebuild() override;
 

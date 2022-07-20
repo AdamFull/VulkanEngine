@@ -16,7 +16,6 @@ namespace engine
                 
                 void create();
                 void reCreate();
-                void cleanup();
                 void attachObject(utl::ref_ptr<CRenderObject>& object);
                 inline utl::ref_ptr<CRenderObject>& getRoot() { return m_pRoot; }
                 void createObjects();

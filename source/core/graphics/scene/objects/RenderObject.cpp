@@ -1,6 +1,5 @@
 #include "RenderObject.h"
-#include "graphics/VulkanDevice.hpp"
-#include "graphics/scene/objects/components/CameraManager.h"
+#include "graphics/VulkanHighLevel.h"
 
 using namespace engine::core::scene;
 using namespace engine::resources;
@@ -45,7 +44,7 @@ void CRenderObject::reCreate()
 
 void CRenderObject::render(vk::CommandBuffer &commandBuffer)
 {
-    auto& cameraNode = CCameraManager::inst()->getCurrentCamera();
+    auto& cameraNode = UCamera->getCurrentCamera();
     auto& camera = cameraNode->getCamera();
     for (auto &[name, child] : mChilds)
     {
@@ -69,26 +68,6 @@ void CRenderObject::update(float fDeltaTime)
     if(pMesh) pMesh->update(fDeltaTime);
     if(pCamera && pCamera->getIsActive()) pCamera->update(fDeltaTime);
     if(pLight) pLight->update(fDeltaTime);
-}
-
-void CRenderObject::cleanup()
-{
-    for (auto &[name, child] : mChilds)
-        child->cleanup();
-    
-    if(pMesh) pMesh->cleanup();
-    if(pCamera && pCamera->getIsActive()) pCamera->cleanup();
-    if(pLight) pLight->cleanup();
-}
-
-void CRenderObject::destroy()
-{
-    for (auto &[name, child] : mChilds)
-        child->destroy();
-    
-    if(pMesh) pMesh->destroy();
-    if(pCamera && pCamera->getIsActive()) pCamera->destroy();
-    if(pLight) pLight->destroy();
 }
 
 void CRenderObject::setName(std::string name)

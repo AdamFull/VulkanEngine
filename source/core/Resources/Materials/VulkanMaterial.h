@@ -38,7 +38,7 @@ namespace engine
             struct FMaterialUniqueObjects
             {
                 utl::scope_ptr<core::descriptor::CDescriptorHandler> pDescriptorSet;
-                std::map<std::string, utl::ref_ptr<core::CHandler>> mBuffers;
+                std::map<std::string, utl::scope_ptr<core::CHandler>> mBuffers;
                 std::map<std::string, utl::ref_ptr<core::CPushHandler>> mPushConstants;
             };
 
@@ -101,12 +101,6 @@ namespace engine
                 virtual void bind(vk::CommandBuffer& commandBuffer);
 
                 /**
-                 * @brief Cleanup swapchain and descriptors
-                 * 
-                 */
-                virtual void cleanup();
-
-                /**
                  * @brief Set material additional params
                  * 
                  * @param params New params
@@ -142,9 +136,9 @@ namespace engine
 
                 FMaterialParams& getParams() { return m_fMatParams; }
 
-                utl::ref_ptr<core::CHandler>& getUniformBuffer(const std::string& name);
+                utl::scope_ptr<core::CHandler>& getUniformBuffer(const std::string& name);
                 utl::ref_ptr<core::CPushHandler>& getPushConstant(const std::string& name);
-                std::map<std::string, utl::ref_ptr<core::CHandler>>& getUniformBuffers() { return vInstances.at(currentInstance)->mBuffers; }
+                std::map<std::string, utl::scope_ptr<core::CHandler>>& getUniformBuffers() { return vInstances.at(currentInstance)->mBuffers; }
                 utl::scope_ptr<core::descriptor::CDescriptorHandler>& getDescriptorSet() { return vInstances.at(currentInstance)->pDescriptorSet; }
 
                 size_t getTextureCount() { return mTextures.size(); }
@@ -156,7 +150,7 @@ namespace engine
                 uint32_t currentInstance{0};
                 bool bIsCreated{false}, bIsReCreated{false};
 
-                utl::ref_ptr<core::CHandler> pEmptyHamdler{nullptr};
+                utl::scope_ptr<core::CHandler> pEmptyHamdler{nullptr};
                 utl::ref_ptr<core::CPushHandler> pEmptyPushConstant{nullptr};
                 std::vector<utl::scope_ptr<FMaterialUniqueObjects>> vInstances;
                 utl::ref_ptr<core::pipeline::CPipelineBase> pPipeline;

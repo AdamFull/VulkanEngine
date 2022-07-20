@@ -2,11 +2,11 @@
 #include <imgui.h>
 #include <imgui_internal.h>
 #include <ImGuizmo.h>
+#include "graphics/VulkanHighLevel.h"
 #include "editor/imgui_impl_vulkan.h"
 #include "graphics/VulkanHighLevel.h"
 #include "Resources/ResourceManager.h"
 #include "graphics/scene/objects/components/CameraManager.h"
-#include "editor/Editor.h"
 
 using namespace engine::editor;
 using namespace engine::core;
@@ -26,13 +26,13 @@ ImGuizmo::OPERATION mCurrentGizmoOperation{ImGuizmo::TRANSLATE};
 void CViewportWindow::create()
 {
     auto pBackend = (ImGui_ImplVulkan_Data*)ImGui::GetIO().BackendRendererUserData;
-    pDescriptorSet = utl::make_scope<CDescriptorSet>(vk::PipelineBindPoint::eGraphics, pBackend->PipelineLayout, CEditorUI::inst()->getDescriptorPool(), pBackend->DescriptorSetLayout);
+    pDescriptorSet = utl::make_scope<CDescriptorSet>(vk::PipelineBindPoint::eGraphics, pBackend->PipelineLayout, UEditorUI->getDescriptorPool(), pBackend->DescriptorSetLayout);
 }
 
 void CViewportWindow::reCreate()
 {
     auto pBackend = (ImGui_ImplVulkan_Data*)ImGui::GetIO().BackendRendererUserData;
-    pDescriptorSet = utl::make_scope<CDescriptorSet>(vk::PipelineBindPoint::eGraphics, pBackend->PipelineLayout, CEditorUI::inst()->getDescriptorPool(), pBackend->DescriptorSetLayout);
+    pDescriptorSet = utl::make_scope<CDescriptorSet>(vk::PipelineBindPoint::eGraphics, pBackend->PipelineLayout, UEditorUI->getDescriptorPool(), pBackend->DescriptorSetLayout);
 }
 
 void CViewportWindow::draw()
@@ -61,8 +61,8 @@ void CViewportWindow::draw()
 
 void CViewportWindow::drawViewport(float offsetx, float offsety)
 {
-    auto currentImage = CDevice::inst()->getCurrentFrame();
-    auto imageDescriptor = CRenderSystem::inst()->getCurrentImages()["output_color"];
+    auto currentImage = UDevice->getCurrentFrame();
+    auto imageDescriptor = URenderer->getCurrentImages()["output_color"];
     imageDescriptor->updateDescriptor();
     vk::WriteDescriptorSet write{};
     write.descriptorType = vk::DescriptorType::eCombinedImageSampler;
@@ -74,7 +74,7 @@ void CViewportWindow::drawViewport(float offsetx, float offsety)
     ImGui::Image(pDescriptorSet->get(), ImVec2{offsetx, offsety});
     
     if(!ImGui::IsAnyItemActive())
-        CDevice::inst()->setViewportExtent(vk::Extent2D{(uint32_t)offsetx, (uint32_t)offsety});
+        UDevice->setViewportExtent(vk::Extent2D{(uint32_t)offsetx, (uint32_t)offsety});
 }
 
 void CViewportWindow::drawManipulator(float offsetx, float offsety, float sizex, float sizey)
@@ -95,10 +95,10 @@ void CViewportWindow::drawManipulator(float offsetx, float offsety, float sizex,
 	    snapValue = 45.0f;
     float snapValues[3] = { snapValue, snapValue, snapValue };
 
-    auto selected = CEditor::inst()->getLastSelection();
+    auto selected = UEditor->getLastSelection();
     if(selected)
     {
-        auto& cameraNode = CCameraManager::inst()->getCurrentCamera();
+        auto& cameraNode = UCamera->getCurrentCamera();
         auto& camera = cameraNode->getCamera();
         camera->setControl(ImGui::IsWindowHovered(ImGuiFocusedFlags_RootAndChildWindows));
 
@@ -149,12 +149,12 @@ void CViewportWindow::drawOverlay(float offsetx, float offsety)
     sprintf(overlay, "dt: %.3f | FPS: %.3f", fFrameTime, io.Framerate);
     ImGui::Text(overlay);
 
-    auto& physical = CDevice::inst()->getPhysical();
+    auto& physical = UDevice->getPhysical();
     auto props = physical.getProperties();
     sprintf(overlay, "GPU: %s", props.deviceName.data());
     ImGui::Text(overlay);
 
-    sprintf(overlay, "Vertices: %zu, Indices %zu", CVBO::inst()->getLastVertex(), CVBO::inst()->getLastIndex());
+    sprintf(overlay, "Vertices: %zu, Indices %zu", UVBO->getLastVertex(), UVBO->getLastIndex());
     ImGui::Text(overlay);
 
     //overlayX = ImGui::GetCursorPosX();

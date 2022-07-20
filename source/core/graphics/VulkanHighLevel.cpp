@@ -9,27 +9,40 @@ using namespace engine::editor;
 using namespace engine::core;
 using namespace engine::core::render;
 using namespace engine::core::window;
+using namespace engine::core::scene;
 
 template<>
 utl::scope_ptr<CVulkanHighLevel> utl::singleton<CVulkanHighLevel>::_instance{nullptr};
+
+CVulkanHighLevel::~CVulkanHighLevel()
+{
+    pDevice->GPUWait();
+}
 
 //TODO: remove this class
 void CVulkanHighLevel::create(FEngineCreateInfo createInfo)
 {
     ci = createInfo;
-    CWindowHandle::inst()->create(createInfo.window);
-    CDevice::inst()->create(createInfo.device);
+    pWindow = utl::make_scope<CWindowHandle>(createInfo.window);
+    pDevice = utl::make_scope<CDevice>(createInfo.device);
+    pRender = utl::make_scope<CRenderSystem>();
+
+    pThreadPool = utl::make_scope<CThreadPool>();
+    pVBO = utl::make_scope<CVertexBufferObject>();
+    pCameraManager = utl::make_scope<CCameraManager>();
+    pLightManager = utl::make_scope<CLightSourceManager>();
+
+    pEditor = utl::make_scope<CEditor>();
+    pEditorUI = utl::make_scope<CEditorUI>();
+
+    pResources = utl::make_scope<CResourceManager>();
+    pScene = utl::make_scope<CSceneManager>();
+    pScene->load(createInfo.engine.scene);
 
     if (!glslang::InitializeProcess())
 		throw std::runtime_error("Failed to initialize glslang processor.");
-}
 
-void CVulkanHighLevel::cleanup()
-{
-    CDevice::inst()->GPUWait();
-    CRenderSystem::inst()->cleanup();
-    CResourceManager::inst()->cleanup();
-    CDevice::inst()->cleanup();
+    pRender->create();
 }
 
 namespace engine

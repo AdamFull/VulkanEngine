@@ -7,11 +7,6 @@
 using namespace engine::core;
 using namespace engine::core::render;
 
-CShadowMappingStage::~CShadowMappingStage()
-{
-    cleanup();
-}
-
 void CShadowMappingStage::create()
 {
     screenExtent = vk::Extent2D{SHADOW_MAP_RESOLUTION, SHADOW_MAP_RESOLUTION};

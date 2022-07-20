@@ -20,7 +20,6 @@ namespace engine
 						vk::ImageUsageFlags usage = vk::ImageUsageFlagBits::eColorAttachment | vk::ImageUsageFlagBits::eSampled, vk::ImageAspectFlags aspect = vk::ImageAspectFlagBits::eColor,
 						vk::Filter filter = vk::Filter::eLinear, vk::SamplerAddressMode addressMode = vk::SamplerAddressMode::eClampToEdge, vk::SampleCountFlagBits samples = vk::SampleCountFlagBits::e1,
 						bool instantLayoutTransition = true, bool anisotropic = false, bool mipmaps = false);
-			virtual ~CImage2D() = default;
 
 		protected:
 			/**

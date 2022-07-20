@@ -44,7 +44,6 @@ namespace engine
             uint32_t getCurrentFrameProxy();
 
             std::optional<pipeline::CPushConstBlock> pushBlock;
-            std::vector<utl::scope_ptr<CVulkanBuffer>> vBuffers;
             std::vector<utl::scope_ptr<char[]>> vData;
             utl::ref_ptr<pipeline::CPipelineBase> pPipeline;
         };

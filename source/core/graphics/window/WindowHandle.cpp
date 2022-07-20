@@ -33,15 +33,17 @@ namespace engine
     }
 }
 
-template<>
-utl::scope_ptr<CWindowHandle> utl::singleton<CWindowHandle>::_instance{nullptr};
-
 int32_t CWindowHandle::m_iWidth{800};
 int32_t CWindowHandle::m_iHeight{600};
 bool CWindowHandle::m_bWasResized{false};
 
 CWindowHandle::CWindowHandle()
 {
+}
+
+CWindowHandle::CWindowHandle(FWindowCreateInfo createInfo)
+{
+    create(createInfo);
 }
 
 CWindowHandle::~CWindowHandle()

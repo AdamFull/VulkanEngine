@@ -20,7 +20,7 @@ void CDescriptorHandler::create(utl::ref_ptr<CPipelineBase>& pipeline)
 
 void CDescriptorHandler::update()
 {
-    auto& vkDevice = CDevice::inst()->getLogical();
+    auto& vkDevice = UDevice->getLogical();
     assert(vkDevice && "Trying to update descriptor sets, but device is invalid.");
     for (auto &write : vWriteDescriptorSets)
         write.dstSet = pDescriptorSet->get();

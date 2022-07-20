@@ -15,7 +15,6 @@ namespace engine
                 void create() override;
                 void reCreate() override;
                 void render(vk::CommandBuffer &commandBuffer) override;
-                void cleanup() override;
 
             private:
                 std::string blurImageSample{};

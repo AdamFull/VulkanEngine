@@ -10,7 +10,6 @@ namespace engine
 			class CShadowMappingStage : public CRenderStage
 			{
 			public:
-				~CShadowMappingStage();
 				void create() override;
 			};
 		}

@@ -22,7 +22,6 @@ namespace engine
             void createVertexBuffer();
             void createIndexBuffer();
             bool bBuffersCreated{false};
-            bool bIsClean{false};
 
             std::vector<FVertex> vVertices;
             utl::scope_ptr<CVulkanBuffer> vertexBuffer;

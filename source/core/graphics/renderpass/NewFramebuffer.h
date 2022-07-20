@@ -34,10 +34,11 @@ namespace engine
             class CFramebufferNew
             {
             public:
+                ~CFramebufferNew();
+
                 // Common part
                 void create();
                 void reCreate();
-                void cleanup();
 
                 // Renderpass part
                 void begin(vk::CommandBuffer &commandBuffer);
@@ -119,7 +120,6 @@ namespace engine
 
             private:
                 // Common part
-                bool bIsClean{false};
                 vk::Rect2D renderArea;
 
                 // Renderpass part

@@ -15,13 +15,19 @@ void FPrimitive::setDimensions(glm::vec3 min, glm::vec3 max)
     dimensions.radius = glm::distance(min, max) / 2.0f;
 }
 
+CMeshComponent::~CMeshComponent()
+{
+    vPrimitives.clear();
+}
+
 void CMeshComponent::create()
 {
     CSceneComponent::create();
     for (auto &primitive : vPrimitives)
     {
-        if(primitive.material)
-            primitive.material->create();
+        auto material = primitive.material.lock();
+        if(material)
+            material->create();
     }
 }
 
@@ -30,8 +36,9 @@ void CMeshComponent::reCreate()
     CSceneComponent::reCreate();
     for (auto &primitive : vPrimitives)
     {
-        if(primitive.material)
-            primitive.material->reCreate();
+        auto material = primitive.material.lock();
+        if(material)
+            material->reCreate();
     }
 }
 
@@ -39,7 +46,7 @@ void CMeshComponent::render(vk::CommandBuffer &commandBuffer)
 {
     CSceneComponent::render(commandBuffer);
 
-    auto& cameraNode = CCameraManager::inst()->getCurrentCamera();
+    auto& cameraNode = UCamera->getCurrentCamera();
     auto& camera = cameraNode->getCamera();
     auto& frustumSides = camera->getFrustumSides();
 
@@ -52,7 +59,7 @@ void CMeshComponent::render(vk::CommandBuffer &commandBuffer)
 
     for (auto &primitive : vPrimitives)
     {
-        auto isShadowPass = CRenderSystem::inst()->getStageType() == EStageType::eShadow;
+        auto isShadowPass = URenderer->getStageType() == EStageType::eShadow;
         auto isSkyboxInShadow = isShadowPass && bIsSkybox;
 
         bool needToRender {true};
@@ -77,21 +84,22 @@ void CMeshComponent::render(vk::CommandBuffer &commandBuffer)
         if(needToRender && !isSkyboxInShadow)
         {
             //TODO: add automatic alignment in shader float = 4, 2x float = 8, 3x float = 16
-            if(primitive.material && !isShadowPass)
+            auto mat = primitive.material.lock();
+            if(mat && !isShadowPass)
             {
-                auto& pUBO = primitive.material->getUniformBuffer("FUniformData");
+                auto& pUBO = mat->getUniformBuffer("FUniformData");
                 pUBO->set("model", model);
                 pUBO->set("view", view);
                 pUBO->set("projection", projection);
                 pUBO->set("normal", normal);
                 pUBO->set("viewDir", camera->viewPos);
-                auto ext = CDevice::inst()->getExtent(true);
+                auto ext = UDevice->getExtent(true);
                 pUBO->set("viewportDim", glm::vec2(ext.width, ext.height));
                 pUBO->set("frustumPlanes", frustumSides);
                 //pUBO->set("instancePos", instancePos);
 
-                auto& params = primitive.material->getParams();
-                auto& material = primitive.material->getUniformBuffer("UBOMaterial");
+                auto& params = mat->getParams();
+                auto& material = mat->getUniformBuffer("UBOMaterial");
                 if(material)
                 {
                     material->set("baseColorFactor", params.baseColorFactor);
@@ -105,12 +113,12 @@ void CMeshComponent::render(vk::CommandBuffer &commandBuffer)
                     material->set("tessellationStrength", params.tessStrength);
                 }
 
-                primitive.material->update();
-                primitive.material->bind(commandBuffer);
+                mat->update();
+                mat->bind(commandBuffer);
             }
             else
             {
-                auto& renderer = CRenderSystem::inst()->getCurrentRenderer();
+                auto& renderer = URenderer->getCurrentRenderer();
                 auto& material = renderer->getMaterial();
                 auto& pConst = material->getPushConstant("modelData");
                 pConst->set("model", model);
@@ -124,21 +132,6 @@ void CMeshComponent::render(vk::CommandBuffer &commandBuffer)
 void CMeshComponent::update(float fDeltaTime)
 {
     CSceneComponent::update(fDeltaTime);
-}
-
-void CMeshComponent::cleanup()
-{
-    CSceneComponent::cleanup();
-    for (auto &primitive : vPrimitives)
-    {
-        if(primitive.material)
-            primitive.material->cleanup();
-    }
-}
-
-void CMeshComponent::destroy()
-{
-    CSceneComponent::destroy();
 }
 
 void CMeshComponent::addPrimitive(FPrimitive &&primitive)

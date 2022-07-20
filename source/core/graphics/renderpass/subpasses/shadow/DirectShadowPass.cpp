@@ -33,10 +33,10 @@ void CDirectShadowPass::beforeRender(vk::CommandBuffer& commandBuffer)
 
 void CDirectShadowPass::render(vk::CommandBuffer& commandBuffer)
 {
-    CRenderSystem::inst()->setStageType(EStageType::eShadow);
-    CVBO::inst()->bind(commandBuffer);
+    URenderer->setStageType(EStageType::eShadow);
+    UVBO->bind(commandBuffer);
 
-    auto lightObjects = CLightSourceManager::inst()->getObjects();
+    auto lightObjects = ULightning->getObjects();
     std::array<glm::mat4, MAX_SPOT_LIGHT_COUNT> aSpotViewProjMat;
     uint32_t light_count{0};
     for(auto& lightNode : lightObjects)
@@ -56,10 +56,5 @@ void CDirectShadowPass::render(vk::CommandBuffer& commandBuffer)
     pMaterial->update();
     pMaterial->bind(commandBuffer);
 
-    CSceneManager::inst()->getScene()->getRoot()->render(commandBuffer);
-}
-
-void CDirectShadowPass::cleanup()
-{
-    CSubpass::cleanup();
+    UScene->getScene()->getRoot()->render(commandBuffer);
 }

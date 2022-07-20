@@ -21,13 +21,3 @@ void CSceneComponent::update(float fDeltaTime)
 {
     componentTick += fDeltaTime * 0.03f;
 }
-
-void CSceneComponent::cleanup()
-{
-
-}
-
-void CSceneComponent::destroy()
-{
-
-}

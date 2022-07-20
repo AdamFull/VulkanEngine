@@ -7,7 +7,7 @@ using namespace engine::core::pipeline;
 
 CPushHandler::~CPushHandler()
 {
-
+    vData.clear();
 }
 
 CPushHandler::CPushHandler(const pipeline::CPushConstBlock &pushBlock, utl::ref_ptr<pipeline::CPipelineBase>& pipeline)
@@ -17,7 +17,7 @@ CPushHandler::CPushHandler(const pipeline::CPushConstBlock &pushBlock, utl::ref_
 
 void CPushHandler::create(const CPushConstBlock &uniformBlock, utl::ref_ptr<CPipelineBase>& pipeline)
 {
-    uint32_t images = CDevice::inst()->getFramesInFlight();
+    uint32_t images = UDevice->getFramesInFlight();
 
     pPipeline = pipeline;
 
@@ -33,7 +33,7 @@ void CPushHandler::reCreate(utl::ref_ptr<CPipelineBase>& pipeline)
 
 void CPushHandler::flush(vk::CommandBuffer& commandBuffer)
 {
-    uint32_t index = CDevice::inst()->getCurrentFrame();
+    uint32_t index = UDevice->getCurrentFrame();
     
     auto& data = vData.at(index);
     if(data && pPipeline)
@@ -44,5 +44,5 @@ void CPushHandler::flush(vk::CommandBuffer& commandBuffer)
 
 uint32_t CPushHandler::getCurrentFrameProxy()
 {
-    return CDevice::inst()->getCurrentFrame();
+    return UDevice->getCurrentFrame();
 }

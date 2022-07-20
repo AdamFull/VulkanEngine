@@ -69,7 +69,6 @@ namespace engine
                  */
                 void save();
 
-                std::map<std::string, utl::ref_ptr<CMaterialBase>> mMaterialCache;
                 FMaterialInfo data;
             };
         }

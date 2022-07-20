@@ -6,9 +6,6 @@
 using namespace engine::core;
 using namespace engine::core::scene;
 
-template<>
-utl::scope_ptr<CLightSourceManager> utl::singleton<CLightSourceManager>::_instance{nullptr};
-
 void CLightSourceManager::addLight(utl::ref_ptr<CRenderObject>& light)
 {
     vLights.emplace_back(light);

@@ -33,7 +33,7 @@ namespace engine
 			CImage(void* pData, const vk::Extent3D &extent, vk::Format format = vk::Format::eR8G8B8A8Unorm, vk::ImageUsageFlags flags = vk::ImageUsageFlagBits::eTransferSrc | vk::ImageUsageFlagBits::eTransferDst | vk::ImageUsageFlagBits::eSampled,
 						vk::ImageAspectFlags aspect = vk::ImageAspectFlagBits::eColor, vk::SamplerAddressMode addressMode = vk::SamplerAddressMode::eRepeat,
 						vk::Filter filter = vk::Filter::eNearest, bool mipmap = false);
-			virtual ~CImage();
+			~CImage();
 
 			/**
 			 * @brief Update image descriptor
@@ -372,8 +372,6 @@ namespace engine
 						vk::ImageAspectFlags aspect = vk::ImageAspectFlagBits::eColor, vk::SamplerAddressMode addressMode = vk::SamplerAddressMode::eRepeat,
 						vk::Filter filter = vk::Filter::eNearest, bool mipmap = false);
 
-			void cleanup();
-
 			/**
 			 * @brief Generating mipmaps for image
 			 *
@@ -402,7 +400,6 @@ namespace engine
 
 			vk::DescriptorImageInfo _descriptor;
 			bool _bUsingInternalSampler{false};
-			bool bIsClean{false};
 
 			vk::Extent3D _extent;
 			vk::SampleCountFlagBits _samples;

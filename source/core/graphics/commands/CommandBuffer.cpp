@@ -4,7 +4,7 @@
 using namespace engine::core;
 
 CCommandBuffer::CCommandBuffer(bool _begin, vk::QueueFlagBits queueType, vk::CommandBufferLevel bufferLevel, uint32_t count) :
-commandPool(CDevice::inst()->getCommandPool()), queueType(queueType)
+commandPool(UDevice->getCommandPool()), queueType(queueType)
 {
     vk::CommandBufferAllocateInfo allocInfo = {};
     allocInfo.commandPool = commandPool->getCommandPool();
@@ -12,28 +12,18 @@ commandPool(CDevice::inst()->getCommandPool()), queueType(queueType)
     allocInfo.commandBufferCount = count;
 
     vCommandBuffers.resize(count);
-    vk::Result res = CDevice::inst()->create(allocInfo, vCommandBuffers.data());
+    vk::Result res = UDevice->create(allocInfo, vCommandBuffers.data());
     assert(res == vk::Result::eSuccess && "Cannot create bommand buffers");
 
     if(_begin)
         begin();
 }
 
-void CCommandBuffer::cleanup()
-{
-    auto& vkDevice = CDevice::inst()->getLogical();
-    assert(vkDevice && "Trying to free command buffers, but logical device is invalid");
-    if(!bIsClean)
-    {
-        vkDevice.freeCommandBuffers(commandPool->getCommandPool(), vCommandBuffers);
-        vCommandBuffers.clear();
-        bIsClean = true;
-    }
-}
-
 CCommandBuffer::~CCommandBuffer()
 {
-    cleanup();
+    auto& vkDevice = UDevice->getLogical();
+    vkDevice.freeCommandBuffers(commandPool->getCommandPool(), vCommandBuffers);
+    vCommandBuffers.clear();
 }
 
 
@@ -63,7 +53,7 @@ void CCommandBuffer::end()
 
 vk::Result CCommandBuffer::submitIdle()
 {
-    auto& vkDevice = CDevice::inst()->getLogical();
+    auto& vkDevice = UDevice->getLogical();
     assert(vkDevice && "Trying to submit queue, but device is invalid.");
     vk::Result res;
     if (running)
@@ -76,7 +66,7 @@ vk::Result CCommandBuffer::submitIdle()
 
     vk::FenceCreateInfo fenceCreateInfo{};
     vk::Fence fence;
-    res = CDevice::inst()->create(fenceCreateInfo, &fence);
+    res = UDevice->create(fenceCreateInfo, &fence);
     assert(res == vk::Result::eSuccess && "Cannot create fence.");
     res = vkDevice.resetFences(1, &fence);
     assert(res == vk::Result::eSuccess && "Cannot reset fence.");
@@ -85,19 +75,19 @@ vk::Result CCommandBuffer::submitIdle()
     switch (queueType)
     {
     case vk::QueueFlagBits::eGraphics: {
-        queue = CDevice::inst()->getGraphicsQueue();
+        queue = UDevice->getGraphicsQueue();
     } break;
     case vk::QueueFlagBits::eCompute: {
-        queue = CDevice::inst()->getComputeQueue();
+        queue = UDevice->getComputeQueue();
     } break;
     case vk::QueueFlagBits::eTransfer: {
-        queue = CDevice::inst()->getTransferQueue();
+        queue = UDevice->getTransferQueue();
     } break;
     }
     queue.submit(submitInfo, fence);
     res = vkDevice.waitForFences(1, &fence, VK_TRUE, std::numeric_limits<uint64_t>::max());
     assert(res == vk::Result::eSuccess && "Wait for fences error.");
-    CDevice::inst()->destroy(&fence);
+    UDevice->destroy(&fence);
     return res;
 }
 
@@ -107,5 +97,5 @@ vk::Result CCommandBuffer::submit(uint32_t& imageIndex)
 		end();
 
     auto commandBuffer = getCommandBuffer();
-    return CDevice::inst()->submitCommandBuffers(&commandBuffer, &imageIndex, queueType);
+    return UDevice->submitCommandBuffers(&commandBuffer, &imageIndex, queueType);
 }

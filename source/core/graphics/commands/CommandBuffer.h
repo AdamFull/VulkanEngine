@@ -22,11 +22,10 @@ namespace engine
 
             vk::CommandBuffer &getCommandBuffer() { return vCommandBuffers.at(frameIndex); }
             bool isRunning() const { return running; }
+
         private:
-            void cleanup();
             vk::Queue getQueue() const;
             uint32_t frameIndex{0};
-            bool bIsClean{false};
 
             utl::ref_ptr<CCommandPool> commandPool;
 

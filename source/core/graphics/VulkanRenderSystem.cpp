@@ -11,19 +11,17 @@ using namespace engine::core;
 using namespace engine::core::window;
 using namespace engine::core::render;
 
-template<>
-utl::scope_ptr<CRenderSystem> utl::singleton<CRenderSystem>::_instance{nullptr};
-
 CRenderSystem::~CRenderSystem()
 {
-    cleanup();
+    vStages.clear();
+    mImages.clear();
 }
 
 void CRenderSystem::create()
 {
     auto engineMode = UHLInstance->getCI().engine.mode;
-    screenExtent = CDevice::inst()->getExtent();
-    commandBuffers = utl::make_ref<CCommandBuffer>(false, vk::QueueFlagBits::eGraphics, vk::CommandBufferLevel::ePrimary, CDevice::inst()->getFramesInFlight());
+    screenExtent = UDevice->getExtent();
+    commandBuffers = utl::make_ref<CCommandBuffer>(false, vk::QueueFlagBits::eGraphics, vk::CommandBufferLevel::ePrimary, UDevice->getFramesInFlight());
 
     vStages.emplace_back(utl::make_scope<CShadowMappingStage>());
     vStages.emplace_back(utl::make_scope<CDeferredStage>());
@@ -50,9 +48,9 @@ void CRenderSystem::create()
 
 void CRenderSystem::reCreate()
 {
-    CDevice::inst()->tryRebuildSwapchain();
-    screenExtent = CDevice::inst()->getExtent();
-    commandBuffers = utl::make_ref<CCommandBuffer>(false, vk::QueueFlagBits::eGraphics, vk::CommandBufferLevel::ePrimary, CDevice::inst()->getFramesInFlight());
+    UDevice->tryRebuildSwapchain();
+    screenExtent = UDevice->getExtent();
+    commandBuffers = utl::make_ref<CCommandBuffer>(false, vk::QueueFlagBits::eGraphics, vk::CommandBufferLevel::ePrimary, UDevice->getFramesInFlight());
     imageIndex = 0;
     CWindowHandle::m_bWasResized = false;
 
@@ -67,7 +65,7 @@ void CRenderSystem::reCreate()
 
 void CRenderSystem::rebuildViewport()
 {
-    CDevice::inst()->GPUWait();
+    UDevice->GPUWait();
     
     currentStageIndex = 0;
     for(auto& stage : vStages)
@@ -87,11 +85,11 @@ utl::scope_ptr<CSubpass>& CRenderSystem::getCurrentRenderer()
 
 void CRenderSystem::render()
 {
-    if(CDevice::inst()->getReduildFlag()) { reCreate(); }
-    if(CDevice::inst()->isNeedToRebuildViewport()) { rebuildViewport(); }
+    if(UDevice->getReduildFlag()) { reCreate(); }
+    if(UDevice->isNeedToRebuildViewport()) { rebuildViewport(); }
     vk::CommandBuffer commandBuffer{};
     try { commandBuffer = beginFrame(); }
-    catch (vk::OutOfDateKHRError err) { CDevice::inst()->setRebuildFlag(); }
+    catch (vk::OutOfDateKHRError err) { UDevice->setRebuildFlag(); }
     catch (vk::SystemError err) { throw std::runtime_error("Failed to acquire swap chain image!"); }
 
     if(!commandBuffer)
@@ -111,7 +109,7 @@ void CRenderSystem::render()
 
     if (resultPresent == vk::Result::eSuboptimalKHR || resultPresent == vk::Result::eErrorOutOfDateKHR || CWindowHandle::m_bWasResized)
     {
-        CDevice::inst()->setRebuildFlag();
+        UDevice->setRebuildFlag();
     }
 
     if(totalFrameNumberCounter != std::numeric_limits<size_t>::max())
@@ -119,18 +117,7 @@ void CRenderSystem::render()
     else
         totalFrameNumberCounter = 1;
 
-    CDevice::inst()->updateCommandPools();
-}
-
-void CRenderSystem::cleanup()
-{
-    if(!bIsClean)
-    {
-        for(auto& stage : vStages)
-            stage->cleanup();
-        mImages.clear();
-        bIsClean = true;
-    }
+    UDevice->updateCommandPools();
 }
 
 vk::CommandBuffer& CRenderSystem::getCurrentCommandBuffer()
@@ -141,10 +128,10 @@ vk::CommandBuffer& CRenderSystem::getCurrentCommandBuffer()
 vk::CommandBuffer CRenderSystem::beginFrame()
 {
     assert(!frameStarted && "Can't call beginFrame while already in progress");
-    vk::Result res = CDevice::inst()->acquireNextImage(&imageIndex);
+    vk::Result res = UDevice->acquireNextImage(&imageIndex);
     if (res == vk::Result::eErrorOutOfDateKHR || res == vk::Result::eSuboptimalKHR)
     {
-        CDevice::inst()->setRebuildFlag();
+        UDevice->setRebuildFlag();
         return nullptr;
     }
     frameStarted = true;
@@ -164,7 +151,7 @@ vk::Result CRenderSystem::endFrame()
 void CRenderSystem::updateFramebufferImages()
 {
     mImages.clear();
-    auto framesInFlight = CDevice::inst()->getFramesInFlight();
+    auto framesInFlight = UDevice->getFramesInFlight();
     for(auto& stage : vStages)
     {
         for(uint32_t fb = 0; fb < stage->getFramebufferCount(); fb++)

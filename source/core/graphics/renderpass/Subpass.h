@@ -30,7 +30,6 @@ namespace engine
                 virtual void reCreate();
                 virtual void beforeRender(vk::CommandBuffer& commandBuffer);
                 virtual void render(vk::CommandBuffer& commandBuffer);
-                virtual void cleanup();
 
                 void setType(EStageType type) { eType = type; }
                 void setShader(const std::string& shader) { srShader = shader;}

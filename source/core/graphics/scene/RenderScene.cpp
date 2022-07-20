@@ -14,18 +14,12 @@ using namespace engine::resources;
 void CRenderScene::create()
 {
     m_pRoot = utl::make_ref<CRenderObject>();
-    CResourceManager::inst()->create();
+    UResources->create();
 }
 
 void CRenderScene::reCreate()
 {
     m_pRoot->reCreate();
-}
-
-void CRenderScene::cleanup()
-{
-    if(m_pRoot)
-        m_pRoot->cleanup();
 }
 
 void CRenderScene::attachObject(utl::ref_ptr<CRenderObject>& object)
@@ -35,11 +29,11 @@ void CRenderScene::attachObject(utl::ref_ptr<CRenderObject>& object)
 
 void CRenderScene::createObjects()
 {
-    CVBO::inst()->create();
+    UVBO->create();
 }
 
 void CRenderScene::render(float fDeltaTime)
 {
     m_pRoot->update(fDeltaTime);
-    CRenderSystem::inst()->render();
+    URenderer->render();
 }

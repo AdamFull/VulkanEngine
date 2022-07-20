@@ -8,11 +8,10 @@ namespace engine
     {
         namespace scene
         {
-            class CSceneManager : public utl::singleton<CSceneManager>
+            class CSceneManager
             {
             public:
                 void load(const std::string &scene_name);
-                void unload();
                 utl::scope_ptr<CRenderScene> &getScene() { return pCurrentScene; }
 
             private:

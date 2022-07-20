@@ -1,6 +1,6 @@
 #include "CameraEditorController.h"
 #include "keymapper/InputMapper.h"
-#include "graphics/scene/objects/components/CameraManager.h"
+#include "graphics/VulkanHighLevel.h"
 #include "graphics/scene/objects/RenderObject.h"
 #include "util/Transform.hpp"
 
@@ -27,7 +27,7 @@ void CCameraEditorController::update(float fDeltaTime)
 
 void CCameraEditorController::cameraMovement(EActionKey eKey, EKeyState eState)
 {
-    auto cameraNode = CCameraManager::inst()->getCurrentCamera();
+    auto cameraNode = UCamera->getCurrentCamera();
     auto& camera = cameraNode->getCamera();
 
     switch (eKey)
@@ -64,7 +64,7 @@ void CCameraEditorController::mouseRotation(float fX, float fY)
     if (!m_bRotatePass)
         return;
 
-    auto cameraNode = CCameraManager::inst()->getCurrentCamera();
+    auto cameraNode = UCamera->getCurrentCamera();
     auto& camera = cameraNode->getCamera();
 
     camera->lookAt(fX, fY);
@@ -73,7 +73,7 @@ void CCameraEditorController::mouseRotation(float fX, float fY)
 
 void CCameraEditorController::cameraToPoint(float, float)
 {
-    /*auto camera = CCameraManager::inst()->getCurrentCamera();
+    /*auto camera = UCamera->getCurrentCamera();
     FTransform transform = camera->getTransform();
     glm::vec3 direction = transform.getForwardVector() * fY;
 

@@ -9,15 +9,10 @@
 using namespace engine::core;
 using namespace engine::core::render;
 
-CDeferredStage::~CDeferredStage()
-{
-    cleanup();
-}
-
 void CDeferredStage::create()
 {
     detectExtent = true;
-    screenExtent = CDevice::inst()->getExtent(detectExtent);
+    screenExtent = UDevice->getExtent(detectExtent);
 
     auto gbuffer_pass = utl::make_scope<CFramebufferNew>();
     //gbuffer_pass->setFlipViewport(VK_TRUE);
@@ -78,7 +73,7 @@ void CDeferredStage::create()
 
 void CDeferredStage::rebuild()
 {
-    screenExtent = CDevice::inst()->getExtent(detectExtent);
+    screenExtent = UDevice->getExtent(detectExtent);
     framebufferIndex = 0;
     for(auto& framebuffer : vFramebuffer)
     {

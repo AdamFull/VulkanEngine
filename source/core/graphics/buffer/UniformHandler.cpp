@@ -12,9 +12,9 @@ CUniformHandler::CUniformHandler(const pipeline::CUniformBlock &uniformBlock)
 void CUniformHandler::create(const CUniformBlock &_uniformBlock)
 {
     CHandler::create(_uniformBlock);
-    auto framesInFlight = CDevice::inst()->getFramesInFlight();
+    auto framesInFlight = UDevice->getFramesInFlight();
 
-    auto physProps = CDevice::inst()->getPhysical().getProperties();
+    auto physProps = UDevice->getPhysical().getProperties();
     auto minOffsetAllignment = std::lcm(physProps.limits.minUniformBufferOffsetAlignment, physProps.limits.nonCoherentAtomSize);
     
     for(uint32_t i = 0; i < framesInFlight; i++)

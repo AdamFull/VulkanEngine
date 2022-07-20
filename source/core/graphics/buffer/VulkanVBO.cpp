@@ -39,7 +39,7 @@ void CVertexBufferObject::createVertexBuffer()
     stagingBuffer.write((void *)vVertices.data());
 
     vertexBuffer = utl::make_scope<CVulkanBuffer>(vertexSize, vVertices.size(), vk::BufferUsageFlagBits::eTransferDst | vk::BufferUsageFlagBits::eVertexBuffer, vk::MemoryPropertyFlagBits::eDeviceLocal);
-    CDevice::inst()->copyOnDeviceBuffer(stagingBuffer.getBuffer(), vertexBuffer->getBuffer(), bufferSize);
+    UDevice->copyOnDeviceBuffer(stagingBuffer.getBuffer(), vertexBuffer->getBuffer(), bufferSize);
 }
 
 void CVertexBufferObject::createIndexBuffer()
@@ -52,5 +52,5 @@ void CVertexBufferObject::createIndexBuffer()
     stagingBuffer.write((void *)vIndices.data());
 
     indexBuffer = utl::make_scope<CVulkanBuffer>(indexSize, vIndices.size(), vk::BufferUsageFlagBits::eTransferDst | vk::BufferUsageFlagBits::eIndexBuffer, vk::MemoryPropertyFlagBits::eDeviceLocal);
-    CDevice::inst()->copyOnDeviceBuffer(stagingBuffer.getBuffer(), indexBuffer->getBuffer(), bufferSize);
+    UDevice->copyOnDeviceBuffer(stagingBuffer.getBuffer(), indexBuffer->getBuffer(), bufferSize);
 }

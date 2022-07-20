@@ -27,7 +27,6 @@ namespace engine
 
             private:
                 void create(vk::PipelineBindPoint bindPoint, vk::PipelineLayout& layout, vk::DescriptorPool& pool, vk::DescriptorSetLayout& setLayout);
-                void cleanup();
                 std::vector<vk::DescriptorSet> vDescriptorSets;
                 vk::PipelineBindPoint pipelineBindPoint;
                 vk::PipelineLayout pipelineLayout{nullptr};

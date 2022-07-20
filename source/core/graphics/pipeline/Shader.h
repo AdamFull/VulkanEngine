@@ -347,12 +347,6 @@ namespace engine
 				void setDescriptorMultiplier(uint32_t multiplier) { descriptorMultiplier = multiplier; }
 
 				/**
-				 * @brief Clear shader reflection info
-				 *
-				 */
-				void clear();
-
-				/**
 				 * @brief Finish building shader reflection
 				 *
 				 */

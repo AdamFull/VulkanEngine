@@ -9,15 +9,14 @@ namespace engine
     {
         namespace render
         {
-            class CRenderSystem : public utl::singleton<CRenderSystem>
+            class CRenderSystem 
             {
             public:
-                CRenderSystem() = default;
                 ~CRenderSystem();
+
                 void create();
                 void reCreate();
                 void render();
-                void cleanup();
 
                 void rebuildViewport();
 
@@ -47,7 +46,6 @@ namespace engine
                 bool frameStarted{ false };
                 vk::Extent2D screenExtent{};
                 uint32_t currentStageIndex{ 0 };
-                bool bIsClean{ false };
 
                 size_t totalFrameNumberCounter{ 0 };
 

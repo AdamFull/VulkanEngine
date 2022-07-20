@@ -9,27 +9,21 @@ using namespace engine::resources::material;
 
 void CImguiPass::create()
 {
-    auto& renderPass = CRenderSystem::inst()->getCurrentStage()->getCurrentFramebuffer()->getRenderPass();
-    auto subpass = CRenderSystem::inst()->getCurrentStage()->getCurrentFramebuffer()->getCurrentSubpass();
-    CEditorUI::inst()->create(renderPass, subpass);
+    auto& renderPass = URenderer->getCurrentStage()->getCurrentFramebuffer()->getRenderPass();
+    auto subpass = URenderer->getCurrentStage()->getCurrentFramebuffer()->getCurrentSubpass();
+    UEditorUI->create(renderPass, subpass);
     CSubpass::create();
 }
 
 void CImguiPass::reCreate()
 {
-    CEditorUI::inst()->reCreate();
+    UEditorUI->reCreate();
 }
 
 void CImguiPass::render(vk::CommandBuffer& commandBuffer)
 {
-    CRenderSystem::inst()->setStageType(EStageType::ePresent);
-    auto imageIndex = CDevice::inst()->getCurrentFrame();
-    CEditorUI::inst()->newFrame();
-    CEditorUI::inst()->drawFrame(commandBuffer, imageIndex);
-}
-
-void CImguiPass::cleanup()
-{
-    CEditorUI::inst()->cleanup();
-    CSubpass::cleanup();
+    URenderer->setStageType(EStageType::ePresent);
+    auto imageIndex = UDevice->getCurrentFrame();
+    UEditorUI->newFrame();
+    UEditorUI->drawFrame(commandBuffer, imageIndex);
 }

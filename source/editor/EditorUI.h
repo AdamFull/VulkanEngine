@@ -21,7 +21,7 @@ namespace engine
 			eContentBrowser
 		};
 
-		class CEditorUI : public utl::singleton<CEditorUI>
+		class CEditorUI
 		{
 		public:
 			CEditorUI() = default;
@@ -29,7 +29,6 @@ namespace engine
 
 			void create(vk::RenderPass &renderPass, uint32_t subpass);
 			void reCreate();
-			void cleanup();
 
 			void newFrame();
 			void drawFrame(vk::CommandBuffer commandBuffer, uint32_t index);
@@ -70,6 +69,7 @@ namespace engine
 			}
 
 		private:
+			void cleanup();
 			void baseInitialize();
 
 			void initializeWindowBackend();
@@ -77,6 +77,7 @@ namespace engine
 			std::map<EEditorWindowType, utl::ref_ptr<CWindowBase>> vWindows;
 			bool bEnabled = true;
 			vk::DescriptorPool descriptorPool{};
+			bool bInitialized{false};
 
 			std::map<EEditorWindowType, const char *> vWindowNames{
 				{EEditorWindowType::eContentBrowser, "Content browser"},

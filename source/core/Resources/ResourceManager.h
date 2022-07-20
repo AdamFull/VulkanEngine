@@ -15,16 +15,15 @@ namespace engine
          * @brief Resource manager just holding inside all created resources while engine works
          * 
          */
-        class CResourceManager : public utl::singleton<CResourceManager>
+        class CResourceManager
         {
         public:
+            ~CResourceManager();
             /**
              * @brief Creates resource manager with empty texture object
              * 
              */
             void create();
-
-            void cleanup();
 
             /**
              * @brief Loads resource manager from file
@@ -170,6 +169,7 @@ namespace engine
             }
 
         private:
+            void cleanup();
             std::map<std::string, utl::ref_ptr<core::CImage>> m_mTextures;
             std::map<std::string, utl::ref_ptr<material::CMaterialBase>> m_mMaterials;
 

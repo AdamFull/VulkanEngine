@@ -1,8 +1,8 @@
 #include "InspectorWindow.h"
+#include "graphics/VulkanHighLevel.h"
 #include "graphics/scene/objects/RenderObject.h"
 #include "graphics/scene/objects/components/CameraComponent.h"
 #include "resources/materials/VulkanMaterial.h"
-#include "editor/Editor.h"
 #include "editor/CustomControls.h"
 
 using namespace engine::core;
@@ -45,7 +45,7 @@ void CInspectorWindow::draw()
             return;
         }
 
-        auto selected = CEditor::inst()->getLastSelection();
+        auto selected = UEditor->getLastSelection();
 
         if(selected)
         {
@@ -134,7 +134,8 @@ void CInspectorWindow::draw()
                     ImGui::Text("Material");
                     ImGui::Separator();
 
-                    auto& params = primitive.material->getParams();
+                    auto material = primitive.material.lock();
+                    auto& params = material->getParams();
 
                     FControls::DragFloat("Alpha cutoff", &params.alphaCutoff, 0.005f, 0.005f);
                     FControls::DragFloat("Scale normal", &params.normalScale, 0.005f, 0.005f);

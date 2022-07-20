@@ -11,24 +11,18 @@ using namespace engine::resources;
 
 void CGBufferPass::create()
 {
-    CSceneManager::inst()->getScene()->getRoot()->create();
+    UScene->getScene()->getRoot()->create();
     CSubpass::create();
 }
 
 void CGBufferPass::reCreate()
 {
-    CSceneManager::inst()->getScene()->getRoot()->reCreate();
+    UScene->getScene()->getRoot()->reCreate();
 }
 
 void CGBufferPass::render(vk::CommandBuffer& commandBuffer)
 {
-    CRenderSystem::inst()->setStageType(EStageType::eDeferred);
-    CVBO::inst()->bind(commandBuffer);
-    CSceneManager::inst()->getScene()->getRoot()->render(commandBuffer);
-}
-
-void CGBufferPass::cleanup()
-{
-    CSceneManager::inst()->getScene()->cleanup();
-    CSubpass::cleanup();
+    URenderer->setStageType(EStageType::eDeferred);
+    UVBO->bind(commandBuffer);
+    UScene->getScene()->getRoot()->render(commandBuffer);
 }

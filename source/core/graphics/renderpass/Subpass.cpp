@@ -27,17 +27,11 @@ void CSubpass::beforeRender(vk::CommandBuffer& commandBuffer)
 
 void CSubpass::render(vk::CommandBuffer& commandBuffer)
 {
-    /*CRenderSystem::inst()->setStageType(eType);
-    auto& images = CRenderSystem::inst()->getCurrentImages();
+    /*URenderer->setStageType(eType);
+    auto& images = URenderer->getCurrentImages();
     for(const auto& attachment : vTextureAttachments)
         pMaterial->addTexture(attachment, images[attachment]);
     
     if(pUserDefinedCodeRender)
         pUserDefinedCodeRender(commandBuffer);*/
-}
-
-void CSubpass::cleanup()
-{
-    if(pMaterial)
-        pMaterial->cleanup();
 }

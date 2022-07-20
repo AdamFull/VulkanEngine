@@ -6,7 +6,7 @@ namespace engine
 {
 	namespace editor
 	{
-		class CEditor : public utl::singleton<CEditor>
+		class CEditor
 		{
 		public:
 			void selectObject(utl::ref_ptr<core::scene::CRenderObject> &object);

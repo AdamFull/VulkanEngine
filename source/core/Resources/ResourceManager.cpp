@@ -7,8 +7,10 @@ using namespace engine::core;
 using namespace engine::resources;
 using namespace engine::resources::material;
 
-template <>
-utl::scope_ptr<CResourceManager> utl::singleton<CResourceManager>::_instance{nullptr};
+CResourceManager::~CResourceManager()
+{
+    cleanup();
+}
 
 void CResourceManager::create()
 {

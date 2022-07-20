@@ -7,9 +7,6 @@ using namespace engine::core;
 using namespace engine::core::window;
 using namespace engine::resources::material;
 
-template<>
-utl::scope_ptr<CDevice> utl::singleton<CDevice>::_instance{nullptr};
-
 std::vector<const char*> str_vector_to_char_ptr_vector(const std::vector<std::string>& from)
 {
     std::vector<const char*> output{};
@@ -100,6 +97,16 @@ static vk::AllocationCallbacks *createPAllocator()
     m_allocator->pfnInternalAllocation = (PFN_vkInternalAllocationNotification)&internalAllocationNotification;
     m_allocator->pfnInternalFree = (PFN_vkInternalFreeNotification)&internalFreeNotification;
     return m_allocator;
+}
+
+CDevice::CDevice(const FDeviceCreateInfo &deviceCI)
+{
+    create(deviceCI);
+}
+
+CDevice::~CDevice()
+{
+    cleanup();
 }
 
 // TODO: add features picking while initialization
@@ -291,7 +298,7 @@ void CDevice::createSurface()
 {
     assert(vkInstance && "Unable to create surface, cause vulkan instance is not valid");
     VkSurfaceKHR rawSurfaceKHR{VK_NULL_HANDLE};
-    CWindowHandle::inst()->createWindowSurface(vkInstance, (const void*)pAllocator, rawSurfaceKHR);
+    UWindow->createWindowSurface(vkInstance, (const void*)pAllocator, rawSurfaceKHR);
     vkSurface = rawSurfaceKHR;
     assert(vkSurface && "Surface creation failed");
 }

@@ -1,4 +1,5 @@
 #include "SceneFactory.h"
+#include "graphics/VulkanHighLevel.h"
 #include "filesystem/FilesystemHelper.h"
 
 #include "resources/meshes/loaders/GLTFLoader.h"
@@ -72,7 +73,7 @@ utl::ref_ptr<CRenderObject> CSceneFactory::createComponent(FSceneObject info)
 void CSceneFactory::createCamera(utl::ref_ptr<core::scene::CRenderObject>& pRoot, FSceneObject info)
 {
     pRoot->setCamera(utl::make_ref<CCameraComponent>());
-    CCameraManager::inst()->attach(pRoot);
+    UCamera->attach(pRoot);
 }
 
 //Todo: do smth with code reusing
@@ -86,7 +87,7 @@ void CSceneFactory::createSkybox(utl::ref_ptr<core::scene::CRenderObject>& pRoot
         {
             auto material = CMaterialFactory::create(matInfo);
             loader->addMaterial(std::move(material));
-            CResourceManager::inst()->addExisting(material->getName(), material);
+            UResources->addExisting(material->getName(), material);
         }
     }
 
@@ -106,7 +107,7 @@ void CSceneFactory::createGLTFMesh(utl::ref_ptr<core::scene::CRenderObject>& pRo
         {
             auto material = CMaterialFactory::create(matInfo);
             loader->addMaterial(std::move(material));
-            CResourceManager::inst()->addExisting(material->getName(), material);
+            UResources->addExisting(material->getName(), material);
         }
     }
 
@@ -132,5 +133,5 @@ void CSceneFactory::createLightSource(utl::ref_ptr<core::scene::CRenderObject>& 
     lightComponent->setInnerAngle(info.light.fInnerAngle);
     lightComponent->setOuterAngle(info.light.fOuterAngle);
     pRoot->setLight(std::move(lightComponent));
-    CLightSourceManager::inst()->addLight(pRoot);
+    ULightning->addLight(pRoot);
 }

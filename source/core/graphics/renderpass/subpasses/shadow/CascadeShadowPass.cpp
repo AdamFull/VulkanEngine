@@ -5,7 +5,6 @@
 #include "graphics/image/Image.h"
 #include "resources/ResourceManager.h"
 #include "graphics/scene/SceneManager.h"
-#include "graphics/scene/objects/components/LightSourceManager.h"
 
 using namespace engine::core::render;
 using namespace engine::core::scene;
@@ -32,10 +31,10 @@ void CCascadeShadowPass::beforeRender(vk::CommandBuffer& commandBuffer)
 
 void CCascadeShadowPass::render(vk::CommandBuffer& commandBuffer)
 {
-    CRenderSystem::inst()->setStageType(EStageType::eShadow);
-    CVBO::inst()->bind(commandBuffer);
+    URenderer->setStageType(EStageType::eShadow);
+    UVBO->bind(commandBuffer);
 
-    auto lightObjects = CLightSourceManager::inst()->getObjects();
+    auto lightObjects = ULightning->getObjects();
     std::array<glm::mat4, SHADOW_MAP_CASCADE_COUNT> aCascadeViewProjMat;
     for(auto& lightNode : lightObjects)
     {
@@ -53,11 +52,6 @@ void CCascadeShadowPass::render(vk::CommandBuffer& commandBuffer)
     pMaterial->update();
     pMaterial->bind(commandBuffer);
 
-    CSceneManager::inst()->getScene()->getRoot()->render(commandBuffer);
+    UScene->getScene()->getRoot()->render(commandBuffer);
     //commandBuffer.setDepthBias(1.0f, 0.0f, 1.0f);
-}
-
-void CCascadeShadowPass::cleanup()
-{
-    CSubpass::cleanup();
 }

@@ -27,7 +27,7 @@ namespace engine
                 uint32_t vertexCount;
                 bool bWasCulled{false};
                 //TODO: check for material duplicates
-                utl::ref_ptr<resources::material::CMaterialBase> material;
+                utl::weak_ptr<resources::material::CMaterialBase> material;
 
                 struct Dimensions
                 {
@@ -99,12 +99,12 @@ namespace engine
             class CMeshComponent : public CSceneComponent
             {
             public:
+                ~CMeshComponent();
+                
                 void create() override;
                 void reCreate() override;
                 void render(vk::CommandBuffer &commandBuffer) override;
                 void update(float fDeltaTime) override;
-                void cleanup() override;
-                void destroy() override;
 
                 bool isSkybox() { return bIsSkybox; }
                 void setIsSkybox(bool isSkybox) { bIsSkybox = isSkybox; }

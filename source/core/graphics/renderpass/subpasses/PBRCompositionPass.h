@@ -16,7 +16,6 @@ namespace engine
 				void create() override;
 				void reCreate() override;
 				void render(vk::CommandBuffer &commandBuffer) override;
-				void cleanup() override;
 
 			protected:
 				static utl::ref_ptr<CImage> ComputeBRDFLUT(uint32_t size);

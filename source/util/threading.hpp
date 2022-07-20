@@ -124,7 +124,7 @@ namespace engine
 	 * @brief Thread pool implementation class
 	 * 
 	 */
-    class CThreadPool : public utl::singleton<CThreadPool>
+    class CThreadPool
     {
     public:
         CThreadPool();

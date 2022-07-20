@@ -14,8 +14,6 @@ namespace engine
                 void reCreate() override {}
                 void render(vk::CommandBuffer&) override {}
                 void update(float fDeltaTime) override;
-                void cleanup() override {}
-                void destroy() override {}
 
                 void setControl(bool value) { bEnableControls = value; }
                 void setActive(bool value) { bIsActive = value; }

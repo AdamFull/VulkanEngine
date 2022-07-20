@@ -22,21 +22,13 @@ void CApplication::create()
 
     m_pCameraController = utl::make_scope<CCameraEditorController>();
     m_pCameraController->create();
-
-    CSceneManager::inst()->load(createInfo.engine.scene);
-    CRenderSystem::inst()->create();
 }
 
 void CApplication::serviceHandle(EActionKey eKey, EKeyState)
 {
     switch (eKey)
     {
-    case EActionKey::eEscape:
-    {
-        CVulkanHighLevel::inst()->cleanup();
-        CSceneManager::inst()->unload();
-        std::exit(10);
-    }
+    case EActionKey::eEscape: { std::exit(10); }
     break;
     default:
         break;
@@ -45,14 +37,14 @@ void CApplication::serviceHandle(EActionKey eKey, EKeyState)
 
 void CApplication::run()
 {
-    auto& currentScene = CSceneManager::inst()->getScene();
+    auto& currentScene = UScene->getScene();
     currentScene->createObjects();
     float delta_time{0.001f};
-    while (!CWindowHandle::inst()->isShouldClose())
+    while (!UWindow->isShouldClose())
     {
         auto startTime = std::chrono::high_resolution_clock::now();
 
-        CWindowHandle::inst()->pollEvents();
+        UWindow->pollEvents();
         m_pCameraController->update(delta_time);
 
         currentScene->render(delta_time);

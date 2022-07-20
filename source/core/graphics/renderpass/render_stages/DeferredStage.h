@@ -10,7 +10,6 @@ namespace engine
             class CDeferredStage : public CRenderStage
             {
             public:
-                ~CDeferredStage();
                 void create() override;
                 void rebuild() override;
             };

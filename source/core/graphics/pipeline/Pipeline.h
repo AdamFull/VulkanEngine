@@ -36,7 +36,7 @@ namespace engine
 			{
 			public:
 				CPipelineBase();
-				virtual ~CPipelineBase();
+				~CPipelineBase();
 
 				/**
 				 * @brief Create pipeline with render pass and subpass
@@ -72,12 +72,6 @@ namespace engine
 				 * @param _subpass Vulkan subpass
 				 */
 				virtual void reCreate(vk::RenderPass &renderPass, uint32_t _subpass);
-
-				/**
-				 * @brief Clean all pipeline instances before deletion
-				 *
-				 */
-				virtual void cleanup();
 
 				void setBindPoint(vk::PipelineBindPoint bindPoint);
 				void setVertexInput(CVertexInput &&vertexInput);
@@ -169,7 +163,6 @@ namespace engine
 
 				std::map<std::string, std::string> m_vDefines;
 				utl::scope_ptr<CShader> m_pShader;
-				bool bIsClean{false};
 
 				CVertexInput m_vertexInput;
 

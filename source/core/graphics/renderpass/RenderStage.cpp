@@ -1,8 +1,13 @@
 #include "RenderStage.h"
-#include "graphics/VulkanDevice.hpp"
+#include "graphics/VulkanHighLevel.h"
 
 using namespace engine::core;
 using namespace engine::core::render;
+
+CRenderStage::~CRenderStage()
+{
+    vFramebuffer.clear();
+}
 
 void CRenderStage::create()
 {
@@ -24,19 +29,9 @@ void CRenderStage::render(vk::CommandBuffer& commandBuffer)
     }
 }
 
-void CRenderStage::cleanup()
-{
-    framebufferIndex = 0;
-    for(auto& framebuffer : vFramebuffer)
-    {
-        framebuffer->cleanup();
-        framebufferIndex++;
-    }
-}
-
 void CRenderStage::reCreate()
 {
-    screenExtent = CDevice::inst()->getExtent(detectExtent);
+    screenExtent = UDevice->getExtent(detectExtent);
     framebufferIndex = 0;
     for(auto& framebuffer : vFramebuffer)
     {

@@ -33,10 +33,10 @@ void COmniShadowPass::beforeRender(vk::CommandBuffer& commandBuffer)
 
 void COmniShadowPass::render(vk::CommandBuffer& commandBuffer)
 {
-    CRenderSystem::inst()->setStageType(EStageType::eShadow);
-    CVBO::inst()->bind(commandBuffer);
+    URenderer->setStageType(EStageType::eShadow);
+    UVBO->bind(commandBuffer);
 
-    auto lightObjects = CLightSourceManager::inst()->getObjects();
+    auto lightObjects = ULightning->getObjects();
     
     uint32_t light_count{0};
     std::array<glm::mat4, MAX_POINT_LIGHT_COUNT * 6> aPointViewProjMat;
@@ -67,10 +67,5 @@ void COmniShadowPass::render(vk::CommandBuffer& commandBuffer)
     pMaterial->update();
     pMaterial->bind(commandBuffer);
 
-    CSceneManager::inst()->getScene()->getRoot()->render(commandBuffer);
-}
-
-void COmniShadowPass::cleanup()
-{
-    CSubpass::cleanup();
+    UScene->getScene()->getRoot()->render(commandBuffer);
 }

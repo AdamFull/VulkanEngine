@@ -8,7 +8,7 @@ namespace engine
         namespace scene
         {
             class CRenderObject;
-            class CCameraManager : public utl::singleton<CCameraManager>
+            class CCameraManager
             {
             public:
                 utl::ref_ptr<CRenderObject> &getCurrentCamera();

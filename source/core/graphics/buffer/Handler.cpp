@@ -6,13 +6,13 @@ using namespace engine::core::pipeline;
 
 CHandler::~CHandler()
 {
-    
+    vBuffers.clear();
 }
 
 void CHandler::create(const CUniformBlock &_uniformBlock)
 {
     uniformBlock = _uniformBlock;
-    vMapped.resize(CDevice::inst()->getFramesInFlight());
+    vMapped.resize(UDevice->getFramesInFlight());
 }
 
 void CHandler::reCreate()
@@ -22,7 +22,7 @@ void CHandler::reCreate()
 
 void CHandler::flush()
 {
-    uint32_t index = CDevice::inst()->getCurrentFrame();
+    uint32_t index = UDevice->getCurrentFrame();
     if (vBuffers.empty())
 		return;
     
@@ -40,11 +40,11 @@ void CHandler::flush()
 
 utl::scope_ptr<CVulkanBuffer>& CHandler::getBuffer()
 {
-    uint32_t index = CDevice::inst()->getCurrentFrame();
+    uint32_t index = UDevice->getCurrentFrame();
     return vBuffers.at(index);
 }
 
 uint32_t CHandler::getCurrentFrameProxy()
 {
-    return CDevice::inst()->getCurrentFrame();
+    return UDevice->getCurrentFrame();
 }

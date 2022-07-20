@@ -19,6 +19,6 @@ void CComputePipeline::createPipeline()
     pipelineInfo.basePipelineHandle = nullptr;
     pipelineInfo.basePipelineIndex = -1;
 
-    vk::Result res = CDevice::inst()->create(pipelineInfo, &pipeline);
+    vk::Result res = UDevice->create(pipelineInfo, &pipeline);
     assert(res == vk::Result::eSuccess && "Failed creating pipeline.");
 }

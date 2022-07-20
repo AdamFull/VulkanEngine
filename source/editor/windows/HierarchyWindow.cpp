@@ -1,6 +1,6 @@
 #include "HierarchyWindow.h"
+#include "graphics/VulkanHighLevel.h"
 #include "graphics/scene/objects/RenderObject.h"
-#include "graphics/scene/SceneManager.h"
 #include "editor/Editor.h"
 
 using namespace engine::editor;
@@ -17,7 +17,7 @@ void CHierarchyWindow::draw()
         }
 
         auto current_size = ImGui::GetWindowSize();
-        auto& pRoot = CSceneManager::inst()->getScene()->getRoot();
+        auto& pRoot = UScene->getScene()->getRoot();
         buildHierarchy(pRoot);
 
         if (ImGui::IsWindowHovered(ImGuiHoveredFlags_AllowWhenBlockedByPopup | ImGuiHoveredFlags_AllowWhenBlockedByActiveItem))
@@ -67,7 +67,7 @@ void CHierarchyWindow::draw()
         ImGui::SetCursorPosX(0);
         if (ImGui::InvisibleButton("###unselect_all_btn", ImVec2(size_x, size_y)))
         {
-            CEditor::inst()->deselectAll();
+            UEditor->deselectAll();
         }
 
         ImGui::End();
@@ -80,7 +80,7 @@ void CHierarchyWindow::buildHierarchy(utl::ref_ptr<CRenderObject>& pObject)
     uint32_t flags = ImGuiTreeNodeFlags_OpenOnArrow;
 
     //Is object selected
-    auto isSelected = CEditor::inst()->isSelected(pObject);
+    auto isSelected = UEditor->isSelected(pObject);
     if (isSelected)
 		flags |= ImGuiTreeNodeFlags_Selected;
 
@@ -110,15 +110,15 @@ void CHierarchyWindow::buildHierarchy(utl::ref_ptr<CRenderObject>& pObject)
         if(ImGui::IsKeyPressed(ImGuiKey_LeftCtrl) && ImGui::IsItemClicked(0))
         {
             if(isSelected)
-                CEditor::inst()->deselectObject(pObject);
+                UEditor->deselectObject(pObject);
             else
-                CEditor::inst()->selectObject(pObject);
+                UEditor->selectObject(pObject);
         }
         //Mouse click event
         else if (!ImGui::IsKeyPressed(ImGuiKey_LeftCtrl) && ImGui::IsItemClicked(0))
         {
-            CEditor::inst()->deselectAll();
-            CEditor::inst()->selectObject(pObject);
+            UEditor->deselectAll();
+            UEditor->selectObject(pObject);
         }
     }
 

@@ -26,13 +26,13 @@ using namespace engine::core::scene;
 
 void CPBRCompositionPass::create()
 {
-    auto framesInFlight = CDevice::inst()->getFramesInFlight();
+    auto framesInFlight = UDevice->getFramesInFlight();
 
-    m_pSkybox = CResourceManager::inst()->get<CImage>("skybox_cubemap_tex");
+    m_pSkybox = UResources->get<CImage>("skybox_cubemap_tex");
 
-    brdf = CThreadPool::inst()->submit(&CPBRCompositionPass::ComputeBRDFLUT, 512);
-    irradiance = CThreadPool::inst()->submit(&CPBRCompositionPass::ComputeIrradiance, m_pSkybox, 64);
-    prefiltered = CThreadPool::inst()->submit(&CPBRCompositionPass::ComputePrefiltered, m_pSkybox, 512);
+    brdf = UThreadPool->submit(&CPBRCompositionPass::ComputeBRDFLUT, 512);
+    irradiance = UThreadPool->submit(&CPBRCompositionPass::ComputeIrradiance, m_pSkybox, 64);
+    prefiltered = UThreadPool->submit(&CPBRCompositionPass::ComputePrefiltered, m_pSkybox, 512);
 
     pMaterial = CMaterialLoader::inst()->create("pbr_composition");
     pMaterial->create();
@@ -46,8 +46,8 @@ void CPBRCompositionPass::reCreate()
 
 void CPBRCompositionPass::render(vk::CommandBuffer& commandBuffer)
 {
-    CRenderSystem::inst()->setStageType(EStageType::eDeferred);
-    auto& images = CRenderSystem::inst()->getCurrentImages();
+    URenderer->setStageType(EStageType::eDeferred);
+    auto& images = URenderer->getCurrentImages();
     pMaterial->addTexture("brdflut_tex", *brdf);
     pMaterial->addTexture("irradiance_tex", *irradiance);
     pMaterial->addTexture("prefiltred_tex", *prefiltered);
@@ -61,22 +61,22 @@ void CPBRCompositionPass::render(vk::CommandBuffer& commandBuffer)
     pMaterial->addTexture("direct_shadowmap_tex", images["direct_shadowmap_tex"]);
     pMaterial->addTexture("omni_shadowmap_tex", images["omni_shadowmap_tex"]);
 
-    auto imageIndex = CDevice::inst()->getCurrentFrame();
+    auto imageIndex = UDevice->getCurrentFrame();
 
-    auto& cameraNode = CCameraManager::inst()->getCurrentCamera();
+    auto& cameraNode = UCamera->getCurrentCamera();
     auto& camera = cameraNode->getCamera();
     auto view = camera->getView();
     auto projection = camera->getProjection();
     auto invViewProjection = glm::inverse(projection * view);
 
     uint32_t directoonal_light_count{0};
-    auto aDirectionalLights = CLightSourceManager::inst()->getDirectionalSources(directoonal_light_count);
+    auto aDirectionalLights = ULightning->getDirectionalSources(directoonal_light_count);
 
     uint32_t point_light_count{0};
-    auto aPointLights = CLightSourceManager::inst()->getPointSources(point_light_count);
+    auto aPointLights = ULightning->getPointSources(point_light_count);
 
     uint32_t spot_light_count{0};
-    auto aSpotLights = CLightSourceManager::inst()->getSpotSources(spot_light_count);
+    auto aSpotLights = ULightning->getSpotSources(spot_light_count);
     
     auto& pUBO = pMaterial->getUniformBuffer("UBODeferred");
     pUBO->set("invViewProjection", invViewProjection);
@@ -100,11 +100,6 @@ void CPBRCompositionPass::render(vk::CommandBuffer& commandBuffer)
     pMaterial->bind(commandBuffer);
 
     commandBuffer.draw(3, 1, 0, 0);
-}
-
-void CPBRCompositionPass::cleanup()
-{
-    CSubpass::cleanup();
 }
 
 utl::ref_ptr<CImage> CPBRCompositionPass::ComputeBRDFLUT(uint32_t size)
@@ -179,7 +174,7 @@ utl::ref_ptr<CImage> CPBRCompositionPass::ComputePrefiltered(const utl::ref_ptr<
         viewInfo.subresourceRange.baseArrayLayer = 0;
         viewInfo.subresourceRange.layerCount = 6;
         viewInfo.image = prefilteredCubemap->getImage();
-		vk::Result res = CDevice::inst()->create(viewInfo, &levelView);
+		vk::Result res = UDevice->create(viewInfo, &levelView);
         assert(res == vk::Result::eSuccess && "Cannot create image view.");
 
         cmdBuf.begin();
@@ -201,7 +196,7 @@ utl::ref_ptr<CImage> CPBRCompositionPass::ComputePrefiltered(const utl::ref_ptr<
         commandBuffer.dispatch(groupCountX, groupCountY, 1);
         cmdBuf.submitIdle();
 
-        CDevice::inst()->destroy(&levelView);
+        UDevice->destroy(&levelView);
     }
 
     return prefilteredCubemap;

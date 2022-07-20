@@ -25,10 +25,10 @@ void CLightComponentDirectional::update(float fDeltaTime)
 glm::mat4 CLightComponentDirectional::getLightSpaceMatrixEx(const float lastSplitDist, const float splitDist)
 {
 	auto transform = pParent->getTransform();
-    auto& cameraNode = CCameraManager::inst()->getCurrentCamera();
+    auto& cameraNode = UCamera->getCurrentCamera();
     auto& camera = cameraNode->getCamera();
 
-	auto aspect = CDevice::inst()->getAspect(true);
+	auto aspect = UDevice->getAspect(true);
 	auto projection = camera->getProjection();
 	auto view = camera->getView();
 
@@ -112,7 +112,7 @@ void CLightComponentDirectional::updateCascadesEx()
 {
     std::array<float, SHADOW_MAP_CASCADE_COUNT> cascadeSplits;
     auto transform = pParent->getTransform();
-    auto& cameraNode = CCameraManager::inst()->getCurrentCamera();
+    auto& cameraNode = UCamera->getCurrentCamera();
     auto& camera = cameraNode->getCamera();
 
 	auto projection = camera->getProjection();
@@ -153,13 +153,13 @@ void CLightComponentDirectional::updateCascadesEx()
 void CLightComponentDirectional::updateCascades()
 {
 	auto transform = pParent->getTransform();
-    auto& cameraNode = CCameraManager::inst()->getCurrentCamera();
+    auto& cameraNode = UCamera->getCurrentCamera();
     auto& camera = cameraNode->getCamera();
 	auto& cameraTransform = cameraNode->getLocalTransform();
 
 	float nearClip = camera->getNearPlane();
 	float farClip = camera->getFarPlane();
-	auto aspect = CDevice::inst()->getAspect(true);
+	auto aspect = UDevice->getAspect(true);
 
 	float lambda = GlobalVariables::cascadeSplitLambda;
 	float ratio = farClip/nearClip;

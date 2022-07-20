@@ -12,15 +12,14 @@ namespace engine::core::window
         std::string backend;
     };
 
-    class CWindowHandle : public utl::singleton<CWindowHandle>
+    class CWindowHandle
     {
     public:
         CWindowHandle();
+        CWindowHandle(FWindowCreateInfo createInfo);
         ~CWindowHandle();
 
-        void create(FWindowCreateInfo createInfo);
         void wait();
-        void close();
 
         void resizeWindow(int width, int height);
 
@@ -44,6 +43,8 @@ namespace engine::core::window
         static bool m_bWasResized;
 
     private:
+        void create(FWindowCreateInfo createInfo);
+        void close();
         GLFWwindow *pWindow;
     };
 

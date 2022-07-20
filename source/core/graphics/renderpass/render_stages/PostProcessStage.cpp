@@ -7,15 +7,10 @@
 using namespace engine::core;
 using namespace engine::core::render;
 
-CPostProcessStage::~CPostProcessStage()
-{
-    cleanup();
-}
-
 void CPostProcessStage::create()
 {
     detectExtent = true;
-    screenExtent = CDevice::inst()->getExtent(detectExtent);
+    screenExtent = UDevice->getExtent(detectExtent);
 
     std::string bloomTexture{"composition_tex"};
 
@@ -49,7 +44,7 @@ void CPostProcessStage::create()
 //TODO: make it better
 void CPostProcessStage::rebuild()
 {
-    screenExtent = CDevice::inst()->getExtent(detectExtent);
+    screenExtent = UDevice->getExtent(detectExtent);
     framebufferIndex = 0;
     for(auto& framebuffer : vFramebuffer)
     {

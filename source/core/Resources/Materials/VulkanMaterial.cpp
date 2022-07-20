@@ -13,7 +13,7 @@ using namespace engine::core::pipeline;
 
 CMaterialBase::~CMaterialBase()
 {
-    cleanup();
+    vInstances.clear();
 }
 
 void CMaterialBase::create()
@@ -22,14 +22,14 @@ void CMaterialBase::create()
     //Material should be in render stage because render stage contains specific render pass and subpass
     if(!bIsCreated)
     {
-        uint32_t images = CDevice::inst()->getFramesInFlight();
+        uint32_t images = UDevice->getFramesInFlight();
         auto& shader = pPipeline->getShader();
         shader->setDescriptorMultiplier(images * instances);
 
         if(pPipeline->getBindPoint() != vk::PipelineBindPoint::eCompute)
         {
-            auto& renderPass = CRenderSystem::inst()->getCurrentStage()->getCurrentFramebuffer()->getRenderPass();
-            auto subpass = CRenderSystem::inst()->getCurrentStage()->getCurrentFramebuffer()->getCurrentSubpass();
+            auto& renderPass = URenderer->getCurrentStage()->getCurrentFramebuffer()->getRenderPass();
+            auto subpass = URenderer->getCurrentStage()->getCurrentFramebuffer()->getCurrentSubpass();
             pPipeline->create(renderPass, subpass);
         }
         else
@@ -45,13 +45,13 @@ void CMaterialBase::create()
 
             for(auto& [name, uniform] : pPipeline->getShader()->getUniformBlocks())
             {
-                utl::ref_ptr<CHandler> pUniform;
+                utl::scope_ptr<CHandler> pUniform;
                 switch(uniform.getDescriptorType())
                 {
-                    case vk::DescriptorType::eUniformBuffer: pUniform = utl::make_ref<CUniformHandler>(uniform); break;
-                    case vk::DescriptorType::eStorageBuffer: pUniform = utl::make_ref<CStorageHandler>(uniform); break;
+                    case vk::DescriptorType::eUniformBuffer: pUniform = utl::make_scope<CUniformHandler>(uniform); break;
+                    case vk::DescriptorType::eStorageBuffer: pUniform = utl::make_scope<CStorageHandler>(uniform); break;
                 }
-                instance_ptr->mBuffers.emplace(name, pUniform);
+                instance_ptr->mBuffers.emplace(name, std::move(pUniform));
             }
 
             for(auto& [name, uniform] : pPipeline->getShader()->getPushBlocks())
@@ -85,8 +85,8 @@ void CMaterialBase::reCreate()
 {
     if(!bIsReCreated)
     {
-        auto& renderPass = CRenderSystem::inst()->getCurrentStage()->getCurrentFramebuffer()->getRenderPass();
-        auto subpass = CRenderSystem::inst()->getCurrentStage()->getCurrentFramebuffer()->getCurrentSubpass();
+        auto& renderPass = URenderer->getCurrentStage()->getCurrentFramebuffer()->getRenderPass();
+        auto subpass = URenderer->getCurrentStage()->getCurrentFramebuffer()->getCurrentSubpass();
         pPipeline->reCreate(renderPass, subpass);
         bIsReCreated = true;
     }
@@ -119,11 +119,6 @@ void CMaterialBase::bind(vk::CommandBuffer& commandBuffer)
     currentInstance = (currentInstance + 1) % instances;
 }
 
-void CMaterialBase::cleanup()
-{
-    pPipeline->cleanup();
-}
-
 void CMaterialBase::setName(const std::string& srName)
 {
     m_srName = srName + uuid::generate();
@@ -144,7 +139,7 @@ void CMaterialBase::addDefinition(const std::string& definition, const std::stri
     pPipeline->addDefine(definition, value);
 }
 
-utl::ref_ptr<CHandler>& CMaterialBase::getUniformBuffer(const std::string& name) 
+utl::scope_ptr<CHandler>& CMaterialBase::getUniformBuffer(const std::string& name) 
 { 
     auto& instance = vInstances.at(currentInstance);
     auto uniformBlock = instance->mBuffers.find(name);

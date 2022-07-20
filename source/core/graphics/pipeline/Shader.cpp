@@ -145,7 +145,7 @@ EShLanguage getEshLanguage(vk::ShaderStageFlagBits stageFlag)
 
 TBuiltInResource getResources() 
 {
-    //auto props = CDevice::inst()->GetPhysical().getProperties();
+    //auto props = UDevice->GetPhysical().getProperties();
 	TBuiltInResource resources = {};
 	resources.maxLights                                 = 32;
     resources.maxClipPlanes                             = 6;
@@ -254,7 +254,20 @@ TBuiltInResource getResources()
 
 CShader::~CShader()
 {
-    clear();
+    for(auto& stage : vShaderModules)
+        UDevice->destroy(&stage.module);
+
+    vShaderModules.clear();
+    vShaderStage.clear();
+    mUniforms.clear();
+    mUniformBlocks.clear();
+    mInputAttributes.clear();
+    mOutputAttributes.clear();
+    mConstants.clear();
+    //Destroy before clear
+    vDescriptorSetLayouts.clear();
+    vDescriptorPools.clear();
+    lastDescriptorBinding = 0;
 }
 
 void CShader::addStage(const std::filesystem::path &moduleName, const std::string& moduleCode, const std::string &preamble)
@@ -282,7 +295,7 @@ void CShader::addStage(const std::filesystem::path &moduleName, const std::strin
         auto defaultVersion = glslang::EShTargetVulkan_1_1;
         shader.setEnvInput(glslang::EShSourceGlsl, language, glslang::EShClientVulkan, 110);
         shader.setEnvClient(glslang::EShClientVulkan, defaultVersion);
-        shader.setEnvTarget(glslang::EShTargetSpv, CDevice::inst()->getVulkanVersion() >= VK_API_VERSION_1_1 ? glslang::EShTargetSpv_1_3 : glslang::EShTargetSpv_1_0);
+        shader.setEnvTarget(glslang::EShTargetSpv, UDevice->getVulkanVersion() >= VK_API_VERSION_1_1 ? glslang::EShTargetSpv_1_3 : glslang::EShTargetSpv_1_0);
 
         CShaderIncluder includer;
 
@@ -400,7 +413,7 @@ void CShader::createShaderModule(const std::vector<uint32_t>& spirv)
         shaderCI.pCode = spirv.data();
 
         vk::ShaderModule shaderModule{VK_NULL_HANDLE};
-        vk::Result res = CDevice::inst()->create(shaderCI, &shaderModule);
+        vk::Result res = UDevice->create(shaderCI, &shaderModule);
         assert(res == vk::Result::eSuccess && "Cannot create shader module.");
 
         vk::PipelineShaderStageCreateInfo shaderStageCI{};
@@ -418,24 +431,6 @@ void CShader::createShaderModule(const std::vector<uint32_t>& spirv)
     {
         throw std::runtime_error("Failed to create shader module!");
     }
-}
-
-void CShader::clear()
-{
-    for(auto& stage : vShaderModules)
-        CDevice::inst()->destroy(&stage.module);
-
-    vShaderModules.clear();
-    vShaderStage.clear();
-    mUniforms.clear();
-    mUniformBlocks.clear();
-    mInputAttributes.clear();
-    mOutputAttributes.clear();
-    mConstants.clear();
-    //Destroy before clear
-    vDescriptorSetLayouts.clear();
-    vDescriptorPools.clear();
-    lastDescriptorBinding = 0;
 }
 
 void CShader::finalizeReflection()

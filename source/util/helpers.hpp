@@ -2,24 +2,6 @@
 
 namespace utl
 {
-    template<class _Ty>
-    using scope_ptr = std::unique_ptr<_Ty>;
-
-    template<class _Ty, class... _Args>
-    constexpr utl::scope_ptr<_Ty> make_scope(_Args&& ...args)
-    {
-        return std::make_unique<_Ty>(std::forward<_Args>(args)...);
-    }
-
-    template<class _Ty>
-    using ref_ptr = std::shared_ptr<_Ty>;
-
-    template<class _Ty, class... _Args>
-    constexpr utl::ref_ptr<_Ty> make_ref(_Args&& ...args)
-    {
-        return std::make_shared<_Ty>(std::forward<_Args>(args)...);
-    }
-
     /**
      * @brief Makes child non copyable
      * 

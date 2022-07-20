@@ -18,21 +18,12 @@ vk::SamplerAddressMode addressMode, vk::Filter filter, bool mipmaps)
 
 CImage::~CImage()
 {
-    cleanup();
-}
+    UDevice->destroy(&_image);
+    UDevice->destroy(&_view);
+    UDevice->destroy(&_deviceMemory);
 
-void CImage::cleanup()
-{
-    if(!bIsClean)
-    {
-        CDevice::inst()->destroy(&_image);
-        CDevice::inst()->destroy(&_view);
-        CDevice::inst()->destroy(&_deviceMemory);
-
-        if(!_bUsingInternalSampler)
-            CDevice::inst()->destroy(&_sampler);
-        bIsClean = true;
-    }
+    if(!_bUsingInternalSampler)
+        UDevice->destroy(&_sampler);
 }
 
 void CImage::updateDescriptor()
@@ -80,7 +71,7 @@ vk::SamplerAddressMode addressMode, vk::Filter filter, bool mipmaps)
 
 void CImage::generateMipmaps(vk::Image &image, uint32_t mipLevels, vk::Format format, uint32_t width, uint32_t height, vk::ImageAspectFlags aspectFlags)
 {
-    auto& physicalDevice = CDevice::inst()->getPhysical();
+    auto& physicalDevice = UDevice->getPhysical();
     assert(physicalDevice && "Trying to generate mipmaps, but physical device is invalid.");
     vk::FormatProperties formatProperties;
     physicalDevice.getFormatProperties(format, &formatProperties);
@@ -203,7 +194,7 @@ vk::Filter filter, vk::SampleCountFlagBits samples)
     else
         imageInfo.flags = vk::ImageCreateFlags{};
 
-    imageInfo.samples = CDevice::inst()->getSamples();
+    imageInfo.samples = UDevice->getSamples();
 
     createImage(_image, _deviceMemory, imageInfo, vk::MemoryPropertyFlagBits::eDeviceLocal);
 
@@ -228,7 +219,7 @@ vk::Filter filter, vk::SampleCountFlagBits samples)
     viewInfo.subresourceRange.layerCount = _instCount;
     viewInfo.image = _image;
 
-    vk::Result res = CDevice::inst()->create(viewInfo, &_view);
+    vk::Result res = UDevice->create(viewInfo, &_view);
     assert(res == vk::Result::eSuccess && "Cannot create image view");
 
     if(!_sampler)
@@ -240,7 +231,7 @@ vk::Filter filter, vk::SampleCountFlagBits samples)
 
 vk::Format CImage::findSupportedFormat(const std::vector<vk::Format> &candidates, vk::ImageTiling tiling, vk::FormatFeatureFlags features)
 {
-    auto& physicalDevice = CDevice::inst()->getPhysical();
+    auto& physicalDevice = UDevice->getPhysical();
     assert(physicalDevice && "Trying to find supported format, but physical device is invalid.");
     for (vk::Format format : candidates)
     {
@@ -264,7 +255,7 @@ vk::Format CImage::findSupportedFormat(const std::vector<vk::Format> &candidates
 std::vector<vk::Format> CImage::findSupportedFormats(const std::vector<vk::Format> &candidates, vk::ImageTiling tiling, vk::FormatFeatureFlags features)
 {
     std::vector<vk::Format> vFormats;
-    auto& physicalDevice = CDevice::inst()->getPhysical();
+    auto& physicalDevice = UDevice->getPhysical();
     assert(physicalDevice && "Trying to find supported format, but physical device is invalid.");
     for (vk::Format format : candidates)
     {
@@ -298,7 +289,7 @@ std::vector<vk::Format> CImage::getTextureCompressionFormats()
 {
     std::vector<vk::Format> vFormats;
 
-    auto& vkPhysical = CDevice::inst()->getPhysical();
+    auto& vkPhysical = UDevice->getPhysical();
     assert(vkPhysical && "Trying to create image, byt logical device is not valid.");
     vk::PhysicalDeviceFeatures supportedFeatures = vkPhysical.getFeatures();
 
@@ -394,10 +385,10 @@ std::vector<vk::Format> CImage::getTextureCompressionFormats()
 void CImage::createImage(vk::Image &image, vk::DeviceMemory &memory, vk::ImageCreateInfo createInfo, vk::MemoryPropertyFlags properties)
 {
     vk::Result res;
-    auto& vkDevice = CDevice::inst()->getLogical();
+    auto& vkDevice = UDevice->getLogical();
     assert(vkDevice && "Trying to create image, byt logical device is not valid.");
 
-    res = CDevice::inst()->create(createInfo, &image);
+    res = UDevice->create(createInfo, &image);
     assert(res == vk::Result::eSuccess && "Image was not created");
 
     vk::MemoryRequirements memReq{};
@@ -405,9 +396,9 @@ void CImage::createImage(vk::Image &image, vk::DeviceMemory &memory, vk::ImageCr
 
     vk::MemoryAllocateInfo allocInfo{};
     allocInfo.allocationSize = memReq.size;
-    allocInfo.memoryTypeIndex = CDevice::inst()->findMemoryType(memReq.memoryTypeBits, properties);
+    allocInfo.memoryTypeIndex = UDevice->findMemoryType(memReq.memoryTypeBits, properties);
 
-    res = CDevice::inst()->create(allocInfo, &memory);
+    res = UDevice->create(allocInfo, &memory);
     assert(res == vk::Result::eSuccess && "Image memory was not allocated");
 
     vkDevice.bindImageMemory(image, memory, 0);
@@ -543,7 +534,7 @@ void CImage::copyTo(vk::CommandBuffer& commandBuffer, vk::Image& src, vk::Image&
 
 void CImage::createSampler(vk::Sampler &sampler, vk::Filter magFilter, vk::SamplerAddressMode eAddressMode, bool anisotropy, bool compareOp, uint32_t mipLevels)
 {
-    auto& physicalDevice = CDevice::inst()->getPhysical();
+    auto& physicalDevice = UDevice->getPhysical();
     assert(physicalDevice && "Trying to create sampler, but physical device is invalid.");
     vk::SamplerCreateInfo samplerInfo{};
     samplerInfo.magFilter = magFilter;
@@ -569,13 +560,13 @@ void CImage::createSampler(vk::Sampler &sampler, vk::Filter magFilter, vk::Sampl
     samplerInfo.maxLod = static_cast<float>(mipLevels);
 
     // TODO: Result handle
-   vk::Result res = CDevice::inst()->create(samplerInfo, &sampler);
+   vk::Result res = UDevice->create(samplerInfo, &sampler);
     assert(res == vk::Result::eSuccess && "Texture sampler was not created");
 }
 
 bool CImage::isSupportedDimension(utl::scope_ptr<FImageCreateInfo>& info)
 {
-    auto& physicalDevice = CDevice::inst()->getPhysical();
+    auto& physicalDevice = UDevice->getPhysical();
     assert(physicalDevice && "Trying to check supported dibension, but physical device is invalid.");
     vk::PhysicalDeviceProperties devprops;
     physicalDevice.getProperties(&devprops);

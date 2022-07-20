@@ -140,7 +140,7 @@ void CCameraComponent::lookAt(float dX, float dY)
 
 glm::mat4 CCameraComponent::getProjection(bool flipY) const
 {
-    auto aspect = CDevice::inst()->getAspect(true);
+    auto aspect = UDevice->getAspect(true);
     auto perspective = glm::perspective(glm::radians(fieldOfView), aspect, nearPlane, farPlane);
     if(flipY)
         perspective[1][1] *= -1.f;

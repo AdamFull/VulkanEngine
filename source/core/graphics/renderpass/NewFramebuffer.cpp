@@ -9,6 +9,19 @@
 using namespace engine::core;
 using namespace engine::core::render;
 
+CFramebufferNew::~CFramebufferNew()
+{
+    vSubpasses.clear();
+    if(renderPass)
+        UDevice->destroy(&renderPass);
+
+    for(auto& framebuffer : vFramebuffers)
+        UDevice->destroy(&framebuffer);
+    vFramebuffers.clear();
+    mFramebufferImages.clear();
+    vFramebufferDepth.clear();
+}
+
 void CFramebufferNew::create()
 {
     createRenderPass();
@@ -24,7 +37,7 @@ void CFramebufferNew::create()
 
 void CFramebufferNew::reCreate()
 {
-    CDevice::inst()->destroy(&renderPass);
+    UDevice->destroy(&renderPass);
     createRenderPass();
     currentSubpassIndex = 0;
     for(auto& subpass : vSubpasses)
@@ -37,25 +50,6 @@ void CFramebufferNew::reCreate()
     mFramebufferImages.clear();
     vFramebufferDepth.clear();
     createFramebuffer();
-}
-
-void CFramebufferNew::cleanup()
-{
-    if(!bIsClean)
-    {
-        for(auto& subpass : vSubpasses)
-            subpass->cleanup();
-        vSubpasses.clear();
-        if(renderPass)
-            CDevice::inst()->destroy(&renderPass);
-        bIsClean = true;
-
-        for(auto& framebuffer : vFramebuffers)
-            CDevice::inst()->destroy(&framebuffer);
-        vFramebuffers.clear();
-        mFramebufferImages.clear();
-        vFramebufferDepth.clear();
-    }
 }
 
 void CFramebufferNew::begin(vk::CommandBuffer &commandBuffer)
@@ -227,7 +221,7 @@ void CFramebufferNew::addImage(const std::string& name, vk::Format format, vk::I
         }
         else
         {
-            if(format == CDevice::inst()->getImageFormat())
+            if(format == UDevice->getImageFormat())
             {
                 attachmentDescription.storeOp = vk::AttachmentStoreOp::eStore;
                 attachmentDescription.finalLayout = vk::ImageLayout::ePresentSrcKHR;
@@ -276,13 +270,13 @@ void CFramebufferNew::createRenderPass()
     renderPassCI.pSubpasses = vSubpassDesc.data();
     renderPassCI.dependencyCount = static_cast<uint32_t>(vSubpassDep.size());
     renderPassCI.pDependencies = vSubpassDep.data();
-    vk::Result res = CDevice::inst()->create(renderPassCI, &renderPass);
+    vk::Result res = UDevice->create(renderPassCI, &renderPass);
     assert(res == vk::Result::eSuccess && "Cannot create render pass.");
 }
 
 void CFramebufferNew::createFramebuffer()
 {
-    auto framesInFlight = CDevice::inst()->getFramesInFlight();
+    auto framesInFlight = UDevice->getFramesInFlight();
     for(size_t frame = 0; frame < framesInFlight; frame++)
     {
         std::vector<vk::ImageView> imageViews{};
@@ -296,9 +290,9 @@ void CFramebufferNew::createFramebuffer()
             }
             else
             {
-                if(attachment.format == CDevice::inst()->getImageFormat())
+                if(attachment.format == UDevice->getImageFormat())
                 {
-                    imageViews.push_back(CDevice::inst()->getImageViews()[frame]);
+                    imageViews.push_back(UDevice->getImageViews()[frame]);
                 }
                 else
                 {
@@ -319,7 +313,7 @@ void CFramebufferNew::createFramebuffer()
         framebufferCI.layers = 1;
 
         vk::Framebuffer framebuffer{VK_NULL_HANDLE};
-        vk::Result res = CDevice::inst()->create(framebufferCI, &framebuffer);
+        vk::Result res = UDevice->create(framebufferCI, &framebuffer);
         assert(res == vk::Result::eSuccess && "Cannot create framebuffer.");
         vFramebuffers.emplace_back(framebuffer);
     }
@@ -368,7 +362,7 @@ utl::ref_ptr<CImage> CFramebufferNew::createImage(const FFramebufferAttachmentIn
 
 uint32_t CFramebufferNew::getCurrentFrameProxy()
 {
-    return CDevice::inst()->getCurrentFrame();
+    return UDevice->getCurrentFrame();
 }
 
 //Finish generation descriptions

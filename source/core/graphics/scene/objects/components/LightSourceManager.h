@@ -15,7 +15,7 @@ namespace engine
             using spot_lights_array = std::array<scene::FSpotLight, MAX_SPOT_LIGHT_COUNT>;
 
             class CRenderObject;
-            class CLightSourceManager : public utl::singleton<CLightSourceManager>
+            class CLightSourceManager
             {
             public:
                 void addLight(utl::ref_ptr<CRenderObject>& light);

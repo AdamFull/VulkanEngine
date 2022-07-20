@@ -57,8 +57,9 @@ namespace fs = std::filesystem;
 
 constexpr const uint32_t max_light_count = 32;
 
+#include <util/ulog.hpp>
+#include <util/memory.hpp>
 #include <util/function.hpp>
 #include <util/helpers.hpp>
-#include <util/ulog.hpp>
 #include <util/bimap.hpp>
 #include "configuration.h"

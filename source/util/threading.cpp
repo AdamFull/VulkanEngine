@@ -2,9 +2,6 @@
 
 using namespace engine;
 
-template <>
-utl::scope_ptr<CThreadPool> utl::singleton<CThreadPool>::_instance{nullptr};
-
 CWorker::CWorker()
 {
     _thread = std::thread(&CWorker::loop, this);

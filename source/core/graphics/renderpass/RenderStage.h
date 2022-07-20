@@ -11,12 +11,11 @@ namespace engine
             {
             public:
                 CRenderStage() = default;
-                virtual ~CRenderStage() {}
+                ~CRenderStage();
                 virtual void create();
                 virtual void reCreate();
                 virtual void rebuild() {}
                 virtual void render(vk::CommandBuffer &commandBuffer);
-                virtual void cleanup();
 
                 utl::scope_ptr<CFramebufferNew> &getFramebuffer(uint32_t index) { return vFramebuffer[index]; }
                 utl::scope_ptr<CFramebufferNew> &getCurrentFramebuffer() { return getFramebuffer(framebufferIndex); }

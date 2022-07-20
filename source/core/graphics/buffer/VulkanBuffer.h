@@ -46,14 +46,12 @@ namespace engine
             void create(vk::DeviceSize instanceSize, uint32_t instanceCount,
                         vk::BufferUsageFlags usageFlags, vk::MemoryPropertyFlags memoryPropertyFlags,
                         vk::DeviceSize minOffsetAlignment = 1);
-            void cleanup();
             static vk::DeviceSize getAlignment(vk::DeviceSize instanceSize, vk::DeviceSize minOffsetAlignment);
             
         private:
             void *mappedMemory = nullptr;
             vk::Buffer buffer = VK_NULL_HANDLE;
             vk::DeviceMemory deviceMemory = VK_NULL_HANDLE;
-            bool bIsClean{false};
 
             vk::DescriptorBufferInfo bufferInfo;
             vk::DeviceSize bufferSize;

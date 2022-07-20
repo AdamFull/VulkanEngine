@@ -17,7 +17,10 @@ CDescriptorSet::CDescriptorSet(utl::ref_ptr<pipeline::CPipelineBase>& pPipeline)
 
 CDescriptorSet::~CDescriptorSet()
 {
-    cleanup();
+    auto& vkDevice = UDevice->getLogical();
+    if(!descriptorPool)
+        vkDevice.freeDescriptorSets(descriptorPool, vDescriptorSets);
+    vDescriptorSets.clear();
 }
 
 void CDescriptorSet::create(vk::PipelineBindPoint bindPoint, vk::PipelineLayout& layout, vk::DescriptorPool& pool, vk::DescriptorSetLayout& setLayout)
@@ -26,7 +29,7 @@ void CDescriptorSet::create(vk::PipelineBindPoint bindPoint, vk::PipelineLayout&
     pipelineLayout = layout;
     descriptorPool = pool;
 
-    auto framesInFlight = CDevice::inst()->getFramesInFlight();
+    auto framesInFlight = UDevice->getFramesInFlight();
     std::vector<vk::DescriptorSetLayout> vSetLayouts(framesInFlight, setLayout);
     vk::DescriptorSetAllocateInfo allocInfo{};
     allocInfo.descriptorPool = descriptorPool;
@@ -34,22 +37,13 @@ void CDescriptorSet::create(vk::PipelineBindPoint bindPoint, vk::PipelineLayout&
     allocInfo.pSetLayouts = vSetLayouts.data();
     vDescriptorSets.resize(framesInFlight);
 
-    vk::Result res = CDevice::inst()->create(allocInfo, vDescriptorSets.data());
+    vk::Result res = UDevice->create(allocInfo, vDescriptorSets.data());
     assert(res == vk::Result::eSuccess && "Cannot create descriptor sets.");
-}
-
-void CDescriptorSet::cleanup()
-{
-    //TODO: add destroy method
-    auto& vkDevice = CDevice::inst()->getLogical();
-    assert(vkDevice && "Trying to free descriptor sets, but device is invalid.");
-    if(!descriptorPool)
-    vkDevice.freeDescriptorSets(descriptorPool, vDescriptorSets);
 }
 
 void CDescriptorSet::update(std::vector<vk::WriteDescriptorSet> &vWrites)
 {
-    auto& vkDevice = CDevice::inst()->getLogical();
+    auto& vkDevice = UDevice->getLogical();
     assert(vkDevice && "Trying to update descriptor sets, but device is invalid.");
     for (auto &write : vWrites)
         write.dstSet = get();
@@ -59,7 +53,7 @@ void CDescriptorSet::update(std::vector<vk::WriteDescriptorSet> &vWrites)
 
 void CDescriptorSet::update(vk::WriteDescriptorSet &writes)
 {
-    auto& vkDevice = CDevice::inst()->getLogical();
+    auto& vkDevice = UDevice->getLogical();
     assert(vkDevice && "Trying to free descriptor sets, but device is invalid.");
     writes.dstSet = get();
     vkDevice.updateDescriptorSets(1, &writes, 0, nullptr);
@@ -67,12 +61,12 @@ void CDescriptorSet::update(vk::WriteDescriptorSet &writes)
 
 void CDescriptorSet::bind(const vk::CommandBuffer &commandBuffer) const
 {
-    auto currentFrame = CDevice::inst()->getCurrentFrame();
+    auto currentFrame = UDevice->getCurrentFrame();
     commandBuffer.bindDescriptorSets(pipelineBindPoint, pipelineLayout, 0, 1, &vDescriptorSets.at(currentFrame), 0, nullptr);
 }
 
 vk::DescriptorSet& CDescriptorSet::get()
 {
-    auto currentFrame = CDevice::inst()->getCurrentFrame();
+    auto currentFrame = UDevice->getCurrentFrame();
     return vDescriptorSets.at(currentFrame);
 }

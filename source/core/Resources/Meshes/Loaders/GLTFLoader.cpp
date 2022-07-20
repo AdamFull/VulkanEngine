@@ -164,8 +164,8 @@ void GLTFLoader::loadMeshFragment(utl::ref_ptr<CRenderObject>& sceneNode, const 
         if (primitive.indices < 0)
             continue;
 
-        uint32_t indexStart = CVBO::inst()->getLastIndex();
-        uint32_t vertexStart = CVBO::inst()->getLastVertex();
+        uint32_t indexStart = UVBO->getLastIndex();
+        uint32_t vertexStart = UVBO->getLastVertex();
         uint32_t indexCount = 0;
         uint32_t vertexCount = 0;
         glm::vec3 posMin{};
@@ -353,10 +353,10 @@ void GLTFLoader::loadMeshFragment(utl::ref_ptr<CRenderObject>& sceneNode, const 
         }
 
         nativeMesh->addPrimitive(std::move(modelPrim));
-        CVBO::inst()->addMeshData(std::move(vertexBuffer), std::move(indexBuffer));
+        UVBO->addMeshData(std::move(vertexBuffer), std::move(indexBuffer));
     }
     sceneNode->setMesh(std::move(nativeMesh));
-    //CResourceManager::inst()->addExisting(nativeMesh->getName(), nativeMesh);
+    //UResources->addExisting(nativeMesh->getName(), nativeMesh);
 
     std::map<int32_t, int32_t> materialInstances{};
 }
@@ -389,7 +389,7 @@ void GLTFLoader::loadCamera(utl::ref_ptr<core::scene::CRenderObject>& sceneNode,
     }
 
     sceneNode->setCamera(std::move(nativeCamera));
-    CCameraManager::inst()->attach(sceneNode);
+    UCamera->attach(sceneNode);
 }
 
 void GLTFLoader::loadSkin(utl::ref_ptr<core::scene::CRenderObject>& sceneNode, const tinygltf::Node &node, const tinygltf::Model &model)
@@ -438,7 +438,7 @@ void GLTFLoader::loadLight(utl::ref_ptr<core::scene::CRenderObject>& sceneNode, 
         nativeLight->setType(ELightSourceType::eDirectional);
 
     sceneNode->setLight(std::move(nativeLight));
-    CLightSourceManager::inst()->addLight(sceneNode);
+    ULightning->addLight(sceneNode);
 }
 
 void GLTFLoader::recalculateTangents(std::vector<FVertex>& vertices, std::vector<uint32_t>& indices, uint64_t startIndex)
@@ -699,7 +699,7 @@ void GLTFLoader::loadMaterials(const tinygltf::Model &model)
 
         nativeMaterial->setParams(std::move(params));
         vMaterials.emplace_back(nativeMaterial);
-        CResourceManager::inst()->addExisting(nativeMaterial->getName(), nativeMaterial);
+        UResources->addExisting(nativeMaterial->getName(), nativeMaterial);
         material_index++;
     }
 }
@@ -731,7 +731,7 @@ void GLTFLoader::loadTextures(const tinygltf::Model &model)
 
         auto texture_object = loadTexture(image, fsParentPath);
         vTextures.emplace_back(texture_object);
-        CResourceManager::inst()->addExisting(tex_name, texture_object);
+        UResources->addExisting(tex_name, texture_object);
     }
 }
 

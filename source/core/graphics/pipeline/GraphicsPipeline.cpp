@@ -31,7 +31,7 @@ void CGraphicsPipeline::createPipeline()
     vertexInputCI.pVertexBindingDescriptions = &bindingDescription;
     vertexInputCI.pVertexAttributeDescriptions = attributeDescription.data();
 
-    auto attachmentCount = CRenderSystem::inst()->getCurrentStage()->getCurrentFramebuffer()->getCurrentDescription().colorAttachmentCount;
+    auto attachmentCount = URenderer->getCurrentStage()->getCurrentFramebuffer()->getCurrentDescription().colorAttachmentCount;
     bool isDepthOnly = attachmentCount == 0;
     auto inputAssembly = Initializers::PipelineInputAssemblyStateCI(bEnableTesselation ? vk::PrimitiveTopology::ePatchList : vk::PrimitiveTopology::eTriangleList, VK_FALSE);
     auto rasterizer = Initializers::PipelineRasterizerStateCI(vk::PolygonMode::eFill, m_culling, m_fontface, isDepthOnly, depthBias); //bEnableTesselation ? vk::PolygonMode::eLine : 
@@ -87,6 +87,6 @@ void CGraphicsPipeline::createPipeline()
     if(bEnableTesselation)
         pipelineInfo.pTessellationState = &tessellationState;
 
-    auto result = CDevice::inst()->create(pipelineInfo, &pipeline);
+    auto result = UDevice->create(pipelineInfo, &pipeline);
     assert(pipeline && "Failed creating pipeline.");
 }

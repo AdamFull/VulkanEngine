@@ -4,9 +4,6 @@ using namespace engine::core;
 using namespace engine::editor;
 using namespace engine::core::scene;
 
-template<>
-utl::scope_ptr<CEditor> utl::singleton<CEditor>::_instance{nullptr};
-
 void CEditor::selectObject(utl::ref_ptr<CRenderObject>& object)
 {
     if(!isSelected(object))

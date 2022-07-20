@@ -14,8 +14,6 @@ namespace engine
                 virtual void reCreate();
                 virtual void render(vk::CommandBuffer &commandBuffer);
                 virtual void update(float fDeltaTime);
-                virtual void cleanup();
-                virtual void destroy();
 
                 void setName(const std::string& name) { srName = name; }
                 const std::string& getName() { return srName; }

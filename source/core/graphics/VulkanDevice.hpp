@@ -26,17 +26,17 @@ namespace engine
             FDeviceGraphicsInfo graphics;
         };
 
-        class CDevice : public utl::singleton<CDevice>
+        class CDevice
         {
         public:
             CDevice() = default;
+            CDevice(const FDeviceCreateInfo &deviceCI);
+            ~CDevice();
 
             static VkResult createDebugUtilsMessengerEXT(VkInstance, const VkDebugUtilsMessengerCreateInfoEXT *, const VkAllocationCallbacks *, VkDebugUtilsMessengerEXT *);
             static VKAPI_ATTR VkBool32 VKAPI_CALL validationCallback(VkDebugUtilsMessageSeverityFlagBitsEXT, VkDebugUtilsMessageTypeFlagsEXT, const VkDebugUtilsMessengerCallbackDataEXT *, void *);
             static void destroyDebugUtilsMessengerEXT(VkInstance, VkDebugUtilsMessengerEXT, const VkAllocationCallbacks *);
-
-            void create(const FDeviceCreateInfo &deviceCI);
-            void cleanup();
+            
             void tryRebuildSwapchain();
             void updateCommandPools();
 
@@ -264,6 +264,9 @@ namespace engine
             void destroy(vk::Fence *ref) { vkDevice.destroyFence(*ref, pAllocator); }
 
         private:
+            void create(const FDeviceCreateInfo &deviceCI);
+            void cleanup();
+
             void createInstance(const FDeviceCreateInfo &deviceCI);
             void createDebugCallback(const FDeviceCreateInfo &deviceCI);
             void createSurface();

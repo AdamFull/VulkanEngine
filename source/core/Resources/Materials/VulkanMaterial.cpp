@@ -76,6 +76,12 @@ void CMaterialBase::addTexture(const std::string& attachment, utl::ref_ptr<CImag
     mTextures[attachment] = pTexture->getDescriptor();
 }
 
+void CMaterialBase::addTexture(const std::string& attachment, utl::weak_ptr<CImage>& pTexture)
+{
+    auto texture = pTexture.lock();
+    mTextures[attachment] = texture->getDescriptor();
+}
+
 vk::DescriptorImageInfo& CMaterialBase::getTexture(const std::string& attachment)
 {
     return mTextures[attachment];

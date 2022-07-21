@@ -33,7 +33,7 @@ namespace engine
 			CImage(void* pData, const vk::Extent3D &extent, vk::Format format = vk::Format::eR8G8B8A8Unorm, vk::ImageUsageFlags flags = vk::ImageUsageFlagBits::eTransferSrc | vk::ImageUsageFlagBits::eTransferDst | vk::ImageUsageFlagBits::eSampled,
 						vk::ImageAspectFlags aspect = vk::ImageAspectFlagBits::eColor, vk::SamplerAddressMode addressMode = vk::SamplerAddressMode::eRepeat,
 						vk::Filter filter = vk::Filter::eNearest, bool mipmap = false);
-			~CImage();
+			virtual ~CImage();
 
 			/**
 			 * @brief Update image descriptor

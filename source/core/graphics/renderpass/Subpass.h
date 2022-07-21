@@ -25,6 +25,7 @@ namespace engine
             {
             public:
                 CSubpass() = default;
+                virtual ~CSubpass();
 
                 virtual void create();
                 virtual void reCreate();

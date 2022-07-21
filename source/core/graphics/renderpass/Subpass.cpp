@@ -7,6 +7,11 @@ using namespace engine::core::render;
 using namespace engine::resources;
 using namespace engine::resources::material;
 
+CSubpass::~CSubpass()
+{
+
+}
+
 void CSubpass::create()
 {
     //pMaterial = CMaterialLoader::inst()->create(srShader);

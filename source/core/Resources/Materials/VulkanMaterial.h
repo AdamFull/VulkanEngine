@@ -76,6 +76,14 @@ namespace engine
                 void addTexture(const std::string& attachment, utl::ref_ptr<core::CImage>& pTexture);
 
                 /**
+                 * @brief Add texture descriptor 
+                 * 
+                 * @param attachment Texture attachment name
+                 * @param pTexture Texture smart object pointer
+                 */
+                void addTexture(const std::string& attachment, utl::weak_ptr<core::CImage>& pTexture);
+
+                /**
                  * @brief Get texture descriptor
                  * 
                  * @param attachment Texture attachment name

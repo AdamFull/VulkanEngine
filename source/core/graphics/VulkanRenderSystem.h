@@ -26,8 +26,8 @@ namespace engine
 
                 utl::scope_ptr<CSubpass>& getCurrentRenderer();
 
-                std::unordered_map<std::string, utl::ref_ptr<CImage>>& getImages(uint32_t index) { return mImages[index]; }
-                std::unordered_map<std::string, utl::ref_ptr<CImage>>& getCurrentImages() { return getImages(imageIndex); }
+                std::unordered_map<std::string, utl::weak_ptr<CImage>>& getImages(uint32_t index) { return mImages[index]; }
+                std::unordered_map<std::string, utl::weak_ptr<CImage>>& getCurrentImages() { return getImages(imageIndex); }
 
                 const size_t getTotalFramesCounted() const { return totalFrameNumberCounter; }
 
@@ -50,7 +50,7 @@ namespace engine
                 size_t totalFrameNumberCounter{ 0 };
 
                 std::vector<utl::scope_ptr<CRenderStage>> vStages;
-                std::map<uint32_t, std::unordered_map<std::string, utl::ref_ptr<CImage>>> mImages;
+                std::map<uint32_t, std::unordered_map<std::string, utl::weak_ptr<CImage>>> mImages;
             };
         }
     }

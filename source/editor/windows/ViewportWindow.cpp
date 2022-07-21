@@ -62,7 +62,8 @@ void CViewportWindow::draw()
 void CViewportWindow::drawViewport(float offsetx, float offsety)
 {
     auto currentImage = UDevice->getCurrentFrame();
-    auto imageDescriptor = URenderer->getCurrentImages()["output_color"];
+    auto image = URenderer->getCurrentImages()["output_color"];
+    auto imageDescriptor = image.lock();
     imageDescriptor->updateDescriptor();
     vk::WriteDescriptorSet write{};
     write.descriptorType = vk::DescriptorType::eCombinedImageSampler;

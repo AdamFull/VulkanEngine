@@ -11,7 +11,7 @@ namespace engine
             {
             public:
                 CRenderStage() = default;
-                ~CRenderStage();
+                virtual ~CRenderStage();
                 virtual void create();
                 virtual void reCreate();
                 virtual void rebuild() {}

@@ -10,23 +10,23 @@ CPushHandler::~CPushHandler()
     vData.clear();
 }
 
-CPushHandler::CPushHandler(const pipeline::CPushConstBlock &pushBlock, utl::ref_ptr<pipeline::CPipelineBase>& pipeline)
+CPushHandler::CPushHandler(const pipeline::CPushConstBlock &pushBlock, utl::scope_ptr<pipeline::CPipelineBase>& pipeline)
 {
     create(pushBlock, pipeline);
 }
 
-void CPushHandler::create(const CPushConstBlock &uniformBlock, utl::ref_ptr<CPipelineBase>& pipeline)
+void CPushHandler::create(const CPushConstBlock &uniformBlock, utl::scope_ptr<CPipelineBase>& pipeline)
 {
     uint32_t images = UDevice->getFramesInFlight();
 
-    pPipeline = pipeline;
+    pPipeline = pipeline.get();
 
     for(auto i = 0; i < images; i++)
         vData.emplace_back(utl::make_scope<char[]>(uniformBlock.getSize()));
     pushBlock = uniformBlock;
 }
 
-void CPushHandler::reCreate(utl::ref_ptr<CPipelineBase>& pipeline)
+void CPushHandler::reCreate(utl::scope_ptr<CPipelineBase>& pipeline)
 {
     create(pushBlock.value(), pipeline);
 }

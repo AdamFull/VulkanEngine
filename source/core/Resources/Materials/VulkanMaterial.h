@@ -138,9 +138,9 @@ namespace engine
                 /**
                  * @brief Get material pipeline object
                  * 
-                 * @return utl::ref_ptr<Core::Pipeline::CPipelineBase> Pipeline smart pointer object
+                 * @return utl::scope_ptr<Core::Pipeline::CPipelineBase> Pipeline smart pointer object
                  */
-                inline utl::ref_ptr<core::pipeline::CPipelineBase>& getPipeline() { return pPipeline; }
+                inline utl::scope_ptr<core::pipeline::CPipelineBase>& getPipeline() { return pPipeline; }
 
                 FMaterialParams& getParams() { return m_fMatParams; }
 
@@ -161,7 +161,7 @@ namespace engine
                 utl::scope_ptr<core::CHandler> pEmptyHamdler{nullptr};
                 utl::ref_ptr<core::CPushHandler> pEmptyPushConstant{nullptr};
                 std::vector<utl::scope_ptr<FMaterialUniqueObjects>> vInstances;
-                utl::ref_ptr<core::pipeline::CPipelineBase> pPipeline;
+                utl::scope_ptr<core::pipeline::CPipelineBase> pPipeline;
                 std::map<std::string, vk::DescriptorImageInfo> mTextures;
             };
         }

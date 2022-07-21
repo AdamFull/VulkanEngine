@@ -10,9 +10,10 @@ namespace engine
         {
         public:
             CPushHandler() = default;
-            CPushHandler(const pipeline::CPushConstBlock &pushBlock, utl::ref_ptr<pipeline::CPipelineBase>& pipeline);
+            CPushHandler(const pipeline::CPushConstBlock &pushBlock, utl::scope_ptr<pipeline::CPipelineBase>& pipeline);
             ~CPushHandler();
-            void reCreate(utl::ref_ptr<pipeline::CPipelineBase>& pipeline);
+
+            void reCreate(utl::scope_ptr<pipeline::CPipelineBase>& pipeline);
             void flush(vk::CommandBuffer& commandBuffer);
 
             template<class T>
@@ -40,12 +41,12 @@ namespace engine
             }
 
         private:
-            void create(const pipeline::CPushConstBlock &pushBlock, utl::ref_ptr<pipeline::CPipelineBase>& pipeline);
+            void create(const pipeline::CPushConstBlock &pushBlock, utl::scope_ptr<pipeline::CPipelineBase>& pipeline);
             uint32_t getCurrentFrameProxy();
 
             std::optional<pipeline::CPushConstBlock> pushBlock;
             std::vector<utl::scope_ptr<char[]>> vData;
-            utl::ref_ptr<pipeline::CPipelineBase> pPipeline;
+            pipeline::CPipelineBase* pPipeline{nullptr};
         };
     }
 }

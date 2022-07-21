@@ -10,7 +10,7 @@ CDescriptorSet::CDescriptorSet(vk::PipelineBindPoint bindPoint, vk::PipelineLayo
     create(bindPoint, layout, pool, setLayout);
 }
 
-CDescriptorSet::CDescriptorSet(utl::ref_ptr<pipeline::CPipelineBase>& pPipeline)
+CDescriptorSet::CDescriptorSet(utl::scope_ptr<pipeline::CPipelineBase>& pPipeline)
 {
     create(pPipeline->getBindPoint(), pPipeline->getPipelineLayout(), pPipeline->getDescriptorPool(), pPipeline->getDescriptorSetLayout());
 }

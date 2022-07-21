@@ -7,15 +7,15 @@ using namespace engine::core;
 using namespace engine::core::pipeline;
 using namespace engine::core::descriptor;
 
-CDescriptorHandler::CDescriptorHandler(utl::ref_ptr<pipeline::CPipelineBase>& pPipeline)
+CDescriptorHandler::CDescriptorHandler(utl::scope_ptr<pipeline::CPipelineBase>& pPipeline)
 {
     create(pPipeline);
 }
 
-void CDescriptorHandler::create(utl::ref_ptr<CPipelineBase>& pipeline)
+void CDescriptorHandler::create(utl::scope_ptr<CPipelineBase>& pipeline)
 {
     pDescriptorSet = utl::make_scope<CDescriptorSet>(pipeline);
-    pPipeline = pipeline;
+    pPipeline = pipeline.get();
 }
 
 void CDescriptorHandler::update()

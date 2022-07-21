@@ -21,7 +21,7 @@ void CRenderSystem::create()
 {
     auto engineMode = UHLInstance->getCI().engine.mode;
     screenExtent = UDevice->getExtent();
-    commandBuffers = utl::make_ref<CCommandBuffer>(false, vk::QueueFlagBits::eGraphics, vk::CommandBufferLevel::ePrimary, UDevice->getFramesInFlight());
+    commandBuffers = utl::make_scope<CCommandBuffer>(false, vk::QueueFlagBits::eGraphics, vk::CommandBufferLevel::ePrimary, UDevice->getFramesInFlight());
 
     vStages.emplace_back(utl::make_scope<CShadowMappingStage>());
     vStages.emplace_back(utl::make_scope<CDeferredStage>());
@@ -50,7 +50,7 @@ void CRenderSystem::reCreate()
 {
     UDevice->tryRebuildSwapchain();
     screenExtent = UDevice->getExtent();
-    commandBuffers = utl::make_ref<CCommandBuffer>(false, vk::QueueFlagBits::eGraphics, vk::CommandBufferLevel::ePrimary, UDevice->getFramesInFlight());
+    commandBuffers = utl::make_scope<CCommandBuffer>(false, vk::QueueFlagBits::eGraphics, vk::CommandBufferLevel::ePrimary, UDevice->getFramesInFlight());
     imageIndex = 0;
     CWindowHandle::m_bWasResized = false;
 

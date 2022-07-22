@@ -8,9 +8,7 @@
 #define SHADOW_MAP_CASCADE_COUNT 5
 
 //--------------------Includes--------------------
-#include "light_models/frostbite.glsl"
 #include "light_models/sascha_williems.glsl"
-#include "light_models/unreal4.glsl"
 
 #include "../shadows/projection/cascade_shadows.glsl"
 #include "../shadows/projection/directional_shadows.glsl"
@@ -69,15 +67,7 @@ layout(std430, binding = 14) buffer UBOLights
 
 vec3 lightContribution(vec3 albedo, vec3 L, vec3 V, vec3 N, vec3 F0, float metallic, float roughness)
 {
-	vec3 color = vec3(1.0);
-#if defined(SHADING_MODEL_CUSTOM)
-	color = specularContribution(albedo, L, V, N, F0, metallic, roughness);
-#elif defined(SHADING_MODEL_UNREAL_ENGINE)
-	color = evaluteUnreal4PBR(albedo, L, V, N, F0, metallic, roughness);
-#elif defined(SHADING_MODEL_FROSTBITE)
-	color = evaluateFrostbitePBR(albedo, L, V, N, metallic, roughness);
-#endif
-	return color;
+	return specularContribution(albedo, L, V, N, F0, metallic, roughness);
 }
 
 vec3 calculateDirectionalLight(FDirectionalLight light, vec3 worldPosition, vec3 albedo, vec3 V, vec3 N, vec3 F0, float metallic, float roughness)

@@ -38,7 +38,7 @@ float getDirectionalShadow(sampler2DArrayShadow shadomwap_tex, vec3 fragpos, vec
     float shadow = 1.0;
 	vec4 shadowClip	= light.shadowView * vec4(fragpos, 1.0);
 
-	float cosTheta = CosTheta(N, normalize(light.position - light.direction));
+	float cosTheta = dot(N, normalize(light.position - light.direction));
 	float bias = 0.000001 * tan(acos(cosTheta));
 	bias = clamp(bias, 0.0, 0.00001);
 

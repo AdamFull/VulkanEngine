@@ -2,185 +2,171 @@
 #include "resources/materials/MaterialLoader.h"
 #include "resources/ResourceManager.h"
 #include "graphics/scene/objects/RenderObject.h"
-#include "graphics/scene/objects/components/camera/CameraManager.h"
-#include "graphics/scene/lightning/LightSourceManager.h"
-#include "graphics/scene/objects/components/light/LightComponent.h"
+#include "graphics/scene/objects/components/CameraManager.h"
+#include "graphics/scene/objects/components/LightSourceManager.h"
 #include "graphics/VulkanHighLevel.h"
 #include "graphics/VulkanInitializers.h"
 #include "graphics/pipeline/Pipeline.h"
 #include "graphics/pipeline/ComputePipeline.h"
 #include "graphics/descriptor/DescriptorHandler.h"
-#include "graphics/image/ImageLoader.h"
 #include "graphics/image/Image.h"
+#include "graphics/image/Image2D.h"
+#include "graphics/image/ImageCubemap.h"
 #include "graphics/buffer/PushHandler.hpp"
 #include "GlobalVariables.h"
 
-using namespace Engine::Core;
-using namespace Engine::Core::Render;
-using namespace Engine::Resources;
-using namespace Engine::Resources::Material;
-using namespace Engine::Core::Scene;
+using namespace engine::core;
+using namespace engine::core::descriptor;
+using namespace engine::core::pipeline;
+using namespace engine::core::render;
+using namespace engine::resources;
+using namespace engine::resources::material;
+using namespace engine::core::scene;
 
-
-void CPBRCompositionPass::create(std::shared_ptr<Scene::CRenderObject>& root)
+CPBRCompositionPass::~CPBRCompositionPass()
 {
-    auto framesInFlight = CSwapChain::getInstance()->getFramesInFlight();
-    pUniform = std::make_shared<CUniformBuffer>();
-    pUniform->create(framesInFlight, sizeof(FLightningData));
-
-    m_pSkybox =CResourceManager::getInstance()->Get<CImage>("skybox_cubemap_tex");
-
-    brdf = UHLInstance->getThreadPool()->submit(&CPBRCompositionPass::ComputeBRDFLUT, 512);
-    irradiance = UHLInstance->getThreadPool()->submit(&CPBRCompositionPass::ComputeIrradiance, m_pSkybox, 64);
-    prefiltered = UHLInstance->getThreadPool()->submit(&CPBRCompositionPass::ComputePrefiltered, m_pSkybox, 512);
-
-    auto& renderPass = CRenderSystem::getInstance()->getCurrentStage()->getRenderPass()->get();
-    auto subpass = CRenderSystem::getInstance()->getCurrentStage()->getRenderPass()->getCurrentSubpass();
-
-    pMaterial = CMaterialLoader::getInstance()->create("pbr_composition");
-    pMaterial->create(renderPass, subpass);
-
-    CImguiOverlay::getInstance()->create(root, renderPass, subpass);
-    CSubpass::create(root);
+    *brdf = nullptr;
+	*irradiance = nullptr;
+	*prefiltered = nullptr;
 }
 
-void CPBRCompositionPass::render(vk::CommandBuffer& commandBuffer, std::shared_ptr<Scene::CRenderObject>& root)
+void CPBRCompositionPass::create()
 {
-    auto& images = CRenderSystem::getInstance()->getCurrentStage()->getFramebuffer()->getCurrentImages();
-    pMaterial->addTexture("brdflut_tex", *brdf);
-    pMaterial->addTexture("irradiance_tex", *irradiance);
-    pMaterial->addTexture("prefiltred_tex", *prefiltered);
-    pMaterial->addTexture("position_tex", images["position_tex"]);
-    pMaterial->addTexture("lightning_mask_tex", images["lightning_mask_tex"]);
-    pMaterial->addTexture("normal_tex", images["normal_tex"]);
-    pMaterial->addTexture("albedo_tex", images["albedo_tex"]);
-    pMaterial->addTexture("emission_tex", images["emission_tex"]);
-    pMaterial->addTexture("mrah_tex", images["mrah_tex"]);
+    auto framesInFlight = UDevice->getFramesInFlight();
 
-    auto imageIndex = CSwapChain::getInstance()->getCurrentFrame();
+    m_pSkybox = UResources->get<CImage>("skybox_cubemap_tex");
 
-    //May be move to CompositionObject
-    FLightningData ubo;
-    auto camera = CCameraManager::getInstance()->getCurrentCamera();
-    auto vLights = CLightSourceManager::getInstance()->getSources();
-    for(std::size_t i = 0; i < vLights.size(); i++)
-        ubo.lights[i] = vLights.at(i);
+    brdf = UThreadPool->submit(&CPBRCompositionPass::ComputeBRDFLUT, 512);
+    irradiance = UThreadPool->submit(&CPBRCompositionPass::ComputeIrradiance, m_pSkybox, 64);
+    prefiltered = UThreadPool->submit(&CPBRCompositionPass::ComputePrefiltered, m_pSkybox, 512);
 
-    ubo.lightCount = vLights.size();
-    ubo.viewPos = camera->viewPos; //camera->viewPos
-    ubo.bloomThreshold = GlobalVariables::bloomThreshold;
+    pMaterial = CMaterialLoader::inst()->create("pbr_composition");
+    pMaterial->create();
+    CSubpass::create();
+}
+
+void CPBRCompositionPass::reCreate()
+{
+    pMaterial->reCreate();
+}
+
+void CPBRCompositionPass::render(vk::CommandBuffer& commandBuffer)
+{
+    URenderer->setStageType(EStageType::eDeferred);
+    auto& images = URenderer->getCurrentImages();
+    pMaterial->addTexture("brdflut_tex", brdf->getDescriptor());
+    pMaterial->addTexture("irradiance_tex", irradiance->getDescriptor());
+    pMaterial->addTexture("prefiltred_tex", prefiltered->getDescriptor());
     
-    pUniform->updateUniformBuffer(imageIndex, &ubo);
-    auto& buffer = pUniform->getUniformBuffer(imageIndex);
-    auto descriptor = buffer->getDscriptor();
-    pMaterial->addBuffer("UBOLightning", descriptor);
-    pMaterial->update(imageIndex);
-    pMaterial->bind(commandBuffer, imageIndex);
+    pMaterial->addTexture("packed_tex", images["packed_tex"]);
+    pMaterial->addTexture("emission_tex", images["emission_tex"]);
+    pMaterial->addTexture("depth_tex", images["depth_tex"]);
+    pMaterial->addTexture("ssr_tex", images["ssr_tex"]);
+    
+    pMaterial->addTexture("cascade_shadowmap_tex", images["cascade_shadowmap_tex"]);
+    pMaterial->addTexture("direct_shadowmap_tex", images["direct_shadowmap_tex"]);
+    pMaterial->addTexture("omni_shadowmap_tex", images["omni_shadowmap_tex"]);
+
+    auto imageIndex = UDevice->getCurrentFrame();
+
+    auto& cameraNode = UCamera->getCurrentCamera();
+    auto& camera = cameraNode->getCamera();
+    auto view = camera->getView();
+    auto projection = camera->getProjection();
+    auto invViewProjection = glm::inverse(projection * view);
+
+    uint32_t directoonal_light_count{0};
+    auto aDirectionalLights = ULightning->getDirectionalSources(directoonal_light_count);
+
+    uint32_t point_light_count{0};
+    auto aPointLights = ULightning->getPointSources(point_light_count);
+
+    uint32_t spot_light_count{0};
+    auto aSpotLights = ULightning->getSpotSources(spot_light_count);
+    
+    auto& pUBO = pMaterial->getUniformBuffer("UBODeferred");
+    pUBO->set("invViewProjection", invViewProjection);
+    pUBO->set("view", view);
+    pUBO->set("viewPos", camera->viewPos);
+    pUBO->set("directionalLightCount", directoonal_light_count);
+    pUBO->set("spotLightCount", spot_light_count);
+    pUBO->set("pointLightCount", point_light_count);
+
+    auto& pDebugUBO = pMaterial->getUniformBuffer("UBODebug");
+    pDebugUBO->set("shading_mode", GlobalVariables::shadingMode);
+    pDebugUBO->set("target", GlobalVariables::debugTarget);
+    pDebugUBO->set("cascade", GlobalVariables::debugCascade);
+
+    auto& pUBOLights = pMaterial->getUniformBuffer("UBOLights");
+    pUBOLights->set("directionalLights", aDirectionalLights);
+    pUBOLights->set("spotLights", aSpotLights);
+    pUBOLights->set("pointLights", aPointLights);
+    
+    pMaterial->update();
+    pMaterial->bind(commandBuffer);
 
     commandBuffer.draw(3, 1, 0, 0);
-
-    CImguiOverlay::getInstance()->drawFrame(commandBuffer, imageIndex);
 }
 
-void CPBRCompositionPass::cleanup()
+utl::scope_ptr<CImage> CPBRCompositionPass::ComputeBRDFLUT(uint32_t size)
 {
-    CSubpass::cleanup();
-}
-
-std::shared_ptr<CImage> CPBRCompositionPass::ComputeBRDFLUT(uint32_t size)
-{
-    auto brdfImage = std::make_shared<CImage>();
-    ktxTexture *offscreen;
-    vk::Format format{};
-    Loaders::CImageLoader::allocateRawDataAsKTXTexture(&offscreen, &format, size, size, 1, 2, VulkanStaticHelper::VkFormatToGLFormat(vk::Format::eR16G16Sfloat));
-    brdfImage->initializeTexture(offscreen, format, vk::ImageUsageFlagBits::eTransferSrc | vk::ImageUsageFlagBits::eTransferDst | vk::ImageUsageFlagBits::eSampled | vk::ImageUsageFlagBits::eColorAttachment | vk::ImageUsageFlagBits::eStorage);
-    brdfImage->transitionImageLayout(vk::ImageLayout::eGeneral, vk::ImageAspectFlagBits::eColor);
-    brdfImage->updateDescriptor();
+    auto brdfImage = utl::make_scope<CImage2D>(vk::Extent2D{size, size}, vk::Format::eR16G16Sfloat, vk::ImageLayout::eGeneral,
+    vk::ImageUsageFlagBits::eTransferSrc | vk::ImageUsageFlagBits::eTransferDst | vk::ImageUsageFlagBits::eSampled | vk::ImageUsageFlagBits::eColorAttachment | vk::ImageUsageFlagBits::eStorage);
 
     auto cmdBuf = CCommandBuffer(true, vk::QueueFlagBits::eCompute);
     auto commandBuffer = cmdBuf.getCommandBuffer();
-    auto descriptor = Descriptor::CDescriptorHandler();
 
-    std::shared_ptr<Pipeline::CPipelineBase> computePipeline = Pipeline::CPipelineBase::Builder().
-    addShaderStage("shaders/generators/brdflut.comp").
-    build(vk::PipelineBindPoint::eCompute);
-    computePipeline->create();
-    computePipeline->bind(commandBuffer);
-
-    descriptor.create(computePipeline);
-    descriptor.set("outColour", brdfImage->getDescriptor());
-    descriptor.update(0);
-    descriptor.bind(commandBuffer, 0);
+    auto generator = CMaterialLoader::inst()->create("brdflut_generator");
+    auto& pipeline = generator->getPipeline();
+    generator->create();
+    generator->addTexture("outColour", brdfImage->getDescriptor());
+    generator->update();
+    generator->bind(commandBuffer);
     
-    auto groupCountX = static_cast<uint32_t>(std::ceil(static_cast<float>(size) / static_cast<float>(*computePipeline->getShader()->getLocalSizes()[0])));
-	auto groupCountY = static_cast<uint32_t>(std::ceil(static_cast<float>(size) / static_cast<float>(*computePipeline->getShader()->getLocalSizes()[1])));
+    auto groupCountX = static_cast<uint32_t>(std::ceil(static_cast<float>(size) / static_cast<float>(*pipeline->getShader()->getLocalSizes()[0])));
+	auto groupCountY = static_cast<uint32_t>(std::ceil(static_cast<float>(size) / static_cast<float>(*pipeline->getShader()->getLocalSizes()[1])));
     commandBuffer.dispatch(groupCountX, groupCountY, 1);
     cmdBuf.submitIdle();
-
-    Loaders::CImageLoader::close(&offscreen);
 
     return brdfImage;
 }
 
-std::shared_ptr<CImage> CPBRCompositionPass::ComputeIrradiance(const std::shared_ptr<CImage> &source, uint32_t size)
+utl::scope_ptr<CImage> CPBRCompositionPass::ComputeIrradiance(const utl::ref_ptr<CImage> &source, uint32_t size)
 {
-    auto irradianceCubemap = std::make_shared<CImage>();
-
-    ktxTexture *offscreen;
-    vk::Format format{};
-    Loaders::CImageLoader::allocateRawDataAsKTXTexture(&offscreen, &format, size, size, 1, 2, VulkanStaticHelper::VkFormatToGLFormat(vk::Format::eR32G32B32A32Sfloat));
-    offscreen->isCubemap = true;
-    irradianceCubemap->initializeTexture(offscreen, format, vk::ImageUsageFlagBits::eTransferSrc | vk::ImageUsageFlagBits::eTransferDst | vk::ImageUsageFlagBits::eSampled | vk::ImageUsageFlagBits::eColorAttachment | vk::ImageUsageFlagBits::eStorage);
-    irradianceCubemap->transitionImageLayout(vk::ImageLayout::eGeneral, vk::ImageAspectFlagBits::eColor);
-    irradianceCubemap->updateDescriptor();
+    auto irradianceCubemap = utl::make_scope<CImageCubemap>(vk::Extent2D{size, size}, vk::Format::eR32G32B32A32Sfloat, vk::ImageLayout::eGeneral,
+    vk::ImageUsageFlagBits::eTransferSrc | vk::ImageUsageFlagBits::eTransferDst | vk::ImageUsageFlagBits::eSampled | vk::ImageUsageFlagBits::eColorAttachment | vk::ImageUsageFlagBits::eStorage);
 
     auto cmdBuf = CCommandBuffer(true, vk::QueueFlagBits::eCompute);
     auto commandBuffer = cmdBuf.getCommandBuffer();
-    auto descriptor = Descriptor::CDescriptorHandler();
     
-    std::shared_ptr<Pipeline::CPipelineBase> computePipeline = Pipeline::CPipelineBase::Builder().
-    addShaderStage("shaders/generators/irradiancecube.comp").
-    build(vk::PipelineBindPoint::eCompute);
-    computePipeline->create();
-    computePipeline->bind(commandBuffer);
+    auto generator = CMaterialLoader::inst()->create("irradiancecube_generator");
+    auto& pipeline = generator->getPipeline();
+    generator->create();
+    generator->addTexture("outColour", irradianceCubemap->getDescriptor());
+    generator->addTexture("samplerColour", source->getDescriptor());
+    generator->update();
+    generator->bind(commandBuffer);
 
-    descriptor.create(computePipeline);
-    descriptor.set("outColour", irradianceCubemap->getDescriptor());
-    descriptor.set("samplerColour", source->getDescriptor());
-    descriptor.update(0);
-    descriptor.bind(commandBuffer, 0);
-
-    auto groupCountX = static_cast<uint32_t>(std::ceil(static_cast<float>(size) / static_cast<float>(*computePipeline->getShader()->getLocalSizes()[0])));
-	auto groupCountY = static_cast<uint32_t>(std::ceil(static_cast<float>(size) / static_cast<float>(*computePipeline->getShader()->getLocalSizes()[1])));
+    auto groupCountX = static_cast<uint32_t>(std::ceil(static_cast<float>(size) / static_cast<float>(*pipeline->getShader()->getLocalSizes()[0])));
+	auto groupCountY = static_cast<uint32_t>(std::ceil(static_cast<float>(size) / static_cast<float>(*pipeline->getShader()->getLocalSizes()[1])));
     commandBuffer.dispatch(groupCountX, groupCountY, 1);
     cmdBuf.submitIdle();
-
-    Loaders::CImageLoader::close(&offscreen);
 
     return irradianceCubemap;
 }
 
-std::shared_ptr<CImage> CPBRCompositionPass::ComputePrefiltered(const std::shared_ptr<CImage> &source, uint32_t size)
+utl::scope_ptr<CImage> CPBRCompositionPass::ComputePrefiltered(const utl::ref_ptr<CImage>& source, uint32_t size)
 {
-    auto prefilteredCubemap = std::make_shared<CImage>();
-
-    ktxTexture *offscreen;
-    vk::Format format{};
-    Loaders::CImageLoader::allocateRawDataAsKTXTexture(&offscreen, &format, size, size, 1, 2, VulkanStaticHelper::VkFormatToGLFormat(vk::Format::eR16G16B16A16Sfloat), true);
-    offscreen->isCubemap = true;
-    prefilteredCubemap->initializeTexture(offscreen, format, vk::ImageUsageFlagBits::eTransferSrc | vk::ImageUsageFlagBits::eTransferDst | vk::ImageUsageFlagBits::eSampled | vk::ImageUsageFlagBits::eColorAttachment | vk::ImageUsageFlagBits::eStorage);
-    prefilteredCubemap->transitionImageLayout(vk::ImageLayout::eGeneral, vk::ImageAspectFlagBits::eColor);
-    prefilteredCubemap->updateDescriptor();
+    auto prefilteredCubemap = utl::make_scope<CImageCubemap>(vk::Extent2D{size, size}, vk::Format::eR16G16B16A16Sfloat, vk::ImageLayout::eGeneral,
+    vk::ImageUsageFlagBits::eTransferSrc | vk::ImageUsageFlagBits::eTransferDst | vk::ImageUsageFlagBits::eSampled | vk::ImageUsageFlagBits::eColorAttachment | vk::ImageUsageFlagBits::eStorage,
+    vk::ImageAspectFlagBits::eColor, vk::Filter::eLinear, vk::SamplerAddressMode::eClampToEdge, vk::SampleCountFlagBits::e1, true, false, true);
 
     auto cmdBuf = CCommandBuffer(true, vk::QueueFlagBits::eCompute);
-    auto descriptor = Descriptor::CDescriptorHandler();
-    auto push = CPushHandler();
     
-    std::shared_ptr<Pipeline::CPipelineBase> computePipeline = Pipeline::CPipelineBase::Builder().
-    addShaderStage("shaders/generators/prefilteredmap.comp").
-    build(vk::PipelineBindPoint::eCompute);
-    computePipeline->create();
-    push.create(*computePipeline->getShader()->getPushBlock("object"));
+    auto generator = CMaterialLoader::inst()->create("prefilteredmap_generator");
+    auto& pipeline = generator->getPipeline();
+    generator->create(); 
+    auto& push = generator->getPushConstant("object");   
 
     for (uint32_t i = 0; i < prefilteredCubemap->getMipLevels(); i++)
     {
@@ -193,41 +179,31 @@ std::shared_ptr<CImage> CPBRCompositionPass::ComputePrefiltered(const std::share
         viewInfo.subresourceRange.levelCount = 1;
         viewInfo.subresourceRange.baseArrayLayer = 0;
         viewInfo.subresourceRange.layerCount = 6;
-		levelView = CImage::createImageView(prefilteredCubemap->getImage(), viewInfo);
+        viewInfo.image = prefilteredCubemap->getImage();
+		vk::Result res = UDevice->create(viewInfo, &levelView);
+        assert(res == vk::Result::eSuccess && "Cannot create image view.");
 
         cmdBuf.begin();
         auto commandBuffer = cmdBuf.getCommandBuffer();
-        computePipeline->bind(commandBuffer);
-        auto outColor = computePipeline->getShader()->getUniform("outColour");
 
         auto imageInfo = prefilteredCubemap->getDescriptor();
 		imageInfo.imageView = levelView;
 
-        vk::WriteDescriptorSet descriptorWrite = {};
-		descriptorWrite.dstSet = VK_NULL_HANDLE; // Will be set in the descriptor handler.
-		descriptorWrite.dstBinding = outColor->getBinding();
-		descriptorWrite.dstArrayElement = 0;
-		descriptorWrite.descriptorCount = 1;
-		descriptorWrite.descriptorType = outColor->getDescriptorType();
-		descriptorWrite.pImageInfo = &imageInfo;
+        push->set("roughness", static_cast<float>(i) / static_cast<float>(prefilteredCubemap->getMipLevels() - 1));
+        push->flush(commandBuffer);
 
-        push.set("roughness", static_cast<float>(i) / static_cast<float>(prefilteredCubemap->getMipLevels() - 1), 0);
+        generator->addTexture("outColour", imageInfo);
+        generator->addTexture("samplerColour", source->getDescriptor());
+        generator->update();
+        generator->bind(commandBuffer);
 
-        descriptor.create(computePipeline);
-        descriptor.set("outColour", descriptorWrite);
-        descriptor.set("samplerColour", source->getDescriptor());
-        descriptor.update(0);
-        descriptor.bind(commandBuffer, CSwapChain::getInstance()->getCurrentFrame());
-        push.flush(commandBuffer, computePipeline);
-
-        auto groupCountX = static_cast<uint32_t>(std::ceil(static_cast<float>(size) / static_cast<float>(*computePipeline->getShader()->getLocalSizes()[0])));
-        auto groupCountY = static_cast<uint32_t>(std::ceil(static_cast<float>(size) / static_cast<float>(*computePipeline->getShader()->getLocalSizes()[1])));
+        auto groupCountX = static_cast<uint32_t>(std::ceil(static_cast<float>(size) / static_cast<float>(*pipeline->getShader()->getLocalSizes()[0])));
+        auto groupCountY = static_cast<uint32_t>(std::ceil(static_cast<float>(size) / static_cast<float>(*pipeline->getShader()->getLocalSizes()[1])));
         commandBuffer.dispatch(groupCountX, groupCountY, 1);
         cmdBuf.submitIdle();
 
-        CDevice::getInstance()->destroy(levelView);
+        UDevice->destroy(&levelView);
     }
 
-    Loaders::CImageLoader::close(&offscreen);
     return prefilteredCubemap;
 }

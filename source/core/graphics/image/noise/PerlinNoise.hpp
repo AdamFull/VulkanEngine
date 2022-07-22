@@ -1,10 +1,10 @@
 #pragma once
 
-namespace Engine
+namespace engine
 {
-	namespace Core
+	namespace core
 	{
-		namespace Noise
+		namespace noise
 		{
 			// Translation of Ken Perlin's JAVA implementation (http://mrl.nyu.edu/~perlin/noise/)
 			template <typename T>

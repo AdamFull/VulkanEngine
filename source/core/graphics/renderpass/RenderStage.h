@@ -1,30 +1,32 @@
 #pragma once
-#include "RenderPass.hpp"
-#include "Framebuffer.hpp"
+#include "NewFramebuffer.h"
 
-namespace Engine
+namespace engine
 {
-    namespace Core
+    namespace core
     {
-        namespace Render
+        namespace render
         {
             class CRenderStage
             {
             public:
                 CRenderStage() = default;
-                virtual ~CRenderStage() {}
-                virtual void create(std::shared_ptr<Scene::CRenderObject>& root) {}
-                virtual void reCreate() {}
-                virtual void render(vk::CommandBuffer& commandBuffer, std::shared_ptr<Scene::CRenderObject>& root);
-                virtual void cleanup();
+                virtual ~CRenderStage();
+                virtual void create();
+                virtual void reCreate();
+                virtual void rebuild() {}
+                virtual void render(vk::CommandBuffer &commandBuffer);
 
-                std::unique_ptr<CRenderPass>& getRenderPass() { return pRenderPass; }
-                std::unique_ptr<CFramebuffer>& getFramebuffer() { return pFramebuffer; }
+                utl::scope_ptr<CFramebufferNew> &getFramebuffer(uint32_t index) { return vFramebuffer[index]; }
+                utl::scope_ptr<CFramebufferNew> &getCurrentFramebuffer() { return getFramebuffer(framebufferIndex); }
+                const size_t getFramebufferCount() const { return vFramebuffer.size(); }
+
             protected:
-                std::unique_ptr<CRenderPass> pRenderPass;
-                std::unique_ptr<CFramebuffer> pFramebuffer;
+                std::vector<utl::scope_ptr<CFramebufferNew>> vFramebuffer;
+                uint32_t framebufferIndex{0};
                 vk::Extent2D screenExtent;
+                bool detectExtent{false};
             };
         }
     }
-} 
+}

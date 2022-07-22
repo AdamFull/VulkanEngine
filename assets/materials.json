@@ -1,86 +1,211 @@
 {
     "materials":
     {
+        "brdflut_generator":
+        {
+            "bindPoint": "compute",
+            "stages": [
+                "shaders/generators/brdflut.comp"
+            ],
+            "defines": {}
+        },
+        "irradiancecube_generator":
+        {
+            "bindPoint": "compute",
+            "stages": [
+                "shaders/generators/Irradiancecube.comp"
+            ],
+            "defines": {}
+        },
+        "prefilteredmap_generator":
+        {
+            "bindPoint": "compute",
+            "stages": [
+                "shaders/generators/prefilteredmap.comp"
+            ],
+            "defines": {}
+        },
         "default":
+        {
+            "vertexType": "default",
+            "bindPoint": "graphics",
+            "culling": "front",
+            "frontface": "counterClockwise",
+            "depth": true,
+            "tesselation": false,
+            "dynamicStates": ["viewport", "scissor"],
+            "stages": [
+                "shaders/main/material/diffuse.vert",
+                "shaders/main/material/diffuse.frag",
+                "shaders/main/material/diffuse.tesc",
+                "shaders/main/material/diffuse.tese"
+            ],
+            "defines": {}
+        },
+        "skybox": 
         {
             "vertexType": "default",
             "bindPoint": "graphics",
             "culling": "back",
             "frontface": "counterClockwise",
+            "depth": false,
+            "dynamicStates": ["viewport", "scissor"],
+            "stages": [
+                "shaders/main/material/skybox.vert", 
+                "shaders/main/material/skybox.frag"
+            ],
+            "defines": {}
+        },
+        "directional_shadow_pass": 
+        {
+            "vertexType": "default",
+            "bindPoint": "graphics",
+            "culling": "front",
+            "frontface": "clockwise",
             "depth": true,
             "dynamicStates": ["viewport", "scissor"],
             "stages": [
-                "shaders/main/diffuse.vert", 
-                "shaders/main/diffuse.frag"
+                "shaders/main/shadows/shadow_base.vert", 
+                "shaders/main/shadows/directional_shadow.geom"
             ],
-            "defines": []
+            "defines": {}
+        },
+        "omni_shadow_pass": 
+        {
+            "vertexType": "default",
+            "bindPoint": "graphics",
+            "culling": "front",
+            "frontface": "clockwise",
+            "depth": true,
+            "dynamicStates": ["viewport", "scissor"],
+            "stages": [
+                "shaders/main/shadows/shadow_base.vert", 
+                "shaders/main/shadows/omni_shadow.geom",
+                "shaders/main/shadows/omni_shadow.frag"
+            ],
+            "defines": {}
         },
         "pbr_composition": 
         {
             "bindPoint": "graphics",
             "culling": "front",
-            "frontface": "counterClockwise",
+            "frontface": "clockwise",
             "depth": false,
             "dynamicStates": ["viewport", "scissor"],
             "stages": [
                 "shaders/main/screenspace.vert", 
-                "shaders/main/deferred.frag"
+                "shaders/main/pbr/lightning_pass.frag"
             ],
-            "defines": []
+            "defines": {}
+        },
+        "post_process": 
+        {
+            "bindPoint": "graphics",
+            "culling": "back",
+            "frontface": "clockwise",
+            "depth": false,
+            "dynamicStates": ["viewport", "scissor"],
+            "stages": [
+                "shaders/main/screenspace.vert", 
+                "shaders/main/composition.frag"
+            ],
+            "defines": {}
+        },
+        "ssao_pass": 
+        {
+            "bindPoint": "graphics",
+            "culling": "back",
+            "frontface": "clockwise",
+            "depth": false,
+            "dynamicStates": ["viewport", "scissor"],
+            "stages": [
+                "shaders/main/screenspace.vert", 
+                "shaders/main/ssao.frag"
+            ],
+            "defines": {}
+        },
+        "ssr_pass":
+        {
+            "bindPoint": "graphics",
+            "culling": "back",
+            "frontface": "clockwise",
+            "depth": false,
+            "dynamicStates": ["viewport", "scissor"],
+            "stages": [
+                "shaders/main/screenspace.vert", 
+                "shaders/main/ssr.frag"
+            ],
+            "defines": {}
+        },
+        "displaynormal":
+        {
+            "vertexType": "default",
+            "bindPoint": "graphics",
+            "culling": "none",
+            "frontface": "counterClockwise",
+            "depth": true,
+            "dynamicStates": ["viewport", "scissor"],
+            "stages": [
+                "shaders/main/debug/displaynormal.vert", 
+                "shaders/main/debug/displaynormal.geom",
+                "shaders/main/debug/displaynormal.frag"
+            ],
+            "defines": {}
         },
         "gaussian_blur": 
         {
             "bindPoint": "graphics",
-            "culling": "front",
-            "frontface": "counterClockwise",
+            "culling": "back",
+            "frontface": "clockwise",
             "depth": false,
             "dynamicStates": ["viewport", "scissor"],
             "stages": [
                 "shaders/main/screenspace.vert", 
                 "shaders/postprocess/gaussianblur.frag"
             ],
-            "defines": []
+            "defines": 
+            {
+                "BLUR_TYPE": "5"
+            } 
         },
-        "skybox": 
-        {
-            "vertexType": "default",
-            "bindPoint": "graphics",
-            "culling": "front",
-            "frontface": "counterClockwise",
-            "depth": false,
-            "dynamicStates": ["viewport", "scissor"],
-            "stages": [
-                "shaders/main/skybox.vert", 
-                "shaders/main/skybox.frag"
-            ],
-            "defines": []
-        },
-        "post_process": 
+        "brightdetect": 
         {
             "bindPoint": "graphics",
-            "culling": "front",
-            "frontface": "counterClockwise",
+            "culling": "back",
+            "frontface": "clockwise",
             "depth": false,
             "dynamicStates": ["viewport", "scissor"],
             "stages": [
                 "shaders/main/screenspace.vert", 
-                "shaders/postprocess/bloomcompose.frag"
+                "shaders/postprocess/brightdetect.frag"
             ],
-            "defines": []
+            "defines": {} 
         },
-        "imguiui": 
+        "downsample": 
         {
-            "vertexType": "imgui",
             "bindPoint": "graphics",
-            "culling": "none",
-            "frontface": "counterClockwise",
+            "culling": "back",
+            "frontface": "clockwise",
             "depth": false,
             "dynamicStates": ["viewport", "scissor"],
             "stages": [
-                "shaders/main/ui.vert", 
-                "shaders/main/ui.frag"
+                "shaders/main/screenspace.vert", 
+                "shaders/postprocess/downsample.frag"
             ],
-            "defines": []
+            "defines": {} 
+        },
+        "through_pass":
+        {
+            "bindPoint": "graphics",
+            "culling": "back",
+            "frontface": "clockwise",
+            "depth": false,
+            "dynamicStates": ["viewport", "scissor"],
+            "stages": [
+                "shaders/main/screenspace.vert", 
+                "shaders/postprocess/throughpass.frag"
+            ],
+            "defines": {}
         }
     }
 }

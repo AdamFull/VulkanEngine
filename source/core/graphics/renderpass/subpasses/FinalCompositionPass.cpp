@@ -7,45 +7,42 @@
 #include "graphics/VulkanInitializers.h"
 #include "GlobalVariables.h"
 
-using namespace Engine::Core::Render;
-using namespace Engine::Core::Scene;
-using namespace Engine::Resources;
-using namespace Engine::Resources::Material;
+using namespace engine::core::render;
+using namespace engine::core::scene;
+using namespace engine::resources;
+using namespace engine::resources::material;
 
-void CFinalCompositionPass::create(std::shared_ptr<Scene::CRenderObject>& root)
+void CFinalCompositionPass::create()
 {
-    auto framesInFlight = CSwapChain::getInstance()->getFramesInFlight();
-    pUniform = std::make_shared<CUniformBuffer>();
-    pUniform->create(framesInFlight, sizeof(FPostProcess));
+    auto framesInFlight = UDevice->getFramesInFlight();
 
-    auto& renderPass = CRenderSystem::getInstance()->getCurrentStage()->getRenderPass()->get();
-    auto subpass = CRenderSystem::getInstance()->getCurrentStage()->getRenderPass()->getCurrentSubpass();
-
-    pMaterial = CMaterialLoader::getInstance()->create("post_process");
-    pMaterial->create(renderPass, subpass);
-    CSubpass::create(root);
+    pMaterial = CMaterialLoader::inst()->create("post_process");
+    pMaterial->create();
+    CSubpass::create();
 }
 
-void CFinalCompositionPass::render(vk::CommandBuffer& commandBuffer, std::shared_ptr<Scene::CRenderObject>& root)
+void CFinalCompositionPass::reCreate()
 {
-    auto imageIndex = CSwapChain::getInstance()->getCurrentFrame();
-    //May be move to CompositionObject
-    FPostProcess ubo;
-    //HDR
-    ubo.gamma = GlobalVariables::postprocessGamma;
-    ubo.exposure = GlobalVariables::postprocessExposure;
+    pMaterial->reCreate();
+}
 
-    pUniform->updateUniformBuffer(imageIndex, &ubo);
-    auto& buffer = pUniform->getUniformBuffer(imageIndex);
-    auto descriptor = buffer->getDscriptor();
-    pMaterial->addBuffer("FBloomUbo", descriptor);
-    pMaterial->update(imageIndex);
-    pMaterial->bind(commandBuffer, imageIndex);
+void CFinalCompositionPass::render(vk::CommandBuffer& commandBuffer)
+{
+    URenderer->setStageType(EStageType::ePostProcess);
+    auto imageIndex = UDevice->getCurrentFrame();
+
+    pMaterial->addTexture("samplerColor", URenderer->getCurrentImages()["composition_tex"]);
+    pMaterial->addTexture("samplerBrightness", URenderer->getCurrentImages()[blurImageSample]); //bloom_image
+    //May be move to CompositionObject
+
+    //TODO: push constant ranges here
+    auto& pUBO = pMaterial->getPushConstant("ubo");
+    pUBO->set("gamma", GlobalVariables::postprocessGamma);
+    pUBO->set("exposure", GlobalVariables::postprocessExposure);
+    pUBO->flush(commandBuffer);
+
+    pMaterial->update();
+    pMaterial->bind(commandBuffer);
 
     commandBuffer.draw(3, 1, 0, 0);
-}
-
-void CFinalCompositionPass::cleanup()
-{
-    CSubpass::cleanup();
 }

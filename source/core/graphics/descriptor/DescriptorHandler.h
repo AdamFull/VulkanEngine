@@ -1,30 +1,30 @@
 #pragma once 
 
-namespace Engine
+namespace engine
 {
-    namespace Core
+    namespace core
     {
-        namespace Pipeline { class CPipelineBase; }
-        namespace Descriptor
+        namespace pipeline { class CPipelineBase; }
+        namespace descriptor
         {
             class CDescriptorSet;
             class CDescriptorHandler
             {
             public:
                 CDescriptorHandler() = default;
-                ~CDescriptorHandler();
+                CDescriptorHandler(utl::scope_ptr<pipeline::CPipelineBase>& pPipeline);
 
-                void create(std::shared_ptr<Pipeline::CPipelineBase> pPipeline);
-                void update(uint32_t index);
-                void bind(const vk::CommandBuffer &commandBuffer, uint32_t index) const;
-                void clear();
+                void update();
+                void bind(const vk::CommandBuffer &commandBuffer) const;
+                void reset();
 
                 void set(const std::string& srUniformName, vk::DescriptorBufferInfo& bufferInfo);
                 void set(const std::string& srUniformName, vk::DescriptorImageInfo& imageInfo);
                 void set(const std::string& srUniformName, vk::WriteDescriptorSet& writeInfo);
             private:
-                std::shared_ptr<Pipeline::CPipelineBase> pPipeline;
-                std::unique_ptr<CDescriptorSet> pDescriptorSet;
+                void create(utl::scope_ptr<pipeline::CPipelineBase>& pPipeline);
+                pipeline::CPipelineBase* pPipeline;
+                utl::scope_ptr<CDescriptorSet> pDescriptorSet;
                 std::vector<vk::WriteDescriptorSet> vWriteDescriptorSets;
             };
         }

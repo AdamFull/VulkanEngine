@@ -2,44 +2,55 @@
 
 namespace utl
 {
-    template <typename _Ty>
-    struct track_alloc : std::allocator<_Ty>
+    template<class _Ty>
+    class allocator : public std::allocator<_Ty>
     {
-        using pointer = _Ty*;
-        using const_pointer = const pointer;
-        using size_type = std::allocator<_Ty>::size_type;
+    public:
+        using value_type = _Ty;
 
-        template <typename U>
-        struct rebind
+        using size_type = size_t;
+        using difference_type = ptrdiff_t;
+
+        constexpr allocator() noexcept {}
+        constexpr allocator(const allocator&) noexcept = default;
+        template <class _Other>
+        constexpr allocator(const allocator<_Other>&) noexcept {}
+        ~allocator() = default;
+
+        allocator& operator=(const allocator&) = default;
+
+        _Ty* allocate(size_t _Count)
         {
-            typedef track_alloc<U> other;
-        };
-
-        track_alloc() {}
-
-        template <typename U>
-        track_alloc(track_alloc<U> const &u) : std::allocator<_Ty>(u) {}
-
-        pointer allocate(size_type size, const_pointer = 0)
-        {
-            void *p = std::malloc(size * sizeof(_Ty));
-            if (p == 0)
-                throw std::bad_alloc();
-            return static_cast<pointer>(p);
+            return std::allocator<_Ty>::allocate(_Count);
         }
 
-        void deallocate(pointer p, size_type)
+        void deallocate(_Ty* const _Ptr, const size_t _Count) 
         {
-            std::free(p);
+            //std::stringstream ss{};
+            //ss << "Deallocating: entity " << typeid(_Ty).name() << ", size: " << _Count << ", address: 0x" << static_cast<const void*>(_Ptr);
+            //logger::log(ELogLevel::eInfo, ss.str());
+            return std::allocator<_Ty>::deallocate(_Ptr, _Count);
         }
     };
 
-    using track_type = std::map<void *, std::size_t, std::less<void *>, track_alloc<std::pair<void *const, std::size_t>>>;
+    template<class _Ty>
+    using scope_ptr = std::unique_ptr<_Ty>;
 
-    struct track_printer
+    template<class _Ty, class... _Args>
+    constexpr utl::scope_ptr<_Ty> make_scope(_Args&& ...args)
     {
-        track_type *track;
-        track_printer(track_type *track) : track(track) {}
-        ~track_printer();
-    };
+        return std::make_unique<_Ty>(std::forward<_Args>(args)...);
+    }
+
+    template<class _Ty>
+    using ref_ptr = std::shared_ptr<_Ty>;
+
+    template<class _Ty>
+    using weak_ptr = std::weak_ptr<_Ty>;
+
+    template<class _Ty, class... _Args>
+    constexpr utl::ref_ptr<_Ty> make_ref(_Args&& ...args)
+    {
+        return std::allocate_shared<_Ty>(utl::allocator<_Ty>(), std::forward<_Args>(args)...);
+    }
 }

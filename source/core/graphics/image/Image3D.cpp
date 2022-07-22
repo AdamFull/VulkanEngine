@@ -1,16 +1,30 @@
 #include "Image3D.h"
 
-using namespace Engine::Core;
-using namespace Engine::Core::Noise;
-using namespace Engine::Resources;
+using namespace engine::core;
+using namespace engine::core::noise;
+using namespace engine::resources;
 
-void CImage3D::loadNoise(ENoisePattern ePattern, uint32_t width, uint32_t height, uint32_t depth)
+CImage3D::CImage3D(resources::ENoisePattern ePattern, const vk::Extent3D& extent)
 {
-    vk::Format format;
-    ktxTexture *texture;
-    Loaders::CImageLoader::allocateRawDataAsKTXTexture(&texture, &format, width, height, depth, 3, 0x8229);
+    loadNoise(ePattern, extent);
+}
 
-    initializeTexture(texture, format);
+void CImage3D::loadNoise(resources::ENoisePattern ePattern, const vk::Extent3D& extent)
+{
+    utl::scope_ptr<FImageCreateInfo> texture = utl::make_scope<FImageCreateInfo>();
+    texture->baseWidth = extent.width;
+    texture->baseHeight = extent.height;
+    texture->baseDepth = extent.depth;
+    texture->numDimensions = 3;
+    texture->isArray = false;
+    texture->numLayers = 1;
+    texture->numFaces = 1;
+    texture->dataSize = extent.width * extent.height * (extent.depth > 1 ? extent.depth : 4);
+
+    auto format = vk::Format::eR8Unorm;
+
+    //TODO: fix that
+    //initializeTexture(texture, format);
 
     switch (ePattern)
     {
@@ -23,17 +37,15 @@ void CImage3D::loadNoise(ENoisePattern ePattern, uint32_t width, uint32_t height
     }
 
     writeImageData(texture, format);
-
-    Loaders::CImageLoader::close(&texture);
     updateDescriptor();
 }
 
-void CImage3D::generatePerlinNoise(ktxTexture *texture)
+void CImage3D::generatePerlinNoise(utl::scope_ptr<FImageCreateInfo>& texture)
 {
     vk::DeviceSize imgSize = _extent.width * _extent.height * _extent.depth;
-    texture->pData = static_cast<unsigned char *>(calloc(imgSize, sizeof(unsigned char)));
+    //texture->pData.get() = static_cast<unsigned char *>(calloc(imgSize, sizeof(unsigned char)));
 
-    Noise::PerlinNoise<float> perlinNoise;
+    PerlinNoise<float> perlinNoise;
 
 #pragma omp parallel for
     for (int32_t z = 0; z < _extent.depth; z++)
@@ -56,13 +68,13 @@ void CImage3D::generatePerlinNoise(ktxTexture *texture)
     }
 }
 
-void CImage3D::generateFractalNoise(ktxTexture *texture, uint32_t octaves, float perceptation)
+void CImage3D::generateFractalNoise(utl::scope_ptr<FImageCreateInfo>& texture, uint32_t octaves, float perceptation)
 {
     vk::DeviceSize imgSize = _extent.width * _extent.height * _extent.depth;
-    texture->pData = static_cast<unsigned char *>(calloc(imgSize, sizeof(unsigned char)));
+    //texture->pData.get() = static_cast<unsigned char *>(calloc(imgSize, sizeof(unsigned char)));
 
-    Noise::PerlinNoise<float> perlinNoise;
-    Noise::FractalNoise<float> fractalNoise(perlinNoise, octaves, perceptation);
+    PerlinNoise<float> perlinNoise;
+    FractalNoise<float> fractalNoise(perlinNoise, octaves, perceptation);
 
     const float noiseScale = static_cast<float>(rand() % 10) + 4.0f;
 

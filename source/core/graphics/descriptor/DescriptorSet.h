@@ -1,26 +1,32 @@
 #pragma once
-#include <util/helpers.hpp>
 
-namespace Engine
+namespace engine
 {
-    namespace Core
+    namespace core
     {
-        namespace Pipeline { class CPipelineBase; }
-        namespace Descriptor
+        namespace pipeline { class CPipelineBase; }
+        namespace descriptor
         {
+            /**
+             * @brief Descriptor set class implementation
+             * 
+             */
             class CDescriptorSet : public utl::non_copyable
             {
             public:
                 CDescriptorSet() = default;
+                CDescriptorSet(vk::PipelineBindPoint bindPoint, vk::PipelineLayout& layout, vk::DescriptorPool& pool, vk::DescriptorSetLayout& setLayout);
+                CDescriptorSet(utl::scope_ptr<pipeline::CPipelineBase>& pPipeline);
                 ~CDescriptorSet();
 
-                void create(std::shared_ptr<Pipeline::CPipelineBase> pPipeline, uint32_t images);
-                void update(std::vector<vk::WriteDescriptorSet> &vWrites, uint32_t index);
-                void bind(const vk::CommandBuffer &commandBuffer, uint32_t index) const;
+                void update(std::vector<vk::WriteDescriptorSet> &vWrites);
+                void update(vk::WriteDescriptorSet &writes);
+                void bind(const vk::CommandBuffer &commandBuffer) const;
 
-                vk::DescriptorSet &get(uint32_t index) { return vDescriptorSets.at(index); }
+                vk::DescriptorSet &get();
 
             private:
+                void create(vk::PipelineBindPoint bindPoint, vk::PipelineLayout& layout, vk::DescriptorPool& pool, vk::DescriptorSetLayout& setLayout);
                 std::vector<vk::DescriptorSet> vDescriptorSets;
                 vk::PipelineBindPoint pipelineBindPoint;
                 vk::PipelineLayout pipelineLayout{nullptr};

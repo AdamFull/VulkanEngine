@@ -3,35 +3,36 @@
 #include "graphics/pipeline/Pipeline.h"
 #include "graphics/VulkanHighLevel.h"
 
-using namespace Engine::Core;
-using namespace Engine::Core::Descriptor;
+using namespace engine::core;
+using namespace engine::core::pipeline;
+using namespace engine::core::descriptor;
 
-CDescriptorHandler::~CDescriptorHandler()
+CDescriptorHandler::CDescriptorHandler(utl::scope_ptr<pipeline::CPipelineBase>& pPipeline)
 {
-
+    create(pPipeline);
 }
 
-void CDescriptorHandler::create(std::shared_ptr<Pipeline::CPipelineBase> pipeline)
+void CDescriptorHandler::create(utl::scope_ptr<CPipelineBase>& pipeline)
 {
-    uint32_t images = CSwapChain::getInstance()->getFramesInFlight();
-    pDescriptorSet = std::make_unique<CDescriptorSet>();
-    pDescriptorSet->create(pipeline, images);
-    pPipeline = pipeline;
+    pDescriptorSet = utl::make_scope<CDescriptorSet>(pipeline);
+    pPipeline = pipeline.get();
 }
 
-void CDescriptorHandler::update(uint32_t index)
+void CDescriptorHandler::update()
 {
+    auto& vkDevice = UDevice->getLogical();
+    assert(vkDevice && "Trying to update descriptor sets, but device is invalid.");
     for (auto &write : vWriteDescriptorSets)
-        write.dstSet = pDescriptorSet->get(index);
-    CDevice::getInstance()->getLogical().updateDescriptorSets(static_cast<uint32_t>(vWriteDescriptorSets.size()), vWriteDescriptorSets.data(), 0, nullptr);
+        write.dstSet = pDescriptorSet->get();
+    vkDevice.updateDescriptorSets(static_cast<uint32_t>(vWriteDescriptorSets.size()), vWriteDescriptorSets.data(), 0, nullptr);
 }
 
-void CDescriptorHandler::bind(const vk::CommandBuffer &commandBuffer, uint32_t index) const
+void CDescriptorHandler::bind(const vk::CommandBuffer &commandBuffer) const
 {
-    pDescriptorSet->bind(commandBuffer, index);
+    pDescriptorSet->bind(commandBuffer);
 }
 
-void CDescriptorHandler::clear()
+void CDescriptorHandler::reset()
 {
     vWriteDescriptorSets.clear();
 }
@@ -52,6 +53,8 @@ void CDescriptorHandler::set(const std::string& srUniformName, vk::DescriptorBuf
 void CDescriptorHandler::set(const std::string& srUniformName, vk::DescriptorImageInfo& imageInfo)
 {
     auto uniform = pPipeline->getShader()->getUniform(srUniformName);
+    if(!uniform)
+        return;
     auto descriptorType = uniform->getDescriptorType();
 
     vk::WriteDescriptorSet write{};

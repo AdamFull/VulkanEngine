@@ -1,13 +1,12 @@
 #pragma once
 #include "graphics/pipeline/Shader.h"
 #include "VulkanMaterial.h"
-#include <util/helpers.hpp>
 
-namespace Engine
+namespace engine
 {
-    namespace Resources
+    namespace resources
     {
-        namespace Material
+        namespace material
         {
             struct FMaterialInfo
             {
@@ -25,9 +24,11 @@ namespace Engine
                     vk::CullModeFlagBits culling{vk::CullModeFlagBits::eNone};
                     vk::FrontFace frontface{vk::FrontFace::eCounterClockwise};
                     vk::Bool32 enableDepth{VK_FALSE};
+                    vk::Bool32 enableTesselation{VK_FALSE};
                     std::vector<vk::DynamicState> dynamicStateEnables{vk::DynamicState::eViewport, vk::DynamicState::eScissor};
                     std::vector<std::string> stages;
-                    std::vector<Core::Pipeline::CShader::Define> defines;
+                    std::map<std::string, std::string> defines;
+                    bool multisampling{false};
                 };
                 std::unordered_map<std::string, FCreationInfo> creationInfo;
             };
@@ -38,19 +39,36 @@ namespace Engine
             void to_json(nlohmann::json &json, const FMaterialInfo &type);
             void from_json(const nlohmann::json &json, FMaterialInfo &type);
 
+            /**
+             * @brief Load materials from file
+             * 
+             */
             class CMaterialLoader : public utl::singleton<CMaterialLoader>
             {
             public:
                 CMaterialLoader();
-                ~CMaterialLoader();
 
-                std::shared_ptr<Material::CMaterialBase> create(const std::string &name);
+                /**
+                 * @brief Create material by name. All material create info stores in file "materials.json"
+                 * 
+                 * @param name Material name
+                 * @return utl::ref_ptr<Material::CMaterialBase> Smart pointer to material object
+                 */
+                utl::ref_ptr<CMaterialBase> create(const std::string &name);
 
             private:
+                /**
+                 * @brief Load file with material info
+                 * 
+                 */
                 void load();
+
+                /**
+                 * @brief Save file with material info
+                 * 
+                 */
                 void save();
 
-                std::map<std::string, std::shared_ptr<Material::CMaterialBase>> mMaterialCache;
                 FMaterialInfo data;
             };
         }

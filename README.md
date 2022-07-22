@@ -1,4 +1,8 @@
 # Incenerate - Vulkan based renderer
+
+## About
+
+I started this project for improve my skills in c++ and graphics technologies. I working in game development, but my duties do not include work with graphics in low level. In this project i developing render system based on OpenGL and Vulkan API. I don't think that i can call it as "engine", because it includes only graphics rendering. In future i'll add more features, and this "engine" will become to GLTF scene editor/renderer. "Engine" support only one mesh format(GLTF), and three formats for textures(KTX, KTX2(basisu), DDS).
  
 ### Most interesting resources
 
@@ -15,21 +19,31 @@ Vulkan programming guide book. To consolidate the material and study the subtlet
 Game engine architecture. Goog book for creating not bad game engine architecture.
 
 ### Features
+- [x] Vulkan API 1.3+
+- [ ] OpenGL 3+
 - [x] ImGui integration
 - [x] GLTF support
 - [x] KTX support
+- [x] KTX2 support
+- [ ] DDS support
 - [x] Deferred shading
+- [x] All light types (Directional light, point light spot light)
 - [x] HDR
-- [x] Bloom
-- [x] PBR + IBL
+- [ ] Bloom
+- [x] PBR(UE4)
+- [x] IBL
 - [x] Compute shaders
 - [x] Multithreading
-- [ ] Deferred multisampling
-- [ ] Deferred shadow mapping
+- [ ] Multisampling
+- [x] Dynamic directional shadows(for spot light, max 15)
+- [x] Omni shadows (single pass, max 16)
+- [ ] Cascade shadows(Only for directional, max 1)
 - [ ] Realtime reflections
-- [x] Instancing
-- [ ] Tescellation
+- [ ] Instancing
+- [x] Tescellation
 - [ ] SSAO
 - [x] Parallax mapping
 - [ ] Global illumination
-- [ ] Ray tracing
+
+### Screenshoots
+![directional shadows](/assets/screenshoots/first_shadow_test.png "Directional shadows(Spotlights)")

@@ -1,31 +1,36 @@
 #pragma once
+#include "util/threading.hpp"
 #include "graphics/renderpass/Subpass.h"
 #include "graphics/image/Image.h"
+#include "graphics/scene/objects/components/LightComponent.h"
 
-namespace Engine
+namespace engine
 {
-    namespace Core
-    {
-        namespace Render
-        {
-            class CPBRCompositionPass : public CSubpass
-            {
-            public:
-                void create(std::shared_ptr<Scene::CRenderObject>& root) override;
-                void render(vk::CommandBuffer& commandBuffer, std::shared_ptr<Scene::CRenderObject>& root) override;
-                void cleanup() override;
+	namespace core
+	{
+		namespace render
+		{
+			class CPBRCompositionPass : public CSubpass
+			{
+			public:
+				virtual ~CPBRCompositionPass();
+				void create() override;
+				void reCreate() override;
+				void render(vk::CommandBuffer &commandBuffer) override;
+				
 
-            protected:
-                static std::shared_ptr<CImage> ComputeBRDFLUT(uint32_t size);
-                static std::shared_ptr<CImage> ComputeIrradiance(const std::shared_ptr<CImage> &source, uint32_t size);
-                static std::shared_ptr<CImage> ComputePrefiltered(const std::shared_ptr<CImage> &source, uint32_t size);
-            private:
-                std::shared_ptr<CImage> m_pSkybox;
+			protected:
+				static utl::scope_ptr<CImage> ComputeBRDFLUT(uint32_t size);
+				static utl::scope_ptr<CImage> ComputeIrradiance(const utl::ref_ptr<CImage> &source, uint32_t size);
+				static utl::scope_ptr<CImage> ComputePrefiltered(const utl::ref_ptr<CImage> &source, uint32_t size);
 
-                utl::future<std::shared_ptr<CImage>> brdf;
-                utl::future<std::shared_ptr<CImage>> irradiance;
-                utl::future<std::shared_ptr<CImage>> prefiltered;
-            };
-        }
-    }
+			private:
+				utl::ref_ptr<CImage> m_pSkybox;
+
+				CFuture<utl::scope_ptr<CImage>> brdf;
+				CFuture<utl::scope_ptr<CImage>> irradiance;
+				CFuture<utl::scope_ptr<CImage>> prefiltered;
+			};
+		}
+	}
 }

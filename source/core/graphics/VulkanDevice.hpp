@@ -3,11 +3,10 @@
 #include "data_types/VulkanSwapChainSipportDetails.h"
 #include "serializer/Serialization.hpp"
 #include "graphics/commands/CommandBuffer.h"
-#include <util/helpers.hpp>
 
-namespace Engine
+namespace engine
 {
-    namespace Core
+    namespace core
     {
         struct FDeviceGraphicsInfo
         {
@@ -20,26 +19,31 @@ namespace Engine
         {
             vk::ApplicationInfo appInfo;
             bool validation;
-            std::vector<const char*> validationLayers;
-            std::vector<const char*> deviceExtensions;
+            std::vector<const char *> validationLayers;
+            std::vector<const char *> deviceExtensions;
             vk::PhysicalDeviceFeatures deviceFeatures;
 
             FDeviceGraphicsInfo graphics;
         };
 
-        class CDevice : public utl::singleton<CDevice>
+        class CDevice
         {
         public:
             CDevice() = default;
+            CDevice(const FDeviceCreateInfo &deviceCI);
             ~CDevice();
 
             static VkResult createDebugUtilsMessengerEXT(VkInstance, const VkDebugUtilsMessengerCreateInfoEXT *, const VkAllocationCallbacks *, VkDebugUtilsMessengerEXT *);
             static VKAPI_ATTR VkBool32 VKAPI_CALL validationCallback(VkDebugUtilsMessageSeverityFlagBitsEXT, VkDebugUtilsMessageTypeFlagsEXT, const VkDebugUtilsMessengerCallbackDataEXT *, void *);
             static void destroyDebugUtilsMessengerEXT(VkInstance, VkDebugUtilsMessengerEXT, const VkAllocationCallbacks *);
+            
+            void tryRebuildSwapchain();
+            void updateCommandPools();
 
-            void create(const FDeviceCreateInfo& deviceCI);
+            vk::Result acquireNextImage(uint32_t *imageIndex);
+            vk::Result submitCommandBuffers(const vk::CommandBuffer *commandBuffer, uint32_t *imageIndex, vk::QueueFlagBits queueBit);
 
-            inline void GPUWait() { m_logical.waitIdle(); }
+            inline void GPUWait() { vkDevice.waitIdle(); }
 
             uint32_t getVulkanVersion();
             /***************************************************Helpers***************************************************/
@@ -48,6 +52,7 @@ namespace Engine
             QueueFamilyIndices findQueueFamilies();
             SwapChainSupportDetails querySwapChainSupport(const vk::PhysicalDevice &device);
             SwapChainSupportDetails querySwapChainSupport();
+            vk::Extent2D chooseSwapExtent(const vk::SurfaceCapabilitiesKHR &surfaceCapabilities);
             std::vector<vk::SampleCountFlagBits> getAvaliableSampleCount();
             bool isSupportedSampleCount(vk::SampleCountFlagBits samples);
 
@@ -55,238 +60,260 @@ namespace Engine
             template <class T>
             void moveToMemory(T raw_data, vk::DeviceMemory &memory, vk::DeviceSize size)
             {
-                void *indata = m_logical->mapMemory(memory, 0, size);
+                void *indata = vkDevice->mapMemory(memory, 0, size);
                 memcpy(indata, raw_data, static_cast<size_t>(size));
-                m_logical->unmapMemory(memory);
+                vkDevice->unmapMemory(memory);
             }
 
             /*****************************************Image work helpers*****************************************/
-
-            void createOnDeviceBuffer(vk::DeviceSize size, vk::BufferUsageFlags usage, vk::MemoryPropertyFlags properties, vk::Buffer &buffer, vk::DeviceMemory &bufferMemory);
             void copyOnDeviceBuffer(vk::Buffer srcBuffer, vk::Buffer dstBuffer, vk::DeviceSize size);
 
             /**************************************************Getters********************************************/
-            inline vk::Instance &getVkInstance() { return m_vkInstance; }
-            inline vk::SurfaceKHR &getSurface() { return m_surface; }
-            inline std::shared_ptr<CCommandPool> getCommandPool() { return m_pCommandPool; }
+            inline vk::Instance &getVkInstance() { return vkInstance; }
+            inline vk::SurfaceKHR &getSurface() { return vkSurface; }
+            const utl::ref_ptr<CCommandPool> &getCommandPool(const std::thread::id &threadId = std::this_thread::get_id());
 
-            inline vk::PhysicalDevice getPhysical() { return m_physical; }
-            inline vk::Device &getLogical() { return m_logical; }
+            inline vk::PhysicalDevice &getPhysical() { return vkPhysical; }
+            inline vk::Device &getLogical() { return vkDevice; }
             inline vk::Queue &getGraphicsQueue() { return m_qGraphicsQueue; }
             inline vk::Queue &getPresentQueue() { return m_qPresentQueue; }
             inline vk::Queue &getComputeQueue() { return m_qComputeQueue; }
             inline vk::Queue &getTransferQueue() { return m_qTransferQueue; }
 
+            inline vk::PipelineCache &getPipelineCache() { return pipelineCache; }
+
             inline vk::SampleCountFlagBits getSamples() { return m_msaaSamples; }
+            inline vk::AllocationCallbacks *getAllocator() { return pAllocator; }
 
-            /********************************************Specializations***************************************/
-            template <class OutType, class InitializerType>
-            OutType make(InitializerType initializer) 
-            { 
-                assert(false && "Device: no Make specialisation found for given type");
-            }
+            // Swapchain getters
+            inline vk::Format getImageFormat() { return imageFormat; };
+            vk::Extent2D getExtent(bool automatic = false);
+            inline std::vector<vk::Image> &getImages() { return vImages; }
+            inline std::vector<vk::ImageView> &getImageViews() { return vImageViews; }
+            inline vk::SwapchainKHR &GetSwapChain() { return swapChain; }
+            inline std::vector<vk::Semaphore> &getImageAvailableSemaphores() { return vImageAvailableSemaphores; }
+            inline std::vector<vk::Semaphore> &getRenderFinishedSemaphores() { return vRenderFinishedSemaphores; }
+            inline std::vector<vk::Fence> &getInFlightFences() { return vInFlightFences; }
+            inline size_t getCurrentFrame() { return currentFrame; }
+            inline uint32_t getFramesInFlight() { return framesInFlight; }
+            float getAspect(bool automatic = false);
+            inline bool getReduildFlag() { return bSwapChainRebuild; }
+            inline void setRebuildFlag() { bSwapChainRebuild = true; }
 
-            template <>
-            vk::SwapchainKHR make(vk::SwapchainCreateInfoKHR initializer) 
-            { 
-                return m_logical.createSwapchainKHR(initializer); 
-            }
+            void setViewportExtent(vk::Extent2D extent);
+            inline const bool isNeedToRebuildViewport() const { return bViewportRebuild; }
 
-            template <>
-            std::vector<vk::Image> make(vk::SwapchainKHR initializer) 
-            { 
-                return m_logical.getSwapchainImagesKHR(initializer); 
-            }
-
-            template <>
-            vk::RenderPass make(vk::RenderPassCreateInfo initializer) 
-            { 
-                return m_logical.createRenderPass(initializer); 
-            }
-
-            template <>
-            vk::Framebuffer make(vk::FramebufferCreateInfo initializer) 
-            { 
-                return m_logical.createFramebuffer(initializer); 
-            }
-
-            template <>
-            vk::Semaphore make(vk::SemaphoreCreateInfo initializer) 
-            { 
-                return m_logical.createSemaphore(initializer); 
-            }
-
-            template <>
-            vk::Fence make(vk::FenceCreateInfo initializer) 
-            { 
-                return m_logical.createFence(initializer); 
-            }
-
-            template <>
-            vk::ShaderModule make(vk::ShaderModuleCreateInfo initializer) 
-            { 
-                return m_logical.createShaderModule(initializer);
-            }
-
-            template <>
-            vk::PipelineLayout make(vk::PipelineLayoutCreateInfo initializer) 
-            { 
-                return m_logical.createPipelineLayout(initializer);
-            }
-
-            template <>
-            vk::Pipeline make(vk::GraphicsPipelineCreateInfo initializer) 
-            { 
-                return m_logical.createGraphicsPipeline(nullptr, initializer).value; 
-            }
-
-            template <>
-            vk::DescriptorPool make(vk::DescriptorPoolCreateInfo initializer) 
-            { 
-                return m_logical.createDescriptorPool(initializer); 
-            }
-
-            //Destroyers
-            template <class ToDestroy>
-            void destroy(ToDestroy &instance) 
-            { 
-                assert(false && "Device: no Destroy specialisation found for given type"); 
-            } // Instance destroyer)
-
-            template <>
-            void destroy(vk::Sampler &instance) 
-            { 
-                m_logical.destroySampler(instance); 
-            }
-
-            template <>
-            void destroy(vk::ImageView &instance) 
-            { 
-                m_logical.destroyImageView(instance); 
-            }
-
-            template <>
-            void destroy(vk::Image &instance) 
-            { 
-                m_logical.destroyImage(instance); 
-            }
-
-            template <>
-            void destroy(vk::Buffer &instance) 
-            { 
-                m_logical.destroyBuffer(instance); 
-            }
-
-            template <>
-            void destroy(vk::DeviceMemory &instance) 
-            { 
-                m_logical.freeMemory(instance); 
-            }
-
-            template <>
-            void destroy(vk::Framebuffer &instance) 
-            { 
-                m_logical.destroyFramebuffer(instance); 
-            }
-
-            template <>
-            void destroy(vk::RenderPass &instance) 
-            { 
-                m_logical.destroyRenderPass(instance); 
-            }
-
-            template <>
-            void destroy(vk::SwapchainKHR &instance) 
-            { 
-                m_logical.destroySwapchainKHR(instance); 
-            }
-
-            template <>
-            void destroy(vk::Pipeline &instance) 
-            { 
-                m_logical.destroyPipeline(instance); 
-            }
-
-            template <>
-            void destroy(vk::PipelineLayout &instance) 
-            { 
-                m_logical.destroyPipelineLayout(instance); 
-            }
-
-            template <>
-            void destroy(vk::PipelineCache &instance) 
-            { 
-                m_logical.destroyPipelineCache(instance); 
-            }
-
-            template <>
-            void destroy(vk::ShaderModule &instance) 
+            template <class _Ty, class _Ret>
+            vk::Result create(_Ty &info, _Ret *ref)
             {
-                m_logical.destroyShaderModule(instance); 
+                assert(false && "Unknown object type.");
+                return vk::Result::eSuccess;
+            }
+            template <>
+            vk::Result create(vk::InstanceCreateInfo &info, vk::Instance *ref)
+            {
+                return vk::createInstance(&info, pAllocator, ref);
+            }
+            template <>
+            vk::Result create(vk::DeviceCreateInfo &info, vk::Device *ref)
+            {
+                return vkPhysical.createDevice(&info, pAllocator, ref);
+            }
+            template <>
+            vk::Result create(vk::SwapchainCreateInfoKHR &info, vk::SwapchainKHR *ref)
+            {
+                return vkDevice.createSwapchainKHR(&info, pAllocator, ref);
+            }
+            template <>
+            vk::Result create(vk::RenderPassCreateInfo &info, vk::RenderPass *ref)
+            {
+                return vkDevice.createRenderPass(&info, pAllocator, ref);
+            }
+            template <>
+            vk::Result create(vk::FramebufferCreateInfo &info, vk::Framebuffer *ref)
+            {
+                return vkDevice.createFramebuffer(&info, pAllocator, ref);
+            }
+            template <>
+            vk::Result create(vk::SemaphoreCreateInfo &info, vk::Semaphore *ref)
+            {
+                return vkDevice.createSemaphore(&info, pAllocator, ref);
+            }
+            template <>
+            vk::Result create(vk::FenceCreateInfo &info, vk::Fence *ref)
+            {
+                return vkDevice.createFence(&info, pAllocator, ref);
+            }
+            template <>
+            vk::Result create(vk::ShaderModuleCreateInfo &info, vk::ShaderModule *ref)
+            {
+                return vkDevice.createShaderModule(&info, pAllocator, ref);
+            }
+            template <>
+            vk::Result create(vk::PipelineLayoutCreateInfo &info, vk::PipelineLayout *ref)
+            {
+                return vkDevice.createPipelineLayout(&info, pAllocator, ref);
+            }
+            template <>
+            vk::Result create(vk::GraphicsPipelineCreateInfo &info, vk::Pipeline *ref)
+            {
+                return vkDevice.createGraphicsPipelines(pipelineCache, 1, &info, pAllocator, ref);
+            }
+            template <>
+            vk::Result create(vk::ComputePipelineCreateInfo &info, vk::Pipeline *ref)
+            {
+                return vkDevice.createComputePipelines(pipelineCache, 1, &info, pAllocator, ref);
+            }
+            template <>
+            vk::Result create(vk::DescriptorSetLayoutCreateInfo &info, vk::DescriptorSetLayout *ref)
+            {
+                return vkDevice.createDescriptorSetLayout(&info, pAllocator, ref);
+            }
+            template <>
+            vk::Result create(vk::MemoryAllocateInfo &info, vk::DeviceMemory *ref)
+            {
+                return vkDevice.allocateMemory(&info, pAllocator, ref);
+            }
+            template <>
+            vk::Result create(vk::ImageCreateInfo &info, vk::Image *ref)
+            {
+                return vkDevice.createImage(&info, pAllocator, ref);
+            }
+            template <>
+            vk::Result create(vk::ImageViewCreateInfo &info, vk::ImageView *ref)
+            {
+                return vkDevice.createImageView(&info, pAllocator, ref);
+            }
+            template <>
+            vk::Result create(vk::SamplerCreateInfo &info, vk::Sampler *ref)
+            {
+                return vkDevice.createSampler(&info, pAllocator, ref);
+            }
+            template <>
+            vk::Result create(vk::CommandPoolCreateInfo &info, vk::CommandPool *ref)
+            {
+                return vkDevice.createCommandPool(&info, pAllocator, ref);
+            }
+            template <>
+            vk::Result create(vk::CommandBufferAllocateInfo &info, vk::CommandBuffer *ref)
+            {
+                return vkDevice.allocateCommandBuffers(&info, ref);
+            }
+            template <>
+            vk::Result create(vk::DescriptorSetAllocateInfo &info, vk::DescriptorSet *ref)
+            {
+                return vkDevice.allocateDescriptorSets(&info, ref);
+            }
+            template <>
+            vk::Result create(vk::PipelineCacheCreateInfo &info, vk::PipelineCache *ref)
+            {
+                return vkDevice.createPipelineCache(&info, pAllocator, ref);
+            }
+            template <>
+            vk::Result create(vk::BufferCreateInfo &info, vk::Buffer *ref)
+            {
+                return vkDevice.createBuffer(&info, pAllocator, ref);
+            }
+            template <>
+            vk::Result create(vk::DescriptorPoolCreateInfo &info, vk::DescriptorPool *ref)
+            {
+                return vkDevice.createDescriptorPool(&info, pAllocator, ref);
             }
 
+            template <class _Ty>
+            void destroy(_Ty *ref) { assert(false && "Unknown object type."); }
             template <>
-            void destroy(vk::CommandPool &instance) 
-            { 
-                m_logical.destroyCommandPool(instance); 
-            }
-
+            void destroy(vk::Instance *ref) { vkDestroyInstance(*ref, (const VkAllocationCallbacks *)pAllocator); }
             template <>
-            void destroy(vk::SurfaceKHR &instance) 
-            { 
-                m_vkInstance.destroySurfaceKHR(instance); 
-            }
-
+            void destroy(vk::Device *ref) { vkDestroyDevice(*ref, (const VkAllocationCallbacks *)pAllocator); }
             template <>
-            void destroy(vk::DescriptorSetLayout &instance) 
-            { 
-                m_logical.destroyDescriptorSetLayout(instance); 
-            }
-
+            void destroy(vk::Sampler *ref) { vkDevice.destroySampler(*ref, pAllocator); }
             template <>
-            void destroy(vk::DescriptorPool &instance) 
-            { 
-                m_logical.destroyDescriptorPool(instance); 
-            }
-
+            void destroy(vk::Image *ref) { vkDevice.destroyImage(*ref, pAllocator); }
             template <>
-            void destroy(vk::Semaphore &instance) 
-            { 
-                m_logical.destroySemaphore(instance); 
-            }
-
+            void destroy(vk::ImageView *ref) { vkDevice.destroyImageView(*ref, pAllocator); }
             template <>
-            void destroy(vk::Fence &instance) 
-            { 
-                m_logical.destroyFence(instance); 
-            }
+            void destroy(vk::Buffer *ref) { vkDevice.destroyBuffer(*ref, pAllocator); }
+            template <>
+            void destroy(vk::DeviceMemory *ref) { vkDevice.freeMemory(*ref, pAllocator); }
+            template <>
+            void destroy(vk::Framebuffer *ref) { vkDevice.destroyFramebuffer(*ref, pAllocator); }
+            template <>
+            void destroy(vk::RenderPass *ref) { vkDevice.destroyRenderPass(*ref, pAllocator); }
+            template <>
+            void destroy(vk::SwapchainKHR *ref) { vkDevice.destroySwapchainKHR(*ref, pAllocator); }
+            template <>
+            void destroy(vk::Pipeline *ref) { vkDevice.destroyPipeline(*ref, pAllocator); }
+            template <>
+            void destroy(vk::PipelineLayout *ref) { vkDevice.destroyPipelineLayout(*ref, pAllocator); }
+            template <>
+            void destroy(vk::PipelineCache *ref) { vkDevice.destroyPipelineCache(*ref, pAllocator); }
+            template <>
+            void destroy(vk::ShaderModule *ref) { vkDevice.destroyShaderModule(*ref, pAllocator); }
+            template <>
+            void destroy(vk::CommandPool *ref) { vkDevice.destroyCommandPool(*ref, pAllocator); }
+            template <>
+            void destroy(vk::SurfaceKHR *ref) { vkInstance.destroySurfaceKHR(*ref, pAllocator); }
+            template <>
+            void destroy(vk::DescriptorSetLayout *ref) { vkDevice.destroyDescriptorSetLayout(*ref, pAllocator); }
+            template <>
+            void destroy(vk::DescriptorPool *ref) { vkDevice.destroyDescriptorPool(*ref, pAllocator); }
+            template <>
+            void destroy(vk::Semaphore *ref) { vkDevice.destroySemaphore(*ref, pAllocator); }
+            template <>
+            void destroy(vk::Fence *ref) { vkDevice.destroyFence(*ref, pAllocator); }
 
         private:
-            void createInstance(const FDeviceCreateInfo& deviceCI);
-            void createDebugCallback(const FDeviceCreateInfo& deviceCI);
+            void create(const FDeviceCreateInfo &deviceCI);
+            void cleanup();
+
+            void createInstance(const FDeviceCreateInfo &deviceCI);
+            void createDebugCallback(const FDeviceCreateInfo &deviceCI);
             void createSurface();
-            void createDevice(const FDeviceCreateInfo& deviceCI);
+            void createDevice(const FDeviceCreateInfo &deviceCI);
+            void createPipelineCache();
+            void createSwapchain();
+            void cleanupSwapchain();
 
             // Private helpers
-            vk::PhysicalDevice getPhysicalDevice(const std::vector<const char*>& deviceExtensions);
-            std::vector<vk::PhysicalDevice> getAvaliablePhysicalDevices(const std::vector<const char*>& deviceExtensions);
-            bool isDeviceSuitable(const vk::PhysicalDevice &device, const std::vector<const char*>& deviceExtensions);
+            vk::PhysicalDevice getPhysicalDevice(const std::vector<const char *> &deviceExtensions);
+            std::vector<vk::PhysicalDevice> getAvaliablePhysicalDevices(const std::vector<const char *> &deviceExtensions);
+            bool isDeviceSuitable(const vk::PhysicalDevice &device, const std::vector<const char *> &deviceExtensions);
 
         private:
-            vk::Instance m_vkInstance; // Main vulkan instance
-            VkDebugUtilsMessengerEXT m_vkDebugUtils;
-            vk::SurfaceKHR m_surface; // Vulkan's drawing surface
-            std::shared_ptr<CCommandPool> m_pCommandPool{};
+            vk::Instance vkInstance{VK_NULL_HANDLE}; // Main vulkan instance
+            VkDebugUtilsMessengerEXT m_vkDebugUtils{NULL};
+            vk::SurfaceKHR vkSurface{VK_NULL_HANDLE}; // Vulkan's drawing surface
+            std::map<std::thread::id, utl::ref_ptr<CCommandPool>> commandPools;
+            vk::AllocationCallbacks *pAllocator{nullptr};
 
-            vk::PhysicalDevice m_physical;
-            vk::Device m_logical;
+            vk::PhysicalDevice vkPhysical;
+            vk::Device vkDevice;
             vk::Queue m_qGraphicsQueue;
             vk::Queue m_qPresentQueue;
             vk::Queue m_qComputeQueue;
             vk::Queue m_qTransferQueue;
 
+            vk::PipelineCache pipelineCache{VK_NULL_HANDLE};
             vk::SampleCountFlagBits m_msaaSamples{vk::SampleCountFlagBits::e1};
             bool m_bValidation{false};
+
+            // Swapchain instances
+            vk::Format imageFormat;
+            vk::Extent2D swapchainExtent;
+            vk::SwapchainKHR swapChain{VK_NULL_HANDLE};
+            size_t currentFrame{0};
+            uint32_t framesInFlight{4};
+            bool bSwapChainRebuild{};
+
+            vk::Extent2D viewportExtent;
+            bool bViewportRebuild{false};
+
+            std::vector<vk::Image> vImages;
+            std::vector<vk::ImageView> vImageViews;
+            std::vector<vk::Semaphore> vImageAvailableSemaphores;
+            std::vector<vk::Semaphore> vRenderFinishedSemaphores;
+            std::vector<vk::Fence> vInFlightFences;
         };
 
         REGISTER_SERIALIZATION_BLOCK_H(vk::ApplicationInfo);

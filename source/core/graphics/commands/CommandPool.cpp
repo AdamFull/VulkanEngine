@@ -1,21 +1,22 @@
 #include "CommandPool.h"
 #include "graphics/VulkanHighLevel.h"
 
-using namespace Engine::Core;
+using namespace engine::core;
 
 CCommandPool::CCommandPool(const std::thread::id &threadId) : threadId(threadId) 
 {
-    auto& logical = CDevice::getInstance()->getLogical();
-	QueueFamilyIndices queueFamilyIndices = CDevice::getInstance()->findQueueFamilies(CDevice::getInstance()->getPhysical());
+    //TODO: refactor here device calls
+	QueueFamilyIndices queueFamilyIndices = UDevice->findQueueFamilies();
 
     vk::CommandPoolCreateInfo poolInfo = {};
     poolInfo.flags = vk::CommandPoolCreateFlagBits::eTransient | vk::CommandPoolCreateFlagBits::eResetCommandBuffer;
     poolInfo.queueFamilyIndex = queueFamilyIndices.graphicsFamily.value();
 
-    commandPool = logical.createCommandPool(poolInfo);
+    vk::Result res = UDevice->create(poolInfo, &commandPool);
+    assert(res == vk::Result::eSuccess && "Cannot create command pool.");
 }
 
 CCommandPool::~CCommandPool() 
 {
-	CDevice::getInstance()->destroy(commandPool);
+	UDevice->destroy(&commandPool);
 }

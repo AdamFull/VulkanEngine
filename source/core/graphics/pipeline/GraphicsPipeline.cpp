@@ -2,7 +2,8 @@
 #include "graphics/VulkanHighLevel.h"
 #include "graphics/VulkanInitializers.h"
 
-using namespace Engine::Core::Pipeline;
+using namespace engine::core::render;
+using namespace engine::core::pipeline;
 
 void CGraphicsPipeline::create(vk::RenderPass& renderPass, uint32_t subpass)
 {
@@ -12,8 +13,12 @@ void CGraphicsPipeline::create(vk::RenderPass& renderPass, uint32_t subpass)
 
 void CGraphicsPipeline::createPipeline()
 {
-    assert(CDevice::getInstance() && "Cannot create pipeline, cause logical device is not valid.");
-    assert(CSwapChain::getInstance() && "Cannot create pipeline, cause render pass is not valid.");
+    vk::Bool32 depthBias{VK_FALSE};
+    for(auto& dynamicState : m_vDynamicStateEnables)
+    {
+        if(dynamicState == vk::DynamicState::eDepthBias)
+            depthBias = VK_TRUE;
+    }
 
     auto& bindingDescription = m_vertexInput.getInputBindingDescription();
     auto& attributeDescription = m_vertexInput.getInputAttributeDescription();
@@ -26,30 +31,18 @@ void CGraphicsPipeline::createPipeline()
     vertexInputCI.pVertexBindingDescriptions = &bindingDescription;
     vertexInputCI.pVertexAttributeDescriptions = attributeDescription.data();
 
-    auto inputAssembly = Initializers::PipelineInputAssemblyStateCI(vk::PrimitiveTopology::eTriangleList, VK_FALSE);
-    auto rasterizer = Initializers::PipelineRasterizerStateCI(vk::PolygonMode::eFill, m_culling, m_fontface);
+    auto attachmentCount = URenderer->getCurrentStage()->getCurrentFramebuffer()->getCurrentDescription().colorAttachmentCount;
+    bool isDepthOnly = attachmentCount == 0;
+    auto inputAssembly = Initializers::PipelineInputAssemblyStateCI(bEnableTesselation ? vk::PrimitiveTopology::ePatchList : vk::PrimitiveTopology::eTriangleList, VK_FALSE);
+    auto rasterizer = Initializers::PipelineRasterizerStateCI(vk::PolygonMode::eFill, m_culling, m_fontface, isDepthOnly, depthBias); //bEnableTesselation ? vk::PolygonMode::eLine : 
     vk::PipelineMultisampleStateCreateInfo multisampling{};
     multisampling.rasterizationSamples = vk::SampleCountFlagBits::e1;
-
-    vk::SpecializationMapEntry specializationEntry{};
-    specializationEntry.constantID = 0;
-	specializationEntry.offset = 0;
-	specializationEntry.size = sizeof(uint32_t);
-
-    uint32_t specializationData = static_cast<uint32_t>(CDevice::getInstance()->getSamples());
-	vk::SpecializationInfo specializationInfo;
-	specializationInfo.mapEntryCount = 1;
-	specializationInfo.pMapEntries = &specializationEntry;
-	specializationInfo.dataSize = sizeof(specializationData);
-	specializationInfo.pData = &specializationData;
-
     
-    auto attachmentCount = CRenderSystem::getInstance()->getCurrentStage()->getRenderPass()->getCurrentDescription().colorAttachmentCount;
     std::vector<vk::PipelineColorBlendAttachmentState> colorBlendAttachments;
     for(uint32_t i = 0; i < attachmentCount; i++)
     {
         vk::PipelineColorBlendAttachmentState colorBlendAttachment =
-        Initializers::PipelineColorBlendAttachmentState(vk::ColorComponentFlagBits::eR | vk::ColorComponentFlagBits::eG | vk::ColorComponentFlagBits::eB | vk::ColorComponentFlagBits::eA, VK_TRUE);
+        Initializers::PipelineColorBlendAttachmentState(vk::ColorComponentFlagBits::eR | vk::ColorComponentFlagBits::eG | vk::ColorComponentFlagBits::eB | vk::ColorComponentFlagBits::eA, VK_FALSE);
         colorBlendAttachments.emplace_back(colorBlendAttachment);
     }
 
@@ -70,13 +63,10 @@ void CGraphicsPipeline::createPipeline()
     viewportState.viewportCount = 1;
     viewportState.scissorCount = 1;
 
-    auto shaderStages = m_pShader->getStageCreateInfo();
-    auto foundStage = std::find_if(shaderStages.begin(), shaderStages.end(), [](const vk::PipelineShaderStageCreateInfo& ci){
-        return ci.stage & vk::ShaderStageFlagBits::eFragment;
-    });
+    vk::PipelineTessellationStateCreateInfo tessellationState{};
+    tessellationState.patchControlPoints = 3;
 
-    if(foundStage != shaderStages.begin())
-        foundStage->pSpecializationInfo = &specializationInfo;
+    auto shaderStages = m_pShader->getStageCreateInfo();
 
     vk::GraphicsPipelineCreateInfo pipelineInfo = {};
     pipelineInfo.stageCount = shaderStages.size();
@@ -88,18 +78,15 @@ void CGraphicsPipeline::createPipeline()
     pipelineInfo.pMultisampleState = &multisampling;
     pipelineInfo.pColorBlendState = &colorBlending;
     pipelineInfo.pDepthStencilState = &depthStencil;
-    pipelineInfo.layout = m_pipelineLayout;
+    pipelineInfo.layout = pipelineLayout;
     pipelineInfo.renderPass = m_renderPass;
     pipelineInfo.subpass = subpass;
     pipelineInfo.basePipelineHandle = nullptr;
     pipelineInfo.pDynamicState = &dynamicStateInfo;
 
-    auto result = CDevice::getInstance()->getLogical().createGraphicsPipelines(UHLInstance->getPipelineCache(), 1, &pipelineInfo, nullptr, &m_pipeline);
-    assert(m_pipeline && "Failed creating pipeline.");
-}
+    if(bEnableTesselation)
+        pipelineInfo.pTessellationState = &tessellationState;
 
-void CGraphicsPipeline::recreatePipeline()
-{
-    recreateShaders();
-    createPipeline();
+    auto result = UDevice->create(pipelineInfo, &pipeline);
+    assert(pipeline && "Failed creating pipeline.");
 }

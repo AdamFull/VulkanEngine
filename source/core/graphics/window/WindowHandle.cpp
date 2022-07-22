@@ -1,13 +1,13 @@
 #include "WindowHandle.h"
 #include "WinCallbacks.h"
 
-using namespace Engine::Core::Window;
+using namespace engine::core::window;
 
-namespace Engine
+namespace engine
 {
-    namespace Core
+    namespace core
     {
-        namespace Window
+        namespace window
         {
             void to_json(nlohmann::json &json, const FWindowCreateInfo &type)
             {
@@ -17,7 +17,6 @@ namespace Engine
                     {"width", type.width},
                     {"height", type.height},
                     {"fullscreen", type.fullscreen},
-                    {"windowed", type.windowed},
                     {"backend", {type.backend}}
                 };
             }
@@ -28,15 +27,11 @@ namespace Engine
                 ParseArgument(json, type.width, "width", true);
                 ParseArgument(json, type.height, "height", true);
                 ParseArgument(json, type.fullscreen, "fullscreen");
-                ParseArgument(json, type.windowed, "windowed");
                 ParseArgument(json, type.backend, "backend", true);
             }
         }
     }
 }
-
-template<>
-std::unique_ptr<CWindowHandle> utl::singleton<CWindowHandle>::_instance{nullptr};
 
 int32_t CWindowHandle::m_iWidth{800};
 int32_t CWindowHandle::m_iHeight{600};
@@ -44,8 +39,11 @@ bool CWindowHandle::m_bWasResized{false};
 
 CWindowHandle::CWindowHandle()
 {
-    glfwInit();
-    glfwWindowHint(GLFW_CLIENT_API, GLFW_NO_API);
+}
+
+CWindowHandle::CWindowHandle(FWindowCreateInfo createInfo)
+{
+    create(createInfo);
 }
 
 CWindowHandle::~CWindowHandle()
@@ -55,6 +53,9 @@ CWindowHandle::~CWindowHandle()
 
 void CWindowHandle::create(FWindowCreateInfo createInfo)
 {
+    glfwInit();
+    glfwWindowHint(GLFW_CLIENT_API, GLFW_NO_API);
+
     auto* pPrimaryMonitor = glfwGetPrimaryMonitor();
     const GLFWvidmode* mode = glfwGetVideoMode(pPrimaryMonitor);
     if(createInfo.fullscreen)
@@ -71,33 +72,34 @@ void CWindowHandle::create(FWindowCreateInfo createInfo)
     glfwWindowHint(GLFW_DECORATED, GLFW_TRUE);
     glfwWindowHint(GLFW_VISIBLE, GLFW_TRUE);
 
-    if(createInfo.windowed)
-        m_pWindow = glfwCreateWindow(createInfo.width, createInfo.height, createInfo.name.c_str(), nullptr, nullptr);
-    else
-        m_pWindow = glfwCreateWindow(createInfo.width, createInfo.height, createInfo.name.c_str(), pPrimaryMonitor, nullptr);
-
-    glfwSetWindowUserPointer(m_pWindow, this);
-    glfwSetInputMode(m_pWindow, GLFW_STICKY_KEYS, GLFW_TRUE);
     if(createInfo.fullscreen)
-        glfwSetInputMode(m_pWindow, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
+    {
+        pWindow = glfwCreateWindow(createInfo.width, createInfo.height, createInfo.name.c_str(), pPrimaryMonitor, nullptr);
+        //glfwSetInputMode(pWindow, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
+    }
+    else
+        pWindow = glfwCreateWindow(createInfo.width, createInfo.height, createInfo.name.c_str(), nullptr, nullptr);
 
-    glfwSetWindowSizeCallback(m_pWindow, &WinCallbacks::WinSizeChangeCallback);
-    glfwSetWindowFocusCallback(m_pWindow, &WinCallbacks::WinInputFocusChangeCallback);
-    glfwSetCursorEnterCallback(m_pWindow, &WinCallbacks::WinInputCursorEnterCallback);
-    glfwSetCursorPosCallback(m_pWindow, &WinCallbacks::WinInputCursorPositionCallback);
-    glfwSetMouseButtonCallback(m_pWindow, &WinCallbacks::WinInputMouseButtonCallback);
-    glfwSetScrollCallback(m_pWindow, &WinCallbacks::WinInputScrollCallback);
-    glfwSetKeyCallback(m_pWindow, &WinCallbacks::WinInputKeyCallback);
-    glfwSetCharCallback(m_pWindow, &WinCallbacks::WinInputCharCallback);
+    glfwSetWindowUserPointer(pWindow, this);
+    glfwSetInputMode(pWindow, GLFW_STICKY_KEYS, GLFW_TRUE);
+
+    glfwSetWindowSizeCallback(pWindow, &WinCallbacks::WinSizeChangeCallback);
+    glfwSetWindowFocusCallback(pWindow, &WinCallbacks::WinInputFocusChangeCallback);
+    glfwSetCursorEnterCallback(pWindow, &WinCallbacks::WinInputCursorEnterCallback);
+    glfwSetCursorPosCallback(pWindow, &WinCallbacks::WinInputCursorPositionCallback);
+    glfwSetMouseButtonCallback(pWindow, &WinCallbacks::WinInputMouseButtonCallback);
+    glfwSetScrollCallback(pWindow, &WinCallbacks::WinInputScrollCallback);
+    glfwSetKeyCallback(pWindow, &WinCallbacks::WinInputKeyCallback);
+    glfwSetCharCallback(pWindow, &WinCallbacks::WinInputCharCallback);
     glfwSetMonitorCallback(&WinCallbacks::WinInputMonitorCallback);
 
     WinCallbacks::SubscribeSizeChange(this, &CWindowHandle::resizeWindow);
 }
 
-void CWindowHandle::createWindowSurface(vk::Instance &instance, vk::SurfaceKHR &surface)
+void CWindowHandle::createWindowSurface(vk::Instance &instance, const void* pAllocator, VkSurfaceKHR &surface)
 {
     VkSurfaceKHR rawSurface;
-    if (glfwCreateWindowSurface(instance, m_pWindow, nullptr, &rawSurface) != VK_SUCCESS)
+    if (glfwCreateWindowSurface(instance, pWindow, (const VkAllocationCallbacks*)pAllocator, &rawSurface) != VK_SUCCESS)
     {
         throw std::runtime_error("Failed to create window surface!");
     }
@@ -109,7 +111,7 @@ void CWindowHandle::wait()
 {
     while (m_iWidth == 0 || m_iHeight == 0)
     {
-        glfwGetFramebufferSize(m_pWindow, &m_iWidth, &m_iHeight);
+        glfwGetFramebufferSize(pWindow, &m_iWidth, &m_iHeight);
         glfwWaitEvents();
     }
 }
@@ -123,6 +125,6 @@ void CWindowHandle::resizeWindow(int iWidth, int iHeight)
 
 void CWindowHandle::close()
 {
-    glfwDestroyWindow(m_pWindow);
+    glfwDestroyWindow(pWindow);
     glfwTerminate();
 }

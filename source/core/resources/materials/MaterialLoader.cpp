@@ -1,6 +1,8 @@
 #include "MaterialLoader.h"
 #include "filesystem/FilesystemHelper.h"
 #include "graphics/data_types/VulkanVertex.hpp"
+#include "graphics/pipeline/ComputePipeline.h"
+#include "graphics/pipeline/GraphicsPipeline.h"
 
 namespace vk
 {
@@ -80,11 +82,11 @@ namespace vk
     )
 }
 
-namespace Engine
+namespace engine
 {
-    namespace Resources
+    namespace resources
     {
-        namespace Material
+        namespace material
         {
             NLOHMANN_JSON_SERIALIZE_ENUM
             (
@@ -105,9 +107,11 @@ namespace Engine
                     {"culling", type.culling},
                     {"frontface", type.frontface},
                     {"depth", type.enableDepth},
+                    {"tesselation", type.enableTesselation},
                     {"dynamicStates", type.dynamicStateEnables},
                     {"stages", type.stages},
                     {"defines", type.defines},
+                    {"multisampling", type.multisampling}
                 };
             }
 
@@ -118,9 +122,11 @@ namespace Engine
                 ParseArgument(json, type.culling, "culling", false);
                 ParseArgument(json, type.frontface, "frontface", false);
                 ParseArgument(json, type.enableDepth, "depth", false);
+                ParseArgument(json, type.enableTesselation, "tesselation", false);
                 ParseArgument(json, type.dynamicStateEnables, "dynamicStates", false);
                 ParseArgument(json, type.stages, "stages", true);
                 ParseArgument(json, type.defines, "defines", false);
+                ParseArgument(json, type.multisampling, "multisampling", false);
             }
 
             void to_json(nlohmann::json &json, const FMaterialInfo &type)
@@ -139,26 +145,22 @@ namespace Engine
     }
 }
 
-using namespace Engine::Resources;
-using namespace Engine::Resources::Material;
-using namespace Engine::Core;
-using namespace Engine::Core::Pipeline;
+using namespace engine::resources;
+using namespace engine::resources::material;
+using namespace engine::core;
+using namespace engine::core::pipeline;
 
 template<>
-std::unique_ptr<CMaterialLoader> utl::singleton<CMaterialLoader>::_instance{nullptr};
+utl::scope_ptr<CMaterialLoader> utl::singleton<CMaterialLoader>::_instance{nullptr};
 
 CMaterialLoader::CMaterialLoader()
 {
     load();
 }
 
-CMaterialLoader::~CMaterialLoader()
+utl::ref_ptr<CMaterialBase> CMaterialLoader::create(const std::string& name)
 {
-    //save();
-}
-
-std::shared_ptr<CMaterialBase> CMaterialLoader::create(const std::string& name)
-{
+    //TODO: Check ability to store same materials
     auto it = data.creationInfo.find(name);
     if(it != data.creationInfo.end())
     {
@@ -171,25 +173,53 @@ std::shared_ptr<CMaterialBase> CMaterialLoader::create(const std::string& name)
             case FMaterialInfo::EVertexType::eImgui: vertexInput = CVertexInput(FVertexUI::getBindingDescription(), FVertexUI::getAttributeDescriptions()); break;
         }
 
-        std::shared_ptr<CMaterialBase> material = std::make_unique<CMaterialBase>();
-        material->m_pPipeline = CPipelineBase::Builder().
-        setVertexInput(std::move(vertexInput)).
-        setCulling(ci.culling).
-        setFontFace(ci.frontface).
-        setDepthEnabled(ci.enableDepth).
-        setDynamicStates(ci.dynamicStateEnables).
-        setShaderStages(ci.stages).
-        setDefines(ci.defines).
-        build(ci.bindPoint);
+        utl::ref_ptr<CMaterialBase> material = utl::make_scope<CMaterialBase>();
+    
+        switch (ci.bindPoint)
+        {
+        case vk::PipelineBindPoint::eCompute: material->pPipeline = utl::make_scope<CComputePipeline>(); break;
+        case vk::PipelineBindPoint::eGraphics: material->pPipeline = utl::make_scope<CGraphicsPipeline>(); break;
+        case vk::PipelineBindPoint::eRayTracingKHR: material->pPipeline = utl::make_scope<CComputePipeline>(); break;
+        case vk::PipelineBindPoint::eSubpassShadingHUAWEI: material->pPipeline = utl::make_scope<CComputePipeline>(); break;
+        }
+
+        material->pPipeline->setBindPoint(ci.bindPoint);
+
+        std::vector<std::string> stages;
+        if(ci.enableTesselation)
+        {
+            ci.defines.emplace("USE_TESSELLATION", "");
+            stages = ci.stages;
+        }
+        else
+        {
+            for(auto& stage : ci.stages)
+            {
+                auto ext = fs::path(stage).extension().string();
+                if(ext != ".tesc" && ext != ".tese")
+                    stages.emplace_back(stage);
+            }
+        }
+
+        material->pPipeline->setDefines(std::move(ci.defines));
+        material->pPipeline->setShaderStages(std::move(stages));
+
+        if(ci.bindPoint == vk::PipelineBindPoint::eGraphics)
+        {
+            material->pPipeline->setVertexInput(std::move(vertexInput));
+            material->pPipeline->setCulling(ci.culling);
+            material->pPipeline->setFontFace(ci.frontface);
+            material->pPipeline->setDepthEnabled(ci.enableDepth);
+            material->pPipeline->setTesselationEnabled(ci.enableTesselation);
+            material->pPipeline->setDynamicStates(ci.dynamicStateEnables);
+        }    
+
         return material;
     }
     
     return nullptr;
 }
 
-//i can load number of attachments from stage or from shader but from shader is harder
-//Create buffer of stage attachments
-//Create method to access for render stage from subpasses
 void CMaterialLoader::load()
 {
     auto tmp = FilesystemHelper::readFile("materials.json");

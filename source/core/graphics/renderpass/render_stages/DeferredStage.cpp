@@ -2,98 +2,83 @@
 #include "graphics/VulkanHighLevel.h"
 #include "graphics/commands/CommandBuffer.h"
 #include "graphics/renderpass/subpasses/GBufferPass.h"
+#include "graphics/renderpass/subpasses/SSAOPass.h"
+#include "graphics/renderpass/subpasses/SSRPass.h"
 #include "graphics/renderpass/subpasses/PBRCompositionPass.h"
 
-using namespace Engine::Core;
-using namespace Engine::Core::Render;
+using namespace engine::core;
+using namespace engine::core::render;
 
-CDeferredStage::~CDeferredStage()
+void CDeferredStage::create()
 {
-    cleanup();
+    detectExtent = true;
+    screenExtent = UDevice->getExtent(detectExtent);
+
+    auto gbuffer_pass = utl::make_scope<CFramebufferNew>();
+    //gbuffer_pass->setFlipViewport(VK_TRUE);
+    gbuffer_pass->setRenderArea(vk::Offset2D{0, 0}, screenExtent);
+
+    gbuffer_pass->addImage("packed_tex", vk::Format::eR32G32B32A32Uint, vk::ImageUsageFlagBits::eColorAttachment | vk::ImageUsageFlagBits::eSampled);
+    gbuffer_pass->addImage("emission_tex", vk::Format::eB10G11R11UfloatPack32, vk::ImageUsageFlagBits::eColorAttachment | vk::ImageUsageFlagBits::eSampled);
+    gbuffer_pass->addImage("depth_tex", CImage::getDepthFormat(), vk::ImageUsageFlagBits::eDepthStencilAttachment | vk::ImageUsageFlagBits::eSampled);
+    gbuffer_pass->addOutputReference(0U, "packed_tex", "emission_tex");
+    gbuffer_pass->addDescription(0U, "depth_tex");
+
+    gbuffer_pass->addSubpassDependency(VK_SUBPASS_EXTERNAL, 0, vk::PipelineStageFlagBits::eFragmentShader,
+    vk::PipelineStageFlagBits::eColorAttachmentOutput | vk::PipelineStageFlagBits::eEarlyFragmentTests,
+    vk::AccessFlagBits::eShaderRead, vk::AccessFlagBits::eColorAttachmentWrite | vk::AccessFlagBits::eDepthStencilAttachmentRead | vk::AccessFlagBits::eDepthStencilAttachmentWrite);
+    gbuffer_pass->addSubpassDependency(0, VK_SUBPASS_EXTERNAL, vk::PipelineStageFlagBits::eColorAttachmentOutput | vk::PipelineStageFlagBits::eEarlyFragmentTests,
+    vk::PipelineStageFlagBits::eColorAttachmentOutput, vk::AccessFlagBits::eColorAttachmentWrite | vk::AccessFlagBits::eDepthStencilAttachmentWrite, vk::AccessFlagBits::eColorAttachmentWrite);
+    gbuffer_pass->addRenderer(utl::make_scope<CGBufferPass>());
+    vFramebuffer.emplace_back(std::move(gbuffer_pass));
+
+    auto ssr_pass = utl::make_scope<CFramebufferNew>();
+    //ssr_pass->setFlipViewport(VK_TRUE);
+    ssr_pass->setRenderArea(vk::Offset2D{0, 0}, screenExtent);
+
+    ssr_pass->addImage("ssr_tex", vk::Format::eB10G11R11UfloatPack32, vk::ImageUsageFlagBits::eColorAttachment | vk::ImageUsageFlagBits::eSampled);
+    ssr_pass->addOutputReference(0U, "ssr_tex");
+    ssr_pass->addDescription(0U);
+
+    ssr_pass->addSubpassDependency(VK_SUBPASS_EXTERNAL, 0, vk::PipelineStageFlagBits::eColorAttachmentOutput, vk::PipelineStageFlagBits::eTopOfPipe,
+    vk::AccessFlagBits::eColorAttachmentWrite, vk::AccessFlagBits::eMemoryRead | vk::AccessFlagBits::eMemoryWrite);
+    ssr_pass->addSubpassDependency(0, VK_SUBPASS_EXTERNAL, vk::PipelineStageFlagBits::eBottomOfPipe, vk::PipelineStageFlagBits::eFragmentShader,
+    vk::AccessFlagBits::eMemoryRead | vk::AccessFlagBits::eMemoryWrite, vk::AccessFlagBits::eShaderRead);  
+
+    ssr_pass->addRenderer(utl::make_scope<CSSRPass>());
+    vFramebuffer.emplace_back(std::move(ssr_pass));
+
+    auto composition_pass = utl::make_scope<CFramebufferNew>();
+    composition_pass->setFlipViewport(VK_TRUE);
+    composition_pass->setRenderArea(vk::Offset2D{0, 0}, screenExtent);
+
+    composition_pass->addImage("composition_tex", vk::Format::eR32G32B32A32Sfloat, vk::ImageUsageFlagBits::eColorAttachment | vk::ImageUsageFlagBits::eSampled);
+    
+    composition_pass->addOutputReference(0U, "composition_tex");
+    composition_pass->addDescription(0U);
+
+    /*composition_pass->addSubpassDependency(VK_SUBPASS_EXTERNAL, 0, vk::PipelineStageFlagBits::eColorAttachmentOutput, vk::PipelineStageFlagBits::eTopOfPipe,
+    vk::AccessFlagBits::eColorAttachmentWrite, vk::AccessFlagBits::eMemoryRead | vk::AccessFlagBits::eMemoryWrite);
+    composition_pass->addSubpassDependency(0, VK_SUBPASS_EXTERNAL, vk::PipelineStageFlagBits::eBottomOfPipe, vk::PipelineStageFlagBits::eFragmentShader,
+    vk::AccessFlagBits::eMemoryRead | vk::AccessFlagBits::eMemoryWrite, vk::AccessFlagBits::eShaderRead);*/
+
+    composition_pass->addSubpassDependency(VK_SUBPASS_EXTERNAL, 0, vk::PipelineStageFlagBits::eColorAttachmentOutput, vk::PipelineStageFlagBits::eTopOfPipe,
+    vk::AccessFlagBits::eColorAttachmentWrite, vk::AccessFlagBits::eMemoryRead | vk::AccessFlagBits::eMemoryWrite);
+    composition_pass->addSubpassDependency(0, VK_SUBPASS_EXTERNAL, vk::PipelineStageFlagBits::eBottomOfPipe, vk::PipelineStageFlagBits::eFragmentShader,
+    vk::AccessFlagBits::eMemoryRead | vk::AccessFlagBits::eMemoryWrite, vk::AccessFlagBits::eShaderRead);
+    composition_pass->addRenderer(utl::make_scope<CPBRCompositionPass>());
+    vFramebuffer.emplace_back(std::move(composition_pass));
+    CRenderStage::create();
 }
 
-void CDeferredStage::create(std::shared_ptr<Scene::CRenderObject>& root)
+void CDeferredStage::rebuild()
 {
-    screenExtent = CSwapChain::getInstance()->getExtent();
-
-    std::vector<vk::AttachmentReference> vReferences_0
+    screenExtent = UDevice->getExtent(detectExtent);
+    framebufferIndex = 0;
+    for(auto& framebuffer : vFramebuffer)
     {
-        {0, vk::ImageLayout::eColorAttachmentOptimal},
-        {1, vk::ImageLayout::eColorAttachmentOptimal},
-        {2, vk::ImageLayout::eColorAttachmentOptimal},
-        {3, vk::ImageLayout::eColorAttachmentOptimal},
-        {4, vk::ImageLayout::eColorAttachmentOptimal},
-        {5, vk::ImageLayout::eColorAttachmentOptimal},
-        {6, vk::ImageLayout::eColorAttachmentOptimal}
-    };
-    vk::AttachmentReference depthReference{8, vk::ImageLayout::eDepthStencilAttachmentOptimal};
-
-    std::vector<vk::AttachmentReference> vReferences_1
-    {
-        {0, vk::ImageLayout::eColorAttachmentOptimal},
-        {7, vk::ImageLayout::eColorAttachmentOptimal}
-    };
-
-    std::vector<vk::AttachmentReference> vInputReferences_1
-    {
-        {1, vk::ImageLayout::eShaderReadOnlyOptimal},
-        {2, vk::ImageLayout::eShaderReadOnlyOptimal},
-        {3, vk::ImageLayout::eShaderReadOnlyOptimal},
-        {4, vk::ImageLayout::eShaderReadOnlyOptimal},
-        {5, vk::ImageLayout::eShaderReadOnlyOptimal},
-        {6, vk::ImageLayout::eShaderReadOnlyOptimal}
-    };
-
-    pRenderPass = Render::CRenderPass::Builder().
-    //KHR color attachment
-    addAttachmentDescription(CSwapChain::getInstance()->getImageFormat(), vk::SampleCountFlagBits::e1, vk::AttachmentLoadOp::eClear, vk::AttachmentStoreOp::eStore, 
-    vk::AttachmentLoadOp::eDontCare, vk::AttachmentStoreOp::eDontCare, vk::ImageLayout::eUndefined, vk::ImageLayout::ePresentSrcKHR).
-    addAttachmentDescription(vk::Format::eR16G16B16A16Sfloat). //Position buffer
-    addAttachmentDescription(vk::Format::eR16G16B16A16Sfloat). //Light mask buffer
-    addAttachmentDescription(vk::Format::eR16G16B16A16Sfloat). //Normals buffer
-    addAttachmentDescription(vk::Format::eR8G8B8A8Snorm). //Albedo buffer
-    addAttachmentDescription(vk::Format::eR8G8B8A8Snorm). //Emissive buffer
-    addAttachmentDescription(vk::Format::eR8G8B8A8Snorm). //Metal, roughness, AmbientOcclusion, Height maps buffer
-    addAttachmentDescription(vk::Format::eR16G16B16A16Sfloat). //Temporary image buffer
-    addAttachmentDescription(CImage::getDepthFormat(), vk::SampleCountFlagBits::e1, vk::AttachmentLoadOp::eClear, vk::AttachmentStoreOp::eDontCare, 
-    vk::AttachmentLoadOp::eDontCare, vk::AttachmentStoreOp::eDontCare, vk::ImageLayout::eUndefined, vk::ImageLayout::eDepthStencilAttachmentOptimal). //Depth stencil
-    //GBuffer description
-    addSubpassDescription(vk::PipelineBindPoint::eGraphics, vReferences_0, &depthReference).
-    //PBR composition description
-    addSubpassDescription(vk::PipelineBindPoint::eGraphics, vReferences_1, &depthReference, vInputReferences_1).
-    //Begin drawing gbuffer
-    addSubpassDependency(VK_SUBPASS_EXTERNAL, 0, vk::PipelineStageFlagBits::eBottomOfPipe, vk::PipelineStageFlagBits::eColorAttachmentOutput,
-    vk::AccessFlagBits::eMemoryRead, vk::AccessFlagBits::eColorAttachmentRead | vk::AccessFlagBits::eColorAttachmentWrite).
-    //Begin drawing first composition
-    addSubpassDependency(0, 1).
-    //Draw final composition
-    addSubpassDependency(1, VK_SUBPASS_EXTERNAL, vk::PipelineStageFlagBits::eColorAttachmentOutput, vk::PipelineStageFlagBits::eBottomOfPipe,
-    vk::AccessFlagBits::eColorAttachmentRead | vk::AccessFlagBits::eColorAttachmentWrite, vk::AccessFlagBits::eMemoryRead).
-    build();
-
-    pRenderPass->pushSubpass(std::make_shared<CGBufferPass>());
-    pRenderPass->pushSubpass(std::make_shared<CPBRCompositionPass>());
-
-    pFramebuffer = std::make_unique<CFramebuffer>();
-    pFramebuffer->addImage("present_khr", CSwapChain::getInstance()->getImageFormat(), vk::ImageUsageFlagBits::eColorAttachment | vk::ImageUsageFlagBits::eInputAttachment);
-    pFramebuffer->addImage("position_tex", vk::Format::eR16G16B16A16Sfloat, vk::ImageUsageFlagBits::eColorAttachment | vk::ImageUsageFlagBits::eInputAttachment);
-    pFramebuffer->addImage("lightning_mask_tex", vk::Format::eR16G16B16A16Sfloat, vk::ImageUsageFlagBits::eColorAttachment | vk::ImageUsageFlagBits::eInputAttachment);
-    pFramebuffer->addImage("normal_tex", vk::Format::eR16G16B16A16Sfloat, vk::ImageUsageFlagBits::eColorAttachment | vk::ImageUsageFlagBits::eInputAttachment);
-    pFramebuffer->addImage("albedo_tex", vk::Format::eR8G8B8A8Snorm, vk::ImageUsageFlagBits::eColorAttachment | vk::ImageUsageFlagBits::eInputAttachment);
-    pFramebuffer->addImage("emission_tex", vk::Format::eR8G8B8A8Snorm, vk::ImageUsageFlagBits::eColorAttachment | vk::ImageUsageFlagBits::eInputAttachment);
-    pFramebuffer->addImage("mrah_tex", vk::Format::eR8G8B8A8Snorm, vk::ImageUsageFlagBits::eColorAttachment | vk::ImageUsageFlagBits::eInputAttachment);
-    pFramebuffer->addImage("brightness_buffer", vk::Format::eR16G16B16A16Sfloat, vk::ImageUsageFlagBits::eColorAttachment | vk::ImageUsageFlagBits::eInputAttachment);
-    pFramebuffer->addImage("depth_image", CImage::getDepthFormat(), vk::ImageUsageFlagBits::eDepthStencilAttachment | vk::ImageUsageFlagBits::eInputAttachment);
-
-    pRenderPass->setRenderArea(vk::Offset2D{0, 0}, screenExtent);
-    pFramebuffer->create(pRenderPass->get(), screenExtent);
-    pRenderPass->create(root);
-}
-
-void CDeferredStage::reCreate()
-{
-    screenExtent = CSwapChain::getInstance()->getExtent();
-    pRenderPass->setRenderArea(vk::Offset2D{0, 0}, screenExtent);
-    pRenderPass->reCreate();
-    pFramebuffer->reCreate(pRenderPass->get());
+        framebuffer->setRenderArea(vk::Offset2D{0, 0}, screenExtent);
+        framebuffer->reCreate();
+        framebufferIndex++;
+    }
 }

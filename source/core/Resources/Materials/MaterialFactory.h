@@ -2,18 +2,28 @@
 #include "resources/ResourceCunstruct.h"
 #include "MaterialLoader.h"
 
-namespace Engine
+namespace engine
 {
-    namespace Resources
+    namespace resources
     {
-        namespace Material
+        namespace material
         {
+            /**
+             * @brief Factory that creates material from create info
+             * 
+             */
             struct CMaterialFactory
             {
-                using material_t = std::unique_ptr<CMaterialBase>;
+                using material_t = utl::scope_ptr<CMaterialBase>;
 
             public:
-                static std::shared_ptr<CMaterialBase> create(FMaterialCreateInfo info);
+                /**
+                 * @brief Creating material uses name of material for load data from MaterialLoader
+                 * 
+                 * @param info Material create info
+                 * @return utl::ref_ptr<CMaterialBase> Material smart pointer object
+                 */
+                static utl::ref_ptr<CMaterialBase> create(FMaterialCreateInfo info);
             };
         }
     }

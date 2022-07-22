@@ -1,35 +1,28 @@
 #pragma once
 
+#ifdef VULKAN_API_SUPPORT
 #define GLFW_INCLUDE_VULKAN
-#define APP_NAME "Vulkan App"
+#include <vulkan/vulkan.hpp>
+#endif
+
+#ifdef OPENGL_API_SUPPORT
+#endif
 
 #include <GLFW/glfw3.h>
-#include <vulkan/vulkan.hpp>
-
-#define STB_IMAGE_STATIC
-
-#define _USE_MATH_DEFINES
-#include <cmath>
 
 #define GLM_FORCE_RADIANS
 #define GLM_FORCE_DEPTH_ZERO_TO_ONE
 #define GLM_ENABLE_EXPERIMENTAL
+#define GLM_FORCE_XYZW_ONLY
+
 #include <glm/glm.hpp>
-#include <glm/gtc/matrix_transform.hpp>
-#include <glm/gtx/vector_angle.hpp>
 #include <glm/gtx/hash.hpp>
-#include <glm/gtx/matrix_operation.hpp>
 #include <glm/gtc/type_ptr.hpp>
+#include <glm/gtc/matrix_transform.hpp>
+#include <glm/gtx/matrix_decompose.hpp>
 
-#include <external/tinygltf/json.hpp>
-
-#include <util/uuid.hpp>
-#include <util/memory.hpp>
-#include <util/function.hpp>
-#include <util/ulog.hpp>
-#include <util/threading.hpp>
-#include <util/DynamicNode.hpp>
-#include <util/StringHelper.h>
+#define _USE_MATH_DEFINES
+#include <cmath>
 
 #include <cassert>
 #include <memory>
@@ -46,12 +39,27 @@
 #include <random>
 #include <functional>
 #include <sstream>
-#include <random>
+#include <queue>
+#include <variant>
 
 #include <chrono>
 
 #include <format>
 #include <source_location>
 
+#include <thread>
+#include <mutex>
+#include <condition_variable>
+#include <future>
+
 #include <filesystem>
 namespace fs = std::filesystem;
+
+constexpr const uint32_t max_light_count = 32;
+
+#include <util/ulog.hpp>
+#include <util/memory.hpp>
+#include <util/function.hpp>
+#include <util/helpers.hpp>
+#include <util/bimap.hpp>
+#include "configuration.h"

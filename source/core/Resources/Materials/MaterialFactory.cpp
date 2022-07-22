@@ -2,18 +2,18 @@
 #include "resources/ResourceManager.h"
 #include "graphics/VulkanHighLevel.h"
 
-using namespace Engine::Resources;
-using namespace Engine::Resources::Material;
+using namespace engine::core;
+using namespace engine::resources;
+using namespace engine::resources::material;
 
-std::shared_ptr<CMaterialBase> CMaterialFactory::create(FMaterialCreateInfo info)
+utl::ref_ptr<CMaterialBase> CMaterialFactory::create(FMaterialCreateInfo info)
 {
-    auto material = CMaterialLoader::getInstance()->create(info.srName);
+    auto material = CMaterialLoader::inst()->create(info.srName);
 
     for (auto &texInfo : info.vTextures)
     {
-        std::shared_ptr<Core::CImage> texture = std::make_shared<Core::CImage>();
-        texture->loadFromFile(texInfo.srSrc);
-        CResourceManager::getInstance()->addExisting<Core::CImage>(texInfo.srName, texture);
+        auto texture = utl::make_ref<CImage>(texInfo.srSrc);
+        UResources->addExisting(texInfo.srName, texture);
         material->addTexture(texInfo.attachment, texture);
     }
 

@@ -1,24 +1,34 @@
 #include "ResourceManager.h"
 #include "filesystem/FilesystemHelper.h"
 #include "graphics/VulkanHighLevel.h"
+#include "graphics/image/Image2D.h"
 
-using namespace Engine::Core;
-using namespace Engine::Resources;
-using namespace Engine::Resources::Material;
-using namespace Engine::Resources::Mesh;
+using namespace engine::core;
+using namespace engine::resources;
+using namespace engine::resources::material;
 
-template <>
-std::unique_ptr<CResourceManager> utl::singleton<CResourceManager>::_instance{nullptr};
+CResourceManager::~CResourceManager()
+{
+    cleanup();
+}
 
 void CResourceManager::create()
 {
-    std::shared_ptr<CImage> pEmptyTexture = std::make_shared<CImage>();
-    pEmptyTexture->createEmptyTexture(512, 512, 1, 2, 0x8C43);
+    //Creating empty texture
+    auto pEmptyTexture = utl::make_ref<CImage>("empty.ktx2");
     addExisting("no_texture", pEmptyTexture);
+}
+
+void CResourceManager::cleanup()
+{
+    m_mTextures.clear();
+    m_mMaterials.clear();
 }
 
 void CResourceManager::load(std::string srResourcesPath)
 {
+    //Not sure that this method still works
+    //TODO: check is this methos still uses
     auto input = FilesystemHelper::readFile(srResourcesPath);
     auto res_json = nlohmann::json::parse(input).front();
 
@@ -31,11 +41,8 @@ void CResourceManager::load(std::string srResourcesPath)
     res_json.at("meshes").get_to(vMeshes);
 
     for (auto texture : vTextures)
-        Add<CImage>(texture);
+        add<CImage>(texture);
 
     for (auto material : vMaterials)
-        Add<CMaterialBase>(material);
-
-    for (auto mesh : vMeshes)
-        Add<CMeshFragment>(mesh);
+        add<CMaterialBase>(material);
 }

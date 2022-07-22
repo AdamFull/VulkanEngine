@@ -1,55 +1,147 @@
 #pragma once
 #include "external/tinygltf/tiny_gltf.h"
-#include "resources/meshes/VulkanMesh.h"
 #include "graphics/data_types/VulkanVertex.hpp"
 
-namespace Engine
+namespace engine
 {
-    namespace Core
-    {
-        class CImage;
-    }
-    namespace Resources
-    {
-        namespace Material { class CMaterialBase; }
-
-        namespace Loaders
+    namespace core 
+    { 
+        class CImage; 
+        namespace scene 
         {
-            class GLTFSceneNode;
-            
+            class CRenderObject;
+        }
+    }
+    namespace resources
+    {
+        namespace material { class CMaterialBase; }
+
+        namespace loaders
+        {            
+            /**
+             * @brief GLTF model loader
+             * 
+             */
             struct GLTFLoader
             {
             public:
+            /**
+             * @brief Construct a new GLTFLoader object
+             * 
+             * @param loadMaterials Load included materials or not
+             * @param useMaterials Use included materials or load empty
+             * @param modelName Model name
+             * @param volumeName Model volume name (deprecated)
+             */
                 GLTFLoader(bool loadMaterials, bool useMaterials, const std::string& modelName, const std::string& volumeName);
 
-                void load(std::string srPath, std::string srName);
+                /**
+                 * @brief Load model from file
+                 * 
+                 * @param srPath Path to model file
+                 * @param srName Model name
+                 */
+                void load(utl::ref_ptr<core::scene::CRenderObject>& pParent, const std::string& srPath, const std::string& srName);
 
-                inline void addMaterial(std::shared_ptr<Material::CMaterialBase> material) { vMaterials.emplace_back(material); }
-
-                inline const std::shared_ptr<Mesh::CMeshBase> getMesh() const { return m_pMesh; }
+                /**
+                 * @brief Add new material
+                 * 
+                 * @param material Material smart pointer object
+                 */
+                inline void addMaterial(utl::ref_ptr<material::CMaterialBase>&& material) { vMaterials.emplace_back(material); }
 
             private:
-                void loadNode(std::shared_ptr<GLTFSceneNode> pParent, const tinygltf::Node &node, uint32_t nodeIndex, const tinygltf::Model &model, float globalscale);
+                /**
+                 * @brief Loads gltf scene node
+                 * 
+                 * @param pParent Parent node
+                 * @param node Current scene node
+                 * @param nodeIndex Current node index
+                 * @param model Current node mesh data
+                 * @param globalscale Override global node scale
+                 */
+                void loadNode(utl::ref_ptr<core::scene::CRenderObject>& pParent, const tinygltf::Node &node, uint32_t nodeIndex, const tinygltf::Model &model, float globalscale);
 
-                void loadMeshFragment(std::shared_ptr<GLTFSceneNode> sceneNode, const tinygltf::Node &node, const tinygltf::Model &model);
-                void recalculateTangents(std::vector<Core::FVertex>& vertices, std::vector<uint32_t>& indices, uint64_t startIndex);
+                /**
+                 * @brief Loads mesh fragment from scene node
+                 * 
+                 * @param sceneNode Current node
+                 * @param node Current scene node
+                 * @param model Current node mesh data
+                 */
+                void loadMeshFragment(utl::ref_ptr<core::scene::CRenderObject>& sceneNode, const tinygltf::Node &node, const tinygltf::Model &model);
 
+                /**
+                 * @brief 
+                 * 
+                 */
+                void loadCamera(utl::ref_ptr<core::scene::CRenderObject>& sceneNode, const tinygltf::Node &node, const tinygltf::Model &model);
+
+                /**
+                 * @brief 
+                 * 
+                 */
+                void loadSkin(utl::ref_ptr<core::scene::CRenderObject>& sceneNode, const tinygltf::Node &node, const tinygltf::Model &model);
+
+                /**
+                 * @brief 
+                 * 
+                 */
+                void loadLight(utl::ref_ptr<core::scene::CRenderObject>& sceneNode, uint32_t light_index, const tinygltf::Node &node, const tinygltf::Model &model);
+
+                /**
+                 * @brief Recalculates tangents for fragment vertices and indices
+                 * 
+                 * @param vertices Input vertex data
+                 * @param indices Input index data
+                 * @param startIndex Index in global VBO
+                 */
+                void recalculateTangents(std::vector<core::FVertex>& vertices, std::vector<uint32_t>& indices, uint64_t startIndex);
+
+                /**
+                 * @brief Loads mesh attached animations
+                 * 
+                 * @param model Current node mesh data
+                 */
                 void loadAnimations(const tinygltf::Model &model);
 
+                /**
+                 * @brief Load attached materials
+                 * 
+                 * @param model Current node mesh data
+                 */
                 void loadMaterials(const tinygltf::Model &model);
+
+                /**
+                 * @brief Load attached textures
+                 * 
+                 * @param model Current node mesh data
+                 */
                 void loadTextures(const tinygltf::Model &model);
-                std::shared_ptr<Core::CImage> loadTexture(const tinygltf::Image &model, std::string path);
+
+                /**
+                 * @brief Load single texture helper
+                 * 
+                 * @param model Current node mesh data
+                 * @param path Texture path
+                 * @return utl::ref_ptr<Core::CImage> Smart pointer texture object
+                 */
+                utl::ref_ptr<core::CImage> loadTexture(const tinygltf::Image &model, const fs::path& path);
+
+                /**
+                 * @brief Load mesh skinning data
+                 * 
+                 * @param model Current node mesh data
+                 */
                 void loadSkins(const tinygltf::Model &model);
 
                 uint32_t current_primitive;
-                std::shared_ptr<Mesh::CMeshBase> m_pMesh;
-                //std::shared_ptr<Light::Point> m_pPointLights;
-                //std::shared_ptr<Camera::Base> m_pCameras;
-                std::vector<std::shared_ptr<Core::CImage>> vTextures;
-                std::vector<std::shared_ptr<Material::CMaterialBase>> vMaterials;
+                //utl::ref_ptr<Light::Point> m_pPointLights;
+                //utl::ref_ptr<Camera::Base> m_pCameras;
+                std::vector<utl::ref_ptr<core::CImage>> vTextures;
+                std::vector<utl::ref_ptr<material::CMaterialBase>> vMaterials;
 
-                std::vector<std::shared_ptr<GLTFSceneNode>> m_vNodes;
-                std::vector<std::shared_ptr<GLTFSceneNode>> m_vLinearNodes;
+                fs::path fsParentPath{""};
 
                 //Parameters
                 bool bLoadTextures;

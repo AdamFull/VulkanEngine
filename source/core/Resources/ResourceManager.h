@@ -2,44 +2,70 @@
 #include "ResourceCunstruct.h"
 
 #include "graphics/image/Image.h"
+#include "graphics/image/Image2D.h"
 #include "materials/VulkanMaterial.h"
-#include "meshes/MeshFragment.h"
-#include "meshes/MeshFactory.h"
+#include "materials/MaterialFactory.h"
 //Old code in this includer, remove
 
-namespace Engine
+namespace engine
 {
-    namespace Resources
+    namespace resources
     {
-        class CResourceManager : public utl::singleton<CResourceManager>
+        /**
+         * @brief Resource manager just holding inside all created resources while engine works
+         * 
+         */
+        class CResourceManager
         {
         public:
+            ~CResourceManager();
+            /**
+             * @brief Creates resource manager with empty texture object
+             * 
+             */
             void create();
+
+            /**
+             * @brief Loads resource manager from file
+             * 
+             * @param srResourcesPath Path to resources file
+             */
             void load(std::string srResourcesPath);
 
-            template <class ResType>
-            void addExisting(std::string srResourceName, std::shared_ptr<ResType> pResource)
-            {
-                assert(false && "Cannot find resource type");
-            }
-
+            /**
+             * @brief Add resource template function
+             * 
+             * @tparam ResType Resource type
+             * @tparam InfoType Type of resource info
+             * @param info Resource info object
+             * @return utl::ref_ptr<ResType> Smart pointer to resource object
+             */
             template <class ResType, class InfoType>
-            std::shared_ptr<ResType> Add(InfoType info)
+            utl::ref_ptr<ResType>& add(const InfoType& info)
             {
                 assert(false && "Cannot find resource type");
                 return nullptr;
             }
 
+            /**
+             * @brief Returns resource by name
+             * 
+             * @tparam ResType Resource type
+             * @param srResourceName Resource name
+             * @return utl::ref_ptr<ResType> Smart pointer to resource object
+             */
             template <class ResType>
-            std::shared_ptr<ResType> Get(std::string srResourceName)
+            utl::ref_ptr<ResType>& get(const std::string& srResourceName)
             {
                 assert(false && "Cannot find resource type");
-                return nullptr;
+                return nullptr_ref(ResType);
             }
 
             /*******************************For texture****************************/
-            template <>
-            void addExisting<Core::CImage>(std::string srResourceName, std::shared_ptr<Core::CImage> pResource)
+            /**
+             * @brief Add existing texture object to resource manager
+             */
+            void addExisting(const std::string& srResourceName, utl::ref_ptr<core::CImage>& pResource)
             {
                 auto it = m_mTextures.find(srResourceName);
                 if (it != m_mTextures.end())
@@ -47,17 +73,53 @@ namespace Engine
                 m_mTextures.emplace(srResourceName, pResource);
             }
 
-            template <>
-            std::shared_ptr<Core::CImage> Add(FTextureCreateInfo info)
+            /**
+             * @brief Add existing texture2D object to resource manager
+             */
+            void addExisting(const std::string& srResourceName, utl::ref_ptr<core::CImage2D>& pResource)
             {
-                std::shared_ptr<Core::CImage> texture = std::make_unique<Core::CImage>();
-                texture->loadFromFile(info.srSrc);
-                addExisting(info.srName, texture);
-                return nullptr;
+                auto it = m_mTextures.find(srResourceName);
+                if (it != m_mTextures.end())
+                    assert(false && "Resource named: is already exists.");
+                m_mTextures.emplace(srResourceName, pResource);
             }
 
+            /**
+             * @brief Specialization for image object (texture)
+             * 
+             * @param info Image create info 
+             * @return utl::ref_ptr<Core::CImage> Smart pointer to resource object
+             */
             template <>
-            std::shared_ptr<Core::CImage> Get(std::string srResourceName)
+            utl::ref_ptr<core::CImage>& add(const FTextureCreateInfo& info)
+            {
+                utl::ref_ptr<core::CImage> texture = utl::make_scope<core::CImage>(info.srSrc);
+                addExisting(info.srName, texture);
+                return pNullImage;
+            }
+
+            /**
+             * @brief Specialization for image2D object (texture)
+             * 
+             * @param info Image create info 
+             * @return utl::ref_ptr<Core::CImage> Smart pointer to resource object
+             */
+            template <>
+            utl::ref_ptr<core::CImage2D>& add(const FTextureCreateInfo& info)
+            {
+                utl::ref_ptr<core::CImage> texture = utl::make_scope<core::CImage2D>(info.srSrc);
+                addExisting(info.srName, texture);
+                return pNullImage2D;
+            }
+
+            /**
+             * @brief Get smart pointer to created image
+             * 
+             * @param srResourceName Image name
+             * @return utl::ref_ptr<Core::CImage> Smart pointer to resource object
+             */
+            template <>
+            utl::ref_ptr<core::CImage>& get(const std::string& srResourceName)
             {
                 auto it = m_mTextures.find(srResourceName);
                 if (it != m_mTextures.end())
@@ -66,8 +128,10 @@ namespace Engine
             }
 
             /*******************************For material****************************/
-            template <>
-            void addExisting<Material::CMaterialBase>(std::string srResourceName, std::shared_ptr<Material::CMaterialBase> pResource)
+            /**
+             * @brief Add existing Material object to resource manager
+             */
+            void addExisting(const std::string& srResourceName, utl::ref_ptr<material::CMaterialBase> pResource)
             {
                 auto it = m_mMaterials.find(srResourceName);
                 if (it != m_mMaterials.end())
@@ -75,54 +139,43 @@ namespace Engine
                 m_mMaterials.emplace(srResourceName, pResource);
             }
 
+            /**
+             * @brief Specialization for MaterialBase object (texture)
+             * 
+             * @param info Material creation info
+             * @return utl::ref_ptr<Material::CMaterialBase> Smart pointer to resource object
+             */
             template <>
-            std::shared_ptr<Material::CMaterialBase> Add(FMaterialCreateInfo info)
+            utl::ref_ptr<material::CMaterialBase>& add(const FMaterialCreateInfo& info)
             {
-                //std::shared_ptr<Material::CMaterialBase> material = Material::CMaterialFactory::create(shared_from_this(), info);
-                //addExisting(info.srName, material);
-                return nullptr;
+                utl::ref_ptr<material::CMaterialBase> material = material::CMaterialFactory::create(info);
+                addExisting(info.srName, material);
+                return pNullMat;
             }
 
+            /**
+             * @brief Get smart pointer to created material
+             * 
+             * @param srResourceName Material name
+             * @return utl::ref_ptr<Material::CMaterialBase> Smart pointer to resource object
+             */
             template <>
-            std::shared_ptr<Material::CMaterialBase> Get(std::string srResourceName)
+            utl::ref_ptr<material::CMaterialBase>& get(const std::string& srResourceName)
             {
                 auto it = m_mMaterials.find(srResourceName);
                 if (it != m_mMaterials.end())
                     return it->second;
-                return nullptr;
-            }
-
-            /*******************************For mesh****************************/
-            template <>
-            void addExisting<Mesh::CMeshFragment>(std::string srResourceName, std::shared_ptr<Mesh::CMeshFragment> pResource)
-            {
-                auto it = m_mMeshes.find(srResourceName);
-                if (it != m_mMeshes.end())
-                    assert(false && "Resource named: is already exists.");
-                m_mMeshes.emplace(srResourceName, pResource);
-            }
-
-            template <>
-            std::shared_ptr<Mesh::CMeshFragment> Add(FMeshCreateInfo info)
-            {
-                std::shared_ptr<Mesh::CMeshFragment> mesh = Mesh::CMeshFactory::create(info);
-                addExisting(info.srName, mesh);
-                return nullptr;
-            }
-
-            template <>
-            std::shared_ptr<Mesh::CMeshFragment> Get(std::string srResourceName)
-            {
-                auto it = m_mMeshes.find(srResourceName);
-                if (it != m_mMeshes.end())
-                    return it->second;
-                return nullptr;
+                return pNullMat;
             }
 
         private:
-            std::map<std::string, std::shared_ptr<Core::CImage>> m_mTextures;
-            std::map<std::string, std::shared_ptr<Material::CMaterialBase>> m_mMaterials;
-            std::map<std::string, std::shared_ptr<Mesh::CMeshFragment>> m_mMeshes;
+            void cleanup();
+            std::map<std::string, utl::ref_ptr<core::CImage>> m_mTextures;
+            std::map<std::string, utl::ref_ptr<material::CMaterialBase>> m_mMaterials;
+
+            utl::ref_ptr<core::CImage> pNullImage{ nullptr };
+            utl::ref_ptr<core::CImage2D> pNullImage2D{ nullptr };
+            utl::ref_ptr<material::CMaterialBase> pNullMat{ nullptr };
         };
     }
 }

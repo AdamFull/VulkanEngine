@@ -1,6 +1,6 @@
 #pragma once
 
-namespace Engine
+namespace engine
 {
     struct GlobalVariables
     {
@@ -10,5 +10,13 @@ namespace Engine
         static float postprocessExposure;
         static float blurScale;
         static float blurStrength;
+
+        static float depthBiasConstant;
+	    static float depthBiasSlope;
+
+        static int shadingMode;
+        static int debugTarget;
+        static int debugCascade;
+        static float cascadeSplitLambda;
     };
 };

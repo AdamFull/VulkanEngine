@@ -3,27 +3,26 @@
 #include "graphics/scene/objects/RenderObject.h"
 #include "graphics/image/Image.h"
 #include "graphics/VulkanHighLevel.h"
+#include "graphics/scene/SceneManager.h"
 
-using namespace Engine::Core::Render;
-using namespace Engine::Core::Scene;
-using namespace Engine::Resources;
+using namespace engine::core::render;
+using namespace engine::core::scene;
+using namespace engine::resources;
 
-void CGBufferPass::create(std::shared_ptr<Scene::CRenderObject>& root)
+void CGBufferPass::create()
 {
-    auto& renderPass = CRenderSystem::getInstance()->getCurrentStage()->getRenderPass()->get();
-    auto subpass = CRenderSystem::getInstance()->getCurrentStage()->getRenderPass()->getCurrentSubpass();
-    root->create(renderPass, subpass);
-    CSubpass::create(root);
+    UScene->getScene()->getRoot()->create();
+    CSubpass::create();
 }
 
-void CGBufferPass::render(vk::CommandBuffer& commandBuffer, std::shared_ptr<Scene::CRenderObject>& root)
+void CGBufferPass::reCreate()
 {
-    auto imageIndex = CSwapChain::getInstance()->getCurrentFrame();
-    CVBO::getInstance()->bind(commandBuffer);
-    root->render(commandBuffer, imageIndex);
+    UScene->getScene()->getRoot()->reCreate();
 }
 
-void CGBufferPass::cleanup()
+void CGBufferPass::render(vk::CommandBuffer& commandBuffer)
 {
-    CSubpass::cleanup();
+    URenderer->setStageType(EStageType::eDeferred);
+    UVBO->bind(commandBuffer);
+    UScene->getScene()->getRoot()->render(commandBuffer);
 }

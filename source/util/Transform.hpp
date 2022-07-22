@@ -1,6 +1,10 @@
 #pragma once
 #include "serializer/serialization.hpp"
 
+/**
+ * @brief Structure that describes current transformations of render object
+ * 
+ */
 struct FTransform
 {
     glm::vec3 pos{};
@@ -9,54 +13,27 @@ struct FTransform
 
     FTransform &operator+=(const FTransform &rhs)
     {
-        this->pos += rhs.pos;
-        this->rot += rhs.rot;
         this->scale *= rhs.scale;
+        this->pos = this->pos * rhs.scale + rhs.pos;
+        this->rot += rhs.rot;
         return *this;
     }
 
-    const glm::vec3 getForwardVector() const
-    {
-        glm::vec3 camFront;
-		camFront.x = -cos(glm::radians(rot.x)) * sin(glm::radians(rot.y));
-		camFront.y = sin(glm::radians(rot.x));
-		camFront.z = cos(glm::radians(rot.x)) * cos(glm::radians(rot.y));
-		camFront = glm::normalize(camFront);
-        return camFront;
-    }
+    const glm::vec3& getPosition() const;
+    void setPosition(const glm::vec3& position);
 
-    const glm::vec3 getRightVector() const
-    {
-        auto camFront = getForwardVector();
-        return glm::normalize(glm::cross(camFront, glm::vec3(0.0f, 1.0f, 0.0f)));
-    }
+    const glm::vec3& getRotation() const;
+    void setRotation(const glm::vec3& rotation);
+    
+    const glm::vec3& getScale() const;
+    void setScale(const glm::vec3& _scale);
 
-    const glm::vec3 getUpVector() const
-    {
-        return glm::vec3{0.f, 1.f, 0.f};
-    }
-
-    inline glm::mat4 getModel()
-    {
-        glm::mat4 translation{1.0};
-        translation = glm::translate(translation, pos);
-        // glm::radians(rot.x)
-        if (rot.x != 0)
-            translation = glm::rotate(translation, rot.x, glm::vec3(1.0, 0.0, 0.0));
-        if (rot.y != 0)
-            translation = glm::rotate(translation, rot.y, glm::vec3(0.0, 1.0, 0.0));
-        if (rot.z != 0)
-            translation = glm::rotate(translation, rot.z, glm::vec3(0.0, 0.0, 1.0));
-
-        translation = glm::scale(translation, scale);
-
-        return translation;
-    }
-
-    inline glm::mat4 getNormal()
-    {
-        return glm::transpose(getModel());
-    }
+    /**
+     * @brief Get render object model matrix
+     * 
+     * @return glm::mat4 Model matrix
+     */
+    const glm::mat4 getModel();
 };
 
 REGISTER_SERIALIZATION_BLOCK_H(FTransform);

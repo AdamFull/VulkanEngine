@@ -1,11 +1,10 @@
 #pragma once
 #include "graphics/data_types/VulkanVertex.hpp"
 #include "VulkanBuffer.h"
-#include <util/helpers.hpp>
 
-namespace Engine
+namespace engine
 {
-    namespace Core
+    namespace core
     {
         class CVertexBufferObject : public utl::non_copy_movable
         {
@@ -25,10 +24,10 @@ namespace Engine
             bool bBuffersCreated{false};
 
             std::vector<FVertex> vVertices;
-            std::unique_ptr<CVulkanBuffer> vertexBuffer;
+            utl::scope_ptr<CVulkanBuffer> vertexBuffer;
 
             std::vector<uint32_t> vIndices;
-            std::unique_ptr<CVulkanBuffer> indexBuffer;
+            utl::scope_ptr<CVulkanBuffer> indexBuffer;
         };
     }
 }

@@ -1,6 +1,6 @@
 #pragma once
 
-namespace Engine
+namespace engine
 {
     constexpr const int PressedState = GLFW_PRESS;
     constexpr const int ReleasedState = GLFW_RELEASE;

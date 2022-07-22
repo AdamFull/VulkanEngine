@@ -18,7 +18,7 @@
                             "name": "skybox_cubemap_tex",
                             "type": "cubemap",
                             "attachment": "samplerCubeMap",
-                            "src": "textures/cubemaps/sky_skybox.ktx"
+                            "src": "textures/cubemaps/GCanyon.ktx2"
                         }
                     ]
                 }
@@ -29,6 +29,10 @@
             "pos": {"x": 0.0, "y": 0.0, "z": 0.0},
             "rot": {"x": 0.0, "y": 0.0, "z": 0.0},
             "scale": {"x": 2.0, "y": 2.0, "z": 2.0}
+        },
+        "culling":
+        {
+            "enable": false
         }
     },
     "objects":
@@ -38,19 +42,19 @@
             "type": "camera",
             "transform":
             {
-                "pos": {"x": 0.0, "y": 2.4, "z": -1.8},
-                "rot": {"x": 0.0, "y": 0.0, "z": 0.0},
+                "pos": {"x": -10.0, "y": 10.0, "z": -10.0},
+                "rot": {"x": 0.5, "y": -0.5, "z": 0.5},
                 "scale": {"x": 1.0, "y": 1.0, "z": 1.0}
             }
         },
         {
-            "name": "floor_mesh_component",
+            "name": "simple_demo_scene",
             "type": "gltf_mesh",
             "mesh": 
             {
-                "name": "floor_model_gltf",
+                "name": "simple_demo_scene",
                 "type": "static",
-                "src": "meshes/floor/floor.gltf",
+                "src": "meshes/SimpleScene/SimpleScene.gltf",
                 "repeat": 10.0,
                 "use_included_material": true
             },
@@ -58,259 +62,40 @@
             {
                 "pos": {"x": 0.0, "y": 0.0, "z": 0.0},
                 "rot": {"x": 0.0, "y": 0.0, "z": 0.0},
-                "scale": {"x": 10.0, "y": 10.0, "z": 10.0}
-            }
-        },
-        {
-            "name": "LightGold",
-            "type": "gltf_mesh",
-            "mesh": 
-            {
-                "name": "LightGold",
-                "type": "static",
-                "src": "meshes/LightGold/LightGold.gltf",
-                "repeat": 2.0,
-                "use_included_material": true
-            },
-            "transform":
-            {
-                "pos": {"x": -6.0, "y": 2.5, "z": -4.0},
-                "rot": {"x": 0.0, "y": 0.0, "z": 0.0},
-                "scale": {"x": 1.4, "y": 1.4, "z": 1.4}
-            }
-        },
-        {
-            "name": "SciFiPannels",
-            "type": "gltf_mesh",
-            "mesh": 
-            {
-                "name": "SciFiPannels",
-                "type": "static",
-                "src": "meshes/SciFiPannels/SciFiPannels.gltf",
-                "repeat": 2.0,
-                "use_included_material": true
-            },
-            "transform":
-            {
-                "pos": {"x": 3.0, "y": 5.0, "z": -2.0},
-                "rot": {"x": 0.0, "y": 0.0, "z": 0.0},
                 "scale": {"x": 1.0, "y": 1.0, "z": 1.0}
             }
         },
         {
-            "name": "OxidizedCopper",
-            "type": "gltf_mesh",
-            "mesh": 
-            {
-                "name": "OxidizedCopper",
-                "type": "static",
-                "src": "meshes/OxidizedCopper/OxidizedCopper.gltf",
-                "repeat": 2.0,
-                "use_included_material": true
-            },
-            "transform":
-            {
-                "pos": {"x": -3.0, "y": 2.5, "z": -4.0},
-                "rot": {"x": 0.0, "y": 0.0, "z": 0.0},
-                "scale": {"x": 1.2, "y": 1.2, "z": 1.2}
-            }
-        },
-        {
-            "name": "ScuffedCopper",
-            "type": "gltf_mesh",
-            "mesh": 
-            {
-                "name": "ScuffedCopper",
-                "type": "static",
-                "src": "meshes/ScuffedCopper/ScuffedCopper.gltf",
-                "repeat": 2.0,
-                "use_included_material": true
-            },
-            "transform":
-            {
-                "pos": {"x": 0.0, "y": 2.5, "z": -4.0},
-                "rot": {"x": 0.0, "y": 0.0, "z": 0.0},
-                "scale": {"x": 1.0, "y": 1.0, "z": 1.0}
-            }
-        },
-        {
-            "name": "ScuffedMetal",
-            "type": "gltf_mesh",
-            "mesh": 
-            {
-                "name": "ScuffedMetal",
-                "type": "static",
-                "src": "meshes/ScuffedMetal/ScuffedMetal.gltf",
-                "repeat": 2.0,
-                "use_included_material": true
-            },
-            "transform":
-            {
-                "pos": {"x": 3.0, "y": 2.5, "z": -4.0},
-                "rot": {"x": 0.0, "y": 0.0, "z": 0.0},
-                "scale": {"x": 0.8, "y": 0.8, "z": 0.8}
-            }
-        },
-        {
-            "name": "WornShiny",
-            "type": "gltf_mesh",
-            "mesh": 
-            {
-                "name": "WornShiny",
-                "type": "static",
-                "src": "meshes/WornShiny/WornShiny.gltf",
-                "repeat": 2.0,
-                "use_included_material": true
-            },
-            "transform":
-            {
-                "pos": {"x": 6.0, "y": 2.5, "z": -4.0},
-                "rot": {"x": 0.0, "y": 0.0, "z": 0.0},
-                "scale": {"x": 0.6, "y": 0.6, "z": 0.6}
-            },
-            "instances":
-            [
-                {"x": 0.0, "y": 0.0, "z": 0.0},
-                {"x": 3.0, "y": 0.0, "z": 0.0},
-                {"x": -3.0, "y": 0.0, "z": 0.0},
-                {"x": 0.0, "y": 3.0, "z": 0.0},
-                {"x": 0.0, "y": -3.0, "z": 0.0},
-                {"x": 0.0, "y": 0.0, "z": 3.0},
-                {"x": 0.0, "y": 0.0, "z": -3.0},
-
-                {"x": 3.0, "y": 3.0, "z": 0.0},
-                {"x": -3.0, "y": 3.0, "z": 0.0},
-                {"x": 3.0, "y": -3.0, "z": 0.0},
-                {"x": -3.0, "y": -3.0, "z": 0.0},
-
-                {"x": 3.0, "y": 0.0, "z": 3.0},
-                {"x": -3.0, "y": 0.0, "z": 3.0},
-                {"x": 3.0, "y": 0.0, "z": -3.0},
-                {"x": -3.0, "y": 0.0, "z": -3.0},
-
-                {"x": 0.0, "y": 3.0, "z": 3.0},
-                {"x": 0.0, "y": -3.0, "z": 3.0},
-                {"x": 0.0, "y": 3.0, "z": -3.0},
-                {"x": 0.0, "y": -3.0, "z": -3.0},
-
-                {"x": 3.0, "y": 3.0, "z": 3.0},
-                {"x": -3.0, "y": 3.0, "z": 3.0},
-                {"x": 3.0, "y": -3.0, "z": 3.0},
-                {"x": 3.0, "y": 3.0, "z": -3.0},
-                {"x": -3.0, "y": -3.0, "z": 3.0},
-                {"x": -3.0, "y": -3.0, "z": -3.0},
-                {"x": 3.0, "y": -3.0, "z": -3.0},
-                {"x": -3.0, "y": 3.0, "z": -3.0}
-            ]
-        },
-        {
-            "name": "PointLight_1",
+            "name": "spot_light_1",
             "type": "light_source",
             "light":
             {
-                "type": "point",
+                "type": "spot",
                 "color": {"x": 1.0, "y": 0.0, "z": 0.0},
-                "attenuation": 100.0
+                "intencity": 7.0,
+                "inner": 0.92,
+                "outer": 0.94
             },
             "transform":
             {
-                "pos": {"x": -6.6, "y": 2.0, "z": 0.0},
-                "rot": {"x": 0.0, "y": 0.0, "z": 0.0},
+                "pos": {"x": 0.0, "y": 2.0, "z": 0.0},
+                "rot": {"x": -4.0, "y": 0.0, "z": 4.0},
                 "scale": {"x": 1.0, "y": 1.0, "z": 1.0}
             }
         },
         {
-            "name": "PointLight_2",
+            "name": "point_light_0",
             "type": "light_source",
             "light":
             {
                 "type": "point",
-                "color": {"x": 0.0, "y": 1.0, "z": 0.0},
-                "attenuation": 10.0
+                "color": {"x": 1.0, "y": 1.0, "z": 1.0},
+                "intencity": 5.0,
+                "radius": 10.0
             },
             "transform":
             {
-                "pos": {"x": 0.0, "y": 4.0, "z": 0.0},
-                "rot": {"x": 0.0, "y": 0.0, "z": 0.0},
-                "scale": {"x": 1.0, "y": 1.0, "z": 1.0}
-            }
-        },
-        {
-            "name": "PointLight_3",
-            "type": "light_source",
-            "light":
-            {
-                "type": "point",
-                "color": {"x": 0.0, "y": 0.0, "z": 1.0},
-                "attenuation": 10.0
-            },
-            "transform":
-            {
-                "pos": {"x": 6.3, "y": 6.0, "z": 0.0},
-                "rot": {"x": 0.0, "y": 0.0, "z": 0.0},
-                "scale": {"x": 1.0, "y": 1.0, "z": 1.0}
-            }
-        },
-        {
-            "name": "PointLight_4",
-            "type": "light_source",
-            "light":
-            {
-                "type": "point",
-                "color": {"x": 1.0, "y": 0.9, "z": 0.5},
-                "attenuation": 50.0
-            },
-            "transform":
-            {
-                "pos": {"x": 0.0, "y": 12.0, "z": -4.16},
-                "rot": {"x": 0.0, "y": 0.0, "z": 0.0},
-                "scale": {"x": 1.0, "y": 1.0, "z": 1.0}
-            }
-        },
-        {
-            "name": "PointLight_5",
-            "type": "light_source",
-            "light":
-            {
-                "type": "point",
-                "color": {"x": 0.2, "y": 0.4, "z": 0.7},
-                "attenuation": 15.0
-            },
-            "transform":
-            {
-                "pos": {"x": -4.5, "y": 4.0, "z": -8.66},
-                "rot": {"x": 0.0, "y": 0.0, "z": 0.0},
-                "scale": {"x": 1.0, "y": 1.0, "z": 1.0}
-            }
-        },
-        {
-            "name": "PointLight_6",
-            "type": "light_source",
-            "light":
-            {
-                "type": "point",
-                "color": {"x": 0.1, "y": 0.9, "z": 0.3},
-                "attenuation": 15.0
-            },
-            "transform":
-            {
-                "pos": {"x": 0.0, "y": 0.326, "z": -4.0},
-                "rot": {"x": 0.0, "y": 0.0, "z": 0.0},
-                "scale": {"x": 1.0, "y": 1.0, "z": 1.0}
-            }
-        },
-        {
-            "name": "PointLight_7",
-            "type": "light_source",
-            "light":
-            {
-                "type": "point",
-                "color": {"x": 1.1, "y": 0.5, "z": 0.3},
-                "attenuation": 15.0
-            },
-            "transform":
-            {
-                "pos": {"x": 6.0, "y": 3.0, "z": -4.0},
+                "pos": {"x": 0.0, "y": 3.0, "z": 0.0},
                 "rot": {"x": 0.0, "y": 0.0, "z": 0.0},
                 "scale": {"x": 1.0, "y": 1.0, "z": 1.0}
             }

@@ -2,10 +2,9 @@
     "window":
     {
         "name": "Vulkan",
-        "width": 2560,
-        "height": 1475,
+        "width": 1280,
+        "height": 720,
         "fullscreen": false,
-        "windowed": true,
         "backend": ""
     },
     "device":
@@ -13,21 +12,26 @@
         "app_info":
         {
             "app_name": "Vulkan",
-            "app_version": 4194304,
+            "app_version": 4202496,
             "engine_name": "vkeng",
-            "engine_version": 4194304,
-            "api_version": 4194304
+            "engine_version": 4202496,
+            "api_version": 4202496
         },
         "validation": true,
         "validation_layers": ["VK_LAYER_KHRONOS_validation"],
-        "device_extensions": ["VK_KHR_swapchain"],
+        "device_extensions": ["VK_KHR_swapchain", "VK_KHR_maintenance1"],
         "device_features":
         {
             "sampler_anisotropy": true,
             "sample_rate_shading": true,
             "fill_mode_non_solid": true,
             "multi_viewport": true,
-            "geometry_shader": true
+            "geometry_shader": true,
+            "fragment_stores_and_atomics": true,
+            "logic_op": true,
+            "tesselation_shader": true,
+            "depth_clamp": true,
+            "image_cube_array": true
         },
         "graphics":
         {
@@ -36,8 +40,9 @@
             "ray_tracing": false
         }
     },
-    "scene":
+    "engine":
     {
-        "default_scene": "scene.json"
+        "mode": "game",
+        "start_scene": "scene.json"
     }
 }

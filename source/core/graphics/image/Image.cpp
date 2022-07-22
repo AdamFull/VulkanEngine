@@ -1,17 +1,29 @@
 #include "Image.h"
 #include "graphics/VulkanHighLevel.h"
 
-using namespace Engine::Core;
-using namespace Engine::Core::Loaders;
+using namespace engine::core;
+
+//Maybe add to image generation of attachment description and 
+
+CImage::CImage(const fs::path& srPath, vk::ImageUsageFlags flags, vk::ImageAspectFlags aspect, vk::SamplerAddressMode addressMode, vk::Filter filter)
+{
+    create(srPath, flags, aspect, addressMode, filter);
+}
+
+CImage::CImage(void* pData, const vk::Extent3D &extent, vk::Format format, vk::ImageUsageFlags flags, vk::ImageAspectFlags aspect, 
+vk::SamplerAddressMode addressMode, vk::Filter filter, bool mipmaps)
+{
+    create(pData, extent, format, flags, aspect, addressMode, filter, mipmaps);
+}
 
 CImage::~CImage()
 {
-    CDevice::getInstance()->destroy(_image);
-    CDevice::getInstance()->destroy(_view);
-    CDevice::getInstance()->destroy(_deviceMemory);
+    UDevice->destroy(&_image);
+    UDevice->destroy(&_view);
+    UDevice->destroy(&_deviceMemory);
 
     if(!_bUsingInternalSampler)
-        CDevice::getInstance()->destroy(_sampler);
+        UDevice->destroy(&_sampler);
 }
 
 void CImage::updateDescriptor()
@@ -21,10 +33,48 @@ void CImage::updateDescriptor()
     _descriptor.imageLayout = _imageLayout;
 }
 
+void CImage::create(const fs::path& srPath, vk::ImageUsageFlags flags, vk::ImageAspectFlags aspect, 
+vk::SamplerAddressMode addressMode, vk::Filter filter)
+{
+    enableAnisotropy = VK_TRUE;
+    utl::scope_ptr<FImageCreateInfo> texture;
+    auto supportedFormats = getTextureCompressionFormats();
+    std::vector<EPixelFormat> supportedUniversal;
+    std::transform(supportedFormats.begin(), supportedFormats.end(), std::back_inserter(supportedUniversal),
+                   [](vk::Format format) -> EPixelFormat { return FPixel::getUniversalFormat(format); });
+    CImageLoaderNew::load(srPath.c_str(), texture, supportedUniversal);
+    auto format = FPixel::getVkFormat(texture->pixFormat);
+
+    loadFromMemory(texture, format, flags, aspect, addressMode, filter);
+}
+
+void CImage::create(void* pData, const vk::Extent3D &extent, vk::Format format, vk::ImageUsageFlags flags, vk::ImageAspectFlags aspect, 
+vk::SamplerAddressMode addressMode, vk::Filter filter, bool mipmaps)
+{
+    auto texture = utl::make_scope<FImageCreateInfo>();
+    texture->baseWidth = extent.width;
+    texture->baseHeight = extent.height;
+    texture->baseDepth = 1;
+    texture->numDimensions = 2;
+    texture->generateMipmaps = mipmaps;
+    texture->numLevels = mipmaps ? static_cast<uint32_t>(std::floor(std::log2(std::max(extent.width, extent.height)))) + 1 : 1;
+    texture->isArray = false;
+    texture->numLayers = 1;
+    texture->numFaces = 1;
+    texture->dataSize = extent.width * extent.height * extent.depth;
+    texture->pData = utl::make_scope<uint8_t[]>(texture->dataSize);
+    texture->mipOffsets.emplace(0, std::vector<size_t>{0});
+    std::memcpy(texture->pData.get(), pData, texture->dataSize);
+
+    loadFromMemory(texture, format, flags, aspect, addressMode, filter);
+}
+
 void CImage::generateMipmaps(vk::Image &image, uint32_t mipLevels, vk::Format format, uint32_t width, uint32_t height, vk::ImageAspectFlags aspectFlags)
 {
+    auto& physicalDevice = UDevice->getPhysical();
+    assert(physicalDevice && "Trying to generate mipmaps, but physical device is invalid.");
     vk::FormatProperties formatProperties;
-    CDevice::getInstance()->getPhysical().getFormatProperties(format, &formatProperties);
+    physicalDevice.getFormatProperties(format, &formatProperties);
 
     if (!(formatProperties.optimalTilingFeatures & vk::FormatFeatureFlagBits::eSampledImageFilterLinear))
     {
@@ -71,45 +121,20 @@ vk::ImageType CImage::typeFromKtx(uint32_t type)
     return vk::ImageType{};
 }
 
-void CImage::loadFromFile(std::string srPath)
-{
-    ktxTexture *texture;
-    vk::Format format;
-    CImageLoader::load(srPath.c_str(), &texture, &format);
-
-    loadFromMemory(texture, format);
-
-    CImageLoader::close(&texture);
-}
-
 void CImage::setSampler(vk::Sampler& internalSampler)
 {
     _bUsingInternalSampler = true;
     _sampler = internalSampler;
 }
 
-void CImage::createEmptyTexture(uint32_t width, uint32_t height, uint32_t depth, uint32_t dims, uint32_t internalFormat, bool allocate_mem)
-{
-    vk::Format format;
-    ktxTexture *texture;
-    CImageLoader::allocateRawDataAsKTXTexture(&texture, &format, width, height, depth, dims, internalFormat);
-
-    initializeTexture(texture, format);
-
-    if(allocate_mem)
-    {
-        texture->pData = static_cast<uint8_t*>(calloc(texture->dataSize, sizeof(uint8_t)));
-        writeImageData(texture, format);
-    }
-    
-    updateDescriptor();
-
-    CImageLoader::close(&texture);
-}
-
-void CImage::initializeTexture(ktxTexture *info, vk::Format format, vk::ImageUsageFlags flags, vk::ImageAspectFlags aspect)
+void CImage::initializeTexture(utl::scope_ptr<FImageCreateInfo>& info, vk::Format format, vk::ImageUsageFlags flags, vk::ImageAspectFlags aspect, vk::SamplerAddressMode addressMode,
+vk::Filter filter, vk::SampleCountFlagBits samples)
 {
     _format = format;
+    _addressMode = addressMode;
+    _filter = filter;
+    _samples = samples;
+    _usage = flags;
 
     //TODO: Add checking for texture type here
     if(!isSupportedDimension(info))
@@ -122,14 +147,31 @@ void CImage::initializeTexture(ktxTexture *info, vk::Format format, vk::ImageUsa
     vk::ImageCreateInfo imageInfo{};
     // Select image type
     if (info->baseDepth > 1)
+    {
         imageInfo.imageType = vk::ImageType::e3D;
+    }
     else
-        imageInfo.imageType = typeFromKtx(info->numDimensions);
+    {
+        switch (info->numDimensions)
+        {
+        case 1:
+            imageInfo.imageType = vk::ImageType::e1D;
+            break;
+        case 2:
+            imageInfo.imageType = vk::ImageType::e2D;
+            break;
+        case 3:
+            imageInfo.imageType = vk::ImageType::e3D;
+            break;
+        }
+    }
 
     imageInfo.extent = _extent;
     imageInfo.mipLevels = _mipLevels;
 
-    if (info->isArray)
+    if (info->isArray && info->isCubemap)
+        imageInfo.arrayLayers = info->numLayers * 6;
+    else if (info->isArray)
         imageInfo.arrayLayers = info->numLayers;
     else if (info->isCubemap)
         imageInfo.arrayLayers = 6;
@@ -142,21 +184,24 @@ void CImage::initializeTexture(ktxTexture *info, vk::Format format, vk::ImageUsa
     imageInfo.tiling = vk::ImageTiling::eOptimal;
     imageInfo.initialLayout = _imageLayout;
     imageInfo.usage = flags;
+    imageInfo.samples = _samples;
     imageInfo.sharingMode = vk::SharingMode::eExclusive;
 
-    if (info->isArray)
-        imageInfo.flags = vk::ImageCreateFlagBits::e2DArrayCompatible;
-    else if (info->isCubemap)
+    //if (info->isArray && info->isCubemap)
+    //    imageInfo.flags = vk::ImageCreateFlagBits::e2DArrayCompatible;
+    if (info->isCubemap)
         imageInfo.flags = vk::ImageCreateFlagBits::eCubeCompatible;
     else
         imageInfo.flags = vk::ImageCreateFlags{};
 
-    imageInfo.samples = CDevice::getInstance()->getSamples();
+    imageInfo.samples = UDevice->getSamples();
 
     createImage(_image, _deviceMemory, imageInfo, vk::MemoryPropertyFlagBits::eDeviceLocal);
 
     vk::ImageViewCreateInfo viewInfo{};
-    if (info->isArray)
+    if(info->isArray && info->isCubemap)
+        viewInfo.viewType = vk::ImageViewType::eCubeArray;
+    else if (info->isArray)
         viewInfo.viewType = vk::ImageViewType::e2DArray;
     else if (info->isCubemap)
         viewInfo.viewType = vk::ImageViewType::eCube;
@@ -172,23 +217,26 @@ void CImage::initializeTexture(ktxTexture *info, vk::Format format, vk::ImageUsa
     viewInfo.subresourceRange.levelCount = _mipLevels;
     viewInfo.subresourceRange.baseArrayLayer = 0;
     viewInfo.subresourceRange.layerCount = _instCount;
+    viewInfo.image = _image;
 
-    _view = createImageView(_image, viewInfo);
+    vk::Result res = UDevice->create(viewInfo, &_view);
+    assert(res == vk::Result::eSuccess && "Cannot create image view");
 
     if(!_sampler)
     {
-        _addressMode = info->isArray || info->isCubemap || info->baseDepth > 1 ? vk::SamplerAddressMode::eClampToEdge : vk::SamplerAddressMode::eRepeat;
-        createSampler(_sampler, _mipLevels, _addressMode, _filter);
+        bool enableCompare = format == getDepthFormat();
+        createSampler(_sampler, _filter, _addressMode, enableAnisotropy, enableCompare, _mipLevels);
     }
-    //imageLayout = vk::ImageLayout::eShaderReadOnlyOptimal;
 }
 
 vk::Format CImage::findSupportedFormat(const std::vector<vk::Format> &candidates, vk::ImageTiling tiling, vk::FormatFeatureFlags features)
 {
+    auto& physicalDevice = UDevice->getPhysical();
+    assert(physicalDevice && "Trying to find supported format, but physical device is invalid.");
     for (vk::Format format : candidates)
     {
         vk::FormatProperties props;
-        CDevice::getInstance()->getPhysical().getFormatProperties(format, &props);
+        physicalDevice.getFormatProperties(format, &props);
 
         if (tiling == vk::ImageTiling::eLinear && (props.linearTilingFeatures & features) == features)
         {
@@ -202,6 +250,25 @@ vk::Format CImage::findSupportedFormat(const std::vector<vk::Format> &candidates
 
     // TODO: Handle null result
     throw std::runtime_error("Failed to find supported format!");
+}
+
+std::vector<vk::Format> CImage::findSupportedFormats(const std::vector<vk::Format> &candidates, vk::ImageTiling tiling, vk::FormatFeatureFlags features)
+{
+    std::vector<vk::Format> vFormats;
+    auto& physicalDevice = UDevice->getPhysical();
+    assert(physicalDevice && "Trying to find supported format, but physical device is invalid.");
+    for (vk::Format format : candidates)
+    {
+        vk::FormatProperties props;
+        physicalDevice.getFormatProperties(format, &props);
+
+        if (tiling == vk::ImageTiling::eLinear && (props.linearTilingFeatures & features) == features)
+            vFormats.emplace_back(format);
+        else if (tiling == vk::ImageTiling::eOptimal && (props.optimalTilingFeatures & features) == features)
+            vFormats.emplace_back(format);
+    }
+
+    return vFormats;
 }
 
 vk::Format CImage::getDepthFormat()
@@ -218,24 +285,123 @@ vk::Format CImage::getDepthFormat()
     );
 }
 
+std::vector<vk::Format> CImage::getTextureCompressionFormats()
+{
+    std::vector<vk::Format> vFormats;
+
+    auto& vkPhysical = UDevice->getPhysical();
+    assert(vkPhysical && "Trying to create image, byt logical device is not valid.");
+    vk::PhysicalDeviceFeatures supportedFeatures = vkPhysical.getFeatures();
+
+    if (supportedFeatures.textureCompressionBC)
+	{
+        auto supportedCBC = findSupportedFormats
+        (
+            {
+                vk::Format::eBc1RgbUnormBlock, 
+                vk::Format::eBc1RgbSrgbBlock, 
+                vk::Format::eBc1RgbaUnormBlock,
+                vk::Format::eBc1RgbaSrgbBlock,
+                vk::Format::eBc2UnormBlock,
+                vk::Format::eBc2SrgbBlock,
+                vk::Format::eBc3UnormBlock,
+                vk::Format::eBc3SrgbBlock,
+                vk::Format::eBc4UnormBlock,
+                vk::Format::eBc4SnormBlock,
+                vk::Format::eBc5UnormBlock,
+                vk::Format::eBc5SnormBlock,
+                vk::Format::eBc6HUfloatBlock,
+                vk::Format::eBc6HSfloatBlock,
+                vk::Format::eBc7UnormBlock,
+                vk::Format::eBc7SrgbBlock
+            },
+            vk::ImageTiling::eOptimal, 
+            vk::FormatFeatureFlagBits::eSampledImage | vk::FormatFeatureFlagBits::eTransferDst
+        );
+        vFormats.insert(vFormats.end(), supportedCBC.begin(), supportedCBC.end());
+    }
+
+    if (supportedFeatures.textureCompressionASTC_LDR)
+    {
+        auto supportedCBC = findSupportedFormats
+        (
+            {
+                vk::Format::eAstc4x4UnormBlock, 
+                vk::Format::eAstc4x4SrgbBlock, 
+                vk::Format::eAstc5x4UnormBlock,
+                vk::Format::eAstc5x4SrgbBlock,
+                vk::Format::eAstc5x5UnormBlock,
+                vk::Format::eAstc5x5SrgbBlock,
+                vk::Format::eAstc6x5UnormBlock,
+                vk::Format::eAstc6x5SrgbBlock,
+                vk::Format::eAstc6x6UnormBlock,
+                vk::Format::eAstc6x6SrgbBlock,
+                vk::Format::eAstc8x5UnormBlock,
+                vk::Format::eAstc8x5SrgbBlock,
+                vk::Format::eAstc8x6UnormBlock,
+                vk::Format::eAstc8x6SrgbBlock,
+                vk::Format::eAstc8x8UnormBlock,
+                vk::Format::eAstc8x8SrgbBlock,
+                vk::Format::eAstc10x5UnormBlock,
+                vk::Format::eAstc10x5SrgbBlock,
+                vk::Format::eAstc10x6UnormBlock,
+                vk::Format::eAstc10x6SrgbBlock,
+                vk::Format::eAstc10x8UnormBlock,
+                vk::Format::eAstc10x8SrgbBlock,
+                vk::Format::eAstc10x10UnormBlock,
+                vk::Format::eAstc10x10SrgbBlock,
+                vk::Format::eAstc12x10UnormBlock,
+                vk::Format::eAstc12x10SrgbBlock,
+                vk::Format::eAstc12x12UnormBlock,
+                vk::Format::eAstc12x12SrgbBlock
+            },
+            vk::ImageTiling::eOptimal, 
+            vk::FormatFeatureFlagBits::eSampledImage | vk::FormatFeatureFlagBits::eTransferDst
+        );
+        vFormats.insert(vFormats.end(), supportedCBC.begin(), supportedCBC.end());
+    }
+
+    if (supportedFeatures.textureCompressionETC2)
+	{
+        auto supportedCBC = findSupportedFormats
+        (
+            {
+                vk::Format::eEtc2R8G8B8UnormBlock, 
+                vk::Format::eEtc2R8G8B8SrgbBlock, 
+                vk::Format::eEtc2R8G8B8A1UnormBlock,
+                vk::Format::eEtc2R8G8B8A1SrgbBlock,
+                vk::Format::eEtc2R8G8B8A8UnormBlock,
+                vk::Format::eEtc2R8G8B8A8SrgbBlock
+            },
+            vk::ImageTiling::eOptimal, 
+            vk::FormatFeatureFlagBits::eSampledImage | vk::FormatFeatureFlagBits::eTransferDst
+        );
+        vFormats.insert(vFormats.end(), supportedCBC.begin(), supportedCBC.end());
+    }
+
+    return vFormats;
+}
+
 void CImage::createImage(vk::Image &image, vk::DeviceMemory &memory, vk::ImageCreateInfo createInfo, vk::MemoryPropertyFlags properties)
 {
-    assert(CDevice::getInstance() && "Cannot create image, cause logical device is not valid.");
+    vk::Result res;
+    auto& vkDevice = UDevice->getLogical();
+    assert(vkDevice && "Trying to create image, byt logical device is not valid.");
 
-    image = CDevice::getInstance()->getLogical().createImage(createInfo, nullptr);
-    assert(image && "Image was not created");
+    res = UDevice->create(createInfo, &image);
+    assert(res == vk::Result::eSuccess && "Image was not created");
 
     vk::MemoryRequirements memReq{};
-    CDevice::getInstance()->getLogical().getImageMemoryRequirements(image, &memReq);
+    vkDevice.getImageMemoryRequirements(image, &memReq);
 
     vk::MemoryAllocateInfo allocInfo{};
     allocInfo.allocationSize = memReq.size;
-    allocInfo.memoryTypeIndex = CDevice::getInstance()->findMemoryType(memReq.memoryTypeBits, properties);
+    allocInfo.memoryTypeIndex = UDevice->findMemoryType(memReq.memoryTypeBits, properties);
 
-    memory = CDevice::getInstance()->getLogical().allocateMemory(allocInfo);
-    assert(memory && "Image memory was not allocated");
+    res = UDevice->create(allocInfo, &memory);
+    assert(res == vk::Result::eSuccess && "Image memory was not allocated");
 
-    CDevice::getInstance()->getLogical().bindImageMemory(image, memory, 0);
+    vkDevice.bindImageMemory(image, memory, 0);
 }
 
 void CImage::transitionImageLayout(vk::Image &image, std::vector<vk::ImageMemoryBarrier>& vBarriers, vk::ImageLayout oldLayout, vk::ImageLayout newLayout)
@@ -331,6 +497,14 @@ void CImage::transitionImageLayout(vk::CommandBuffer& internalBuffer, vk::Image 
             sourceStage = vk::PipelineStageFlagBits::eTransfer;
             destinationStage = vk::PipelineStageFlagBits::eFragmentShader;
         }
+        else if (oldLayout == vk::ImageLayout::eUndefined && newLayout == vk::ImageLayout::eShaderReadOnlyOptimal)
+        {
+            barrier.srcAccessMask = (vk::AccessFlagBits)0;
+            barrier.dstAccessMask = vk::AccessFlagBits::eShaderRead;
+
+            sourceStage = vk::PipelineStageFlagBits::eTopOfPipe;
+            destinationStage = vk::PipelineStageFlagBits::eFragmentShader;
+        }
         else
         {
             throw std::invalid_argument("Unsupported layout transition!");
@@ -358,53 +532,44 @@ void CImage::copyTo(vk::CommandBuffer& commandBuffer, vk::Image& src, vk::Image&
     commandBuffer.copyImage(src, srcLayout, dst, dstLayout, 1, &region);
 }
 
-vk::ImageView CImage::createImageView(vk::Image &pImage, vk::ImageViewCreateInfo viewInfo)
+void CImage::createSampler(vk::Sampler &sampler, vk::Filter magFilter, vk::SamplerAddressMode eAddressMode, bool anisotropy, bool compareOp, uint32_t mipLevels)
 {
-    assert(CDevice::getInstance() && "Cannot create image view, cause logical device is not valid.");
-    viewInfo.image = pImage;
-
-    vk::ImageView imageView;
-    // TODO: Handle result
-    auto result = CDevice::getInstance()->getLogical().createImageView(&viewInfo, nullptr, &imageView);
-    assert(imageView && "Was not created");
-
-    return imageView;
-}
-
-void CImage::createSampler(vk::Sampler &sampler, uint32_t mip_levels, vk::SamplerAddressMode eAddressMode, vk::Filter magFilter)
-{
-    assert(CDevice::getInstance() && "Cannot create sampler, cause logical device is not valid.");
+    auto& physicalDevice = UDevice->getPhysical();
+    assert(physicalDevice && "Trying to create sampler, but physical device is invalid.");
     vk::SamplerCreateInfo samplerInfo{};
     samplerInfo.magFilter = magFilter;
-    samplerInfo.minFilter = vk::Filter::eLinear;
+    samplerInfo.minFilter = magFilter;
     samplerInfo.addressModeU = eAddressMode;
     samplerInfo.addressModeV = eAddressMode;
     samplerInfo.addressModeW = eAddressMode;
 
     vk::PhysicalDeviceProperties properties{};
-    properties = CDevice::getInstance()->getPhysical().getProperties();
+    properties = physicalDevice.getProperties();
 
-    samplerInfo.anisotropyEnable = VK_TRUE;
+    samplerInfo.anisotropyEnable = static_cast<vk::Bool32>(anisotropy);
     samplerInfo.maxAnisotropy = properties.limits.maxSamplerAnisotropy;
-    samplerInfo.borderColor = vk::BorderColor::eIntOpaqueBlack;
+    samplerInfo.borderColor = vk::BorderColor::eIntOpaqueWhite;
     samplerInfo.unnormalizedCoordinates = VK_FALSE;
-    samplerInfo.compareEnable = VK_TRUE;
-    samplerInfo.compareOp = vk::CompareOp::eAlways;
+
+    samplerInfo.compareEnable = static_cast<vk::Bool32>(compareOp);
+    samplerInfo.compareOp = vk::CompareOp::eLess;
 
     samplerInfo.mipmapMode = vk::SamplerMipmapMode::eLinear;
     samplerInfo.mipLodBias = 0.0f;
     samplerInfo.minLod = 0.0f;
-    samplerInfo.maxLod = static_cast<float>(mip_levels);
+    samplerInfo.maxLod = static_cast<float>(mipLevels);
 
     // TODO: Result handle
-    auto result = CDevice::getInstance()->getLogical().createSampler(&samplerInfo, nullptr, &sampler);
-    assert(sampler && "Texture sampler was not created");
+   vk::Result res = UDevice->create(samplerInfo, &sampler);
+    assert(res == vk::Result::eSuccess && "Texture sampler was not created");
 }
 
-bool CImage::isSupportedDimension(ktxTexture *info)
+bool CImage::isSupportedDimension(utl::scope_ptr<FImageCreateInfo>& info)
 {
+    auto& physicalDevice = UDevice->getPhysical();
+    assert(physicalDevice && "Trying to check supported dibension, but physical device is invalid.");
     vk::PhysicalDeviceProperties devprops;
-    CDevice::getInstance()->getPhysical().getProperties(&devprops);
+    physicalDevice.getProperties(&devprops);
 
     if(info->isCubemap)
     {
@@ -492,19 +657,18 @@ void CImage::blitImage(vk::CommandBuffer& commandBuffer, vk::ImageLayout dstLayo
     commandBuffer.blitImage(_image, _imageLayout, _image, dstLayout, 1, &blit, vk::Filter::eLinear);
 }
 
-void CImage::copyImageToDst(vk::CommandBuffer& commandBuffer, std::shared_ptr<CImage> m_pDst, vk::ImageCopy& region, vk::ImageLayout dstLayout)
+void CImage::copyImageToDst(vk::CommandBuffer& commandBuffer, utl::ref_ptr<CImage>& pDst, vk::ImageCopy& region, vk::ImageLayout dstLayout)
 {
-    copyTo(commandBuffer, _image, m_pDst->_image, _imageLayout, dstLayout, region);
+    copyTo(commandBuffer, _image, pDst->_image, _imageLayout, dstLayout, region);
 }
 
-void CImage::writeImageData(ktxTexture *info, vk::Format format, vk::ImageAspectFlags aspect)
+void CImage::writeImageData(utl::scope_ptr<FImageCreateInfo>& info, vk::Format format, vk::ImageAspectFlags aspect)
 {
     vk::DeviceSize imgSize = info->dataSize;
 
-    Core::CVulkanBuffer stagingBuffer;
-    stagingBuffer.create(imgSize, 1, vk::BufferUsageFlagBits::eTransferSrc, vk::MemoryPropertyFlagBits::eHostVisible | vk::MemoryPropertyFlagBits::eHostCoherent);
+    CVulkanBuffer stagingBuffer(imgSize, 1, vk::BufferUsageFlagBits::eTransferSrc, vk::MemoryPropertyFlagBits::eHostVisible | vk::MemoryPropertyFlagBits::eHostCoherent);
     auto result = stagingBuffer.mapMem();
-    stagingBuffer.write((void *)info->pData);
+    stagingBuffer.write((void *)info->pData.get());
 
     transitionImageLayout(vk::ImageLayout::eTransferDstOptimal, aspect);
 
@@ -528,41 +692,55 @@ void CImage::writeImageData(ktxTexture *info, vk::Format format, vk::ImageAspect
     }
     else
     {
-        std::vector<vk::BufferImageCopy> vRegions;
-        for (uint32_t layer = 0; layer < _instCount; layer++)
+        if(!info->mipOffsets.empty())
         {
-            for (uint32_t level = 0; level < _mipLevels; level++)
+            std::vector<vk::BufferImageCopy> vRegions;
+            for (uint32_t layer = 0; layer < _instCount; layer++)
             {
-                ktx_size_t offset;
-                KTX_error_code ret = ktxTexture_GetImageOffset(info, level, 0, layer, &offset);
-                assert(ret == KTX_SUCCESS);
-                vk::BufferImageCopy region = {};
-                region.imageSubresource.aspectMask = aspect;
-                region.imageSubresource.mipLevel = level;
-                region.imageSubresource.baseArrayLayer = layer;
-                region.imageSubresource.layerCount = _layerCount;
-                region.imageExtent.width = info->baseWidth >> level;
-                region.imageExtent.height = info->baseHeight >> level;
-                region.imageExtent.depth = info->baseDepth;
-                region.bufferOffset = offset;
-                vRegions.push_back(region);
+                auto& layer_offsets = info->mipOffsets[layer];
+                for (uint32_t level = 0; level < _mipLevels; level++)
+                {
+                    size_t offset = layer_offsets.at(level);
+                    vk::BufferImageCopy region = {};
+                    region.imageSubresource.aspectMask = aspect;
+                    region.imageSubresource.mipLevel = level;
+                    region.imageSubresource.baseArrayLayer = layer;
+                    region.imageSubresource.layerCount = _layerCount;
+                    region.imageExtent.width = info->baseWidth >> level;
+                    region.imageExtent.height = info->baseHeight >> level;
+                    region.imageExtent.depth = info->baseDepth;
+                    region.bufferOffset = offset;
+                    vRegions.push_back(region);
+                }
             }
+
+            auto buffer = stagingBuffer.getBuffer();
+            copyBufferToImage(buffer, _image, vRegions);
         }
-        auto buffer = stagingBuffer.getBuffer();
-        copyBufferToImage(buffer, _image, vRegions);
 
         transitionImageLayout(vk::ImageLayout::eShaderReadOnlyOptimal, aspect);
     }
 }
 
-void CImage::loadFromMemory(ktxTexture *info, vk::Format format)
+void CImage::loadFromMemory(utl::scope_ptr<FImageCreateInfo>& info, vk::Format format, vk::ImageUsageFlags flags, vk::ImageAspectFlags aspect,
+vk::SamplerAddressMode addressMode, vk::Filter filter)
 {
-    initializeTexture(info, format);
-    writeImageData(info, format);
+    initializeTexture(info, format, flags, aspect, addressMode, filter, vk::SampleCountFlagBits::e1);
+    writeImageData(info, format, aspect);
     updateDescriptor();
 }
 
 void CImage::setImageLayout(vk::ImageLayout layout)
 {
     _imageLayout = layout;
+}
+
+vk::DescriptorImageInfo& CImage::getDescriptor()
+{
+    if(_imageLayout == vk::ImageLayout::eDepthStencilAttachmentOptimal && (_usage & vk::ImageUsageFlagBits::eInputAttachment))
+    {
+        _imageLayout = vk::ImageLayout::eShaderReadOnlyOptimal;
+        updateDescriptor();
+    }
+    return _descriptor;
 }

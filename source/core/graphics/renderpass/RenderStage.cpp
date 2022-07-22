@@ -1,15 +1,42 @@
 #include "RenderStage.h"
+#include "graphics/VulkanHighLevel.h"
 
-using namespace Engine::Core;
-using namespace Engine::Core::Render;
+using namespace engine::core;
+using namespace engine::core::render;
 
-void CRenderStage::render(vk::CommandBuffer& commandBuffer, std::shared_ptr<Scene::CRenderObject>& root)
+CRenderStage::~CRenderStage()
 {
-    pRenderPass->render(commandBuffer, root);
+    vFramebuffer.clear();
 }
 
-void CRenderStage::cleanup()
+void CRenderStage::create()
 {
-    pRenderPass->cleanup();
-    pFramebuffer->cleanup();
+    framebufferIndex = 0;
+    for(auto& framebuffer : vFramebuffer)
+    {
+        framebuffer->create();
+        framebufferIndex++;
+    }
+}
+
+void CRenderStage::render(vk::CommandBuffer& commandBuffer)
+{
+    framebufferIndex = 0;
+    for(auto& framebuffer : vFramebuffer)
+    {
+        framebuffer->render(commandBuffer);
+        framebufferIndex++;
+    }
+}
+
+void CRenderStage::reCreate()
+{
+    screenExtent = UDevice->getExtent(detectExtent);
+    framebufferIndex = 0;
+    for(auto& framebuffer : vFramebuffer)
+    {
+        framebuffer->setRenderArea(vk::Offset2D{0, 0}, screenExtent);
+        framebuffer->reCreate();
+        framebufferIndex++;
+    }
 }

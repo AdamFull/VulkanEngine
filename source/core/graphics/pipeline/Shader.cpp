@@ -1,28 +1,90 @@
 #include "Shader.h"
+#include "util/ulog.hpp"
 #include "graphics/VulkanHighLevel.h"
 #include "ShaderCache.h"
 #include "filesystem/FilesystemHelper.h"
 #include <glslang/SPIRV/GlslangToSpv.h>
 #include <glslang/Public/ShaderLang.h>
-#include <spirv_cross.hpp>
 
 //Spirv cross reflection doc
 //https://github.com/KhronosGroup/SPIRV-Cross/wiki/Reflection-API-user-guide
+//https://github.com/KhronosGroup/SPIRV-Cross/blob/master/main.cpp
 
-using namespace Engine::Core::Pipeline;
+using namespace engine;
+using namespace engine::core::pipeline;
+
+namespace spirv_cross
+{
+    BufferPackingStandard CompilerGLSLExt::get_packing_standart(const SPIRType& type)
+    {
+        if(buffer_is_packing_standard(type, BufferPackingStd140))
+            return BufferPackingStd140;
+        else if(buffer_is_packing_standard(type, BufferPackingStd430))
+            return BufferPackingStd430;
+        else if(buffer_is_packing_standard(type, BufferPackingStd140EnhancedLayout))
+            return BufferPackingStd140EnhancedLayout;
+        else if(buffer_is_packing_standard(type, BufferPackingStd430EnhancedLayout))
+            return BufferPackingStd430EnhancedLayout;
+        else if(buffer_is_packing_standard(type, BufferPackingHLSLCbuffer))
+            return BufferPackingHLSLCbuffer;
+        else if(buffer_is_packing_standard(type, BufferPackingHLSLCbufferPackOffset))
+            return BufferPackingHLSLCbufferPackOffset;
+        else if(buffer_is_packing_standard(type, BufferPackingScalar))
+            return BufferPackingScalar;
+        else if(buffer_is_packing_standard(type, BufferPackingScalarEnhancedLayout))
+            return BufferPackingScalarEnhancedLayout;
+        return BufferPackingStd140;
+    }
+
+    uint32_t CompilerGLSLExt::get_packed_base_size(const SPIRType &type)
+    {
+        auto packing = get_packing_standart(type);
+        return type_to_packed_base_size(type, packing);
+    }
+
+    uint32_t CompilerGLSLExt::get_packed_alignment(const SPIRType &type, const Bitset &flags)
+    {
+        auto packing = get_packing_standart(type);
+        return type_to_packed_alignment(type, flags, packing);
+    }
+
+    uint32_t CompilerGLSLExt::get_packed_array_stride(const SPIRType &type, const Bitset &flags)
+    {
+        auto packing = get_packing_standart(type);
+        return type_to_packed_array_stride(type, flags, packing);
+    }
+
+    uint32_t CompilerGLSLExt::get_packed_size(const SPIRType &type, const Bitset &flags)
+    {
+        auto packing = get_packing_standart(type);
+        return type_to_packed_size(type, flags, packing);
+    }
+}
 
 class CShaderIncluder : public glslang::TShader::Includer 
 {
 public:
 	IncludeResult *includeLocal(const char *headerName, const char *includerName, size_t inclusionDepth) override 
     {
-		auto directory = fs::path(includerName).parent_path();
-		auto fileLoaded = Engine::FilesystemHelper::readFile((directory / headerName).string());
+        fs::path local_path {};
+        if(inclusionDepth == 1)
+        {
+            directory = fs::path(includerName).parent_path();
+            local_path = directory;
+        }
+        else
+        {
+            directory = directory / fs::path(includerName).parent_path();
+            local_path = directory;
+        }
+
+        local_path = fs::weakly_canonical(directory / headerName);
+		auto fileLoaded = FilesystemHelper::readFile(local_path.string());
 
 		if (fileLoaded.empty()) 
         {
 			std::stringstream ss;
-			ss << "Shader Include could not be loaded: " << std::quoted(headerName);
+			ss << "In shader file: " << includerName << " Shader Include could not be loaded: " << std::quoted(headerName);
 			utl::logger::log(utl::ELogLevel::eError, ss.str());
 			return nullptr;
 		}
@@ -34,7 +96,8 @@ public:
 
 	IncludeResult *includeSystem(const char *headerName, const char *includerName, size_t inclusionDepth) override 
     {
-		auto fileLoaded = Engine::FilesystemHelper::readFile(headerName);
+        auto header = fs::path("shaders") / headerName;
+		auto fileLoaded = FilesystemHelper::readFile(header);
 
 		if (fileLoaded.empty()) {
 			std::stringstream ss;
@@ -56,6 +119,8 @@ public:
 			delete result;
 		}
 	}
+private:
+    fs::path directory{""};
 };
 
 EShLanguage getEshLanguage(vk::ShaderStageFlagBits stageFlag) 
@@ -80,7 +145,7 @@ EShLanguage getEshLanguage(vk::ShaderStageFlagBits stageFlag)
 
 TBuiltInResource getResources() 
 {
-    //auto props = CDevice::getInstance()->GetPhysical().getProperties();
+    //auto props = UDevice->GetPhysical().getProperties();
 	TBuiltInResource resources = {};
 	resources.maxLights                                 = 32;
     resources.maxClipPlanes                             = 6;
@@ -189,13 +254,26 @@ TBuiltInResource getResources()
 
 CShader::~CShader()
 {
-    clear();
+    for(auto& stage : vShaderModules)
+        UDevice->destroy(&stage.module);
+
+    vShaderModules.clear();
+    vShaderStage.clear();
+    mUniforms.clear();
+    mUniformBlocks.clear();
+    mInputAttributes.clear();
+    mOutputAttributes.clear();
+    mConstants.clear();
+    //Destroy before clear
+    vDescriptorSetLayouts.clear();
+    vDescriptorPools.clear();
+    lastDescriptorBinding = 0;
 }
 
 void CShader::addStage(const std::filesystem::path &moduleName, const std::string& moduleCode, const std::string &preamble)
 {
     std::vector<uint32_t> spirv;
-    auto spirv_cache = CShaderCache::getInstance()->get(moduleName.filename().string(), moduleCode);
+    auto spirv_cache = CShaderCache::inst()->get(moduleName.filename().string(), moduleCode);
     if (!spirv_cache)
     {
         vShaderStage.emplace_back(getShaderStage(moduleName));
@@ -217,7 +295,7 @@ void CShader::addStage(const std::filesystem::path &moduleName, const std::strin
         auto defaultVersion = glslang::EShTargetVulkan_1_1;
         shader.setEnvInput(glslang::EShSourceGlsl, language, glslang::EShClientVulkan, 110);
         shader.setEnvClient(glslang::EShClientVulkan, defaultVersion);
-        shader.setEnvTarget(glslang::EShTargetSpv, CDevice::getInstance()->getVulkanVersion() >= VK_API_VERSION_1_1 ? glslang::EShTargetSpv_1_3 : glslang::EShTargetSpv_1_0);
+        shader.setEnvTarget(glslang::EShTargetSpv, UDevice->getVulkanVersion() >= VK_API_VERSION_1_1 ? glslang::EShTargetSpv_1_3 : glslang::EShTargetSpv_1_0);
 
         CShaderIncluder includer;
 
@@ -273,12 +351,6 @@ void CShader::addStage(const std::filesystem::path &moduleName, const std::strin
             assert(false && "Error while building shader reflection.");
         }
 
-        for (uint32_t dim = 0; dim < 3; ++dim) 
-        {
-            if (auto localSize = program.getLocalSize(dim); localSize > 1)
-                localSizes[dim] = localSize;
-        }
-
         glslang::SpvOptions spvOptions;
 #if defined(_DEBUG)
         spvOptions.generateDebugInfo = true;
@@ -292,39 +364,68 @@ void CShader::addStage(const std::filesystem::path &moduleName, const std::strin
 
         spv::SpvBuildLogger logger;
         GlslangToSpv(*program.getIntermediate(static_cast<EShLanguage>(language)), spirv, &logger, &spvOptions);
-        CShaderCache::getInstance()->add(moduleName.filename().string(), getShaderStage(moduleName), spirv, moduleCode, localSizes);
+        CShaderCache::inst()->add(moduleName.filename().string(), getShaderStage(moduleName), spirv, moduleCode);
     }
     else
     {
         vShaderStage.emplace_back(spirv_cache.value().shaderStage);
         spirv = spirv_cache.value().shaderCode;
-        localSizes = spirv_cache.value().localSizes;
     }
 
     buildReflection(spirv, vShaderStage.back());
 
+    createShaderModule(spirv);
+}
+
+void CShader::buildSpecializationInfo()
+{
+    //TODO: finish this
+    auto& currentStage = vShaderStage.back();
+
+    //Constants should be same type
+    for(auto& [name, constant] : mConstants)
+    {
+        if(constant.stageFlags & currentStage)
+        {
+            vk::SpecializationMapEntry mapEntry{};
+            mapEntry.constantID = constant.constantId;
+            mapEntry.offset = 0;
+            mapEntry.size = constant.size;
+            mMapEntries[currentStage].emplace_back(std::move(mapEntry));
+
+            vk::SpecializationInfo specializationInfo{};
+            specializationInfo.mapEntryCount = 1;
+            specializationInfo.pMapEntries = (--mMapEntries.end())->second.data();
+            specializationInfo.dataSize = constant.size;
+            //mSpecializationInfo.emplace(currentStage, std::move(specializationInfo));
+        }
+    }
+}
+
+void CShader::createShaderModule(const std::vector<uint32_t>& spirv)
+{
+    auto& currentStage = vShaderStage.back();
+
     try
     {
-        auto shaderModule = CDevice::getInstance()->make<vk::ShaderModule, vk::ShaderModuleCreateInfo>
-        (
-            vk::ShaderModuleCreateInfo
-            {
-                vk::ShaderModuleCreateFlags(),
-                spirv.size() * sizeof(uint32_t),
-                spirv.data()
-            }
-        );
+        vk::ShaderModuleCreateInfo shaderCI{};
+        shaderCI.codeSize = spirv.size() * sizeof(uint32_t);
+        shaderCI.pCode = spirv.data();
 
-        vShaderModules.emplace_back
-        (
-            vk::PipelineShaderStageCreateInfo
-            {
-                vk::PipelineShaderStageCreateFlags(),
-                vShaderStage.back(),
-                shaderModule,
-                "main"
-            }
-        );
+        vk::ShaderModule shaderModule{VK_NULL_HANDLE};
+        vk::Result res = UDevice->create(shaderCI, &shaderModule);
+        assert(res == vk::Result::eSuccess && "Cannot create shader module.");
+
+        vk::PipelineShaderStageCreateInfo shaderStageCI{};
+        shaderStageCI.stage = currentStage;
+        shaderStageCI.module = shaderModule;
+        shaderStageCI.pName = "main";
+        
+        auto specInfo = mSpecializationInfo.find(currentStage);
+        if(specInfo != mSpecializationInfo.end())
+            shaderStageCI.pSpecializationInfo = &specInfo->second;
+
+        vShaderModules.emplace_back(std::move(shaderStageCI));
     }
     catch (vk::SystemError err)
     {
@@ -332,28 +433,9 @@ void CShader::addStage(const std::filesystem::path &moduleName, const std::strin
     }
 }
 
-void CShader::clear()
-{
-    for(auto& stage : vShaderModules)
-        CDevice::getInstance()->destroy(stage.module);
-
-    vShaderModules.clear();
-    vShaderStage.clear();
-    mDescriptorLocations.clear();
-    mDescriptorSizes.clear();
-    mUniforms.clear();
-    mUniformBlocks.clear();
-    mInputAttributes.clear();
-    mOutputAttributes.clear();
-    mConstants.clear();
-    //Destroy before clear
-    vDescriptorSetLayouts.clear();
-    vDescriptorPools.clear();
-    lastDescriptorBinding = 0;
-}
-
 void CShader::finalizeReflection()
 {
+    std::map<vk::DescriptorType, uint32_t> mDescriptorCounter;
     //Preparing descriptors for uniform/storage buffers
     for (const auto &[uniformBlockName, uniformBlock] : mUniformBlocks) 
     {
@@ -364,9 +446,7 @@ void CShader::finalizeReflection()
         descriptorSetLayoutBinding.stageFlags = uniformBlock.stageFlags;
         descriptorSetLayoutBinding.pImmutableSamplers = nullptr;
         vDescriptorSetLayouts.emplace_back(descriptorSetLayoutBinding);
-
-        mDescriptorLocations.emplace(uniformBlockName, uniformBlock.binding);
-		mDescriptorSizes.emplace(uniformBlockName, uniformBlock.size);
+        mDescriptorCounter[uniformBlock.descriptorType]++;
     }
 
     for (const auto &[uniformName, uniform] : mUniforms) 
@@ -378,30 +458,11 @@ void CShader::finalizeReflection()
         descriptorSetLayoutBinding.stageFlags = uniform.stageFlags;
         descriptorSetLayoutBinding.pImmutableSamplers = nullptr;
         vDescriptorSetLayouts.emplace_back(descriptorSetLayoutBinding);
-
-        mDescriptorLocations.emplace(uniformName, uniform.binding);
-		mDescriptorSizes.emplace(uniformName, uniform.size);
+        mDescriptorCounter[uniform.descriptorType]++;
     }
 
-    vDescriptorPools.resize(9);
-	vDescriptorPools[0].type = vk::DescriptorType::eCombinedImageSampler;
-	vDescriptorPools[0].descriptorCount = 4096;
-	vDescriptorPools[1].type = vk::DescriptorType::eUniformBuffer;
-	vDescriptorPools[1].descriptorCount = 2048;
-	vDescriptorPools[2].type = vk::DescriptorType::eStorageImage;
-	vDescriptorPools[2].descriptorCount = 2048;
-    vDescriptorPools[3].type = vk::DescriptorType::eUniformTexelBuffer;
-	vDescriptorPools[3].descriptorCount = 2048;
-    vDescriptorPools[4].type = vk::DescriptorType::eStorageTexelBuffer;
-	vDescriptorPools[4].descriptorCount = 2048;
-    vDescriptorPools[5].type = vk::DescriptorType::eStorageBuffer;
-	vDescriptorPools[5].descriptorCount = 2048;
-	vDescriptorPools[6].type = vk::DescriptorType::eSampledImage;
-	vDescriptorPools[6].descriptorCount = 2048;
-    vDescriptorPools[7].type = vk::DescriptorType::eSampler;
-	vDescriptorPools[7].descriptorCount = 2048;
-    vDescriptorPools[8].type = vk::DescriptorType::eInputAttachment;
-	vDescriptorPools[8].descriptorCount = 2048;
+    for(auto& [descriptorType, count] : mDescriptorCounter)
+        vDescriptorPools.emplace_back(vk::DescriptorPoolSize{descriptorType, count * descriptorMultiplier});
 
     // Sort descriptors by binding.
 	std::sort(vDescriptorSetLayouts.begin(), vDescriptorSetLayouts.end(), 
@@ -413,20 +474,6 @@ void CShader::finalizeReflection()
     // Gets the last descriptors binding.
 	if (!vDescriptorSetLayouts.empty())
 		lastDescriptorBinding = vDescriptorSetLayouts.back().binding;
-}
-
-std::optional<uint32_t> CShader::getDescriptorLocation(const std::string &name) const
-{
-    if (auto it = mDescriptorLocations.find(name); it != mDescriptorLocations.end())
-		return it->second;
-	return std::nullopt;
-}
-
-std::optional<uint64_t> CShader::getDescriptorSize(const std::string &name) const
-{
-    if (auto it = mDescriptorSizes.find(name); it != mDescriptorSizes.end())
-		return it->second;
-	return std::nullopt;
 }
 
 std::optional<CUniform> CShader::getUniform(const std::string &name) const
@@ -446,6 +493,13 @@ std::optional<CUniformBlock> CShader::getUniformBlock(const std::string &name) c
 std::optional<CPushConstBlock> CShader::getPushBlock(const std::string &name) const
 {
     if (auto it = mPushBlocks.find(name); it != mPushBlocks.end())
+		return it->second;
+	return std::nullopt;
+}
+
+std::optional<CConstant> CShader::getConstant(const std::string &name) const
+{
+    if (auto it = mConstants.find(name); it != mConstants.end())
 		return it->second;
 	return std::nullopt;
 }
@@ -531,15 +585,41 @@ const vk::VertexInputBindingDescription CShader::getBindingDescription(vk::Shade
     desc.stride = size;
     return desc;
 }
-
+//Position from depth
 
 void CShader::buildReflection(std::vector<uint32_t>& spirv, vk::ShaderStageFlagBits stageFlag)
 {
-    spirv_cross::Compiler compiler(spirv);
+    spirv_cross::CompilerGLSLExt compiler(spirv);
     auto active = compiler.get_active_interface_variables();
     auto resources = compiler.get_shader_resources(active);
     compiler.set_enabled_interface_variables(move(active));
 
+    auto entry_points = compiler.get_entry_points_and_stages();
+    for(auto& entry : entry_points)
+    {
+
+    }
+
+    auto& execution_modes = compiler.get_execution_mode_bitset();
+    execution_modes.for_each_bit([&](uint32_t i)
+    {
+        auto mode = static_cast<spv::ExecutionMode>(i);
+        switch (mode)
+		{
+            case spv::ExecutionMode::ExecutionModeInvocations:
+            {
+                executionModeInvocations = compiler.get_execution_mode_argument(mode, 0);
+            } break;
+            case spv::ExecutionMode::ExecutionModeLocalSize: {
+                for (uint32_t dim = 0; dim < 3; ++dim)
+                    localSizes[dim] = compiler.get_execution_mode_argument(mode, dim);
+            } break;
+            case spv::ExecutionMode::ExecutionModeOutputVertices: {
+                executionModeOutputVertices = compiler.get_execution_mode_argument(mode, 0);
+            } break;
+        }
+    });
+    
     //Parsing uniform buffers
     for(const auto& res : resources.uniform_buffers)
     {
@@ -617,7 +697,14 @@ void CShader::buildReflection(std::vector<uint32_t>& spirv, vk::ShaderStageFlagB
 
     auto constants = compiler.get_specialization_constants();
     for(const auto& constant : constants)
-        break;
+    {
+        auto constant_name = compiler.get_name(constant.id);
+        auto it = mConstants.find(constant_name);
+        if(it != mConstants.end())
+            it->second.stageFlags |= stageFlag;
+        else
+           mConstants.emplace(constant_name, buildConstant(&compiler, constant, stageFlag));
+    }
 
     uint32_t input_offset = 0;
     for(const auto& res : resources.stage_inputs)
@@ -630,10 +717,11 @@ void CShader::buildReflection(std::vector<uint32_t>& spirv, vk::ShaderStageFlagB
     getBindingDescription(vk::ShaderStageFlagBits::eVertex);
 }
 
-CUniformBlock CShader::buildUniformBlock(spirv_cross::Compiler* compiler, const spirv_cross::Resource &res, vk::ShaderStageFlagBits stageFlag, vk::DescriptorType descriptorType)
+CUniformBlock CShader::buildUniformBlock(spirv_cross::CompilerGLSLExt* compiler, const spirv_cross::Resource &res, vk::ShaderStageFlagBits stageFlag, vk::DescriptorType descriptorType)
 {
     //New uniform block
     const auto& type = compiler->get_type(res.type_id);
+    auto& decoration = compiler->get_decoration_bitset(type.self);
     unsigned member_count = type.member_types.size();
     CUniformBlock uniformBlock{};
     uniformBlock.set = compiler->get_decoration(res.id, spv::DecorationDescriptorSet);
@@ -641,13 +729,18 @@ CUniformBlock CShader::buildUniformBlock(spirv_cross::Compiler* compiler, const 
 
     for(uint32_t i = 0; i < member_count; i++)
     {
+        size_t array_stride{0}, matrix_stride{0};
         auto &member_type = compiler->get_type(type.member_types[i]);
         CUniform uniform{};
         //compiler.get_member_decoration(, i, spv::DecorationDescriptorSet);
         uniform.size = compiler->get_declared_struct_member_size(type, i);
         uniform.offset = compiler->type_struct_member_offset(type, i);
-        if (!member_type.array.empty()) { size_t array_stride = compiler->type_struct_member_array_stride(type, i); }
-        if (member_type.columns > 1) { size_t matrix_stride = compiler->type_struct_member_matrix_stride(type, i); }
+        if (!member_type.array.empty() && uniform.size == 0) 
+            array_stride = compiler->type_struct_member_array_stride(type, i);
+
+        if (member_type.columns > 1) 
+            matrix_stride = compiler->type_struct_member_matrix_stride(type, i);
+
         uniform.stageFlags = stageFlag;
         uniformBlock.mUniforms.emplace(compiler->get_member_name(type.self, i), uniform);
     }
@@ -657,7 +750,7 @@ CUniformBlock CShader::buildUniformBlock(spirv_cross::Compiler* compiler, const 
     return uniformBlock;
 }
 
-CPushConstBlock CShader::buildPushBlock(spirv_cross::Compiler* compiler, const spirv_cross::Resource &res, vk::ShaderStageFlagBits stageFlag)
+CPushConstBlock CShader::buildPushBlock(spirv_cross::CompilerGLSLExt* compiler, const spirv_cross::Resource &res, vk::ShaderStageFlagBits stageFlag)
 {
     //New push block
     const auto& type = compiler->get_type(res.type_id);
@@ -680,7 +773,7 @@ CPushConstBlock CShader::buildPushBlock(spirv_cross::Compiler* compiler, const s
     return pushBlock;
 }
 
-CUniform CShader::buildUnifrom(spirv_cross::Compiler* compiler, const spirv_cross::Resource &res, vk::ShaderStageFlagBits stageFlag, vk::DescriptorType descriptorType)
+CUniform CShader::buildUnifrom(spirv_cross::CompilerGLSLExt* compiler, const spirv_cross::Resource &res, vk::ShaderStageFlagBits stageFlag, vk::DescriptorType descriptorType)
 {
     CUniform uniform{};
     uniform.set = compiler->get_decoration(res.id, spv::DecorationDescriptorSet);
@@ -690,7 +783,21 @@ CUniform CShader::buildUnifrom(spirv_cross::Compiler* compiler, const spirv_cros
     return uniform;
 }
 
-CAttribute CShader::buildAttribute(spirv_cross::Compiler* compiler, const spirv_cross::Resource &res, uint32_t& offset)
+CConstant CShader::buildConstant(spirv_cross::CompilerGLSLExt* compiler, const spirv_cross::SpecializationConstant& res, vk::ShaderStageFlagBits stageFlag)
+{
+    CConstant constant{};
+    auto& value = compiler->get_constant(res.id);
+    const auto& type = compiler->get_type(value.constant_type);
+
+    constant.constantId = res.constant_id;
+    constant.size = parseSize(type);
+    constant.offset = 0;
+    constant.stageFlags = stageFlag;
+    
+    return constant;
+}
+
+CAttribute CShader::buildAttribute(spirv_cross::CompilerGLSLExt* compiler, const spirv_cross::Resource &res, uint32_t& offset)
 {
     CAttribute attribute{};
     const auto& type = compiler->get_type(res.type_id);
@@ -720,6 +827,12 @@ vk::ShaderStageFlagBits CShader::getShaderStage(const std::filesystem::path &mod
 		return vk::ShaderStageFlagBits::eGeometry;
 	if (fileExt == ".frag")
 		return vk::ShaderStageFlagBits::eFragment;
+    if (fileExt == ".rchit")
+		return vk::ShaderStageFlagBits::eClosestHitKHR;
+    if (fileExt == ".rmiss")
+		return vk::ShaderStageFlagBits::eMissKHR;
+    if (fileExt == ".rgen")
+        return vk::ShaderStageFlagBits::eRaygenKHR;
 	return vk::ShaderStageFlagBits::eAll;
 }
 

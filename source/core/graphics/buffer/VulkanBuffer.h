@@ -1,40 +1,35 @@
 #pragma once
-#include <util/helpers.hpp>
 
-namespace Engine
+namespace engine
 {
-    namespace Core
+    namespace core
     {
         class CVulkanBuffer : public utl::non_copy_movable
         {
         public:
             CVulkanBuffer() = default;
-            ~CVulkanBuffer();
-
-            void create(vk::DeviceSize instanceSize, uint32_t instanceCount,
+            CVulkanBuffer(vk::DeviceSize instanceSize, uint32_t instanceCount,
                         vk::BufferUsageFlags usageFlags, vk::MemoryPropertyFlags memoryPropertyFlags,
                         vk::DeviceSize minOffsetAlignment = 1);
+            ~CVulkanBuffer();
 
             void reCreate(vk::DeviceSize instanceSize, uint32_t instanceCount,
                           vk::BufferUsageFlags usageFlags, vk::MemoryPropertyFlags memoryPropertyFlags,
                           vk::DeviceSize minOffsetAlignment = 1);
 
-            void clean();
-
-            vk::DescriptorBufferInfo getDscriptor(vk::DeviceSize size, vk::DeviceSize offset);
-            vk::DescriptorBufferInfo getDscriptor();
+            vk::DescriptorBufferInfo& getDescriptor(vk::DeviceSize size, vk::DeviceSize offset);
+            vk::DescriptorBufferInfo& getDescriptor();
 
             vk::Result mapMem(vk::DeviceSize size = VK_WHOLE_SIZE, vk::DeviceSize offset = 0);
             void unmapMem();
 
+            bool compare(void *idata, vk::DeviceSize size = VK_WHOLE_SIZE, vk::DeviceSize offset = 0);
             void write(void *idata, vk::DeviceSize size = VK_WHOLE_SIZE, vk::DeviceSize offset = 0);
             vk::Result flush(vk::DeviceSize size = VK_WHOLE_SIZE, vk::DeviceSize offset = 0);
-            vk::DescriptorBufferInfo descriptorInfo(vk::DeviceSize size = VK_WHOLE_SIZE, vk::DeviceSize offset = 0);
             vk::Result invalidate(vk::DeviceSize size = VK_WHOLE_SIZE, vk::DeviceSize offset = 0);
 
             void writeToIndex(void *idata, int index);
             vk::Result flushIndex(int index);
-            vk::DescriptorBufferInfo descriptorInfoForIndex(int index);
             vk::Result invalidateIndex(int index);
 
             // Getters
@@ -48,6 +43,9 @@ namespace Engine
             vk::DeviceSize getBufferSize() const { return bufferSize; }
 
         private:
+            void create(vk::DeviceSize instanceSize, uint32_t instanceCount,
+                        vk::BufferUsageFlags usageFlags, vk::MemoryPropertyFlags memoryPropertyFlags,
+                        vk::DeviceSize minOffsetAlignment = 1);
             static vk::DeviceSize getAlignment(vk::DeviceSize instanceSize, vk::DeviceSize minOffsetAlignment);
             
         private:
@@ -55,6 +53,7 @@ namespace Engine
             vk::Buffer buffer = VK_NULL_HANDLE;
             vk::DeviceMemory deviceMemory = VK_NULL_HANDLE;
 
+            vk::DescriptorBufferInfo bufferInfo;
             vk::DeviceSize bufferSize;
             uint32_t instanceCount;
             vk::DeviceSize instanceSize;

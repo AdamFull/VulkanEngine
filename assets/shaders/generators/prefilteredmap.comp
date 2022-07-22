@@ -13,7 +13,7 @@ layout(binding = 0, rgba32f) uniform writeonly imageCube outColour;
 
 layout(binding = 1) uniform samplerCube samplerColour;
 
-#include "../shared_lightning.glsl"
+#include "../shared_shading.glsl"
 
 const uint samples = 32u;
 

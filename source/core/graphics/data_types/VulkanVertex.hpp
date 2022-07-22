@@ -1,9 +1,9 @@
 #pragma once
 #include <imgui.h>
 
-namespace Engine
+namespace engine
 {
-    namespace Core
+    namespace core
     {
         struct FVertex
         {
@@ -112,12 +112,12 @@ namespace Engine
 namespace std
 {
     template <>
-    struct hash<Engine::Core::FVertex>
+    struct hash<engine::core::FVertex>
     {
-        size_t operator()(Engine::Core::FVertex const &vertex) const
+        size_t operator()(engine::core::FVertex const &vertex) const
         {
             size_t seed = 0;
-            Engine::Core::hashCombine(seed, vertex.pos, vertex.color, vertex.normal, vertex.texcoord, vertex.tangent);
+            engine::core::hashCombine(seed, vertex.pos, vertex.color, vertex.normal, vertex.texcoord, vertex.tangent);
             return seed;
         }
     };

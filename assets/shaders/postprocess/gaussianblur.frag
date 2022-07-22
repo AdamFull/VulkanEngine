@@ -3,15 +3,13 @@
 #extension GL_ARB_shading_language_420pack : enable
 #extension GL_GOOGLE_include_directive : require
 
-layout (input_attachment_index = 0, binding = 0) uniform subpassInput samplerColor;
-layout (input_attachment_index = 1, binding = 1) uniform subpassInput samplerBrightness;
+layout (binding = 0) uniform sampler2D samplerBrightness;
 
 layout (location = 0) in vec2 inUV;
 
 layout (location = 0) out vec4 outColor;
-layout (location = 1) out vec4 outBrightness;
 
-layout(std140, binding = 1) uniform FBloomUbo 
+layout(push_constant) uniform FBloomUbo 
 {
     //Bloom
 	float blurScale;
@@ -19,37 +17,38 @@ layout(std140, binding = 1) uniform FBloomUbo
     int direction;
 } ubo;
 
-#include "../shared_shaders.glsl"
-
-/*const float weights[] = float[](
-0.0024499299678342, 0.0043538453346397, 0.0073599963704157, 0.0118349786570722, 0.0181026699707781,
-0.0263392293891488, 0.0364543006660986, 0.0479932050577658, 0.0601029809166942, 0.0715974486241365,
-0.0811305381519717, 0.0874493212267511, 0.0896631113333857, 0.0874493212267511, 0.0811305381519717,
-0.0715974486241365, 0.0601029809166942, 0.0479932050577658, 0.0364543006660986, 0.0263392293891488,
-0.0181026699707781, 0.0118349786570722, 0.0073599963704157, 0.0043538453346397, 0.0024499299678342);*/
-const float weights[] = float[](0.227027, 0.1945946, 0.1216216, 0.054054, 0.016216);
-
 void main() 
 {
-    vec2 tex_offset = 1.0 / textureSize(samplerBrightness, 0) * ubo.blurScale; // gets size of single texel
-	vec3 result = texture(samplerBrightness, inUV).rgb * weights[0]; // current fragment's contribution
+    vec2 sizeColour = textureSize(samplerBrightness, 0);
+	vec4 colour = vec4(0.0f);
+	vec2 direction = vec2(ubo.blurStrength, 0.0);
+	if(ubo.direction < 0)
+		direction = vec2(0.0, ubo.blurStrength);
 
-	for(int i = 1; i < weights.length(); ++i)
-	{
-		if (ubo.direction == 1)
-		{
-			// H
-			result += texture(samplerBrightness, inUV + vec2(tex_offset.x * i, 0.0)).rgb * weights[i] * ubo.blurStrength;
-			result += texture(samplerBrightness, inUV - vec2(tex_offset.x * i, 0.0)).rgb * weights[i] * ubo.blurStrength;
-		}
-		else
-		{
-			// V
-			result += texture(samplerBrightness, inUV + vec2(0.0, tex_offset.y * i)).rgb * weights[i] * ubo.blurStrength;
-			result += texture(samplerBrightness, inUV - vec2(0.0, tex_offset.y * i)).rgb * weights[i] * ubo.blurStrength;
-		}
-	}
-
-	outColor = subpassLoad(samplerColor, inUV);
-	outBrightness = vec4(result, 1.0);
+#if BLUR_TYPE == 5
+	vec2 off1 = vec2(1.3333333333333333f) * direction;
+	colour += texture(samplerBrightness, inUV) * 0.29411764705882354 * ubo.blurScale;
+	colour += texture(samplerBrightness, inUV + (off1 / sizeColour)) * 0.35294117647058826f * ubo.blurScale;
+	colour += texture(samplerBrightness, inUV - (off1 / sizeColour)) * 0.35294117647058826f * ubo.blurScale;
+#elif BLUR_TYPE == 9
+	vec2 off1 = vec2(1.3846153846f) * direction;
+	vec2 off2 = vec2(3.2307692308f) * direction;
+	colour += texture(samplerBrightness, inUV) * 0.2270270270f * ubo.blurScale;
+	colour += texture(samplerBrightness, inUV + (off1 / sizeColour)) * 0.3162162162f * ubo.blurScale;
+	colour += texture(samplerBrightness, inUV - (off1 / sizeColour)) * 0.3162162162f * ubo.blurScale;
+	colour += texture(samplerBrightness, inUV + (off2 / sizeColour)) * 0.0702702703f * ubo.blurScale;
+	colour += texture(samplerBrightness, inUV - (off2 / sizeColour)) * 0.0702702703f * ubo.blurScale;
+#elif BLUR_TYPE == 13
+	vec2 off1 = vec2(1.411764705882353f) * direction;
+	vec2 off2 = vec2(3.2941176470588234f) * direction;
+	vec2 off3 = vec2(5.176470588235294f) * direction;
+	colour += texture(samplerBrightness, inUV) * 0.1964825501511404f * ubo.blurScale;
+	colour += texture(samplerBrightness, inUV + (off1 / sizeColour)) * 0.2969069646728344f * ubo.blurScale;
+	colour += texture(samplerBrightness, inUV - (off1 / sizeColour)) * 0.2969069646728344f * ubo.blurScale;
+	colour += texture(samplerBrightness, inUV + (off2 / sizeColour)) * 0.09447039785044732f * ubo.blurScale;
+	colour += texture(samplerBrightness, inUV - (off2 / sizeColour)) * 0.09447039785044732f * ubo.blurScale;
+	colour += texture(samplerBrightness, inUV + (off3 / sizeColour)) * 0.010381362401148057f * ubo.blurScale;
+	colour += texture(samplerBrightness, inUV - (off3 / sizeColour)) * 0.010381362401148057f * ubo.blurScale;
+#endif
+	outColor = colour;
 }

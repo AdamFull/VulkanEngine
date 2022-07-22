@@ -1,6 +1,6 @@
 #include "VulkanInitializers.h"
 
-using namespace Engine::Core;
+using namespace engine::core;
 
 vk::PipelineInputAssemblyStateCreateInfo Initializers::PipelineInputAssemblyStateCI(vk::PrimitiveTopology topology, vk::Bool32 primitiveRestart)
 {
@@ -11,10 +11,10 @@ vk::PipelineInputAssemblyStateCreateInfo Initializers::PipelineInputAssemblyStat
     return createInfo;
 }
 
-vk::PipelineRasterizationStateCreateInfo Initializers::PipelineRasterizerStateCI(vk::PolygonMode polygonMode, vk::CullModeFlags cullMode, vk::FrontFace frontFace, vk::Bool32 bDepthBias)
+vk::PipelineRasterizationStateCreateInfo Initializers::PipelineRasterizerStateCI(vk::PolygonMode polygonMode, vk::CullModeFlags cullMode, vk::FrontFace frontFace, vk::Bool32 depthClamp, vk::Bool32 bDepthBias)
 {
     vk::PipelineRasterizationStateCreateInfo createInfo{};
-    createInfo.depthClampEnable = VK_FALSE;
+    createInfo.depthClampEnable = depthClamp;
     createInfo.rasterizerDiscardEnable = VK_FALSE;
     createInfo.polygonMode = polygonMode;
     createInfo.lineWidth = 1.0f;

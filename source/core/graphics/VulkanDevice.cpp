@@ -1,11 +1,11 @@
+#include "util/ulog.hpp"
 #include "VulkanHighLevel.h"
 #include "VulkanStaticHelper.h"
+#include "Resources/Materials/MaterialLoader.h"
 
-using namespace Engine::Core;
-using namespace Engine::Core::Window;
-
-template<>
-std::unique_ptr<CDevice> utl::singleton<CDevice>::_instance{nullptr};
+using namespace engine::core;
+using namespace engine::core::window;
+using namespace engine::resources::material;
 
 std::vector<const char*> str_vector_to_char_ptr_vector(const std::vector<std::string>& from)
 {
@@ -62,32 +62,183 @@ void CDevice::destroyDebugUtilsMessengerEXT(VkInstance instance, VkDebugUtilsMes
     }
 }
 
+void* allocationFunction(void* pUserData, size_t size, size_t alignment, VkSystemAllocationScope allocationScope)
+{
+    void *ptr = malloc(size);
+    memset(ptr, 0, size);
+    return ptr;
+}
+
+void freeFunction(void* pUserData, void* pMemory)
+{   
+    free(pMemory);
+}
+
+void* reallocationFunction(void* pUserData, void* pOriginal, size_t size, size_t alignment, VkSystemAllocationScope allocationScope)
+{    
+    return realloc(pOriginal, size);
+}
+
+void internalAllocationNotification(void* pUserData, size_t  size, VkInternalAllocationType allocationType, VkSystemAllocationScope allocationScope)
+{
+}
+
+void internalFreeNotification(void* pUserData, size_t size, VkInternalAllocationType  allocationType, VkSystemAllocationScope allocationScope)
+{
+}
+
+static vk::AllocationCallbacks *createPAllocator()
+{
+    vk::AllocationCallbacks *m_allocator = (vk::AllocationCallbacks *)malloc(sizeof(vk::AllocationCallbacks));
+    memset(m_allocator, 0, sizeof(vk::AllocationCallbacks));
+    m_allocator->pfnAllocation = (PFN_vkAllocationFunction)(&allocationFunction);
+    m_allocator->pfnReallocation = (PFN_vkReallocationFunction)(&reallocationFunction);
+    m_allocator->pfnFree = (PFN_vkFreeFunction)&freeFunction;
+    m_allocator->pfnInternalAllocation = (PFN_vkInternalAllocationNotification)&internalAllocationNotification;
+    m_allocator->pfnInternalFree = (PFN_vkInternalFreeNotification)&internalFreeNotification;
+    return m_allocator;
+}
+
+CDevice::CDevice(const FDeviceCreateInfo &deviceCI)
+{
+    create(deviceCI);
+}
+
 CDevice::~CDevice()
 {
-    // surface is created by glfw, therefore not using a Unique handle
-    destroy(m_surface);
-
-    if (m_bValidation)
-        destroyDebugUtilsMessengerEXT(m_vkInstance, m_vkDebugUtils, nullptr);
-
-    vkDestroyDevice(m_logical, nullptr);
-    vkDestroyInstance(m_vkInstance, nullptr);
+    cleanup();
 }
 
 // TODO: add features picking while initialization
 void CDevice::create(const FDeviceCreateInfo& deviceCI)
 {
+    pAllocator = createPAllocator();
     m_bValidation = deviceCI.validation;
     createInstance(deviceCI);
     createDebugCallback(deviceCI);
     createSurface();
     createDevice(deviceCI);
-    m_pCommandPool = std::make_unique<CCommandPool>();
+    createPipelineCache();
+    createSwapchain();
+
+    viewportExtent = swapchainExtent;
+}
+
+void CDevice::cleanup()
+{
+    cleanupSwapchain();
+    destroy(&swapChain);
+    destroy(&pipelineCache);
+    
+    commandPools.clear();
+    
+    // surface is created by glfw, therefore not using a Unique handle
+    destroy(&vkSurface);
+
+    destroy(&vkDevice);
+
+    if (m_bValidation)
+        destroyDebugUtilsMessengerEXT(vkInstance, m_vkDebugUtils, (const VkAllocationCallbacks*)pAllocator);
+    destroy(&vkInstance);
+}
+
+void CDevice::tryRebuildSwapchain()
+{
+    if(bSwapChainRebuild)
+    {
+        vkDevice.waitIdle();
+        commandPools.clear();
+        cleanupSwapchain();
+        createSwapchain();
+        currentFrame = 0;
+        viewportExtent = swapchainExtent;
+        bSwapChainRebuild = false;
+    }
+}
+
+void CDevice::updateCommandPools()
+{
+    for (auto it = commandPools.begin(); it != commandPools.end();) 
+    {
+		if ((*it).second.use_count() <= 1) 
+        {
+			it = commandPools.erase(it);
+			continue;
+		}
+		++it;
+	}
+}
+
+vk::Result CDevice::acquireNextImage(uint32_t *imageIndex)
+{
+    vk::Result res = vkDevice.waitForFences(1, &vInFlightFences[currentFrame], VK_TRUE, std::numeric_limits<uint64_t>::max());
+    assert(res == vk::Result::eSuccess && "Waiting for fences error.");
+    res = vkDevice.acquireNextImageKHR(swapChain, std::numeric_limits<uint64_t>::max(), vImageAvailableSemaphores[currentFrame], nullptr, imageIndex);
+    return res;
+}
+
+vk::Result CDevice::submitCommandBuffers(const vk::CommandBuffer *commandBuffer, uint32_t *imageIndex, vk::QueueFlagBits queueBit)
+{
+    vk::Result res;
+    vk::SubmitInfo submitInfo = {};
+    vk::Semaphore waitSemaphores[] = {vImageAvailableSemaphores[currentFrame]};
+    vk::PipelineStageFlags waitStages[] = {vk::PipelineStageFlagBits::eColorAttachmentOutput};
+    submitInfo.waitSemaphoreCount = 1;
+    submitInfo.pWaitSemaphores = waitSemaphores;
+    submitInfo.pWaitDstStageMask = waitStages;
+
+    submitInfo.commandBufferCount = 1;
+    submitInfo.pCommandBuffers = commandBuffer;
+
+    vk::Semaphore signalSemaphores[] = {vRenderFinishedSemaphores[currentFrame]};
+    submitInfo.signalSemaphoreCount = 1;
+    submitInfo.pSignalSemaphores = signalSemaphores;
+
+    res = vkDevice.resetFences(1, &vInFlightFences[currentFrame]);
+    assert(res == vk::Result::eSuccess && "Cannot reset fences.");
+
+    try
+    {
+        vk::Queue queue{};
+        switch (queueBit)
+        {
+        case vk::QueueFlagBits::eGraphics: {
+            queue = m_qGraphicsQueue;
+        } break;
+        case vk::QueueFlagBits::eCompute: {
+            queue = m_qComputeQueue;
+        } break;
+        case vk::QueueFlagBits::eTransfer: {
+            queue = m_qTransferQueue;
+        } break;
+        }
+        queue.submit(submitInfo, vInFlightFences[currentFrame]);
+    }
+    catch (vk::SystemError err)
+    {
+        throw std::runtime_error("failed to submit draw command buffer!");
+    }
+
+    vk::PresentInfoKHR presentInfo = {};
+    presentInfo.waitSemaphoreCount = 1;
+    presentInfo.pWaitSemaphores = signalSemaphores;
+
+    vk::SwapchainKHR swapChains[] = {swapChain};
+    presentInfo.swapchainCount = 1;
+    presentInfo.pSwapchains = swapChains;
+    presentInfo.pImageIndices = imageIndex;
+
+    res = m_qPresentQueue.presentKHR(presentInfo);
+    assert(res == vk::Result::eSuccess && "Failed to present KHR.");
+
+    currentFrame = (currentFrame + 1) % framesInFlight;
+
+    return res;
 }
 
 uint32_t CDevice::getVulkanVersion()
 {
-	if (m_vkInstance)
+	if (vkInstance)
 		return VK_API_VERSION_1_0;
 
 	return 0;
@@ -95,30 +246,33 @@ uint32_t CDevice::getVulkanVersion()
 
 void CDevice::createInstance(const FDeviceCreateInfo& deviceCI)
 {
-    if (deviceCI.validation && !VulkanStaticHelper::CheckValidationLayerSupport(deviceCI.validationLayers))
+    if (deviceCI.validation && !VulkanStaticHelper::checkValidationLayerSupport(deviceCI.validationLayers))
     {
         throw std::runtime_error("Validation layers requested, but not available!");
     }
 
-    auto extensions = VulkanStaticHelper::GetRequiredExtensions(deviceCI.validation);
+    auto extensions = VulkanStaticHelper::getRequiredExtensions(deviceCI.validation);
 
-    auto createInfo = vk::InstanceCreateInfo{};
-    createInfo.flags = vk::InstanceCreateFlags();
+    vk::InstanceCreateInfo createInfo{};
     createInfo.pApplicationInfo = &deviceCI.appInfo;
     createInfo.enabledLayerCount = 0;
     createInfo.ppEnabledLayerNames = nullptr;
     createInfo.enabledExtensionCount = static_cast<uint32_t>(extensions.size());
     createInfo.ppEnabledExtensionNames = extensions.data();
 
-
+    std::array<vk::ValidationFeatureEnableEXT, 1> validationExt{vk::ValidationFeatureEnableEXT::eSynchronizationValidation};
+    vk::ValidationFeaturesEXT validationFeatures{};
+    validationFeatures.enabledValidationFeatureCount = validationExt.size();
+    validationFeatures.pEnabledValidationFeatures = validationExt.data();
     if (deviceCI.validation)
     {
         createInfo.enabledLayerCount = static_cast<uint32_t>(deviceCI.validationLayers.size());
         createInfo.ppEnabledLayerNames = deviceCI.validationLayers.data();
+        createInfo.pNext = &validationFeatures;
     }
 
-    m_vkInstance = vk::createInstance(createInfo, nullptr);
-    assert(m_vkInstance && "Vulkan instance was not created.");
+    vk::Result res = create(createInfo, &vkInstance);
+    assert(res == vk::Result::eSuccess && "Cannot create vulkan instance.");
 }
 
 void CDevice::createDebugCallback(const FDeviceCreateInfo& deviceCI)
@@ -134,7 +288,7 @@ void CDevice::createDebugCallback(const FDeviceCreateInfo& deviceCI)
         nullptr);
 
     // NOTE: Vulkan-hpp has methods for this, but they trigger linking errors...
-    if (createDebugUtilsMessengerEXT(m_vkInstance, reinterpret_cast<const VkDebugUtilsMessengerCreateInfoEXT *>(&createInfo), nullptr, &m_vkDebugUtils) != VK_SUCCESS)
+    if (createDebugUtilsMessengerEXT(vkInstance, reinterpret_cast<const VkDebugUtilsMessengerCreateInfoEXT *>(&createInfo), (const VkAllocationCallbacks*)pAllocator, &m_vkDebugUtils) != VK_SUCCESS)
     {
         throw std::runtime_error("failed to set up debug callback!");
     }
@@ -142,23 +296,25 @@ void CDevice::createDebugCallback(const FDeviceCreateInfo& deviceCI)
 
 void CDevice::createSurface()
 {
-    assert(m_vkInstance && "Unable to create surface, cause vulkan instance is not valid");
-    CWindowHandle::getInstance()->createWindowSurface(m_vkInstance, m_surface);
-    assert(m_surface && "Surface creation failed");
+    assert(vkInstance && "Unable to create surface, cause vulkan instance is not valid");
+    VkSurfaceKHR rawSurfaceKHR{VK_NULL_HANDLE};
+    UWindow->createWindowSurface(vkInstance, (const void*)pAllocator, rawSurfaceKHR);
+    vkSurface = rawSurfaceKHR;
+    assert(vkSurface && "Surface creation failed");
 }
 
 void CDevice::createDevice(const FDeviceCreateInfo& deviceCI)
 {
-    assert(m_vkInstance && "Unable to create ligical device, cause vulkan instance is not valid");
-    m_physical = getPhysicalDevice(deviceCI.deviceExtensions);
-    assert(m_physical && "No avaliable physical devices. Check device dependencies.");
+    assert(vkInstance && "Unable to create ligical device, cause vulkan instance is not valid");
+    vkPhysical = getPhysicalDevice(deviceCI.deviceExtensions);
+    assert(vkPhysical && "No avaliable physical devices. Check device dependencies.");
 
     if(isSupportedSampleCount(deviceCI.graphics.multisampling))
         m_msaaSamples = deviceCI.graphics.multisampling;
     else
         m_msaaSamples = vk::SampleCountFlagBits::e1;
 
-    QueueFamilyIndices indices = findQueueFamilies(m_physical);
+    QueueFamilyIndices indices = findQueueFamilies(vkPhysical);
 
     std::vector<vk::DeviceQueueCreateInfo> queueCreateInfos;
     std::set<uint32_t> uniqueQueueFamilies = {indices.graphicsFamily.value(), indices.presentFamily.value()};
@@ -170,11 +326,9 @@ void CDevice::createDevice(const FDeviceCreateInfo& deviceCI)
         queueCreateInfos.push_back({vk::DeviceQueueCreateFlags(), queueFamily, 1, &queuePriority});
     }
 
-    auto createInfo = vk::DeviceCreateInfo(
-        vk::DeviceCreateFlags(),
-        static_cast<uint32_t>(queueCreateInfos.size()),
-        queueCreateInfos.data());
-
+    auto createInfo = vk::DeviceCreateInfo{};
+    createInfo.queueCreateInfoCount = static_cast<uint32_t>(queueCreateInfos.size());
+    createInfo.pQueueCreateInfos = queueCreateInfos.data();
     createInfo.pEnabledFeatures = &deviceCI.deviceFeatures;
     createInfo.enabledExtensionCount = static_cast<uint32_t>(deviceCI.deviceExtensions.size());
     createInfo.ppEnabledExtensionNames = deviceCI.deviceExtensions.data();
@@ -185,22 +339,154 @@ void CDevice::createDevice(const FDeviceCreateInfo& deviceCI)
         createInfo.ppEnabledLayerNames = deviceCI.validationLayers.data();
     }
 
-    m_logical = m_physical.createDevice(createInfo);
-    assert(m_logical && "Failed to create logical device.");
+    vk::Result res = create(createInfo, &vkDevice);
+    assert(res == vk::Result::eSuccess && "Failed to create logical device.");
 
-    m_qGraphicsQueue = m_logical.getQueue(indices.graphicsFamily.value(), 0);
+    m_qGraphicsQueue = vkDevice.getQueue(indices.graphicsFamily.value(), 0);
     assert(m_qGraphicsQueue && "Failed while getting graphics queue.");
-    m_qPresentQueue = m_logical.getQueue(indices.presentFamily.value(), 0);
+    m_qPresentQueue = vkDevice.getQueue(indices.presentFamily.value(), 0);
     assert(m_qPresentQueue && "Failed while getting present queue.");
-    m_qComputeQueue = m_logical.getQueue(indices.computeFamily.value(), 0);
+    m_qComputeQueue = vkDevice.getQueue(indices.computeFamily.value(), 0);
     assert(m_qComputeQueue && "Failed while getting compute queue.");
-    m_qTransferQueue = m_logical.getQueue(indices.transferFamily.value(), 0);
+    m_qTransferQueue = vkDevice.getQueue(indices.transferFamily.value(), 0);
     assert(m_qTransferQueue && "Failed while getting transfer queue.");
+}
+
+void CDevice::createPipelineCache()
+{
+    vk::PipelineCacheCreateInfo pipelineCacheCreateInfo = {};
+    vk::Result res = create(pipelineCacheCreateInfo, &pipelineCache);
+    assert(res == vk::Result::eSuccess && "Cannot create pipeline cache.");
+}
+
+void CDevice::createSwapchain()
+{
+    vk::Result res;
+    vk::SwapchainKHR oldSwapchain = swapChain;
+    swapChain = VK_NULL_HANDLE;
+
+    SwapChainSupportDetails swapChainSupport = querySwapChainSupport();
+    vk::SurfaceFormatKHR surfaceFormat = VulkanStaticHelper::chooseSwapSurfaceFormat(swapChainSupport.formats);
+    vk::PresentModeKHR presentMode = VulkanStaticHelper::chooseSwapPresentMode(swapChainSupport.presentModes);
+    swapchainExtent = chooseSwapExtent(swapChainSupport.capabilities);
+
+    uint32_t imageCount = framesInFlight;
+    if (swapChainSupport.capabilities.maxImageCount > 0 && imageCount > swapChainSupport.capabilities.maxImageCount)
+    {
+        imageCount = swapChainSupport.capabilities.maxImageCount;
+    }
+
+    vk::SwapchainCreateInfoKHR createInfo{};
+    createInfo.surface = vkSurface;
+    createInfo.minImageCount = imageCount;
+    createInfo.imageFormat = surfaceFormat.format;
+    createInfo.imageColorSpace = surfaceFormat.colorSpace;
+    createInfo.imageExtent = swapchainExtent;
+    createInfo.imageArrayLayers = 1;
+    createInfo.imageUsage = vk::ImageUsageFlagBits::eColorAttachment;
+
+    QueueFamilyIndices indices = findQueueFamilies();
+    uint32_t queueFamilyIndices[] = {indices.graphicsFamily.value(), indices.presentFamily.value()};
+
+    if (indices.graphicsFamily != indices.presentFamily)
+    {
+        createInfo.imageSharingMode = vk::SharingMode::eConcurrent;
+        createInfo.queueFamilyIndexCount = 2;
+        createInfo.pQueueFamilyIndices = queueFamilyIndices;
+    }
+    else
+    {
+        createInfo.imageSharingMode = vk::SharingMode::eExclusive;
+    }
+
+    createInfo.preTransform = swapChainSupport.capabilities.currentTransform;
+    createInfo.compositeAlpha = vk::CompositeAlphaFlagBitsKHR::eOpaque;
+    createInfo.presentMode = presentMode;
+    createInfo.clipped = VK_TRUE;
+    createInfo.oldSwapchain = oldSwapchain;
+
+    res = create(createInfo, &swapChain);
+    assert(res == vk::Result::eSuccess && "Swap chain was not created");
+
+    vImages.resize(imageCount);
+    res = vkDevice.getSwapchainImagesKHR(swapChain, &imageCount, vImages.data());
+    assert(res == vk::Result::eSuccess && "Swap chain images was not created");
+
+    imageFormat = surfaceFormat.format;
+
+    if(oldSwapchain)
+        destroy(&oldSwapchain);
+
+    //Creating image views
+    {
+        vImageViews.resize(framesInFlight);
+        vk::ImageViewCreateInfo viewInfo{};
+        viewInfo.viewType = vk::ImageViewType::e2D;
+        viewInfo.format = imageFormat;
+        viewInfo.subresourceRange.aspectMask = vk::ImageAspectFlagBits::eColor;
+        viewInfo.subresourceRange.baseMipLevel = 0;
+        viewInfo.subresourceRange.levelCount = 1;
+        viewInfo.subresourceRange.baseArrayLayer = 0;
+        viewInfo.subresourceRange.layerCount = 1;
+        viewInfo.components.r = vk::ComponentSwizzle::eR;
+        viewInfo.components.g = vk::ComponentSwizzle::eG;
+        viewInfo.components.b = vk::ComponentSwizzle::eB;
+        viewInfo.components.a = vk::ComponentSwizzle::eA;
+
+        for (size_t i = 0; i < imageCount; i++)
+        {
+            viewInfo.image = vImages[i];
+            res = create(viewInfo, &vImageViews[i]);
+            assert(res == vk::Result::eSuccess && "Cannot create image view");
+        }
+    }
+
+    //Create sync objects
+    {
+        vImageAvailableSemaphores.resize(imageCount);
+        vRenderFinishedSemaphores.resize(imageCount);
+        vInFlightFences.resize(imageCount);
+
+        try
+        {
+            vk::SemaphoreCreateInfo semaphoreCI{};
+            vk::FenceCreateInfo fenceCI{};
+            fenceCI.flags = vk::FenceCreateFlagBits::eSignaled;
+            for (size_t i = 0; i < imageCount; i++)
+            {
+                res = create(semaphoreCI, &vImageAvailableSemaphores[i]);
+                assert(res == vk::Result::eSuccess && "Cannot create semaphore");
+                res = create(semaphoreCI, &vRenderFinishedSemaphores[i]);
+                assert(res == vk::Result::eSuccess && "Cannot create semaphore");
+                res = create(fenceCI, &vInFlightFences[i]);
+                assert(res == vk::Result::eSuccess && "Cannot create fence");
+            }
+        }
+        catch (vk::SystemError err)
+        {
+            throw std::runtime_error("Failed to create synchronization objects for a frame!");
+        }
+    }
+}
+
+void CDevice::cleanupSwapchain()
+{
+    for(size_t i = 0; i < framesInFlight; i++)
+    {
+        destroy(&vInFlightFences[i]);
+        destroy(&vImageViews[i]);
+        destroy(&vImageAvailableSemaphores[i]);
+        destroy(&vRenderFinishedSemaphores[i]);
+    }
+    vInFlightFences.clear();
+    vImageViews.clear();
+    vImageAvailableSemaphores.clear();
+    vRenderFinishedSemaphores.clear();
 }
 
 uint32_t CDevice::findMemoryType(uint32_t typeFilter, vk::MemoryPropertyFlags properties)
 {
-    vk::PhysicalDeviceMemoryProperties memProperties = m_physical.getMemoryProperties();
+    vk::PhysicalDeviceMemoryProperties memProperties = vkPhysical.getMemoryProperties();
 
     for (uint32_t i = 0; i < memProperties.memoryTypeCount; i++)
     {
@@ -237,7 +523,7 @@ QueueFamilyIndices CDevice::findQueueFamilies(vk::PhysicalDevice device)
             indices.transferFamily = i;
         }
 
-        if (queueFamily.queueCount > 0 && device.getSurfaceSupportKHR(i, m_surface))
+        if (queueFamily.queueCount > 0 && device.getSurfaceSupportKHR(i, vkSurface))
         {
             indices.presentFamily = i;
         }
@@ -255,28 +541,45 @@ QueueFamilyIndices CDevice::findQueueFamilies(vk::PhysicalDevice device)
 
 QueueFamilyIndices CDevice::findQueueFamilies()
 {
-    return findQueueFamilies(m_physical);
+    return findQueueFamilies(vkPhysical);
 }
 
 SwapChainSupportDetails CDevice::querySwapChainSupport(const vk::PhysicalDevice &device)
 {
     SwapChainSupportDetails details;
-    details.capabilities = device.getSurfaceCapabilitiesKHR(m_surface);
-    details.formats = device.getSurfaceFormatsKHR(m_surface);
-    details.presentModes = device.getSurfacePresentModesKHR(m_surface);
+    details.capabilities = device.getSurfaceCapabilitiesKHR(vkSurface);
+    details.formats = device.getSurfaceFormatsKHR(vkSurface);
+    details.presentModes = device.getSurfacePresentModesKHR(vkSurface);
 
     return details;
 }
 
 SwapChainSupportDetails CDevice::querySwapChainSupport()
 {
-    return querySwapChainSupport(m_physical);
+    return querySwapChainSupport(vkPhysical);
+}
+
+vk::Extent2D CDevice::chooseSwapExtent(const vk::SurfaceCapabilitiesKHR &capabilities)
+{
+    if (capabilities.currentExtent.width != std::numeric_limits<uint32_t>::max())
+    {
+        return capabilities.currentExtent;
+    }
+    else
+    {
+        vk::Extent2D actualExtent = {static_cast<uint32_t>(CWindowHandle::m_iWidth), static_cast<uint32_t>(CWindowHandle::m_iHeight)};
+
+        actualExtent.width = std::max(capabilities.minImageExtent.width, std::min(capabilities.maxImageExtent.width, actualExtent.width));
+        actualExtent.height = std::max(capabilities.minImageExtent.height, std::min(capabilities.maxImageExtent.height, actualExtent.height));
+
+        return actualExtent;
+    }
 }
 
 std::vector<vk::SampleCountFlagBits> CDevice::getAvaliableSampleCount()
 {
     vk::PhysicalDeviceProperties physicalDeviceProperties;
-    m_physical.getProperties(&physicalDeviceProperties);
+    vkPhysical.getProperties(&physicalDeviceProperties);
     std::vector<vk::SampleCountFlagBits> avaliableSamples{vk::SampleCountFlagBits::e1};
 
     vk::SampleCountFlags counts = physicalDeviceProperties.limits.framebufferColorSampleCounts & physicalDeviceProperties.limits.framebufferDepthSampleCounts;
@@ -305,28 +608,6 @@ bool CDevice::isSupportedSampleCount(vk::SampleCountFlagBits samples)
 
 /*****************************************Image work helpers*****************************************/
 
-void CDevice::createOnDeviceBuffer(vk::DeviceSize size, vk::BufferUsageFlags usage, vk::MemoryPropertyFlags properties, vk::Buffer &buffer, vk::DeviceMemory &bufferMemory)
-{
-    vk::BufferCreateInfo bufferInfo = {};
-    bufferInfo.size = size;
-    bufferInfo.usage = usage;
-    bufferInfo.sharingMode = vk::SharingMode::eExclusive;
-
-    buffer = m_logical.createBuffer(bufferInfo);
-    assert(buffer && "On device buffer was not created");
-
-    vk::MemoryRequirements memRequirements = m_logical.getBufferMemoryRequirements(buffer);
-
-    vk::MemoryAllocateInfo allocInfo = {};
-    allocInfo.allocationSize = memRequirements.size;
-    allocInfo.memoryTypeIndex = findMemoryType(memRequirements.memoryTypeBits, properties);
-
-    bufferMemory = m_logical.allocateMemory(allocInfo);
-    assert(bufferMemory && "Buffer memory was not allocated");
-
-    m_logical.bindBufferMemory(buffer, bufferMemory, 0);
-}
-
 void CDevice::copyOnDeviceBuffer(vk::Buffer srcBuffer, vk::Buffer dstBuffer, vk::DeviceSize size)
 {
     auto cmdBuf = CCommandBuffer(true, vk::QueueFlagBits::eTransfer);
@@ -341,9 +622,50 @@ void CDevice::copyOnDeviceBuffer(vk::Buffer srcBuffer, vk::Buffer dstBuffer, vk:
     cmdBuf.submitIdle();
 }
 
+const utl::ref_ptr<CCommandPool>& CDevice::getCommandPool(const std::thread::id &threadId)
+{
+    auto it = commandPools.find(threadId);
+    if(it != commandPools.end())
+		return it->second;
+
+    commandPools.emplace(threadId, utl::make_ref<CCommandPool>(threadId));
+	return commandPools[threadId];
+}
+
+vk::Extent2D CDevice::getExtent(bool automatic)
+{
+    auto engineMode = UHLInstance->getCI().engine.mode;
+    if(automatic)
+    {
+        switch (engineMode)
+        {
+        case ELaunchMode::eEditor: return viewportExtent; break;
+        case ELaunchMode::eGame: return swapchainExtent; break;
+        }
+    }
+    return swapchainExtent;
+}
+
+float CDevice::getAspect(bool automatic)
+{
+    auto ext = getExtent(automatic);
+    return static_cast<float>(ext.width) / static_cast<float>(ext.height);
+}
+
+void CDevice::setViewportExtent(vk::Extent2D extent)
+{
+    if(extent != viewportExtent)
+    {
+        bViewportRebuild = true;
+        viewportExtent = extent;
+    }
+    else
+        bViewportRebuild = false;
+}
+
 vk::PhysicalDevice CDevice::getPhysicalDevice(const std::vector<const char*>& deviceExtensions)
 {
-    auto device = m_vkInstance.enumeratePhysicalDevices().front();
+    auto device = vkInstance.enumeratePhysicalDevices().front();
     if (device && isDeviceSuitable(device, deviceExtensions))
     {
         return device;
@@ -353,7 +675,7 @@ vk::PhysicalDevice CDevice::getPhysicalDevice(const std::vector<const char*>& de
 
 std::vector<vk::PhysicalDevice> CDevice::getAvaliablePhysicalDevices(const std::vector<const char*>& deviceExtensions)
 {
-    auto devices = m_vkInstance.enumeratePhysicalDevices();
+    auto devices = vkInstance.enumeratePhysicalDevices();
     std::vector<vk::PhysicalDevice> output_devices;
     if (devices.size() == 0)
     {
@@ -379,7 +701,7 @@ bool CDevice::isDeviceSuitable(const vk::PhysicalDevice &device, const std::vect
 {
     QueueFamilyIndices indices = findQueueFamilies(device);
 
-    bool extensionsSupported = VulkanStaticHelper::CheckDeviceExtensionSupport(device, deviceExtensions);
+    bool extensionsSupported = VulkanStaticHelper::checkDeviceExtensionSupport(device, deviceExtensions);
 
     bool swapChainAdequate = false;
     if (extensionsSupported)
@@ -388,8 +710,7 @@ bool CDevice::isDeviceSuitable(const vk::PhysicalDevice &device, const std::vect
         swapChainAdequate = !swapChainSupport.formats.empty() && !swapChainSupport.presentModes.empty();
     }
 
-    vk::PhysicalDeviceFeatures supportedFeatures{};
-    supportedFeatures = device.getFeatures();
+    vk::PhysicalDeviceFeatures supportedFeatures = device.getFeatures();
 
     return indices.isComplete() && extensionsSupported && swapChainAdequate && supportedFeatures.samplerAnisotropy && supportedFeatures.sampleRateShading;
 }
@@ -449,7 +770,7 @@ namespace vk
             {"draw_indirect_first_instance", type.drawIndirectFirstInstance},
             {"depth_clamp", type.depthClamp},
             {"depth_bias_clamp", type.depthBiasClamp},
-            {"full_mode_non_solid", type.fillModeNonSolid},
+            {"fill_mode_non_solid", type.fillModeNonSolid},
             {"depth_bounds", type.depthBounds},
             {"wide_lines", type.wideLines},
             {"large_points", type.largePoints},
@@ -509,7 +830,7 @@ namespace vk
         ParseArgument(json, type.drawIndirectFirstInstance, "draw_indirect_first_instance");
         ParseArgument(json, type.depthClamp, "depth_clamp");
         ParseArgument(json, type.depthBiasClamp, "depth_bias_clamp");
-        ParseArgument(json, type.fillModeNonSolid, "full_mode_non_solid");
+        ParseArgument(json, type.fillModeNonSolid, "fill_mode_non_solid");
         ParseArgument(json, type.depthBounds, "depth_bounds");
         ParseArgument(json, type.wideLines, "wide_lines");
         ParseArgument(json, type.largePoints, "large_points");
@@ -555,9 +876,9 @@ namespace vk
     }
 }
 
-namespace Engine
+namespace engine
 {
-    namespace Core
+    namespace core
     {
         void to_json(nlohmann::json &json, const FDeviceCreateInfo &type)
         {

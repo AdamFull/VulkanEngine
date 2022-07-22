@@ -1,9 +1,9 @@
 #pragma once
 #include <optional>
 
-namespace Engine
+namespace engine
 {
-    namespace Core
+    namespace core
     {
         struct QueueFamilyIndices
         {

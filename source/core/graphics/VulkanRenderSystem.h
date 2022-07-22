@@ -3,35 +3,55 @@
 #include "graphics/renderpass/Subpass.h"
 #include "graphics/renderpass/RenderStage.h"
 
-namespace Engine
+namespace engine
 {
-    namespace Core
+    namespace core
     {
-        namespace Scene { class CRenderObject; }
-        class CRenderSystem : public utl::singleton<CRenderSystem>
+        namespace render
         {
-        public:
-            CRenderSystem() = default;
-            ~CRenderSystem();
-            void create(std::shared_ptr<Scene::CRenderObject> root);
-            void reCreate();
-            void render(std::shared_ptr<Scene::CRenderObject> root);
-            void cleanup();
+            class CRenderSystem 
+            {
+            public:
+                ~CRenderSystem();
 
-            std::unique_ptr<Render::CRenderStage>& getCurrentStage() { return vStages.at(currentStageIndex); }
+                void create();
+                void reCreate();
+                void render();
 
-            vk::CommandBuffer& getCurrentCommandBuffer();
-        private:
-            vk::CommandBuffer& beginFrame();
-            vk::Result endFrame();
+                void rebuildViewport();
 
-            std::shared_ptr<CCommandBuffer> commandBuffers;
-            uint32_t imageIndex{0};
-            bool frameStarted{false};
-            vk::Extent2D screenExtent{};
-            uint32_t currentStageIndex{0};
+                utl::scope_ptr<CRenderStage>& getStage(uint32_t stageIndex) { return vStages.at(stageIndex); }
+                utl::scope_ptr<CRenderStage>& getCurrentStage() { return vStages.at(currentStageIndex); }
+                utl::scope_ptr<CRenderStage>& getPrevStage() { return vStages.at(currentStageIndex - 1); }
 
-            std::vector<std::unique_ptr<Render::CRenderStage>> vStages;
-        };
+                utl::scope_ptr<CSubpass>& getCurrentRenderer();
+
+                std::unordered_map<std::string, utl::weak_ptr<CImage>>& getImages(uint32_t index) { return mImages[index]; }
+                std::unordered_map<std::string, utl::weak_ptr<CImage>>& getCurrentImages() { return getImages(imageIndex); }
+
+                const size_t getTotalFramesCounted() const { return totalFrameNumberCounter; }
+
+                void setStageType(EStageType eType) { eStageType = eType; }
+                EStageType getStageType() { return eStageType; }
+
+                vk::CommandBuffer& getCurrentCommandBuffer();
+            private:
+                vk::CommandBuffer beginFrame();
+                vk::Result endFrame();
+                void updateFramebufferImages();
+
+                EStageType eStageType;
+                utl::scope_ptr<CCommandBuffer> commandBuffers;
+                uint32_t imageIndex{ 0 };
+                bool frameStarted{ false };
+                vk::Extent2D screenExtent{};
+                uint32_t currentStageIndex{ 0 };
+
+                size_t totalFrameNumberCounter{ 0 };
+
+                std::vector<utl::scope_ptr<CRenderStage>> vStages;
+                std::map<uint32_t, std::unordered_map<std::string, utl::weak_ptr<CImage>>> mImages;
+            };
+        }
     }
 }

@@ -1,8 +1,8 @@
 #pragma once
 
-namespace Engine
+namespace engine
 {
-    namespace Core
+    namespace core
     {
         struct SwapChainSupportDetails
         {

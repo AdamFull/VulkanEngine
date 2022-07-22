@@ -1,20 +1,21 @@
 #pragma once
-#include <thread>
-#include <mutex>
-#include <condition_variable>
 #include "function.hpp"
-#include <future>
-#include <queue>
+#include "helpers.hpp"
 
-namespace utl
+namespace engine
 {
+	/**
+	 * @brief Future class for returning data from thread
+	 * 
+	 * @tparam _Ty Data type
+	 */
     template <typename _Ty>
-    class future
+    class CFuture
     {
     public:
-        future() noexcept = default;
+        CFuture() noexcept = default;
 
-        future(std::future<_Ty> &&_future) noexcept : __future(std::move(_future))
+        CFuture(std::future<_Ty> &&_future) noexcept : __future(std::move(_future))
         {
         }
 
@@ -36,12 +37,12 @@ namespace utl
         _Ty &operator*() noexcept { return get(); }
         _Ty &operator->() noexcept { return get(); }
 
-        bool operator==(const future &rhs) const noexcept
+        bool operator==(const CFuture &rhs) const noexcept
         {
             return __future == rhs.__future && __current == rhs.__current;
         }
 
-        bool operator!=(const future &rhs) const noexcept
+        bool operator!=(const CFuture &rhs) const noexcept
         {
             return !operator==(rhs);
         }
@@ -51,59 +52,36 @@ namespace utl
         std::optional<_Ty> __current;
     };
 
-    class worker
+	/**
+	 * @brief Worker class of thread pool
+	 * 
+	 */
+    class CWorker
 	{
 	private:
 		std::atomic<bool> _destroying{false};
 		std::atomic<bool> _waiting{true};
 		std::thread _thread;
-		std::queue<function<void()>> _work_queue;
+		std::queue<utl::function<void()>> _work_queue;
 		std::mutex _queue_mutex;
 		std::condition_variable _condition;
 
-		void loop()
-		{
-			while (true)
-			{
-				function<void()> work;
-				{
-					std::unique_lock<std::mutex> lock_begin(_queue_mutex);
-					_condition.wait(lock_begin, [this] { return !_work_queue.empty() || _destroying; });
-					if (_destroying) break;
-					work = _work_queue.front();
-					_waiting = false;
-				}
-
-				work();
-
-				{
-					std::lock_guard<std::mutex> lock_end(_queue_mutex);
-					_work_queue.pop();
-					_waiting = true;
-					_condition.notify_one();
-				}
-			}
-		}
+		/**
+		 * @brief Worker main loop
+		 * 
+		 */
+		void loop();
 
 	public:
-		worker()
-		{
-			_thread = std::thread(&worker::loop, this);
-		}
+		CWorker();
+		~CWorker();
 
-		~worker()
-		{
-			if (_thread.joinable())
-			{
-				wait();
-				_queue_mutex.lock();
-				_destroying = true;
-				_condition.notify_one();
-				_queue_mutex.unlock();
-				_thread.join();
-			}
-		}
-
+		/**
+		 * @brief Pushes lambda function without parameters
+		 * 
+		 * @tparam _Lambda Lambda function, or class type
+		 * @param function Worker function
+		 */
 		template<class _Lambda>
 		void push(_Lambda&& function)
 		{
@@ -112,13 +90,24 @@ namespace utl
 			_condition.notify_one();
 		}
 
+		/**
+		 * @brief Pushes lambda function with parameters
+		 * 
+		 * @tparam _Lambda Lambda function, or class type
+		 * @tparam _Types Lambda function variadic arguments
+		 * @param function Worker function
+		 * @param args Variadic arguments
+		 */
 		template<class _Lambda, class... _Types>
 		void push(_Lambda&& function, _Types&& ...args)
 		{
 			push([function, ...args = std::forward<_Types>(args)] { function(std::forward<_Types>(args)...); });
 		}
 
-		// Wait until all work items have been finished
+		/**
+		 * @brief Wait until all work items have been finished
+		 * 
+		 */
 		void wait()
 		{
 			std::unique_lock<std::mutex> lock(_queue_mutex);
@@ -131,14 +120,23 @@ namespace utl
 		}
 	};
 
-    class threadpool
+	/**
+	 * @brief Thread pool implementation class
+	 * 
+	 */
+    class CThreadPool
     {
     public:
-        threadpool() { set_worker_count(std::thread::hardware_concurrency()); }
-		threadpool(const size_t& count) { set_worker_count(count); }
-		~threadpool() { wait(); }
+        CThreadPool();
+		CThreadPool(const size_t& count);
+		~CThreadPool();
 
-
+		/**
+		 * @brief Pushes functional object as worker task
+		 * 
+		 * @tparam _Types Variadic arguments
+		 * @param args Arguments
+		 */
         template<class... _Types>
         void push(_Types&& ...args)
         {
@@ -147,10 +145,17 @@ namespace utl
                 _current = 0;
         }
 
+		/**
+		 * @brief Pushes functional object with return type for assynchronous result processing 
+		 * 
+		 * @param work Functional worker
+		 * @param args Variadic arguments
+		 * @return CFuture<_Kty> Future object for attempting access to result 
+		 */
 		template<class _Ty, class... _Types, typename _Kty = std::invoke_result_t<std::decay_t<_Ty>, std::decay_t<_Types>...>, typename = std::enable_if_t<!std::is_void_v<_Ty>>>
-		future<_Kty> submit(_Ty&& work, _Types&& ...args)
+		CFuture<_Kty> submit(_Ty&& work, _Types&& ...args)
 		{
-			auto task_promise = std::make_shared<std::promise<_Kty>>();
+			auto task_promise = utl::make_ref<std::promise<_Kty>>();
 			auto _future = task_promise->get_future();
 
 			_workers.at(_current)->push([work = std::forward<_Ty>(work), args..., task_promise]()
@@ -166,24 +171,23 @@ namespace utl
 			if(_current < _total)
                 _current = 0;
 
-			return future<_Kty>(std::move(_future));
+			return CFuture<_Kty>(std::move(_future));
 		}
 
-        void set_worker_count(const size_t& count)
-        {
-            _total = count;
-            _workers.clear();
-			for (auto i = 0; i < _total; i++)
-				_workers.emplace_back(std::make_unique<worker>());
-        }
+		/**
+		 * @brief Set the worker count
+		 * 
+		 * @param count Thread number
+		 */
+        void set_worker_count(const size_t& count);
 
-        void wait()
-        {
-            for (auto &worker : _workers)
-				worker->wait();
-        }
+		/**
+		 * @brief Wait while work will be done
+		 * 
+		 */
+        void wait();
     private:
-        std::vector<std::unique_ptr<worker>> _workers;
+        std::vector<utl::scope_ptr<CWorker>> _workers;
         size_t _total{0}, _current{0};
     };
 }

@@ -42,7 +42,7 @@
     },
     "engine":
     {
-        "mode": "game",
+        "mode": "editor",
         "start_scene": "scene.json"
     }
 }

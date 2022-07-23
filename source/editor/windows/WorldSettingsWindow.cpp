@@ -49,6 +49,11 @@ void CWorldSettingsWindow::draw()
         FControls::DragFloat("Split", &GlobalVariables::cascadeSplitLambda, 0.001, 0.0, 5.0);
         ImGui::EndGroup();
 
+        ImGui::BeginGroup();
+        ImGui::Checkbox("enableFXAA", &GlobalVariables::enableFXAA);
+        FControls::DragFloat("lumaThreshold", &GlobalVariables::lumaThreshold, 0.001, 0.0, 1.0);
+        ImGui::EndGroup();
+
         ImGui::End();
     }
 }

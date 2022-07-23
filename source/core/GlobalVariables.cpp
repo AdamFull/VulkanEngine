@@ -16,4 +16,7 @@ namespace engine
     int GlobalVariables::debugTarget{0};
     int GlobalVariables::debugCascade{0};
     float GlobalVariables::cascadeSplitLambda{0.95f};
+
+    bool GlobalVariables::enableFXAA{true};
+    float GlobalVariables::lumaThreshold{0.5f};
 }

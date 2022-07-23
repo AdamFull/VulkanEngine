@@ -5,6 +5,16 @@
 
 #include "../shader_util.glsl"
 
+#ifndef FXAA_REDUCE_MIN
+    #define FXAA_REDUCE_MIN   (1.0/ 128.0)
+#endif
+#ifndef FXAA_REDUCE_MUL
+    #define FXAA_REDUCE_MUL   (1.0 / 8.0)
+#endif
+#ifndef FXAA_SPAN_MAX
+    #define FXAA_SPAN_MAX     8.0
+#endif
+
 layout (binding = 0) uniform sampler2D samplerColor;
 layout (binding = 1) uniform sampler2D samplerBrightness;
 
@@ -17,11 +27,20 @@ layout(push_constant) uniform FBloomUbo
     //HDR
     float gamma;
 	float exposure;
+    bool enableFXAA;
+    float lumaThreshold;
+    vec2 texelStep;
 } ubo;
 
 void main() 
 {
-    vec3 fragcolor = texture(samplerColor, inUV).rgb;
+    //vec3 fragcolor = texture(samplerColor, inUV).rgb;
+    vec3 fragcolor = vec3(0.0);
+    if(ubo.enableFXAA)
+        fragcolor = fxaa(samplerColor, inUV, ubo.lumaThreshold, FXAA_REDUCE_MIN, FXAA_REDUCE_MUL, FXAA_SPAN_MAX, ubo.texelStep).rgb;
+    else
+        fragcolor = texture(samplerColor, inUV).rgb;
+
     vec3 brightness = texture(samplerBrightness, inUV).rgb;
     //fragcolor = mix(fragcolor, brightness, 0.4);
     //Exposure

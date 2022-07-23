@@ -18,5 +18,9 @@ namespace engine
         static int debugTarget;
         static int debugCascade;
         static float cascadeSplitLambda;
+
+        //fxaa
+        static bool enableFXAA;
+        static float lumaThreshold;
     };
 };

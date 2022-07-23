@@ -7,6 +7,7 @@
 #include "graphics/VulkanInitializers.h"
 #include "GlobalVariables.h"
 
+using namespace engine::core::window;
 using namespace engine::core::render;
 using namespace engine::core::scene;
 using namespace engine::resources;
@@ -39,6 +40,9 @@ void CFinalCompositionPass::render(vk::CommandBuffer& commandBuffer)
     auto& pUBO = pMaterial->getPushConstant("ubo");
     pUBO->set("gamma", GlobalVariables::postprocessGamma);
     pUBO->set("exposure", GlobalVariables::postprocessExposure);
+    pUBO->set("enableFXAA", GlobalVariables::enableFXAA);
+    pUBO->set("lumaThreshold", GlobalVariables::lumaThreshold);
+    pUBO->set("texelStep", glm::vec2(1.0 / CWindowHandle::m_iWidth, 1.0 / CWindowHandle::m_iWidth));
     pUBO->flush(commandBuffer);
 
     pMaterial->update();

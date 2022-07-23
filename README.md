@@ -40,6 +40,7 @@ Game engine architecture. Goog book for creating not bad game engine architectur
 - [ ] Cascade shadows(Only for directional, max 1)
 - [ ] Realtime reflections
 - [ ] Instancing
+- [x] FXAA (final image)
 - [x] Tescellation
 - [ ] SSAO
 - [x] Parallax mapping

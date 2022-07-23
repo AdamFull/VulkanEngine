@@ -79,6 +79,8 @@ void unpackTextures(in uvec4 texture_pack, out vec3 normal_map, out vec3 albedo_
     albedo_map = vec3(pack_G.g, pack_B);
 }
 
+
+//Based on https://github.com/McNopper/OpenGL/blob/master/Example42/shader/fxaa.frag.glsl
 vec4 fxaa(sampler2D image, vec2 texcoord, float lumaThreshold, float reduceMin, float mulReduce, float maxSpan, vec2 texelStep)
 {
     vec3 rgbM = texture(image, texcoord).rgb;

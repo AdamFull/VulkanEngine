@@ -6,7 +6,7 @@
 #include "../shader_util.glsl"
 
 #ifndef FXAA_REDUCE_MIN
-    #define FXAA_REDUCE_MIN   (1.0/ 128.0)
+    #define FXAA_REDUCE_MIN   (1.0/ 16.0)
 #endif
 #ifndef FXAA_REDUCE_MUL
     #define FXAA_REDUCE_MUL   (1.0 / 8.0)
@@ -29,6 +29,7 @@ layout(push_constant) uniform FBloomUbo
 	float exposure;
     bool enableFXAA;
     float lumaThreshold;
+    float reduceMin;
     vec2 texelStep;
 } ubo;
 
@@ -37,7 +38,7 @@ void main()
     //vec3 fragcolor = texture(samplerColor, inUV).rgb;
     vec3 fragcolor = vec3(0.0);
     if(ubo.enableFXAA)
-        fragcolor = fxaa(samplerColor, inUV, ubo.lumaThreshold, FXAA_REDUCE_MIN, FXAA_REDUCE_MUL, FXAA_SPAN_MAX, ubo.texelStep).rgb;
+        fragcolor = fxaa(samplerColor, inUV, ubo.lumaThreshold, ubo.reduceMin, FXAA_REDUCE_MUL, FXAA_SPAN_MAX, ubo.texelStep).rgb;
     else
         fragcolor = texture(samplerColor, inUV).rgb;
 

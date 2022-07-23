@@ -18,5 +18,6 @@ namespace engine
     float GlobalVariables::cascadeSplitLambda{0.95f};
 
     bool GlobalVariables::enableFXAA{true};
-    float GlobalVariables::lumaThreshold{0.5f};
+    float GlobalVariables::lumaThreshold{0.95f};
+    float GlobalVariables::reduceMinCoef{128.f};
 }

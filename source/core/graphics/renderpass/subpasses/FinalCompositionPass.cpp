@@ -42,6 +42,7 @@ void CFinalCompositionPass::render(vk::CommandBuffer& commandBuffer)
     pUBO->set("exposure", GlobalVariables::postprocessExposure);
     pUBO->set("enableFXAA", GlobalVariables::enableFXAA);
     pUBO->set("lumaThreshold", GlobalVariables::lumaThreshold);
+    pUBO->set("reduceMin", (1.f / GlobalVariables::reduceMinCoef));
     pUBO->set("texelStep", glm::vec2(1.0 / CWindowHandle::m_iWidth, 1.0 / CWindowHandle::m_iWidth));
     pUBO->flush(commandBuffer);
 

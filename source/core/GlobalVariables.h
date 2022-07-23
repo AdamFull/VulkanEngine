@@ -22,5 +22,6 @@ namespace engine
         //fxaa
         static bool enableFXAA;
         static float lumaThreshold;
+        static float reduceMinCoef;
     };
 };

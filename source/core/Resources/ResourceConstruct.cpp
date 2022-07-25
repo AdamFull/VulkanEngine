@@ -37,16 +37,6 @@ namespace engine
 
         NLOHMANN_JSON_SERIALIZE_ENUM
         (
-            EMeshType, 
-            {
-                {EMeshType::eStatic, "static"},
-                {EMeshType::eSkeletal, "skeletal"},
-                {EMeshType::eGLTF, "gltf"}
-            }
-        )
-
-        NLOHMANN_JSON_SERIALIZE_ENUM
-        (
             ENoisePattern, 
             {
                 {ENoisePattern::ePerlin, "perlin"},
@@ -56,11 +46,13 @@ namespace engine
 
         void to_json(nlohmann::json &json, const FNoiseParam &type)
         {
-            json = nlohmann::json{
+            json = nlohmann::json
+            {
                 {"pattern", type.pattern},
                 {"width", type.width},
                 {"height", type.height},
-                {"depth", type.depth}};
+                {"depth", type.depth}
+            };
         }
 
         void from_json(const nlohmann::json &json, FNoiseParam &type)
@@ -73,17 +65,19 @@ namespace engine
 
         void to_json(nlohmann::json &json, const FTextureCreateInfo &type)
         {
-            json = nlohmann::json{
+            json = nlohmann::json
+            {
                 {"name", type.srName},
                 {"type", type.eType},
                 {"attachment", type.attachment},
                 {"src", type.srSrc},
-                {"noise", type.noise}};
+                {"noise", type.noise}
+            };
         }
 
         void from_json(const nlohmann::json &json, FTextureCreateInfo &type)
         {
-            ParseArgument(json, type.srName, "name", true);
+            ParseArgument(json, type.srName, "name");
             ParseArgument(json, type.eType, "type", true);
             ParseArgument(json, type.attachment, "attachment", true);
             ParseArgument(json, type.srSrc, "src");
@@ -92,10 +86,12 @@ namespace engine
 
         void to_json(nlohmann::json &json, const FMaterialParamsInfo &type)
         {
-            json = nlohmann::json{
+            json = nlohmann::json
+            {
                 {"cutoff", type.alpha_cutoff},
                 {"metalic", type.metalic},
-                {"roughness", type.specular}};
+                {"roughness", type.specular}
+            };
         }
 
         void from_json(const nlohmann::json &json, FMaterialParamsInfo &type)
@@ -107,38 +103,51 @@ namespace engine
 
         void to_json(nlohmann::json &json, const FMaterialCreateInfo &type)
         {
-            json = nlohmann::json{
+            json = nlohmann::json
+            {
                 {"name", type.srName},
                 {"textures", {type.vTextures}},
-                {"params", type.fParams}};
+                {"params", type.fParams}
+            };
         }
 
         void from_json(const nlohmann::json &json, FMaterialCreateInfo &type)
         {
-            ParseArgument(json, type.srName, "name", true);
+            ParseArgument(json, type.srName, "name");
             ParseArgument(json, type.vTextures, "textures");
             ParseArgument(json, type.fParams, "params");
         }
 
+        void to_json(nlohmann::json &json, const FSkyboxCreateInfo &type)
+        {
+            json = nlohmann::json
+            {
+                {"name", type.srName},
+                {"environment;", type.environment}
+            };
+        }
+
+        void from_json(const nlohmann::json &json, FSkyboxCreateInfo &type)
+        {
+            ParseArgument(json, type.srName, "name");
+            ParseArgument(json, type.environment, "environment");
+        }      
+
         void to_json(nlohmann::json &json, const FMeshCreateInfo &type)
         {
-            json = nlohmann::json{
+            json = nlohmann::json
+            {
                 {"name", type.srName},
-                {"type", type.eType},
                 {"src", type.srSrc},
-                {"use_included_material", type.bUseIncludedMaterial},
-                {"materials", {type.vMaterials}}};
+                {"repeat", type.fRepeat}
+            };
         }
 
         void from_json(const nlohmann::json &json, FMeshCreateInfo &type)
         {
-            ParseArgument(json, type.srName, "name", true);
-            ParseArgument(json, type.eType, "type", true);
+            ParseArgument(json, type.srName, "name");
             ParseArgument(json, type.srSrc, "src", true);
             ParseArgument(json, type.fRepeat, "repeat");
-            ParseArgument(json, type.bUseIncludedMaterial, "use_included_material");
-            if (!type.bUseIncludedMaterial)
-                ParseArgument(json, type.vMaterials, "materials");
         }
 
         NLOHMANN_JSON_SERIALIZE_ENUM
@@ -174,6 +183,25 @@ namespace engine
             ParseArgument(json, type.fRadius, "radius");
             ParseArgument(json, type.fInnerAngle, "inner");
             ParseArgument(json, type.fOuterAngle, "outer");
+        }
+
+        void to_json(nlohmann::json &json, const FCameraCreateInfo &type)
+        {
+            json = nlohmann::json
+            {
+                {"name", type.srName},
+                {"fov", type.fFov},
+                {"near", type.fNear},
+                {"far", type.fFar}
+            };
+        }
+
+        void from_json(const nlohmann::json &json, FCameraCreateInfo &type)
+        {
+            ParseArgument(json, type.srName, "name");
+            ParseArgument(json, type.fFov, "fov", true);
+            ParseArgument(json, type.fNear, "near", true);
+            ParseArgument(json, type.fFar, "far", true);
         }
     }
 }

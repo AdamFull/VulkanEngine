@@ -7,19 +7,6 @@ namespace engine
     {
         namespace scene
         {
-            /*SCENE*/
-            NLOHMANN_JSON_SERIALIZE_ENUM
-            (
-                ESceneObjectType,
-                {
-                    {ESceneObjectType::eCamera, "camera"},
-                    {ESceneObjectType::eSkybox, "skybox"},
-                    {ESceneObjectType::eMeshComponent, "static_mesh"},
-                    {ESceneObjectType::eGltfMesh, "gltf_mesh"},
-                    {ESceneObjectType::eLightSource, "light_source"}
-                }
-            )
-
             NLOHMANN_JSON_SERIALIZE_ENUM
             (
                 ECullingType,
@@ -54,12 +41,10 @@ namespace engine
                 json = nlohmann::json
                 {
                     {"name", type.srName},
-                    {"type", type.eObjectType},
-                    {"mesh", type.mesh},
                     {"transform", type.fTransform},
-                    {"instances", type.vInstances},
-                    {"childs", {type.vSceneObjects}},
-                    {"culling", type.culling}
+                    {"culling", type.culling},
+                    {"components", type.components},
+                    {"childs", type.vSceneObjects}
                 };
             }
 
@@ -67,17 +52,12 @@ namespace engine
             {
                 // Required
                 ParseArgument(json, type.srName, "name", true);
-                ParseArgument(json, type.eObjectType, "type", true);
-                ParseArgument(json, type.srUseVolume, "use_volume");
 
                 // Optional
-                ParseArgument(json, type.mesh, "mesh");
-                ParseArgument(json, type.light, "light");
-                ParseArgument(json, type.texture, "texture");
                 ParseArgument(json, type.fTransform, "transform");
-                ParseArgument(json, type.vInstances, "instances");
-                ParseArgument(json, type.vSceneObjects, "childs");
                 ParseArgument(json, type.culling, "culling");
+                ParseArgument(json, type.components, "components");
+                ParseArgument(json, type.vSceneObjects, "childs");
             }
 
             void to_json(nlohmann::json &json, const FSceneCreateInfo &type)

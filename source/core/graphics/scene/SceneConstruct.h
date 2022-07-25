@@ -9,15 +9,6 @@ namespace engine
     {
         namespace scene
         {
-            enum class ESceneObjectType
-            {
-                eCamera,
-                eSkybox,
-                eMeshComponent,
-                eGltfMesh,
-                eLightSource
-            };
-
             enum class ECullingType
             {
                 eByPoint,
@@ -36,15 +27,14 @@ namespace engine
             struct FSceneObject
             {
                 std::string srName;
-                ESceneObjectType eObjectType;
-                std::string srUseVolume;
-                resources::FMeshCreateInfo mesh;
-                resources::FLightCreateinfo light;
-                resources::FTextureCreateInfo texture;
                 FTransform fTransform;
-                std::vector<glm::vec4> vInstances;
-                std::vector<FSceneObject> vSceneObjects;
                 FCullingInfo culling;
+                std::vector<std::variant<
+                    resources::FSkyboxCreateInfo,
+                    resources::FCameraCreateInfo,
+                    resources::FMeshCreateInfo, 
+                    resources::FLightCreateinfo>> components;
+                std::vector<FSceneObject> vSceneObjects;
             };
 
             struct FSceneCreateInfo

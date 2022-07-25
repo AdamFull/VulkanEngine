@@ -20,10 +20,10 @@ void ParseArgument(const nlohmann::json &json, T &type, const std::string& tag, 
 
 namespace nlohmann
 {
-    template <typename _T>
-    struct adl_serializer<std::optional<_T>> 
+    template <typename _Ty>
+    struct adl_serializer<std::optional<_Ty>> 
     {
-        static void to_json(json& j, const std::optional<_T>& opt) 
+        static void to_json(json& j, const std::optional<_Ty>& opt) 
         {
             if (!opt.has_value())
                 j = nullptr;
@@ -31,12 +31,41 @@ namespace nlohmann
                 j = opt.value();
         }
 
-        static void from_json(const json& j, std::optional<_T>& opt) 
+        static void from_json(const json& j, std::optional<_Ty>& opt) 
         {
             if (j.is_null())
                 opt = std::nullopt;
             else
-                opt = j.get<_T>();
+                opt = j.get<_Ty>();
+        }
+    };
+
+    // https://github.com/nlohmann/json/issues/1261
+    template <typename _Ty, typename... _Args>
+    void variant_from_json(const json &j, std::variant<_Args...> &data)
+    {
+        try {
+            data = j.get<_Ty>();
+        } catch (...) { }
+    }
+
+    template <typename... _Args>
+    struct adl_serializer<std::variant<_Args...>>
+    {
+        static void to_json(json &j, const std::variant<_Args...> &data)
+        {
+            // Will call j = v automatically for the right type
+            std::visit(
+                [&j](const auto &v) {
+                    j = v;
+                },
+                data);
+        }
+
+        static void from_json(const json &j, std::variant<_Args...> &data)
+        {
+            // Call variant_from_json for all types, only one will succeed
+            (variant_from_json<_Args>(j, data), ...);
         }
     };
 }

@@ -31,9 +31,8 @@ namespace engine
              * @param loadMaterials Load included materials or not
              * @param useMaterials Use included materials or load empty
              * @param modelName Model name
-             * @param volumeName Model volume name (deprecated)
              */
-                GLTFLoader(bool loadMaterials, bool useMaterials, const std::string& modelName, const std::string& volumeName);
+                GLTFLoader(bool loadMaterials, bool useMaterials, const std::string& modelName);
 
                 /**
                  * @brief Load model from file
@@ -48,7 +47,7 @@ namespace engine
                  * 
                  * @param material Material smart pointer object
                  */
-                inline void addMaterial(utl::ref_ptr<material::CMaterialBase>&& material) { vMaterials.emplace_back(material); }
+                inline void addMaterial(utl::ref_ptr<material::CMaterialBase>& material) { vMaterials.emplace_back(material); }
 
             private:
                 /**
@@ -148,7 +147,6 @@ namespace engine
                 bool bLoadMaterials;
                 bool bUseMaterials;
                 std::string srModelName;
-                std::string srVolumeName;
             };
         }
     }

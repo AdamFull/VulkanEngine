@@ -35,8 +35,8 @@ using namespace engine::resources;
 using namespace engine::resources::material;
 using namespace engine::resources::loaders;
 
-GLTFLoader::GLTFLoader(bool loadMaterials, bool useMaterials, const std::string& modelName, const std::string& volumeName) :
-bLoadMaterials(loadMaterials), bUseMaterials(useMaterials), srModelName(modelName), srVolumeName(volumeName)
+GLTFLoader::GLTFLoader(bool loadMaterials, bool useMaterials, const std::string& modelName) :
+bLoadMaterials(loadMaterials), bUseMaterials(useMaterials), srModelName(modelName)
 {
 
 }

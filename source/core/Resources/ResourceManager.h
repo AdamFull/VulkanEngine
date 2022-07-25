@@ -4,7 +4,6 @@
 #include "graphics/image/Image.h"
 #include "graphics/image/Image2D.h"
 #include "materials/VulkanMaterial.h"
-#include "materials/MaterialFactory.h"
 //Old code in this includer, remove
 
 namespace engine
@@ -24,28 +23,6 @@ namespace engine
              * 
              */
             void create();
-
-            /**
-             * @brief Loads resource manager from file
-             * 
-             * @param srResourcesPath Path to resources file
-             */
-            void load(std::string srResourcesPath);
-
-            /**
-             * @brief Add resource template function
-             * 
-             * @tparam ResType Resource type
-             * @tparam InfoType Type of resource info
-             * @param info Resource info object
-             * @return utl::ref_ptr<ResType> Smart pointer to resource object
-             */
-            template <class ResType, class InfoType>
-            utl::ref_ptr<ResType>& add(const InfoType& info)
-            {
-                assert(false && "Cannot find resource type");
-                return nullptr;
-            }
 
             /**
              * @brief Returns resource by name
@@ -85,34 +62,6 @@ namespace engine
             }
 
             /**
-             * @brief Specialization for image object (texture)
-             * 
-             * @param info Image create info 
-             * @return utl::ref_ptr<Core::CImage> Smart pointer to resource object
-             */
-            template <>
-            utl::ref_ptr<core::CImage>& add(const FTextureCreateInfo& info)
-            {
-                utl::ref_ptr<core::CImage> texture = utl::make_scope<core::CImage>(info.srSrc);
-                addExisting(info.srName, texture);
-                return pNullImage;
-            }
-
-            /**
-             * @brief Specialization for image2D object (texture)
-             * 
-             * @param info Image create info 
-             * @return utl::ref_ptr<Core::CImage> Smart pointer to resource object
-             */
-            template <>
-            utl::ref_ptr<core::CImage2D>& add(const FTextureCreateInfo& info)
-            {
-                utl::ref_ptr<core::CImage> texture = utl::make_scope<core::CImage2D>(info.srSrc);
-                addExisting(info.srName, texture);
-                return pNullImage2D;
-            }
-
-            /**
              * @brief Get smart pointer to created image
              * 
              * @param srResourceName Image name
@@ -137,20 +86,6 @@ namespace engine
                 if (it != m_mMaterials.end())
                     assert(false && "Resource named: is already exists.");
                 m_mMaterials.emplace(srResourceName, pResource);
-            }
-
-            /**
-             * @brief Specialization for MaterialBase object (texture)
-             * 
-             * @param info Material creation info
-             * @return utl::ref_ptr<Material::CMaterialBase> Smart pointer to resource object
-             */
-            template <>
-            utl::ref_ptr<material::CMaterialBase>& add(const FMaterialCreateInfo& info)
-            {
-                utl::ref_ptr<material::CMaterialBase> material = material::CMaterialFactory::create(info);
-                addExisting(info.srName, material);
-                return pNullMat;
             }
 
             /**

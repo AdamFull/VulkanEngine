@@ -5,6 +5,12 @@ namespace engine
 {
     namespace resources
     {
+        struct FCreateInfoBase
+        {
+            /// @brief Light source name
+            std::string srName{};
+        };
+
         enum class ETextureType
         {
             e2D,
@@ -62,10 +68,8 @@ namespace engine
          * @brief Texture creation info
          * 
          */
-        struct FTextureCreateInfo
+        struct FTextureCreateInfo : FCreateInfoBase
         {
-            /// @brief Texture name
-            std::string srName{};
             /// @brief Texture type
             ETextureType eType{};
             /// @brief Texture attachment
@@ -94,41 +98,29 @@ namespace engine
          * @brief Material create info
          * 
          */
-        struct FMaterialCreateInfo
+        struct FMaterialCreateInfo : FCreateInfoBase
         {
-            /// @brief Material name. This parameter searches material in CMaterialLoader class
-            std::string srName{};
             /// @brief Additional textures for material
             std::vector<FTextureCreateInfo> vTextures{};
             /// @brief Additional material params
             FMaterialParamsInfo fParams{};
         };
 
-        enum class EMeshType
+        struct FSkyboxCreateInfo : FCreateInfoBase
         {
-            eStatic,
-            eSkeletal,
-            eGLTF
+            FTextureCreateInfo environment;
         };
 
         /**
          * @brief Mesh creation info
          * 
          */
-        struct FMeshCreateInfo
+        struct FMeshCreateInfo : FCreateInfoBase
         {
-            /// @brief Mesh name
-            std::string srName{};
-            /// @brief Mesh type
-            EMeshType eType{};
             /// @brief Mesh source path
             std::string srSrc{};
             /// @brief Texture repeat value
             float fRepeat{1.f};
-            /// @brief Use custom attached material or use included
-            bool bUseIncludedMaterial{false};
-            /// @brief Custom attached materials
-            std::vector<FMaterialCreateInfo> vMaterials{};
         };
 
         enum class ELightSourceType
@@ -142,10 +134,8 @@ namespace engine
          * @brief Light source creation info
          * 
          */
-        struct FLightCreateinfo
+        struct FLightCreateinfo : FCreateInfoBase
         {
-            /// @brief Light source name
-            std::string srName{};
             /// @brief Light source type
             ELightSourceType eType{};
             /// @brief Light color
@@ -160,11 +150,20 @@ namespace engine
             float fOuterAngle{0.78f};
         };
 
+        struct FCameraCreateInfo : FCreateInfoBase
+        {
+            float fFov{45.0f};
+            float fNear{0.1f};
+            float fFar{64.0f};
+        };
+
         REGISTER_SERIALIZATION_BLOCK_H(FNoiseParam);
         REGISTER_SERIALIZATION_BLOCK_H(FTextureCreateInfo);
         REGISTER_SERIALIZATION_BLOCK_H(FMaterialParamsInfo);
         REGISTER_SERIALIZATION_BLOCK_H(FMaterialCreateInfo);
+        REGISTER_SERIALIZATION_BLOCK_H(FSkyboxCreateInfo);
         REGISTER_SERIALIZATION_BLOCK_H(FMeshCreateInfo);
         REGISTER_SERIALIZATION_BLOCK_H(FLightCreateinfo);
+        REGISTER_SERIALIZATION_BLOCK_H(FCameraCreateInfo);
     }
 }

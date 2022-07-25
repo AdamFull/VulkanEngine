@@ -45,6 +45,7 @@ Game engine architecture. Goog book for creating not bad game engine architectur
 - [ ] SSAO
 - [x] Parallax mapping
 - [ ] Global illumination
+- [ ] Path tracing
 
 ### Screenshoots
 ![directional shadows](/assets/screenshoots/first_shadow_test.png "Directional shadows(Spotlights)")

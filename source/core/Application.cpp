@@ -4,6 +4,7 @@
 #include "graphics/scene/objects/components/CameraManager.h"
 #include "graphics/scene/SceneManager.h"
 #include "filesystem/FilesystemHelper.h"
+#include "GlobalVariables.h"
 
 using namespace engine;
 using namespace engine::controllers;
@@ -54,5 +55,6 @@ void CApplication::run()
 
         auto currentTime = std::chrono::high_resolution_clock::now();
         delta_time = std::chrono::duration<float, std::chrono::seconds::period>(currentTime - startTime).count();
+        GlobalVariables::framerate = 1.f/delta_time;
     }
 }

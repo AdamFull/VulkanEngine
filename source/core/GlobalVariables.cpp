@@ -20,4 +20,6 @@ namespace engine
     bool GlobalVariables::enableFXAA{true};
     float GlobalVariables::lumaThreshold{0.95f};
     float GlobalVariables::reduceMinCoef{128.f};
+
+    float GlobalVariables::framerate{0.f};
 }

@@ -20,9 +20,9 @@ def render()
 def update()
 {
     auto& transform = this.getLocalTransform();
-	var angle = radians(componentTick * 360.0f);
+	var angle = radians(componentTick * 9.0f * 360.0f);
 	var radius = -5.0f;
-    transform.setPosition(vec3(cos(angle) * radius, -radius, sin(angle) * radius));
+    transform.setPosition(vec3(cos(angle) * radius, radius, sin(angle) * radius));
 }
 
 def destroy()

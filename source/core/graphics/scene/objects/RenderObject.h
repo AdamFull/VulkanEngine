@@ -108,7 +108,7 @@ namespace engine
                 uint64_t objectId{0};
                 uint32_t objectIndex{0};
                 std::string srName;
-                FTransform transform;
+                FTransform transform, transform_old;
                 bool bVisible{true};
                 bool bEnable{true};
 

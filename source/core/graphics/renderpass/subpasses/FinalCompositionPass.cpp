@@ -30,10 +30,12 @@ void CFinalCompositionPass::reCreate()
 void CFinalCompositionPass::render(vk::CommandBuffer& commandBuffer)
 {
     URenderer->setStageType(EStageType::ePostProcess);
+    auto& images = URenderer->getCurrentImages();
     auto imageIndex = UDevice->getCurrentFrame();
 
-    pMaterial->addTexture("samplerColor", URenderer->getCurrentImages()["composition_tex"]);
-    pMaterial->addTexture("samplerBrightness", URenderer->getCurrentImages()[blurImageSample]); //bloom_image
+    pMaterial->addTexture("samplerColor", images["composition_tex"]);
+    pMaterial->addTexture("velocity_tex", images["velocity_tex"]);
+    pMaterial->addTexture("samplerBrightness", images[blurImageSample]); //bloom_image
     //May be move to CompositionObject
 
     //TODO: push constant ranges here
@@ -45,6 +47,9 @@ void CFinalCompositionPass::render(vk::CommandBuffer& commandBuffer)
     pUBO->set("reduceMin", (1.f / GlobalVariables::reduceMinCoef));
     pUBO->set("texelStep", glm::vec2(1.0 / CWindowHandle::m_iWidth, 1.0 / CWindowHandle::m_iWidth));
     pUBO->flush(commandBuffer);
+
+    auto& pUBOMotionBlur = pMaterial->getUniformBuffer("UBOMotionBlur");
+    pUBOMotionBlur->set("velocityScale", GlobalVariables::framerate / 60.f);
 
     pMaterial->update();
     pMaterial->bind(commandBuffer);

@@ -17,6 +17,7 @@ layout(std140, binding = 7) uniform UBOMaterial
 layout(std140, binding = 0) uniform FUniformData 
 {
   	mat4 model;
+	mat4 model_old;
   	mat4 view;
   	mat4 projection;
   	mat4 normal;
@@ -33,22 +34,24 @@ layout(triangles, equal_spacing , cw) in;
 
 layout (location = 0) in vec2 inUV[];
 layout (location = 1) in vec3 inColor[];
-layout (location = 2) in vec3 inPosition[];
+layout (location = 2) in vec4 inPosition[];
+layout (location = 3) in vec4 inOldPosition[];
 #ifdef HAS_NORMALS
-layout (location = 3) in vec3 inNormal[];
+layout (location = 4) in vec3 inNormal[];
 #endif
 #ifdef HAS_TANGENTS
-layout (location = 4) in vec4 inTangent[];
+layout (location = 5) in vec4 inTangent[];
 #endif
  
 layout (location = 0) out vec2 outUV;
 layout (location = 1) out vec3 outColor;
-layout (location = 2) out vec3 outPosition;
+layout (location = 2) out vec4 outPosition;
+layout (location = 3) out vec4 outOldPosition;
 #ifdef HAS_NORMALS
-layout (location = 3) out vec3 outNormal;
+layout (location = 4) out vec3 outNormal;
 #endif
 #ifdef HAS_TANGENTS
-layout (location = 4) out vec4 outTangent;
+layout (location = 5) out vec4 outTangent;
 #endif
 
 void main()
@@ -69,11 +72,13 @@ void main()
 
 #ifdef HAS_HEIGHTMAP
 	vec3 displace = normalize(outNormal) * (max(texture(height_tex, outUV.st).r - 0.5f, 0.0) * material.tessellationStrength);
-    outPosition += displace;
+    outPosition += vec4(displace, 0.0);
 #endif
 	
-	vec4 position = data.model * vec4(outPosition, 1.0);
-	outPosition = position.xyz;
+	outOldPosition = outPosition;
+	outOldPosition = data.model_old * outOldPosition;
+
+	outPosition = data.model * outPosition;
 		
-	gl_Position = data.projection * data.view * position;
+	gl_Position = data.projection * data.view * outPosition;
 }

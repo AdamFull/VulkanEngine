@@ -79,6 +79,22 @@ void unpackTextures(in uvec4 texture_pack, out vec3 normal_map, out vec3 albedo_
     albedo_map = vec3(pack_G.g, pack_B);
 }
 
+vec4 per_object_motion_blir(sampler2D velocity_texture, sampler2D color_texture, vec2 inUV, float velocityScale, int max_samples)
+{
+    vec2 texelSize = 1.0 / vec2(textureSize(color_texture, 0));
+    vec2 velocity = texture(velocity_texture, inUV * vec2(1.0, -1.0)).rg * velocityScale;
+    float speed = length(velocity / texelSize);
+    int samples = clamp(int(speed), 1, max_samples);
+
+    vec4 motionBlur = texture(color_texture, inUV);
+    for (int i = 1; i < samples; ++i) 
+    {
+        vec2 offset = velocity * (float(i) / float(samples - 1) - 0.5);
+        motionBlur += texture(color_texture, inUV + offset);
+    }
+    motionBlur /= float(samples);
+    return motionBlur;
+}
 
 //Based on https://github.com/McNopper/OpenGL/blob/master/Example42/shader/fxaa.frag.glsl
 vec4 fxaa(sampler2D image, vec2 texcoord, float lumaThreshold, float reduceMin, float mulReduce, float maxSpan, vec2 texelStep)

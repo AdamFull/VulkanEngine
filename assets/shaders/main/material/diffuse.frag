@@ -29,26 +29,25 @@ layout(binding = 6) uniform sampler2D height_tex;
 
 layout(location = 0) in vec2 inUV;
 layout(location = 1) in vec3 inColor;
-layout(location = 2) in vec3 inPosition;
+layout(location = 2) in vec4 inPosition;
+layout(location = 3) in vec4 inOldPosition;
 #ifdef HAS_NORMALS
-layout(location = 3) in vec3 inNormal;
+layout(location = 4) in vec3 inNormal;
 #endif
 #ifdef HAS_TANGENTS
-layout (location = 4) in vec4 inTangent;
+layout (location = 5) in vec4 inTangent;
 #endif
 
 layout(location = 0) out uvec4 outPack;
 layout(location = 1) out vec4 outEmissive;
-
-#ifdef HAS_RENDER_POSITION
-layout(location = 2) out vec4 outPosition;
-#endif
+layout(location = 2) out vec2 outVelocity;
 
 #include "../../shader_util.glsl"
 
 layout(std140, binding = 0) uniform FUniformData 
 {
   	mat4 model;
+	mat4 model_old;
   	mat4 view;
   	mat4 projection;
   	mat4 normal;
@@ -77,7 +76,7 @@ void main()
 {
 	vec2 texCoord = inUV;
 #ifdef HAS_HEIGHTMAP 
-	vec3 viewDir = normalize(data.viewDir - inPosition);;
+	vec3 viewDir = normalize(data.viewDir - inPosition.xyz);;
 	//texCoord = ParallaxMapping(height_tex, inUV, viewDir, 0.01, 8.0, 32.0);
 #endif
 	float alpha = material.alphaCutoff;
@@ -106,8 +105,8 @@ void main()
 //NORMALS
 	mat4 normal = data.normal;
 #ifndef HAS_TANGENTS
-    vec3 pos_dx = dFdx(inPosition);
-    vec3 pos_dy = dFdy(inPosition);
+    vec3 pos_dx = dFdx(inPosition.xyz);
+    vec3 pos_dy = dFdy(inPosition.xyz);
     vec3 tex_dx = dFdx(vec3(texCoord, 0.0));
     vec3 tex_dy = dFdy(vec3(texCoord, 0.0));
     vec3 t = (tex_dy.t * pos_dx - tex_dx.t * pos_dy) / (tex_dx.s * tex_dy.t - tex_dy.s * tex_dx.t);
@@ -147,7 +146,7 @@ void main()
 	outPack = packTextures(normal_map, albedo_map, pbr_map);
 	outEmissive = emission;
 
-#ifdef HAS_RENDER_POSITION
-	outPosition = vec4(inPosition, 1.0);
-#endif
+	vec2 newpos = (inPosition.xy / inPosition.w) * 0.5 + 0.5;
+    vec2 oldpos = (inOldPosition.xy / inOldPosition.w) * 0.5 + 0.5;
+    outVelocity = newpos - oldpos;
 }

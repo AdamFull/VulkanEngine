@@ -8,16 +8,12 @@
 struct FTransform
 {
     FTransform() = default;
-    glm::vec3 pos{}, pos_o{};
-    glm::vec3 rot{}, rot_o{};
-    glm::vec3 scale{1.f, 1.f, 1.f}, scale_o{1.f, 1.f, 1.f};
+    glm::vec3 pos{};
+    glm::vec3 rot{};
+    glm::vec3 scale{1.f, 1.f, 1.f};
 
     FTransform &operator+=(const FTransform &rhs)
     {
-        this->pos_o = this->pos;
-        this->rot_o = this->rot;
-        this->scale_o = this->scale;
-
         this->scale *= rhs.scale;
         this->pos = this->pos * rhs.scale + rhs.pos;
         this->rot += rhs.rot;
@@ -39,8 +35,6 @@ struct FTransform
      * @return glm::mat4 Model matrix
      */
     const glm::mat4 getModel();
-
-    const glm::mat4 getModelOld();
 };
 
 REGISTER_SERIALIZATION_BLOCK_H(FTransform);

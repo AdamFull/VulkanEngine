@@ -59,6 +59,7 @@ void CPBRCompositionPass::render(vk::CommandBuffer& commandBuffer)
     pMaterial->addTexture("prefiltred_tex", prefiltered->getDescriptor());
     
     pMaterial->addTexture("packed_tex", images["packed_tex"]);
+    
     pMaterial->addTexture("emission_tex", images["emission_tex"]);
     pMaterial->addTexture("depth_tex", images["depth_tex"]);
     pMaterial->addTexture("ssr_tex", images["ssr_tex"]);

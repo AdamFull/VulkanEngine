@@ -19,9 +19,10 @@ void CDeferredStage::create()
     gbuffer_pass->setRenderArea(vk::Offset2D{0, 0}, screenExtent);
 
     gbuffer_pass->addImage("packed_tex", vk::Format::eR32G32B32A32Uint, vk::ImageUsageFlagBits::eColorAttachment | vk::ImageUsageFlagBits::eSampled);
+    gbuffer_pass->addImage("velocity_tex", vk::Format::eR8G8Unorm, vk::ImageUsageFlagBits::eColorAttachment | vk::ImageUsageFlagBits::eSampled);
     gbuffer_pass->addImage("emission_tex", vk::Format::eB10G11R11UfloatPack32, vk::ImageUsageFlagBits::eColorAttachment | vk::ImageUsageFlagBits::eSampled);
     gbuffer_pass->addImage("depth_tex", CImage::getDepthFormat(), vk::ImageUsageFlagBits::eDepthStencilAttachment | vk::ImageUsageFlagBits::eSampled);
-    gbuffer_pass->addOutputReference(0U, "packed_tex", "emission_tex");
+    gbuffer_pass->addOutputReference(0U, "packed_tex", "emission_tex", "velocity_tex");
     gbuffer_pass->addDescription(0U, "depth_tex");
 
     gbuffer_pass->addSubpassDependency(VK_SUBPASS_EXTERNAL, 0, vk::PipelineStageFlagBits::eFragmentShader,

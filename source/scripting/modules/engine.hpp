@@ -19,9 +19,6 @@ namespace engine
                 pModule->add(chaiscript::fun(&FTransform::pos), "pos");
                 pModule->add(chaiscript::fun(&FTransform::rot), "rot");
                 pModule->add(chaiscript::fun(&FTransform::scale), "scale");
-                pModule->add(chaiscript::fun(&FTransform::pos_o), "pos_o");
-                pModule->add(chaiscript::fun(&FTransform::rot_o), "rot_o");
-                pModule->add(chaiscript::fun(&FTransform::scale_o), "scale_o");
 
                 pModule->add(chaiscript::fun(static_cast<FTransform& (FTransform::*)(const FTransform&)>(&FTransform::operator+=)), "+=");
 
@@ -33,7 +30,6 @@ namespace engine
                 pModule->add(chaiscript::fun(&FTransform::setScale), "setScale");
 
                 pModule->add(chaiscript::fun(&FTransform::getModel), "getModel");
-                pModule->add(chaiscript::fun(&FTransform::getModelOld), "getModelOld");
 
                 return pModule;
             };

@@ -238,7 +238,7 @@ void main()
 		}
 
 		if(debug.target == 8)
-			fragcolor = vec3(shadow_factor);
+			fragcolor = vec3(0.0);
 		else if(debug.target == 9)
 			fragcolor = texture(cascade_shadowmap_tex, vec3(inUV, debug.cascade)).rrr;
 		else if(debug.target == 10)

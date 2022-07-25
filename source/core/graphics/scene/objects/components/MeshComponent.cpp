@@ -54,6 +54,7 @@ void CMeshComponent::render(vk::CommandBuffer &commandBuffer)
     auto view = camera->getView();
     auto projection = camera->getProjection();
     auto model = pParent->getModel();
+    auto modelOld = pParent->getModelOld();
     auto normal = glm::transpose(glm::inverse(model));
     auto position = pParent->getPosition();
 
@@ -89,6 +90,7 @@ void CMeshComponent::render(vk::CommandBuffer &commandBuffer)
             {
                 auto& pUBO = mat->getUniformBuffer("FUniformData");
                 pUBO->set("model", model);
+                pUBO->set("model_old", modelOld);
                 pUBO->set("view", view);
                 pUBO->set("projection", projection);
                 pUBO->set("normal", normal);

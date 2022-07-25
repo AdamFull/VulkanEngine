@@ -16,7 +16,8 @@
 #endif
 
 layout (binding = 0) uniform sampler2D samplerColor;
-layout (binding = 1) uniform sampler2D samplerBrightness;
+layout (binding = 1) uniform sampler2D velocity_tex;
+layout (binding = 2) uniform sampler2D samplerBrightness;
 
 layout (location = 0) in vec2 inUV;
 
@@ -33,8 +34,22 @@ layout(push_constant) uniform FBloomUbo
     vec2 texelStep;
 } ubo;
 
+layout(std140, binding = 3) uniform UBOMotionBlur
+{
+	float velocityScale;
+} motion;
+
+#define MAX_SAMPLES 30
+
+vec2 flippedUV(vec2 uv)
+{
+    return vec2(uv.s, uv.t * -1.0);
+}
+
 void main() 
 {
+    vec4 motionBlur = per_object_motion_blir(velocity_tex, samplerColor, inUV, motion.velocityScale, MAX_SAMPLES);
+
     //vec3 fragcolor = texture(samplerColor, inUV).rgb;
     vec3 fragcolor = vec3(0.0);
     if(ubo.enableFXAA)
@@ -42,6 +57,7 @@ void main()
     else
         fragcolor = texture(samplerColor, inUV).rgb;
 
+    fragcolor = motionBlur.rgb;
     vec3 brightness = texture(samplerBrightness, inUV).rgb;
     //fragcolor = mix(fragcolor, brightness, 0.4);
     //Exposure

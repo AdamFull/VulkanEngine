@@ -23,5 +23,7 @@ namespace engine
         static bool enableFXAA;
         static float lumaThreshold;
         static float reduceMinCoef;
+
+        static float framerate;
     };
 };

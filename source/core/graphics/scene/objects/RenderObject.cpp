@@ -62,6 +62,7 @@ void CRenderObject::render(vk::CommandBuffer &commandBuffer)
 
 void CRenderObject::update(float fDeltaTime)
 {
+    transform_old = transform;
     for (auto &[name, child] : mChilds)
     {
         if(child->isEnabled())
@@ -176,8 +177,8 @@ glm::mat4 CRenderObject::getModel()
 glm::mat4 CRenderObject::getModelOld()
 {
     if (pParent)
-        return pParent->getModelOld() * transform.getModelOld();
-    return transform.getModelOld();
+        return pParent->getModelOld() * transform_old.getModel();
+    return transform_old.getModel();
 }
 
 glm::vec3 CRenderObject::getPosition()

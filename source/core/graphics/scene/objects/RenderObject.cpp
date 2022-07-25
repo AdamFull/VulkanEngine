@@ -12,7 +12,7 @@ CRenderObject::CRenderObject()
     _objectIdCounter++;
 }
 
-CRenderObject::CRenderObject(std::string name)
+CRenderObject::CRenderObject(const std::string& name)
 {
     srName = name;
 }
@@ -30,6 +30,7 @@ void CRenderObject::create()
     if(pMesh) pMesh->create();
     if(pCamera && pCamera->getIsActive()) pCamera->create();
     if(pLight) pLight->create();
+    if(pScript) pScript->create();
 }
 
 void CRenderObject::reCreate()
@@ -40,6 +41,7 @@ void CRenderObject::reCreate()
     if(pMesh) pMesh->reCreate();
     if(pCamera && pCamera->getIsActive()) pCamera->reCreate();
     if(pLight) pLight->reCreate();
+    if(pScript) pScript->reCreate();
 }
 
 void CRenderObject::render(vk::CommandBuffer &commandBuffer)
@@ -55,6 +57,7 @@ void CRenderObject::render(vk::CommandBuffer &commandBuffer)
     if(pMesh) pMesh->render(commandBuffer);
     if(pCamera && pCamera->getIsActive()) pCamera->render(commandBuffer);
     if(pLight) pLight->render(commandBuffer);
+    if(pScript) pScript->render(commandBuffer);
 }
 
 void CRenderObject::update(float fDeltaTime)
@@ -68,9 +71,10 @@ void CRenderObject::update(float fDeltaTime)
     if(pMesh) pMesh->update(fDeltaTime);
     if(pCamera && pCamera->getIsActive()) pCamera->update(fDeltaTime);
     if(pLight) pLight->update(fDeltaTime);
+    if(pScript) pScript->update(fDeltaTime);
 }
 
-void CRenderObject::setName(std::string name)
+void CRenderObject::setName(const std::string& name)
 {
     if(name == srName)
         return;
@@ -104,7 +108,7 @@ std::unordered_map<std::string, utl::ref_ptr<CRenderObject>> &CRenderObject::get
 }
 
 // Deep search
-utl::ref_ptr<CRenderObject>& CRenderObject::find(std::string srName)
+utl::ref_ptr<CRenderObject>& CRenderObject::find(const std::string& srName)
 {
     auto it = mChilds.find(srName);
     if (it != mChilds.end())
@@ -167,6 +171,13 @@ glm::mat4 CRenderObject::getModel()
     if (pParent)
         return pParent->getModel() * transform.getModel();
     return transform.getModel();
+}
+
+glm::mat4 CRenderObject::getModelOld()
+{
+    if (pParent)
+        return pParent->getModelOld() * transform.getModelOld();
+    return transform.getModelOld();
 }
 
 glm::vec3 CRenderObject::getPosition()

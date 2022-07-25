@@ -2,6 +2,11 @@
 
 using namespace engine::scripting;
 
+CScript::~CScript()
+{
+    //executor = chaiscript::ChaiScript();
+}
+
 int32_t CScript::resolve(chaiscript::Boxed_Value& boxedValue)
 {
     auto type_name = boxedValue.get_type_info().name();

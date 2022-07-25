@@ -3,6 +3,7 @@
 #include "graphics/scene/objects/components/MeshComponent.h"
 #include "graphics/scene/objects/components/CameraComponent.h"
 #include "graphics/scene/objects/components/LightComponent.h"
+#include "graphics/scene/objects/components/ScriptingComponent.h"
 
 namespace engine
 {
@@ -22,7 +23,7 @@ namespace engine
             {
             public:
                 CRenderObject();
-                CRenderObject(std::string srName);
+                CRenderObject(const std::string& srName);
                 ~CRenderObject();
 
                 // Create render object
@@ -40,7 +41,7 @@ namespace engine
                 bool isEnabled() const { return bEnable; }
 
                 // Deep search
-                utl::ref_ptr<CRenderObject>& find(std::string name);
+                utl::ref_ptr<CRenderObject>& find(const std::string& name);
                 utl::ref_ptr<CRenderObject>& find(uint64_t id);
                 void addChild(utl::ref_ptr<CRenderObject> &child);
                 void setParent(utl::ref_ptr<CRenderObject> parent);
@@ -56,6 +57,7 @@ namespace engine
                 FTransform getTransform();
                 FTransform& getLocalTransform() { return transform; }
                 glm::mat4 getModel();
+                glm::mat4 getModelOld();
                 glm::vec3 getPosition();
                 const glm::vec3 getLocalPosition() const { return transform.getPosition(); }
                 glm::vec3 getRotation();
@@ -63,7 +65,7 @@ namespace engine
                 glm::vec3 getScale();
                 const glm::vec3 getLocalScale() const { return transform.getScale(); }
 
-                void setName(std::string name);
+                void setName(const std::string& name);
 
                 void setTransform(FTransform transformNew);
                 void setPosition(glm::vec3 position);
@@ -91,9 +93,16 @@ namespace engine
                     pLight->setParent(shared_from_this());
                 }
 
+                void setScript(utl::ref_ptr<CScriptingComponent>&& component) 
+                { 
+                    pScript = std::move(component);
+                    pScript->setParent(shared_from_this());
+                }
+
                 utl::ref_ptr<CMeshComponent>& getMesh() { return pMesh; }
                 utl::ref_ptr<CCameraComponent>& getCamera() { return pCamera; }
                 utl::ref_ptr<CLightComponent>& getLight() { return pLight; }
+                utl::ref_ptr<CScriptingComponent>& getScript() { return pScript; }
 
             protected:
                 uint64_t objectId{0};
@@ -106,6 +115,7 @@ namespace engine
                 utl::ref_ptr<CMeshComponent> pMesh;
                 utl::ref_ptr<CCameraComponent> pCamera;
                 utl::ref_ptr<CLightComponent> pLight;
+                utl::ref_ptr<CScriptingComponent> pScript;
 
                 utl::ref_ptr<CRenderObject> pNull{nullptr};
                 utl::ref_ptr<CRenderObject> pParent;

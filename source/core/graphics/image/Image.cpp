@@ -57,7 +57,7 @@ vk::SamplerAddressMode addressMode, vk::Filter filter, bool mipmaps)
     texture->baseDepth = 1;
     texture->numDimensions = 2;
     texture->generateMipmaps = mipmaps;
-    texture->numLevels = mipmaps ? static_cast<uint32_t>(std::floor(std::log2(std::max(extent.width, extent.height)))) + 1 : 1;
+    texture->numLevels = mipmaps ? static_cast<uint32_t>(std::floor(std::log2((std::max)(extent.width, extent.height)))) + 1 : 1;
     texture->isArray = false;
     texture->numLayers = 1;
     texture->numFaces = 1;

@@ -203,5 +203,21 @@ namespace engine
             ParseArgument(json, type.fNear, "near", true);
             ParseArgument(json, type.fFar, "far", true);
         }
+
+
+        void to_json(nlohmann::json &json, const FStriptsCreateInfo &type)
+        {
+            json = nlohmann::json
+            {
+                {"name", type.srName},
+                {"scripts", type.scripts}
+            };
+        }
+
+        void from_json(const nlohmann::json &json, FStriptsCreateInfo &type)
+        {
+            ParseArgument(json, type.srName, "name");
+            ParseArgument(json, type.scripts, "scripts", true);
+        }
     }
 }

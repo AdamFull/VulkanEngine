@@ -85,7 +85,7 @@ vk::Result CCommandBuffer::submitIdle()
     } break;
     }
     queue.submit(submitInfo, fence);
-    res = vkDevice.waitForFences(1, &fence, VK_TRUE, std::numeric_limits<uint64_t>::max());
+    res = vkDevice.waitForFences(1, &fence, VK_TRUE, (std::numeric_limits<uint64_t>::max)());
     assert(res == vk::Result::eSuccess && "Wait for fences error.");
     UDevice->destroy(&fence);
     return res;

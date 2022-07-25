@@ -54,6 +54,12 @@
                     "src": "meshes/SimpleScene/SimpleScene.gltf",
                     "repeat": 10.0,
                     "use_included_material": true
+                },
+                {
+                    "name": "script_launcher",
+                    "scripts": [
+                        "scripts/rotate_scene.chai"
+                    ]
                 }
             ]
         },

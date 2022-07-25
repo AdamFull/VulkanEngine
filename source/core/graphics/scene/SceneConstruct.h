@@ -33,7 +33,8 @@ namespace engine
                     resources::FSkyboxCreateInfo,
                     resources::FCameraCreateInfo,
                     resources::FMeshCreateInfo, 
-                    resources::FLightCreateinfo>> components;
+                    resources::FLightCreateinfo,
+                    resources::FStriptsCreateInfo>> components;
                 std::vector<FSceneObject> vSceneObjects;
             };
 

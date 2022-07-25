@@ -946,5 +946,5 @@ size_t CShader::parseSize(const spirv_cross::SPIRType& type)
             return 4 * type.vecsize;
         } break;
     }
-    return std::numeric_limits<size_t>::max();
+    return (std::numeric_limits<size_t>::max)();
 }

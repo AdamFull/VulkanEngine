@@ -1,5 +1,6 @@
 #pragma once
 
+#define NOMINMAX
 #ifdef VULKAN_API_SUPPORT
 #define GLFW_INCLUDE_VULKAN
 #include <vulkan/vulkan.hpp>

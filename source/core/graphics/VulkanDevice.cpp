@@ -171,9 +171,9 @@ void CDevice::updateCommandPools()
 
 vk::Result CDevice::acquireNextImage(uint32_t *imageIndex)
 {
-    vk::Result res = vkDevice.waitForFences(1, &vInFlightFences[currentFrame], VK_TRUE, std::numeric_limits<uint64_t>::max());
+    vk::Result res = vkDevice.waitForFences(1, &vInFlightFences[currentFrame], VK_TRUE, (std::numeric_limits<uint64_t>::max)());
     assert(res == vk::Result::eSuccess && "Waiting for fences error.");
-    res = vkDevice.acquireNextImageKHR(swapChain, std::numeric_limits<uint64_t>::max(), vImageAvailableSemaphores[currentFrame], nullptr, imageIndex);
+    res = vkDevice.acquireNextImageKHR(swapChain, (std::numeric_limits<uint64_t>::max)(), vImageAvailableSemaphores[currentFrame], nullptr, imageIndex);
     return res;
 }
 
@@ -561,7 +561,7 @@ SwapChainSupportDetails CDevice::querySwapChainSupport()
 
 vk::Extent2D CDevice::chooseSwapExtent(const vk::SurfaceCapabilitiesKHR &capabilities)
 {
-    if (capabilities.currentExtent.width != std::numeric_limits<uint32_t>::max())
+    if (capabilities.currentExtent.width != (std::numeric_limits<uint32_t>::max)())
     {
         return capabilities.currentExtent;
     }
@@ -569,8 +569,8 @@ vk::Extent2D CDevice::chooseSwapExtent(const vk::SurfaceCapabilitiesKHR &capabil
     {
         vk::Extent2D actualExtent = {static_cast<uint32_t>(CWindowHandle::m_iWidth), static_cast<uint32_t>(CWindowHandle::m_iHeight)};
 
-        actualExtent.width = std::max(capabilities.minImageExtent.width, std::min(capabilities.maxImageExtent.width, actualExtent.width));
-        actualExtent.height = std::max(capabilities.minImageExtent.height, std::min(capabilities.maxImageExtent.height, actualExtent.height));
+        actualExtent.width = (std::max)(capabilities.minImageExtent.width, (std::min)(capabilities.maxImageExtent.width, actualExtent.width));
+        actualExtent.height = (std::max)(capabilities.minImageExtent.height, (std::min)(capabilities.maxImageExtent.height, actualExtent.height));
 
         return actualExtent;
     }

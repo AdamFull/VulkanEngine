@@ -157,6 +157,11 @@ namespace engine
             float fFar{64.0f};
         };
 
+        struct FStriptsCreateInfo : FCreateInfoBase
+        {
+            std::vector<std::string> scripts;
+        };
+
         REGISTER_SERIALIZATION_BLOCK_H(FNoiseParam);
         REGISTER_SERIALIZATION_BLOCK_H(FTextureCreateInfo);
         REGISTER_SERIALIZATION_BLOCK_H(FMaterialParamsInfo);
@@ -165,5 +170,6 @@ namespace engine
         REGISTER_SERIALIZATION_BLOCK_H(FMeshCreateInfo);
         REGISTER_SERIALIZATION_BLOCK_H(FLightCreateinfo);
         REGISTER_SERIALIZATION_BLOCK_H(FCameraCreateInfo);
+        REGISTER_SERIALIZATION_BLOCK_H(FStriptsCreateInfo);
     }
 }

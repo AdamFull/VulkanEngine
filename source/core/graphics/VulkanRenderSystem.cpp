@@ -112,7 +112,7 @@ void CRenderSystem::render()
         UDevice->setRebuildFlag();
     }
 
-    if(totalFrameNumberCounter != std::numeric_limits<size_t>::max())
+    if(totalFrameNumberCounter != (std::numeric_limits<size_t>::max)())
         totalFrameNumberCounter++;
     else
         totalFrameNumberCounter = 1;

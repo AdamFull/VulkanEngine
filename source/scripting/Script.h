@@ -10,6 +10,7 @@ namespace engine
         public:
             friend class CScriptBuilder;
             CScript() = default;
+            ~CScript();
 
             // Bind new property to script object
             template<class... _Args>
@@ -34,13 +35,11 @@ namespace engine
                     for(auto& [fname, code] : vIncludes)
                         execute<void>(code, fname);
 
-                    lastState = executor.get_state();
                     bIsFirstCall = false;
                 }
                 
                 auto entryPath = vIncludes.begin()->first;
                 auto result = execute<_Ty>(entryPoint, entryPath);
-                executor.set_state(lastState);
                 return result;
             }
 

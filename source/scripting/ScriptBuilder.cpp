@@ -1,5 +1,6 @@
 #include "ScriptBuilder.h"
 #include "modules/glm_module.hpp"
+#include "modules/engine.hpp"
 #include "filesystem/FilesystemHelper.h"
 
 using namespace engine;
@@ -8,9 +9,9 @@ using namespace engine::scripting;
 template<>
 std::unique_ptr<CScriptBuilder> utl::singleton<CScriptBuilder>::_instance{ nullptr };
 
-std::shared_ptr<CScript> CScriptBuilder::build(const std::string& srProgramm)
+utl::ref_ptr<CScript> CScriptBuilder::build(const std::string& srProgramm)
 {
-    auto pScript = std::make_shared<CScript>();
+    auto pScript = utl::make_ref<CScript>();
     auto srData = FilesystemHelper::readFile(srProgramm);
     pScript->vIncludes.emplace_back(std::make_pair(srProgramm, srData));
     applyBindings(pScript);
@@ -20,10 +21,12 @@ std::shared_ptr<CScript> CScriptBuilder::build(const std::string& srProgramm)
 void CScriptBuilder::initialize()
 {
     m_mModules.emplace("glm", modules::glm());
+    m_mModules.emplace("engine_structs", modules::engine_structs());
+    m_mModules.emplace("engine_objects", modules::engine_objects());
     m_bInitialized = true;
 }
 
-void CScriptBuilder::applyBindings(std::shared_ptr<CScript>& pScript)
+void CScriptBuilder::applyBindings(utl::ref_ptr<CScript>& pScript)
 {
     if (!m_bInitialized)
         initialize();

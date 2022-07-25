@@ -5,6 +5,7 @@
 #include "resources/meshes/loaders/GLTFLoader.h"
 #include "graphics/scene/objects/components/LightSourceManager.h"
 #include "resources/materials/MaterialLoader.h"
+#include "graphics/scene/objects/components/ScriptingComponent.h"
 
 namespace engine
 {
@@ -68,7 +69,7 @@ namespace engine
                     loader->load(pRoot, info.srSrc, info.srName);
                 }
 
-                // 
+                // light component
                 template<>
                 static void createComponent<resources::FLightCreateinfo>(utl::ref_ptr<core::scene::CRenderObject>& pRoot, resources::FLightCreateinfo info)
                 {
@@ -91,6 +92,18 @@ namespace engine
                     pRoot->setLight(std::move(lightComponent));
                     addLight(pRoot);
                 }
+
+                // scripting component
+                template<>
+                static void createComponent<resources::FStriptsCreateInfo>(utl::ref_ptr<core::scene::CRenderObject>& pRoot, resources::FStriptsCreateInfo info)
+                {
+                    auto sctiptComponent = utl::make_ref<CScriptingComponent>();
+
+                    for(auto& script : info.scripts)
+                        sctiptComponent->addScript(script);
+                    pRoot->setScript(std::move(sctiptComponent));
+                }
+                
             };
         }
     }

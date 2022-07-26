@@ -53,7 +53,7 @@ void CDeferredStage::create()
     composition_pass->setFlipViewport(VK_TRUE);
     composition_pass->setRenderArea(vk::Offset2D{0, 0}, screenExtent);
 
-    composition_pass->addImage("composition_tex", vk::Format::eR32G32B32A32Sfloat, vk::ImageUsageFlagBits::eColorAttachment | vk::ImageUsageFlagBits::eSampled);
+    composition_pass->addImage("composition_tex", vk::Format::eB10G11R11UfloatPack32, vk::ImageUsageFlagBits::eColorAttachment | vk::ImageUsageFlagBits::eSampled);
     
     composition_pass->addOutputReference(0U, "composition_tex");
     composition_pass->addDescription(0U);

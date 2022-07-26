@@ -56,7 +56,7 @@ layout(std140, binding = 13) uniform UBODebug
 } debug;
 
 //Lights
-layout(std430, binding = 14) buffer UBOLights
+layout(std430, binding = 15) buffer UBOLights
 {
 	FDirectionalLight directionalLights[1];
 	FSpotLight spotLights[15];
@@ -267,6 +267,7 @@ void main()
 	{
 		
 	}
-   
-  	outFragcolor = vec4(fragcolor, 1.0);
+
+	float fxaa_luma = dot(sqrt(fragcolor), vec3(0.299, 0.587, 0.114));
+  	outFragcolor = vec4(fragcolor, fxaa_luma);
 }

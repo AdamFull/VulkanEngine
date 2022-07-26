@@ -21,8 +21,9 @@ namespace engine
 
         //fxaa
         static bool enableFXAA;
-        static float lumaThreshold;
-        static float reduceMinCoef;
+        static float qualitySubpix;
+        static float qualityEdgeThreshold;
+        static float qualityEdgeThresholdMin;
 
         static float framerate;
     };

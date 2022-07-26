@@ -34,22 +34,27 @@ void CFinalCompositionPass::render(vk::CommandBuffer& commandBuffer)
     auto imageIndex = UDevice->getCurrentFrame();
 
     pMaterial->addTexture("samplerColor", images["composition_tex"]);
-    pMaterial->addTexture("velocity_tex", images["velocity_tex"]);
+    //pMaterial->addTexture("velocity_tex", images["velocity_tex"]);
     pMaterial->addTexture("samplerBrightness", images[blurImageSample]); //bloom_image
     //May be move to CompositionObject
 
     //TODO: push constant ranges here
     auto& pUBO = pMaterial->getPushConstant("ubo");
-    pUBO->set("gamma", GlobalVariables::postprocessGamma);
-    pUBO->set("exposure", GlobalVariables::postprocessExposure);
     pUBO->set("enableFXAA", GlobalVariables::enableFXAA);
-    pUBO->set("lumaThreshold", GlobalVariables::lumaThreshold);
-    pUBO->set("reduceMin", (1.f / GlobalVariables::reduceMinCoef));
     pUBO->set("texelStep", glm::vec2(1.0 / CWindowHandle::m_iWidth, 1.0 / CWindowHandle::m_iWidth));
     pUBO->flush(commandBuffer);
 
+    auto& pUBOTonemap = pMaterial->getUniformBuffer("UBOTonemap");
+    pUBOTonemap->set("gamma", GlobalVariables::postprocessGamma);
+    pUBOTonemap->set("exposure", GlobalVariables::postprocessExposure);
+
+    auto& pUBOFXAA = pMaterial->getUniformBuffer("UBOFXAA");
+    pUBOFXAA->set("qualitySubpix", GlobalVariables::qualitySubpix);
+    pUBOFXAA->set("qualityEdgeThreshold", GlobalVariables::qualityEdgeThreshold);
+    pUBOFXAA->set("qualityEdgeThresholdMin", GlobalVariables::qualityEdgeThresholdMin);
+
     auto& pUBOMotionBlur = pMaterial->getUniformBuffer("UBOMotionBlur");
-    pUBOMotionBlur->set("velocityScale", GlobalVariables::framerate / 60.f);
+    //pUBOMotionBlur->set("velocityScale", GlobalVariables::framerate / 60.f);
 
     pMaterial->update();
     pMaterial->bind(commandBuffer);

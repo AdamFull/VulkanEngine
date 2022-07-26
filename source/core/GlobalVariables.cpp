@@ -18,8 +18,9 @@ namespace engine
     float GlobalVariables::cascadeSplitLambda{0.95f};
 
     bool GlobalVariables::enableFXAA{true};
-    float GlobalVariables::lumaThreshold{0.95f};
-    float GlobalVariables::reduceMinCoef{128.f};
+    float GlobalVariables::qualitySubpix{0.95f};
+    float GlobalVariables::qualityEdgeThreshold{0.333f};
+    float GlobalVariables::qualityEdgeThresholdMin{0.0833f};
 
     float GlobalVariables::framerate{0.f};
 }

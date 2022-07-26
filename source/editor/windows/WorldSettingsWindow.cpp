@@ -51,8 +51,9 @@ void CWorldSettingsWindow::draw()
 
         ImGui::BeginGroup();
         ImGui::Checkbox("enableFXAA", &GlobalVariables::enableFXAA);
-        FControls::DragFloat("lumaThreshold", &GlobalVariables::lumaThreshold, 0.001, 0.0, 1.0);
-        FControls::DragFloat("reduceMinCoef", &GlobalVariables::reduceMinCoef, 8.0, 0.0, 256.0);
+        FControls::DragFloat("qualitySubpix", &GlobalVariables::qualitySubpix, 0.001, 0.0, 1.f);
+        FControls::DragFloat("qualityEdgeThreshold", &GlobalVariables::qualityEdgeThreshold, 0.001, 0.063,  0.333f); 
+        FControls::DragFloat("qualityEdgeThresholdMin", &GlobalVariables::qualityEdgeThresholdMin, 0.0001, 0.0312, 0.0833f);
         ImGui::EndGroup();
 
         ImGui::End();

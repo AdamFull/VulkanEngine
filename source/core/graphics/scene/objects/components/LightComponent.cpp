@@ -28,13 +28,13 @@ ELightSourceType CLightComponent::getType()
 
 const glm::vec3 CLightComponent::getPosition()
 {
-	auto transform = pParent->getTransform();
+	auto transform = pParent.lock()->getTransform();
 	return transform.pos;
 }
 
 const glm::vec3 CLightComponent::getDirection()
 {
-	auto transform = pParent->getTransform();
+	auto transform = pParent.lock()->getTransform();
 	return transform.rot;
 }
 

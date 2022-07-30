@@ -22,9 +22,9 @@ namespace engine
                 directional_lights_array& getDirectionalSources(uint32_t& light_count);
                 point_lights_array& getPointSources(uint32_t& light_count);
                 spot_lights_array& getSpotSources(uint32_t& light_count);
-                std::vector<utl::ref_ptr<CRenderObject>>& getObjects() { return vLights; }
+                std::vector<utl::weak_ptr<CRenderObject>>& getObjects() { return vLights; }
             private:
-                std::vector<utl::ref_ptr<CRenderObject>> vLights;
+                std::vector<utl::weak_ptr<CRenderObject>> vLights;
                 directional_lights_array directionalLights;
                 point_lights_array pointLights;
                 spot_lights_array spotLights;

@@ -99,8 +99,8 @@ void CViewportWindow::drawManipulator(float offsetx, float offsety, float sizex,
     auto selected = UEditor->getLastSelection();
     if(selected)
     {
-        auto& cameraNode = UCamera->getCurrentCamera();
-        auto& camera = cameraNode->getCamera();
+        auto cameraNode = UCamera->getCurrentCamera().lock();
+        auto camera = cameraNode->getComponent<CCameraComponent>().lock();
         camera->setControl(ImGui::IsWindowHovered(ImGuiFocusedFlags_RootAndChildWindows));
 
         ImGuizmo::SetOrthographic(false);

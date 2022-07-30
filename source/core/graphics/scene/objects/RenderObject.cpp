@@ -24,13 +24,15 @@ CRenderObject::~CRenderObject()
 
 void CRenderObject::create()
 {
-    for (auto &[name, child] : mChilds)
+    for (auto& [name, child] : mChilds)
         child->create();
 
-    if(pMesh) pMesh->create();
-    if(pCamera && pCamera->getIsActive()) pCamera->create();
-    if(pLight) pLight->create();
-    if(pScript) pScript->create();
+    for(auto& [name, component] : mComponents)
+    {
+        std::visit([](const auto& var){
+            var->create();
+        }, component);
+    }
 }
 
 void CRenderObject::reCreate()
@@ -38,26 +40,28 @@ void CRenderObject::reCreate()
     for (auto &[name, child] : mChilds)
         child->reCreate();
     
-    if(pMesh) pMesh->reCreate();
-    if(pCamera && pCamera->getIsActive()) pCamera->reCreate();
-    if(pLight) pLight->reCreate();
-    if(pScript) pScript->reCreate();
+    for(auto& [name, component] : mComponents)
+    {
+        std::visit([](const auto& var){
+            var->reCreate();
+        }, component);
+    }
 }
 
 void CRenderObject::render(vk::CommandBuffer &commandBuffer)
 {
-    auto& cameraNode = UCamera->getCurrentCamera();
-    auto& camera = cameraNode->getCamera();
     for (auto &[name, child] : mChilds)
     {
         if (child->isVisible())
             child->render(commandBuffer);
     }
 
-    if(pMesh) pMesh->render(commandBuffer);
-    if(pCamera && pCamera->getIsActive()) pCamera->render(commandBuffer);
-    if(pLight) pLight->render(commandBuffer);
-    if(pScript) pScript->render(commandBuffer);
+    for(auto& [name, component] : mComponents)
+    {
+        std::visit([&commandBuffer](const auto& var){
+            var->render(commandBuffer);
+        }, component);
+    }
 }
 
 void CRenderObject::update(float fDeltaTime)
@@ -69,10 +73,12 @@ void CRenderObject::update(float fDeltaTime)
             child->update(fDeltaTime);
     }
 
-    if(pMesh) pMesh->update(fDeltaTime);
-    if(pCamera && pCamera->getIsActive()) pCamera->update(fDeltaTime);
-    if(pLight) pLight->update(fDeltaTime);
-    if(pScript) pScript->update(fDeltaTime);
+    for(auto& [name, component] : mComponents)
+    {
+        std::visit([&fDeltaTime](const auto& var){
+            var->update(fDeltaTime);
+        }, component);
+    }
 }
 
 void CRenderObject::setName(const std::string& name)

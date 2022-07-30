@@ -37,7 +37,7 @@ namespace engine
                     camera->setFieldOfView(info.fFov);
                     camera->setNearPlane(info.fNear);
                     camera->setFarPlane(info.fFar);
-                    pRoot->setCamera(std::move(camera));
+                    pRoot->addComponent<CCameraComponent>(camera);
                     addCamera(pRoot);
                 }
 
@@ -56,7 +56,7 @@ namespace engine
 
                     loader->load(pRoot, "meshes/cube.gltf", info.srName);
                     auto& meshNode = pRoot->find("cube");
-                    auto& skybox = meshNode->getMesh();
+                    auto skybox = meshNode->getComponent<CMeshComponent>().lock();
                     skybox->setCullable(false);
                     skybox->setIsSkybox(true);
                 }
@@ -89,7 +89,7 @@ namespace engine
                     lightComponent->setType(info.eType);
                     lightComponent->setInnerAngle(info.fInnerAngle);
                     lightComponent->setOuterAngle(info.fOuterAngle);
-                    pRoot->setLight(std::move(lightComponent));
+                    pRoot->addComponent<CLightComponent>(lightComponent);
                     addLight(pRoot);
                 }
 
@@ -101,7 +101,7 @@ namespace engine
 
                     for(auto& script : info.scripts)
                         sctiptComponent->addScript(script);
-                    pRoot->setScript(std::move(sctiptComponent));
+                    pRoot->addComponent<CScriptingComponent>(sctiptComponent);
                 }
                 
             };

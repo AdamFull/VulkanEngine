@@ -6,7 +6,7 @@ using namespace engine::core::scene;
 
 void CCameraComponent::create()
 {
-    auto& transform = pParent->getLocalTransform();
+    auto& transform = pParent.lock()->getLocalTransform();
     //angleV = glm::degrees(glm::asin(-transform.rot.y));
     angleV = glm::degrees(-transform.rot.y);
     angleH = glm::degrees(glm::atan(transform.rot.z/transform.rot.x));
@@ -15,7 +15,7 @@ void CCameraComponent::create()
 void CCameraComponent::update(float fDeltaTime)
 {
     dt = fDeltaTime;
-    auto transform = pParent->getLocalTransform();
+    auto transform = pParent.lock()->getLocalTransform();
     viewPos = glm::vec4(transform.pos, 0.0);
 
     auto view = getView();
@@ -89,7 +89,7 @@ void CCameraComponent::moveForward(bool bInv)
         return;
 
     float dir = bInv ? -1.f : 1.f;
-    auto& transform = pParent->getLocalTransform();
+    auto& transform = pParent.lock()->getLocalTransform();
     transform.pos += getForwardVector() * dir * dt * sensitivity;
 }
 
@@ -99,7 +99,7 @@ void CCameraComponent::moveRight(bool bInv)
         return;
         
     float dir = bInv ? -1.f : 1.f;
-    auto& transform = pParent->getLocalTransform();
+    auto& transform = pParent.lock()->getLocalTransform();
     transform.pos += getRightVector() * dir * dt * sensitivity;
 }
 
@@ -109,7 +109,7 @@ void CCameraComponent::moveUp(bool bInv)
         return;
         
     float dir = bInv ? -1.f : 1.f;
-    auto& transform = pParent->getLocalTransform();
+    auto& transform = pParent.lock()->getLocalTransform();
     transform.pos += getUpVector() * dir * dt * sensitivity;
 }
 
@@ -134,7 +134,7 @@ void CCameraComponent::lookAt(float dX, float dY)
     const float u{-sin(glm::radians(angleV))};
     const float v{cos(glm::radians(angleV)) * -sin(glm::radians(angleH))};
     
-    auto& transform = pParent->getLocalTransform();
+    auto& transform = pParent.lock()->getLocalTransform();
     transform.rot = glm::normalize(glm::vec3(w * -1.f, u, v * -1.f));
 }
 
@@ -149,7 +149,7 @@ glm::mat4 CCameraComponent::getProjection(bool flipY) const
 
 glm::mat4 CCameraComponent::getView(bool flipY) const
 {
-    auto& transform = pParent->getLocalTransform();
+    auto& transform = pParent.lock()->getLocalTransform();
 
     auto position = transform.pos;
     if(flipY)
@@ -160,7 +160,7 @@ glm::mat4 CCameraComponent::getView(bool flipY) const
 
 glm::vec3 CCameraComponent::getForwardVector() const
 {
-    auto& transform = pParent->getLocalTransform();
+    auto& transform = pParent.lock()->getLocalTransform();
     return transform.rot;
 }
 

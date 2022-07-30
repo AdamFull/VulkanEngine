@@ -29,8 +29,8 @@ void CSSRPass::render(vk::CommandBuffer &commandBuffer)
     pMaterial->addTexture("packed_tex", images["packed_tex"]);
     pMaterial->addTexture("depth_tex", images["depth_tex"]);
 
-    auto& cameraNode = UCamera->getCurrentCamera();
-    auto& camera = cameraNode->getCamera();
+    auto cameraNode = UCamera->getCurrentCamera().lock();
+    auto camera = cameraNode->getComponent<CCameraComponent>().lock();
     auto view = camera->getView();
     auto projection = camera->getProjection();
     auto viewProjection = projection * view;

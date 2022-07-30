@@ -86,15 +86,15 @@ namespace engine
                 pModule->add(chaiscript::fun(&CRenderObject::setIndex), "setIndex");
                 pModule->add(chaiscript::fun(&CRenderObject::getIndex), "getIndex");
 
-                pModule->add(chaiscript::fun(&CRenderObject::setMesh), "setMesh");
-                pModule->add(chaiscript::fun(&CRenderObject::setCamera), "setCamera");
-                pModule->add(chaiscript::fun(&CRenderObject::setLight), "setLight");
-                pModule->add(chaiscript::fun(&CRenderObject::setScript), "setScript");
+                //pModule->add(chaiscript::fun(&CRenderObject::setMesh), "setMesh");
+                //pModule->add(chaiscript::fun(&CRenderObject::setCamera), "setCamera");
+                //pModule->add(chaiscript::fun(&CRenderObject::setLight), "setLight");
+                //pModule->add(chaiscript::fun(&CRenderObject::setScript), "setScript");
 
-                pModule->add(chaiscript::fun(&CRenderObject::getMesh), "getMesh");
-                pModule->add(chaiscript::fun(&CRenderObject::getCamera), "getCamera");
-                pModule->add(chaiscript::fun(&CRenderObject::getLight), "getLight");
-                pModule->add(chaiscript::fun(&CRenderObject::getScript), "getScript");
+                //pModule->add(chaiscript::fun(&CRenderObject::getMesh), "getMesh");
+                //pModule->add(chaiscript::fun(&CRenderObject::getCamera), "getCamera");
+                //pModule->add(chaiscript::fun(&CRenderObject::getLight), "getLight");
+                //pModule->add(chaiscript::fun(&CRenderObject::getScript), "getScript");
 
                 return pModule;
             }

@@ -10,6 +10,10 @@ namespace engine
             class CCameraComponent : public CSceneComponent
             {
             public:
+            virtual ~CCameraComponent()
+            {
+                int pupapp = 0;
+            }
                 void create() override;
                 void reCreate() override {}
                 void render(vk::CommandBuffer&) override {}

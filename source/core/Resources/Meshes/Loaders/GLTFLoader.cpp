@@ -355,7 +355,7 @@ void GLTFLoader::loadMeshFragment(utl::ref_ptr<CRenderObject>& sceneNode, const 
         nativeMesh->addPrimitive(std::move(modelPrim));
         UVBO->addMeshData(std::move(vertexBuffer), std::move(indexBuffer));
     }
-    sceneNode->setMesh(std::move(nativeMesh));
+    sceneNode->addComponent<CMeshComponent>(nativeMesh);
     //UResources->addExisting(nativeMesh->getName(), nativeMesh);
 
     std::map<int32_t, int32_t> materialInstances{};
@@ -388,7 +388,7 @@ void GLTFLoader::loadCamera(utl::ref_ptr<core::scene::CRenderObject>& sceneNode,
         nativeCamera->setFarPlane(camera.perspective.zfar);
     }
 
-    sceneNode->setCamera(std::move(nativeCamera));
+    sceneNode->addComponent<CCameraComponent>(nativeCamera);
     UCamera->attach(sceneNode);
 }
 
@@ -437,7 +437,7 @@ void GLTFLoader::loadLight(utl::ref_ptr<core::scene::CRenderObject>& sceneNode, 
     else if(light.type == "directional")
         nativeLight->setType(ELightSourceType::eDirectional);
 
-    sceneNode->setLight(std::move(nativeLight));
+    sceneNode->addComponent<CLightComponent>(nativeLight);
     ULightning->addLight(sceneNode);
 }
 

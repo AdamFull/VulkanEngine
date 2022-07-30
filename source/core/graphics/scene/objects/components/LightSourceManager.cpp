@@ -16,7 +16,7 @@ directional_lights_array& CLightSourceManager::getDirectionalSources(uint32_t& l
     light_count = 0;
     for(auto& light : vLights)
     {
-        auto& lightSource = light->getLight();
+        auto lightSource = light.lock()->getComponent<CLightComponent>().lock();
         if(lightSource->getType() == resources::ELightSourceType::eDirectional)
         {
             auto& light_data = directionalLights[light_count];
@@ -36,7 +36,7 @@ point_lights_array& CLightSourceManager::getPointSources(uint32_t& light_count)
     light_count = 0;
     for(auto& light : vLights)
     {
-        auto& lightSource = light->getLight();
+        auto lightSource = light.lock()->getComponent<CLightComponent>().lock();
         if(lightSource->getType() == resources::ELightSourceType::ePoint)
         {
             auto& light_data = pointLights[light_count];
@@ -55,7 +55,7 @@ spot_lights_array& CLightSourceManager::getSpotSources(uint32_t& light_count)
     light_count = 0;
     for(auto& light : vLights)
     {
-        auto& lightSource = light->getLight();
+        auto lightSource = light.lock()->getComponent<CLightComponent>().lock();
         if(lightSource->getType() == resources::ELightSourceType::eSpot)
         {
             auto& light_data = spotLights[light_count];

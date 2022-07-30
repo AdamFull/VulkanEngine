@@ -24,9 +24,9 @@ void CLightComponentDirectional::update(float fDeltaTime)
 
 glm::mat4 CLightComponentDirectional::getLightSpaceMatrixEx(const float lastSplitDist, const float splitDist)
 {
-	auto transform = pParent->getTransform();
-    auto& cameraNode = UCamera->getCurrentCamera();
-    auto& camera = cameraNode->getCamera();
+	auto transform = pParent.lock()->getTransform();
+    auto cameraNode = UCamera->getCurrentCamera().lock();
+    auto camera = cameraNode->getComponent<CCameraComponent>().lock();
 
 	auto aspect = UDevice->getAspect(true);
 	auto projection = camera->getProjection();
@@ -111,9 +111,9 @@ std::array<glm::vec3, 8> CLightComponentDirectional::getFrostumCornersWorldSpace
 void CLightComponentDirectional::updateCascadesEx()
 {
     std::array<float, SHADOW_MAP_CASCADE_COUNT> cascadeSplits;
-    auto transform = pParent->getTransform();
-    auto& cameraNode = UCamera->getCurrentCamera();
-    auto& camera = cameraNode->getCamera();
+    auto transform = pParent.lock()->getTransform();
+    auto cameraNode = UCamera->getCurrentCamera().lock();
+    auto camera = cameraNode->getComponent<CCameraComponent>().lock();
 
 	auto projection = camera->getProjection();
 	auto view = camera->getView();
@@ -152,9 +152,9 @@ void CLightComponentDirectional::updateCascadesEx()
 
 void CLightComponentDirectional::updateCascades()
 {
-	auto transform = pParent->getTransform();
-    auto& cameraNode = UCamera->getCurrentCamera();
-    auto& camera = cameraNode->getCamera();
+	auto transform = pParent.lock()->getTransform();
+    auto cameraNode = UCamera->getCurrentCamera().lock();
+    auto camera = cameraNode->getComponent<CCameraComponent>().lock();
 	auto& cameraTransform = cameraNode->getLocalTransform();
 
 	float nearClip = camera->getNearPlane();

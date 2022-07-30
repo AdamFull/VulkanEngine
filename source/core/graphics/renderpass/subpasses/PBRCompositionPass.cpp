@@ -70,8 +70,8 @@ void CPBRCompositionPass::render(vk::CommandBuffer& commandBuffer)
 
     auto imageIndex = UDevice->getCurrentFrame();
 
-    auto& cameraNode = UCamera->getCurrentCamera();
-    auto& camera = cameraNode->getCamera();
+    auto cameraNode = UCamera->getCurrentCamera().lock();
+    auto camera = cameraNode->getComponent<CCameraComponent>().lock();
     auto view = camera->getView();
     auto projection = camera->getProjection();
     auto invViewProjection = glm::inverse(projection * view);

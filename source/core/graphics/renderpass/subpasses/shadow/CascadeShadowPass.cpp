@@ -38,7 +38,7 @@ void CCascadeShadowPass::render(vk::CommandBuffer& commandBuffer)
     std::array<glm::mat4, SHADOW_MAP_CASCADE_COUNT> aCascadeViewProjMat;
     for(auto& lightNode : lightObjects)
     {
-        auto& light = lightNode->getLight();
+        auto light = lightNode.lock()->getComponent<CLightComponent>().lock();
         if(light && (light->getType() == ELightSourceType::eDirectional))
         {
             aCascadeViewProjMat = light->getCascadeViews();

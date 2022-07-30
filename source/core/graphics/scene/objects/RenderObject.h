@@ -11,6 +11,12 @@ namespace engine
     {
         namespace scene
         {
+            using component_type = std::variant<
+                        utl::ref_ptr<CMeshComponent>, 
+                        utl::ref_ptr<CCameraComponent>, 
+                        utl::ref_ptr<CLightComponent>, 
+                        utl::ref_ptr<CScriptingComponent>>;
+
             enum class ERenderObjectType
             {
                 eNone,
@@ -75,34 +81,23 @@ namespace engine
                 void setIndex(uint32_t index) { objectIndex = index; };
                 uint32_t getIndex() { return objectIndex; }
 
-                void setMesh(utl::ref_ptr<CMeshComponent>&& component) 
-                { 
-                    pMesh = std::move(component);
-                    pMesh->setParent(shared_from_this());
+                template<class _Ty>
+                void addComponent(utl::ref_ptr<_Ty>& component)
+                {
+                    component->setParent(shared_from_this());
+                    mComponents.emplace(typeid(_Ty).name(), component);
                 }
 
-                void setCamera(utl::ref_ptr<CCameraComponent>&& component) 
-                { 
-                    pCamera = std::move(component);
-                    pCamera->setParent(shared_from_this());
+                template<class _Ty>
+                utl::weak_ptr<_Ty> getComponent()
+                {
+                    auto found = mComponents.find(typeid(_Ty).name());
+                    if(found != mComponents.end())
+                        return std::get<utl::ref_ptr<_Ty>>(found->second);
+                    return utl::ref_ptr<_Ty>{nullptr};
                 }
 
-                void setLight(utl::ref_ptr<CLightComponent>&& component) 
-                { 
-                    pLight = std::move(component);
-                    pLight->setParent(shared_from_this());
-                }
-
-                void setScript(utl::ref_ptr<CScriptingComponent>&& component) 
-                { 
-                    pScript = std::move(component);
-                    pScript->setParent(shared_from_this());
-                }
-
-                utl::ref_ptr<CMeshComponent>& getMesh() { return pMesh; }
-                utl::ref_ptr<CCameraComponent>& getCamera() { return pCamera; }
-                utl::ref_ptr<CLightComponent>& getLight() { return pLight; }
-                utl::ref_ptr<CScriptingComponent>& getScript() { return pScript; }
+                std::map<std::string, component_type>& getComponents() { return mComponents; }
 
             protected:
                 uint64_t objectId{0};
@@ -112,10 +107,7 @@ namespace engine
                 bool bVisible{true};
                 bool bEnable{true};
 
-                utl::ref_ptr<CMeshComponent> pMesh;
-                utl::ref_ptr<CCameraComponent> pCamera;
-                utl::ref_ptr<CLightComponent> pLight;
-                utl::ref_ptr<CScriptingComponent> pScript;
+                std::map<std::string, component_type> mComponents;
 
                 utl::ref_ptr<CRenderObject> pNull{nullptr};
                 utl::ref_ptr<CRenderObject> pParent;

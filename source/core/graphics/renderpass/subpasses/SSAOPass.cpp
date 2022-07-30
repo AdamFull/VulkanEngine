@@ -57,8 +57,8 @@ void CSSAOPass::render(vk::CommandBuffer &commandBuffer)
     pMaterial->addTexture("depth_tex", images["depth_tex"]);
 	pMaterial->addTexture("ssao_noise_tex", pNoise);
 
-	auto& cameraNode = UCamera->getCurrentCamera();
-    auto& camera = cameraNode->getCamera();
+	auto cameraNode = UCamera->getCurrentCamera().lock();
+    auto camera = cameraNode->getComponent<CCameraComponent>().lock();
 	auto view = camera->getView();
     auto projection = camera->getProjection();
     auto invViewProjection = glm::inverse(projection * view);

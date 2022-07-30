@@ -6,6 +6,14 @@ namespace engine
     {
         namespace scene
         {
+            enum class EComponentType
+            {
+                eCamera,
+                eMesh,
+                eLight,
+                eScript
+            };
+
             class CRenderObject;
             class CSceneComponent
             {
@@ -19,10 +27,10 @@ namespace engine
                 const std::string& getName() { return srName; }
 
                 void setParent(utl::ref_ptr<CRenderObject> parent) { pParent = parent; }
-                utl::ref_ptr<CRenderObject>& getParent() { return pParent; }
+                utl::weak_ptr<CRenderObject>& getParent() { return pParent; }
                 
             protected:
-                utl::ref_ptr<CRenderObject> pParent;
+                utl::weak_ptr<CRenderObject> pParent;
                 std::string srName{};
                 float componentTick{0.0};
             };

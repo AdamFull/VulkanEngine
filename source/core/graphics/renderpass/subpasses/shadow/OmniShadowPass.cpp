@@ -44,7 +44,7 @@ void COmniShadowPass::render(vk::CommandBuffer& commandBuffer)
     for(auto& lightNode : lightObjects)
     {
         uint32_t array_shift = light_count * 6;
-        auto& light = lightNode->getLight();
+        auto light = lightNode.lock()->getComponent<CLightComponent>().lock();
         if(light && (light->getType() == ELightSourceType::ePoint))
         {
             for(uint32_t face = 0; face < 6; face++)

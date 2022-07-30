@@ -13,7 +13,7 @@ void CLightComponentPoint::update(float fDeltaTime)
 {
     CLightComponent::update(fDeltaTime);
 
-    auto& transform = pParent->getLocalTransform();
+    auto& transform = pParent.lock()->getLocalTransform();
 	//float angle = glm::radians(componentTick * 360.0f);
 	//float radius = -5.0f;
 	//transform.pos = glm::vec3(cos(angle) * radius, -radius, sin(angle) * radius);

@@ -18,7 +18,7 @@ void CScriptingComponent::create()
 
     for(auto& script : vScripts)
     {
-        script->bind_global(chaiscript::var(pParent.get()), "this");
+        script->bind_global(chaiscript::var(pParent.lock().get()), "this");
         script->bind_global(chaiscript::var(&this->componentTick), "componentTick");
         script->call<void>("create()");
     }

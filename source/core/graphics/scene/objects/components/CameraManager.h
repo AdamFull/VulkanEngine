@@ -11,12 +11,12 @@ namespace engine
             class CCameraManager
             {
             public:
-                utl::ref_ptr<CRenderObject> &getCurrentCamera();
+                utl::weak_ptr<CRenderObject> &getCurrentCamera();
                 void setCurrentCameraIndex(size_t index);
                 void attach(utl::ref_ptr<CRenderObject>& newCamera);
 
             private:
-                std::vector<utl::ref_ptr<CRenderObject>> vCameras;
+                std::vector<utl::weak_ptr<CRenderObject>> vCameras;
                 size_t iCameraIndex{0};
             };
         }

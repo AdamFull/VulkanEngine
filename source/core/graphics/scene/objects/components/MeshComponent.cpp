@@ -46,17 +46,17 @@ void CMeshComponent::render(vk::CommandBuffer &commandBuffer)
 {
     CSceneComponent::render(commandBuffer);
 
-    auto& cameraNode = UCamera->getCurrentCamera();
-    auto& camera = cameraNode->getCamera();
+    auto cameraNode = UCamera->getCurrentCamera().lock();
+    auto camera = cameraNode->getComponent<CCameraComponent>().lock();
     auto& frustumSides = camera->getFrustumSides();
 
-    auto transform = pParent->getTransform();
+    auto transform = pParent.lock()->getTransform();
     auto view = camera->getView();
     auto projection = camera->getProjection();
-    auto model = pParent->getModel();
-    auto modelOld = pParent->getModelOld();
+    auto model = pParent.lock()->getModel();
+    auto modelOld = pParent.lock()->getModelOld();
     auto normal = glm::transpose(glm::inverse(model));
-    auto position = pParent->getPosition();
+    auto position = pParent.lock()->getPosition();
 
     for (auto &primitive : vPrimitives)
     {

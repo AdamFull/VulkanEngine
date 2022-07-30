@@ -41,7 +41,7 @@ void CDirectShadowPass::render(vk::CommandBuffer& commandBuffer)
     uint32_t light_count{0};
     for(auto& lightNode : lightObjects)
     {
-        auto& light = lightNode->getLight();
+        auto light = lightNode.lock()->getComponent<CLightComponent>().lock();
         if(light && (light->getType() == ELightSourceType::eSpot))
         {
             aSpotViewProjMat[light_count] = light->getShadowView();

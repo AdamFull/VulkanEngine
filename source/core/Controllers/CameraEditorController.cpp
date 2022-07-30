@@ -28,7 +28,7 @@ void CCameraEditorController::update(float fDeltaTime)
 void CCameraEditorController::cameraMovement(EActionKey eKey, EKeyState eState)
 {
     auto cameraNode = UCamera->getCurrentCamera();
-    auto& camera = cameraNode->getCamera();
+    auto camera = cameraNode.lock()->getComponent<CCameraComponent>().lock();
 
     switch (eKey)
     {
@@ -64,8 +64,8 @@ void CCameraEditorController::mouseRotation(float fX, float fY)
     if (!m_bRotatePass)
         return;
 
-    auto cameraNode = UCamera->getCurrentCamera();
-    auto& camera = cameraNode->getCamera();
+    auto cameraNode = UCamera->getCurrentCamera().lock();
+    auto camera = cameraNode->getComponent<CCameraComponent>().lock();
 
     camera->lookAt(fX, fY);
     m_bRotatePass = false;

@@ -16,7 +16,7 @@ namespace engine
                 alignas(4) float intencity;
             };
 
-            struct FFrustum
+            struct FLFrustum
             {
                 float neard{0.0f};
                 float fard{0.0f};
@@ -36,7 +36,7 @@ namespace engine
                 std::array<glm::vec3, 8> getFrostumCornersWorldSpaceEx(const glm::mat4& proj, const glm::mat4& view, float splitDist, float lastSplitDist);
                 void updateCascadesEx();
                 void updateCascades();
-                std::array<FFrustum, SHADOW_MAP_CASCADE_COUNT> aFrustum;
+                std::array<FLFrustum, SHADOW_MAP_CASCADE_COUNT> aFrustum;
             };
         }
     }

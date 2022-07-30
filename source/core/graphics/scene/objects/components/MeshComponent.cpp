@@ -44,11 +44,10 @@ void CMeshComponent::reCreate()
 
 void CMeshComponent::render(vk::CommandBuffer &commandBuffer)
 {
-    CSceneComponent::render(commandBuffer);
+    CSceneComponent::render(commandBuffer);//render struct with commandBuffer and current frustum
 
     auto cameraNode = UCamera->getCurrentCamera().lock();
     auto camera = cameraNode->getComponent<CCameraComponent>().lock();
-    auto& frustumSides = camera->getFrustumSides();
 
     auto transform = pParent.lock()->getTransform();
     auto view = camera->getView();
@@ -63,19 +62,20 @@ void CMeshComponent::render(vk::CommandBuffer &commandBuffer)
         auto isShadowPass = URenderer->getStageType() == EStageType::eShadow;
         auto isSkyboxInShadow = isShadowPass && bIsSkybox;
 
+        auto& frustum = camera->getFrustum();
         bool needToRender {true};
-        if (bEnableCulling)
+        if (bEnableCulling && !isShadowPass)
         {
             switch (eCullingType)
             {
             case ECullingType::eByPoint:
-                needToRender = camera->checkPoint(position);
+                needToRender = frustum.checkPoint(position);
             break;
             case ECullingType::eBySphere:
-                needToRender = camera->checkSphere(position, primitive.dimensions.radius);
+                needToRender = frustum.checkSphere(position, primitive.dimensions.radius);
             break;
             case ECullingType::eByBox:
-                needToRender = camera->checkBox(position + primitive.dimensions.min * transform.getScale(), position + primitive.dimensions.max * transform.getScale());
+                needToRender = frustum.checkBox(position + primitive.dimensions.min * transform.getScale(), position + primitive.dimensions.max * transform.getScale());
             break;
             }
         }
@@ -97,7 +97,7 @@ void CMeshComponent::render(vk::CommandBuffer &commandBuffer)
                 pUBO->set("viewDir", camera->viewPos);
                 auto ext = UDevice->getExtent(true);
                 pUBO->set("viewportDim", glm::vec2(ext.width, ext.height));
-                pUBO->set("frustumPlanes", frustumSides);
+                pUBO->set("frustumPlanes", frustum.getFrustumSides());
                 //pUBO->set("instancePos", instancePos);
 
                 auto& params = mat->getParams();

@@ -62,7 +62,7 @@ void CPBRCompositionPass::render(vk::CommandBuffer& commandBuffer)
     
     pMaterial->addTexture("emission_tex", images["emission_tex"]);
     pMaterial->addTexture("depth_tex", images["depth_tex"]);
-    pMaterial->addTexture("ssr_tex", images["ssr_tex"]);
+    //pMaterial->addTexture("ssr_tex", images["ssr_tex"]);
     
     pMaterial->addTexture("cascade_shadowmap_tex", images["cascade_shadowmap_tex"]);
     pMaterial->addTexture("direct_shadowmap_tex", images["direct_shadowmap_tex"]);

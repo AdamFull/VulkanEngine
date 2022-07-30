@@ -27,7 +27,7 @@ layout (binding = 2) uniform samplerCube prefiltred_tex;
 layout (binding = 3) uniform usampler2D packed_tex;
 layout (binding = 4) uniform sampler2D emission_tex;
 layout (binding = 5) uniform sampler2D depth_tex;
-layout (binding = 6) uniform sampler2D ssr_tex;
+//layout (binding = 6) uniform sampler2D ssr_tex;
 
 layout (binding = 7) uniform sampler2DArray cascade_shadowmap_tex;
 layout (binding = 8) uniform sampler2DArrayShadow direct_shadowmap_tex;
@@ -217,8 +217,8 @@ void main()
 		fragcolor = vec3(metallic);
 	else if(debug.target == 6)
 		fragcolor = vec3(roughness);
-	else if(debug.target == 7)
-		fragcolor = texture(ssr_tex, inUV).rgb;
+	//else if(debug.target == 7)
+	//	fragcolor = texture(ssr_tex, inUV).rgb;
 	else if(debug.target == 8 || debug.target == 9 || debug.target == 10)
 	{
 		vec3 viewPos = (ubo.view * vec4(inWorldPos, 1.0)).xyz;

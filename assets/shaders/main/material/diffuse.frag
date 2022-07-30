@@ -112,7 +112,7 @@ void main()
     vec3 t = (tex_dy.t * pos_dx - tex_dx.t * pos_dy) / (tex_dx.s * tex_dy.t - tex_dy.s * tex_dx.t);
 
 #ifdef HAS_NORMALS
-    vec3 ng = normalize(normal * vec4(inNormal, 0.0));
+    vec3 ng = normalize(normal * vec4(inNormal, 0.0)).xyz;
 #else
     vec3 ng = cross(pos_dx, pos_dy);
 #endif

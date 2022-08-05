@@ -1,7 +1,9 @@
 #include "ScriptBuilder.h"
-#include "modules/glm_module.hpp"
-#include "modules/engine.hpp"
 #include "filesystem/FilesystemHelper.h"
+
+#include "modules/glm_module.hpp"
+#include "modules/vulkan_module.hpp"
+#include "modules/engine.hpp"
 
 using namespace engine;
 using namespace engine::scripting;
@@ -20,9 +22,10 @@ utl::ref_ptr<CScript> CScriptBuilder::build(const std::string& srProgramm)
 
 void CScriptBuilder::initialize()
 {
-    m_mModules.emplace("glm", modules::glm());
-    m_mModules.emplace("engine_structs", modules::engine_structs());
-    m_mModules.emplace("engine_objects", modules::engine_objects());
+    m_mModules.emplace(modules::glm());
+    m_mModules.emplace(modules::vulkan());
+    m_mModules.emplace(modules::engine_structs());
+    m_mModules.emplace(modules::engine_objects());
     m_bInitialized = true;
 }
 

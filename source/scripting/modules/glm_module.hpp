@@ -178,7 +178,7 @@ namespace engine
     {
         namespace modules
         {
-            static chaiscript::ModulePtr glm()
+            static std::pair<const std::string, chaiscript::ModulePtr> glm()
             {
                 auto pModule = chaiscript::ModulePtr(new chaiscript::Module());
 
@@ -520,7 +520,7 @@ namespace engine
                         return ss.str();
                     }), "to_string");
 
-                return pModule;
+                return std::make_pair("glm", pModule);
             }
         }
     }

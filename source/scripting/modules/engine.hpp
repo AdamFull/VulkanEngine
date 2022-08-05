@@ -9,7 +9,7 @@ namespace engine
     {
         namespace modules
         {
-            static chaiscript::ModulePtr engine_structs()
+            static std::pair<const std::string, chaiscript::ModulePtr> engine_structs()
             {
                 auto pModule = chaiscript::ModulePtr(new chaiscript::Module());
 
@@ -31,10 +31,10 @@ namespace engine
 
                 pModule->add(chaiscript::fun(&FTransform::getModel), "getModel");
 
-                return pModule;
+                return std::make_pair("engine_structs", pModule);;
             };
 
-            static chaiscript::ModulePtr engine_objects()
+            static std::pair<const std::string, chaiscript::ModulePtr> engine_objects()
             {
                 auto pModule = chaiscript::ModulePtr(new chaiscript::Module());
 
@@ -96,7 +96,7 @@ namespace engine
                 //pModule->add(chaiscript::fun(&CRenderObject::getLight), "getLight");
                 //pModule->add(chaiscript::fun(&CRenderObject::getScript), "getScript");
 
-                return pModule;
+                return std::make_pair("engine_objects", pModule);;
             }
         }
     }

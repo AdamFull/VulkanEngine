@@ -80,8 +80,8 @@ target_link_libraries( ${PROJECT_NAME} PUBLIC
     ${Vulkan_LIBRARIES}
     ${OPENGL_LIBRARIES}
     glfw
-	glslang
-	SPIRV
+	glslang::glslang
+	glslang::SPIRV
     spirv-cross-core
     spirv-cross-glsl
     imgui

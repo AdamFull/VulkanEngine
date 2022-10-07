@@ -665,7 +665,14 @@ void CDevice::setViewportExtent(vk::Extent2D extent)
 
 vk::PhysicalDevice CDevice::getPhysicalDevice(const std::vector<const char*>& deviceExtensions)
 {
-    auto device = vkInstance.enumeratePhysicalDevices().front();
+    auto devices = getAvaliablePhysicalDevices(deviceExtensions);
+    for (auto& device : devices)
+    {
+        auto props = device.getProperties();
+        std::cout << props.deviceName << std::endl;
+    }
+
+    auto device = devices.back();
     if (device && isDeviceSuitable(device, deviceExtensions))
     {
         return device;

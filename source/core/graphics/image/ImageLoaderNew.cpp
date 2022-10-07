@@ -100,7 +100,7 @@ void CImageLoaderNew::loadKTX2(const fs::path& fsPath, utl::scope_ptr<FImageCrea
 
     if (ktxTexture2_NeedsTranscoding(kTexture))
     {
-        ktxresult = ktxTexture2_TranscodeBasis(kTexture, KTX_TTF_ASTC_4x4_RGBA, 0);
+        ktxresult = ktxTexture2_TranscodeBasis(kTexture, KTX_TTF_BC7_RGBA, 0);
         assert(ktxresult == KTX_SUCCESS && "Failed to transcode texture.");
     }
 

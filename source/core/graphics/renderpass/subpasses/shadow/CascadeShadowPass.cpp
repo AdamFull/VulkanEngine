@@ -2,6 +2,7 @@
 #include "resources/materials/MaterialLoader.h"
 #include "graphics/VulkanHighLevel.h"
 #include "graphics/scene/objects/RenderObject.h"
+#include "graphics/scene/RenderScene.h"
 #include "graphics/image/Image.h"
 #include "resources/ResourceManager.h"
 #include "graphics/scene/SceneManager.h"

@@ -25,6 +25,19 @@
             ],
             "defines": {}
         },
+        "voxel_pass":
+        {
+            "vertexType": "none",
+            "bindPoint": "graphics",
+            "culling": "front",
+            "frontface": "counterClockwise",
+            "dynamicStates": ["viewport", "scissor"],
+            "stages": [
+                "shaders/main/screenspace.vert",
+                "shaders/main/voxelpass.frag"
+            ],
+            "defines": {}
+        },
         "default":
         {
             "vertexType": "default",

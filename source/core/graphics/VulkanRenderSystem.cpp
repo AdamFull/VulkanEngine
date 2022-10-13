@@ -1,13 +1,18 @@
 #include "graphics/VulkanHighLevel.h"
 #include "resources/ResourceManager.h"
 #include "graphics/scene/objects/RenderObject.h"
+#include "graphics/renderpass/render_stages/RaymarchStage.h"
 #include "graphics/renderpass/render_stages/ShadowMappingStage.h"
 #include "graphics/renderpass/render_stages/DeferredStage.h"
 #include "graphics/renderpass/render_stages/PostProcessStage.h"
 #include "graphics/renderpass/render_stages/PresentFinalStage.h"
 #include "graphics/renderpass/render_stages/SandboxFinalStage.h"
 
+#include "graphics/scene/RenderScene.h"
+#include "graphics/scene/VoxelScene.h"
+
 using namespace engine::core;
+using namespace engine::core::scene;
 using namespace engine::core::window;
 using namespace engine::core::render;
 
@@ -23,9 +28,21 @@ void CRenderSystem::create()
     screenExtent = UDevice->getExtent();
     commandBuffers = utl::make_scope<CCommandBuffer>(false, vk::QueueFlagBits::eGraphics, vk::CommandBufferLevel::ePrimary, UDevice->getFramesInFlight());
 
-    vStages.emplace_back(utl::make_scope<CShadowMappingStage>());
-    vStages.emplace_back(utl::make_scope<CDeferredStage>());
-    vStages.emplace_back(utl::make_scope<CPostProcessStage>());
+    //TODO: very bad code
+    auto& scene = UScene->getScene();
+    switch (scene->getType())
+    {
+        case ESceneType::eDefault: {
+            vStages.emplace_back(utl::make_scope<CShadowMappingStage>());
+            vStages.emplace_back(utl::make_scope<CDeferredStage>());
+            vStages.emplace_back(utl::make_scope<CPostProcessStage>());
+        }break;
+
+        case ESceneType::eVoxel: {
+            vStages.emplace_back(utl::make_scope<CRaymarchStage>());
+        }break;
+    }
+    
     switch (engineMode)
     {
     case ELaunchMode::eGame:{

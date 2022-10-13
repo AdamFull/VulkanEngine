@@ -17,6 +17,15 @@ namespace engine
                 }
             )
 
+            NLOHMANN_JSON_SERIALIZE_ENUM
+            (
+                ESceneType,
+                {
+                    {ESceneType::eDefault, "default"},
+                    {ESceneType::eVoxel, "voxel"}
+                }
+            )
+
             void to_json(nlohmann::json &json, const FCullingInfo &type)
             {
                 json = nlohmann::json
@@ -69,6 +78,7 @@ namespace engine
 
             void from_json(const nlohmann::json &json, FSceneCreateInfo &type)
             {
+                ParseArgument(json, type.eType, "type");
                 ParseArgument(json, type.skybox, "skybox");
                 ParseArgument(json, type.vSceneObjects, "objects");
             }

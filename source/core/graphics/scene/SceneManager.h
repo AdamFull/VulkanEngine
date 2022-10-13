@@ -1,5 +1,5 @@
 #pragma once
-#include "RenderScene.h"
+#include "SceneBase.h"
 #include "util/helpers.hpp"
 
 namespace engine
@@ -12,10 +12,10 @@ namespace engine
             {
             public:
                 void load(const std::string &scene_name);
-                utl::scope_ptr<CRenderScene> &getScene() { return pCurrentScene; }
+                utl::scope_ptr<CSceneBase>& getScene() { return pCurrentScene; }
 
             private:
-                utl::scope_ptr<CRenderScene> pCurrentScene;
+                utl::scope_ptr<CSceneBase> pCurrentScene;
             };
         }
     }

@@ -4,6 +4,7 @@
 #include "graphics/image/Image.h"
 #include "graphics/VulkanHighLevel.h"
 #include "graphics/scene/SceneManager.h"
+#include "graphics/scene/RenderScene.h"
 
 using namespace engine::core::render;
 using namespace engine::core::scene;

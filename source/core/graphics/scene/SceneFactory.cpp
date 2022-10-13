@@ -4,25 +4,47 @@
 #include "graphics/scene/objects/components/CameraManager.h"
 #include "resources/ResourceManager.h"
 
+#include "RenderScene.h"
+#include "VoxelScene.h"
+
 using namespace engine;
 using namespace engine::resources;
 using namespace engine::core::scene;
 using namespace resources::material;
 using namespace resources::loaders;
 
-utl::scope_ptr<CRenderScene> CSceneFactory::create(std::string srScenePath)
+utl::scope_ptr<CSceneBase> CSceneFactory::create(std::string srScenePath)
 {
     FSceneCreateInfo info = FilesystemHelper::getConfigAs<FSceneCreateInfo>(srScenePath);
-    auto pRenderScene = utl::make_scope<CRenderScene>();
-    pRenderScene->create();
+    return constructScene(info);
+}
 
-    auto pRoot = pRenderScene->getRoot();
-    pRoot->setName("root");
-    // TODO: check is skybox exists
-    pRoot->attach(createNode(info.skybox));
+utl::scope_ptr<CSceneBase> CSceneFactory::constructScene(const FSceneCreateInfo& info)
+{
+    utl::scope_ptr<CSceneBase> pRenderScene;
 
-    createNodes(pRoot, info.vSceneObjects);
+    switch(info.eType)
+    {
+    case ESceneType::eDefault: 
+    {
+        pRenderScene = utl::make_scope<CRenderScene>(); 
+        pRenderScene->create();
 
+        auto pScene = static_cast<CRenderScene*>(pRenderScene.get());
+        auto pRoot = pScene->getRoot();
+        pRoot->setName("root");
+        // TODO: check is skybox exists
+        pRoot->attach(createNode(info.skybox));
+
+        createNodes(pRoot, info.vSceneObjects);
+    } break;
+
+    case ESceneType::eVoxel: 
+    {
+        pRenderScene = utl::make_scope<CVoxelScene>(); 
+        pRenderScene->create();
+    }break;
+    }
     return pRenderScene;
 }
 

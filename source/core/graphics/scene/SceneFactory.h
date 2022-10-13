@@ -1,6 +1,6 @@
 #pragma once
 #include "SceneConstruct.h"
-#include "RenderScene.h"
+#include "SceneBase.h"
 #include "graphics/scene/objects/RenderObject.h"
 #include "resources/meshes/loaders/GLTFLoader.h"
 #include "graphics/scene/objects/components/LightSourceManager.h"
@@ -15,9 +15,10 @@ namespace engine
         {
             struct CSceneFactory
             {
-                static utl::scope_ptr<CRenderScene> create(std::string srScenePath);
+                static utl::scope_ptr<CSceneBase> create(std::string srScenePath);
 
             private:
+                static utl::scope_ptr<CSceneBase> constructScene(const FSceneCreateInfo& info);
                 static void createNodes(utl::ref_ptr<core::scene::CRenderObject> &pRoot, std::vector<FSceneObject> sceneObjects);
                 static utl::ref_ptr<core::scene::CRenderObject> createNode(FSceneObject info);
 

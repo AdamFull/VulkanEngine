@@ -1,6 +1,6 @@
 #include "RenderScene.h"
-#include "graphics/scene/objects/components/CameraManager.h"
 #include "graphics/VulkanHighLevel.h"
+#include "graphics/scene/objects/components/CameraManager.h"
 #include "keymapper/InputMapper.h"
 
 #include "resources/ResourceCunstruct.h"
@@ -22,18 +22,18 @@ void CRenderScene::reCreate()
     m_pRoot->reCreate();
 }
 
-void CRenderScene::attachObject(utl::ref_ptr<CRenderObject>& object)
-{
-    object->setParent(m_pRoot);
-}
-
 void CRenderScene::createObjects()
 {
     UVBO->create();
 }
 
-void CRenderScene::render(float fDeltaTime)
+void CRenderScene::update(float fDeltaTime)
 {
-    m_pRoot->update(fDeltaTime);
+    if(m_pRoot)
+        m_pRoot->update(fDeltaTime);
+}
+
+void CRenderScene::render()
+{
     URenderer->render();
 }

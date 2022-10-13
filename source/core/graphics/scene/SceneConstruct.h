@@ -38,8 +38,15 @@ namespace engine
                 std::vector<FSceneObject> vSceneObjects;
             };
 
+            enum class ESceneType
+            {
+                eDefault,
+                eVoxel
+            };
+
             struct FSceneCreateInfo
             {
+                ESceneType eType{ESceneType::eDefault};
                 FSceneObject skybox;
                 std::vector<FSceneObject> vSceneObjects;
             };

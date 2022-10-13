@@ -1,6 +1,7 @@
 #include "HierarchyWindow.h"
 #include "graphics/VulkanHighLevel.h"
 #include "graphics/scene/objects/RenderObject.h"
+#include "graphics/scene/RenderScene.h"
 #include "editor/Editor.h"
 
 using namespace engine::editor;
@@ -17,8 +18,13 @@ void CHierarchyWindow::draw()
         }
 
         auto current_size = ImGui::GetWindowSize();
-        auto& pRoot = UScene->getScene()->getRoot();
-        buildHierarchy(pRoot);
+
+        if(auto& pScene = UScene->getScene())
+        {
+            auto pRoot = pScene->getRoot();
+            buildHierarchy(pRoot);
+        }
+           
 
         if (ImGui::IsWindowHovered(ImGuiHoveredFlags_AllowWhenBlockedByPopup | ImGuiHoveredFlags_AllowWhenBlockedByActiveItem))
         {
@@ -76,56 +82,59 @@ void CHierarchyWindow::draw()
 
 void CHierarchyWindow::buildHierarchy(utl::ref_ptr<CRenderObject>& pObject)
 {
-    auto& childs = pObject->getChilds();
-    uint32_t flags = ImGuiTreeNodeFlags_OpenOnArrow;
-
-    //Is object selected
-    auto isSelected = UEditor->isSelected(pObject);
-    if (isSelected)
-		flags |= ImGuiTreeNodeFlags_Selected;
-
-    //Has object childs
-    if (childs.empty())
-		flags |= ImGuiTreeNodeFlags_Leaf | ImGuiTreeNodeFlags_NoTreePushOnOpen;
-    
-    //Is object enabled
-    if (!pObject->isEnabled())
-		ImGui::PushStyleColor(ImGuiCol_Text, ImVec4(0.5, 0.5, 0.5, 0.4));
-
-    ImGui::PushID(pObject->getId());
-    bool isOpen = ImGui::TreeNodeEx(pObject->getName().c_str(), flags);
-    if (!pObject->isEnabled())
-		ImGui::PopStyleColor();
-    ImGui::PopID();
-
-    //Mouse double click event
-    if (ImGui::IsItemHovered() && ImGui::IsMouseDoubleClicked(0))
-	{
-		//TODO: Add object lookAt
-	}    
-
-    if(ImGui::IsItemHovered())
+    if(pObject)
     {
-        // Ctrl + click
-        if(ImGui::IsKeyPressed(ImGuiKey_LeftCtrl) && ImGui::IsItemClicked(0))
+        auto& childs = pObject->getChilds();
+        uint32_t flags = ImGuiTreeNodeFlags_OpenOnArrow;
+
+        //Is object selected
+        auto isSelected = UEditor->isSelected(pObject);
+        if (isSelected)
+            flags |= ImGuiTreeNodeFlags_Selected;
+
+        //Has object childs
+        if (childs.empty())
+            flags |= ImGuiTreeNodeFlags_Leaf | ImGuiTreeNodeFlags_NoTreePushOnOpen;
+        
+        //Is object enabled
+        if (!pObject->isEnabled())
+            ImGui::PushStyleColor(ImGuiCol_Text, ImVec4(0.5, 0.5, 0.5, 0.4));
+
+        ImGui::PushID(pObject->getId());
+        bool isOpen = ImGui::TreeNodeEx(pObject->getName().c_str(), flags);
+        if (!pObject->isEnabled())
+            ImGui::PopStyleColor();
+        ImGui::PopID();
+
+        //Mouse double click event
+        if (ImGui::IsItemHovered() && ImGui::IsMouseDoubleClicked(0))
         {
-            if(isSelected)
-                UEditor->deselectObject(pObject);
-            else
+            //TODO: Add object lookAt
+        }    
+
+        if(ImGui::IsItemHovered())
+        {
+            // Ctrl + click
+            if(ImGui::IsKeyPressed(ImGuiKey_LeftCtrl) && ImGui::IsItemClicked(0))
+            {
+                if(isSelected)
+                    UEditor->deselectObject(pObject);
+                else
+                    UEditor->selectObject(pObject);
+            }
+            //Mouse click event
+            else if (!ImGui::IsKeyPressed(ImGuiKey_LeftCtrl) && ImGui::IsItemClicked(0))
+            {
+                UEditor->deselectAll();
                 UEditor->selectObject(pObject);
+            }
         }
-        //Mouse click event
-        else if (!ImGui::IsKeyPressed(ImGuiKey_LeftCtrl) && ImGui::IsItemClicked(0))
-        {
-            UEditor->deselectAll();
-            UEditor->selectObject(pObject);
-        }
-    }
 
-    if(isOpen && !childs.empty())
-    {
-        for(auto& [name, child] : childs)
-            buildHierarchy(child);
-        ImGui::TreePop();
-    }   
+        if(isOpen && !childs.empty())
+        {
+            for(auto& [name, child] : childs)
+                buildHierarchy(child);
+            ImGui::TreePop();
+        }   
+    }
 }

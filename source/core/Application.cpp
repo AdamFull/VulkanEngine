@@ -39,7 +39,10 @@ void CApplication::serviceHandle(EActionKey eKey, EKeyState)
 void CApplication::run()
 {
     auto& currentScene = UScene->getScene();
-    currentScene->createObjects();
+
+    if(currentScene)
+        currentScene->createObjects();
+
     float delta_time{0.001f};
     while (!UWindow->isShouldClose())
     {
@@ -48,7 +51,13 @@ void CApplication::run()
         UWindow->pollEvents();
         m_pCameraController->update(delta_time);
 
-        currentScene->render(delta_time);
+        if(currentScene)
+        {
+            currentScene->update(delta_time);
+            currentScene->render();
+        }
+
+        URenderer->render();
 
         // TODO: remove update from input mapper. Don't need anymore
         CInputMapper::inst()->update(delta_time);

@@ -1,6 +1,5 @@
 #pragma once
 #include "SceneBase.h"
-#include "Resources/ResourceManager.h"
 
 namespace engine
 {
@@ -8,10 +7,10 @@ namespace engine
     {
         namespace scene
         {
-            class CRenderScene : public CSceneBase
+            class CVoxelScene : public CSceneBase
             {
             public:
-                CRenderScene() = default;
+                CVoxelScene() = default;
                 
                 void create() override;
                 void reCreate() override;
@@ -19,7 +18,7 @@ namespace engine
                 void render() override;
 
                 void createObjects() override;
-                ESceneType getType() override { return ESceneType::eDefault; }
+                ESceneType getType() override { return ESceneType::eVoxel; }
             };
         }
     }

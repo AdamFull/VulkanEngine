@@ -5,6 +5,7 @@
 #include "graphics/image/Image.h"
 #include "resources/ResourceManager.h"
 #include "graphics/scene/SceneManager.h"
+#include "graphics/scene/RenderScene.h"
 #include "graphics/scene/objects/components/LightSourceManager.h"
 #include "GlobalVariables.h"
 
